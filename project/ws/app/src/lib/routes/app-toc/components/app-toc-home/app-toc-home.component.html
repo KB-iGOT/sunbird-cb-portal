@@ -490,6 +490,41 @@
                 <div class="batch-label">{{ 'apptoc.totalEnrolled' | translate }}</div>
               </div>
             </div>
+            <ng-container *ngIf="timer && timer.days >= 0 && content?.primaryCategory === primaryCategory.BLENDED_PROGRAM">
+              <div class="flex flex-col gap-6 batch-timer">
+                  <div class="flex flex-row">
+                      <div class="flex-1">
+                          <div class="flex underline"></div>
+                      </div>
+                      <div class="flex">
+                          <div class="timer-label">{{ 'apptocsinglepage.batchStartsIn' | translate }}</div>
+                      </div>
+                      <div class="flex-1">
+                          <div class="flex underline"></div>
+                      </div>
+                  </div>
+                  <div class="flex flex-row gap-4 justify-center">
+                      <div class="flex flex-row gap-1 items-center">
+                          <div class="text-4xl leading-10 counter">{{ timer.days || 0 }}</div>
+                          <div class="counter-label">{{ 'apptocsinglepage.days' | translate }}</div>
+                      </div>
+                      <div class="flex items-center counter-label">
+                          :
+                      </div>
+                      <div class="flex flex-row gap-1 items-center">
+                          <div class="text-4xl leading-10 counter">{{ timer.min === 60 ? timer.hours + 1 : timer.hours }}</div>
+                          <div class="counter-label">{{ 'apptocsinglepage.hours' | translate }}</div>
+                      </div>
+                      <div class="flex items-center counter-label">
+                          :
+                      </div>
+                      <div class="flex flex-row gap-1 items-center">
+                          <div class="text-4xl leading-10 counter">{{ timer.min === 60 ? 00 : timer.min }}</div>
+                          <div class="counter-label">{{ 'apptocsinglepage.minutes' | translate }}</div>
+                      </div>
+                  </div>
+              </div>
+          </ng-container>
             <ng-container *ngIf="!mobile1200">
               <ws-app-toc-banner role="banner" [banners]="banners" [forPreview]="forPreview" [content]="content"
               [userEnrollmentList]="userEnrollmentList" (withdrawOrEnroll)="withdrawOrEnroll($event)" [analytics]="analytics"

@@ -8,8 +8,8 @@ import { FormControl, Validators } from '@angular/forms'
 import { HttpErrorResponse } from '@angular/common/http'
 import { MatDialog, MatSnackBar } from '@angular/material'
 import { TranslateService } from '@ngx-translate/core'
-import { Subscription, Observable } from 'rxjs'
-import { share } from 'rxjs/operators'
+import { Subscription, Observable, Subject } from 'rxjs'
+import { share, takeUntil } from 'rxjs/operators'
 import dayjs from 'dayjs'
 // tslint:disable-next-line
 import _ from 'lodash'
@@ -44,6 +44,7 @@ import { AppTocDialogIntroVideoComponent } from '../app-toc-dialog-intro-video/a
 import { ContentRatingV2DialogComponent } from '@sunbird-cb/collection/src/lib/_common/content-rating-v2-dialog/content-rating-v2-dialog.component'
 import { NsCardContent } from '@sunbird-cb/collection/src/lib/card-content-v2/card-content-v2.model'
 import { environment } from 'src/environments/environment'
+import { TimerService } from '../../services/timer.service'
 
 export enum ErrorType {
   internalServer = 'internalServer',
@@ -210,6 +211,10 @@ export class AppTocHomeComponent implements OnInit, OnDestroy, AfterViewChecked,
   // randomlearnAdvisoryObj: any
   // learnAdvisoryDataLength: any
 
+  private destroySubject$ = new Subject<any>()
+  timerUnsubscribe: any
+  timer: any
+
   @HostListener('window:scroll', ['$event'])
   handleScroll() {
     const windowScroll = window.pageYOffset
@@ -260,7 +265,8 @@ export class AppTocHomeComponent implements OnInit, OnDestroy, AfterViewChecked,
     private matSnackBar: MatSnackBar,
     private loadCheckService: LoadCheckService,
     private handleClaimService: HandleClaimService,
-    private resetRatingsService: ResetRatingsService
+    private resetRatingsService: ResetRatingsService,
+    private timerService: TimerService,
   ) {
     this.historyData = history.state
     this.handleBreadcrumbs()
@@ -613,6 +619,12 @@ export class AppTocHomeComponent implements OnInit, OnDestroy, AfterViewChecked,
       this.rcElem.BottomPos = this.rcElement.nativeElement.offsetTop + this.rcElement.nativeElement.offsetHeight
       this.rcElem.offSetTop = this.rcElement.nativeElement.offsetTop
     }
+    // Get Time for the batch
+    this.timerUnsubscribe = this.timerService.getTimerData()
+    .pipe(takeUntil(this.destroySubject$))
+    .subscribe((_timer: any) => {
+      this.timer = _timer
+    })
   }
 
   handleBreadcrumbs() {
@@ -1549,9 +1561,6 @@ export class AppTocHomeComponent implements OnInit, OnDestroy, AfterViewChecked,
         primaryCategory,
         this.getBatchId(),
       )
-
-      /* tslint:disable-next-line */
-      console.log(this.firstResourceLink, '=====> home first data link <========')
       if (firstPlayableContent.optionalReading && firstPlayableContent.primaryCategory === 'Learning Resource') {
         this.updateProgress(2, firstPlayableContent.identifier)
       }
@@ -1927,6 +1936,9 @@ export class AppTocHomeComponent implements OnInit, OnDestroy, AfterViewChecked,
     }
     if (this.resumeDataSubscription) {
       this.resumeDataSubscription.unsubscribe()
+    }
+    if (this.timerUnsubscribe) {
+      this.timerUnsubscribe.unsubscribe()
     }
   }
 
