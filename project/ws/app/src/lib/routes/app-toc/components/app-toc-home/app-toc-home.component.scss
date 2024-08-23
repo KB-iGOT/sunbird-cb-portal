@@ -850,3 +850,24 @@ mat-divider {
     padding: 4px;
   }
 }
+
+.location-details {
+  background-color: rgba(27, 76, 161, 0.08);
+  padding: 16px;
+  border-radius: 4px;
+
+  .location-icon, .event-icon {
+    color: rgb(27, 76, 161);
+    height: 20px;
+    width: 14px;
+    font-size: 22px;
+  }
+
+  .loc-desc {
+    font-family: Lato;
+    font-weight: 700;
+    font-size: 14px;
+    line-height: 20px;
+    letter-spacing: 0.25;
+  }
+}
