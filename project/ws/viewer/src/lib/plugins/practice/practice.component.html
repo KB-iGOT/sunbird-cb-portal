@@ -635,7 +635,8 @@
                 [ePrimaryCategory]="ePrimaryCategory" [totalQCount]="totalQCount"
                 [showAnswer]="showAnswer" [currentQuestion]="current_Question" [showOnlyQuestion]="false"
                 [mobileQuestionSetExpand]="!expandFalse" [showQuestionMarks]="showQuestionMarks"
-                [selectedAssessmentCompatibilityLevel]="selectedAssessmentCompatibilityLevel">
+                [selectedAssessmentCompatibilityLevel]="selectedAssessmentCompatibilityLevel"
+                >
               </viewer-question>
             </ng-container>
             <div class="flex flex-1">
@@ -1171,7 +1172,8 @@
               (itemSelected)="fillSelectedItems(current_Question, $event)" [showAnswer]="showAnswer"              
               [currentQuestion]="current_Question" [coursePrimaryCategory]="coursePrimaryCategory"
               [showOnlyQuestion]="true" [showMarkForReview]="false" [showQuestionMarks]="showQuestionMarks"
-              [assessmentType]="assessmentType" [selectedAssessmentCompatibilityLevel]="selectedAssessmentCompatibilityLevel">
+              [assessmentType]="assessmentType" [selectedAssessmentCompatibilityLevel]="selectedAssessmentCompatibilityLevel"
+              >
             </viewer-question>
           </ng-container>
         </div>
@@ -1199,7 +1201,8 @@
                 [currentQuestion]="current_Question" [coursePrimaryCategory]="coursePrimaryCategory"
                 [showOnlyQuestion]="false" [selectedAssessmentCompatibilityLevel]="selectedAssessmentCompatibilityLevel"
                 [questionAnswerHash]="questionAnswerHash" [showQuestionMarks]="showQuestionMarks"
-                [assessmentType]="assessmentType">
+                [assessmentType]="assessmentType"
+                [questionParagraph]="questionParagraph">
               </viewer-question>
             </ng-container>
             <div class="flex flex-1">
@@ -1364,7 +1367,8 @@
               (getNextQuestion)="getNextQuestion(currentQuestionIndex + 1)"
               (clearQuestion)="clearQuestion(current_Question)"
               [assessmentType]="assessmentType" [showQuestionMarks]="showQuestionMarks"
-              [selectedAssessmentCompatibilityLevel]="selectedAssessmentCompatibilityLevel">
+              [selectedAssessmentCompatibilityLevel]="selectedAssessmentCompatibilityLevel"
+              >
             </viewer-question>
           </div>
 
@@ -1757,7 +1761,8 @@
               [showOnlyQuestion]="true" [showMarkForReview]="false"
               [assessmentType]="assessmentType" [showQuestionMarks]="showQuestionMarks"
               [questionAnswerHash]="questionAnswerHash"
-              [selectedAssessmentCompatibilityLevel]="selectedAssessmentCompatibilityLevel">
+              [selectedAssessmentCompatibilityLevel]="selectedAssessmentCompatibilityLevel"
+              >
             </viewer-question>
           </ng-container>
         </div>
@@ -1921,7 +1926,8 @@
               [mobileQuestionSetExpand]="!expandFalse"
               [questionAnswerHash]="questionAnswerHash"
               [assessmentType]="assessmentType" [showQuestionMarks]="showQuestionMarks"
-              [selectedAssessmentCompatibilityLevel]="selectedAssessmentCompatibilityLevel">
+              [selectedAssessmentCompatibilityLevel]="selectedAssessmentCompatibilityLevel"
+              [questionParagraph]="questionParagraph">
             </viewer-question>
           </ng-container>
           <!-- <div class="flex flex-1">
@@ -1956,7 +1962,8 @@
               (getNextQuestion)="getNextQuestion(currentQuestionIndex + 1)"
               (clearQuestion)="clearQuestion(current_Question)"
               [assessmentType]="assessmentType" [showQuestionMarks]="showQuestionMarks"
-              [selectedAssessmentCompatibilityLevel]="selectedAssessmentCompatibilityLevel">
+              [selectedAssessmentCompatibilityLevel]="selectedAssessmentCompatibilityLevel"
+              >
             </viewer-question>
           </div>
 

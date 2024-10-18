@@ -214,7 +214,8 @@ export namespace NSPractice {
     visibility: string
     showSolutions: 'Yes' | 'No'
     index: number,
-    expectedDuration: number
+    expectedDuration: number,
+    questionParagraph?: any
   }
   export interface IQuestionV2 {
     lastStatusChangedOn: string

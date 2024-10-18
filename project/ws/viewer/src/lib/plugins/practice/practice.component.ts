@@ -146,6 +146,7 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
   timeSpentOnQuestions: any = {}
   charactersPerPage = 1300
   showQuestionMarks = 'No'
+  questionParagraph = ''
   forPreview = (window.location.href.includes('public') || window.location.href.includes('author') ||
                 window.location.href.includes('editMode'))
   constructor(
@@ -579,6 +580,7 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
    }
   }
   startSection(section: NSPractice.IPaperSection) {
+
     this.sectionalInstruction = section.additionalInstructions
     this.selectedSectionIdentifier = section.identifier
     if (section.childNodes && section.childNodes.length) {
@@ -659,6 +661,12 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
         //   })
         //   this.overViewed('start')
         // })
+      }
+
+      if (section && section.questionParagraph) {
+        this.questionParagraph = section.questionParagraph
+      } else {
+        this.questionParagraph = ''
       }
     }
   }
