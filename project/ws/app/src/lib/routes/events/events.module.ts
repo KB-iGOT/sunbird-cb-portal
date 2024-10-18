@@ -47,6 +47,7 @@ import { ViewerResolve } from '@ws/viewer/src/lib/viewer.resolve'
 import { SkeletonLoaderModule } from '@sunbird-cb/collection/src/lib/_common/skeleton-loader/skeleton-loader.module'
 import { EventYouTubeComponent } from './components/event-you-tube/event-you-tube.component'
 import { EventResolve } from './services/event-resolver.resolve'
+import { DiscussionV2Module } from '@sunbird-cb/discussion-v2'
 
 @NgModule({
   declarations: [
@@ -99,6 +100,7 @@ import { EventResolve } from './services/event-resolver.resolve'
     BtnPageBackNavModule,
     SkeletonLoaderModule,
     ContentProgressModule,
+    DiscussionV2Module,
   ],
   providers: [
     LoaderService,

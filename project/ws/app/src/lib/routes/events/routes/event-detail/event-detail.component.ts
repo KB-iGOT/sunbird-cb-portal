@@ -10,6 +10,8 @@ import moment from 'moment'
 import { EventService } from '../../services/events.service'
 import { TranslateService } from '@ngx-translate/core'
 import { MultilingualTranslationsService, ConfigurationsService } from '@sunbird-cb/utils-v2'
+import { NsDiscussionV2 } from '@sunbird-cb/discussion-v2'
+//import { CertificateDialogComponent } from './../../../../../../../../../library/ws-widget/collection/src/lib/_common/certificate-dialog/certificate-dialog.component'
 import { CertificateDialogComponent } from './../../../../../../../../../library/ws-widget/collection/src/lib/_common/certificate-dialog/certificate-dialog.component'
 import { WidgetContentLibService } from '@sunbird-cb/consumption'
 /* tslint:enable */
@@ -44,6 +46,7 @@ export class EventDetailComponent implements OnInit {
   batchId = ''
   isEnrolled = false
   downloadCertificateBool = false
+  discussWidgetData!: NsDiscussionV2.ICommentWidgetData
   constructor(
     public dialog: MatDialog,
     private route: ActivatedRoute,
@@ -126,6 +129,16 @@ export class EventDetailComponent implements OnInit {
         this.getUserIsEnrolled()
       }
     })
+    this.discussWidgetData = (this.route.parent && this.route.parent.snapshot.data.pageData.data.discussWidgetData) || []
+    if (this.discussWidgetData) {
+      if (this.eventData && this.eventData.identifier) {
+        this.discussWidgetData.newCommentSection.commentTreeData.entityId = this.eventData.identifier
+        if (this.discussWidgetData.commentsList.repliesSection && this.discussWidgetData.commentsList.repliesSection.newCommentReply) {
+          this.discussWidgetData.commentsList.repliesSection.newCommentReply.commentTreeData.entityId = this.eventData.identifier
+        }
+      }
+      this.discussWidgetData = { ...this.discussWidgetData }
+    }
   }
 
   getUserIsEnrolled() {
