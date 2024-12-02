@@ -1,20 +1,17 @@
 
 import { Router } from '@angular/router';
 import { ApiService } from '../modules/shared/services/api.service';
-import { AccessControlService } from '@ws/author/src/lib/modules/shared/services/access-control.service';
-import { ContentTOCResolver } from './content-resolve.service';
+import { ContentAndDataReadMultiLangTOCResolver } from './content-and-data-read-multi-lang.service';
 
-describe('ContentTOCResolver', () => {
-    let component: ContentTOCResolver;
+describe('ContentAndDataReadMultiLangTOCResolver', () => {
+    let component: ContentAndDataReadMultiLangTOCResolver;
 
     const apiService :Partial<ApiService> ={};
-	const accessService :Partial<AccessControlService> ={};
 	const router :Partial<Router> ={};
 
     beforeAll(() => {
-        component = new ContentTOCResolver(
+        component = new ContentAndDataReadMultiLangTOCResolver(
             apiService as ApiService,
-			accessService as AccessControlService,
 			router as Router
         )
     });

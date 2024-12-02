@@ -1,25 +1,30 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
 
-import { LoginComponent } from './login.component'
+import { DomSanitizer } from '@angular/platform-browser';
+import { ActivatedRoute } from '@angular/router';
+import { ConfigurationsService } from '@sunbird-cb/utils-v2';
+import { LoginComponent } from './login.component';
 
 describe('LoginComponent', () => {
-  let component: LoginComponent
-  let fixture: ComponentFixture<LoginComponent>
+    let component: LoginComponent;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [LoginComponent],
-    })
-      .compileComponents()
-  }))
+    const activateRoute :Partial<ActivatedRoute> ={};
+	const configSvc :Partial<ConfigurationsService> ={};
+	const domSanitizer :Partial<DomSanitizer> ={};
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(LoginComponent)
-    component = fixture.componentInstance
-    fixture.detectChanges()
-  })
+    beforeAll(() => {
+        component = new LoginComponent(
+            activateRoute as ActivatedRoute,
+			configSvc as ConfigurationsService,
+			domSanitizer as DomSanitizer
+        )
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy()
-  })
-})
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});

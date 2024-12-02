@@ -1,12 +1,23 @@
-import { TestBed } from '@angular/core/testing'
+import { LoginRootService } from "./login-root.service";
 
-import { LoginRootService } from './login-root.service'
 
 describe('LoginRootService', () => {
-  beforeEach(() => TestBed.configureTestingModule({}))
+    let component: LoginRootService;
 
-  it('should be created', () => {
-    const service: LoginRootService = TestBed.get(LoginRootService)
-    expect(service).toBeTruthy()
-  })
-})
+    
+
+    beforeAll(() => {
+        component = new LoginRootService(
+            
+        )
+    });
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});

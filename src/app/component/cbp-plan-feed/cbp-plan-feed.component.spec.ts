@@ -1,24 +1,33 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
-import { CbpPlanFeedComponent } from './cbp-plan-feed.component'
+
+import { ActivatedRoute } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
+import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2';
+import { CbpPlanFeedComponent } from './cbp-plan-feed.component';
+import { of } from 'rxjs';
 
 describe('CbpPlanFeedComponent', () => {
-  let component: CbpPlanFeedComponent
-  let fixture: ComponentFixture<CbpPlanFeedComponent>
+    let component: CbpPlanFeedComponent;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [CbpPlanFeedComponent],
-    })
-    .compileComponents()
-  }))
+    const activatedRoute :Partial<ActivatedRoute> ={};
+	const translate :Partial<TranslateService> ={};
+	const langtranslations :Partial<MultilingualTranslationsService> ={
+        languageSelectedObservable: of()
+    };
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(CbpPlanFeedComponent)
-    component = fixture.componentInstance
-    fixture.detectChanges()
-  })
+    beforeAll(() => {
+        component = new CbpPlanFeedComponent(
+            activatedRoute as ActivatedRoute,
+			translate as TranslateService,
+			langtranslations as MultilingualTranslationsService
+        )
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy()
-  })
-})
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});

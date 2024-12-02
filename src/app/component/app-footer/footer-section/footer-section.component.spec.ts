@@ -1,24 +1,32 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
-import { FooterSectionComponent } from './footer-section.component'
+
+import { ConfigurationsService,MultilingualTranslationsService } from '@sunbird-cb/utils-v2';
+import { Router } from '@angular/router';
+import { DiscussUtilsService } from '@ws/app/src/lib/routes/discuss/services/discuss-utils.service';
+import { FooterSectionComponent } from './footer-section.component';
 
 describe('FooterSectionComponent', () => {
-  let component: FooterSectionComponent
-  let fixture: ComponentFixture<FooterSectionComponent>
+    let component: FooterSectionComponent;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [FooterSectionComponent],
-    })
-    .compileComponents()
-  }))
+    const configSvc :Partial<ConfigurationsService> ={};
+	const discussUtilitySvc :Partial<DiscussUtilsService> ={};
+	const router :Partial<Router> ={};
+	const langtranslations :Partial<MultilingualTranslationsService> ={};
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(FooterSectionComponent)
-    component = fixture.componentInstance
-    fixture.detectChanges()
-  })
+    beforeAll(() => {
+        component = new FooterSectionComponent(
+            configSvc as ConfigurationsService,
+			discussUtilitySvc as DiscussUtilsService,
+			router as Router,
+			langtranslations as MultilingualTranslationsService
+        )
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy()
-  })
-})
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});

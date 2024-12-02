@@ -1,12 +1,31 @@
-import { TestBed } from '@angular/core/testing'
 
-import { WorkFlowService } from './work-flow.service'
+import { AccessControlService } from '@ws/author/src/lib/modules/shared/services/access-control.service';
+import { ConditionCheckService } from '@ws/author/src/lib/modules/shared/services/condition-check.service';
+import { AuthInitService } from '@ws/author/src/lib/services/init.service';
+import { WorkFlowService } from './work-flow.service';
+
 
 describe('WorkFlowService', () => {
-  beforeEach(() => TestBed.configureTestingModule({}))
+    let component: WorkFlowService;
 
-  it('should be created', () => {
-    const service: WorkFlowService = TestBed.get(WorkFlowService)
-    expect(service).toBeTruthy()
-  })
-})
+    const initService :Partial<AuthInitService> ={};
+	const conditionService :Partial<ConditionCheckService> ={};
+	const accessControlSvc :Partial<AccessControlService> ={};
+
+    beforeAll(() => {
+        component = new WorkFlowService(
+            initService as AuthInitService,
+			conditionService as ConditionCheckService,
+			accessControlSvc as AccessControlService
+        )
+    });
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});

@@ -1,24 +1,23 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
-import { HomeContainerComponent } from './home-container.component'
+import { HomeContainerComponent } from "./home-container.component";
+
 
 describe('HomeContainerComponent', () => {
-  let component: HomeContainerComponent
-  let fixture: ComponentFixture<HomeContainerComponent>
+    let component: HomeContainerComponent;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [HomeContainerComponent],
-    })
-    .compileComponents()
-  }))
+    
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(HomeContainerComponent)
-    component = fixture.componentInstance
-    fixture.detectChanges()
-  })
+    beforeAll(() => {
+        component = new HomeContainerComponent(
+            
+        )
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy()
-  })
-})
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});

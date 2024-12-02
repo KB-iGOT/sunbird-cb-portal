@@ -1,24 +1,23 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
-import { OverduePlanComponent } from './overdue-plan.component'
+import { OverduePlanComponent } from "./overdue-plan.component";
+
 
 describe('OverduePlanComponent', () => {
-  let component: OverduePlanComponent
-  let fixture: ComponentFixture<OverduePlanComponent>
+    let component: OverduePlanComponent;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [OverduePlanComponent],
-    })
-    .compileComponents()
-  }))
+    
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(OverduePlanComponent)
-    component = fixture.componentInstance
-    fixture.detectChanges()
-  })
+    beforeAll(() => {
+        component = new OverduePlanComponent(
+            
+        )
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy()
-  })
-})
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});

@@ -1,24 +1,23 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
-import { CompetencyPassbookSideBarComponent } from './competency-passbook-side-bar.component'
+import { CompetencyPassbookSideBarComponent } from "./competency-passbook-side-bar.component";
+
 
 describe('CompetencyPassbookSideBarComponent', () => {
-  let component: CompetencyPassbookSideBarComponent
-  let fixture: ComponentFixture<CompetencyPassbookSideBarComponent>
+    let component: CompetencyPassbookSideBarComponent;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [CompetencyPassbookSideBarComponent],
-    })
-    .compileComponents()
-  }))
+    
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(CompetencyPassbookSideBarComponent)
-    component = fixture.componentInstance
-    fixture.detectChanges()
-  })
+    beforeAll(() => {
+        component = new CompetencyPassbookSideBarComponent(
+            
+        )
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy()
-  })
-})
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});

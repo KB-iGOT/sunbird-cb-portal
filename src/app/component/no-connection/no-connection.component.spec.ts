@@ -1,13 +1,13 @@
-import { AuthNavBarToggleService } from "./auth-nav-bar-toggle.service";
+import { NoConnectionComponent } from "./no-connection.component";
 
 
-describe('AuthNavBarToggleService', () => {
-    let component: AuthNavBarToggleService;
+describe('NoConnectionComponent', () => {
+    let component: NoConnectionComponent;
 
     
 
     beforeAll(() => {
-        component = new AuthNavBarToggleService(
+        component = new NoConnectionComponent(
             
         )
     });

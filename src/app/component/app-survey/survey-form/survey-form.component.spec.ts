@@ -1,25 +1,27 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
 
-import { SurveyFormComponent } from './survey-form.component'
+import { ActivatedRoute } from '@angular/router';
+import { ConfigurationsService } from '@sunbird-cb/utils-v2';
+import { SurveyFormComponent } from './survey-form.component';
 
 describe('SurveyFormComponent', () => {
-  let component: SurveyFormComponent
-  let fixture: ComponentFixture<SurveyFormComponent>
+    let component: SurveyFormComponent;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [SurveyFormComponent],
-    })
-    .compileComponents()
-  }))
+    const activatedRoute :Partial<ActivatedRoute> ={};
+	const configSvc :Partial<ConfigurationsService> ={};
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(SurveyFormComponent)
-    component = fixture.componentInstance
-    fixture.detectChanges()
-  })
+    beforeAll(() => {
+        component = new SurveyFormComponent(
+            activatedRoute as ActivatedRoute,
+			configSvc as ConfigurationsService
+        )
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy()
-  })
-})
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});

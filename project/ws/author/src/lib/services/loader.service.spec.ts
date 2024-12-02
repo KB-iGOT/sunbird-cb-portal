@@ -1,13 +1,13 @@
-import { AuthNavBarToggleService } from "./auth-nav-bar-toggle.service";
+import { LoaderService } from "./loader.service";
 
 
-describe('AuthNavBarToggleService', () => {
-    let component: AuthNavBarToggleService;
+describe('LoaderService', () => {
+    let component: LoaderService;
 
     
 
     beforeAll(() => {
-        component = new AuthNavBarToggleService(
+        component = new LoaderService(
             
         )
     });

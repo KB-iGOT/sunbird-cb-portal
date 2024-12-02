@@ -1,24 +1,23 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
-import { SocialLinkComponent } from './social-link.component'
+import { SocialLinkComponent } from "./social-link.component";
+
 
 describe('SocialLinkComponent', () => {
-  let component: SocialLinkComponent
-  let fixture: ComponentFixture<SocialLinkComponent>
+    let component: SocialLinkComponent;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [SocialLinkComponent],
-    })
-    .compileComponents()
-  }))
+    
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(SocialLinkComponent)
-    component = fixture.componentInstance
-    fixture.detectChanges()
-  })
+    beforeAll(() => {
+        component = new SocialLinkComponent(
+            
+        )
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy()
-  })
-})
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});

@@ -1,25 +1,29 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
 
-import { DialogConfirmComponent } from './dialog-confirm.component'
+import { MatDialogRef } from '@angular/material/dialog';
+import { TranslateService } from '@ngx-translate/core';
+import { DialogConfirmComponent } from './dialog-confirm.component';
 
 describe('DialogConfirmComponent', () => {
-  let component: DialogConfirmComponent
-  let fixture: ComponentFixture<DialogConfirmComponent>
+    let component: DialogConfirmComponent;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [DialogConfirmComponent],
-    })
-      .compileComponents()
-  }))
+    const data :any ={};
+	const dialogRef :Partial<MatDialogRef<DialogConfirmComponent>> ={};
+	const translate :Partial<TranslateService> ={};
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(DialogConfirmComponent)
-    component = fixture.componentInstance
-    fixture.detectChanges()
-  })
+    beforeAll(() => {
+        component = new DialogConfirmComponent(
+            data as any,
+			dialogRef as MatDialogRef<DialogConfirmComponent>,
+			translate as TranslateService
+        )
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy()
-  })
-})
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});

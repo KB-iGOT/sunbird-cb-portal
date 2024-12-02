@@ -1,24 +1,24 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
-import { FontSettingComponent } from './font-setting.component'
+
+import { BtnSettingsService } from '@sunbird-cb/collection';
+import { FontSettingComponent } from './font-setting.component';
 
 describe('FontSettingComponent', () => {
-  let component: FontSettingComponent
-  let fixture: ComponentFixture<FontSettingComponent>
+    let component: FontSettingComponent;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [FontSettingComponent],
-    })
-    .compileComponents()
-  }))
+    const btnSettingsSvc :Partial<BtnSettingsService> ={};
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(FontSettingComponent)
-    component = fixture.componentInstance
-    fixture.detectChanges()
-  })
+    beforeAll(() => {
+        component = new FontSettingComponent(
+            btnSettingsSvc as BtnSettingsService
+        )
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy()
-  })
-})
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});

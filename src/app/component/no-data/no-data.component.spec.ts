@@ -1,24 +1,23 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
-import { NoDataComponent } from './no-data.component'
+import { NoDataComponent } from "./no-data.component";
+
 
 describe('NoDataComponent', () => {
-  let component: NoDataComponent
-  let fixture: ComponentFixture<NoDataComponent>
+    let component: NoDataComponent;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [NoDataComponent],
-    })
-    .compileComponents()
-  }))
+    
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(NoDataComponent)
-    component = fixture.componentInstance
-    fixture.detectChanges()
-  })
+    beforeAll(() => {
+        component = new NoDataComponent(
+            
+        )
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy()
-  })
-})
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});

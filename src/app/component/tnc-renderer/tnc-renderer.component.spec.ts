@@ -1,25 +1,24 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
 
-import { TncRendererComponent } from './tnc-renderer.component'
+import { ConfigurationsService } from '@sunbird-cb/utils-v2';
+import { TncRendererComponent } from './tnc-renderer.component';
 
 describe('TncRendererComponent', () => {
-  let component: TncRendererComponent
-  let fixture: ComponentFixture<TncRendererComponent>
+    let component: TncRendererComponent;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [TncRendererComponent],
-    })
-    .compileComponents()
-  }))
+    const configSvc :Partial<ConfigurationsService> ={};
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(TncRendererComponent)
-    component = fixture.componentInstance
-    fixture.detectChanges()
-  })
+    beforeAll(() => {
+        component = new TncRendererComponent(
+            configSvc as ConfigurationsService
+        )
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy()
-  })
-})
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});

@@ -1,25 +1,24 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
 
-import { InvalidUserComponent } from './invalid-user.component'
+import { ActivatedRoute } from '@angular/router';
+import { InvalidUserComponent } from './invalid-user.component';
 
 describe('InvalidUserComponent', () => {
-  let component: InvalidUserComponent
-  let fixture: ComponentFixture<InvalidUserComponent>
+    let component: InvalidUserComponent;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [InvalidUserComponent],
-    })
-      .compileComponents()
-  }))
+    const route :Partial<ActivatedRoute> ={};
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(InvalidUserComponent)
-    component = fixture.componentInstance
-    fixture.detectChanges()
-  })
+    beforeAll(() => {
+        component = new InvalidUserComponent(
+            route as ActivatedRoute
+        )
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy()
-  })
-})
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});

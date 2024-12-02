@@ -1,24 +1,22 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
-import { CbpSideBarComponent } from './cbp-side-bar.component'
+import { CbpSideBarComponent } from "./cbp-side-bar.component";
 
 describe('CbpSideBarComponent', () => {
-  let component: CbpSideBarComponent
-  let fixture: ComponentFixture<CbpSideBarComponent>
+    let component: CbpSideBarComponent;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [CbpSideBarComponent],
-    })
-    .compileComponents()
-  }))
+    
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(CbpSideBarComponent)
-    component = fixture.componentInstance
-    fixture.detectChanges()
-  })
+    beforeAll(() => {
+        component = new CbpSideBarComponent(
+            
+        )
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy()
-  })
-})
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});

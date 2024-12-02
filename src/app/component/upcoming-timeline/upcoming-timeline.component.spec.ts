@@ -1,24 +1,33 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
-import { UpcomingTimelineComponent } from './upcoming-timeline.component'
+
+import { ActivatedRoute } from '@angular/router';
+import { TranslateService } from '@ngx-translate/core';
+import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2';
+import { UpcomingTimelineComponent } from './upcoming-timeline.component';
+import { of } from 'rxjs';
 
 describe('UpcomingTimelineComponent', () => {
-  let component: UpcomingTimelineComponent
-  let fixture: ComponentFixture<UpcomingTimelineComponent>
+    let component: UpcomingTimelineComponent;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [UpcomingTimelineComponent],
-    })
-    .compileComponents()
-  }))
+    const activatedRoute :Partial<ActivatedRoute> ={};
+	const translate :Partial<TranslateService> ={};
+	const langtranslations :Partial<MultilingualTranslationsService> ={
+        languageSelectedObservable: of()
+    };
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(UpcomingTimelineComponent)
-    component = fixture.componentInstance
-    fixture.detectChanges()
-  })
+    beforeAll(() => {
+        component = new UpcomingTimelineComponent(
+            activatedRoute as ActivatedRoute,
+			translate as TranslateService,
+			langtranslations as MultilingualTranslationsService
+        )
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy()
-  })
-})
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});

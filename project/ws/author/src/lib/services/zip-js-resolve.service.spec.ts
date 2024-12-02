@@ -1,13 +1,13 @@
-import { AuthNavBarToggleService } from "./auth-nav-bar-toggle.service";
+import { ZipJSResolverService } from "./zip-js-resolve.service";
 
 
-describe('AuthNavBarToggleService', () => {
-    let component: AuthNavBarToggleService;
+describe('ZipJSResolverService', () => {
+    let component: ZipJSResolverService;
 
     
 
     beforeAll(() => {
-        component = new AuthNavBarToggleService(
+        component = new ZipJSResolverService(
             
         )
     });

@@ -1,13 +1,13 @@
-import { AuthNavBarToggleService } from "./auth-nav-bar-toggle.service";
+import { AuthInitService } from "./init.service";
 
 
-describe('AuthNavBarToggleService', () => {
-    let component: AuthNavBarToggleService;
+describe('AuthInitService', () => {
+    let component: AuthInitService;
 
     
 
     beforeAll(() => {
-        component = new AuthNavBarToggleService(
+        component = new AuthInitService(
             
         )
     });

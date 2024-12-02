@@ -1,25 +1,27 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
 
-import { AppPublicNavBarComponent } from './app-public-nav-bar.component'
+import { DomSanitizer } from '@angular/platform-browser';
+import { ConfigurationsService } from '@sunbird-cb/utils-v2';
+import { AppPublicNavBarComponent } from './app-public-nav-bar.component';
 
 describe('AppPublicNavBarComponent', () => {
-  let component: AppPublicNavBarComponent
-  let fixture: ComponentFixture<AppPublicNavBarComponent>
+    let component: AppPublicNavBarComponent;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [AppPublicNavBarComponent],
-    })
-    .compileComponents()
-  }))
+    const domSanitizer :Partial<DomSanitizer> ={};
+	const configSvc :Partial<ConfigurationsService> ={};
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(AppPublicNavBarComponent)
-    component = fixture.componentInstance
-    fixture.detectChanges()
-  })
+    beforeAll(() => {
+        component = new AppPublicNavBarComponent(
+            domSanitizer as DomSanitizer,
+			configSvc as ConfigurationsService
+        )
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy()
-  })
-})
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});

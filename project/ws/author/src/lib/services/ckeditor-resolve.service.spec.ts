@@ -1,13 +1,13 @@
-import { AuthNavBarToggleService } from "./auth-nav-bar-toggle.service";
+import { CKEditorResolverService } from "./ckeditor-resolve.service";
 
 
-describe('AuthNavBarToggleService', () => {
-    let component: AuthNavBarToggleService;
+describe('CKEditorResolverService', () => {
+    let component: CKEditorResolverService;
 
     
 
     beforeAll(() => {
-        component = new AuthNavBarToggleService(
+        component = new CKEditorResolverService(
             
         )
     });

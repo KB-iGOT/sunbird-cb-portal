@@ -7,7 +7,7 @@ import { ConfigurationsService, NsInstanceConfig, ValueService } from '@sunbird-
 import 'rxjs/add/operator/toPromise'
 
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { environment } from 'src/environments/environment'
 @Component({
   selector: 'ws-app-footer',

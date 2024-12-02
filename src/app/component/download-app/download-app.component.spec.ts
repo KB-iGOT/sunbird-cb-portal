@@ -1,24 +1,27 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
-import { DownloadAppComponent } from './download-app.component'
+
+import { HomePageService } from '../../services/home-page.service';
+import { TranslateService } from '@ngx-translate/core';
+import { DownloadAppComponent } from './download-app.component';
 
 describe('DownloadAppComponent', () => {
-  let component: DownloadAppComponent
-  let fixture: ComponentFixture<DownloadAppComponent>
+    let component: DownloadAppComponent;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [DownloadAppComponent],
-    })
-    .compileComponents()
-  }))
+    const homePageService :Partial<HomePageService> ={};
+	const translate :Partial<TranslateService> ={};
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(DownloadAppComponent)
-    component = fixture.componentInstance
-    fixture.detectChanges()
-  })
+    beforeAll(() => {
+        component = new DownloadAppComponent(
+            homePageService as HomePageService,
+			translate as TranslateService
+        )
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy()
-  })
-})
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});

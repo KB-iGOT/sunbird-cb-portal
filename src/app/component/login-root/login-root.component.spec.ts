@@ -1,25 +1,27 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
 
-import { LoginRootComponent } from './login-root.component'
+import { ComponentFactoryResolver } from '@angular/core';
+import { LoginRootService } from './login-root.service';
+import { LoginRootComponent } from './login-root.component';
 
 describe('LoginRootComponent', () => {
-  let component: LoginRootComponent
-  let fixture: ComponentFixture<LoginRootComponent>
+    let component: LoginRootComponent;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [LoginRootComponent],
-    })
-    .compileComponents()
-  }))
+    const componentFactoryResolver :Partial<ComponentFactoryResolver> ={};
+	const loginRootSvc :Partial<LoginRootService> ={};
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(LoginRootComponent)
-    component = fixture.componentInstance
-    fixture.detectChanges()
-  })
+    beforeAll(() => {
+        component = new LoginRootComponent(
+            componentFactoryResolver as ComponentFactoryResolver,
+			loginRootSvc as LoginRootService
+        )
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy()
-  })
-})
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});

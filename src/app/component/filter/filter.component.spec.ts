@@ -1,25 +1,33 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
 
-import { FilterComponent } from './filter.component'
+import { AppCbpPlansService } from 'src/app/services/app-cbp-plans.service';
+import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2';
+import { TranslateService } from '@ngx-translate/core';
+import { FilterComponent } from './filter.component';
+import { of } from 'rxjs';
 
 describe('FilterComponent', () => {
-  let component: FilterComponent
-  let fixture: ComponentFixture<FilterComponent>
+    let component: FilterComponent;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [FilterComponent],
-    })
-    .compileComponents()
-  }))
+    const appCbpPlansService :Partial<AppCbpPlansService> ={};
+	const translate :Partial<TranslateService> ={};
+	const langtranslations :Partial<MultilingualTranslationsService> ={
+        languageSelectedObservable: of()
+    };
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(FilterComponent)
-    component = fixture.componentInstance
-    fixture.detectChanges()
-  })
+    beforeAll(() => {
+        component = new FilterComponent(
+            appCbpPlansService as AppCbpPlansService,
+			translate as TranslateService,
+			langtranslations as MultilingualTranslationsService
+        )
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy()
-  })
-})
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});

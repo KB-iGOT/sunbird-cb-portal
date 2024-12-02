@@ -1,24 +1,24 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
-import { ClientSliderComponent } from './client-slider.component'
+
+import { TranslateService } from '@ngx-translate/core';
+import { ClientSliderComponent } from './client-slider.component';
 
 describe('ClientSliderComponent', () => {
-  let component: ClientSliderComponent
-  let fixture: ComponentFixture<ClientSliderComponent>
+    let component: ClientSliderComponent;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [ClientSliderComponent],
-    })
-    .compileComponents()
-  }))
+    const translate :Partial<TranslateService> ={};
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(ClientSliderComponent)
-    component = fixture.componentInstance
-    fixture.detectChanges()
-  })
+    beforeAll(() => {
+        component = new ClientSliderComponent(
+            translate as TranslateService
+        )
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy()
-  })
-})
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});

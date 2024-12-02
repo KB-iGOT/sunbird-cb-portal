@@ -1,24 +1,23 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
-import { DialogBoxComponent } from './dialog-box.component'
+import { DialogBoxComponent } from "./dialog-box.component";
+
 
 describe('DialogBoxComponent', () => {
-  let component: DialogBoxComponent
-  let fixture: ComponentFixture<DialogBoxComponent>
+    let component: DialogBoxComponent;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [DialogBoxComponent],
-    })
-    .compileComponents()
-  }))
+    
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(DialogBoxComponent)
-    component = fixture.componentInstance
-    fixture.detectChanges()
-  })
+    beforeAll(() => {
+        component = new DialogBoxComponent(
+            
+        )
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy()
-  })
-})
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});
