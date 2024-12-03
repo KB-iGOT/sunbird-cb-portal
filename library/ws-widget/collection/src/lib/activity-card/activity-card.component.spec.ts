@@ -1,25 +1,30 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
 
-import { ActivityCardComponent } from './activity-card.component'
+import { ConfigurationsService } from '@sunbird-cb/utils-v2';
+import { Router } from '@angular/router';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { ActivityCardComponent } from './activity-card.component';
 
 describe('ActivityCardComponent', () => {
-  let component: ActivityCardComponent
-  let fixture: ComponentFixture<ActivityCardComponent>
+    let component: ActivityCardComponent;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [ActivityCardComponent],
-    })
-      .compileComponents()
-  }))
+    const configSvc :Partial<ConfigurationsService> ={};
+	const router :Partial<Router> ={};
+	const snackBar :Partial<MatSnackBar> ={};
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(ActivityCardComponent)
-    component = fixture.componentInstance
-    fixture.detectChanges()
-  })
+    beforeAll(() => {
+        component = new ActivityCardComponent(
+            configSvc as ConfigurationsService,
+			router as Router,
+			snackBar as MatSnackBar
+        )
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy()
-  })
-})
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});

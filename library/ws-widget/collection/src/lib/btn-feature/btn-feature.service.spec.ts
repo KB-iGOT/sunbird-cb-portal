@@ -1,12 +1,24 @@
-import { TestBed } from '@angular/core/testing'
 
-import { BtnFeatureService } from './btn-feature.service'
+import { HttpClient } from '@angular/common/http';
+import { BtnFeatureService } from './btn-feature.service';
 
 describe('BtnFeatureService', () => {
-  beforeEach(() => TestBed.configureTestingModule({}))
+    let component: BtnFeatureService;
 
-  it('should be created', () => {
-    const service: BtnFeatureService = TestBed.get(BtnFeatureService)
-    expect(service).toBeTruthy()
-  })
-})
+    const http :Partial<HttpClient> ={};
+
+    beforeAll(() => {
+        component = new BtnFeatureService(
+            http as HttpClient
+        )
+    });
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});

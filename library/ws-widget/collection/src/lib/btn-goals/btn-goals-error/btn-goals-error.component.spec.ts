@@ -1,25 +1,23 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+import { BtnGoalsErrorComponent, IData } from "./btn-goals-error.component";
 
-import { BtnGoalsErrorComponent } from './btn-goals-error.component'
 
 describe('BtnGoalsErrorComponent', () => {
-  let component: BtnGoalsErrorComponent
-  let fixture: ComponentFixture<BtnGoalsErrorComponent>
+    let component: BtnGoalsErrorComponent;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [BtnGoalsErrorComponent],
-    })
-    .compileComponents()
-  }))
+    const data :Partial<IData> ={};
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(BtnGoalsErrorComponent)
-    component = fixture.componentInstance
-    fixture.detectChanges()
-  })
+    beforeAll(() => {
+        component = new BtnGoalsErrorComponent(
+            data as IData
+        )
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy()
-  })
-})
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});

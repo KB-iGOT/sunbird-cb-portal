@@ -1,25 +1,29 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
 
-import { BtnCallDialogComponent } from './btn-call-dialog.component'
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { EventService } from '@sunbird-cb/utils-v2';
+import { BtnCallDialogComponent, IWidgetBtnCallDialogData } from './btn-call-dialog.component';
 
 describe('BtnCallDialogComponent', () => {
-  let component: BtnCallDialogComponent
-  let fixture: ComponentFixture<BtnCallDialogComponent>
+    let component: BtnCallDialogComponent;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [BtnCallDialogComponent],
-    })
-    .compileComponents()
-  }))
+    const snackBar :Partial<MatSnackBar> ={};
+	const events :Partial<EventService> ={};
+	const data :Partial<IWidgetBtnCallDialogData> ={};
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(BtnCallDialogComponent)
-    component = fixture.componentInstance
-    fixture.detectChanges()
-  })
+    beforeAll(() => {
+        component = new BtnCallDialogComponent(
+            snackBar as MatSnackBar,
+			events as EventService,
+			data as IWidgetBtnCallDialogData
+        )
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy()
-  })
-})
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});

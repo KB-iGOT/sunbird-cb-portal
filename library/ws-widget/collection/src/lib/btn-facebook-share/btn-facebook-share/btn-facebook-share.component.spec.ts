@@ -1,24 +1,27 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
 
-import { BtnFacebookShareComponent } from './btn-facebook-share.component'
+import { DomSanitizer } from '@angular/platform-browser';
+import { ConfigurationsService } from '@sunbird-cb/utils-v2';
+import { BtnFacebookShareComponent } from './btn-facebook-share.component';
 
 describe('BtnFacebookShareComponent', () => {
-  let component: BtnFacebookShareComponent
-  let fixture: ComponentFixture<BtnFacebookShareComponent>
+    let component: BtnFacebookShareComponent;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [BtnFacebookShareComponent],
-    }).compileComponents()
-  }))
+    const sanitizer :Partial<DomSanitizer> ={};
+	const configSvc :Partial<ConfigurationsService> ={};
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(BtnFacebookShareComponent)
-    component = fixture.componentInstance
-    fixture.detectChanges()
-  })
+    beforeAll(() => {
+        component = new BtnFacebookShareComponent(
+            sanitizer as DomSanitizer,
+			configSvc as ConfigurationsService
+        )
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy()
-  })
-})
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});

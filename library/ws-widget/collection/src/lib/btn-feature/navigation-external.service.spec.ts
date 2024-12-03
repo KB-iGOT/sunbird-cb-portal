@@ -1,12 +1,24 @@
-import { TestBed } from '@angular/core/testing'
 
-import { NavigationExternalService } from './navigation-external.service'
+import { Router } from '@angular/router';
+import { NavigationExternalService } from './navigation-external.service';
 
 describe('NavigationExternalService', () => {
-  beforeEach(() => TestBed.configureTestingModule({}))
+    let component: NavigationExternalService;
 
-  it('should be created', () => {
-    const service: NavigationExternalService = TestBed.get(NavigationExternalService)
-    expect(service).toBeTruthy()
-  })
-})
+    const router :Partial<Router> ={};
+
+    beforeAll(() => {
+        component = new NavigationExternalService(
+            router as Router
+        )
+    });
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});

@@ -1,25 +1,27 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
 
-import { BtnKbComponent } from './btn-kb.component'
+import { MatDialog } from '@angular/material/dialog';
+import { ConfigurationsService } from '@sunbird-cb/utils-v2';
+import { BtnKbComponent } from './btn-kb.component';
 
 describe('BtnKbComponent', () => {
-  let component: BtnKbComponent
-  let fixture: ComponentFixture<BtnKbComponent>
+    let component: BtnKbComponent;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [BtnKbComponent],
-    })
-    .compileComponents()
-  }))
+    const dialog :Partial<MatDialog> ={};
+	const configSvc :Partial<ConfigurationsService> ={};
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(BtnKbComponent)
-    component = fixture.componentInstance
-    fixture.detectChanges()
-  })
+    beforeAll(() => {
+        component = new BtnKbComponent(
+            dialog as MatDialog,
+			configSvc as ConfigurationsService
+        )
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy()
-  })
-})
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});

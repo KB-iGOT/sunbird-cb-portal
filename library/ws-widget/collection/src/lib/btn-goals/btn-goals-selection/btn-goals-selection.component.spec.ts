@@ -1,25 +1,30 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
 
-import { BtnGoalsSelectionComponent } from './btn-goals-selection.component'
+import { EventService } from '@sunbird-cb/utils-v2';
+import { BtnGoalsService } from '../btn-goals.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { BtnGoalsSelectionComponent } from './btn-goals-selection.component';
 
 describe('BtnGoalsSelectionComponent', () => {
-  let component: BtnGoalsSelectionComponent
-  let fixture: ComponentFixture<BtnGoalsSelectionComponent>
+    let component: BtnGoalsSelectionComponent;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [BtnGoalsSelectionComponent],
-    })
-    .compileComponents()
-  }))
+    const snackBar :Partial<MatSnackBar> ={};
+	const goalsSvc :Partial<BtnGoalsService> ={};
+	const eventSvc :Partial<EventService> ={};
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(BtnGoalsSelectionComponent)
-    component = fixture.componentInstance
-    fixture.detectChanges()
-  })
+    beforeAll(() => {
+        component = new BtnGoalsSelectionComponent(
+            snackBar as MatSnackBar,
+			goalsSvc as BtnGoalsService,
+			eventSvc as EventService
+        )
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy()
-  })
-})
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});

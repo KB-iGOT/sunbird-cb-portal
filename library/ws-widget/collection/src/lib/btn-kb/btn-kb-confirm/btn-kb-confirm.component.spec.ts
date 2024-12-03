@@ -1,25 +1,26 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
 
-import { BtnKbConfirmComponent } from './btn-kb-confirm.component'
+import { MatDialogRef } from '@angular/material/dialog';
+import { BtnKbConfirmComponent } from './btn-kb-confirm.component';
 
 describe('BtnKbConfirmComponent', () => {
-  let component: BtnKbConfirmComponent
-  let fixture: ComponentFixture<BtnKbConfirmComponent>
+    let component: BtnKbConfirmComponent;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [BtnKbConfirmComponent],
-    })
-    .compileComponents()
-  }))
+    const contentId : any ={};
+	const dialogRef :Partial<MatDialogRef<BtnKbConfirmComponent>> ={};
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(BtnKbConfirmComponent)
-    component = fixture.componentInstance
-    fixture.detectChanges()
-  })
+    beforeAll(() => {
+        component = new BtnKbConfirmComponent(
+            contentId as any,
+			dialogRef as MatDialogRef<BtnKbConfirmComponent>
+        )
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy()
-  })
-})
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});

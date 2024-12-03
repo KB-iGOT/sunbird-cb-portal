@@ -1,25 +1,26 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
 
-import { BtnGoalsDialogComponent } from './btn-goals-dialog.component'
+import { MatDialogRef } from '@angular/material/dialog';
+import { BtnGoalsDialogComponent } from './btn-goals-dialog.component';
 
 describe('BtnGoalsDialogComponent', () => {
-  let component: BtnGoalsDialogComponent
-  let fixture: ComponentFixture<BtnGoalsDialogComponent>
+    let component: BtnGoalsDialogComponent;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [BtnGoalsDialogComponent],
-    })
-    .compileComponents()
-  }))
+    const dialogRef :Partial<MatDialogRef<BtnGoalsDialogComponent>> ={};
+	const data :any ={};
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(BtnGoalsDialogComponent)
-    component = fixture.componentInstance
-    fixture.detectChanges()
-  })
+    beforeAll(() => {
+        component = new BtnGoalsDialogComponent(
+            dialogRef as MatDialogRef<BtnGoalsDialogComponent>,
+			data as undefined
+        )
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy()
-  })
-})
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});
