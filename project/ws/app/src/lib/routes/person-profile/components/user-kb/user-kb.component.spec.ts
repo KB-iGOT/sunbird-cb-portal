@@ -1,24 +1,33 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
 
-import { UserKbComponent } from './user-kb.component'
+import { ConfigurationsService} from '@sunbird-cb/utils-v2';
+import { PersonProfileService } from '../../services/person-profile.service';
+import { MatDialog } from '@angular/material/dialog';
+import { MatSnackBar } from '@angular/material/snack-bar';
+import { UserKbComponent } from './user-kb.component';
 
 describe('UserKbComponent', () => {
-  let component: UserKbComponent
-  let fixture: ComponentFixture<UserKbComponent>
+    let component: UserKbComponent;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [UserKbComponent],
-    }).compileComponents()
-  }))
+    const configSvc :Partial<ConfigurationsService> ={};
+	const personProfileSvc :Partial<PersonProfileService> ={};
+	const dialog :Partial<MatDialog> ={};
+	const matSnackBar :Partial<MatSnackBar> ={};
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(UserKbComponent)
-    component = fixture.componentInstance
-    fixture.detectChanges()
-  })
+    beforeAll(() => {
+        component = new UserKbComponent(
+            configSvc as ConfigurationsService,
+			personProfileSvc as PersonProfileService,
+			dialog as MatDialog,
+			matSnackBar as MatSnackBar
+        )
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy()
-  })
-})
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});

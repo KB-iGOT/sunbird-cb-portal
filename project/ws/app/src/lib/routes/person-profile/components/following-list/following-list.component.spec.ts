@@ -1,25 +1,23 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+import { FollowingListComponent } from "./following-list.component";
 
-import { FollowingListComponent } from './following-list.component'
 
 describe('FollowingListComponent', () => {
-  let component: FollowingListComponent
-  let fixture: ComponentFixture<FollowingListComponent>
+    let component: FollowingListComponent;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [FollowingListComponent],
-    })
-    .compileComponents()
-  }))
+    
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(FollowingListComponent)
-    component = fixture.componentInstance
-    fixture.detectChanges()
-  })
+    beforeAll(() => {
+        component = new FollowingListComponent(
+            
+        )
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy()
-  })
-})
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});

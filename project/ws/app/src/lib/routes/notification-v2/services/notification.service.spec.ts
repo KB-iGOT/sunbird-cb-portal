@@ -1,12 +1,24 @@
-import { TestBed } from '@angular/core/testing'
 
-import { NotificationService } from './notification.service'
+import { Router } from '@angular/router';
+import { NotificationService } from './notification.service';
 
 describe('NotificationService', () => {
-  beforeEach(() => TestBed.configureTestingModule({}))
+    let component: NotificationService;
 
-  it('should be created', () => {
-    const service: NotificationService = TestBed.get(NotificationService)
-    expect(service).toBeTruthy()
-  })
-})
+    const router :Partial<Router> ={};
+
+    beforeAll(() => {
+        component = new NotificationService(
+            router as Router
+        )
+    });
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});

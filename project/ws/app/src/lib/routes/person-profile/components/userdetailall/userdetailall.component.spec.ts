@@ -1,25 +1,26 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
 
-import { UserdetailallComponent } from './userdetailall.component'
+import { MatDialogRef } from '@angular/material/dialog';
+import { UserdetailallComponent } from './userdetailall.component';
 
 describe('UserdetailallComponent', () => {
-  let component: UserdetailallComponent
-  let fixture: ComponentFixture<UserdetailallComponent>
+    let component: UserdetailallComponent;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [UserdetailallComponent],
-    })
-    .compileComponents()
-  }))
+    const dialogRef :Partial<MatDialogRef<UserdetailallComponent>> ={};
+	const data :any ={};
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(UserdetailallComponent)
-    component = fixture.componentInstance
-    fixture.detectChanges()
-  })
+    beforeAll(() => {
+        component = new UserdetailallComponent(
+            dialogRef as MatDialogRef<UserdetailallComponent>,
+			data as any
+        )
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy()
-  })
-})
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});

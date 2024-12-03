@@ -1,25 +1,26 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
 
-import { ContentAuthoredComponent } from './content-authored.component'
+
+import { ConfigurationsService } from '@sunbird-cb/utils-v2';
+import { ContentAuthoredComponent } from './content-authored.component';
+
 
 describe('ContentAuthoredComponent', () => {
-  let component: ContentAuthoredComponent
-  let fixture: ComponentFixture<ContentAuthoredComponent>
+    let component: ContentAuthoredComponent;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [ContentAuthoredComponent],
-    })
-    .compileComponents()
-  }))
+    const configSvc :Partial<ConfigurationsService> ={};
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(ContentAuthoredComponent)
-    component = fixture.componentInstance
-    fixture.detectChanges()
-  })
+    beforeAll(() => {
+        component = new ContentAuthoredComponent(
+            configSvc as ConfigurationsService
+        )
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy()
-  })
-})
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});

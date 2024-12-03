@@ -1,25 +1,24 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
 
-import { UserDetailsComponent } from './user-details.component'
+import { ConfigurationsService } from '@sunbird-cb/utils-v2';
+import { UserDetailsComponent } from './user-details.component';
 
 describe('UserDetailsComponent', () => {
-  let component: UserDetailsComponent
-  let fixture: ComponentFixture<UserDetailsComponent>
+    let component: UserDetailsComponent;
 
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      declarations: [UserDetailsComponent],
-    })
-    .compileComponents()
-  }))
+    const configSvc :Partial<ConfigurationsService> ={};
 
-  beforeEach(() => {
-    fixture = TestBed.createComponent(UserDetailsComponent)
-    component = fixture.componentInstance
-    fixture.detectChanges()
-  })
+    beforeAll(() => {
+        component = new UserDetailsComponent(
+            configSvc as ConfigurationsService
+        )
+    });
 
-  it('should create', () => {
-    expect(component).toBeTruthy()
-  })
-})
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});

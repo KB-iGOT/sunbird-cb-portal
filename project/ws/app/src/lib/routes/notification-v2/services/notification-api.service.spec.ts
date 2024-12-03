@@ -1,12 +1,24 @@
-import { TestBed } from '@angular/core/testing'
 
-import { NotificationApiService } from './notification-api.service'
+import { HttpClient } from '@angular/common/http';
+import { NotificationApiService } from './notification-api.service';
 
 describe('NotificationApiService', () => {
-  beforeEach(() => TestBed.configureTestingModule({}))
+    let component: NotificationApiService;
 
-  it('should be created', () => {
-    const service: NotificationApiService = TestBed.get(NotificationApiService)
-    expect(service).toBeTruthy()
-  })
-})
+    const http :Partial<HttpClient> ={};
+
+    beforeAll(() => {
+        component = new NotificationApiService(
+            http as HttpClient
+        )
+    });
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+    });
+            
+    it('should create a instance of component', () => {
+        expect(component).toBeTruthy();
+    });
+});
