@@ -1659,7 +1659,7 @@ export class ProfileViewComponent implements OnInit, AfterViewInit, OnDestroy {
     /* tslint:enable */
     smartech('contact', '2', {
       'pk^userid': this.configService.unMappedUser.identifier.trim().toLowerCase(),
-      'FIRST_NAME' : this.profileName.trim().toLowerCase(),
+      'FULL_NAME' : this.profileName.trim().toLowerCase(),
     })
   }
 
@@ -1669,7 +1669,7 @@ export class ProfileViewComponent implements OnInit, AfterViewInit, OnDestroy {
     /* tslint:enable */
     smartech('identify', this.portalProfile.id.trim().toLowerCase())
     smartech('dispatch', 'profile_updated', {
-      'FIRST_NAME' : this.profileName.trim().toLowerCase(),
+      'FULL_NAME' : this.profileName.trim().toLowerCase(),
       'Employee ID': this.portalProfile.id.trim().toLowerCase(),
       // 'Email': this.portalProfile.personalDetails.officialEmail.trim().toLowerCase(),
       'Number': 1,

@@ -895,7 +895,16 @@ export class InitService {
     smartech('contact', '2', {
       'pk^userid': this.configSvc.unMappedUser.identifier.trim().toLowerCase(),
       'email': this.configSvc.unMappedUser.profileDetails.personalDetails.primaryEmail.trim().toLowerCase(),
-      'FIRST_NAME' : this.configSvc.unMappedUser.profileDetails.personalDetails.firstname.trim().toLowerCase(),
+      'FULL_NAME' : this.configSvc.unMappedUser.profileDetails.personalDetails.firstname.trim().toLowerCase(),
+      'GENDER': 'MALE',
+      'NO_OF_KARMA_POINTS': '100',
+      'PROFILE_STATUS' : 'Live',
+      'MOTHER_TONGUE': 'Hindi',
+      'TOTAL_EXPERIENCE' : '10',
+      'DESIGNATION': 'Developer',
+      'ORGANISATION': 'Test',
+      'PROFILE_PHOTO':'',
+      'GROUP': 'GROUP A',
       // 'username': this.configSvc.unMappedUser.profileDetails.personalDetails.firstName.trim().toLowerCase(),
       'mobile': this.configSvc.unMappedUser.profileDetails.personalDetails.mobile.toString().trim().toLowerCase(),
     })
