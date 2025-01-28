@@ -4,8 +4,8 @@ import { ActivatedRoute } from '@angular/router'
 import _ from 'lodash'
 /* tslint:enable */
 import { TranslateService } from '@ngx-translate/core'
-import { MultilingualTranslationsService, NsContent, WidgetEnrollService } from '@sunbird-cb/utils-v2'
-import { SeeAllService } from '@ws/app/src/lib/routes/see-all/services/see-all.service'
+import { MultilingualTranslationsService, NsContent} from '@sunbird-cb/utils-v2'
+// import { SeeAllService } from '@ws/app'
 import { WidgetUserServiceLib } from '@sunbird-cb/consumption'
 
 @Component({
@@ -28,8 +28,8 @@ export class RecommendeLearningsComponent implements OnInit {
     private translate: TranslateService,
     //private configSvc: ConfigurationsService,
     private langtranslations: MultilingualTranslationsService,
-    private seeAllSvc: SeeAllService,
-    private enrollSvc: WidgetEnrollService
+    // private seeAllSvc: SeeAllService,
+    // private enrollSvc: WidgetEnrollService
 
     ) {
       this.langtranslations.languageSelectedObservable.subscribe(() => {
@@ -58,41 +58,41 @@ export class RecommendeLearningsComponent implements OnInit {
   }
 
   async getRecommendeLeanings() {
-    let response = await this.seeAllSvc.fetchDesigantionsData(this.recommendedConfig.strip.request.designationsList.path).toPromise()
-    if(response) {
-      let request = {
-        "request": {
-            "courseId": response
-        }
-      }
-      let enollData =  await this.enrollSvc.fetchEnrollContentData(request).toPromise().then(async (res: any) => {
-        if (res && res.result && res.result.courses && res.result.courses.length) {
-          return res.result.courses
-        } else {
-          return []
-        }
-      }).catch((_err: any) => {
-        return []
-      })
-      const sRequest: any = {
-        "request": {
-          "filters": {
-            "identifier": response
-          },
-          "offset": 0,
-          "query": "",
-          "sort_by": {
-              "lastUpdatedOn": "desc"
-          },
-        }
-      }
-      this.seeAllSvc.fetchSearchData(sRequest).subscribe((res: any) => {
-        if (res && res.result && res.result.content) {
-          let courses = res.result.content
-          this.getPilldata(courses, enollData, response)
-        }
-      })
-    }
+    // let response = await this.seeAllSvc.fetchDesigantionsData(this.recommendedConfig.strip.request.designationsList.path).toPromise()
+    // if(response) {
+    //   let request = {
+    //     "request": {
+    //         "courseId": response
+    //     }
+    //   }
+    //   let enollData =  await this.enrollSvc.fetchEnrollContentData(request).toPromise().then(async (res: any) => {
+    //     if (res && res.result && res.result.courses && res.result.courses.length) {
+    //       return res.result.courses
+    //     } else {
+    //       return []
+    //     }
+    //   }).catch((_err: any) => {
+    //     return []
+    //   })
+    //   const sRequest: any = {
+    //     "request": {
+    //       "filters": {
+    //         "identifier": response
+    //       },
+    //       "offset": 0,
+    //       "query": "",
+    //       "sort_by": {
+    //           "lastUpdatedOn": "desc"
+    //       },
+    //     }
+    //   }
+    //   this.seeAllSvc.fetchSearchData(sRequest).subscribe((res: any) => {
+    //     if (res && res.result && res.result.content) {
+    //       let courses = res.result.content
+    //       this.getPilldata(courses, enollData, response)
+    //     }
+    //   })
+    // }
   }
 
   getPilldata(courses: any, enollData: any, coursesArray: any){

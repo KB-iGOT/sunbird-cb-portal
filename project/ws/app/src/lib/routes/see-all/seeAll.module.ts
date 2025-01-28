@@ -49,6 +49,7 @@ import { MatLegacySlideToggleModule as MatSlideToggleModule } from '@angular/mat
 import { MatLegacyTabsModule as MatTabsModule } from '@angular/material/legacy-tabs'
 import { MatToolbarModule } from '@angular/material/toolbar'
 import { MatLegacyTooltipModule as MatTooltipModule } from '@angular/material/legacy-tooltip'
+import { SeeAllService } from './services/see-all.service'
 
 @NgModule({
     declarations: [
@@ -106,7 +107,7 @@ import { MatLegacyTooltipModule as MatTooltipModule } from '@angular/material/le
         TranslateModule,
         CardsModule,
     ],
-    exports: [SeeAllHomeComponent],
+    exports: [SeeAllHomeComponent, SeeAllService],
     providers: [],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
