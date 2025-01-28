@@ -6,14 +6,14 @@ import { GyaanKarmayogiHomeComponent } from './components/gyaan-karmayogi-home/g
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core'
 import { HttpClient } from '@angular/common/http'
 import { TranslateHttpLoader } from '@ngx-translate/http-loader'
-import { BtnPageBackModule, ContentStripWithTabsModule } from '@sunbird-cb/collection/src/public-api'
+import { BtnPageBackModule, ContentStripWithTabsModule, SlidersModule } from '@sunbird-cb/collection/src/public-api'
 import { PdfModule } from '@ws/viewer/src/lib/routes/pdf/pdf.module'
 import { GyaanPlayerComponent } from './components/gyaan-player/gyaan-player.component'
 import { GyaanKarmayogiComponent } from './gyaan-karmayogi.component'
 import { ViewerResolve } from '@ws/viewer/src/lib/viewer.resolve'
 import { PdfScormDataService } from '@ws/viewer/src/lib/pdf-scorm-data-service'
 import { GyaanKarmayogiViewAllComponent } from './components/gyaan-karmayogi-view-all/gyaan-karmayogi-view-all.component'
-import { DefaultThumbnailModule } from '@sunbird-cb/utils-v2'
+import { DefaultThumbnailModule, PipePublicURLModule } from '@sunbird-cb/utils-v2'
 import { CardContentV2Module } from '@sunbird-cb/collection/src/lib/card-content-v2/card-content-v2.module'
 import { GyaanKarmayogiService } from './services/gyaan-karmayogi.service'
 import { PdfComponent } from './components/players/pdf/pdf.component'
@@ -31,13 +31,17 @@ import { GyaanYoutubeComponent } from './components/players/gyaan-youtube/gyaan-
 import { InfiniteScrollModule } from 'ngx-infinite-scroll'
 import { ReplaceNbspTextPipe } from './pipes/replace-nbsp-text.pipe'
 import { MatBottomSheetModule, MAT_BOTTOM_SHEET_DATA, MatBottomSheetRef } from '@angular/material/bottom-sheet'
-import { MatCheckboxModule } from '@angular/material/checkbox'
-import { MatFormFieldModule } from '@angular/material/form-field'
+import { MatLegacyCheckboxModule as MatCheckboxModule } from '@angular/material/legacy-checkbox'
+import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field'
 import { MatIconModule } from '@angular/material/icon'
-import { MatInputModule } from '@angular/material/input'
-import { MatRadioModule } from '@angular/material/radio'
-import { MatSelectModule } from '@angular/material/select'
+import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input'
+import { MatLegacyRadioModule as MatRadioModule } from '@angular/material/legacy-radio'
+import { MatLegacySelectModule as MatSelectModule } from '@angular/material/legacy-select'
 import { MatSidenavModule } from '@angular/material/sidenav'
+import { MatSliderModule } from '@angular/material/slider'
+import { MatTabsModule } from '@angular/material/tabs'
+
+import { NgxSliderModule } from '@angular-slider/ngx-slider'
 
 // tslint:disable-next-line:function-name
 export function HttpLoaderFactory(http: HttpClient) {
@@ -48,7 +52,7 @@ export function HttpLoaderFactory(http: HttpClient) {
   declarations: [GyaanKarmayogiHomeComponent, GyaanPlayerComponent,
     GyaanKarmayogiComponent, GyaanKarmayogiViewAllComponent,
      PdfComponent, GyaanVideoComponent, GyaanFilterComponent, GyaanAudioComponent, GyaanYoutubeComponent, ReplaceNbspTextPipe],
-  imports: [
+  imports: [NgxSliderModule,
     CommonModule,
     MatFormFieldModule,
     MatIconModule,
@@ -72,6 +76,10 @@ export function HttpLoaderFactory(http: HttpClient) {
     MatBottomSheetModule,
     MatRadioModule,
     InfiniteScrollModule,
+    MatSliderModule,
+    MatTabsModule,
+    SlidersModule,
+    PipePublicURLModule,
    TranslateModule.forChild({
       loader: {
         provide: TranslateLoader,
@@ -79,10 +87,6 @@ export function HttpLoaderFactory(http: HttpClient) {
         deps: [HttpClient],
       },
     }),
-  ],
-  entryComponents: [
-    GyaanFilterComponent,
-    GyaanKarmayogiViewAllComponent,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
   providers: [{ provide: MAT_BOTTOM_SHEET_DATA, useValue: {} },

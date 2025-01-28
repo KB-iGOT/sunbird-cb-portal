@@ -1,9 +1,9 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core'
 // import { NSDiscussData } from '../../../discuss/models/discuss.model'
 import { ActivatedRoute } from '@angular/router'
-// import { MatSnackBar } from '@angular/material/snack-bar'
+// import { MatSnackBar } from '@angular/material/legacy-snack-bar'
 import { MatSnackBar } from '@angular/material/snack-bar'
-import { MatDialog } from '@angular/material/dialog'
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
 // import { DiscussService } from '../../../discuss/services/discuss.service'
 /* tslint:disable */
 import _ from 'lodash'
@@ -35,7 +35,7 @@ export class EventDetailComponent implements OnInit {
   pastEvent = false
   // fetchNewData = false
   showYouTubeVideoFlag = false
-  enrollFlowItems = ['Karmayogi Saptah']
+  enrollFlowItems: any = []
   // playerVars = {
   //   cc_lang_pref: 'en',
   // };
@@ -76,10 +76,9 @@ export class EventDetailComponent implements OnInit {
   }
 
   get isenrollFlow() {
-    if (this.eventData) {
+    if (this.eventData && this.enrollFlowItems && this.enrollFlowItems.length) {
       return this.eventData.resourceType && this.enrollFlowItems.includes(this.eventData.resourceType)
-    }
-
+    } return false
   }
 
   ngOnInit() {
@@ -127,22 +126,27 @@ export class EventDetailComponent implements OnInit {
       if (eventDate < today && eventendDate < today) {
         this.pastEvent = true
       }
+      this.pageData = (this.route.parent && this.route.parent.snapshot.data.pageData.data) || {}
+      this.enrollFlowItems = this.pageData.enrollFlowItems
       if (this.isenrollFlow) {
         this.getUserIsEnrolled()
-      }
-
+      } else {
+        
       this.discussWidgetData = (this.route.parent && this.route.parent.snapshot.data.pageData.data.discussWidgetData) || []
       this.pageData = (this.route.parent && this.route.parent.snapshot.data.pageData.data) || {}
-      if (this.discussWidgetData) {
-        if (this.eventData && this.eventData.identifier) {
-          this.discussWidgetData.newCommentSection.commentTreeData.entityId = this.eventData.identifier
-
-          if (this.discussWidgetData.commentsList.repliesSection && this.discussWidgetData.commentsList.repliesSection.newCommentReply) {
-            this.discussWidgetData.commentsList.repliesSection.newCommentReply.commentTreeData.entityId = this.eventData.identifier
+        if (this.discussWidgetData) {
+          if (this.eventData && this.eventData.identifier) {
+            this.discussWidgetData.newCommentSection.commentTreeData.entityId = this.eventData.identifier
+  
+            if (this.discussWidgetData.commentsList.repliesSection && this.discussWidgetData.commentsList.repliesSection.newCommentReply) {
+              this.discussWidgetData.commentsList.repliesSection.newCommentReply.commentTreeData.entityId = this.eventData.identifier
+            }
           }
+            this.discussWidgetData.enrolledContent = true
+            this.discussWidgetData.newCommentSection.commentBox.placeholder = 'Start a discussion'
+        
+          this.discussWidgetData = { ...this.discussWidgetData }
         }
-
-        this.discussWidgetData = { ...this.discussWidgetData }
       }
     })
   }
@@ -151,6 +155,19 @@ export class EventDetailComponent implements OnInit {
     let userId = ''
     if (this.configSvc.userProfile) {
       userId = this.configSvc.userProfile.userId || ''
+    }
+    this.discussWidgetData = (this.route.parent && this.route.parent.snapshot.data.pageData.data.discussWidgetData) || []
+    
+    if (this.discussWidgetData) {
+      if (this.eventData && this.eventData.identifier) {
+        this.discussWidgetData.newCommentSection.commentTreeData.entityId = this.eventData.identifier
+
+        if (this.discussWidgetData.commentsList.repliesSection && this.discussWidgetData.commentsList.repliesSection.newCommentReply) {
+          this.discussWidgetData.commentsList.repliesSection.newCommentReply.commentTreeData.entityId = this.eventData.identifier
+        }
+      }
+       
+      
     }
     if (this.eventData && userId) {
       this.eventSvc.getIsEnrolled(userId, this.eventData.identifier, this.batchId).subscribe((data: any) => {
@@ -171,7 +188,16 @@ export class EventDetailComponent implements OnInit {
           if( this.enrolledEvent && this.enrolledEvent.completionPercentage) {
             this.enrolledEvent['completionPercentage'] = Math.round(this.enrolledEvent.completionPercentage).toFixed(0)
           }
+
+      this.discussWidgetData.enrolledContent = true
+      this.discussWidgetData.newCommentSection.commentBox.placeholder = 'Start a discussion'
+    
+      
+        }  else {
+          this.discussWidgetData.enrolledContent = false
+          this.discussWidgetData.newCommentSection.commentBox.placeholder = 'Enrol to add your comments'
         }
+        this.discussWidgetData = { ...this.discussWidgetData }
       })
     }
   }
@@ -271,5 +297,12 @@ export class EventDetailComponent implements OnInit {
       return this.langtranslations.translateActualLabel(label, type, '')
     }
   
-
+    enrollEvent(event: any) {
+      this.isEnrolled = event
+      if(this.discussWidgetData) {
+          this.discussWidgetData.enrolledContent = this.isEnrolled
+          this.discussWidgetData.newCommentSection.commentBox.placeholder = 'Start a discussion'
+          this.discussWidgetData = { ...this.discussWidgetData }
+      }
+    }
 }

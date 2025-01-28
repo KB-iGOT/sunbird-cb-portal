@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnDestroy, HostBinding } from '@angular/core'
+import { Component, OnInit, Input, OnDestroy, HostBinding, EventEmitter, Output } from '@angular/core'
 import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
 import { NsContentStripWithTabs } from './content-strip-with-tabs.model'
 // import { HttpClient } from '@angular/common/http'
@@ -19,7 +19,7 @@ import { WidgetUserServiceLib } from '@sunbird-cb/consumption'
 import { environment } from 'src/environments/environment'
 // tslint:disable-next-line
 import * as _ from 'lodash'
-import { MatTabChangeEvent } from '@angular/material/tabs'
+import { MatLegacyTabChangeEvent as MatTabChangeEvent } from '@angular/material/legacy-tabs'
 import { NsCardContent } from '../card-content-v2/card-content-v2.model'
 import { ITodayEvents } from '@ws/app/src/lib/routes/events/models/event'
 import { TranslateService } from '@ngx-translate/core'
@@ -69,6 +69,7 @@ export class ContentStripWithTabsComponent extends WidgetBaseComponent
   OnDestroy,
   NsWidgetResolver.IWidgetData<NsContentStripWithTabs.IContentStripMultiple> {
   @Input() widgetData!: NsContentStripWithTabs.IContentStripMultiple
+  @Output() emptyResponse = new EventEmitter<any>()
   @HostBinding('id')
   public id = `ws-strip-miltiple_${Math.random()}`
   stripsResultDataMap!: { [key: string]: IStripUnitContentData }
@@ -543,10 +544,12 @@ export class ContentStripWithTabsComponent extends WidgetBaseComponent
                 response.viewMoreUrl,
               )
             } else {
+              this.emptyResponse.emit(true)
               this.processStrip(strip, [], 'error', calculateParentStatus, null)
             }
 
           } else {
+            this.emptyResponse.emit(true)
             this.processStrip(strip, [], 'error', calculateParentStatus, null)
           }
         } catch (error) {

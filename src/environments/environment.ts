@@ -42,20 +42,11 @@ export const environment: IEnvironment = {
   helpEmail: (window as { [key: string]: any })['env']['helpEmail'] || '',
   supportEmail: (window as { [key: string]: any })['env']['supportEmail'] || '',
   spvorgID: (window as { [key: string]: any })['env']['spvorgID'] || '',
+  doptOrg: (window as { [key: string]: any })['env']['doptOrg'] || '',
   mdoChannelsBookmarkId: (window as { [key: string]: any })['env']['mdoChannelsBookmarkId'] || '',
   providerDataKey: (window as { [key: string]: any })['env']['providerDataKey'] || '',
   compentencyVersionKey: (window as { [key: string]: any })['env']['compentencyVersionKey'] || '',
-  firebase: {
-    apiKey: "AIzaSyD8hKHYfT-5xuDR7QFtNLSMcg1i9jrrZgg",
-    authDomain: "igot-karmayogi-689be.firebaseapp.com",
-    databaseURL: "https://igot-karmayogi-689be.firebaseio.com",
-    projectId: "igot-karmayogi-689be",
-    storageBucket: "igot-karmayogi-689be.firebasestorage.app",
-    messagingSenderId: "241942387335",
-    appId: "1:241942387335:web:0da83fd1e33496933d7622",
-    measurementId: "G-Y89XX6XG55",
-    vapidKey: "BF11hz1QV8UdZN-6sId1OO7NlcrGtSmJdBmEdD6Lw82X06WlGZp0BmjaannqMJIEf30x2ULgVyf0pmBs41U9SdQ"
-  },
+  cbcOrg: (window as { [key: string]: any })['env']['cbcOrg'] || '',
 }
 interface IEnvironment {
   name: string,
@@ -93,9 +84,11 @@ interface IEnvironment {
   supportEmail: string,
   apiCache: number,
   spvorgID: number,
-  mdoChannelsBookmarkId: string
+  doptOrg?: string,
+  mdoChannelsBookmarkId: string,
   providerDataKey: string,
   compentencyVersionKey: string,
+<<<<<<< HEAD
   firebase: {
     apiKey: string,
     authDomain: string,
@@ -107,6 +100,9 @@ interface IEnvironment {
     measurementId: string,
     vapidKey: string
   }
+=======
+  cbcOrg: string
+>>>>>>> 043cb905bf5e64bfd8186eb79900e20059c7c2bb
 }
 
 // import { AnyCnameRecord } from 'dns'

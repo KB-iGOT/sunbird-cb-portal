@@ -20,7 +20,7 @@ import { NsAppToc } from '../../models/app-toc.model'
 import { AppTocService } from '../../services/app-toc.service'
 import { AppTocDialogIntroVideoComponent } from '../app-toc-dialog-intro-video/app-toc-dialog-intro-video.component'
 import { MobileAppsService } from 'src/app/services/mobile-apps.service'
-import { FormControl, FormGroup, Validators } from '@angular/forms'
+import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms'
 import dayjs from 'dayjs'
 import * as  lodash from 'lodash'
 import { TitleTagService } from '../../services/title-tag.service'
@@ -36,10 +36,11 @@ import { TranslateService } from '@ngx-translate/core'
 import { ENTER } from '@angular/cdk/keycodes'
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators'
 import { TimerService } from '../../services/timer.service'
-import { MatAutocomplete, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete'
-import { MatChipInputEvent } from '@angular/material/chips'
-import { MatDialog } from '@angular/material/dialog'
-import { MatSnackBar } from '@angular/material/snack-bar'
+import { MatLegacyAutocomplete as MatAutocomplete, MatLegacyAutocompleteSelectedEvent as MatAutocompleteSelectedEvent } from '@angular/material/legacy-autocomplete'
+import { MatLegacyChipInputEvent as MatChipInputEvent } from '@angular/material/legacy-chips'
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { EnrollProfileFormComponent } from '../enroll-profile-form/enroll-profile-form.component'
 
 dayjs.extend(isSameOrBefore)
 dayjs.extend(isSameOrAfter)
@@ -66,7 +67,7 @@ export class AppTocBannerComponent implements OnInit, OnChanges, OnDestroy {
   @Output() programEnrollCall = new EventEmitter<any>()
   timer: any
   nsContent = NsContent
-  batchControl = new FormControl('', Validators.required)
+  batchControl = new UntypedFormControl('', Validators.required)
   primaryCategory = NsContent.EPrimaryCategory
   WFBlendedProgramStatus = NsContent.WFBlendedProgramStatus
   WFSTATUS_MSG_MAPPING = NsContent.WFSTATUS_MSG_MAPPING
@@ -127,18 +128,20 @@ export class AppTocBannerComponent implements OnInit, OnChanges, OnDestroy {
   timerIntervalClear: any
 
   // share content
-  shareForm: FormGroup | undefined
+  shareForm: UntypedFormGroup | undefined
   selectable = true
   removable = true
   addOnBlur = true
   separatorKeysCodes: number[] = [ENTER]
-  userCtrl = new FormControl('')
+  userCtrl = new UntypedFormControl('')
   filteredUsers: any []| undefined
   users: any[] = []
   allUsers: any[] = []
   apiResponse: any
   courseDetails: any
   userProfile: any
+  userProfileObject: any
+  doptEligibleServicesList: string[] = []
   maxEmailsLimit = 30
   showLoader = false
   constructor(
@@ -171,8 +174,8 @@ export class AppTocBannerComponent implements OnInit, OnChanges, OnDestroy {
     })
 
     this.helpEmail = environment.helpEmail
-    this.shareForm = new FormGroup({
-      review: new FormControl(null, [Validators.minLength(1), Validators.maxLength(2000)]),
+    this.shareForm = new UntypedFormGroup({
+      review: new UntypedFormControl(null, [Validators.minLength(1), Validators.maxLength(2000)]),
     })
 
     this.userCtrl.valueChanges.pipe(
@@ -291,9 +294,12 @@ export class AppTocBannerComponent implements OnInit, OnChanges, OnDestroy {
       this.canShare = true
       if (this.configSvc.userProfile) {
         this.rootOrgId = this.configSvc.userProfile.rootOrgId
+        this.userProfile = this.configSvc.userProfile
+        this.userProfileObject = this.configSvc.unMappedUser
         // this.getUsersToShare('')
       }
     }
+    this.getDoptEligibleServicesList()
   }
 
   getUsersToShare(queryStr: string) {
@@ -370,6 +376,55 @@ export class AppTocBannerComponent implements OnInit, OnChanges, OnDestroy {
     return this.tocSvc.subtitleOnBanners
   }
 
+  getDoptEligibleServicesList() {
+    this.doptEligibleServicesList = [
+      `Indian Administrative Service (IAS)`,
+      `Indian Police Service (IPS)`,    
+      `Indian Forest Service (IFoS)`,
+      `Central Engineering Service(CPWD)`,
+      `Central Power Engineering Service`,    
+      `Central Secretariat Service`,
+      `Central Water Engineering Service`,
+      `Geological Survey of India`,
+      `Indian Audit & Accounts Service`,
+      `Indian Broadcasting Engineer Service`,
+      `Indian Broadcasting Programme Service`,
+      `Indian Civil Accounts Service`,
+      `Indian Corporate Law Service`,
+      `Indian Cost Account Service`,
+      `Indian Defence Accounts Service`,
+      `Indian Defence Estates Service`,
+      `Indian Defence S. of Engineer`,
+      `Indian Economic Service`,
+      `Indian Information Service`,
+      `Indian Inspection Service`,
+      `Indian Ordnance Factories Service`,
+      `Indian Postal Service`,
+      `Indian Railway Accounts Service`,
+      `Indian Railway Personnel Service`,
+      `Indian Railway Service of Electrical Engineers`,
+      `Indian Railway Service of Engineers`,
+      `Indian Railway Service of Mechanical Engineers`,
+      `Indian Railway Service of Signal Engineers`,
+      `Indian Railway Store Service`,
+      `Indian Railway Traffic Service`,
+      `Indian Revenue Service (C&CE)`,
+      `Indian Revenue Service (IT)`,
+      `Indian Statistical Service`,
+      `Indian Supply Service`,
+      `Indian Telecom Service`,
+      `Indian Trade Service`,
+      `IP&T (Fin. & Accounts) Service`,
+      `Central Company Law Service`,
+      `Central Engineering Service (Roads)`,
+      `Indian Broadcasting (Engineering) Service`,
+      `Indian Defence Service of Engineers`,
+      `Indian Ordnance Factory Service`,
+      `Central Secretariat Stenographers Service`,
+      `Indian P&T Finance & Accounts Service`
+  ]
+  }
+
   ngOnChanges(_changes: SimpleChanges): void {
     this.assignPathAndUpdateBanner(this.router.url)
     if (this.content) {
@@ -438,6 +493,17 @@ export class AppTocBannerComponent implements OnInit, OnChanges, OnDestroy {
       }
     })
   }
+  
+  openConformationDialog(message: string) {
+    this.dialog.open(ConfirmDialogComponent, {
+      width: '600px',
+      data: {
+        message: message,
+        acceptButton: 'Ok',
+        disableClose: true
+      }
+    })
+  }
 
   public openRequestToEnroll(batchData: any) {
     const confirmDialog = this.dialog.open(ConfirmDialogComponent, {
@@ -457,6 +523,84 @@ export class AppTocBannerComponent implements OnInit, OnChanges, OnDestroy {
         this.requestAndWithDrawEnroll('INITIATE', 'INITIATE')
       }
     })
+  }
+
+  callBPSurevy(batchData: any) {
+    if (this.content) {
+      const sID = this.content.wfSurveyLink.split('surveys/')
+      const surveyId = sID[1]
+      const courseId = this.content.identifier
+      const courseName = this.content.name
+      const wfClientVersion = _.get(this.content, 'wfClientVersion', 0)
+      const apiData = {
+        // tslint:disable-next-line:prefer-template
+        getAPI: '/apis/proxies/v8/forms/getFormById?id=' + surveyId,
+        // tslint:disable-next-line:prefer-template
+        postAPI: '/apis/proxies/v8/forms/v1/saveFormSubmit',
+        getAllApplications: '/apis/proxies/v8/forms/getAllApplications',
+        customizedHeader: {},
+      }
+      const enrollQuestionnaire = this.dialog.open(EnrollQuestionnaireComponent, {
+        width: '920px',
+        maxHeight: '85vh',
+        data: {
+          surveyId,
+          courseId,
+          courseName,
+          apiData,
+          batchData,
+          wfClientVersion
+
+        },
+        disableClose: false,
+        panelClass: ['animate__animated', 'animate__slideInLeft'],
+      })
+      enrollQuestionnaire.afterClosed().subscribe(result => {
+        if (result) {
+          this.openRequestToEnroll(batchData)
+        }
+      })
+    }
+  }
+
+  callBPProfileSurevy(batchData: any) {
+    if (this.content) {
+      const doptorgID = environment.doptOrg
+      const isDoptContent = _.get(this.content, 'createdFor', []).includes(doptorgID)
+      // const isDptUser = _.get(this.userProfileObject, 'rootOrgId') === doptorgID
+      const civilServiceName = _.get(this.userProfileObject, 'profileDetails.cadreDetails.civilServiceName', '')
+      if( isDoptContent) {
+        if(!civilServiceName) {
+          this.openConformationDialog(`This program has eligibility criteria. Please update your service details in your profile before requesting to enroll.`)
+          return
+        } else if (!this.doptEligibleServicesList.includes(civilServiceName)) {
+          this.openConformationDialog(`You are not eligible for the IST Blended Program of DoPT with the current service in your profile. If your service details are incorrect, please update your profile and apply.`)
+          return
+        }
+      }
+      const courseName = this.content.name
+      // const showDoptChanges = (isDoptContent && isDptUser) ? true : false
+      const profileForm = this.dialog.open(EnrollProfileFormComponent, {
+        width: '920px',
+        maxHeight: '85vh',
+        data: {
+          courseName,
+          batchData,
+          showDoptChanges: isDoptContent,
+        },
+        disableClose: false,
+        panelClass: ['animate__animated', 'animate__slideInLeft'],
+      })
+      profileForm.afterClosed().subscribe(result => {
+        if (result) {
+          if (this.content && this.content.wfSurveyLink) {
+            this.callBPSurevy(batchData)
+          } else {
+            this.openRequestToEnroll(batchData)
+          }
+        }
+      })
+    }
   }
 
   public requestToEnrollDialog() {
@@ -479,38 +623,10 @@ export class AppTocBannerComponent implements OnInit, OnChanges, OnDestroy {
 
         // conflicts check end
         if (userList && userList.length === 0) {
-          if (this.content && this.content.wfSurveyLink) {
-            const sID = this.content.wfSurveyLink.split('surveys/')
-            const surveyId = sID[1]
-            const courseId = this.content.identifier
-            const courseName = this.content.name
-            const apiData = {
-              // tslint:disable-next-line:prefer-template
-              getAPI: '/apis/proxies/v8/forms/getFormById?id=' + surveyId,
-              // tslint:disable-next-line:prefer-template
-              postAPI: '/apis/proxies/v8/forms/v1/saveFormSubmit',
-              getAllApplications: '/apis/proxies/v8/forms/getAllApplications',
-              customizedHeader: {},
-            }
-            const enrollQuestionnaire = this.dialog.open(EnrollQuestionnaireComponent, {
-              width: '920px',
-              maxHeight: '85vh',
-              data: {
-                surveyId,
-                courseId,
-                courseName,
-                apiData,
-                batchData,
-
-              },
-              disableClose: false,
-              panelClass: ['animate__animated', 'animate__slideInLeft'],
-            })
-            enrollQuestionnaire.afterClosed().subscribe(result => {
-              if (result) {
-                this.openRequestToEnroll(batchData)
-              }
-            })
+          if (this.content && batchData.batchAttributes && batchData.batchAttributes.userProfileFileds) {
+            this.callBPProfileSurevy(batchData)
+          } else if (this.content && this.content.wfSurveyLink) {
+            this.callBPSurevy(batchData)
           } else {
             this.openRequestToEnroll(batchData)
           }

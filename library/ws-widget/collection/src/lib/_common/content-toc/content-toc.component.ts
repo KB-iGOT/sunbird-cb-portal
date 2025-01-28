@@ -1,12 +1,11 @@
 import { AfterViewInit, Component, HostListener, Input, OnChanges, OnInit, SimpleChanges, ViewChild } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
-import { NsContent, UtilityService } from '@sunbird-cb/utils-v2'
+import { ConfigurationsService, NsContent, UtilityService } from '@sunbird-cb/utils-v2'
 import { Subscription } from 'rxjs'
 
 import { LoadCheckService } from '@ws/app/src/lib/routes/app-toc/services/load-check.service'
-import { MatTabGroup, MatTabChangeEvent } from '@angular/material/tabs'
+import { MatLegacyTabGroup as MatTabGroup, MatLegacyTabChangeEvent as MatTabChangeEvent } from '@angular/material/legacy-tabs'
 import { NsDiscussionV2 } from '@sunbird-cb/discussion-v2'
-
 @Component({
   selector: 'ws-widget-content-toc',
   templateUrl: './content-toc.component.html',
@@ -35,16 +34,19 @@ export class ContentTocComponent implements OnInit, AfterViewInit, OnChanges {
   @Input() selectedBatchData: any
   @Input() config: any
   @Input() componentName!: string
+  @Input() isEnrolled!: boolean
   sticky = false
   menuPosition: any
   isMobile = false
   selectedTabIndex = 0
   discussWidgetData!: NsDiscussionV2.ICommentWidgetData
+  displayTeachersContent = false
 
   constructor(
     private route: ActivatedRoute,
     private utilityService: UtilityService,
-    private loadCheckService: LoadCheckService
+    private loadCheckService: LoadCheckService,
+    private configService: ConfigurationsService,
   ) { }
 
   ngOnInit() {
@@ -66,6 +68,17 @@ export class ContentTocComponent implements OnInit, AfterViewInit, OnChanges {
     if (batchId) {
       this.selectedTabIndex = 1
     }
+    if (this.configService && this.configService.userRoles) {
+      // tslint:disable-next-line:max-line-length
+      this.displayTeachersContent = (
+        this.configService.userRoles.has('MENTOR') ||
+        this.configService.userRoles.has('mentor') ||
+        this.configService.userRoles.has('Mentor')
+      && this.content.courseCategory === NsContent.ECourseCategory.CASE_STUDY) ? true : false
+    } else {
+      this.displayTeachersContent = this.route.snapshot.queryParams.editMode &&
+        this.content.courseCategory === NsContent.ECourseCategory.CASE_STUDY
+    }
   }
 
   ngAfterViewInit() {
@@ -84,6 +97,13 @@ export class ContentTocComponent implements OnInit, AfterViewInit, OnChanges {
         if (this.discussWidgetData.commentsList.repliesSection && this.discussWidgetData.commentsList.repliesSection.newCommentReply) {
           this.discussWidgetData.commentsList.repliesSection.newCommentReply.commentTreeData.entityId = this.content.identifier
         }
+      }
+      if(this.isEnrolled) {
+        this.discussWidgetData.enrolledContent = true
+        this.discussWidgetData.newCommentSection.commentBox.placeholder = 'Start a discussion'
+      } else {
+        this.discussWidgetData.enrolledContent = false
+        this.discussWidgetData.newCommentSection.commentBox.placeholder = 'Enrol to add your comments'
       }
       this.discussWidgetData = { ...this.discussWidgetData }
     }

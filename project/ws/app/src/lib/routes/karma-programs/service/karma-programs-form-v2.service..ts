@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core'
-import { ActivatedRouteSnapshot, Resolve, RouterStateSnapshot } from '@angular/router'
+import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router'
 import { IResolveResponse } from '@sunbird-cb/utils-v2'
 import { Observable, of } from 'rxjs'
 import { catchError, map, tap } from 'rxjs/operators'
@@ -8,8 +8,7 @@ import { FormExtService } from 'src/app/services/form-ext.service'
 @Injectable({
   providedIn: 'root',
 })
-export class KarmaProgramsFormV2Service implements
-Resolve<Observable<IResolveResponse<any>> | IResolveResponse<any>> {
+export class KarmaProgramsFormV2Service  {
 constructor(
 private formSvc: FormExtService) {}
 
@@ -17,14 +16,15 @@ resolve(
     _route: ActivatedRouteSnapshot,
     _state: RouterStateSnapshot,
 ): Observable<IResolveResponse<any>> {
-    const orgId = _route.params && _route.params.orgId || ''
+    // const orgId = _route.params && _route.params.orgId || ''
+    const playListKey = _route && _route.params.playListKey  || ''
     const requestData: any = {
       'request': {
         'type': 'karma-program',
         'subType': 'microsite-v2',
         'action': 'page-configuration',
         'component': 'portal',
-        'rootOrgId': orgId,
+        'rootOrgId': playListKey,
       },
   }
         // 'request': {

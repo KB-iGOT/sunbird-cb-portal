@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
-import { MatDialog } from '@angular/material/dialog'
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
 /* tslint:disable */
 import _ from 'lodash'
 import moment from 'moment'
@@ -24,6 +24,7 @@ export class EventPlayerComponent implements OnInit {
   videoId = ''
   batchId = ''
   isEnrolled = false
+  pageData: any = {}
   constructor(
     public dialog: MatDialog,
     private route: ActivatedRoute,
@@ -101,6 +102,7 @@ export class EventPlayerComponent implements OnInit {
       }
       
     })
+    this.pageData = (this.route.parent && this.route.parent.snapshot.data.pageData.data) || {}
   }
 
   getUserIsEnrolled() {

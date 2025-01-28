@@ -1,11 +1,11 @@
-import { Component, OnDestroy, OnInit, Input, OnChanges } from '@angular/core'
+import { Component, OnDestroy, OnInit, Input, OnChanges, Output, EventEmitter } from '@angular/core'
 import moment from 'moment'
 import { ConfigurationsService, EventService as EventServiceGlobal, WsEvents } from '@sunbird-cb/utils-v2'
 import { environment } from 'src/environments/environment'
 import { TranslateService } from '@ngx-translate/core'
 import { ActivatedRoute, Router } from '@angular/router'
 import { EventService } from '../../services/events.service'
-import { MatSnackBar } from '@angular/material/snack-bar'
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
 // import { ActivatedRoute } from '@angular/router'
 // import { ConfigurationsService } from '@ws-widget/utils'
 // import { NSProfileDataV2 } from '../../models/profile-v2.model'
@@ -22,6 +22,7 @@ export class RightMenuCardComponent implements OnInit, OnDestroy, OnChanges {
   @Input() isenrollFlow: any
   @Input() enrollFlowItems: any
   @Input() enrolledEvent: any
+  @Output() enrollEvent: any = new EventEmitter()
   startTime: any
   endTime: any
   lastUpdate: any
@@ -36,6 +37,7 @@ export class RightMenuCardComponent implements OnInit, OnDestroy, OnChanges {
   eventEnrollmentList: any
   isEnrolled = false
   batchId = ''
+  pageConfig: any = {}
   // completedPercent!: number
   // badgesSubscription: any
   // portalProfile!: NSProfileDataV2.IProfile
@@ -60,6 +62,7 @@ export class RightMenuCardComponent implements OnInit, OnDestroy, OnChanges {
     this.loadEnrolledEventData()
 
     this.kparray = (this.route.parent && this.route.parent.snapshot.data.pageData.data.karmaPoints) || []
+    this.pageConfig = this.route.parent && this.route.parent.snapshot.data.pageData.data
     if (this.eventData) {
 
       this.startTime = this.eventData.startTime.split('+')[0].replace(/(.*)\D\d+/, '$1')
@@ -96,7 +99,7 @@ export class RightMenuCardComponent implements OnInit, OnDestroy, OnChanges {
       }
 
       if (this.eventData && this.eventData.registrationLink) {
-        if (this.eventData && this.eventData.registrationLink && this.eventData.resourceType === 'Karmayogi Saptah') {
+        if (this.eventData && this.eventData.registrationLink && this.pageConfig.enrollFlowItems.includes(this.eventData.resourceType)) {
           const videoId = this.eventData.registrationLink.split('?')[0].split('/').pop()
           if (videoId) {
             this.videoId = videoId
@@ -248,6 +251,7 @@ export class RightMenuCardComponent implements OnInit, OnDestroy, OnChanges {
       this.eventSvc.enrollEvent(req).subscribe(res => {
           if (res.responseCode === 'OK' || res.result.response === 'SUCCESS') {
             this.openSnackBar('Enrolled Successfully')
+            this.enrollEvent.emit(true)
           }
           if (this.batchId) {
             // this.navigateToPlayerPage(batchId)

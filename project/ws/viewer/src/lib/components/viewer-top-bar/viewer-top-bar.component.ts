@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, SimpleChanges } from '@angular/core'
-import { MatDialog } from '@angular/material/dialog'
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser'
 import { ActivatedRoute, NavigationEnd, NavigationExtras, Router } from '@angular/router'
 import { WidgetContentService } from '@sunbird-cb/collection/src/lib/_services/widget-content.service'
@@ -114,6 +114,7 @@ export class ViewerTopBarComponent implements OnInit, OnDestroy, OnChanges {
     }
     this.isTypeOfCollection = this.activatedRoute.snapshot.queryParams.collectionType ? true : false
     this.collectionType = this.activatedRoute.snapshot.queryParams.collectionType
+    this.collectionId = this.activatedRoute.snapshot.queryParams.collectionId
     this.courseName = this.activatedRoute.snapshot.queryParams.courseName
     this.channelId = this.activatedRoute.snapshot.queryParams.channelId
     if (this.configSvc.instanceConfig) {
@@ -186,13 +187,16 @@ export class ViewerTopBarComponent implements OnInit, OnDestroy, OnChanges {
         this.resourcePrimaryCategory = this.viewerDataSvc.resource ? this.viewerDataSvc.resource.primaryCategory : ''
       }
     })
+    if(this.paramSubscription) {
+      this.paramSubscription.unsubscribe()
+    } 
+    this.getUserRating(false)
     this.paramSubscription = this.activatedRoute.queryParamMap.subscribe(async params => {
       this.collectionId = params.get('collectionId') as string
       this.collectionType = params.get('collectionType') as string
       this.isPreview = params.get('preview') === 'true' ? true : false
       const enrollList: any = this.widgetLibSvc.getEnrolledDataFromList(this.enrollmentList.courses, this.collectionId) || '{}'
-      this.currentDataFromEnrollList =  enrollList[this.collectionId]
-      this.getUserRating(false)
+      this.currentDataFromEnrollList =  enrollList
     })
 
     this.viewerDataServiceResourceSubscription = this.viewerDataSvc.changedSubject.subscribe(
@@ -353,7 +357,8 @@ export class ViewerTopBarComponent implements OnInit, OnDestroy, OnChanges {
                   courseName: this.activatedRoute.snapshot.queryParams.courseName,
                   userId: this.userid,
                   identifier: this.identifier,
-                  primaryCategory: this.collectionType
+                  primaryCategory: this.collectionType,
+                  courseCategory: this.currentDataFromEnrollList.content.courseCategory
                 },
                 panelClass: 'course-completion-dialog'
               })

@@ -85,6 +85,8 @@
           window["env"]["providerDataKey"] = envJson.providerDataKey;
           window["env"]["resendOTPTIme"] = envJson.resendOTPTIme;
           window["env"]["compentencyVersionKey"] = envJson.compentencyVersionKey;
+          window["env"]["cbcOrg"] = envJson.cbcOrg;
+          window["env"]["doptOrg"] = envJson.doptOrg;
       } catch (error) {
         console.error("Error in fetching env json");
       }
@@ -98,6 +100,13 @@
    <script src="src\zoho-script.js"></script>
    <script src="/assets/sw.js"></script>
 
+   <!-- <script type='text/javascript' id="dota_js" src='https://dns.devnagri.com/dota.js'></script>
+    <script id="dota_init">
+        var devnagri = Devnagri.initializeTranslation({
+                                    apiKey: "devnagri_a868e56ebc5b11efb32842010aa00012",
+                                    default_lang_code: "en"
+        });
+    </script> -->
 </head>
 
 <body class="mat-app-background mat-body mat-typography custom-scroll" id="app-bg">

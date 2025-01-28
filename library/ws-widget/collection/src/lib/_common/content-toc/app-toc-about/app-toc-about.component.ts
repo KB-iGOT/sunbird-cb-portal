@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, OnChanges, SimpleChanges, AfterViewInit, OnDestroy, ViewChild, ElementRef } from '@angular/core'
 import { Router } from '@angular/router'
-import { MatDialog } from '@angular/material/dialog'
-import { MatSnackBar } from '@angular/material/snack-bar'
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
 import { Subject } from 'rxjs'
 import { takeUntil } from 'rxjs/operators'
 
@@ -113,6 +113,7 @@ export class AppTocAboutComponent implements OnInit, OnChanges, AfterViewInit, O
   @ViewChild('descElem') descElem !: ElementRef
   @ViewChild('tagsElem') tagsElem !: ElementRef
   @ViewChild('searchTagElem') searchTagElem !: ElementRef
+  disableCertificate = false
 
   primaryCategory = NsContent.EPrimaryCategory
   stripsResultDataMap!: { [key: string]: IStripUnitContentData }
@@ -203,6 +204,10 @@ export class AppTocAboutComponent implements OnInit, OnChanges, AfterViewInit, O
 
     if (this.content) {
       this.content['subTheme'] = this.getSubThemes()
+    }
+
+    if (this.content && this.content.courseCategory === NsContent.ECourseCategory.CASE_STUDY) {
+      this.disableCertificate = true
     }
   }
 

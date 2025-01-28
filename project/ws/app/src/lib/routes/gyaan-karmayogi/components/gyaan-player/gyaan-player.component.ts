@@ -1,3 +1,4 @@
+import { TitleCasePipe } from '@angular/common'
 import { Component, OnInit } from '@angular/core'
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
@@ -18,15 +19,21 @@ export class GyaanPlayerComponent implements OnInit {
   resourceLink: any = ''
   pageConfig: any
   relatedContentStrip: any
+  displayContents = true
+  collectionId: any = ''
 
   constructor(private viewerDataSvc: ViewerDataService,
               private configSvc: ConfigurationsService,
               private route: ActivatedRoute,
+              public titleCasePipe: TitleCasePipe,
               public translate: TranslateService, private router: Router) {
     if (this.route.parent && this.route.parent.snapshot.data.pageData
       && this.route.parent.snapshot.data.pageData.data
       && this.route.parent.snapshot.data.pageData.data.stripConfig) {
         this.pageConfig = JSON.parse(JSON.stringify(this.route.parent && this.route.parent.snapshot.data.pageData.data))
+        this.displayContents = this.route.parent.snapshot.queryParams.playerPreview ? false :  true
+        this.collectionId = this.route.parent.snapshot.queryParams.collectionId ?
+        this.route.parent.snapshot.queryParams.collectionId :  ''
       }
     this.router.events.subscribe(val => {
         // see also
@@ -50,12 +57,26 @@ export class GyaanPlayerComponent implements OnInit {
   ngOnInit() {
     this.resourceData = this.viewerDataSvc.resource
     this.getRelatedContent()
-    this.titles = [
-      { title: 'Gyaan Karmayogi', url: '/app/gyaan-karmayogi/all', icon: 'school' },
-      { title: this.resourceData.resourceCategory, disableTranslate: true,
-        queryParams: { key: this.resourceData.resourceCategory }, url: `/app/gyaan-karmayogi/view-all`, icon: '' },
-      { title: this.resourceData.name, url: `none`, icon: '' },
-    ]
+    if (!this.displayContents) {
+      this.titles = [
+        { title: 'Gyaan Karmayogi', url: '/app/amrit-gyaan-kosh/all', icon: 'menu_book' },
+        { title: 'TOC age', disableTranslate: true,
+          queryParams: {  }, url: `/app/toc/${this.collectionId}/overview`, icon: '' },
+        { title: this.resourceData.name, url: `none`, icon: '' },
+      ]
+    } else {
+      const _queryParams = { ...this.route.snapshot.queryParams }
+      if (!_queryParams['content']) {
+        _queryParams['content'] = 'agkCaseStudies'
+      }
+      _queryParams['key'] = this.resourceData.resourceCategory.toLowerCase()
+      this.titles = [
+        { title: 'Gyaan Karmayogi', url: '/app/amrit-gyaan-kosh/all', icon: 'menu_book' },
+        { title: this.titleCasePipe.transform(this.resourceData.resourceCategory), disableTranslate: true,
+          queryParams: _queryParams, url: `/app/amrit-gyaan-kosh/view-all`, icon: '' },
+        { title: this.resourceData.name, url: `none`, icon: '' },
+      ]
+    }
   }
   // this method is used to close the share popup
   resetEnableShare() {

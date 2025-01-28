@@ -1,9 +1,9 @@
 import { AfterViewInit, Component, OnDestroy, OnInit } from '@angular/core'
 import { HttpErrorResponse } from '@angular/common/http'
 import { ActivatedRoute, Params, Router } from '@angular/router'
-import { MatDialog } from '@angular/material/dialog'
-import { MatSnackBar } from '@angular/material/snack-bar'
-import { FormControl, FormGroup, Validators } from '@angular/forms'
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms'
 import { TranslateService } from '@ngx-translate/core'
 import { MomentDateAdapter } from '@angular/material-moment-adapter'
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core'
@@ -121,22 +121,22 @@ export class ProfileViewComponent implements OnInit, AfterViewInit, OnDestroy {
   // feedbackInfo = ''
   skeletonLoader = false
   approvedDomainList: any = []
-  otherDetailsForm = new FormGroup({
-    employeeCode: new FormControl('', [Validators.pattern(EMP_ID_PATTERN)]),
-    primaryEmail: new FormControl('', [Validators.pattern(EMAIL_PATTERN)]),
-    mobile: new FormControl('', [Validators.minLength(10), Validators.maxLength(10), Validators.pattern(MOBILE_PATTERN)]),
-    gender: new FormControl('', []),
-    dob: new FormControl('', []),
-    domicileMedium: new FormControl('', []),
-    countryCode: new FormControl('', []),
-    pincode: new FormControl('', [Validators.minLength(6), Validators.maxLength(6), Validators.pattern(PIN_CODE_PATTERN)]),
-    category: new FormControl('', []),
-    isCadre: new FormControl(false, []),
-    typeOfCivilService: new FormControl(''),
-    serviceType: new FormControl(''),
-    cadre: new FormControl(''),
-    batch: new FormControl(''),
-    cadreControllingAuthority: new FormControl(''),
+  otherDetailsForm = new UntypedFormGroup({
+    employeeCode: new UntypedFormControl('', [Validators.pattern(EMP_ID_PATTERN)]),
+    primaryEmail: new UntypedFormControl('', [Validators.pattern(EMAIL_PATTERN)]),
+    mobile: new UntypedFormControl('', [Validators.minLength(10), Validators.maxLength(10), Validators.pattern(MOBILE_PATTERN)]),
+    gender: new UntypedFormControl('', []),
+    dob: new UntypedFormControl('', []),
+    domicileMedium: new UntypedFormControl('', []),
+    countryCode: new UntypedFormControl('', []),
+    pincode: new UntypedFormControl('', [Validators.minLength(6), Validators.maxLength(6), Validators.pattern(PIN_CODE_PATTERN)]),
+    category: new UntypedFormControl('', []),
+    isCadre: new UntypedFormControl(false, []),
+    typeOfCivilService: new UntypedFormControl(''),
+    serviceType: new UntypedFormControl(''),
+    cadre: new UntypedFormControl(''),
+    batch: new UntypedFormControl(''),
+    cadreControllingAuthority: new UntypedFormControl(''),
   })
   unVerifiedObj = {
     designation: '',
@@ -154,9 +154,9 @@ export class ProfileViewComponent implements OnInit, AfterViewInit, OnDestroy {
     groupRejectionTime: 0,
     designationRejectionTime: 0,
   }
-  primaryDetailsForm = new FormGroup({
-    group: new FormControl('', [Validators.required]),
-    designation: new FormControl('', [Validators.required]),
+  primaryDetailsForm = new UntypedFormGroup({
+    group: new UntypedFormControl('', [Validators.required]),
+    designation: new UntypedFormControl('', [Validators.required]),
   })
   approvalPendingFields = []
   rejectedByMDOData = []
@@ -202,6 +202,8 @@ export class ProfileViewComponent implements OnInit, AfterViewInit, OnDestroy {
   noHtmlCharacter = new RegExp(/<[^>]*>|(function[^\s]+)|(javascript:[^\s]+)/i)
   isNotMyUser = false
   isIgotOrg = false
+  userDate: any
+  isMatcompleteOpened = false
   constructor(
     public dialog: MatDialog,
     private configService: ConfigurationsService,
@@ -221,20 +223,6 @@ export class ProfileViewComponent implements OnInit, AfterViewInit, OnDestroy {
       this.translateService.setDefaultLang('en')
       const lang = localStorage.getItem('websiteLanguage')!
       this.translateService.use(lang)
-    }
-
-    if (this.otherDetailsForm.get('domicileMedium')) {
-      this.otherDetailsForm.get('domicileMedium')!.valueChanges
-        .pipe(
-          debounceTime(250),
-          distinctUntilChanged(),
-          startWith(''),
-        )
-        .subscribe(res => {
-          if (this.masterLanguageBackup) {
-            this.masterLanguages = this.masterLanguageBackup.filter(item => item.name.toLowerCase().includes(res && res.toLowerCase()))
-          }
-        })
     }
 
     if (this.otherDetailsForm.get('countryCode')) {
@@ -303,6 +291,7 @@ export class ProfileViewComponent implements OnInit, AfterViewInit, OnDestroy {
 
       if (data.profile.data.profileDetails) {
         this.portalProfile = data.profile.data.profileDetails
+        this.userDate = this.portalProfile.personalDetails.dob
       }
 
       const user = this.portalProfile.userId || this.portalProfile.id || _.get(data, 'profile.data.id') || ''
@@ -370,6 +359,20 @@ export class ProfileViewComponent implements OnInit, AfterViewInit, OnDestroy {
         this.filterDesignationsMeta =  this.designationsMeta
       }
     })
+
+    if (this.otherDetailsForm.get('domicileMedium')) {
+      this.otherDetailsForm.get('domicileMedium')!.valueChanges
+        .pipe(
+          debounceTime(250),
+          distinctUntilChanged(),
+          startWith(''),
+        )
+        .subscribe(res => {
+          if (this.masterLanguageBackup) {
+            this.masterLanguages = this.masterLanguageBackup.filter(item => item.name.toLowerCase().includes(res && res.toLowerCase()))
+          }
+        })
+    }
   }
 
   // Sujith
@@ -746,7 +749,6 @@ export class ProfileViewComponent implements OnInit, AfterViewInit, OnDestroy {
     //   const dateArray = this.portalProfile.personalDetails.dob.split('-')
     //   this.dateOfBirth = new Date(`${dateArray[2]}-${dateArray[1]}-${dateArray[0]}`)
     // }
-
     this.otherDetailsForm.patchValue({
       employeeCode: this.portalProfile.employmentDetails ? this.portalProfile.employmentDetails.employeeCode : '',
       primaryEmail: this.portalProfile.personalDetails.primaryEmail,
@@ -997,6 +999,10 @@ export class ProfileViewComponent implements OnInit, AfterViewInit, OnDestroy {
     this.userProfileService.editProfileDetails(payload)
       .pipe(takeUntil(this.destroySubject$))
       .subscribe((_res: any) => {
+        // update cadre details in config service to enroll into Blended programs
+        if (this.configService.unMappedUser && this.configService.unMappedUser.profileDetails) {
+          this.configService.unMappedUser.profileDetails.cadreDetails = payload.request.profileDetails.cadreDetails
+        }
         this.matSnackBar.open(this.handleTranslateTo('userDetailsUpdated'))
         this.portalProfile.personalDetails.isCadre = this.isCadreStatus
         this.editDetails = !this.editDetails
@@ -1681,5 +1687,17 @@ export class ProfileViewComponent implements OnInit, AfterViewInit, OnDestroy {
       /* tslint:disable */
       'eHRMS ID/External System ID': this.portalProfile.additionalProperties ? this.portalProfile.additionalProperties?.externalSystemId : ''      
     })
+  }
+  
+  onkeyDown(_event: any) {
+    return this.isMatcompleteOpened
+  }
+
+  onAutoCompleteOpened() {
+    this.isMatcompleteOpened = true
+  }
+
+  onAutoCompleteClosed() {
+    this.isMatcompleteOpened = false
   }
 }

@@ -1,11 +1,12 @@
 
 import { Component, OnInit } from '@angular/core'
-import { FormControl, FormGroup } from '@angular/forms'
+import { UntypedFormControl, UntypedFormGroup } from '@angular/forms'
 import { ActivatedRoute, Router } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
 import * as _ from 'lodash'
 import { gyaanConstants } from '../../models/gyaan-contants.model'
 import { GyaanKarmayogiService } from '../../services/gyaan-karmayogi.service'
+import { environment } from 'src/environments/environment'
 
 @Component({
   selector: 'ws-app-gyaan-karmayogi-home',
@@ -15,10 +16,11 @@ import { GyaanKarmayogiService } from '../../services/gyaan-karmayogi.service'
 export class GyaanKarmayogiHomeComponent implements OnInit {
   stripData: any
   pageConfig: any
+  pageConfigData: any
   facetsdata: any
   hideAllStrip = false
   sectorNames: any = []
-  searchControl = new FormControl('')
+  searchControl = new UntypedFormControl('')
   selectedSector: any = gyaanConstants.allSectors
   categories: any = [{
     name: gyaanConstants.allCategories,
@@ -34,7 +36,12 @@ export class GyaanKarmayogiHomeComponent implements OnInit {
     name: gyaanConstants.allSectors,
   }]
 
-  gyaanForm: FormGroup | undefined
+  gyaanForm: UntypedFormGroup | undefined
+
+  selectedTabIndex = 0
+  cbcOrg: any
+  nonCbcOrgids: any = []
+  contentTabEmptyResponseCount = 0
 
   constructor(public translate: TranslateService,
               private route: ActivatedRoute,
@@ -48,12 +55,13 @@ export class GyaanKarmayogiHomeComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.gyaanForm = new FormGroup({
-      sectors: new FormControl(''),
-      subSectors: new FormControl(''),
-      category: new FormControl(''),
+    this.gyaanForm = new UntypedFormGroup({
+      sectors: new UntypedFormControl(''),
+      subSectors: new UntypedFormControl(''),
+      category: new UntypedFormControl(''),
     })
     this.pageConfig = (this.route.parent && this.route.parent.snapshot.data)
+    this.pageConfigData = this.pageConfig.pageData.data
     this.stripData = JSON.parse(JSON.stringify((this.route.parent && this.route.parent.snapshot.data.pageData.data.stripConfig))) || []
     this.facetsdata = this.pageConfig.gyaanData.facets.data
     if (this.facetsdata && this.facetsdata.length) {
@@ -64,6 +72,7 @@ export class GyaanKarmayogiHomeComponent implements OnInit {
       addFilters[gyaanConstants.sectorName] = this.sectorNames
     }
     if (this.sectorNames.length) {
+
       this.callStrips(addFilters)
     }
   }
@@ -92,10 +101,12 @@ export class GyaanKarmayogiHomeComponent implements OnInit {
         if (this.route.parent && this.route.parent.snapshot.data.pageData.data.stripConfig) {
           const data = JSON.parse(JSON.stringify(this.route.parent &&
             this.route.parent.snapshot.data.pageData.data.stripConfig))
+
           if (data.strips.length) {
             data.strips[0].title = cat.name
             data.strips[0].key = cat.name
             data.strips[0].viewMoreUrl.queryParams.key = cat.name
+            data.strips[0].viewMoreUrl.queryParams.content = this.selectedTabIndex === 0 ? 'agkCaseStudies' : 'otherResources'
             data.strips[0].titleDescription = cat.name
             data.strips[0].request.searchV6.request['limit'] = gyaanConstants.limitCount
 
@@ -108,6 +119,24 @@ export class GyaanKarmayogiHomeComponent implements OnInit {
               data.strips[0].request.searchV6.request.filters = {
                 ...data.strips[0].request.searchV6.request.filters,
                 ...addFilters,
+              }
+            }
+
+            if (this.selectedTabIndex === 0 && cat.name === 'case study') {
+              data.strips[0].request.searchV6.request.filters.contentType = [
+                'Resource',
+                'Course',
+              ]
+              data.strips[0].request.searchV6.request.filters.createdFor = this.selectedTabIndex === 0
+                ? environment.cbcOrg : this.nonCbcOrgids
+            }  else {
+              data.strips[0].request.searchV6.request.filters.contentType = [
+                'Resource',
+              ]
+              data.strips[0].request.searchV6.request.filters = {
+                ...data.strips[0].request.searchV6.request.filters,
+                ...addFilters,
+                createdFor: this.selectedTabIndex === 0 ? environment.cbcOrg : this.nonCbcOrgids,
               }
             }
             if (this.searchControl && this.searchControl.value) {
@@ -125,8 +154,9 @@ export class GyaanKarmayogiHomeComponent implements OnInit {
   }
 
   // this method is called when user clicks on apply button from ui
-  applyFilter(form: FormGroup) {
+  applyFilter(form: UntypedFormGroup) {
     const addFilters: any = {}
+    this.contentTabEmptyResponseCount = 0
 
     if (form.value.sectors && form.value.sectors.name !== gyaanConstants.allSectors) {
       addFilters[gyaanConstants.sectorName] = form.value.sectors.name
@@ -174,6 +204,23 @@ export class GyaanKarmayogiHomeComponent implements OnInit {
             }
           }
         }
+        if (this.selectedTabIndex === 0 && addFilters.resourceCategory === 'case study') {
+          data.strips[0].request.searchV6.request.filters.contentType = [
+            'Resource',
+            'Course',
+          ]
+          data.strips[0].request.searchV6.request.filters.createdFor = this.selectedTabIndex === 0
+            ? environment.cbcOrg : this.nonCbcOrgids
+        }  else {
+          data.strips[0].request.searchV6.request.filters.contentType = [
+            'Resource',
+          ]
+          data.strips[0].request.searchV6.request.filters = {
+            ...data.strips[0].request.searchV6.request.filters,
+            ...addFilters,
+            createdFor: this.selectedTabIndex === 0 ? environment.cbcOrg : this.nonCbcOrgids,
+          }
+        }
         this.hideAllStrip = true
 
         this.stripData = [data]
@@ -192,6 +239,7 @@ export class GyaanKarmayogiHomeComponent implements OnInit {
 
   // this method is triggered on selection of sectors
   sectorFilter(sectorData: any, type?: string) {
+    this.contentTabEmptyResponseCount = 0
     this.searchControl.setValue('')
     const addFilters: any = {}
 
@@ -212,6 +260,7 @@ export class GyaanKarmayogiHomeComponent implements OnInit {
     const addFilters: any = {
       sectorName: this.sectorNames,
     }
+    this.contentTabEmptyResponseCount = 0
     this.callStrips(addFilters)
     this.selectedSector = gyaanConstants.allSectors
     if (this.gyaanForm) {
@@ -286,6 +335,14 @@ export class GyaanKarmayogiHomeComponent implements OnInit {
   factesAssign(factesData: any) {
     if (factesData && factesData.length) {
       factesData.forEach((ele: any) => {
+        if (ele.name === 'createdFor') {
+          this.nonCbcOrgids = []
+          ele.values.map((item: any) => {
+            if (item.name !== this.cbcOrg) {
+              this.nonCbcOrgids.push(item.name)
+            }
+          })
+        }
         if (ele.name === gyaanConstants.subSectorName) {
           this.subSector = ele.values
         }
@@ -315,11 +372,28 @@ export class GyaanKarmayogiHomeComponent implements OnInit {
   }
 // viewAllSector method is used to move to view all page
   viewAllSector() {
-    this.router.navigate([`/app/gyaan-karmayogi/view-all`], {
+    this.router.navigate([`/app/amrit-gyaan-kosh/view-all`], {
       queryParams : {
         sector: this.selectedSector,
         // preview: true
+        // key: 'case study',
+        content: this.selectedTabIndex === 0 ? 'agkCaseStudies' : 'otherResources',
       },
     })
+  }
+
+  handleTabChange(event: any) {
+    this.contentTabEmptyResponseCount = 0
+    this.selectedTabIndex = event.index
+    this.callStrips()
+  }
+  openForm() {
+    window.open('https://forms.gle/J4hQoCTRovzuo1AdA')
+  }
+
+  hideContentStrip(event: any) {
+    if (event) {
+      this.contentTabEmptyResponseCount = this.contentTabEmptyResponseCount + 1
+    }
   }
 }

@@ -48,6 +48,9 @@ import { AppEventPageResolverService } from './services/app-event-page-resolver.
 import { HomeResolverService } from './home/home/home-resolver.service'
 import { PublicExtTocComponent } from './routes/public/public-ext-toc/public-ext-toc.component'
 import { AppTocExtPublicResolverService } from '@ws/app/src/lib/routes/app-toc/resolvers/app-toc-ext-public-resolver.service'
+import { PublicCrpComponent } from './routes/public/public-crp/public-crp.component'
+import { AppPublicOrganizationResolver } from './routes/public/public-signup/organization.resolver'
+import { FormDataResolverService } from './services/form-data-resolver.service'
 // 💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥
 // Please declare routes in alphabetical order
 // 😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵
@@ -186,17 +189,17 @@ const routes: Routes = [
     },
   },
   {
-    path: 'app/gyaan-karmayogi',
+    path: 'app/amrit-gyaan-kosh',
     loadChildren: () =>
       import('./routes/route-gyaan-karmayogi.module').then(u => u.RouteGyaanKarmayogiModule),
     canActivate: [GeneralGuard],
     data: {
       pageType: 'feature',
-      pageKey: 'knowledge-resource',
-      pageId: 'app/knowledge-resource',
+      pageKey: 'amrit-gyaan-kosh',
+      pageId: 'app/amrit-gyaan-kosh',
     },
     resolve: {
-      pageData: PageResolve,
+      pageData: FormDataResolverService,
       gyaanData: AppGyaanKarmayogiService,
     },
   },
@@ -710,6 +713,19 @@ const routes: Routes = [
   //   loadChildren: () =>
   //     import('./routes/route-authoring-app.module').then(u => u.AuthoringAppModule),
   // },
+  {
+    path: 'crp/:qrCodeId/:orgId',
+    component: PublicCrpComponent,
+    data: {
+      module: 'Self Registration',
+      pageId: 'crp',
+    },
+    resolve: {
+      organization: AppPublicOrganizationResolver,
+      positions: AppPublicPositionResolverService,
+      group: AppPublicGroupResolverService,
+    },
+  },
   {
     path: 'error-access-forbidden',
     component: ErrorResolverComponent,

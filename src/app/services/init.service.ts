@@ -20,6 +20,7 @@ import {
   NsInstanceConfig,
   // NsUser,
   UserPreferenceService,
+  WidgetEnrollService,
 } from '@sunbird-cb/utils-v2'
 import { environment } from '../../environments/environment'
 /* tslint:disable */
@@ -72,7 +73,7 @@ export class InitService {
   }
 
   isAnonymousTelemetry = window.location.href.includes('/public/') || window.location.href.includes('&preview=true')
-  || window.location.href.includes('/certs')
+  || window.location.href.includes('/certs') || window.location.href.includes('/crp/')
 
   constructor(
     private logger: LoggerService,
@@ -85,6 +86,7 @@ export class InitService {
     private http: HttpClient,
     private npsSvc: NPSGridService,
     private translate: TranslateService,
+    private enrollSvc: WidgetEnrollService,
     // private widgetContentSvc: WidgetContentService,
 
     @Inject(APP_BASE_HREF) private baseHref: string,
@@ -149,7 +151,7 @@ export class InitService {
 
   get isAnonymousTelemetryRequired(): boolean {
     this.isAnonymousTelemetry = window.location.href.includes('/public/')
-      || window.location.href.includes('&preview=true') || window.location.href.includes('/certs')
+      || window.location.href.includes('&preview=true') || window.location.href.includes('/certs') || window.location.href.includes('/crp/')
     return this.isAnonymousTelemetry
   }
 
@@ -179,15 +181,17 @@ export class InitService {
     try {
       const path = window.location.pathname
       const isPublic = window.location.href.includes('/public/')
-        || window.location.href.includes('&preview=true') || window.location.href.includes('/certs')
+        || window.location.href.includes('&preview=true') || window.location.href.includes('/certs') || window.location.href.includes('/crp/')
       this.setTelemetrySessionId()
       if (!path.startsWith('/public') && !isPublic) {
         await this.fetchStartUpDetails()
+        await this.fetchUserEnrollDetails()
       } else if (path.includes('/public/welcome')) {
         await this.fetchStartUpDetails()
       } else if (window.location.href.includes('editMode=true')  && window.location.href.includes('_rc')) {
         await this.fetchStartUpDetails()
       }
+
       // detail: depends only on userID
     } catch (e) {
       this.settingsSvc.initializePrefChanges(environment.production)
@@ -230,9 +234,12 @@ export class InitService {
     //     // throw new DataResponseError('COOKIE_SET_FAILURE')
     //   })
     if (
-      !(window.location.href.includes('/public/') ||
-      window.location.href.includes('/certs') ||
-      window.location.href.includes('/viewer'))
+      !(
+        window.location.href.includes('/public/') || 
+        window.location.href.includes('/crp/') ||
+        window.location.href.includes('/certs') ||
+        window.location.href.includes('/viewer')
+      )
     ) {
       this.logFirstLogin()
     }
@@ -366,6 +373,51 @@ export class InitService {
     return publicConfig
   }
 
+  private async fetchUserEnrollDetails(): Promise<NsInstanceConfig.IConfig> {
+    const publicConfig: NsInstanceConfig.IConfig = await this.enrollSvc.fetchEnrollStats(this.configSvc.userProfile?.userId).toPromise().then((res: any) => { 
+      let userCourseEnrolmentInfo: any = {}
+      let userExternalCourseEnrolmentInfo: any = {}
+      if(res && res.result && res.result.userCourseEnrolmentInfo) {
+        
+        userCourseEnrolmentInfo = res.result.userCourseEnrolmentInfo
+        userExternalCourseEnrolmentInfo = res.result.userExternalCourseEnrolmentInfo
+        userCourseEnrolmentInfo['karmaPoints'] = userCourseEnrolmentInfo['karmaPoints'] + (userExternalCourseEnrolmentInfo['karmaPoints'] || 0)
+        userCourseEnrolmentInfo['timeSpentOnCompletedCourses'] = userCourseEnrolmentInfo['timeSpentOnCompletedCourses'] + (userExternalCourseEnrolmentInfo['timeSpentOnCompletedCourses'] || 0)
+        userCourseEnrolmentInfo['certificatesIssued'] = userCourseEnrolmentInfo['certificatesIssued'] + (userExternalCourseEnrolmentInfo['certificatesIssued'] || 0)
+        userCourseEnrolmentInfo['coursesInProgress'] = userCourseEnrolmentInfo['coursesInProgress'] + (userExternalCourseEnrolmentInfo['coursesInProgress'] || 0)
+        if(userCourseEnrolmentInfo.addinfo && Object.keys(userCourseEnrolmentInfo.addinfo).length > 0) {
+          if(Object.keys(userExternalCourseEnrolmentInfo).length > 0 
+          && userExternalCourseEnrolmentInfo.addinfo 
+          && Object.keys(userExternalCourseEnrolmentInfo.addinfo).length > 0) {
+            let addInfo = userExternalCourseEnrolmentInfo.addinfo
+            userCourseEnrolmentInfo['addinfo']['claimedNonACBPCourseKarmaQuota'] = userCourseEnrolmentInfo['addinfo']['claimedNonACBPCourseKarmaQuota']  + (addInfo['claimedNonACBPCourseKarmaQuota'] || 0)
+            // userCourseEnrolmentInfo['addinfo']['formattedMonth'] = userExternalCourseEnrolmentInfo['externalCourses']
+          }
+        }
+        let enrolledCourseCount = userCourseEnrolmentInfo['coursesInProgress'] + userCourseEnrolmentInfo['certificatesIssued'] 
+        const userData = {
+          enrolledCourseCount,
+          userCourseEnrolmentInfo
+        }
+        localStorage.removeItem('userEnrollmentCount')
+        localStorage.setItem('userEnrollmentCount', JSON.stringify(userData))
+      }
+      return res 
+    }).catch((_err: any)=> {
+      let userCourseEnrolmentInfo = {
+        enrolledCourseCount:0,
+        karmaPoints:0,
+        timeSpentOnCompletedCourses: 0,
+        certificatesIssued: 0,
+        coursesInProgress: 0,
+        addinfo :{}
+      }
+      localStorage.removeItem('userEnrollmentCount')
+      localStorage.setItem('userEnrollmentCount', JSON.stringify(userCourseEnrolmentInfo))
+    }) as NsInstanceConfig.IConfig || {}       
+    return publicConfig
+  }
+
   private async themeOverrideConfig(): Promise<NsInstanceConfig.IConfig> {
     const publicConfig: NsInstanceConfig.IConfig = await this.http
       .get<NsInstanceConfig.IConfig>(`${this.baseUrl}/theme-override-config.json`)
@@ -411,6 +463,7 @@ export class InitService {
   private async fetchStartUpDetails(): Promise<any> {
 
     // const userRoles: string[] = []
+    let apiResponse: any
     if (this.configSvc.instanceConfig && !Boolean(this.configSvc.instanceConfig.disablePidCheck)) {
       let userPidProfile: any | null = null
       try {
@@ -419,6 +472,7 @@ export class InitService {
           .pipe(map((res: any) => {
             // const roles = _.map(_.get(res, 'result.response.roles'), 'role')
             // _.set(res, 'result.response.roles', roles)
+            apiResponse = res
             return _.get(res, 'result.response')
           })).toPromise()
         if (userPidProfile && userPidProfile.roles && userPidProfile.roles.length > 0 &&
@@ -486,8 +540,12 @@ export class InitService {
           localStorage.setItem('login', 'true')
         } else {
           // this.authSvc.force_logout()
-          // await this.http.get('/apis/reset').toPromise()
-          window.location.href = `${this.defaultRedirectUrl}apis/reset`
+          // await this.http.get('/apis/reset').toPromise()          
+          if (apiResponse && apiResponse.redirectUrl) {
+            window.location.href = apiResponse.redirectUrl
+          } else {
+            window.location.href = `${this.defaultRedirectUrl}apis/reset`
+          }
           this.updateTelemetryConfig()
         }
         const details = {
