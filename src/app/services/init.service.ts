@@ -33,6 +33,8 @@ import { NPSGridService } from '@sunbird-cb/collection/src/lib/grid-layout/nps-g
 import moment from 'moment'
 import { TranslateService } from '@ngx-translate/core'
 import { SbUiResolverService } from '@sunbird-cb/resolver-v2'
+import { NgZone } from '@angular/core';
+declare const Devnagri: any;
 // import { of } from 'rxjs'
 /* tslint:enable */
 // interface IDetailsResponse {
@@ -64,7 +66,12 @@ const endpoint = {
 export class InitService {
   private baseUrl = this.configSvc.baseUrl
   updateProfileSubscription: any | null = null
-
+  devnagariTranslationSettings:any = {
+    "active": true,
+    "path": "https://dns.devnagri.com/dota.js",
+    "default_lang_code": "en",
+    "apiKey": "devnagri_a868e56ebc5b11efb32842010aa00012"
+  }
   httpOptions = {
     headers: new HttpHeaders({
       wid: 'cc0c1749-4c47-49c8-9f46-2bbdd42ef877',
@@ -92,6 +99,7 @@ export class InitService {
     // private router: Router,
     domSanitizer: DomSanitizer,
     iconRegistry: MatIconRegistry,
+    private ngZone: NgZone
   ) {
     this.configSvc.isProduction = environment.production
 
@@ -400,6 +408,7 @@ export class InitService {
         localStorage.removeItem('userEnrollmentCount')
         localStorage.setItem('userEnrollmentCount', JSON.stringify(userData))
       }
+      
       return res 
     }).catch((_err: any)=> {
       let userCourseEnrolmentInfo = {
@@ -456,7 +465,7 @@ export class InitService {
           localStorage.setItem('firsLogin', 'true')
         }
       })).toPromise()
-    }
+    }    
   }
   private async fetchStartUpDetails(): Promise<any> {
     // const userRoles: string[] = []
@@ -723,8 +732,18 @@ export class InitService {
     this.configSvc.portalUrls = publicConfig.portalUrls
     this.configSvc.activeOrg = publicConfig.org[0]
     this.configSvc.positions = publicConfig.positions
+    this.devnagariTranslationSettings = publicConfig.devnagariTranslation ? publicConfig.devnagariTranslation : {
+      "active": true,
+    "path": "https://dns.devnagri.com/dota.js",
+    "default_lang_code": "en",
+    "apiKey": "devnagri_a868e56ebc5b11efb32842010aa00012"
+    }
+
+    this.loadDevnagariScript()
+    
     this.updateAppIndexMeta()
     this.updateTelemetryConfig()
+    
     return publicConfig
   }
 
@@ -937,5 +956,53 @@ export class InitService {
     } catch (error) {
       return location.origin
     }
+  }
+
+  loadDevnagariScript() {
+    console.log('this.devnagariTranslationSettings', this.devnagariTranslationSettings)
+    if(this.devnagariTranslationSettings && this.devnagariTranslationSettings && this.devnagariTranslationSettings.active) {
+      // let body = <HTMLDivElement> document.body;
+      // let script = document.createElement('script');
+      // script.innerHTML = '';
+      // script.src = this.devnagariTranslationSettings.path;
+      // script.async = true;
+      // script.defer = true;
+     
+      // body.appendChild(script);
+
+      this.loadLibrary().then(() => {
+        console.log('in load library')
+      // Call the library function after it's loaded
+      // libraryFunction();
+      Devnagri.initializeTranslation({
+        apiKey: this.devnagariTranslationSettings.apiKey,
+        default_lang_code: this.devnagariTranslationSettings.default_lang_code
+      });
+      console.log('Devnagri', Devnagri)
+      })
+      
+  .catch((error) => console.error('Failed to load the library', error));
+     
+    }
+  } 
+
+  loadLibrary(): Promise<void> {
+    console.log('this.devnagariTranslationSettings.path', this.devnagariTranslationSettings.path)
+    return new Promise((resolve, reject) => {
+      const script = document.createElement('script');
+      script.src = 'https://dns.devnagri.com/dota.js';
+      script.setAttribute('id', 'dota_js')
+      script.async = true
+      script.defer = true
+      script.setAttribute('type', 'text/javascript')
+      script.onload = () => {
+        this.ngZone.run(() => {
+        console.log('on load')
+        resolve()
+        })
+      };
+      script.onerror = (error) => reject(error);
+      document.head.appendChild(script);
+    });
   }
 }
