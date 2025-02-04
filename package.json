@@ -16,7 +16,7 @@
     "build:stats": "ng build --stats-json",
     "analyse": "webpack-bundle-analyzer ./dist/www/fusion/stats-es5.json",
     "test": "jest --no-cache",
-    "test-coverage": "./node_modules/jest/bin/jest.js --clearCache && node --max_old_space_size=8000 ./node_modules/jest/bin/jest.js --silent --ci --collectCoverage=true --coverageReporters=lcov --detectOpenHandles --forceExit=true",
+    "test-coverage": "./node_modules/jest/bin/jest.js --clearCache && node --max_old_space_size=40000 ./node_modules/jest/bin/jest.js --silent --ci --collectCoverage=true --coverageReporters=lcov --detectOpenHandles --forceExit=true",
     "lint": "ng lint",
     "lint:fix": "ng lint @ws/app --fix",
     "e2e": "ng e2e",
@@ -29,6 +29,7 @@
   },
   "private": true,
   "dependencies": {
+    "@angular-builders/jest": "^19.0.0",
     "@angular-slider/ngx-slider": "16.0.0",
     "@angular/animations": "^16.2.12",
     "@angular/cdk": "^16.2.14",
@@ -52,14 +53,14 @@
     "@project-sunbird/sb-styles": "0.0.7",
     "@project-sunbird/sunbird-quml-player": "0.0.6",
     "@project-sunbird/telemetry-sdk": "0.0.26",
-    "@sunbird-cb/consumption": "0.0.126-ang-13-16",
+    "@sunbird-cb/consumption": "0.0.127-ang-13-16",
     "@sunbird-cb/design-system": "0.0.2",
     "@sunbird-cb/discussion-v2": "0.0.21-ang-13-16",
     "@sunbird-cb/discussions-ui-v8": "2.1.7-ang-9-12",
     "@sunbird-cb/micro-surveys": "2.0.20-ang-9-12",
     "@sunbird-cb/rain-dashboards": "0.0.36-ang-13-16",
     "@sunbird-cb/resolver-v2": "0.0.7-ang-13-16",
-    "@sunbird-cb/utils-v2": "0.0.27-ang-13-16",
+    "@sunbird-cb/utils-v2": "0.0.28-ang-13-16",
     "@types/file-saver": "^2.0.1",
     "@types/uuid": "^8.3.1",
     "bootstrap": "5.1.2",
@@ -118,7 +119,7 @@
     "vis-util": "^5.0.2",
     "worker-loader": "^3.0.8",
     "xlsx": "^0.16.1",
-    "zone.js": "~0.13.3"
+    "zone.js": "^0.15.0"
   },
   "devDependencies": {
     "@angular-builders/jest": "^19.0.0",
