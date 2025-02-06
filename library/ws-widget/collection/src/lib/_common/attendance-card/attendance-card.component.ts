@@ -1,10 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core'
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
 // import { ActivatedRoute } from '@angular/router'
-import { AttendanceHelperComponent } from '@sunbird-cb/collection/src/public-api'
+
 import { NsContent } from '@sunbird-cb/utils-v2'
 // tslint:disable
 import _ from 'lodash'
+import { AttendanceHelperComponent } from '../attendance-helper/attendance-helper.component'
 
 @Component({
   selector: 'ws-widget-attendance-card',

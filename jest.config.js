@@ -1,5 +1,6 @@
 module.exports = {
   preset: 'ts-jest', 
+  
   globals: {
     'ts-jest': {
        tsconfig: '<rootDir>/tsconfig.spec.json',
@@ -13,6 +14,7 @@ module.exports = {
   moduleNameMapper: {
     '^@ws/(.*)$': '<rootDir>/project/ws/$1',
     '@ws-widget/(.*)$': '<rootDir>/library/ws-widget/$1',
+    '^@sunbird-cb/collection/(.*)$': '<rootDir>/library/ws-widget/collection/$1',
     '@ws/author/(.*)$': '<rootDir>/project/ws/author/$1',
     // '^@components/(.*)$': '<rootDir>/project/ws/author/src/lib/routing/modules/editor/routing/modules/collection-v2/components/$1',
     'worker-loader!.*': '<rootDir>/test/mocks/workerMock.js',

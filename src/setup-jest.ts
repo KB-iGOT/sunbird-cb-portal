@@ -1,4 +1,5 @@
 import 'jest-preset-angular/setup-jest'
+global.window = {}
 Object.defineProperty(window, 'env', {
     value: {
       sitePath: 'http://example.com',
