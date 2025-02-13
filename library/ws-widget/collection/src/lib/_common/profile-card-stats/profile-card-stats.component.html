@@ -1,7 +1,7 @@
 <div *ngIf="!profileData?.displayOnlyStats">
   <div class="profile-wrapper" *ngIf="!isLoading">
     <div *ngIf="!showrepublicBanner" class="expand-icon invisible md:visible" (click)="toggle()">
-        <mat-icon class="">{{ collapsed ?'expand_more': 'expand_less'}}</mat-icon>
+        <mat-icon class="nodtranslate">{{ collapsed ?'expand_more': 'expand_less'}}</mat-icon>
     </div>
     <div class="position-absolute" *ngIf="showrepublicBanner" [ngClass]="showrepublicBanner ? 'fade-in default-public-banner' : 'fade-out hide-default-public-banner' ">
       <ng-container *ngIf="!isLoading">
