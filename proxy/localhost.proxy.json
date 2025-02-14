@@ -1,6 +1,6 @@
 {
   "/apis/*": {
-    "target": "https://portal.karmayogi.nic.in/",
+    "target": "https://portal.dev.karmayogibharat.net/",
     "secure": false,
     "logLevel": "debug",
     "changeOrigin": true,
@@ -8,11 +8,11 @@
       "/apis": "/apis"
     },
     "headers": {
-      "Cookie": "connect.sid=s%3Al25Amj4smTMT-pLjW7nrMdIx4LTS_vQb.ToMIKR8I3YBVxeT%2Fj3cBq3mrugB6F1cHf66O%2FVTxo2g"
+      "Cookie": "connect.sid=s%3AQk4VR-H6P-3uVD2AiqQztPIokcMKAiuD.9RECUJqFnsmeCUWf0m19uiR%2F4gXR9cbiMmdFjV%2B3kyg"
     }
   },
   "/api/*": {
-    "target": "https://portal.karmayogi.nic.in/",
+    "target": "https://portal.dev.karmayogibharat.net/",
     "secure": false,
     "logLevel": "debug",
     "changeOrigin": true,
