@@ -79,7 +79,7 @@
             "optimization": false,
             "namedChunks": true,
             "allowedCommonJsDependencies": [
-              "@ckeditor/ckeditor5-editor-classic"
+              
             ]
           },
           "configurations": {
