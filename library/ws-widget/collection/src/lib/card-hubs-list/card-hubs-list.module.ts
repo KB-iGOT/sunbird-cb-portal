@@ -6,7 +6,7 @@ import { HorizontalScrollerModule, PipeNameTransformModule, PipeOrderByModule } 
 import { RouterModule } from '@angular/router'
 import { HttpClient } from '@angular/common/http'
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core'
-import { HttpLoaderFactory } from 'src/app/app.module'
+import { HttpLoaderFactory } from '@sunbird-cb/collection'
 import { ClickOutsideDirective } from './clickoutside.directive'
 import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button'
 import { MatLegacyCardModule as MatCardModule } from '@angular/material/legacy-card'

@@ -1,10 +1,10 @@
 import { Component, Input, ElementRef, EventEmitter, OnInit, Output, QueryList, ViewChildren } from '@angular/core'
 import { UntypedFormControl } from '@angular/forms'
-import { AppCbpPlansService } from 'src/app/services/app-cbp-plans.service'
 // tslint:disable
 import _ from 'lodash'
 import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 import { TranslateService } from '@ngx-translate/core'
+import { AppCbpPlansService } from './../../services/app-cbp-plans.service'
 // tslint:enable
 
 @Component({

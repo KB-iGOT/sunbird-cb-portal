@@ -1,4 +1,19 @@
 import 'jest-preset-angular/setup-jest'
+import '@angular/localize/init'
+jest.mock('html2canvas', () => {
+  return jest.fn().mockResolvedValue({});
+});
+Object.defineProperty(HTMLCanvasElement.prototype, 'getContext', {
+  value: () => {
+    return {
+      // Mock implementation of getContext, for example:
+      canvas: {},
+      getImageData: jest.fn(),
+      putImageData: jest.fn(),
+      createImageData: jest.fn(),
+    };
+  },
+});
 Object.defineProperty(window, 'env', {
     value: {
       sitePath: 'http://example.com',
@@ -16,3 +31,9 @@ Object.defineProperty(window, 'env', {
     },
     writable: true,
   })
+jest.mock('src/environments/environment', () => ({
+  environment: {
+    production: false,
+    sitePath: ''
+  }
+}))

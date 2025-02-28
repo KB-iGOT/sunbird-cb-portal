@@ -5,7 +5,7 @@ import { PipeCountTransformModule, PipeRelativeTimeModule } from '@sunbird-cb/ut
 import { AvatarPhotoModule } from '../_common/avatar-photo/avatar-photo.module'
 import { HttpClient } from '@angular/common/http'
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core'
-import { HttpLoaderFactory } from 'src/app/app.module'
+import { HttpLoaderFactory } from '@sunbird-cb/collection'
 import { MatLegacyCardModule as MatCardModule } from '@angular/material/legacy-card'
 import { MatIconModule } from '@angular/material/icon'
 import { MatLegacyProgressBarModule as MatProgressBarModule } from '@angular/material/legacy-progress-bar'

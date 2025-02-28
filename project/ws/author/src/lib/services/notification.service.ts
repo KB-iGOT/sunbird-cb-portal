@@ -1,7 +1,7 @@
 import { AuthInitService } from '@ws/author/src/lib/services/init.service'
 import { WorkFlowService } from './work-flow.service'
 import { AccessControlService } from '@ws/author/src/lib/modules/shared/services/access-control.service'
-import { ApiService } from 'project/ws/author/src/lib/modules/shared/services/api.service'
+import { ApiService } from '@ws/author'
 import { Injectable } from '@angular/core'
 import { NSContent } from '../interface/content'
 import { Observable, of } from 'rxjs'

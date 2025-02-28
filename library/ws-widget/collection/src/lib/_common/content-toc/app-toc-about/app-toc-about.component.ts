@@ -7,11 +7,11 @@ import { takeUntil } from 'rxjs/operators'
 
 // tslint:disable-next-line
 import _ from 'lodash'
-import dayjs from 'dayjs'
-dayjs.extend(isSameOrBefore)
-dayjs.extend(isSameOrAfter)
-import isSameOrBefore from 'dayjs/plugin/isSameOrBefore'
-import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
+// import dayjs from 'dayjs'
+// dayjs.extend(isSameOrBefore)
+// dayjs.extend(isSameOrAfter)
+// import isSameOrBefore from 'dayjs/plugin/isSameOrBefore'
+// import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
 
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { NsContentStripWithTabs } from '../../../content-strip-with-tabs/content-strip-with-tabs.model'

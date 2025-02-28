@@ -45,7 +45,7 @@ import { FeedbackFormComponent } from './components/feedback-form/feedback-form.
 import { StatusContentDisplayComponent } from './components/status-content-display/status-content-display.component'
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core'
 import { HttpClient } from '@angular/common/http'
-import { HttpLoaderFactory } from 'src/app/app.module'
+import { HttpLoaderFactory } from '@sunbird-cb/collection'
 import { MatLegacyAutocompleteModule as MatAutocompleteModule } from '@angular/material/legacy-autocomplete'
 import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button'
 import { MatButtonToggleModule } from '@angular/material/button-toggle'

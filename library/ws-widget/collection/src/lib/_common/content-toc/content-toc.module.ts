@@ -6,7 +6,7 @@ import { HttpClient } from '@angular/common/http'
 import { InfiniteScrollModule } from 'ngx-infinite-scroll'
 import { NgCircleProgressModule } from 'ng-circle-progress'
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core'
-import { HttpLoaderFactory } from 'src/app/app.module'
+import { HttpLoaderFactory } from '@sunbird-cb/collection'
 import { WidgetResolverModule } from '@sunbird-cb/resolver/src/public-api'
 import { PipeDurationTransformModule, HorizontalScrollerV2Module,
   PipeRelativeTimeModule, PipeSafeSanitizerModule } from '@sunbird-cb/utils-v2'

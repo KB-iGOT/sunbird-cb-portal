@@ -2,7 +2,11 @@
   "extends": "./tsconfig.json",
   "compilerOptions": {
     "outDir": "./out-tsc/app",
-    "types": ["node", "@types/zip.js"],
+    "types": [
+      "node",
+      "@types/zip.js",
+      "@angular/localize"
+    ],
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "allowJs": true,
