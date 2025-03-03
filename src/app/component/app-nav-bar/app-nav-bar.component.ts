@@ -6,8 +6,9 @@ import { TranslateService } from '@ngx-translate/core'
 import { IBtnAppsConfig, CustomTourService, WidgetUserService } from '@sunbird-cb/collection'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { ConfigurationsService, EventService, MultilingualTranslationsService, NsInstanceConfig, NsPage, WsEvents } from '@sunbird-cb/utils-v2'
+import { UrlService } from '../../shared/url.service'
 
-import { UrlService } from 'src/app/shared/url.service'
+
 
 @Component({
   selector: 'ws-app-nav-bar',
