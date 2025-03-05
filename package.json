@@ -25,7 +25,9 @@
     "prestart": "npm run tailwind",
     "bundle-report": "webpack-bundle-analyzer dist/stats.json",
     "tt": "node --max_old_space_size=8000 ./node_modules/@angular/cli/bin/ng serve --configuration=nb",
-    "sonar": "sonar-scanner"
+    "sonar": "sonar-scanner",
+    "dev:ssr": "ng run fusion:serve",
+    "serve:ssr": "node dist/fusion/server/main.js"
   },
   "private": true,
   "dependencies": {
@@ -46,6 +48,7 @@
     "@angular/service-worker": "^16.2.12",
     "@ckeditor/ckeditor5-angular": "^9.1.0",
     "@ctrl/ngx-emoji-mart": "^7.1.0",
+    "@nguniversal/express-engine": "^16.2.0",
     "@ngx-translate/core": "^15.0.0",
     "@ngx-translate/http-loader": "8.0.0",
     "@project-sunbird/client-services": "3.9.5",
@@ -53,7 +56,7 @@
     "@project-sunbird/sunbird-quml-player": "0.0.6",
     "@project-sunbird/telemetry-sdk": "0.0.26",
     "@sunbird-cb/consumption": "0.0.146-ang-13-16",
-    "@sunbird-cb/design-system": "0.0.2",
+    "@sunbird-cb/design-system": "0.0.3",
     "@sunbird-cb/discussion-v2": "0.0.35-ang-13-16",
     "@sunbird-cb/discussions-ui-v8": "2.1.7-ang-9-12",
     "@sunbird-cb/micro-surveys": "2.0.20-ang-9-12",
