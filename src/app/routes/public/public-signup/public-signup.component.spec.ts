@@ -124,6 +124,11 @@ describe('PublicSignupComponent', () => {
     component.ngOnInit();
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+    jest.resetAllMocks();
+  });
+
   describe('Form Initialization', () => {
     it('should initialize the registration form', () => {
       expect(component.registrationForm).toBeDefined();

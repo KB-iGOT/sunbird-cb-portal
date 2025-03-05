@@ -13,6 +13,11 @@ describe('CommunitySearchComponent', () => {
     component = new CommunitySearchComponent(mockRouter);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+
   describe('searchTextMethod', () => {
     it('should navigate to search page with trimmed search text', () => {
       const searchText = '  test search  ';

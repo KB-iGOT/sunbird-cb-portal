@@ -24,6 +24,11 @@ describe('FilterComponent', () => {
     component = new FilterComponent(appCbpPlansService, translateService, langTranslationsService);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+    jest.resetAllMocks();
+  });
+
   it('should be created', () => {
     expect(component).toBeTruthy();
   });

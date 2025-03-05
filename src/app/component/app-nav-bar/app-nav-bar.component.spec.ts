@@ -118,6 +118,11 @@ describe('AppNavBarComponent', () => {
     };
     Object.defineProperty(window, 'localStorage', { value: localStorageMock });
   });
+
+  afterEach(() => {
+    jest.clearAllMocks();
+    jest.resetAllMocks();
+  });
   
   it('should create the component', () => {
     expect(component).toBeTruthy();

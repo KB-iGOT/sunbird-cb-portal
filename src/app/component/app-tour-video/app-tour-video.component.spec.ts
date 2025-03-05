@@ -55,6 +55,11 @@ describe('AppTourVideoComponent', () => {
     (component as any).environment = mockEnvironment;
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+    jest.resetAllMocks();
+  });
+
   describe('Constructor', () => {
     it('should set language from localStorage', () => {
       // Arrange

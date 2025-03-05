@@ -16,7 +16,7 @@
     "build:stats": "ng build --stats-json",
     "analyse": "webpack-bundle-analyzer ./dist/www/fusion/stats-es5.json",
     "test": "jest",
-    "test-coverage": "./node_modules/jest/bin/jest.js --clearCache && node --max_old_space_size=10000000 ./node_modules/jest/bin/jest.js --silent --ci --collectCoverage=true --coverageReporters=lcov --detectOpenHandles --forceExit=true",
+    "test-coverage": " ./node_modules/jest/bin/jest.js --clearCache && node --max_old_space_size=10000000 ./node_modules/jest/bin/jest.js --silent --ci --collectCoverage=true --coverageReporters=lcov --detectOpenHandles --forceExit=false",
     "lint": "ng lint",
     "lint:fix": "ng lint @ws/app --fix",
     "e2e": "ng e2e",

@@ -131,6 +131,7 @@ describe('CompetencyCardDetailsComponent', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+    jest.resetAllMocks();
   });
 
   it('should create', () => {

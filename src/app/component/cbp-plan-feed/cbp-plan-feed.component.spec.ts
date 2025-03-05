@@ -32,6 +32,11 @@ describe('CbpPlanFeedComponent', () => {
     component = new CbpPlanFeedComponent(activatedRouteMock, translateServiceMock, multilingualTranslationsServiceMock);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+    jest.resetAllMocks();
+  });
+
   it('should create the component', () => {
     expect(component).toBeTruthy();
   });

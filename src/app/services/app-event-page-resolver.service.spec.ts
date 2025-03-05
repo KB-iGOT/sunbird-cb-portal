@@ -38,6 +38,11 @@ describe('AppEventPageResolverService', () => {
     );
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+    jest.resetAllMocks();
+  });
+
   it('should be created', () => {
     expect(service).toBeTruthy();
   });

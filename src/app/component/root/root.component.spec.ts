@@ -168,6 +168,7 @@ describe('RootComponent', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+    jest.resetAllMocks();
   });
 
   describe('Initialization', () => {

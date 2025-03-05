@@ -86,6 +86,11 @@ describe('TopRightNavBarComponent', () => {
     );
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+    jest.resetAllMocks();
+  });
+
   describe('Constructor', () => {
     it('should set default language when websiteLanguage is in localStorage', () => {
       localStorage.setItem('websiteLanguage', 'fr');

@@ -25,6 +25,11 @@ describe('HomeResolverService', () => {
     service = new HomeResolverService(configSvcMock, routerMock);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+    jest.resetAllMocks();
+  });
+
   it('should be created', () => {
     expect(service).toBeTruthy();
   });

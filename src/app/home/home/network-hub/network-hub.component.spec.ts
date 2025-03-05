@@ -48,6 +48,11 @@ describe('NetworkHubComponent', () => {
     );
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+    jest.resetAllMocks();
+  });
+
   it('should create the component', () => {
     expect(component).toBeTruthy();
   });

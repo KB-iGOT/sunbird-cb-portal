@@ -41,6 +41,11 @@ describe('FeedListComponent', () => {
     )
   })
 
+  afterEach(() => {
+    jest.clearAllMocks();
+    jest.resetAllMocks();
+  });
+
   describe('ngOnInit', () => {
     it('should initialize contentStripData and isMobile', () => {
       component.ngOnInit()

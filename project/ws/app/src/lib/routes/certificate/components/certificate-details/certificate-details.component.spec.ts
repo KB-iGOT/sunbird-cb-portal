@@ -56,6 +56,11 @@ describe('CertificateDetailsComponent', () => {
     );
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+
   it('should create the component', () => {
     expect(component).toBeTruthy();
   });

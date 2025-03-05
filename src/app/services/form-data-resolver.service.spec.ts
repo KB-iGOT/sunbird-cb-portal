@@ -42,6 +42,11 @@ describe('FormDataResolverService', () => {
     };
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+    jest.resetAllMocks();
+  });
+
   it('should be created', () => {
     expect(service).toBeTruthy();
   });

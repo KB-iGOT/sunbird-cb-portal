@@ -36,6 +36,11 @@ describe('CourseCompletionDialogComponent', () => {
         jest.clearAllMocks();
         jest.resetAllMocks();
     });
+
+    afterEach(() => {
+        jest.clearAllMocks();
+        jest.resetAllMocks();
+      });
             
     it('should create a instance of component', () => {
         expect(component).toBeTruthy();

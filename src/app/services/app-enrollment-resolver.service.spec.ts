@@ -49,6 +49,11 @@ describe('AppEnrollmentResolverService', () => {
     });
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+    jest.resetAllMocks();
+  });
+
   test('should be created', () => {
     expect(service).toBeTruthy();
   });

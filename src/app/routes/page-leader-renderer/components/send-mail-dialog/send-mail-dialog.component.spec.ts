@@ -51,6 +51,11 @@ describe('SendMailDialogComponent', () => {
     component.ngOnInit();
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+    jest.resetAllMocks();
+  });
+
   describe('sendMail', () => {
     it('should send the email and show success toast when the email is sent successfully', () => {
       // Arrange

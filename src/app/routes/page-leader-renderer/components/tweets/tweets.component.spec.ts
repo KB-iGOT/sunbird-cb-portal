@@ -29,6 +29,11 @@ describe('TweetsComponent', () => {
     global.document.getElementById = jest.fn(() => null) // Simulating no existing script in the DOM
   })
 
+  afterEach(() => {
+    jest.clearAllMocks();
+    jest.resetAllMocks();
+  });
+
   it('should be created', () => {
     expect(component).toBeTruthy()
   })

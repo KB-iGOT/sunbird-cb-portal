@@ -13,6 +13,11 @@ describe('DiscussV2HomeComponent', () => {
     component = new DiscussV2HomeComponent(mockRouter);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+
   it('should create', () => {
     expect(component).toBeTruthy();
   });

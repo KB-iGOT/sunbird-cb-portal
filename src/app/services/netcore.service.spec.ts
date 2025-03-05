@@ -7,6 +7,12 @@ import moment from 'moment';
 // Mock the smartech function
 jest.mock('smartech', () => jest.fn());
 
+afterEach(() => {
+  jest.clearAllMocks();
+  jest.resetAllMocks();
+});
+
+
 describe('NetCoreService', () => {
   let service: NetCoreService;
   let httpClient: HttpClient;

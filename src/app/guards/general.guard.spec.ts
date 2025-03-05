@@ -43,6 +43,11 @@ describe('GeneralGuard', () => {
     guard = new GeneralGuard(router, configSvc, authSvc);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+    jest.resetAllMocks();
+  });
+
   it('should create the guard', () => {
     expect(guard).toBeTruthy();
   });

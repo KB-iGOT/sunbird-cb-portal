@@ -12,6 +12,12 @@ describe('ConfirmationComponent', () => {
     jest.resetAllMocks();
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+    jest.resetAllMocks();
+  });
+
+
   it('should create an instance of the component', () => {
     expect(component).toBeTruthy();
   });

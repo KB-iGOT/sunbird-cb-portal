@@ -17,6 +17,11 @@ describe('PlaylistContentDeleteDialogComponent', () => {
     component = new PlaylistContentDeleteDialogComponent(dialogRefMock, playlistTitleMock);
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+
   it('should create the component', () => {
     expect(component).toBeTruthy();
   });

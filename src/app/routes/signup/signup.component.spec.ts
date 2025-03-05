@@ -32,6 +32,11 @@ describe('SignupComponent', () => {
     });
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+    jest.resetAllMocks();
+  });
+
   it('should create the component and initialize the form', () => {
     expect(component).toBeTruthy();
     expect(component.signupForm instanceof UntypedFormGroup).toBe(true);

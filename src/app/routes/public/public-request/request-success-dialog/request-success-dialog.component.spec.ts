@@ -33,6 +33,11 @@ describe('RequestSuccessDialogComponent', () => {
     component.ngOnInit() // Manually trigger ngOnInit lifecycle method
   })
 
+  afterEach(() => {
+    jest.clearAllMocks();
+    jest.resetAllMocks();
+  });
+
   it('should create the component', () => {
     expect(component).toBeTruthy()
   })

@@ -99,6 +99,11 @@ describe('PublicRequestComponent', () => {
     component.ngOnInit();
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+    jest.resetAllMocks();
+  });
+
   describe('Form Initialization', () => {
     it('should initialize form with correct validators', () => {
       expect(component.requestForm).toBeDefined();

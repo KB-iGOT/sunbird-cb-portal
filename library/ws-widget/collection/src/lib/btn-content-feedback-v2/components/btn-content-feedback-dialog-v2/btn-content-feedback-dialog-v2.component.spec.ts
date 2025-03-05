@@ -37,6 +37,11 @@ describe('BtnContentFeedbackDialogV2Component', () => {
     );
   });
 
+  afterEach(() => {
+    jest.clearAllMocks();
+  });
+
+
   it('should create the component', () => {
     expect(component).toBeTruthy();
   });

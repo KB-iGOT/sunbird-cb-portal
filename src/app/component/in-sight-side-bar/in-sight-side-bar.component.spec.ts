@@ -147,6 +147,7 @@ describe('InsightSideBarComponent', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+    jest.resetAllMocks();
   });
 
   it('should create component', () => {

@@ -138,6 +138,7 @@ describe('PublicTocComponent', () => {
 
   afterEach(() => {
     jest.clearAllMocks();
+    jest.resetAllMocks();
   });
 
   it('should create', () => {

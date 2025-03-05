@@ -29,6 +29,11 @@ describe('CbpPlanStatsComponent', () => {
     component = new CbpPlanStatsComponent(translateService, langtranslationsService)
   })
 
+  afterEach(() => {
+    jest.clearAllMocks();
+    jest.resetAllMocks();
+  });
+  
   it('should create the component', () => {
     expect(component).toBeTruthy()
   })

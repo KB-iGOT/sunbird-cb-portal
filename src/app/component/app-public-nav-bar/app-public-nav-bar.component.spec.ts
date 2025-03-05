@@ -36,6 +36,11 @@ describe('AppPublicNavBarComponent', () => {
     component = new AppPublicNavBarComponent(sanitizer, configService)
   })
 
+  afterEach(() => {
+    jest.clearAllMocks();
+    jest.resetAllMocks();
+  });
+
   it('should create the component', () => {
     expect(component).toBeTruthy()
   })
