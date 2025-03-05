@@ -16,7 +16,7 @@ import { SafeHtml, DomSanitizer, SafeStyle } from '@angular/platform-browser'
 import { AccessControlService } from '@ws/author/src/public-api'
 // import { FormControl, Validators } from '@angular/forms'
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
-import { MobileAppsService } from 'src/app/services/mobile-apps.service'
+import { MobileAppsService } from '../../../services/mobile-apps.service'
 import dayjs from 'dayjs'
 // tslint:disable-next-line
 import _ from 'lodash'

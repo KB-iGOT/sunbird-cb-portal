@@ -36,7 +36,7 @@ import {
 import { delay, first, catchError, map, filter } from 'rxjs/operators'
 import { MobileAppsService } from '../../services/mobile-apps.service'
 import { RootService } from './root.service'
-import { UrlService } from 'src/app/shared/url.service'
+import { UrlService } from '../../shared/url.service'
 
 import { CsModule } from '@project-sunbird/client-services'
 import { SwUpdate } from '@angular/service-worker'

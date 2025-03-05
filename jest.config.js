@@ -20,6 +20,7 @@ module.exports = {
     "^src/environments/environment$": "<rootDir>/src/environments/environment.ts",
     '@ckeditor/.*': '<rootDir>/test/mocks/mock-ckeditor.js',
     '^@sunbird-cb/discussion-v2': '<rootDir>/test/mocks/mock-ckeditor.js',
+    "uuid": require.resolve('uuid'),
   },
   coverageReporters: ["clover", "json", "lcov", "text", "text-summary"],
   collectCoverage: true,
