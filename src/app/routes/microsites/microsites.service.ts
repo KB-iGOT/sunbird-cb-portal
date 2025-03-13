@@ -5,7 +5,7 @@ import { NSSearch } from '@sunbird-cb/collection/src/lib/_services/widget-search
 
 // tslint:disable
 import _ from 'lodash'
-import { FormExtService } from 'src/app/services/form-ext.service'
+import { FormExtService } from '../../services/form-ext.service'
 // tslint:enable
 
 const API_END_POINTS = {
