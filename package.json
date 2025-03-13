@@ -56,7 +56,7 @@
     "@sunbird-cb/micro-surveys": "2.0.20-ang-13-16",
     "@sunbird-cb/consumption": "0.0.160-ang-13-16",
     "@sunbird-cb/design-system": "0.0.3",
-    "@sunbird-cb/discussion-v2": "0.0.43-ang-13-16",
+    "@sunbird-cb/discussion-v2": "0.0.45-cbrelease-4.8.22",
     "@sunbird-cb/rain-dashboards": "0.0.36-ang-13-16",
     "@sunbird-cb/resolver-v2": "0.0.7-ang-13-16",
     "@sunbird-cb/utils-v2": "0.0.35-ang-13-16",
