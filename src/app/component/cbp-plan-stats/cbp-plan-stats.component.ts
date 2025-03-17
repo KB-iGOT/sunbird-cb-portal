@@ -4,8 +4,7 @@ import isSameOrBefore from 'dayjs/plugin/isSameOrBefore'
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
 import { TranslateService } from '@ngx-translate/core'
 import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
-dayjs.extend(isSameOrBefore)
-dayjs.extend(isSameOrAfter)
+
 
 @Component({
   selector: 'ws-cbp-plan-stats',
@@ -31,6 +30,10 @@ export class CbpPlanStatsComponent implements OnInit {
         this.translate.use(lang)
       }
     })
+    if(dayjs) {
+      dayjs.extend(isSameOrBefore)
+      dayjs.extend(isSameOrAfter)
+    }
    }
 
   ngOnInit() {

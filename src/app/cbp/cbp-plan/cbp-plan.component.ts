@@ -15,9 +15,7 @@ import { TranslateService } from '@ngx-translate/core'
 import { ConfigurationsService, MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 
 import { WidgetUserServiceLib } from '@sunbird-cb/consumption'
-dayjs.extend(isSameOrBefore)
-dayjs.extend(isSameOrAfter)
-dayjs.extend(isBetween)
+
 @Component({
   selector: 'ws-cbp-plan',
   templateUrl: './cbp-plan.component.html',
@@ -66,6 +64,11 @@ export class CbpPlanComponent implements OnInit {
           this.translate.use(lang)
         }
       })
+      if(dayjs) {
+        dayjs.extend(isSameOrBefore)
+dayjs.extend(isSameOrAfter)
+dayjs.extend(isBetween)
+      }
     }
 
   ngOnInit() {
@@ -90,7 +93,7 @@ export class CbpPlanComponent implements OnInit {
       this.overDueList = []
       this.completedList = []
       response = response.sort((a: any, b: any): any => {
-        if (a.planDuration === NsCardContent.ACBPConst.OVERDUE && b.planDuration === NsCardContent.ACBPConst.OVERDUE) {
+        if (NsCardContent && a.planDuration === NsCardContent.ACBPConst.OVERDUE && b.planDuration === NsCardContent.ACBPConst.OVERDUE) {
           const firstDate: any = new Date(a.endDate)
           const secondDate: any = new Date(b.endDate)
           return  firstDate > secondDate  ? -1 : 1

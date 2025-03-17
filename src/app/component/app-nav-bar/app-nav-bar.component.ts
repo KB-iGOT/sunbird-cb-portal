@@ -79,13 +79,13 @@ export class AppNavBarComponent implements OnInit, OnChanges {
 
     this.router.events.subscribe(event => {
       if (event instanceof NavigationStart) {
-        this.isHubEnable = (event.url.includes('/certs') || event.url.includes('/public/certs')) ? false : true
+        this.isHubEnable = event.url && ((event.url.includes('/certs') || event.url.includes('/public/certs'))) ? false : true
         this.cancelTour()
       } else if (event instanceof NavigationEnd) {
-        this.isHubEnable = (event.url.includes('/certs') || event.url.includes('/public/certs')) ? false : true
+        this.isHubEnable = event.url && (event.url.includes('/certs') || event.url.includes('/public/certs')) ? false : true
         this.routeSubs(event)
         this.cancelTour()
-        this.bindUrl(event.url.replace('/app/competencies/', ''))
+        this.bindUrl(event.url && event.url.replace('/app/competencies/', ''))
       }
       this.showLangDropdown = window.location.href.includes('/karmayogi-saptah') ?
       false : true
@@ -119,21 +119,21 @@ export class AppNavBarComponent implements OnInit, OnChanges {
             this.activeRoute = route ? route.toLowerCase().toString() : ''
           }
 
-          if (event.url.includes('/app/toc/do') && window.screen.availWidth < 768) {
+          if (event.url && event.url.includes('/app/toc/do') && window.screen.availWidth < 768) {
             this.hideKPOnNav = true
           } else {
             this.hideKPOnNav = false
           }
 
-          if (event.url.includes('/page/home')) {
+          if (event.url && event.url.includes('/page/home')) {
             this.activeRoute = 'home'
-          } else if (event.url.includes('/page/explore')) {
+          } else if (event.url && event.url.includes('/page/explore')) {
             this.activeRoute = 'explorer'
-          } else if (event.url.includes('app/globalsearch')  || event.url.includes('/app/search/home')) {
+          } else if (event.url && event.url.includes('app/globalsearch')  || event.url.includes('/app/search/home')) {
             this.activeRoute = 'search'
-          } else if (event.url.includes('app/careers')) {
+          } else if (event.url && event.url.includes('app/careers')) {
             this.activeRoute = 'Career'
-          } else if (event.url.includes('app/seeAll?key=continueLearning')) {
+          } else if (event.url && event.url.includes('app/seeAll?key=continueLearning')) {
             this.activeRoute = 'my learnings'
           }
       }
@@ -219,26 +219,26 @@ export class AppNavBarComponent implements OnInit, OnChanges {
   routeSubs(e: NavigationEnd) {
     // this.router.events.subscribe((e: Event) => {
     //   if (e instanceof NavigationEnd) {
-    if (e.url.includes('/app/setup')) {
+    if (e.url && e.url.includes('/app/setup')) {
       this.isSetUpPage = true
     } else {
       this.isSetUpPage = false
     }
     if (
-      e.url.includes('/public/logout')
+      e.url && (e.url.includes('/public/logout')
       || e.url.includes('/public/home')
       || e.url.includes('/public/sso')
       || e.url.includes('/public/google/sso')
-      || e.url.startsWith('/viewer')
+      || e.url.startsWith('/viewer'))
     ) {
       this.showAppNavBar = false
-      if (e.url.includes('/public/home')) {
+      if (e && e.url && e.url.includes('/public/home')) {
         this.isPublicHomePage = true
       } else {
         this.isPublicHomePage = false
       }
     // tslint:disable-next-line: max-line-length
-    } else if ((e.url.includes('/app/setup') && this.configSvc.instanceConfig && !this.configSvc.instanceConfig.showNavBarInSetup)) {
+    } else if (e && e.url && (e.url.includes('/app/setup') && this.configSvc.instanceConfig && !this.configSvc.instanceConfig.showNavBarInSetup)) {
       this.showAppNavBar = false
     } else {
       this.showAppNavBar = true
@@ -335,7 +335,7 @@ export class AppNavBarComponent implements OnInit, OnChanges {
   }
 
   get isThisSetUpPage(): boolean {
-    if (window.location.pathname.includes('/app/setup')) {
+    if (window.location.pathname && window.location.pathname.includes('/app/setup')) {
       this.isSetUpPage = true
     } else {
       this.isSetUpPage = false
@@ -397,7 +397,7 @@ export class AppNavBarComponent implements OnInit, OnChanges {
   }
 
   handleNavigateBack(): void {
-    if (this.previousUrl.includes('/app/toc/do_') || this.previousUrl.includes('/viewer/pdf/do_')) {
+    if (this.previousUrl && this.previousUrl.includes('/app/toc/do_') || this.previousUrl.includes('/viewer/pdf/do_')) {
       this.router.navigateByUrl('/page/home')
     }
   }
