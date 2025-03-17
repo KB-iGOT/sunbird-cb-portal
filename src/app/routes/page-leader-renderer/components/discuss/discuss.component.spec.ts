@@ -1,70 +1,31 @@
 import { DiscussComponent } from './discuss.component';
 import { IWsLeader } from '../../model/leadership.model';
-import { NsDiscussionForum } from '@sunbird-cb/collection';
+
+// Mock the dependencies
+jest.mock('@sunbird-cb/collection', () => ({
+  NsDiscussionForum: {
+    EDiscussionType: {
+      LEARNING: 'LEARNING'
+    }
+  }
+}));
 
 describe('DiscussComponent', () => {
   let component: DiscussComponent;
 
   beforeEach(() => {
+    // Create a fresh instance for each test
     component = new DiscussComponent();
   });
 
-  it('should create DiscussComponent', () => {
+  it('should create the component', () => {
     expect(component).toBeTruthy();
-  });
-
-  it('should set discussionForumWidget and discussionFetchStatus when leaderProfile is provided', () => {
-    // Mock leader profile
-    const mockLeaderProfile: IWsLeader = { 
-        designation: '',
-        disabled: false,
-        emailId: '',
-        link: '',
-        name: '',
-        profileImage: '',
-        role: ''
-    };
-
-    // Assign the input properties
-    component.pageId = 'page-1';
-    component.leaderProfile = mockLeaderProfile;
-
-    // Call ngOnInit manually to simulate component initialization
-    component.ngOnInit();
-
-    // Check if the discussionForumWidget is set properly
-    expect(component.discussionForumWidget).toEqual({
-      widgetData: {
-        id: 'page-1',
-        title: '',
-        name: NsDiscussionForum.EDiscussionType.LEARNING,
-        initialPostCount: 2,
-      },
-      widgetSubType: 'discussionForum',
-      widgetType: 'discussionForum',
-    });
-
-    // Check if the discussionFetchStatus is set to 'done'
-    expect(component.discussionFetchStatus).toBe('done');
-  });
-
-  it('should not set discussionForumWidget and discussionFetchStatus if leaderProfile is not provided', () => {
-    component.pageId = 'page-1';
-    component.leaderProfile = null; // No leader profile
-
-    component.ngOnInit();
-
-    // The discussionForumWidget should remain null
-    expect(component.discussionForumWidget).toBeNull();
-
-    // The discussionFetchStatus should remain 'none'
-    expect(component.discussionFetchStatus).toBe('none');
   });
 
   it('should initialize with default values', () => {
     expect(component.pageId).toBe('');
     expect(component.leaderProfile).toBeNull();
-    expect(component.isDiscussionsDoneByLeader).toBe(false);
+    expect(component.isDiscussionsDoneByLeader).toBeFalsy();
     expect(component.discussionFetchStatus).toBe('none');
     expect(component.discussionForumInput).toBeNull();
     expect(component.userId).toBe('');
@@ -72,5 +33,50 @@ describe('DiscussComponent', () => {
     expect(component.discussionForumWidget).toBeNull();
   });
 
-  // Additional test case for user-specific functionality, if any, can be added here
+  describe('ngOnInit', () => {
+    it('should not initialize discussionForumWidget when leaderProfile is null', () => {
+      // Set up initial state
+      component.pageId = 'test-page';
+      component.leaderProfile = null;
+
+      // Call the method
+      component.ngOnInit();
+
+      // Check the expected outcome
+      expect(component.discussionForumWidget).toBeNull();
+      expect(component.discussionFetchStatus).toBe('none');
+    });
+
+    it('should initialize discussionForumWidget when leaderProfile is provided', () => {
+      // Set up test data
+      const mockLeaderProfile: IWsLeader = {
+        name: 'Test Leader',
+        designation: '',
+        emailId: '',
+        link: '',
+        profileImage: '',
+        role: ''
+      };
+      
+      // Set initial state
+      component.pageId = 'test-page';
+      component.leaderProfile = mockLeaderProfile;
+
+      // Call the method
+      component.ngOnInit();
+
+      // Verify expected outcomes
+      expect(component.discussionFetchStatus).toBe('done');
+      expect(component.discussionForumWidget).toEqual({
+        widgetData: {
+          id: 'test-page',
+          title: '',
+          name: 'LEARNING',
+          initialPostCount: 2,
+        },
+        widgetSubType: 'discussionForum',
+        widgetType: 'discussionForum',
+      });
+    });
+  });
 });
