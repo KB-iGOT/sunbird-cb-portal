@@ -47,7 +47,7 @@ export class LandingComponent implements OnInit {
   }
 
   ngOnInit() {
-    if (this.route) {
+    if (this.route && this.route.data) {
       this.route.data.subscribe(response => {
         this.init(response)
       })
@@ -59,11 +59,11 @@ export class LandingComponent implements OnInit {
     if (leaderResponse.data) {
       this.leaderData = leaderResponse.data
       this.tabs = this.leaderData ? this.leaderData.tabs.map(tab => tab.title) : []
-      this.route.paramMap.subscribe((params: ParamMap) => {
+      this.route && this.route.paramMap && this.route.paramMap.subscribe((params: ParamMap) => {
         const name = params.get('name')
         this.leaderName = name ? name : ''
       })
-      this.route.queryParamMap.subscribe((qParamMap: ParamMap) => {
+      this.route&& this.route.queryParamMap && this.route.queryParamMap.subscribe((qParamMap: ParamMap) => {
         const tab = qParamMap.get('tab')
         this.currentIndex = tab && this.tabs.includes(tab) ? this.tabs.indexOf(tab) : 0
       })
@@ -75,7 +75,7 @@ export class LandingComponent implements OnInit {
   }
 
   fetchUserId() {
-    if (this.leaderData) {
+    if (this.leaderData && this.leaderData.profile && this.leaderData.profile.emailId) {
       this.leaderSvc.emailToUserId(this.leaderData.profile.emailId).subscribe(
         (uuid: IWsEmailUserId) => {
           this.leaderUuid = uuid.userId

@@ -126,7 +126,7 @@ describe('CompetencyCardDetailsComponent', () => {
     component.courseNameDiv = mockQueryList as any;
     
     // Mock window.open
-    global.open = jest.fn();
+    //global.open = jest.fn();
   });
 
   afterEach(() => {

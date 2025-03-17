@@ -9,9 +9,9 @@ import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack
 // import { ReCaptchaV3Service } from 'ng-recaptcha'
 // import { DOCUMENT, isPlatformBrowser } from '@angular/common'
 // tslint:disable-next-line: import-name
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { ActivatedRoute, Router } from '@angular/router'
-import { InitService } from 'src/app/services/init.service'
+import { InitService } from '../../../services/init.service'
 import { environment } from 'src/environments/environment'
 
 // export function forbiddenNamesValidator(optionsArray: any): ValidatorFn {
@@ -136,7 +136,7 @@ export class PublicWelcomeComponent implements OnInit, OnDestroy {
         // @Inject(PLATFORM_ID) private _platformId: any,
     ) {
         this.usr = _.get(this.activatedRoute, 'snapshot.data.userData.data')
-        if (!this.usr.isUpdateRequired) {
+        if (this.usr && !this.usr.isUpdateRequired) {
             if (!this.configSvc || !this.configSvc.userProfileV2) {
                 this.fetch().then(() => {
                     this.router.navigate(['/page/home'])
@@ -163,7 +163,7 @@ export class PublicWelcomeComponent implements OnInit, OnDestroy {
         const fullname = this.usr && this.usr.firstName ? this.usr.firstName + (this.usr.lastName ? ` ${this.usr.lastName}`: '') : ''
         this.isEmailVerified = this.usr && this.usr.email ? true : false
         let mobileDisabled = false
-        if (this.usr.phone) {
+        if (this.usr && this.usr.phone) {
           this.isMobileVerified = true
           mobileDisabled = true
         }

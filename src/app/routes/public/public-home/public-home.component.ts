@@ -4,7 +4,7 @@ import { Subscription } from 'rxjs'
 import { ActivatedRoute } from '@angular/router'
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { WidgetResolverService } from '@sunbird-cb/resolver/src/public-api'
 import { TranslateService } from '@ngx-translate/core'
 

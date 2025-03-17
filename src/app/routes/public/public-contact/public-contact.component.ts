@@ -3,7 +3,7 @@ import { ConfigurationsService, MultilingualTranslationsService, NsPage } from '
 import { Subscription } from 'rxjs'
 import { ActivatedRoute } from '@angular/router'
 // tslint:disable-next-line: import-name
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { TranslateService } from '@ngx-translate/core'
 
 @Component({
