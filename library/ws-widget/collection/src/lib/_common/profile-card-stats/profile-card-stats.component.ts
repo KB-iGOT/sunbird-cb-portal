@@ -163,6 +163,7 @@ export class ProfileCardStatsComponent implements OnInit {
       this.countdata = {
         certificate: enrollList.userCourseEnrolmentInfo.certificatesIssued,
         inProgress: enrollList.userCourseEnrolmentInfo.coursesInProgress,
+        karmaPoints: enrollList.userCourseEnrolmentInfo.karmaPoints,
         learningHours: this.pipDuration.transform(enrollList.userCourseEnrolmentInfo.timeSpentOnCompletedCourses, 'hms'),
       }
     }
@@ -212,5 +213,27 @@ export class ProfileCardStatsComponent implements OnInit {
 
   redirectTo(name: string) {
     this.router.navigateByUrl(`app/person-profile/me?tab=1#${name}`)
+  }
+
+  showMyActivities(): void {
+    const element = document.getElementById('user-leaderboard');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+  
+  showWeeklyClapsSection() {
+    const element = document.getElementById('weekly-wrapper');
+    if (element) {
+      element.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+  }
+
+  redirectToContent(stats: any) {
+    if (stats?.key === 'karmaPoints') {
+      this.router.navigate(['/app/person-profile/karma-points']);
+    } else {
+      this.router.navigate(['/app/seeAll/new'], { queryParams: { key: 'continueLearning' } });
+    }
   }
 }
