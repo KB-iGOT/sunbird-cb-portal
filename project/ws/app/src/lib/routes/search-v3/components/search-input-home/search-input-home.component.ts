@@ -63,12 +63,12 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
     {
       label: 'Case Studies',
       value: SearchCategory.CaseStudy,
-      icon: 'menu_book',
+      icon: 'diversity_3',
     },
     {
       label: 'Communities',
       value: SearchCategory.Communities,
-      icon: 'diversity_3',
+      icon: 'menu_book',
     },
   ];
 
@@ -205,7 +205,6 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
   }
 
   async updateQuery(query: string) {
-    if (!query) return;
 
     document.getElementById('global-search-input')?.blur();
 
@@ -284,39 +283,24 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
 
     courseSearchResult = await this.searchV3Service.searchCoursesv4(
       searchRequest
-    );
+    ).catch();
 
     if (this.selectedSearchCategory === SearchCategory.People) {
-      if (courseSearchResult?.result?.content) {
-        const searchRequest = new SearchPeoplesRequest();
-        const departmentName = new Set<string>();
+      const searchRequest = new SearchPeoplesRequest();
+      searchRequest.query = query;
+      const result = await this.searchV3Service.searchConnections(
+        searchRequest
+      );
 
-        courseSearchResult.result.content.forEach((course: any) => {
-          course?.organisation?.forEach((element: any) => {
-            departmentName.add(element);
-          });
-        });
-
-        const uniqueDepartmentNames = Array.from(departmentName);
-        if (uniqueDepartmentNames.length > 0) {
-          searchRequest.search[0].values = uniqueDepartmentNames;
-
-          courseSearchResult = await this.searchV3Service.searchConnections(
-            searchRequest
-          );
-
-          const results = courseSearchResult?.result?.data?.[0]?.results;
-          this.allSearchResults = results || [];
-        } else {
-          this.allSearchResults = [];
-        }
+      if (result.result && result.result?.response?.content) {
+        this.allSearchResults = result.result?.response?.content || [];
       } else {
         this.allSearchResults = [];
       }
 
       return;
     } else if (this.selectedSearchCategory === SearchCategory.Communities) {
-      const searchRequestCommunities = new SearchCommunitiesRequest();
+      const searchRequestCommunities = new SearchCommunitiesRequest([]);
       searchRequestCommunities.searchString = query;
       const result = await this.searchV3Service
         .searchCommunity(searchRequestCommunities)
@@ -348,8 +332,12 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
   }
 
   getResultName(result: any): string {
+    if (!result) {
+      return '';
+    }
+
     if (this.selectedSearchCategory === SearchCategory.People) {
-      return result.personalDetails?.firstname ?? '';
+      return result.personalDetails?.firstname ?? result.firstName ?? '';
     } else if (this.selectedSearchCategory === SearchCategory.Communities) {
       return result.communityName ?? '';
     } else {
@@ -404,8 +392,8 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
   }
 
   openSearchTemplateF() {
-    this.openSearchTemplate = true
-    if(!this.selectedSearchCategory) {
+    this.openSearchTemplate = true;
+    if (!this.selectedSearchCategory) {
       this.searchFromQuery(this.responseNlpQuery);
     }
   }

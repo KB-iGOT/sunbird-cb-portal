@@ -30,10 +30,11 @@ export class Filters {
   contentType: any;
   courseCategory?: any;
   status: string[];
-  sourceName?: string;
+  sourceName?: string[];
   avgRating?: { [key: string]: string };
   language?: string[];
   organisation?: string[];
+  sectorId?: string[];
   [key: string]: any;
   constructor() {
     this.contentType = ['Course'];
@@ -46,6 +47,7 @@ export class SortBy {
   lastUpdatedOn?: string;
   startDate?: string;
   avgRating?: string;
+  firstName?: string;
   constructor() {
     // this.lastUpdatedOn = 'desc';
   }
@@ -66,6 +68,7 @@ export const SearchOthersFacet = [
   'avgRating',
   'language',
   'organisation',
+  'sectorId',
 ];
 
 // Events
@@ -98,28 +101,38 @@ export const SearchEventFields = [
 ];
 
 export class SearchPeoplesRequest {
-  size: number;
+  filters: PeoplesFilters;
+  facets?: string[];
+  fields: any[];
+  limit: number;
   offset: number;
-  search: { field: string; values: string[] }[];
-
+  sort_by: SortBy;
+  query: string;
   constructor() {
-    this.size = 3;
+    this.limit = 5;
     this.offset = 0;
-    this.search = [
-      {
-        field: 'employmentDetails.departmentName',
-        values: [],
-      },
+    this.sort_by = { firstName: 'asc' };
+    (this.query = ''), (this.fields = []);
+    this.filters = new PeoplesFilters();
+    this.facets = [
+      'profileDetails.professionalDetails.designation',
+      'rootOrgName',
     ];
   }
+}
+
+export class PeoplesFilters {
+  rootOrgName?: string[];
+  [key: string]: any;
 }
 
 export class SearchCommunitiesRequest {
   filterCriteriaMap: {
     status: string;
     orgName?: string[];
-    competencyArea?: string[]
-    topicName?: string[]
+    competencyArea?: string[];
+    topicName?: string[];
+      [key: string]: any;
   };
   requestedFields: any[];
   pageNumber: number;
@@ -129,7 +142,7 @@ export class SearchCommunitiesRequest {
   orderBy?: string;
   orderDirection?: string;
 
-  constructor() {
+  constructor(competenciesKey: any) {
     this.filterCriteriaMap = {
       status: 'active',
     };
@@ -137,7 +150,7 @@ export class SearchCommunitiesRequest {
     this.pageNumber = 0;
     this.pageSize = 3;
     this.searchString = null;
-    this.facets = ['topicName', 'orgName', 'competencyArea'];
+    this.facets = ['topicName', 'orgName', ...competenciesKey];
   }
 }
 
@@ -170,6 +183,8 @@ export enum FacetType {
   Language = 'language',
   AvgRating = 'avgRating',
   Duration = 'duration',
+  Designation = 'designation',
+  SourceName = 'sourceName',
 }
 
 export enum SortType {
@@ -177,4 +192,6 @@ export enum SortType {
   RecentlyAdded = 'recently_added_newest',
   HighestRated = 'highest_rated',
   MostEnrolled = 'most_enrolled',
+  Ascending = 'asc',
+  Descending = 'desc',
 }

@@ -31,6 +31,7 @@ import { EventService } from './services/events.service'
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core'
 import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button'
 import { MatLegacyChipsModule as MatChipsModule } from '@angular/material/legacy-chips'
+// import { MatLegacyDialogModule as MatDialogModule } from '@angular/material/legacy-dialog'
 import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field'
 import { MatIconModule } from '@angular/material/icon'
 import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input'
@@ -69,6 +70,8 @@ import { SeeAllComponent } from './routes/events/see-all/see-all.component';
 import { EventVideoPlayerComponent } from './components/event-video-player/event-video-player.component';
 import { EventsV2Component } from './routes/events-v2/events-v2.component';
 import { MyAllEventsComponent } from './routes/events/my-all-events/my-all-events.component'
+import { ShareDiscussionModule } from '@sunbird-cb/discussion-v2'
+import { MatRadioModule } from '@angular/material/radio'
 @NgModule({
   declarations: [
     EventsComponent,
@@ -110,6 +113,7 @@ import { MyAllEventsComponent } from './routes/events/my-all-events/my-all-event
     MatDialogModule,
     MatButtonModule,
     MatSidenavModule,
+    MatRadioModule,
     MatCheckboxModule,
     MatProgressSpinnerModule,
     PipeFilterModule,
@@ -140,6 +144,7 @@ import { MyAllEventsComponent } from './routes/events/my-all-events/my-all-event
     MatMenuModule,
     MatBottomSheetModule,
     MatTooltipModule,
+    ShareDiscussionModule,
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,

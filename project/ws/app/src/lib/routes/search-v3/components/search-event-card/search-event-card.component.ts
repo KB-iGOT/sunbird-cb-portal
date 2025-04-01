@@ -1,15 +1,19 @@
 import { DatePipe } from '@angular/common';
 import {
   Component,
+  EventEmitter,
   Input,
   OnChanges,
   OnInit,
+  Output,
   SimpleChanges,
 } from '@angular/core';
 import { Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2';
 
+const MILLISECONDS_IN_A_DAY = 1000 * 60 * 60 * 24;
+const NEW_CONTENT_THRESHOLD_DAYS = 14;
 @Component({
   selector: 'ws-app-search-event-card',
   templateUrl: './search-event-card.component.html',
@@ -19,13 +23,13 @@ import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2';
 export class SearchEventCardComponent implements OnInit, OnChanges {
   @Input() content: any;
   @Input() cbpPlans: any[] = [];
-
+  @Output() telemetry = new EventEmitter<any>();
   defaultThumbnail = '/assets/instances/eagle/app_logos/default.png';
   defaultSLogo = '/assets/instances/eagle/app_logos/igot-katmayogi-logo.svg';
   formattedTime: string | null = '';
   contentBookmarked = false;
   isIgot = false;
-
+  eventDuration = '';
   constructor(
     private router: Router,
     private translate: TranslateService,
@@ -41,6 +45,7 @@ export class SearchEventCardComponent implements OnInit, OnChanges {
 
   ngOnInit(): void {
     this.formatStartTime();
+    this.getDurationFromStartandEndDates()
   }
 
   ngOnChanges(changes: SimpleChanges): void {
@@ -123,7 +128,46 @@ export class SearchEventCardComponent implements OnInit, OnChanges {
   navigateToEvent() {
     const eventId = this.content?.identifier;
     if (eventId) {
+      this.content.contentType = 'Events'
       this.router.navigate([`/app/event-hub/home/${eventId}`]);
+      this.telemetry.emit(this.content)
     }
+  }
+
+  checkIfContentIsNew(createdOn: string): boolean {
+    if (!createdOn) return false;
+    const createdDate = new Date(createdOn);
+    const currentDate = new Date();
+    const diffInMs = currentDate.getTime() - createdDate.getTime();
+    const diffInDays = diffInMs / MILLISECONDS_IN_A_DAY;
+
+    return diffInDays <= NEW_CONTENT_THRESHOLD_DAYS;
+  }
+
+  getDurationFromStartandEndDates() {
+    if (!this.content?.startTime || !this.content?.endTime) {
+      this.eventDuration = '';
+      return;
+    }
+
+    let startDateTime: Date;
+    let endDateTime: Date;
+
+    if (this.content.startTime.includes('Z')) {
+      startDateTime = new Date(`${this.content.startDate}T${this.content.startTime}`);
+    } else {
+      const [startTimeStr, startOffset] = this.content.startTime.split('+');
+      startDateTime = new Date(`${this.content.startDate}T${startTimeStr}+${startOffset}`);
+    }
+
+    if (this.content.endTime.includes('Z')) {
+      endDateTime = new Date(`${this.content.endDate}T${this.content.endTime}`);
+    } else {
+      const [endTimeStr, endOffset] = this.content.endTime.split('+');
+      endDateTime = new Date(`${this.content.endDate}T${endTimeStr}+${endOffset}`);
+    }
+
+    const durationInSeconds = (endDateTime.getTime() - startDateTime.getTime()) / 1000;
+    this.eventDuration = isNaN(durationInSeconds) ? '' : durationInSeconds.toString();
   }
 }

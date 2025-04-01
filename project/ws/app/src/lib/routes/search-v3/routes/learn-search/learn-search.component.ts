@@ -85,7 +85,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
   searchRequestCourse = new SearchV4Request([]);
   searchRequestEvents = new SearchV4Request([]);
   searchRequestPeoples = new SearchPeoplesRequest();
-  searchRequestCommunities = new SearchCommunitiesRequest();
+  searchRequestCommunities = new SearchCommunitiesRequest([]);
   isLoadingSearch = true;
 
   initialPaginationSize = 10;
@@ -95,6 +95,8 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
   coursesFacets = [];
   eventsFacets = [];
   communitiesFacets = [];
+  peoplesFacets = [];
+
   combinedFacets: any[] = [];
   compentencyKey!: NsContent.ICompentencyKeys;
   enrollmentDetails: any = [];
@@ -108,6 +110,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
   connectionRequestsSent!: any;
   queryParams: any;
   typesOfEventsFilters: string[] = [];
+  competencyFactet: any = [];
   constructor(
     private searchV3Service: GbSearchService,
     private configSvc: ConfigurationsService,
@@ -199,8 +202,10 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
         await this.searchEvents();
         await this.searchPeople();
         await this.searchcommunities();
-        this.isLoadingSearch = false;
       }
+
+      this.updateNoResultMessage(this.statedata.param);
+      this.isLoadingSearch = false;
     }
   }
 
@@ -210,26 +215,26 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       : userDetails.firstname;
   }
 
+  applyTelemetry(event: any, index: number) {
+    this.raiseTelemetry(event, index);
+  }
+
   raiseTelemetry(content: any, i: number) {
     if (content) {
       this.events.raiseInteractTelemetry(
         {
           type: 'click',
           subType: `card-learnSearch`,
-          // id: `${_.camelCase(content.primaryCategory)}-card`,
-          id: `course-card-${i + 1}`,
-          pageid: `/app/globalsearch_${content.primaryCategory}-card`,
+          id: `search-card-${i + 1}`,
+          pageid: `/app/globalsearch`,
         },
         {
           id: content.identifier || '',
-          type: content.primaryCategory,
+          type: content.contentType,
           rollup: {},
-          ver: `${content.version}${''}`,
+          ver: content.version ? `${content.version}${''}` : '',
         },
-        {
-          // pageIdExt: `${content.primaryCategory}-card`,
-          module: content.primaryCategory,
-        }
+        {}
       );
     }
   }
@@ -273,11 +278,11 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       this.courseSearchTotalCount = result.result?.count;
       this.coursesFacets = result.result?.facets || [];
 
-      this.courseSearchResults.forEach((course: any) => {
-        course?.organisation?.forEach((element: any) => {
-          this.allResultsDepartmentName.add(element);
-        });
-      });
+      // this.courseSearchResults.forEach((course: any) => {
+      //   course?.organisation?.forEach((element: any) => {
+      //     this.allResultsDepartmentName.add(element);
+      //   });
+      // });
     } else {
       this.courseSearchResults = [];
       this.courseSearchTotalCount = 0;
@@ -289,7 +294,12 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
     // this.searchRequestEvents.request.sort_by.startDate = 'desc';
     this.searchRequestEvents.request.filters.contentType = 'Event';
     this.searchRequestEvents.request.fields = SearchEventFields;
-    this.searchRequestEvents.request.facets = SearchEventfacet;
+    this.searchRequestEvents.request.facets = [
+      ...SearchEventfacet,
+      this.competencyAreaNameKey,
+      this.competencyThemeKey,
+      this.competencySubThemeKey,
+    ];
 
     delete this.searchRequestEvents.request.filters?.courseCategory;
     delete this.searchRequestEvents.request.sort_by?.lastUpdatedOn;
@@ -309,9 +319,9 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
         this.eventSearchTotalCount = result.result?.count;
       }
       this.eventsFacets = result.result?.facets;
-      this.eventsSearchResults.forEach((event: any) => {
-        this.allResultsDepartmentName.add(event?.sourceName);
-      });
+      // this.eventsSearchResults.forEach((event: any) => {
+      //   this.allResultsDepartmentName.add(event?.sourceName);
+      // });
     } else {
       this.eventsSearchResults = [];
       this.eventSearchTotalCount = 0;
@@ -319,25 +329,33 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async searchPeople() {
-    const uniqueDepartmentNames = Array.from(this.allResultsDepartmentName);
-    if (uniqueDepartmentNames.length > 0) {
-      this.searchRequestPeoples.search[0].values = uniqueDepartmentNames;
-      this.searchRequestPeoples.size = 10;
-      let response = await this.searchV3Service.searchConnections(
-        this.searchRequestPeoples
-      );
-      this.peoplesSearchResults = response?.result?.data?.[0]?.results || [];
-      this.peopleSearchTotalCount = this.peoplesSearchResults.length;
+    this.searchRequestPeoples.query = this.statedata?.param || '';
+    const result = await this.searchV3Service.searchConnections(
+      this.searchRequestPeoples
+    );
+
+    if (result && result.result && result.result?.response?.content) {
+      this.peoplesSearchResults = result.result?.response?.content || [];
+      this.peopleSearchTotalCount = result.result?.response?.count;
+      this.peoplesFacets = result.result?.response.facets;
       this.getAllConnectionRequests();
+    } else {
+      this.peoplesSearchResults = [];
+      this.peopleSearchTotalCount = 0;
     }
   }
 
   async searchcommunities() {
-    this.searchRequestCommunities.pageSize = this.initialPaginationSize;
+    // this.searchRequestCommunities.pageSize = this.initialPaginationSize;
     this.searchRequestCommunities.searchString = this.statedata?.param || '';
-    const result = await this.searchV3Service.searchCommunity(
-      this.searchRequestCommunities
-    );
+    const result = await this.searchV3Service
+      .searchCommunity(this.searchRequestCommunities)
+      .catch(() => {
+        return {
+          result: { search_results: { data: [], totalCount: 0, facets: {} } },
+        };
+      });
+
     if (
       result.result &&
       result.result?.search_results?.data &&
@@ -353,6 +371,103 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       this.communitiesSearchResults = [];
       this.communitiesSearchTotalCount = 0;
     }
+  }
+
+  async getCompetencyHierichy() {
+    const competency = ['Functional', 'Domain', 'Behavioural'];
+    let competencyFactet: any = [];
+    let competencyThemeFacet: any = [];
+    let competencySubThemeFacet: any = [];
+    let result: any;
+    for (const element of competency) {
+      if (this.seeAllResult === SearchCategory.Courses) {
+        const searchRequestCourse = new SearchV4Request([
+          this.competencyAreaNameKey,
+          this.competencyThemeKey,
+          this.competencySubThemeKey,
+        ]);
+        searchRequestCourse.request.query = this.statedata?.param;
+        searchRequestCourse.request.filters[this.competencyAreaNameKey] =
+          element;
+        result = await this.searchV3Service.searchCoursesv4(
+          searchRequestCourse
+        );
+        competencyThemeFacet = result.result?.facets.find(
+          (facet: any) => facet.name === this.competencyThemeKey
+        );
+        competencySubThemeFacet = result.result?.facets.find(
+          (facet: any) => facet.name === this.competencySubThemeKey
+        );
+      } else if (this.seeAllResult === SearchCategory.Events) {
+        const searchRequestEvents = new SearchV4Request([
+          this.competencyAreaNameKey,
+          this.competencyThemeKey,
+          this.competencySubThemeKey,
+        ]);
+        searchRequestEvents.request.query = this.statedata?.param;
+        searchRequestEvents.request.filters[this.competencyAreaNameKey] =
+          element;
+        result = await this.searchV3Service.searchCoursesv4(
+          searchRequestEvents
+        );
+        competencyThemeFacet = result.result?.facets.find(
+          (facet: any) => facet.name === this.competencyThemeKey
+        );
+        competencySubThemeFacet = result.result?.facets.find(
+          (facet: any) => facet.name === this.competencySubThemeKey
+        );
+      } else if (this.seeAllResult === SearchCategory.Communities) {
+        const searchRequestCommunity = new SearchCommunitiesRequest([
+          this.competencyAreaNameKey,
+          this.competencyThemeKey,
+          this.competencySubThemeKey,
+        ]);
+        searchRequestCommunity.searchString = this.statedata?.param;
+        searchRequestCommunity.filterCriteriaMap[this.competencyAreaNameKey] =
+          element;
+        result = await this.searchV3Service.searchCommunity(
+          searchRequestCommunity
+        );
+        competencyThemeFacet = result.result?.search_results?.facets[
+          this.competencyThemeKey
+        ].length
+          ? { values: result.result?.search_results?.facets[this.competencyThemeKey] }
+          : { values: [] };
+        competencySubThemeFacet = result.result?.search_results?.facets[
+          this.competencySubThemeKey
+        ].length
+          ? { values: result.result?.search_results?.facets[this.competencySubThemeKey] }
+          : { values: [] };
+      }
+
+      const competencyThemeName = competencyThemeFacet
+        ? competencyThemeFacet.values.map((value: any) => ({
+            name: value?.name || value?.value,
+            count: value.count,
+            isChecked: false,
+          }))
+        : [];
+      const competencySubThemeName = competencySubThemeFacet
+        ? competencySubThemeFacet.values.map((value: any) => ({
+            name: value?.name || value?.value,
+            count: value.count,
+            isChecked: false,
+          }))
+        : [];
+
+      if (competencyThemeName.length || competencySubThemeName.length) {
+        competencyFactet.push({
+          [this.competencyAreaNameKey]: {
+            name: element,
+            count: result.result?.count || 0,
+            isChecked: false,
+          },
+          [this.competencyThemeKey]: competencyThemeName,
+          [this.competencySubThemeKey]: competencySubThemeName,
+        });
+      }
+    }
+    this.competencyFactet = competencyFactet;
   }
 
   processCommunityFacets(facets: Record<string, any[]>): any {
@@ -393,21 +508,37 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
         } else if (key === this.competencyAreaNameKey) {
           this.searchRequestCourse.request.filters[this.competencyAreaNameKey] =
             selectedFilters[key];
+          this.searchRequestEvents.request.filters[this.competencyAreaNameKey] =
+            selectedFilters[key];
+          this.searchRequestCommunities.filterCriteriaMap[
+            this.competencyAreaNameKey
+          ] = selectedFilters[key];
         } else if (key === this.competencyThemeKey) {
           this.searchRequestCourse.request.filters[this.competencyThemeKey] =
             selectedFilters[key];
+          this.searchRequestEvents.request.filters[this.competencyThemeKey] =
+            selectedFilters[key];
+          this.searchRequestCommunities.filterCriteriaMap[
+            this.competencyThemeKey
+          ] = selectedFilters[key];
         } else if (key === this.competencySubThemeKey) {
           this.searchRequestCourse.request.filters[this.competencySubThemeKey] =
             selectedFilters[key];
+          this.searchRequestEvents.request.filters[this.competencySubThemeKey] =
+            selectedFilters[key];
+          this.searchRequestCommunities.filterCriteriaMap[
+            this.competencySubThemeKey
+          ] = selectedFilters[key];
         } else if (key === SearchCategory.Events) {
           this.constructQueryParam('events');
           this.seeAllResult = SearchCategory.Events;
         } else if (key === SearchCategory.Courses) {
           this.constructQueryParam('courses');
           this.seeAllResult = SearchCategory.Courses;
-        } else if (key === SearchCategory.CaseStudy) {
-          this.constructQueryParam('case-studies');
-          this.seeAllResult = SearchCategory.CaseStudy;
+        } else if (key === 'Case Study') {
+          this.searchRequestCourse.request.filters.sectorId = [
+            ...selectedFilters[key],
+          ];
         } else if (key === SearchCategory.People) {
           this.constructQueryParam('peoples');
           this.seeAllResult = SearchCategory.People;
@@ -426,6 +557,14 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
           ];
         } else if (key === 'topicName') {
           this.searchRequestCommunities.filterCriteriaMap.topicName = [
+            ...selectedFilters[key],
+          ];
+        } else if (key === 'profileDetails.professionalDetails.designation') {
+          this.searchRequestPeoples.filters[key] = [...selectedFilters[key]];
+        } else if (key === 'rootOrgName') {
+          this.searchRequestPeoples.filters[key] = [...selectedFilters[key]];
+        } else if (key === 'sourceName') {
+          this.searchRequestEvents.request.filters.sourceName = [
             ...selectedFilters[key],
           ];
         } else {
@@ -509,6 +648,27 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       delete this.searchRequestCommunities.filterCriteriaMap.competencyArea;
     }
     if (
+      this.searchRequestCommunities.filterCriteriaMap[this.competencyAreaNameKey] &&
+      this.searchRequestCommunities.filterCriteriaMap[this.competencyAreaNameKey].length ===
+        0
+    ) {
+      delete this.searchRequestCommunities.filterCriteriaMap[this.competencyAreaNameKey];
+    }
+    if (
+      this.searchRequestCommunities.filterCriteriaMap[this.competencyThemeKey] &&
+      this.searchRequestCommunities.filterCriteriaMap[this.competencyThemeKey].length ===
+        0
+    ) {
+      delete this.searchRequestCommunities.filterCriteriaMap[this.competencyThemeKey];
+    }
+    if (
+      this.searchRequestCommunities.filterCriteriaMap[this.competencySubThemeKey] &&
+      this.searchRequestCommunities.filterCriteriaMap[this.competencySubThemeKey].length ===
+        0
+    ) {
+      delete this.searchRequestCommunities.filterCriteriaMap[this.competencySubThemeKey];
+    }
+    if (
       this.searchRequestCommunities.filterCriteriaMap.orgName &&
       this.searchRequestCommunities.filterCriteriaMap.orgName.length === 0
     ) {
@@ -519,6 +679,61 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       this.searchRequestCommunities.filterCriteriaMap.topicName.length === 0
     ) {
       delete this.searchRequestCommunities.filterCriteriaMap.topicName;
+    }
+    if (
+      this.searchRequestCommunities.filterCriteriaMap.topicName &&
+      this.searchRequestCommunities.filterCriteriaMap.topicName.length === 0
+    ) {
+      delete this.searchRequestCommunities.filterCriteriaMap.topicName;
+    }
+    if (
+      this.searchRequestPeoples.filters[
+        'profileDetails.professionalDetails.designation'
+      ] &&
+      this.searchRequestPeoples.filters[
+        'profileDetails.professionalDetails.designation'
+      ].length === 0
+    ) {
+      delete this.searchRequestPeoples.filters[
+        'profileDetails.professionalDetails.designation'
+      ];
+    }
+    if (
+      this.searchRequestPeoples.filters['rootOrgName'] &&
+      this.searchRequestPeoples.filters['rootOrgName'].length === 0
+    ) {
+      delete this.searchRequestPeoples.filters['rootOrgName'];
+    }
+    if (
+      this.searchRequestEvents.request.filters.sourceName &&
+      this.searchRequestEvents.request.filters.sourceName.length === 0
+    ) {
+      delete this.searchRequestEvents.request.filters.sourceName;
+    }
+    if (
+      this.searchRequestEvents.request.filters[this.competencyAreaNameKey] &&
+      this.searchRequestEvents.request.filters[this.competencyAreaNameKey]
+        .length === 0
+    ) {
+      delete this.searchRequestEvents.request.filters[
+        this.competencyAreaNameKey
+      ];
+    }
+    if (
+      this.searchRequestEvents.request.filters[this.competencySubThemeKey] &&
+      this.searchRequestEvents.request.filters[this.competencySubThemeKey]
+        .length === 0
+    ) {
+      delete this.searchRequestEvents.request.filters[
+        this.competencySubThemeKey
+      ];
+    }
+    if (
+      this.searchRequestEvents.request.filters[this.competencyThemeKey] &&
+      this.searchRequestEvents.request.filters[this.competencyThemeKey]
+        .length === 0
+    ) {
+      delete this.searchRequestEvents.request.filters[this.competencyThemeKey];
     }
   }
 
@@ -531,6 +746,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       this.searchRequestCourse.request.limit = this.initialPaginationSize;
       await this.searchCourses();
       this.combinedFacets = [this.coursesFacets];
+      this.getCompetencyHierichy();
     } else if (category === SearchCategory.CaseStudy) {
       this.eventSearchTotalCount = 0;
       this.peopleSearchTotalCount = 0;
@@ -546,12 +762,14 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       this.searchRequestEvents.request.limit = this.initialPaginationSize;
       await this.searchEvents();
       this.combinedFacets = [this.eventsFacets];
+      this.getCompetencyHierichy();
     } else if (category === SearchCategory.People) {
       this.courseSearchTotalCount = 0;
       this.eventSearchTotalCount = 0;
       this.communitiesSearchTotalCount = 0;
-      this.searchRequestPeoples.size = this.initialPaginationSize;
-      this.searchPeople();
+      this.searchRequestPeoples.limit = this.initialPaginationSize;
+      await this.searchPeople();
+      this.combinedFacets = [this.peoplesFacets];
     } else if (category === SearchCategory.Communities) {
       this.courseSearchTotalCount = 0;
       this.eventSearchTotalCount = 0;
@@ -559,6 +777,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       this.searchRequestCommunities.pageSize = this.initialPaginationSize;
       await this.searchcommunities();
       this.combinedFacets = [this.communitiesFacets];
+      this.getCompetencyHierichy();
     }
     this.isLoadingSearch = false;
     this.scrollToTop();
@@ -576,7 +795,11 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       this.competencySubThemeKey,
     ]);
     this.searchRequestPeoples = new SearchPeoplesRequest();
-    this.searchRequestCommunities = new SearchCommunitiesRequest();
+    this.searchRequestCommunities = new SearchCommunitiesRequest([
+      this.competencyAreaNameKey,
+      this.competencyThemeKey,
+      this.competencySubThemeKey,
+    ]);
 
     this.courseSearchResults = [];
     this.eventsSearchResults = [];
@@ -592,24 +815,27 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
 
     this.seeAllResult = '';
     this.allResultsDepartmentName = new Set<string>();
+    this.competencyFactet = [];
   }
 
   onPageChange(event: PageChangeEmitter) {
     if (this.seeAllResult === SearchCategory.Courses) {
       this.searchRequestCourse.request.limit = event.limit;
-      this.searchRequestCourse.request.offset = event.currentPage * event.limit;
+      this.searchRequestCourse.request.offset =
+        (event.currentPage - 1) * event.limit;
       this.searchCourses();
     } else if (this.seeAllResult === SearchCategory.Events) {
       this.searchRequestEvents.request.limit = event.limit;
-      this.searchRequestEvents.request.offset = event.currentPage * event.limit;
+      this.searchRequestEvents.request.offset =
+        (event.currentPage - 1) * event.limit;
       this.searchEvents();
     } else if (this.seeAllResult === SearchCategory.People) {
-      this.searchRequestPeoples.size = event.limit;
-      this.searchRequestPeoples.offset = event.currentPage * event.limit;
+      this.searchRequestPeoples.limit = event.limit;
+      this.searchRequestPeoples.offset = (event.currentPage - 1) * event.limit;
       this.searchPeople();
     } else if (this.seeAllResult === SearchCategory.Communities) {
       this.searchRequestCommunities.pageSize = event.limit;
-      this.searchRequestCommunities.pageNumber = event.currentPage;
+      this.searchRequestCommunities.pageNumber = event.currentPage - 1;
       this.searchcommunities();
     }
     this.scrollToTop();
@@ -628,7 +854,6 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       if (this.seeAllResult === '') {
         this.searchCourses();
         this.searchEvents();
-        this.searchPeople();
         this.searchcommunities();
       } else if (this.seeAllResult === SearchCategory.Courses) {
         this.searchRequestCourse.request.sort_by = {};
@@ -643,19 +868,20 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
         this.searchRequestEvents.request.sort_by.startDate = 'desc';
         this.searchCourses();
         this.searchEvents();
-        this.searchPeople();
         this.searchcommunities();
       } else if (this.seeAllResult === SearchCategory.Courses) {
         this.searchRequestCourse.request.sort_by.lastUpdatedOn = 'desc';
         this.searchCourses();
-      } 
-      else if (this.seeAllResult === SearchCategory.Events) {
+      } else if (this.seeAllResult === SearchCategory.Events) {
         this.searchRequestEvents.request.sort_by.startDate = 'desc';
         this.searchEvents();
-      }
-      else if (this.seeAllResult === SearchCategory.Communities) {
-        this.searchRequestCommunities.orderDirection = 'desc'
+      } else if (this.seeAllResult === SearchCategory.Communities) {
+        this.searchRequestCommunities.orderDirection = 'desc';
         this.searchcommunities();
+      } else if (this.seeAllResult === SearchCategory.People) {
+        delete this.searchRequestPeoples?.sort_by?.firstName;
+        this.searchRequestPeoples.sort_by.lastUpdatedOn = 'desc';
+        this.searchPeople();
       }
     } else if (event === SortType.HighestRated) {
       if (this.seeAllResult === '') {
@@ -663,7 +889,6 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
         this.searchRequestEvents.request.sort_by.avgRating = 'desc';
         this.searchCourses();
         this.searchEvents();
-        this.searchPeople();
         this.searchcommunities();
       } else if (this.seeAllResult === SearchCategory.Courses) {
         this.searchRequestCourse.request.sort_by.avgRating = 'desc';
@@ -672,7 +897,12 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
         this.searchRequestEvents.request.sort_by.avgRating = 'desc';
         this.searchEvents();
       }
-    } else if (event === SortType.MostEnrolled) {
+    } else if (event === SortType.Ascending) {
+      this.searchRequestPeoples.sort_by.firstName = SortType.Ascending;
+      this.searchPeople();
+    } else if (event === SortType.Descending) {
+      this.searchRequestPeoples.sort_by.firstName = SortType.Descending;
+      this.searchPeople();
     }
   }
 

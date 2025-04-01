@@ -1,6 +1,6 @@
 import { Component, HostListener } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { NsContent } from '@sunbird-cb/utils-v2';
+import { MultilingualTranslationsService, NsContent } from '@sunbird-cb/utils-v2';
 import { EventService } from '../../services/events.service';
 import * as _ from 'lodash'
 import { DatePipe } from '@angular/common';
@@ -11,7 +11,7 @@ import { MatBottomSheet } from '@angular/material/bottom-sheet';
 import { MobileFiltersComponent } from '../events/mobile-filters/mobile-filters.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { TranslateService } from '@ngx-translate/core';
-import { Subscription } from 'rxjs';
+import { Subject, Subscription } from 'rxjs';
 
 @Component({
   selector: 'ws-app-view-all',
@@ -38,10 +38,14 @@ export class ViewAllComponent {
   sortOptions: any = {
     startDate: 'desc'
   }
+  pageConfigData: any = {}
+  private scrollSubject = new Subject<Event>()
+  selectedValue: any
 
   constructor(private activateRoute: ActivatedRoute, private eventSvc: EventService,
     private datePipe: DatePipe, private bottomSheet: MatBottomSheet, private snackbar: MatSnackBar,
     private translate: TranslateService, private router: Router,
+    private langtranslations: MultilingualTranslationsService,
   ) {
 
     if (localStorage.getItem('websiteLanguage')) {
@@ -53,101 +57,30 @@ export class ViewAllComponent {
     this.titles = [
       { title: 'Events', url: '/app/event-hub/home', disableTranslate: true, icon: 'event' },
     ]
-
-    this.facetsData = {
-      resourceType: {
-        name: "Event Type",
-        displayName: "Event Type",
-        label: "Event Type",
-        placeHolder: "Seach Event Type",
-        viewMore: false,
-        values: [
-          {
-            key: "karmayogiTalks",
-            name: "Karmayogi Talks",
-          },
-          {
-            key: "karmayogiSaptah",
-            name: "Karmayogi Saptah",
-          },
-          {
-            key: "webinar",
-            name: "Webinar",
-          }
-        ]
-      },
-      eventStatus: {
-        name: "Event Status",
-        displayName: "Event Status",
-        label: "Event Status",
-        viewMore: false,
-        values: [
-          {
-            key: "upcoming",
-            name: "Upcoming",
-          },
-          {
-            key: "liveEvents",
-            name: "Live Events",
-          },
-          {
-            key: "pastEvents",
-            name: "Past Events",
-          }
-        ]
-      },
-      eventDate: {
-        name: "Event Date/Time",
-        displayName: "Event Date/Time",
-        label: "Event Date/Time",
-        viewMore: false,
-        values: [
-          {
-            key: "toDay",
-            name: "Today",
-          },
-          {
-            key: "tomorrow",
-            name: "Tomorrow",
-          },
-        ]
-      },
-      dateRange: {
-        name: "Date Range",
-        displayName: "Choose Date Range",
-        label: "Choose Date Range",
-        viewMore: false,
-        values: [
-          {
-            key: "fromDate",
-            name: "From:",
-            PlaceHolder: "Select Date",
-          },
-          {
-            key: "toDate",
-            name: "To:",
-            PlaceHolder: "Select Date",
-          },
-          {
-            key: "button"
-          }
-        ]
-      },
-    }
+    this.scrollSubject.pipe(debounceTime(500)).subscribe((event: any) => {
+      console.log("event ", event)
+      this.onDebouncedScroll()
+    })
   }
 
   @HostListener('window:scroll', ['$event'])
 
-  onScroll(): void {
+  onScroll(event: Event): void {
     if (
       window.innerHeight + window.scrollY >= document.body.offsetHeight - 700 && !this.isLoading && this.showNextPage
     ) {
-      this.fetchData()
+      this.scrollSubject.next(event)
     }
   }
 
-  ngOnInit() {
+  onDebouncedScroll() {
+    this.fetchData()
+  }
 
+
+  ngOnInit() {
+    this.pageConfigData = this.activateRoute.snapshot.data['pageData'] && this.activateRoute.snapshot.data['pageData'].data || {}
+    this.facetsData = _.get(this.pageConfigData, 'version2.filterFacetsData', {})
     this.searchControl.valueChanges.pipe(
       debounceTime(200),
       distinctUntilChanged()
@@ -222,6 +155,22 @@ export class ViewAllComponent {
         startDate = this.datePipe.transform(new Date(this.selectedFilters.dateRange.fromDate), 'yyyy-MM-dd')
         endDate = this.datePipe.transform(new Date(this.selectedFilters.dateRange.toDate), 'yyyy-MM-dd')
       }
+      if (this.selectedFilters.eventStatus && this.selectedFilters.eventStatus.length && this.selectedFilters.eventStatus[0] === 'Upcoming') {
+        const today = new Date()
+        today.setDate(today.getDate() + 1)
+        startDate = this.datePipe.transform(today, 'yyyy-MM-dd')
+      }
+      if (this.selectedFilters.eventStatus && this.selectedFilters.eventStatus.length && this.selectedFilters.eventStatus[0] === 'Past Events') {
+        const today = new Date()
+        today.setDate(today.getDate() - 1)
+        endDate = this.datePipe.transform(today, 'yyyy-MM-dd')
+      }
+      if (this.selectedFilters.eventStatus && this.selectedFilters.eventStatus.length && this.selectedFilters.eventStatus[0] === 'Live Events') {
+        const today = new Date()
+        today.setDate(today.getDate())
+        startDate = this.datePipe.transform(today, 'yyyy-MM-dd')
+        endDate = this.datePipe.transform(today, 'yyyy-MM-dd')
+      }
       requestBody = {
         ...requestBody,
         request: {
@@ -237,12 +186,8 @@ export class ViewAllComponent {
 
 
     }
-    console.log("this.selectedFilters.resourceType ", requestBody)
     return requestBody
   }
-
-
-
   fetchData() {
     if (!this.isLoading) {
       this.contentDataList = [...this.contentDataList, ...this.transformSkeletonToWidgets(this.contnet)]
@@ -260,7 +205,7 @@ export class ViewAllComponent {
       this.total = this.contentDataList.length
       this.showNextPage = this.total < _.get(resp, 'result.count', 0)
       if (response.length) {
-        if (this.selectedFilters.eventStatus) {
+        if (this.selectedFilters.eventStatus && this.selectedFilters.eventStatus.length && this.selectedFilters.eventStatus[0] === 'Live Events') {
           response = this.processResult(response)
         }
         this.contentDataList = [...this.contentDataList, ...this.transformContentsToWidgets(response, {})]
@@ -344,6 +289,7 @@ export class ViewAllComponent {
     this.selectedFilters = {}
     this.startDate = ''
     this.endDate = ''
+    this.selectedValue = null
     this.resetData()
     this.fetchData()
   }
@@ -455,6 +401,7 @@ export class ViewAllComponent {
         this.selectedFilters[facet.key] = { fromDate: date1, toDate: date2 }
         this.resetData()
         this.fetchData()
+        this.selectedValue = null
       }
     } else {
       if (!this.startDate) {
@@ -466,9 +413,19 @@ export class ViewAllComponent {
     }
   }
 
+  changeStatus(value: any, key: any) {
+    this.selectedFilters[key] = [value.name]
+    delete this.selectedFilters.dateRange
+    delete this.selectedFilters.eventDate
+    this.startDate = ''
+    this.endDate = ''
+    this.resetData()
+    this.fetchData()
+  }
+
   changeSelection(event: any, key: any, keyData: any) {
     if (event) {
-      if (['resourceType', 'eventDate', 'eventStatus'].includes(key)) {
+      if (['resourceType', 'eventDate'].includes(key)) {
         if (this.selectedFilters[key]) {
           let slected = this.selectedFilters[key]
           slected.push(keyData.name)
@@ -481,6 +438,7 @@ export class ViewAllComponent {
           delete this.selectedFilters.dateRange
           this.startDate = ''
           this.endDate = ''
+          this.selectedValue = null
         }
         if (key === 'eventStatus') {
           delete this.selectedFilters.dateRange
@@ -491,7 +449,7 @@ export class ViewAllComponent {
         delete this.selectedFilters.key
       }
     } else {
-      if (['resourceType', 'eventDate', 'eventStatus'].includes(key)) {
+      if (['resourceType', 'eventDate'].includes(key)) {
         let filtered = this.selectedFilters[key].filter((item: any) => item !== keyData.name)
         if (filtered.length === 0) {
           delete this.selectedFilters[key]
@@ -502,6 +460,28 @@ export class ViewAllComponent {
     }
     this.resetData()
     this.fetchData()
+  }
+
+  getName(filters: any, filter: any) {
+    if (filters.key === 'resourceType') {
+      return filter
+    } else if (filters.key === 'eventStatus' || filters.key === 'eventDate') {
+      return this.translateLabels(this.toCamelCase(filter), 'events')
+    }
+  }
+
+  toCamelCase(str: string): string {
+    return str
+      .toLowerCase()
+      .replace(/(?:^\w|[A-Z]|\b\w)/g, (match, index) =>
+        index === 0 ? match.toLowerCase() : match.toUpperCase()
+      )
+      .replace(/\s+/g, '');
+  }
+
+
+  translateLabels(label: string, type: any) {
+    return this.langtranslations.translateActualLabel(label, type, '')
   }
 
   private transformSkeletonToWidgets(
