@@ -123,7 +123,7 @@ mat-grid-list {
 
 .secondary-nav {
   justify-content: center;
-  margin: 4px 0px !important;
+  margin: 8px 0px !important;
 }
 
 .margin-0 {
@@ -180,6 +180,7 @@ mat-grid-list {
   color: rgb(0,0,0,0.6);
   font-weight: 700;
   line-height: 28px;
+  font-size: 14px;
 }
 
 .active-text{
@@ -197,17 +198,17 @@ mat-grid-list {
 }
 
 .new-tag{
-  font-size: 11px;
+  font-size: 10px;
     position: absolute;
     // right: -14px;
-    left: calc(100% - 13px);
-    top: -3px;
-    border: 1px solid rgba(209, 57, 36, 1);
-    background: rgba(209, 57, 36, 1);
-    padding: 0 4px;
+    left: calc(100% - 10px);
+    top: -2px;
+    border: 1px solid rgb(209, 57, 36);
+    background: rgb(209, 57, 36);
+    padding: 0 3px;
     display: flex;
-    height: 11px;
-    width: 20px;
+    height: 10px;
+    width: 18px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -216,7 +217,11 @@ mat-grid-list {
     transition: all ease-in;
     text-align: center;
     vertical-align: middle;
-    animation: grow 1.8s ease-in-out infinite;
+    animation: sclaeAnimation 1.2s alternate ease-in-out infinite;
+    & span {
+      font-size: 10px;
+      // animation: fontAnimation 1.5s alternate infinite;
+    }
 }
 
 @keyframes grow {
@@ -238,13 +243,26 @@ mat-grid-list {
   0% {
     transform:scale3d(1,1,1);
   }
-  50% {
-    transform:scale3d(1.1,1.1,1.1);
-  }
+  // 50% {
+  //   transform:scale3d(1.18,1.18,1.18);
+  // }
   100% {
-    transform:scale3d(1.2,1.2,1.2);
+    transform:scale3d(1.18,1.18,1.18);
   }
 }
+
+@keyframes fontAnimation {
+  0% {
+    font-size: 11;
+  }
+  // 50% {
+  //   transform:scale3d(1.1,1.1,1.1);
+  // }
+  100% {
+    font-size: 11;
+  }
+}
+
 
 @media (max-width: 576px) {
   .secondary-nav {
@@ -363,4 +381,40 @@ mat-grid-list {
   pointer-events: none;
   cursor: default;
   opacity: 0.6;
+}
+
+.explore-content-text {
+  display: inline-block;
+  // max-width: 0;
+  // opacity: 0;
+  max-width: 200px;
+  opacity: 1;
+  overflow: hidden;
+  white-space: nowrap;
+  transition: max-width 0.5s ease, opacity 0.5s ease;
+  vertical-align: middle;
+}
+
+// ::ng-deep.explore-content-action:hover .explore-content-text {
+//   max-width: 200px; // Adjust as needed
+//   opacity: 1;
+// }
+
+::ng-deep.explore-content-action {
+  div {
+    font-weight: 700 !important;
+  }
+  height: 32px !important;
+  &:hover {
+    background-color: #1B4CA1 !important;
+    span, mat-icon {
+      color: #fff !important;
+    }
+  }
+}
+
+.explore-more {
+  border-right: 1px solid rgba(27, 33, 51, 0.16);
+  // padding-right: 1rem;
+  min-width: 220px;
 }

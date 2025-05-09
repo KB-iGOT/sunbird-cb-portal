@@ -120,6 +120,8 @@ export class CardHubsListComponent extends WidgetBaseComponent
             this.activeRoute = 'Amrit Gyaan Kosh'
           } else if (event.url.includes('/app/jan-karmayogi')) {
             this.activeRoute = 'Jan Karmayogi'
+          } else {
+            this.activeRoute = ''
           }
           this.visible = false
           localStorage.setItem('activeRoute', this.activeRoute)
@@ -327,6 +329,37 @@ export class CardHubsListComponent extends WidgetBaseComponent
   }
   routeToMentorship() {
     window.open(`${environment.contentHost}/mentorship`, '_blank')
+  }
+
+  exploreContent() {
+    this.raiseTelemetryExploreContent()
+    const queryParams = {
+      q: '',
+      search: null,
+      category: 'courses',
+      p: null,
+      f: null,
+      tab: 'explore-content',
+      filtersPanel: 'show',
+    };
+    const navigationExtras = {
+      queryParams,
+      queryParamsHandling: 'merge' as 'merge',
+    };
+    this.router.navigate(['/app/globalsearch'], navigationExtras);
+  }
+
+  raiseTelemetryExploreContent() {
+    this.events.raiseInteractTelemetry(
+      {
+        type: WsEvents.EnumInteractTypes.CLICK,
+        id: 'explore-content',
+      },
+      {},
+      {
+        module: WsEvents.EnumTelemetrymodules.HOME,
+      }
+    )
   }
 
 }

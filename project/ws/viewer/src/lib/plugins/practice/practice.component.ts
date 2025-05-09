@@ -118,6 +118,7 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
   paperSections: NSPractice.IPaperSection[] | null = null
   selectedSection: NSPractice.IPaperSection | null = null
   ePrimaryCategory = NsContent.EPrimaryCategory
+  eCourseCategory = NsContent.ECourseCategory
   currentQuestion!: NSPractice.IQuestionV2 | any
   process = false
   isXsmall = false
@@ -335,7 +336,7 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
         if (this.selectedAssessmentCompatibilityLevel < 7) {
           this.quizSvc.canAttend(this.identifier).subscribe(response => {
             if (response) {
-               this.canAttempt = response
+                this.canAttempt = response
               //  this.canAttempt = {
               //   attemptsAllowed: 1,
               //   attemptsMade: 0,
@@ -347,7 +348,7 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
         } else {
           this.quizSvc.canAttendV5(this.identifier).subscribe(response => {
             if (response) {
-               this.canAttempt = response
+              this.canAttempt = response
               //  this.canAttempt = {
               //   attemptsAllowed: 1,
               //   attemptsMade: 0,
@@ -529,7 +530,7 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
         })
       } else {
         this.quizSvc.getSection(this.identifier, this.forPreview,
-                                this.getPublicContentRequestData()).subscribe((section: NSPractice.ISectionResponse) => {
+                                this.getPublicContentRequestData(), this.collectionId).subscribe((section: NSPractice.ISectionResponse) => {
           // console.log(section)
           if (section && section.result && section.result.response) {
             if ((this.forPreview && !this.forCreatorMode)) {
@@ -571,6 +572,17 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
               // this.updateTimer()
               this.startIfonlySection()
             }
+          }
+        },
+        (error: any) => {
+          this.fetchingSectionsStatus = 'error'
+          // Only show specific message for 400 status code errors
+          if (error.status === 400) {
+            if (error.error && error.error.params && error.error.params.errmsg) {
+              this.openSnackbar(`${error.error.params.errmsg}`)
+            }
+          } else {
+            this.openSnackbar('Failed to load assessment section. Please try again later.')
           }
         })
       }
@@ -1035,7 +1047,12 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
     // const batchId = this.activatedRoute.snapshot.queryParams.batchId ?
     //   this.activatedRoute.snapshot.queryParams.batchId : ''
     if (this.identifier && collectionId && batchId) {
-      this.viewerSvc.realTimeProgressUpdateQuiz(this.identifier, collectionId, batchId, status)
+      if (this.selectedSection && 
+        this.selectedSection.primaryCategory !== NsContent.EPrimaryCategory.FINAL_ASSESSMENT &&
+        this.selectedSection.primaryCategory !== NsContent.EPrimaryCategory.PRACTICE_RESOURCE
+      ) {
+        this.viewerSvc.realTimeProgressUpdateQuiz(this.identifier, collectionId, batchId, status)
+      }
     }
   }
 
@@ -1584,7 +1601,8 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
   async submitAfterAllPromiseResolved() {
     if(!this.forPreview || this.forCreatorMode){
       if (this.selectedAssessmentCompatibilityLevel < 7) {
-        const quizV4Res: any = await this.quizSvc.submitQuizV4(this.generateRequest).toPromise().catch(_error => {})
+        let quizV4Res: any = {}
+        quizV4Res = await this.quizSvc.submitQuizV4(this.generateRequest).toPromise().catch(_error => {})
         if (quizV4Res && quizV4Res.params && quizV4Res.params.status.toLowerCase() === 'success') {
           if (quizV4Res.result.primaryCategory === 'Course Assessment') {
             setTimeout(() => {
@@ -1596,7 +1614,8 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
         }
       } else {
         if(this.selectedAssessmentCompatibilityLevel >=8) {
-          const quizV4Res: any = await this.quizSvc.submitQuizV6(this.generateRequest).toPromise().catch(_error => {})
+          let quizV4Res: any = {}
+          quizV4Res = await this.quizSvc.submitQuizV6(this.generateRequest).toPromise().catch(_error => {})
           if (quizV4Res && quizV4Res.params && quizV4Res.params.status.toLowerCase() === 'success') {
             if (quizV4Res.result.primaryCategory === 'Course Assessment') {
               setTimeout(() => {
@@ -1607,7 +1626,8 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
             }
           }
         } else {
-          const quizV4Res: any = await this.quizSvc.submitQuizV5(this.generateRequest).toPromise().catch(_error => {})
+          let quizV4Res: any = {}
+          quizV4Res = await this.quizSvc.submitQuizV5(this.generateRequest).toPromise().catch(_error => {})
           if (quizV4Res && quizV4Res.params && quizV4Res.params.status.toLowerCase() === 'success') {
             if (quizV4Res.result.primaryCategory === 'Course Assessment') {
               setTimeout(() => {
@@ -1695,14 +1715,12 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
     if(!this.forPreview  || this.forCreatorMode){
       if (this.selectedAssessmentCompatibilityLevel < 7) {
         await this.quizSvc.submitQuizV4(this.generateRequest).toPromise().catch(_error => {})
-      
       } else {
         if (this.selectedAssessmentCompatibilityLevel >= 8) {
           await this.quizSvc.submitQuizV6(this.generateRequest).toPromise().catch(_error => {}) 
         } else {
           await this.quizSvc.submitQuizV5(this.generateRequest).toPromise().catch(_error => {}) 
-        }
-            
+        }    
       }
     } else {
       let requestData : any = this.generateRequest
@@ -2042,7 +2060,8 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
       req.request['contextId'] =  this.generateRequest.courseId
     }
     if(this.selectedAssessmentCompatibilityLevel < 7) {
-      const resultRes: any = await this.quizSvc.quizResult(req,this.forPreview).toPromise().catch(_error => {})
+      let resultRes: any = {}
+      resultRes = await this.quizSvc.quizResult(req,this.forPreview).toPromise().catch(_error => {})
       if (resultRes && resultRes.params && resultRes.params.status.toLowerCase() === 'success') {
         if (resultRes.result) {
           this.fetchingResultsStatus = (resultRes.result.isInProgress) ?  'fetching' : 'done'
@@ -2060,13 +2079,13 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
         req.request['assessmentIdentifier'] =  this.generateRequest.identifier
         req.request['contextId'] =  this.generateRequest.courseId
       }
-      const resultRes: any = await this.quizSvc.quizResultV5(req,this.forPreview).toPromise().catch(_error => {})
+      let resultRes: any = {}
+      resultRes = await this.quizSvc.quizResultV5(req,this.forPreview).toPromise().catch(_error => {})
       if (resultRes && resultRes.params && resultRes.params.status.toLowerCase() === 'success') {
         if (resultRes.result) {
           this.fetchingResultsStatus = (resultRes.result.isInProgress) ?  'fetching' : 'done'
           this.assignQuizResult(resultRes.result)
         }
-
         if((this.forPreview && !this.forCreatorMode) && resultRes.result) {
           this.showPublicUserPopUp(resultRes.result.pass? 'pass': 'fail')
         }
@@ -2554,5 +2573,11 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
         }
       }
     })
+  }
+
+  checkCuratedProgramAssessment() {
+    return (this.widgetContentService.currentMetaData && 
+    this.widgetContentService.currentMetaData.courseCategory === this.eCourseCategory.CURATED_PROGRAM && 
+    this.widgetContentService.currentMetaData.compatibilityLevel > 4)
   }
 }

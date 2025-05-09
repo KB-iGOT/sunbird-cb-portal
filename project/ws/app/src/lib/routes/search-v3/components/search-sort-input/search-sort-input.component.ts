@@ -12,7 +12,7 @@ import {
   SEARCH_SORT_DROPDOWN,
   SEARCH_SORT_PEOPLES,
 } from '../../../../../../../author/src/lib/constants/constant';
-import { SearchCategory, SortType } from '../../models/search-v3.model';
+import { SearchCategory, SearchConstantLocalStorage, SortType } from '../../models/search-v3.model';
 
 @Component({
   selector: 'ws-app-search-sort-input',
@@ -22,6 +22,7 @@ import { SearchCategory, SortType } from '../../models/search-v3.model';
 export class SearchSortInputComponent implements AfterViewInit, OnChanges {
   @Output() searchSorter = new EventEmitter();
   @Input() category!: string;
+  @Input() isExploreContentTab: boolean = false;
   selectedOption: string = SortType.MostRelevent;
   options = SEARCH_SORT_DROPDOWN;
 
@@ -32,15 +33,32 @@ export class SearchSortInputComponent implements AfterViewInit, OnChanges {
   ngOnChanges(): void {
     if (this.category === SearchCategory.People) {
       this.options = SEARCH_SORT_PEOPLES;
-      this.selectedOption = SortType.Ascending;
+      this.selectedOption = SortType.MostRelevent;
+      // this.searchSorter.emit(this.selectedOption);
     } else if(this.category === SearchCategory.Communities || this.category === SearchCategory.Events) {
       this.options = SEARCH_SORT_DROPDOWN.filter((option) => option.value !== SortType.HighestRated);
       this.selectedOption = SortType.MostRelevent;
+      // this.searchSorter.emit(this.selectedOption);
     } else {
       this.options = SEARCH_SORT_DROPDOWN;
       this.selectedOption = SortType.MostRelevent;
+      // this.searchSorter.emit(this.selectedOption);
+      if (this.isExploreContentTab) {
+        this.options = SEARCH_SORT_DROPDOWN.filter(option => option.value !== SortType.MostRelevent);
+        this.selectedOption = SortType.RecentlyAdded;
+      } else {
+        this.options = SEARCH_SORT_DROPDOWN;
+        this.selectedOption = SortType.MostRelevent;
+      }
+    }
+
+    const sortType = localStorage.getItem(SearchConstantLocalStorage.SortType);
+    if (sortType && this.options.some((option) => option.value === sortType)) {
+      this.selectedOption = sortType;
+      // this.searchSorter.emit(this.selectedOption);
     }
   }
+  
   ngAfterViewInit() {
     // this.adjustSelectWidth();
   }

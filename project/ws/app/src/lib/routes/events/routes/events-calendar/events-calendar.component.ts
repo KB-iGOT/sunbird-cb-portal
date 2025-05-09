@@ -35,6 +35,7 @@ export class EventsCalendarComponent implements OnInit {
   calendarLoading = false
   showAllEvents = false
   bottomSheet = false
+  isPreviesDate = false
 
   constructor(
     private datePipe: DatePipe,
@@ -55,17 +56,17 @@ export class EventsCalendarComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.getEnrolledEvents()
+    const loadTodayEvents = true
+    this.getEnrolledEvents(loadTodayEvents)
     this.selected = new Date()
     this.selected.setHours(0, 0, 0, 0)
     // this.selectedDateText = this.datePipe.transform(this.selected, 'dd MMM yyyy') as string
     this.currentMonthYearText = this.datePipe.transform(this.currentMonth, 'MMM yyyy') as string;
   }
 
-  getEnrolledEvents() {
+  getEnrolledEvents(loadTodayEvents = false) {
     const year = this.currentMonth.getFullYear();
     const month = this.currentMonth.getMonth();
-
     const firstDay = this.datePipe.transform(new Date(year, month, 1), 'yyyy-MM-dd');
     const lastDay = this.datePipe.transform(new Date(year, month + 1, 0), 'yyyy-MM-dd');
     const requestBody = {
@@ -85,7 +86,9 @@ export class EventsCalendarComponent implements OnInit {
         next: (res: any) => {
           this.userEventsList = _.get(res, 'result.events')
           this.generateCalendarDays();
-          //this.getSelectedDateEvents()
+          if (loadTodayEvents) {
+            this.getSelectedDateEvents()
+          }
         },
         error: (error: HttpErrorResponse) => {
           this.generateCalendarDays();
@@ -180,13 +183,15 @@ export class EventsCalendarComponent implements OnInit {
       date.getFullYear() === today.getFullYear();
   }
 
-  selectDate(date: Date) {
+  selectDate(dateDetails: any) {
+    this.showAllEvents = false
+    this.selected = dateDetails.date;
+    this.isPreviesDate = dateDetails.isPrevisDate
     if (this.bottomSheet) {
       this.showAllEvents = true
     } else {
       this.showAllEvents = false
     }
-    this.selected = date
     const formattedSelectedDate = this.datePipe.transform(this.selected, 'dd MMM yyyy')
     const formattedToday = this.datePipe.transform(new Date(), 'dd MMM yyyy');
     if (formattedSelectedDate === formattedToday) {

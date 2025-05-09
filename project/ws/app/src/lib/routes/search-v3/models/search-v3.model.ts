@@ -17,7 +17,26 @@ export class RequestParams {
 
   constructor(competenciesKey: any) {
     this.filters = new Filters();
-    this.fields = [];
+    this.fields = [
+      'downloadUrl',
+      'organisation',
+      'language',
+      'source',
+      'appIcon',
+      'identifier',
+      'name',
+      'primaryCategory',
+      'contentType',
+      'posterImage', 
+      'createdOn',
+      'duration',
+      'avgRating',
+      'additionalTags',
+      'courseCategory',
+      'mimeType',
+      'contentId',
+      'sectorDetails_v1'
+    ];
     this.facets = [...SearchOthersFacet, ...competenciesKey];
     this.query = '';
     this.limit = 3;
@@ -35,6 +54,8 @@ export class Filters {
   language?: string[];
   organisation?: string[];
   sectorId?: string[];
+  subSectorId?: string[];
+  resourceType?: string[];
   [key: string]: any;
   constructor() {
     this.contentType = ['Course'];
@@ -48,6 +69,7 @@ export class SortBy {
   startDate?: string;
   avgRating?: string;
   firstName?: string;
+  name?: string;
   constructor() {
     // this.lastUpdatedOn = 'desc';
   }
@@ -59,7 +81,7 @@ export enum SearchCategory {
   Programs = 'programs',
   Events = 'events',
   People = 'peoples',
-  CaseStudy = 'case-studies',
+  CaseStudy = 'case-study',
   Communities = 'communities',
 }
 
@@ -69,35 +91,31 @@ export const SearchOthersFacet = [
   'language',
   'organisation',
   'sectorId',
+  'courseCategory',
+  'sectorDetails_v1.sectorName',
 ];
 
 // Events
-export const SearchEventfacet = ['duration', 'language', 'sourceName'];
+export const SearchEventfacet = ['duration', 'language', 'sourceName', 'startDateTimeInEpoch', 'endDateTimeInEpoch', 'resourceType'];
 
 export const SearchEventFields = [
   'name',
-  'instructions',
   'description',
-  'mimeType',
   'identifier',
   'resourceType',
   'contentType',
-  'channel',
   'sourceName',
   'duration',
-  'competencies_v6',
-  'version',
   'startDate',
   'endDate',
   'startTime',
   'endTime',
-  'status',
   'createdOn',
   'eventType',
   'expiryDate',
-  'creatorDetails',
   'appIcon',
-  'recordedLinks',
+  'startDateTime',
+  'endDateTime',
 ];
 
 export class SearchPeoplesRequest {
@@ -111,7 +129,7 @@ export class SearchPeoplesRequest {
   constructor() {
     this.limit = 5;
     this.offset = 0;
-    this.sort_by = { firstName: 'asc' };
+    this.sort_by = { };
     (this.query = ''), (this.fields = []);
     this.filters = new PeoplesFilters();
     this.facets = [
@@ -132,7 +150,7 @@ export class SearchCommunitiesRequest {
     orgName?: string[];
     competencyArea?: string[];
     topicName?: string[];
-      [key: string]: any;
+    [key: string]: any;
   };
   requestedFields: any[];
   pageNumber: number;
@@ -185,6 +203,9 @@ export enum FacetType {
   Duration = 'duration',
   Designation = 'designation',
   SourceName = 'sourceName',
+  courseCategory = 'courseCategory',
+  sectorNames_v1 = 'sectorDetails_v1.sectorName',
+  sectorId = 'sectorId',
 }
 
 export enum SortType {
@@ -194,4 +215,11 @@ export enum SortType {
   MostEnrolled = 'most_enrolled',
   Ascending = 'asc',
   Descending = 'desc',
+  AtoZ = 'a-z',
+  ZtoA = 'z-a',
+
+}
+
+export enum SearchConstantLocalStorage {
+  SortType = 'searchSortType',
 }

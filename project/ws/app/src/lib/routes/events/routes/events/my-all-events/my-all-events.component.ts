@@ -1,12 +1,11 @@
-import { Component, HostListener } from '@angular/core';
+import { Component } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { EventService } from '../../../services/events.service';
 import { ConfigurationsService, MultilingualTranslationsService, NsContent, WsEvents } from '@sunbird-cb/utils-v2';
 import * as _ from 'lodash'
 import { EventService as libEventService } from '@sunbird-cb/utils-v2'
-import { Subscription } from 'rxjs';
-import { DatePipe } from '@angular/common';
+//import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'ws-app-my-all-events',
@@ -19,12 +18,11 @@ export class MyAllEventsComponent {
   contnet: any = []
   tabSelected: string = ''
   tabIndex = 0
-  currentPage: number = 0
-  pageLimit: number = 12
-  total = 0
-  showNextPage = false
   isLoading = false
-  dataScription: Subscription | null = null
+  response: any = []
+  past: any = []
+  upcoming: any = []
+  today: any = []
   constructor(
     private activateRoute: ActivatedRoute,
     private translate: TranslateService,
@@ -32,7 +30,7 @@ export class MyAllEventsComponent {
     private langtranslations: MultilingualTranslationsService,
     private events: libEventService,
     private configSvc: ConfigurationsService,
-    private datePipe: DatePipe,
+    //private datePipe: DatePipe,
   ) {
     this.titles = [
       { title: 'events', url: '/app/event-hub/home', icon: 'event' },
@@ -51,54 +49,33 @@ export class MyAllEventsComponent {
     this.fetchData()
   }
 
-  @HostListener('window:scroll', [])
-
-  onScroll(): void {
-    if (
-      window.innerHeight + window.scrollY >= document.body.offsetHeight - 400 && !this.isLoading && this.showNextPage
-    ) {
-      this.fetchData()
-    }
-  }
   fetchData() {
     if (!this.isLoading) {
       this.contentDataList = [...this.contentDataList, ...this.transformSkeletonToWidgets(this.contnet)]
     }
     console.log("tabSelected ", this.tabSelected)
-    let eventType = ''
     if (this.tabSelected === 'today') {
       this.tabIndex = 0
-      eventType = 'presentEvent'
     } else if (this.tabSelected === 'upcoming') {
-      eventType = 'futureEvent'
       this.tabIndex = 1
     } else if (this.tabSelected === 'past') {
-      eventType = 'pastEvent'
       this.tabIndex = 2
     }
     const requestBody = {
       request: {
         retiredCoursesEnabled: true,
         status: 'All',
-        calendarEventEnabled: false,
-        eventType: eventType,
-        eventEndDate: this.datePipe.transform(new Date(), 'yyyy-MM-dd')
       }
-    }
-    if (this.dataScription) {
-      this.dataScription.unsubscribe()
-      this.dataScription = null
     }
     this.isLoading = true
     if (_.get(this.configSvc, 'userProfile.userId')) {
-      this.eventSvc.getUserEnrollEvents(_.get(this.configSvc, 'userProfile.userId'), requestBody).subscribe((resp: any) => {
-        let response: any = _.get(resp, 'result.events', [])
+      this.eventSvc.myEvents(_.get(this.configSvc, 'userProfile.userId'), requestBody).subscribe((resp: any) => {
+        this.response = _.get(resp, 'result.events', [])
         this.contentDataList = this.contentDataList.slice(0, -12)
-        this.total = this.contentDataList.length
-        this.showNextPage = this.total < _.get(resp, 'result.count', 0)
-        if (response.length) {
-          this.contentDataList = [...this.contentDataList, ...this.transformContentsToWidgets(response, {})]
-          this.currentPage = this.currentPage + 1
+        if (this.response.length) {
+          console.log("response", this.response)
+          const processedEvents = this.processResult(this.response)
+          this.contentDataList = [...this.contentDataList, ...this.transformContentsToWidgets(processedEvents, {})]
         } else {
           this.contentDataList = [...this.contentDataList, ...this.transformContentsToWidgets([], {})]
         }
@@ -112,8 +89,52 @@ export class MyAllEventsComponent {
     }
   }
 
+  processResult(resp: any) {
+    let processedEvents: any = []
+    this.upcoming = []
+    this.past = []
+    this.today = []
+    resp.forEach((resp: any) => {
+      if (resp.event && resp.event.startDate) {
+        const eventDetails = resp.event
+        const today = new Date()
+        today.setHours(0, 0, 0, 0)
+        const eventDate = new Date(_.get(eventDetails, 'startDate'))
+        eventDate.setHours(0, 0, 0, 0)
+        if (today.getTime() === eventDate.getTime()) {
+          this.today.push(resp)
+        } else if (today.getTime() < eventDate.getTime()) {
+          this.upcoming.push(resp)
+        } else if (today.getTime() > eventDate.getTime()) {
+          this.past.push(resp)
+        }
+      }
+    })
+    switch (this.tabIndex) {
+      case 0:
+        processedEvents = this.today
+        break
+      case 1:
+        processedEvents = this.upcoming
+        break
+      case 2:
+        processedEvents = this.past
+        break
+    }
+    return this.sortData(processedEvents)
+  }
+
+
+  sortData(data: any) {
+    return data.sort((a: any, b: any) => {
+      const dateA = new Date(`${a.event.startDate}T${a.event.startTime}`);
+      const dateB = new Date(`${b.event.startDate}T${b.event.startTime}`);
+      return this.tabIndex === 2 ? dateB.getTime() - dateA.getTime() : dateA.getTime() - dateB.getTime()
+    })
+  }
+
   isLiveEvent(event: any) {
-    if (event.startDate && event.endDate && event.startTime && event.endTime) {
+    if (event && event.startDate && event.endDate && event.startTime && event.endTime) {
       // Conver current time into milliseconds
       let currentTime = new Date().getTime() / 1000
       // Combining date and time for start event
@@ -156,17 +177,20 @@ export class MyAllEventsComponent {
       this.tabSelected = 'past'
     }
     this.resetData()
-    this.fetchData()
+    //this.fetchData()
+    this.contentDataList = this.contentDataList.slice(0, -12)
+    if (this.response.length) {
+      console.log("response", this.response)
+      const processedEvents = this.processResult(this.response)
+      this.contentDataList = [...this.contentDataList, ...this.transformContentsToWidgets(processedEvents, {})]
+    } else {
+      this.contentDataList = [...this.contentDataList, ...this.transformContentsToWidgets([], {})]
+    }
+    this.isLoading = false
   }
 
   resetData() {
-    if (this.dataScription) {
-      this.dataScription.unsubscribe()
-      this.dataScription = null
-    }
     this.contentDataList = []
-    this.currentPage = 0
-    this.pageLimit = 12
   }
 
   private transformSkeletonToWidgets(
@@ -195,7 +219,7 @@ export class MyAllEventsComponent {
       widgetData: {
         content: {
           ...content.event,
-          showLive: this.isLiveEvent(content),
+          showLive: this.isLiveEvent(content.event),
         },
         ...(content.batch && {
           batch: content.batch,

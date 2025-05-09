@@ -64,7 +64,10 @@ import {PluralPipe} from './pipes/plural.pipe';
 import { PaginationComponent } from './components/pagination/pagination.component';
 import { SearchSortInputComponent } from './components/search-sort-input/search-sort-input.component'
 import { DialogComponentsModule } from '@sunbird-cb/consumption';
-
+import { SkeletonLoaderModule } from '../../../../../../../library/ws-widget/collection/src/lib/_common/skeleton-loader/skeleton-loader.module';
+import { SkeletonLoaderContentComponent } from './components/skeleton-loader-content/skeleton-loader-content.component';
+import { SkeletonLoaderPeoplesComponent } from './components/skeleton-loader-peoples/skeleton-loader-peoples.component';
+import { MatLegacyRadioModule as MatRadioModule } from '@angular/material/legacy-radio';
 @NgModule({
   declarations: [
     GlobalSearchComponent,
@@ -79,7 +82,9 @@ import { DialogComponentsModule } from '@sunbird-cb/consumption';
     NumberShortenerPipe,
     PluralPipe,
     PaginationComponent,
-    SearchSortInputComponent
+    SearchSortInputComponent,
+    SkeletonLoaderContentComponent,
+    SkeletonLoaderPeoplesComponent
   ],
   imports: [
     CommonModule,
@@ -130,6 +135,8 @@ import { DialogComponentsModule } from '@sunbird-cb/consumption';
     TranslateModule,
     AvatarPhotoModule,
     DialogComponentsModule,
+    SkeletonLoaderModule,
+    MatRadioModule
   ],
   exports: [SearchInputHomeComponent],
   providers: [],

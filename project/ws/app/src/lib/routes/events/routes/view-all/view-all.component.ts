@@ -41,6 +41,7 @@ export class ViewAllComponent {
   pageConfigData: any = {}
   private scrollSubject = new Subject<Event>()
   selectedValue: any
+  totalCount = 0
 
   constructor(private activateRoute: ActivatedRoute, private eventSvc: EventService,
     private datePipe: DatePipe, private bottomSheet: MatBottomSheet, private snackbar: MatSnackBar,
@@ -67,7 +68,7 @@ export class ViewAllComponent {
 
   onScroll(event: Event): void {
     if (
-      window.innerHeight + window.scrollY >= document.body.offsetHeight - 700 && !this.isLoading && this.showNextPage
+      window.innerHeight + window.scrollY >= document.body.offsetHeight - 500 && !this.isLoading && this.showNextPage
     ) {
       this.scrollSubject.next(event)
     }
@@ -132,6 +133,8 @@ export class ViewAllComponent {
     if (this.selectedFilters) {
       let startDate: any = ''
       let endDate: any = ''
+      let startDateTimeInEpoch: any = ''
+      let endDateTimeInEpoch: any = ''
       if (this.selectedFilters.eventDate && this.selectedFilters.eventDate.length) {
         if (this.selectedFilters.eventDate.includes('Today') && !this.selectedFilters.eventDate.includes('Tomorrow')) {
           startDate = this.datePipe.transform(new Date(), 'yyyy-MM-dd')
@@ -158,18 +161,46 @@ export class ViewAllComponent {
       if (this.selectedFilters.eventStatus && this.selectedFilters.eventStatus.length && this.selectedFilters.eventStatus[0] === 'Upcoming') {
         const today = new Date()
         today.setDate(today.getDate() + 1)
-        startDate = this.datePipe.transform(today, 'yyyy-MM-dd')
+        // startDate = this.datePipe.transform(today, 'yyyy-MM-dd')
+        startDateTimeInEpoch = Date.UTC(new Date().getUTCFullYear(), 
+        new Date().getUTCMonth(), 
+        new Date().getUTCDate(),
+        new Date().getUTCHours(), 
+        new Date().getUTCMinutes(), 
+        new Date().getUTCSeconds(), 
+        new Date().getUTCMilliseconds())
       }
       if (this.selectedFilters.eventStatus && this.selectedFilters.eventStatus.length && this.selectedFilters.eventStatus[0] === 'Past Events') {
         const today = new Date()
         today.setDate(today.getDate() - 1)
-        endDate = this.datePipe.transform(today, 'yyyy-MM-dd')
+        // endDate = this.datePipe.transform(today, 'yyyy-MM-dd')
+        endDateTimeInEpoch = Date.UTC(new Date().getUTCFullYear(), 
+        new Date().getUTCMonth(), 
+        new Date().getUTCDate(),
+        new Date().getUTCHours(), 
+        new Date().getUTCMinutes(), 
+        new Date().getUTCSeconds(), 
+        new Date().getUTCMilliseconds())
       }
       if (this.selectedFilters.eventStatus && this.selectedFilters.eventStatus.length && this.selectedFilters.eventStatus[0] === 'Live Events') {
         const today = new Date()
         today.setDate(today.getDate())
-        startDate = this.datePipe.transform(today, 'yyyy-MM-dd')
-        endDate = this.datePipe.transform(today, 'yyyy-MM-dd')
+        // startDate = this.datePipe.transform(today, 'yyyy-MM-dd')
+        // endDate = this.datePipe.transform(today, 'yyyy-MM-dd')
+        startDateTimeInEpoch = Date.UTC(new Date().getUTCFullYear(), 
+        new Date().getUTCMonth(), 
+        new Date().getUTCDate(),
+        new Date().getUTCHours(), 
+        new Date().getUTCMinutes(), 
+        new Date().getUTCSeconds(), 
+        new Date().getUTCMilliseconds())
+        endDateTimeInEpoch = Date.UTC(new Date().getUTCFullYear(), 
+        new Date().getUTCMonth(), 
+        new Date().getUTCDate(),
+        new Date().getUTCHours(), 
+        new Date().getUTCMinutes(), 
+        new Date().getUTCSeconds(), 
+        new Date().getUTCMilliseconds())
       }
       requestBody = {
         ...requestBody,
@@ -180,6 +211,11 @@ export class ViewAllComponent {
             resourceType: this.selectedFilters.resourceType ? this.selectedFilters.resourceType : [],
             ...(startDate ? { "startDate": { ">=": [startDate] } } : {}),
             ...(endDate ? { "endDate": { "<=": [endDate] } } : {}),
+            ...(startDateTimeInEpoch ? { "startDateTimeInEpoch": 
+            (_.get(this.selectedFilters, 'eventStatus[0]') === 'Upcoming' ? { ">=": [startDateTimeInEpoch] } : { "<=": [startDateTimeInEpoch] } )
+          } : {}),
+            ...(endDateTimeInEpoch ? { "endDateTimeInEpoch": 
+            (_.get(this.selectedFilters, 'eventStatus[0]') === 'Past Events' ? { "<=": [endDateTimeInEpoch] } : { ">=": [endDateTimeInEpoch] }) } : {}),
           },
         },
       }
@@ -203,9 +239,10 @@ export class ViewAllComponent {
       let response: any = _.get(resp, 'result.Event', [])
       this.contentDataList = this.contentDataList.slice(0, -6)
       this.total = this.contentDataList.length
-      this.showNextPage = this.total < _.get(resp, 'result.count', 0)
+      this.totalCount = this.totalCount + response.length
+      this.showNextPage = this.totalCount < _.get(resp, 'result.count', 0)
       if (response.length) {
-        if (this.selectedFilters.eventStatus && this.selectedFilters.eventStatus.length && this.selectedFilters.eventStatus[0] === 'Live Events') {
+        if (this.selectedFilters.eventStatus && this.selectedFilters.eventStatus.length) {
           response = this.processResult(response)
         }
         this.contentDataList = [...this.contentDataList, ...this.transformContentsToWidgets(response, {})]
@@ -352,6 +389,7 @@ export class ViewAllComponent {
           eventStatus: removeditems
         }
       }
+      this.selectedValue = null
     } else if (key === 'eventDate') {
       const removeditems = this.selectedFilters.eventDate.filter((item: any) => item !== filter)
       if (removeditems.length === 0) {
@@ -375,6 +413,8 @@ export class ViewAllComponent {
     this.contentDataList = []
     this.currentPage = 0
     this.pageLimit = 9
+    this.totalCount = 0
+    this.total = 0
   }
 
   canCheck(key: any, keyData: any) {

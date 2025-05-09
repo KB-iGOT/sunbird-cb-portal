@@ -23,17 +23,23 @@ export const CATEGORY_TYPE = [
         isChecked: false,
         filters: [
           {
+            name: 'Course',
+            count: 0,
+            isChecked: false,
+            displayName: 'Course',
+          },
+          {
             name: 'Moderated Course',
             count: 0,
             isChecked: false,
-            displayName: 'Moderated Courses',
+            displayName: 'Moderated Course',
           },
-          {
-            name: 'Invite-Only Course',
-            count: 0,
-            isChecked: false,
-            displayName: 'Invite Only Course',
-          },
+          // {
+          //   name: 'Invite-Only Course',
+          //   count: 0,
+          //   isChecked: false,
+          //   displayName: 'Invite Only Course',
+          // },
         ],
       },
       {
@@ -121,6 +127,8 @@ export const SEARCH_SORT_DROPDOWN = [
   { name: 'Most Relevant', value: 'most_relevant' },
   { name: 'Recently Added (Newest)', value: 'recently_added_newest' },
   { name: 'Highest Rated', value: 'highest_rated' },
+  { name: 'A-Z', value: 'a-z' },
+  { name: 'Z-A', value: 'z-a' },
   // { name: 'Most Enrolled', value: 'most_enrolled' },
 ];
 
@@ -128,6 +136,7 @@ export const SEARCH_SORT_PEOPLES = [
   { name: 'A-Z', value: 'asc' },
   { name: 'Z-A', value: 'desc' },
   { name: 'Recently Added (Newest)', value: 'recently_added_newest' },
+  { name: 'Most Relevant', value: 'most_relevant' },
 ];
 
 export const TypeOfEvents = [

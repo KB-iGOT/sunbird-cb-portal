@@ -94,6 +94,7 @@ export class AppTocAboutComponent implements OnInit, OnChanges, AfterViewInit, O
   @Input() condition: any
   @Input() kparray: any
   @Input() content: NsContent.IContent | null = null
+  @Input() contentReadData: NsContent.IContent | null = null
   @Input() skeletonLoader = false
   @Input() sticky = false
   @Input() tocStructure: any
@@ -185,9 +186,12 @@ export class AppTocAboutComponent implements OnInit, OnChanges, AfterViewInit, O
   timer: any = {}
   isMobile = false
   compentencyKey!: NsContent.ICompentencyKeys
-
+  sectorsList: any[] = []
+  subSectorsList: any[] = []
+  userProfile: any = null
   ngOnInit() {
     this.compentencyKey = this.configService.compentency[environment.compentencyVersionKey]
+    this.userProfile = this.configService.userProfile
     if (window.innerWidth <= 1200) {
       this.isMobile = true
     } else {
@@ -209,6 +213,47 @@ export class AppTocAboutComponent implements OnInit, OnChanges, AfterViewInit, O
     if (this.content && this.content.courseCategory === NsContent.ECourseCategory.CASE_STUDY) {
       this.disableCertificate = true
     }
+
+    if (this.content?.sectorDetails_v1) {
+      // Parse string to array if needed
+      let sectorDetailsArray = this.content.sectorDetails_v1
+ 
+      // If it's a string, try to parse it into an array
+      if (typeof sectorDetailsArray === 'string') {
+        try {
+          sectorDetailsArray = JSON.parse(sectorDetailsArray)
+          this.content.sectorDetails_v1 = sectorDetailsArray
+        } catch (e) {
+          console.error('Error parsing sectorDetails_v1:', e)
+          sectorDetailsArray = []
+        }
+      }
+ 
+      // Process only if we have a valid array with items
+      if (Array.isArray(sectorDetailsArray) && sectorDetailsArray.length > 0) {
+        this.sectorsList = _.uniqBy(
+          sectorDetailsArray
+            .filter((item: any) => item?.sectorName && item?.sectorId)
+            .map((item: any) => ({
+              sectorId: item.sectorId,
+              sectorName: item.sectorName
+            })),
+          'sectorName'
+        )
+ 
+        this.subSectorsList = _.uniqBy(
+          sectorDetailsArray
+            .filter((item: any) => item?.subSectorName && item?.subSectorId)
+            .map((item: any) => ({
+              subSectorId: item.subSectorId,
+              subSectorName: item.subSectorName
+            })),
+          'subSectorName'
+        )
+      }
+    }
+ 
+
   }
 
   ngAfterViewInit(): void {
@@ -220,6 +265,7 @@ export class AppTocAboutComponent implements OnInit, OnChanges, AfterViewInit, O
   }
 
   ngOnChanges(changes: SimpleChanges): void {
+    this.compentencyKey = this.configService.compentency[environment.compentencyVersionKey]
     if (changes.selectedTabValue && changes.selectedTabValue.currentValue === 0) {
       setTimeout(() => {
         if (!this.isMobile) {
@@ -291,17 +337,80 @@ export class AppTocAboutComponent implements OnInit, OnChanges, AfterViewInit, O
           break
         }
       }
+      if (this.content && this.content.identifier) {
+        if (this.ratingSummary && Object.keys(this.ratingSummary).length === 0) {
+          this.fetchRatingSummary()
+        }
+        if (this.competenciesObject.length === 0) { 
+          this.loadCompetencies()
+        }
+      }
+
+      if (this.content && this.content.contentId && this.content.contentId.includes('ext_')) {
+        if (this.competenciesObject.length === 0) { 
+          this.loadCompetencies()
+        }
+      }
+
+      if (this.contentReadData) {
+        this.contentReadData['subTheme'] = this.getSubThemes()
+      }
+
+      if (this.content && this.content.courseCategory === NsContent.ECourseCategory.CASE_STUDY) {
+        this.disableCertificate = true
+      }
+
+      if (this.contentReadData?.sectorDetails_v1) {
+        // Parse string to array if needed
+        let sectorDetailsArray = this.contentReadData.sectorDetails_v1
+   
+        // If it's a string, try to parse it into an array
+        if (typeof sectorDetailsArray === 'string') {
+          try {
+            sectorDetailsArray = JSON.parse(sectorDetailsArray)
+            this.contentReadData.sectorDetails_v1 = sectorDetailsArray
+          } catch (e) {
+            console.error('Error parsing sectorDetails_v1:', e)
+            sectorDetailsArray = []
+          }
+        }
+   
+        // Process only if we have a valid array with items
+        if (Array.isArray(sectorDetailsArray) && sectorDetailsArray.length > 0) {
+          // Extract unique sectors using lodash
+          this.sectorsList = _.uniqBy(
+            sectorDetailsArray
+              .filter((item: any) => item?.sectorName && item?.sectorId)
+              .map((item: any) => ({
+                sectorId: item.sectorId,
+                sectorName: item.sectorName
+              })),
+            'sectorName'
+          )
+   
+          // Extract unique subsectors using lodash
+          this.subSectorsList = _.uniqBy(
+            sectorDetailsArray
+              .filter((item: any) => item?.subSectorName && item?.subSectorId)
+              .map((item: any) => ({
+                subSectorId: item.subSectorId,
+                subSectorName: item.subSectorName
+              })),
+            'subSectorName'
+          )
+        }
+      }
     }
     this.forPreview = window.location.href.includes('/public/') || window.location.href.includes('&preview=true')
   }
 
   getSubThemes(): any[] {
     const subThemeArr: any[] = []
-    if (this.content && this.content[this.compentencyKey.vKey] && this.content[this.compentencyKey.vKey].length) {
-      if (typeof this.content[this.compentencyKey.vKey] === 'string' && this.checkValidJSON(this.content[this.compentencyKey.vKey])) {
-        this.content[this.compentencyKey.vKey] = JSON.parse(this.content[this.compentencyKey.vKey])
+    if (this.contentReadData && this.compentencyKey && this.contentReadData[this.compentencyKey.vKey] && this.contentReadData[this.compentencyKey.vKey].length) {
+      if (typeof this.contentReadData[this.compentencyKey.vKey] === 'string' && this.checkValidJSON(this.contentReadData[this.compentencyKey.vKey])) {
+        this.contentReadData[this.compentencyKey.vKey] = JSON.parse(this.contentReadData[this.compentencyKey.vKey])
       }
-      this.content[this.compentencyKey.vKey].forEach((_competencyObj: any) => {
+      this.contentReadData[this.compentencyKey.vKey].forEach((_competencyObj: any) => {
         if (subThemeArr.indexOf(_competencyObj[this.compentencyKey.vCompetencySubTheme]) === -1) {
           subThemeArr.push(_competencyObj[this.compentencyKey.vCompetencySubTheme])
         }
@@ -311,13 +420,13 @@ export class AppTocAboutComponent implements OnInit, OnChanges, AfterViewInit, O
   }
 
   loadCompetencies(): void {
-    if (this.content && this.content[this.compentencyKey.vKey] && this.content[this.compentencyKey.vKey].length) {
+    if (this.contentReadData && this.contentReadData[this.compentencyKey.vKey] && this.contentReadData[this.compentencyKey.vKey].length) {
       const competenciesObject: any = {}
-      if (typeof this.content[this.compentencyKey.vKey] === 'string'
-        && this.checkValidJSON(this.content[this.compentencyKey.vKey])) {
-        this.content[this.compentencyKey.vKey] = JSON.parse(this.content[this.compentencyKey.vKey])
+      if (typeof this.contentReadData[this.compentencyKey.vKey] === 'string'
+        && this.checkValidJSON(this.contentReadData[this.compentencyKey.vKey])) {
+        this.contentReadData[this.compentencyKey.vKey] = JSON.parse(this.contentReadData[this.compentencyKey.vKey])
       }
-      this.content[this.compentencyKey.vKey].forEach((_obj: any) => {
+      this.contentReadData[this.compentencyKey.vKey].forEach((_obj: any) => {
         if (competenciesObject[_obj[this.compentencyKey.vCompetencyArea]]) {
           if (competenciesObject[_obj[this.compentencyKey.vCompetencyArea]]
             [_obj[this.compentencyKey.vCompetencyTheme]]) {
@@ -716,20 +825,44 @@ export class AppTocAboutComponent implements OnInit, OnChanges, AfterViewInit, O
     this.downloadCertificateBool = true
     const certId = this.content && this.content.certificateObj.certId
     if (this.content && this.content.certificateObj && !this.content.certificateObj.certData) {
-      this.contentSvc.downloadCert(certId).subscribe(response => {
-        if (this.content) {
-          this.downloadCertificateBool = false
-          this.content['certificateObj']['certData'] = response.result.printUri
-          this.dialog.open(CertificateDialogComponent, {
-            width: '1200px',
-            data: { cet: response.result.printUri, certId: this.content && this.content.certificateObj.certId },
-          })
+      if(this.content && this.content.primaryCategory && this.content.primaryCategory === 'Curated Program') {
+        const payload = {
+         request : {
+          courseId: this.content.identifier,
+          batchId: this.batchData?.content[0]?.batchId || '',
+          userId: this.userProfile.userId,
+         }
         }
-      },                                             (error: any) => {
-        this.downloadCertificateBool = false
-        this.loggerService.error('CERTIFICATE FETCH ERROR >', error)
-        this.matSnackBar.open('Unable to View Certificate, due to some error!')
-      })
+        this.contentSvc.downloadCertV2(payload).subscribe(response => {
+          if (this.content) {
+            this.downloadCertificateBool = false
+            this.content['certificateObj']['certData'] = response.result.printUri
+            this.dialog.open(CertificateDialogComponent, {
+              width: '1200px',
+              data: { cet: response.result.printUri, certId: this.content && this.content.certificateObj.certId },
+            })
+          }
+        },                                             (error: any) => {
+          this.downloadCertificateBool = false
+          this.loggerService.error('CERTIFICATE FETCH ERROR >', error)
+          this.matSnackBar.open('Unable to View Certificate, due to some error!')
+        })
+      } else {
+        this.contentSvc.downloadCert(certId).subscribe(response => {
+          if (this.content) {
+            this.downloadCertificateBool = false
+            this.content['certificateObj']['certData'] = response.result.printUri
+            this.dialog.open(CertificateDialogComponent, {
+              width: '1200px',
+              data: { cet: response.result.printUri, certId: this.content && this.content.certificateObj.certId },
+            })
+          }
+        },                                             (error: any) => {
+          this.downloadCertificateBool = false
+          this.loggerService.error('CERTIFICATE FETCH ERROR >', error)
+          this.matSnackBar.open('Unable to View Certificate, due to some error!')
+        })
+      }
     } else {
       this.downloadCertificateBool = false
       this.dialog.open(CertificateDialogComponent, {
