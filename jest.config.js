@@ -4,6 +4,8 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/src/setup-jest.ts'],
   transformIgnorePatterns: [
     'node_modules/(?!.*\\.mjs$)',
+    "node_modules/(?!(to-fast-properties)/)",
+    'node_modules/(?!.*\\.mjs$|@angular|rxjs)'
   ],  
   moduleNameMapper: {
     '^@ws/(.*)$': '<rootDir>/project/ws/$1',
