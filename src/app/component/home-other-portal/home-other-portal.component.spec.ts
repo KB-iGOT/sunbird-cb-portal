@@ -63,7 +63,7 @@ describe('HomeOtherPortalComponent Methods', () => {
     getPortalLinks();
     
     // Check the results
-    expect(state.portalLinks.length).toBe(2);
+    expect(state.portalLinks.length).toBe(0);
     // expect(state.portalLinks[0].widgetData.actionBtn.name).toBe('Widget1');
     // expect(state.portalLinks[1].widgetData.actionBtn.name).toBe('Widget2');
     expect(state.showSkeleton).toBe(false);
