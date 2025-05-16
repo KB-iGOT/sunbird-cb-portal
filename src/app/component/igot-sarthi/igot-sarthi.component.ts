@@ -654,7 +654,7 @@ export class IGotSarthiComponent implements OnInit, AfterViewChecked, OnDestroy 
           continue
         }
 
-        if (name.charAt(i) === name.charAt(i)) {
+        if (name.charAt(i)) {
           initials += name.charAt(i)
 
           if (initials.length === 2) {
