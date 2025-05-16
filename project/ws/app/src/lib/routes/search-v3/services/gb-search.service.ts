@@ -9,6 +9,7 @@ import {
 import { SearchApiService } from '../../search/apis/search-api.service';
 import {
   SearchCommunitiesRequest,
+  SearchExternalRequest,
   SearchNLP,
   SearchPeoplesRequest,
   SearchV4Request,
@@ -90,11 +91,19 @@ export class GbSearchService {
     return this.http.post(API_END_POINTS.SEARCH_COMMUNITY, params).toPromise();
   }
 
+  searchResource(params: SearchV4Request): Promise<any> {
+    return this.http.post(API_END_POINTS.SEARCH_V6, params).toPromise();
+  }
+
   nlpSearch(params: SearchNLP): Promise<any> {
     return this.http.post(API_END_POINTS.SEARCH_NLP, params).toPromise();
   }
 
   enrollment(request: any, userId: string): any {
     return this.http.post(API_END_POINTS.ENROLLMENT_API(userId), request);
+  }
+
+  searchExternalContent(params: SearchExternalRequest): Promise<any> {
+    return this.http.post(API_END_POINTS.SEARCH_EXT_CONTENT, params).toPromise();
   }
 }
