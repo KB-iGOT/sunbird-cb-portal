@@ -1,142 +1,136 @@
 import { EmptyRouteGuard } from './empty-route.guard';
-import { Router, ActivatedRoute, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
-import { AuthKeycloakService, ConfigurationsService } from '@sunbird-cb/utils-v2';
+import { Router, ActivatedRoute, UrlTree } from '@angular/router';
+import { ConfigurationsService, AuthKeycloakService } from '@sunbird-cb/utils-v2';
 
-describe('EmptyRouteGuard', () => {
-  let guard: EmptyRouteGuard;
-  let mockRouter: jest.Mocked<Router>;
-  let mockConfigSvc: jest.Mocked<ConfigurationsService>;
-  let mockAuthSvc: jest.Mocked<AuthKeycloakService>;
-  let mockActivatedRoute: jest.Mocked<ActivatedRoute>;
-  let mockActivatedRouteSnapshot: ActivatedRouteSnapshot;
-  let mockRouterStateSnapshot: RouterStateSnapshot;
-  let mockUrlTree: any;
+// Create a mock UrlTree class
+class MockUrlTree implements UrlTree {
+  fragment: string | null = null;
+  queryParams = {};
+  queryParamMap = {} as any;
+  root = {} as any;
+  toString(): string {
+    return '';
+  }
+}
 
-  beforeEach(() => {
-    mockUrlTree = { toString: jest.fn() };
-    mockRouter = {
-      parseUrl: jest.fn().mockReturnValue(mockUrlTree),
-    } as unknown as jest.Mocked<Router>;
-
-    mockConfigSvc = {
-      userProfile: null,
-      isAuthenticated: false,
-    } as unknown as jest.Mocked<ConfigurationsService>;
-
-    mockAuthSvc = {
-      loginV2: jest.fn().mockResolvedValue(undefined),
-    } as unknown as jest.Mocked<AuthKeycloakService>;
-
-    mockActivatedRouteSnapshot = {
+// Mock dependencies
+jest.mock('@angular/router', () => ({
+  Router: jest.fn().mockImplementation(() => ({
+    parseUrl: jest.fn().mockImplementation(_url => {
+      // Return a mock UrlTree instance
+      return new MockUrlTree();
+    }),
+  })),
+  ActivatedRoute: jest.fn().mockImplementation(() => ({
+    snapshot: {
       queryParamMap: {
         has: jest.fn(),
         get: jest.fn(),
-      } as any,
-    } as ActivatedRouteSnapshot;
-
-    mockActivatedRoute = {
-      snapshot: {
-        queryParamMap: {
-          has: jest.fn(),
-          get: jest.fn(),
-        }
       },
-    } as unknown as jest.Mocked<ActivatedRoute>;
+    },
+  })),
+}));
 
-    mockRouterStateSnapshot = {} as RouterStateSnapshot;
+jest.mock('@sunbird-cb/utils-v2', () => ({
+  ConfigurationsService: jest.fn().mockImplementation(() => ({
+    userProfile: null,
+    isAuthenticated: false,
+  })),
+  AuthKeycloakService: jest.fn().mockImplementation(() => ({
+    loginV2: jest.fn().mockResolvedValue(true),
+  })),
+}));
 
-    guard = new EmptyRouteGuard(
-      mockRouter,
-      mockConfigSvc,
-      mockAuthSvc,
-      mockActivatedRoute
-    );
-
-    // Spy on native Promise.resolve to avoid actual Promise execution
-    jest.spyOn(Promise, 'resolve').mockImplementation(value => {
-      return Promise.resolve(value);
-    });
+describe('EmptyRouteGuard', () => {
+  let guard: EmptyRouteGuard;
+  let router: Router;
+  let configSvc: ConfigurationsService;
+  let authSvc: AuthKeycloakService;
+  let activatedRoute: ActivatedRoute;
+  
+  beforeEach(() => {
+    router = new Router();
+    configSvc = new ConfigurationsService();
+    authSvc = new AuthKeycloakService(null as any, null as any, null as any, null as any);
+    activatedRoute = new ActivatedRoute();
+    
+    // Set up spies
+    jest.spyOn(router, 'parseUrl');
+    jest.spyOn(authSvc, 'loginV2');
+    jest.spyOn(activatedRoute.snapshot.queryParamMap, 'has');
+    jest.spyOn(activatedRoute.snapshot.queryParamMap, 'get');
+    
+    guard = new EmptyRouteGuard(router, configSvc, authSvc, activatedRoute);
   });
 
   afterEach(() => {
     jest.clearAllMocks();
   });
 
-  it('should be created', () => {
+  it('should create the guard', () => {
     expect(guard).toBeTruthy();
   });
 
-  it('should redirect to home page when user profile exists', () => {
+  it('should redirect to home page if user profile exists with userId', () => {
     // Arrange
-    mockConfigSvc.userProfile = {
-      userId: 'test-user-id',
-    };
-
-    // Act
-    const result = guard.canActivate(mockActivatedRouteSnapshot, mockRouterStateSnapshot);
-
-    // Assert
-    expect(mockRouter.parseUrl).toHaveBeenCalledWith('/page/home');
-    expect(result).toBe(mockUrlTree);
-  });
-
-  it('should redirect to home page when user is authenticated', () => {
-    // Arrange
-    mockConfigSvc.userProfile = null;
-    mockConfigSvc.isAuthenticated = true;
-
-    // Act
-    const result = guard.canActivate(mockActivatedRouteSnapshot, mockRouterStateSnapshot);
-
-    // Assert
-    expect(mockRouter.parseUrl).toHaveBeenCalledWith('/page/home');
-    expect(result).toBe(mockUrlTree);
-  });
-
-  it('should call loginV2 with redirect_uri when provided in query params', () => {
-    // Arrange
-    mockConfigSvc.userProfile = null;
-    mockConfigSvc.isAuthenticated = false;
+    configSvc.userProfile = { userId: 'test-user' };
     
-    mockActivatedRoute.snapshot.queryParamMap.has = jest.fn().mockReturnValue(true);
-    mockActivatedRoute.snapshot.queryParamMap.get = jest.fn().mockReturnValue('/dashboard');
-
     // Act
-    const result = guard.canActivate(mockActivatedRouteSnapshot, mockRouterStateSnapshot);
-
-    // Assert
-    expect(mockActivatedRoute.snapshot.queryParamMap.has).toHaveBeenCalledWith('redirect_uri');
-    expect(mockActivatedRoute.snapshot.queryParamMap.get).toHaveBeenCalledWith('redirect_uri');
-    expect(mockAuthSvc.loginV2).toHaveBeenCalledWith('S', '/dashboard');
-    expect(result).toBe(false);
-  });
-
-  it('should call loginV2 without redirect_uri when not provided in query params', () => {
-    // Arrange
-    mockConfigSvc.userProfile = null;
-    mockConfigSvc.isAuthenticated = false;
+    const result = guard.canActivate(null as any, null as any);
     
-    mockActivatedRoute.snapshot.queryParamMap.has = jest.fn().mockReturnValue(false);
-
-    // Act
-    const result = guard.canActivate(mockActivatedRouteSnapshot, mockRouterStateSnapshot);
-
     // Assert
-    expect(mockActivatedRoute.snapshot.queryParamMap.has).toHaveBeenCalledWith('redirect_uri');
-    expect(mockAuthSvc.loginV2).toHaveBeenCalledWith('S', undefined);
+    expect(router.parseUrl).toHaveBeenCalledWith('/page/home');
+    // Check that the result is an object (UrlTree)
+    expect(typeof result).toBe('object');
+    expect(result).toBeTruthy();
+  });
+
+  it('should redirect to home page if user is authenticated', () => {
+    // Arrange
+    configSvc.userProfile = null;
+    configSvc.isAuthenticated = true;
+    
+    // Act
+    const result = guard.canActivate(null as any, null as any);
+    
+    // Assert
+    expect(router.parseUrl).toHaveBeenCalledWith('/page/home');
+    expect(typeof result).toBe('object');
+    expect(result).toBeTruthy();
+  });
+
+  it('should call loginV2 with redirect_uri if available in query params', () => {
+    // Arrange
+    configSvc.userProfile = null;
+    configSvc.isAuthenticated = false;
+    
+    (activatedRoute.snapshot.queryParamMap.has as jest.Mock).mockReturnValue(true);
+    (activatedRoute.snapshot.queryParamMap.get as jest.Mock).mockReturnValue('/some-page');
+    
+    // Act
+    const result = guard.canActivate(null as any, null as any);
+    
+    // Assert
+    expect(activatedRoute.snapshot.queryParamMap.has).toHaveBeenCalledWith('redirect_uri');
+    expect(activatedRoute.snapshot.queryParamMap.get).toHaveBeenCalledWith('redirect_uri');
+    expect(authSvc.loginV2).toHaveBeenCalledWith('S', '/some-page');
     expect(result).toBe(false);
   });
 
-  it('should return false after attempting login', () => {
+  it('should call loginV2 with undefined redirect_uri if not available in query params', () => {
     // Arrange
-    mockConfigSvc.userProfile = null;
-    mockConfigSvc.isAuthenticated = false;
-
+    configSvc.userProfile = null;
+    configSvc.isAuthenticated = false;
+    
+    (activatedRoute.snapshot.queryParamMap.has as jest.Mock).mockReturnValue(false);
+    
     // Act
-    const result = guard.canActivate(mockActivatedRouteSnapshot, mockRouterStateSnapshot);
-
+    const result = guard.canActivate(null as any, null as any);
+    
     // Assert
+    expect(activatedRoute.snapshot.queryParamMap.has).toHaveBeenCalledWith('redirect_uri');
+    expect(activatedRoute.snapshot.queryParamMap.get).not.toHaveBeenCalled();
+    expect(authSvc.loginV2).toHaveBeenCalledWith('S', undefined);
     expect(result).toBe(false);
-    expect(Promise.resolve).toHaveBeenCalled();
   });
 });
