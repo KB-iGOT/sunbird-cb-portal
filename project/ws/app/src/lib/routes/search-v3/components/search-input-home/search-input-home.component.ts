@@ -17,12 +17,16 @@ import { debounceTime, distinctUntilChanged} from 'rxjs/operators';
 import { SearchServService } from '../../../search/services/search-serv.service';
 import { GbSearchService } from '../../services/gb-search.service';
 import {
+  FacetType,
   SearchCategory,
   SearchCommunitiesRequest,
   SearchEventfacet,
   SearchEventFields,
+  SearchExternalRequest,
   SearchNLP,
   SearchPeoplesRequest,
+  SearchResourceFacets,
+  SearchResourceMimeType,
   SearchV4Request,
 } from '../../models/search-v3.model';
 import { WidgetContentLibService } from '@sunbird-cb/consumption';
@@ -61,14 +65,24 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
     { label: 'Events', value: SearchCategory.Events, icon: 'calender-event' },
     { label: 'People', value: SearchCategory.People, icon: 'people-search' },
     {
-      label: 'Case Studies',
-      value: SearchCategory.CaseStudy,
-      icon: 'diversity_3',
+      label: 'External Contents',
+      value: SearchCategory.ExternalContents,
+      icon: 'video-library',
     },
+    // {
+    //   label: 'Case Studies',
+    //   value: SearchCategory.CaseStudy,
+    //   icon: 'diversity_3',
+    // },
     {
       label: 'Communities',
       value: SearchCategory.Communities,
       icon: 'menu_book',
+    },
+    {
+      label: 'Resources',
+      value: SearchCategory.Resources,
+      icon: 'diversity_3',
     },
   ];
 
@@ -204,9 +218,9 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
     });
   }
 
-  async updateQuery(query: string) {
-    if (query.length) {
-      await this.searchInNLP(query).then(() => {
+   updateQuery(query: string) {
+    if (query && query.length) {
+       this.searchInNLP(query).then(() => {
         this.processSearchText(query);
       }).catch(() => {
         this.processSearchText(query);
@@ -219,8 +233,8 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
   processSearchText(query: any) {
     document.getElementById('global-search-input')?.blur();
     const queryParams = {
-      q: query.trim(),
-      search: this.responseNlpQuery || null,
+      q: query ? query?.trim() : '',
+      search: query && this.responseNlpQuery ? this.responseNlpQuery : null,
       category: this.selectedSearchCategory || null,
       p: null,
       f: null,
@@ -246,12 +260,15 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
       this.openSearchTemplate = true;
     }, 0);
     this.queryControl.reset();
+    this.updateQuery('');
   }
 
   async selectSearchCategory(category: string) {
-    this.selectedSearchCategory = category;
-    // this.searchFromQuery(this.queryControl.value);
-    this.updateQuery(this.queryControl.value);
+    if(this.queryControl.value) {
+      this.selectedSearchCategory = category;
+      // this.searchFromQuery(this.queryControl.value);
+      this.updateQuery(this.queryControl.value);
+    }
   }
 
   async searchFromQuery(query: string) {
@@ -277,11 +294,21 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
         searchRequest.request.facets = SearchEventfacet;
 
         delete searchRequest.request.filters?.courseCategory;
-        delete searchRequest.request.sort_by?.lastUpdatedOn;
+        delete searchRequest.request.sort_by?.createdOn;
         break;
 
       case SearchCategory.CaseStudy:
         searchRequest.request.filters.courseCategory = 'case study';
+        break;
+
+      case SearchCategory.Resources:
+        searchRequest.request.filters.contentType = 'Resource';
+        searchRequest.request.facets = SearchResourceFacets
+        searchRequest.request.filters.mimeType = SearchResourceMimeType
+        searchRequest.request.exists = [FacetType.sectorNames_v1,FacetType.resourceCategory],
+        searchRequest.request.fields = [],
+        delete searchRequest.request.filters?.courseCategory;
+        delete searchRequest.request.sort_by?.createdOn;
         break;
     }
 
@@ -316,6 +343,22 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
         result.result?.search_results?.data.length
       ) {
         this.allSearchResults = result.result?.search_results?.data;
+      } else {
+        this.allSearchResults = [];
+      }
+
+      return;
+    } else if (this.selectedSearchCategory === SearchCategory.ExternalContents) {
+      const searchRequestExternal = new SearchExternalRequest([]);
+      searchRequestExternal.searchString = query || '';
+      const result = await this.searchV3Service
+        .searchExternalContent(searchRequestExternal)
+        .catch(() => (this.allSearchResults = []));
+      if (
+        result?.data &&
+        result?.data.length
+      ) {
+        this.allSearchResults = result?.data;
       } else {
         this.allSearchResults = [];
       }

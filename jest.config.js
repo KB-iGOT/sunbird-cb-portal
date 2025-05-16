@@ -3,7 +3,7 @@ module.exports = {
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/src/setup-jest.ts'],
   transformIgnorePatterns: [
-    'node_modules/(?!.*\\.mjs$)',
+    'node_modules/(?!.*\\.mjs$)'
   ],  
   moduleNameMapper: {
     '^@ws/(.*)$': '<rootDir>/project/ws/$1',
