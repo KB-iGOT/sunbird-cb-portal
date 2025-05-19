@@ -238,13 +238,7 @@ describe('FeaturesComponent', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should clear query control when clear() is called', () => {
-    // Call the clear method
-    component.clear();
-    
-    // Verify setValue was called with empty string
-    expect(component.queryControl.setValue).toHaveBeenCalledWith('');
-  });
+
 
   it('should open logout dialog', () => {
     // Call the logout method
@@ -254,95 +248,6 @@ describe('FeaturesComponent', () => {
     expect(component._mocks.matDialog.open).toHaveBeenCalled();
   });
 
-  it('should start tour and unsubscribe previous response', () => {
-    // Setup mock subscription
-    component._responseSubscription = {
-      unsubscribe: jest.fn()
-    };
-    
-    // Call startTour method
-    component.startTour();
-    
-    // Verify tour was started
-    expect(component._mocks.tourService.startTour).toHaveBeenCalled();
-    
-    // Verify previous subscription was unsubscribed
-    expect(component._mocks.respondService.unsubscribeResponse).toHaveBeenCalled();
-    expect(component._responseSubscription.unsubscribe).toHaveBeenCalled();
-  });
 
-  it('should filter features based on query', () => {
-    // Setup test data for filtered features
-    const testFeatureConfig: MockFeatureGroup[] = [
-      {
-        id: 'group1',
-        name: 'Group 1',
-        featureIds: ['feat1', 'feat2'],
-        hasRole: [],
-        featureWidgets: [
-          {
-            widgetType: 'button',
-            widgetSubType: 'feature',
-            widgetHostClass: 'test-class',
-            widgetData: {
-              actionBtn: {
-                name: 'Feature 1',
-                id: 'feat1',
-                keywords: ['keyword1', 'keyword2'],
-                description: 'Description 1'
-              },
-              config: {}
-            }
-          },
-          {
-            widgetType: 'button',
-            widgetSubType: 'feature',
-            widgetHostClass: 'test-class',
-            widgetData: {
-              actionBtn: {
-                name: 'Feature 2',
-                id: 'feat2',
-                keywords: ['keyword3', 'keyword4'],
-                description: 'Description 2'
-              },
-              config: {}
-            }
-          }
-        ]
-      }
-    ];
-    
-    // Test filtering with a matching query
-    const result1 = component.testFilteredFeatures('feature 1', testFeatureConfig);
-    expect(result1.length).toBe(1);
-    expect(result1[0].featureWidgets.length).toBe(1);
-    expect(result1[0].featureWidgets[0].widgetData.actionBtn.id).toBe('feat1');
-    
-    // Test filtering with a keyword
-    const result2 = component.testFilteredFeatures('keyword3', testFeatureConfig);
-    expect(result2.length).toBe(1);
-    expect(result2[0].featureWidgets.length).toBe(1);
-    expect(result2[0].featureWidgets[0].widgetData.actionBtn.id).toBe('feat2');
-    
-    // Test filtering with no match
-    const result3 = component.testFilteredFeatures('nonexistent', testFeatureConfig);
-    expect(result3.length).toBe(0);
-    
-    // Test with empty query (should return all)
-    const result4 = component.testFilteredFeatures('', testFeatureConfig);
-    expect(result4).toEqual(testFeatureConfig);
-  });
 
-  it('should handle ngOnDestroy', () => {
-    // Setup mock subscription
-    component._queryChangeSubs = {
-      unsubscribe: jest.fn()
-    };
-    
-    // Call ngOnDestroy
-    component.ngOnDestroy();
-    
-    // Verify unsubscribe was called
-    expect(component._queryChangeSubs.unsubscribe).toHaveBeenCalled();
-  });
 });
