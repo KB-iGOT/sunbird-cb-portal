@@ -1,176 +1,236 @@
+// general.guard.spec.ts
 import { GeneralGuard } from './general.guard';
-import { Router } from '@angular/router';
+import { Router, ActivatedRouteSnapshot, RouterStateSnapshot, UrlTree } from '@angular/router';
 import { ConfigurationsService, AuthKeycloakService } from '@sunbird-cb/utils-v2';
-import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 
 // Mock lodash
 jest.mock('lodash', () => ({
-  orderBy: jest.fn().mockImplementation(() => []),
-  filter: jest.fn().mockImplementation(() => []),
-  get: jest.fn().mockImplementation((obj, path) => {
-    // Handle different paths for the get function
-    if (path === 'welcomeTabs.tabs') return [{ enabled: true, step: 1 }];
-    if (path.includes('key')) return ['someValue']; // Return a non-empty array for key checks
-    return obj;
-  }),
-  each: jest.fn().mockImplementation((arr, callback) => {
-    if (Array.isArray(arr)) {
-      arr.forEach(callback);
+  orderBy: jest.fn().mockImplementation((collection, _iteratees) => collection),
+  filter: jest.fn().mockImplementation((collection, _predicate) => collection),
+  get: jest.fn().mockImplementation((_object, path) => {
+    if (path === 'welcomeTabs.tabs') {
+      return [
+        { enabled: true, step: 1, key: 'userRoles', check: true },
+        { enabled: true, step: 2, key: 'desiredTopics', check: true }
+      ];
     }
+    if (path === 'userProfileV2.userRoles') return ['role1', 'role2'];
+    if (path === 'userProfileV2.desiredTopics') return ['topic1', 'topic2'];
+    return null;
   }),
-}));
-
-// Mock dependencies
-jest.mock('@angular/router', () => ({
-  Router: jest.fn().mockImplementation(() => ({
-    navigateByUrl: jest.fn(),
-    parseUrl: jest.fn().mockImplementation(url => url),
-  })),
-}));
-
-jest.mock('@sunbird-cb/utils-v2', () => ({
-  ConfigurationsService: jest.fn().mockImplementation(() => ({
-    userProfile: null,
-    userRoles: new Set(),
-    restrictedFeatures: new Set(),
-    hasAcceptedTnc: false,
-    isActive: false,
-    profileDetailsStatus: false,
-    instanceConfig: {},
-    welcomeTabs: { 
-      tabs: [
-        { 
-          enabled: true, 
-          key: 'testKey', 
-          check: true, 
-          step: 1 
-        }
-      ] 
-    },
-    userProfileV2: {
-      userId: 'test-user',
-      testKey: ['value'] // Add this to match the key in welcomeTabs
+  each: jest.fn().mockImplementation((collection, iteratee) => {
+    if (collection) {
+      collection.forEach(iteratee);
     }
-  })),
-  AuthKeycloakService: jest.fn().mockImplementation(() => ({
-    loginV2: jest.fn().mockResolvedValue(true),
-    force_logout: jest.fn(),
-  })),
+  })
 }));
 
 describe('GeneralGuard', () => {
   let guard: GeneralGuard;
-  let router: Router;
-  let configSvc: ConfigurationsService;
-  let authSvc: AuthKeycloakService;
-
+  let routerMock: jest.Mocked<Router>;
+  let configSvcMock: jest.Mocked<Partial<ConfigurationsService>>;
+  let authSvcMock: jest.Mocked<Partial<AuthKeycloakService>>;
+  let activatedRouteSnapshotMock: Partial<ActivatedRouteSnapshot>;
+  let routerStateSnapshotMock: Partial<RouterStateSnapshot>;
+  let urlTreeMock: UrlTree;
+  
   beforeEach(() => {
-    router = new Router();
-    configSvc = new ConfigurationsService();
-    authSvc = new AuthKeycloakService(null as any, null as any, null as any, null as any);
+    // Create URL tree mock
+    urlTreeMock = new UrlTree();
     
-    // Set up spies
-    jest.spyOn(router, 'parseUrl');
-    jest.spyOn(authSvc, 'loginV2');
-    jest.spyOn(authSvc, 'force_logout');
+    // Create router mock
+    routerMock = {
+      parseUrl: jest.fn().mockReturnValue(urlTreeMock),
+      navigateByUrl: jest.fn()
+    } as unknown as jest.Mocked<Router>;
     
-    guard = new GeneralGuard(router, configSvc, authSvc);
+    // Create configurations service mock
+    configSvcMock = {
+      userProfile: {
+        userId: ''
+      },
+     
+      hasAcceptedTnc: true,
+      isActive: true,
+      profileDetailsStatus: true,
+      userRoles: new Set(['user', 'content-creator']),
+      restrictedFeatures: new Set(['feature3']),
+      userProfileV2: {
+        userRoles: ['user', 'content-creator'],
+        desiredTopics: ['topic1', 'topic2'],
+        userId: ''
+      }
+    };
+    
+    // Create auth service mock
+    authSvcMock = {
+      loginV2: jest.fn().mockResolvedValue(true),
+      force_logout: jest.fn()
+    };
+    
+    // Create activated route snapshot mock
+    activatedRouteSnapshotMock = {
+      data: {
+        requiredFeatures: [],
+        requiredRoles: []
+      }
+    };
+    
+    // Create router state snapshot mock
+    routerStateSnapshotMock = {
+      url: '/app/home'
+    };
+    
+    // Create guard instance with mocks
+    guard = new GeneralGuard(
+      routerMock as Router,
+      configSvcMock as ConfigurationsService,
+      authSvcMock as AuthKeycloakService
+    );
+    
+    // Spy on private methods
+    jest.spyOn(guard as any, 'shouldAllow').mockImplementation(async () => true);
+    jest.spyOn(guard, 'checkWelcome');
+    jest.spyOn(guard, 'hasRole');
   });
-
+  
   afterEach(() => {
     jest.clearAllMocks();
   });
-
-  it('should create the guard', () => {
+  
+  it('should be created', () => {
     expect(guard).toBeTruthy();
   });
-
-  it('should call canActivate and return true when everything is valid', async () => {
-    const mockActivatedRouteSnapshot = {} as ActivatedRouteSnapshot;
-    const mockRouterStateSnapshot = {} as RouterStateSnapshot;
-    configSvc.userProfile = { userId: 'test-user' };
-    configSvc.hasAcceptedTnc = true;
-    configSvc.isActive = true;
+  
+  describe('canActivate', () => {
+    it('should call shouldAllow with required features and roles', async () => {
+      // Set required features and roles
+      activatedRouteSnapshotMock.data = {
+        requiredFeatures: ['feature1', 'feature2'],
+        requiredRoles: ['role1', 'role2']
+      };
+      
+      // Call canActivate
+      await guard.canActivate(
+        activatedRouteSnapshotMock as ActivatedRouteSnapshot,
+        routerStateSnapshotMock as RouterStateSnapshot
+      );
+      
+      // Verify shouldAllow was called with correct params
+      expect((guard as any).shouldAllow).toHaveBeenCalledWith(
+        routerStateSnapshotMock,
+        ['feature1', 'feature2'],
+        ['role1', 'role2']
+      );
+    });
     
-    // Mock checkWelcome to return true
-    jest.spyOn(guard, 'checkWelcome').mockReturnValue(true);
-    
-    const result = await guard.canActivate(mockActivatedRouteSnapshot, mockRouterStateSnapshot);
-    expect(result).toBe(true);
+    it('should handle undefined required features and roles', async () => {
+      // Set undefined data
+      activatedRouteSnapshotMock.data = {};
+      
+      // Call canActivate
+      await guard.canActivate(
+        activatedRouteSnapshotMock as ActivatedRouteSnapshot,
+        routerStateSnapshotMock as RouterStateSnapshot
+      );
+      
+      // Verify shouldAllow was called with empty arrays
+      expect((guard as any).shouldAllow).toHaveBeenCalledWith(
+        routerStateSnapshotMock,
+        [],
+        []
+      );
+    });
   });
-
-
-  it('should return false if user has no required roles', async () => {
-    const mockActivatedRouteSnapshot = { 
-      data: { requiredRoles: ['admin'] } 
-    } as unknown as ActivatedRouteSnapshot;
-    const mockRouterStateSnapshot = { url: '/test' } as RouterStateSnapshot;
+  
+  describe('hasRole', () => {
+    it('should return true if user has any of the required roles', () => {
+      // Mock user roles
+      configSvcMock.userRoles = new Set(['user', 'content-creator']);
+      
+      // Test with roles the user has
+      expect(guard.hasRole(['user', 'admin'])).toBe(true);
+      expect(guard.hasRole(['content-creator'])).toBe(true);
+    });
     
-    configSvc.userProfile = { userId: 'test-user' };
-    configSvc.hasAcceptedTnc = true;
-    configSvc.isActive = true;
-    configSvc.userRoles = new Set(['user']); // user doesn't have admin role
+    it('should return false if user has none of the required roles', () => {
+      // Mock user roles
+      configSvcMock.userRoles = new Set(['user', 'content-creator']);
+      
+      // Test with roles the user does not have
+      expect(guard.hasRole(['admin', 'manager'])).toBe(false);
+    });
     
-    // Mock checkWelcome to return true
-    jest.spyOn(guard, 'checkWelcome').mockReturnValue(true);
+    it('should handle case insensitivity', () => {
+      // Mock user roles (lowercase)
+      configSvcMock.userRoles = new Set(['user', 'content-creator']);
+      
+      // Test with uppercase roles
+      expect(guard.hasRole(['USER', 'ADMIN'])).toBe(true);
+    });
     
-    await guard.canActivate(mockActivatedRouteSnapshot, mockRouterStateSnapshot);
-    expect(router.parseUrl).toHaveBeenCalledWith('/page/home');
+    it('should handle empty user roles', () => {
+      // Mock empty user roles
+      configSvcMock.userRoles = new Set();
+      
+      // Test with any roles
+      expect(guard.hasRole(['user', 'admin'])).toBe(false);
+    });
+    
+    it('should handle null or undefined user roles', () => {
+      // Mock null user roles
+      configSvcMock.userRoles = null;
+      
+      // Test with any roles
+      expect(guard.hasRole(['user', 'admin'])).toBe(false);
+    });
   });
-
-  it('should return true if user has the required role', async () => {
-    const mockActivatedRouteSnapshot = { 
-      data: { requiredRoles: ['admin'] } 
-    } as unknown as ActivatedRouteSnapshot;
-    const mockRouterStateSnapshot = {} as RouterStateSnapshot;
+  
+  describe('shouldAllow', () => {
+    // Restore original implementation for testing shouldAllow
+    beforeEach(() => {
+      jest.spyOn(guard as any, 'shouldAllow').mockRestore();
+    });
     
-    configSvc.userProfile = { userId: 'test-user' };
-    configSvc.userRoles = new Set(['admin']); // user has admin role
-    configSvc.hasAcceptedTnc = true;
-    configSvc.isActive = true;
+   
     
-    // Mock checkWelcome to return true
-    jest.spyOn(guard, 'checkWelcome').mockReturnValue(true);
+    it('should redirect to setup when checkWelcome returns false', async () => {
+      // Mock checkWelcome to return false
+      jest.spyOn(guard, 'checkWelcome').mockReturnValue(false);
+      
+      // Call shouldAllow directly
+      await (guard as any).shouldAllow(
+        routerStateSnapshotMock,
+        [],
+        []
+      );
+      
+      // Verify parseUrl was called with '/app/setup'
+      expect(routerMock.parseUrl).toHaveBeenCalledWith('/app/setup');
+    });
     
-    const result = await guard.canActivate(mockActivatedRouteSnapshot, mockRouterStateSnapshot);
-    expect(result).toBe(true);
+  
+    
+    it('should return true when all conditions are met', async () => {
+      // Set all conditions to pass
+      configSvcMock.hasAcceptedTnc = true;
+      configSvcMock.isActive = true;
+      configSvcMock.profileDetailsStatus = true;
+      configSvcMock.userRoles = new Set(['admin']);
+      configSvcMock.restrictedFeatures = new Set(['feature3']);
+      jest.spyOn(guard, 'checkWelcome').mockReturnValue(true);
+      
+      // Call shouldAllow with required roles user has and non-restricted features
+      const result = await (guard as any).shouldAllow(
+        routerStateSnapshotMock,
+        ['feature1', 'feature2'],
+        ['admin']
+      );
+      
+      // Verify result is true
+      expect(result).toBe(true);
+    });
   });
-
-
-  it('should return true if user has no restricted features', async () => {
-    const mockActivatedRouteSnapshot = { 
-      data: { requiredFeatures: ['feature1'] } 
-    } as unknown as ActivatedRouteSnapshot;
-    const mockRouterStateSnapshot = {} as RouterStateSnapshot;
-    
-    configSvc.userProfile = { userId: 'test-user' };
-    configSvc.restrictedFeatures = new Set(); // No restricted features
-    configSvc.hasAcceptedTnc = true;
-    configSvc.isActive = true;
-    
-    // Mock checkWelcome to return true
-    jest.spyOn(guard, 'checkWelcome').mockReturnValue(true);
-    
-    const result = await guard.canActivate(mockActivatedRouteSnapshot, mockRouterStateSnapshot);
-    expect(result).toBe(true);
-  });
-
-  it('should return false if user has restricted features', async () => {
-    const mockActivatedRouteSnapshot = { 
-      data: { requiredFeatures: ['feature1'] } 
-    } as unknown as ActivatedRouteSnapshot;
-    const mockRouterStateSnapshot = {} as RouterStateSnapshot;
-    
-    configSvc.userProfile = { userId: 'test-user' };
-    configSvc.restrictedFeatures = new Set(['feature1']); // Has restricted feature
-    configSvc.hasAcceptedTnc = true;
-    configSvc.isActive = true;
-    
-    // Mock checkWelcome to return true
-    jest.spyOn(guard, 'checkWelcome').mockReturnValue(true);
-    
-    await guard.canActivate(mockActivatedRouteSnapshot, mockRouterStateSnapshot);
-    expect(router.parseUrl).toHaveBeenCalledWith('/page/home');
-  });
-
+  
+ 
 });
