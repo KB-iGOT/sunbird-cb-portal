@@ -2,7 +2,6 @@ import { animate, style, transition, trigger } from '@angular/animations'
 import { Component, HostBinding, Input, OnInit } from '@angular/core'
 import { Router } from '@angular/router'
 // import { environment } from './../../../environments/environment'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
 import { ConfigurationsService, MultilingualTranslationsService, NsInstanceConfig } from '@sunbird-cb/utils-v2'
 
 import { BtnPageBackService } from './btn-page-back.service'
@@ -11,6 +10,8 @@ import { environment } from 'src/environments/environment'
 // tslint:disable
 import _ from 'lodash'
 import { TranslateService } from '@ngx-translate/core'
+import { WidgetBaseComponent } from '@sunbird-cb/resolver/src/lib/widget-base.component'
+import { NsWidgetResolver } from '@sunbird-cb/resolver/src/lib/widget-resolver.model'
 // tslint:enable
 
 type TUrl = undefined | 'none' | 'back' | string

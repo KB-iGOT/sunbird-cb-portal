@@ -1,423 +1,305 @@
-// Import only the types for type checking, actual implementations will be mocked
 import { AppNavBarComponent } from './app-nav-bar.component';
-import {  NavigationStart } from '@angular/router';
-// Mock required modules
-jest.mock('@angular/core');
-jest.mock('@angular/router');
-jest.mock('@angular/platform-browser');
-jest.mock('@ngx-translate/core');
-jest.mock('@sunbird-cb/collection');
-jest.mock('@sunbird-cb/resolver');
-jest.mock('@sunbird-cb/utils-v2');
+import {  NavigationStart, NavigationEnd } from '@angular/router';
+import { Subject, of } from 'rxjs';
+
+// Mock implementations
+const mockDomSanitizer = {
+  bypassSecurityTrustResourceUrl: jest.fn().mockReturnValue('trusted-url')
+};
+
+const mockRouter = {
+  events: new Subject(),
+  navigate: jest.fn(),
+  navigateByUrl: jest.fn()
+};
+
+const mockTranslateService = {
+  setDefaultLang: jest.fn(),
+  use: jest.fn()
+};
+
+const mockTourService = {
+  createPopupTour: jest.fn(),
+  startPopupTour: jest.fn(),
+  cancelPopupTour: jest.fn(),
+  isTourComplete: new Subject()
+};
+
+const mockConfigSvc = {
+  restrictedFeatures: new Set(),
+  userProfile: { userId: 'test-user-id' },
+  instanceConfig: {
+    logos: {
+      app: 'app-logo-url',
+      appSecondary: 'app-secondary-logo-url',
+      appBottomNav: 'bottom-nav-logo-url'
+    },
+    showNavBarInSetup: true
+  },
+  rootOrg: 'test-org',
+  primaryNavBar: { background: 'primary-bg' },
+  pageNavBar: { background: 'page-bg' },
+  primaryNavBarConfig: { config: 'primary-config' },
+  appsConfig: {
+    features: {
+      feature1: {},
+      feature2: {}
+    }
+  },
+  tourGuideNotifier: new Subject(),
+  completedTour: false,
+  prefChangeNotifier: new Subject(),
+  openExploreMenuForMWeb: new Subject(),
+  unMappedUser: {
+    profileDetails: {
+      profileStatus: 'active',
+      employmentDetails: {
+        departmentName: 'test-dept'
+      }
+    }
+  },
+  overrideThemeChanges: {
+    desktop: {
+      logoDisplayTime: 5000,
+      animationDuration: 1000
+    }
+  }
+};
+
+const mockEventService = {
+  raiseInteractTelemetry: jest.fn()
+};
+
+const mockLangTranslations = {
+  translateLabelWithoutspace: jest.fn().mockReturnValue('translated-label')
+};
+
+const mockUrlService = {
+  previousUrl$: new Subject<string>()
+};
+
+const mockUserSvc = {
+  fetchUserBatchList: jest.fn().mockReturnValue(of({}))
+};
 
 describe('AppNavBarComponent', () => {
   let component: AppNavBarComponent;
-  let mockDomSanitizer: any;
-  let mockConfigService: any;
-  let mockTourService: any;
-  let mockRouter: any;
-  let mockTranslateService: any;
-  let mockEventService: any;
-  let mockLangTranslations: any;
-  let mockUrlService: any;
-  let mockWidgetUserService: any;
-  let mockRouterEvents: any[];
+  let originalLocation: Location;
+  let originalLocalStorage: Storage;
 
   beforeEach(() => {
-    // Create all the mocks needed for the component
-    mockDomSanitizer = {
-      bypassSecurityTrustResourceUrl: jest.fn(url => `sanitized-${url}`),
-    };
-
-    mockConfigService = {
-      restrictedFeatures: new Set(['feature1', 'helpNavBarMenu']),
-      unMappedUser: {
-        profileDetails: {
-          profileStatus: 'NOT-MY-USER',
-          employmentDetails: {
-            departmentName: 'IGOT'
-          }
-        }
-      },
-      rootOrg: 'test-org',
-      userProfile: {
-        userId: 'test-user-id'
-      },
-      instanceConfig: {
-        logos: {
-          app: 'test-app-logo',
-          appSecondary: 'test-secondary-logo',
-          appBottomNav: 'test-bottom-nav-logo'
-        },
-        showNavBarInSetup: false
-      },
-      appsConfig: {
-        features: {
-          feature1: {},
-          feature2: {}
-        }
-      },
-      primaryNavBar: { color: 'blue' },
-      pageNavBar: { color: 'red' },
-      primaryNavBarConfig: { config: 'test' },
-      tourGuideNotifier: {
-        subscribe: jest.fn(callback => {
-          callback(true);
-          return { unsubscribe: jest.fn() };
-        })
-      },
-      prefChangeNotifier: {
-        next: jest.fn()
-      },
-      openExploreMenuForMWeb: {
-        next: jest.fn()
-      },
-      overrideThemeChanges: {
-        desktop: {
-          logoDisplayTime: 5000,
-          animationDuration: 2000
-        }
-      },
-      completedTour: false
-    };
-
-    mockTourService = {
-      createPopupTour: jest.fn().mockReturnValue({}),
-      cancelPopupTour: jest.fn(),
-      startPopupTour: jest.fn(),
-      isTourComplete: {
-        subscribe: jest.fn(callback => {
-          callback(true);
-          return { unsubscribe: jest.fn() };
-        })
-      }
-    };
-
-    // Create an array to hold router events
-    mockRouterEvents = [];
-
-    mockRouter = {
-      events: {
-        subscribe: jest.fn(callback => {
-          // Store the callback so we can manually trigger it
-          mockRouterEvents.push(callback);
-          return { unsubscribe: jest.fn() };
-        })
-      },
-      navigate: jest.fn(),
-      navigateByUrl: jest.fn()
-    };
-
-    mockTranslateService = {
-      setDefaultLang: jest.fn(),
-      use: jest.fn()
-    };
-
-    // Define WsEvents for telemetry
-    // global.WsEvents = {
-    //   EnumTelemetrymodules: {
-    //     KARMAPOINTS: 'karma-points'
-    //   }
-    // };
-
-    mockEventService = {
-      raiseInteractTelemetry: jest.fn()
-    };
-
-    mockLangTranslations = {
-      translateLabelWithoutspace: jest.fn((label) => `translated-${label}`)
-    };
-
-    mockUrlService = {
-      previousUrl$: {
-        subscribe: jest.fn(callback => {
-          callback('/previous-url');
-          return { unsubscribe: jest.fn() };
-        })
-      }
-    };
-
-    mockWidgetUserService = {
-      fetchUserBatchList: jest.fn(() => ({
-        subscribe: jest.fn(callback => {
-          callback({ data: 'test' });
-          return { unsubscribe: jest.fn() };
-        })
-      }))
-    };
+    // Mock window.location
+    originalLocation = window.location;
+    delete (window as any).location;
+    window.location = {
+      href: 'http://localhost/app/home',
+      pathname: '/app/home'
+    } as Location;
 
     // Mock localStorage
-    // const mockLocalStorage: Record<string, string> = {
-    //   'websiteLanguage': 'en',
-    //   'userEnrollmentCount': JSON.stringify({
-    //     userCourseEnrolmentInfo: {
-    //       karmaPoints: 100
-    //     }
-    //   }),
-    //   'activeRoute': 'home'
-    // };
+    originalLocalStorage = window.localStorage;
+    const mockLocalStorage = {
+      getItem: jest.fn(),
+      setItem: jest.fn(),
+      removeItem: jest.fn(),
+      clear: jest.fn()
+    };
+    Object.defineProperty(window, 'localStorage', {
+      value: mockLocalStorage,
+      writable: true
+    });
 
-    // Object.defineProperty(global, 'localStorage', {
-    //   value: {
-    //     getItem: jest.fn(key => mockLocalStorage[key] || null),
-    //     setItem: jest.fn((key, value) => {
-    //       mockLocalStorage[key] = value.toString();
-    //     }),
-    //     removeItem: jest.fn(key => {
-    //       delete mockLocalStorage[key];
-    //     })
-    //   },
-    //   writable: true
-    // });
+    // Mock window.screen
+    Object.defineProperty(window, 'screen', {
+      value: { availWidth: 1024 },
+      writable: true
+    });
 
-    // // Mock window.location
-    // Object.defineProperty(global, 'window', {
-    //   value: {
-    //     location: {
-    //       href: 'https://test.com/page/home',
-    //       pathname: '/page/home'
-    //     },
-    //     screen: {
-    //       availWidth: 1024
-    //     },
-    //     fs: {
-    //       readFile: jest.fn()
-    //     }
-    //   },
-    //   writable: true
-    // });
-
-    // // Mock clearInterval and setInterval
-    // global.clearInterval = jest.fn();
-    // global.setInterval = jest.fn().mockImplementation((callback, time) => {
-    //   callback();
-    //   return 123; // Return some interval ID
-    // });
-
-    // Create component manually
     component = new AppNavBarComponent(
-      mockDomSanitizer,
-      mockConfigService,
-      mockTourService,
-      mockRouter,
-      mockTranslateService,
-      mockEventService,
-      mockLangTranslations,
-      mockUrlService,
-      mockWidgetUserService
+      mockDomSanitizer as any,
+      mockConfigSvc as any,
+      mockTourService as any,
+      mockRouter as any,
+      mockTranslateService as any,
+      mockEventService as any,
+      mockLangTranslations as any,
+      mockUrlService as any,
+      mockUserSvc as any
     );
-
-    // Manually assign properties that would normally be set by decorators
-    component.mode = 'top';
-    component.headerFooterConfigData = {};
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
+    window.location = originalLocation;
+    Object.defineProperty(window, 'localStorage', {
+      value: originalLocalStorage,
+      writable: true
+    });
+    jest.clearAllTimers();
+    jest.useRealTimers();
   });
 
-  // Helper to simulate router navigation events
-  function simulateNavigationStart(url: string) {
-    mockRouterEvents.forEach(callback => {
-      callback(new NavigationStart(1, url));
-    });
-  }
-
-  // function simulateNavigationEnd(url: string, prevUrl: string = '') {
-  //   mockRouterEvents.forEach(callback => {
-  //     callback(new NavigationEnd(1, url, prevUrl));
-  //   });
-  // }
-
-  describe('Basic Tests', () => {
-    it('should create component', () => {
+  describe('Constructor', () => {
+    it('should create component with default values', () => {
       expect(component).toBeDefined();
+      expect(component.mode).toBe('top');
+      expect(component.forPreview).toBe(false);
+      expect(component.isPlayerPage).toBe(false);
+      expect(component.showAppNavBar).toBe(false);
     });
 
-    it('should use language from localStorage', () => {
+    it('should set forPreview to true when URL contains /public/', () => {
+      window.location.href = 'http://localhost/public/home';
+      const newComponent = new AppNavBarComponent(
+        mockDomSanitizer as any,
+        mockConfigSvc as any,
+        mockTourService as any,
+        mockRouter as any,
+        mockTranslateService as any,
+        mockEventService as any,
+        mockLangTranslations as any,
+        mockUrlService as any,
+        mockUserSvc as any
+      );
+      expect(newComponent.forPreview).toBe(true);
+    });
+
+    it('should set isPlayerPage to true when URL contains /viewer/', () => {
+      window.location.href = 'http://localhost/viewer/content';
+      const newComponent = new AppNavBarComponent(
+        mockDomSanitizer as any,
+        mockConfigSvc as any,
+        mockTourService as any,
+        mockRouter as any,
+        mockTranslateService as any,
+        mockEventService as any,
+        mockLangTranslations as any,
+        mockUrlService as any,
+        mockUserSvc as any
+      );
+      expect(newComponent.isPlayerPage).toBe(true);
+    });
+
+    it('should setup language from localStorage', () => {
+      (window.localStorage.getItem as jest.Mock).mockReturnValue('hi');
+      new AppNavBarComponent(
+        mockDomSanitizer as any,
+        mockConfigSvc as any,
+        mockTourService as any,
+        mockRouter as any,
+        mockTranslateService as any,
+        mockEventService as any,
+        mockLangTranslations as any,
+        mockUrlService as any,
+        mockUserSvc as any
+      );
       expect(mockTranslateService.setDefaultLang).toHaveBeenCalledWith('en');
-      expect(mockTranslateService.use).toHaveBeenCalledWith('en');
-    });
-
-    it('should set isHubEnable to false for cert URLs', () => {
-      simulateNavigationStart('/app/certs');
-      expect(component.isHubEnable).toBe(false);
-      expect(mockTourService.cancelPopupTour).toHaveBeenCalled();
+      expect(mockTranslateService.use).toHaveBeenCalledWith('hi');
     });
   });
 
-  describe('Component Initialization', () => {
-    it('should initialize component properties in ngOnInit', () => {
-      // We'll manually call ngOnInit even though it's called in the constructor
-      // in a real application, to test the initialization logic
+  describe('ngOnInit', () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+    });
+
+    it('should initialize component properties', () => {
       component.ngOnInit();
-      
-      // Test basic initialization properties
       expect(component.isLoggedIn).toBe(true);
-      expect(component.appIcon).toBe('sanitized-test-app-logo');
       expect(component.instanceVal).toBe('test-org');
       expect(component.featureApps).toEqual(['feature1', 'feature2']);
-      expect(component.isHelpMenuRestricted).toBe(true);
-      
-      // Test that interval was set up
-      //expect(global.setInterval).toHaveBeenCalled();
+    });
+
+    it('should setup app icons', () => {
+      component.ngOnInit();
+      expect(mockDomSanitizer.bypassSecurityTrustResourceUrl).toHaveBeenCalledWith('app-logo-url');
+      expect(mockDomSanitizer.bypassSecurityTrustResourceUrl).toHaveBeenCalledWith('app-secondary-logo-url');
+      expect(mockDomSanitizer.bypassSecurityTrustResourceUrl).toHaveBeenCalledWith('bottom-nav-logo-url');
+    });
+
+    // it('should setup karma point interval', () => {
+    //   const setIntervalSpy = jest.spyOn(global, 'setInterval');
+    //   component.ngOnInit();
+    // //  expect(setIntervalSpy).toHaveBeenCalledWith(expect.any(Function), 1000);
+    // });
+
+    it('should handle unmapped user with not-my-user status and igot org', () => {
+      mockConfigSvc.unMappedUser.profileDetails.profileStatus = 'not-my-user';
+      mockConfigSvc.unMappedUser.profileDetails.employmentDetails.departmentName = 'igot';
+      component.ngOnInit();
+      expect(component.disableMenu).toBe(true);
+      expect(mockUserSvc.fetchUserBatchList).toHaveBeenCalledWith('test-user-id');
+    });
+
+    it('should not disable menu for regular user', () => {
+      mockConfigSvc.unMappedUser.profileDetails.profileStatus = 'active';
+      component.ngOnInit();
+      expect(component.disableMenu).toBe(false);
     });
   });
 
-  // describe('Router Navigation Handling', () => {
-  //   it('should handle navigation end events for home page', () => {
-  //     // Initialize component first
-  //     component.ngOnInit();
+  describe('Router Events', () => {
+    it('should handle NavigationStart events', () => {
+      const cancelTourSpy = jest.spyOn(component, 'cancelTour');
+      component.ngOnInit();
       
-  //     // Simulate navigation end for home page
-  //     simulateNavigationEnd('/page/home');
+      const navigationStart = new NavigationStart(1, '/app/certs');
+      mockRouter.events.next(navigationStart);
       
-  //     // Check the component state updates
-  //     expect(component.activeRoute).toBe('home');
-  //     expect(component.showAppNavBar).toBe(false);
-  //   });
-    
-  //   it('should handle navigation end events for explore page', () => {
-  //     simulateNavigationEnd('/page/explore');
-  //     expect(component.activeRoute).toBe('explorer');
-  //   });
-
-  //   it('should handle navigation end events for search page', () => {
-  //     simulateNavigationEnd('/app/globalsearch');
-  //     expect(component.activeRoute).toBe('search');
-  //   });
-    
-  //   it('should set showAppNavBar false for public pages', () => {
-  //     simulateNavigationEnd('/public/home');
-  //     expect(component.showAppNavBar).toBe(false);
-  //     expect(component.isPublicHomePage).toBe(true);
-  //   });
-  // });
-
-  describe('Component Methods', () => {
-    it('should redirect to path with queryParams', () => {
-      component.redirectToPath({ path: '/test', key: 'testKey' });
-      expect(mockRouter.navigate).toHaveBeenCalledWith(
-        ['/test'], 
-        { queryParams: { key: 'testKey' } }
-      );
-      expect(mockConfigService.openExploreMenuForMWeb.next).toHaveBeenCalledWith(false);
+      expect(component.isHubEnable).toBe(false);
+      expect(cancelTourSpy).toHaveBeenCalled();
     });
 
-    it('should open explore menu', () => {
-      component.openExploreMenu();
-      expect(component.activeRoute).toBe('explore');
-      expect(mockConfigService.openExploreMenuForMWeb.next).toHaveBeenCalledWith(true);
+    it('should handle NavigationEnd events', () => {
+      const routeSubsSpy = jest.spyOn(component, 'routeSubs');
+      const bindUrlSpy = jest.spyOn(component, 'bindUrl');
+      const cancelTourSpy = jest.spyOn(component, 'cancelTour');
+      
+      component.ngOnInit();
+      
+      const navigationEnd = new NavigationEnd(1, '/app/home', '/app/home');
+      mockRouter.events.next(navigationEnd);
+      
+      expect(routeSubsSpy).toHaveBeenCalledWith(navigationEnd);
+      expect(bindUrlSpy).toHaveBeenCalledWith('/app/home');
+      expect(cancelTourSpy).toHaveBeenCalled();
     });
 
-    it('should get karma count from localStorage', () => {
-      component.getKarmaCount();
-      expect(component.countdata).toBe(100);
-      expect(component.karmaPointLoading).toBe(false);
-      //expect(global.clearInterval).toHaveBeenCalled();
+    it('should set activeRoute for specific URLs', () => {
+      component.ngOnInit();
+      
+      // Test home route
+      const homeNavigation = new NavigationEnd(1, '/page/home', '/page/home');
+      mockRouter.events.next(homeNavigation);
+      expect(component.activeRoute).toBe('home');
+      
+      // Test explore route
+      const exploreNavigation = new NavigationEnd(2, '/page/explore', '/page/explore');
+      mockRouter.events.next(exploreNavigation);
+      expect(component.activeRoute).toBe('explorer');
+      
+      // Test search route
+      const searchNavigation = new NavigationEnd(3, '/app/globalsearch', '/app/globalsearch');
+      mockRouter.events.next(searchNavigation);
+      expect(component.activeRoute).toBe('search');
     });
 
-    it('should navigate to karma points when menu is enabled', () => {
-      component.disableMenu = false;
-      component.viewKarmapoints();
-      expect(mockEventService.raiseInteractTelemetry).toHaveBeenCalled();
-      expect(mockRouter.navigate).toHaveBeenCalledWith(['/app/person-profile/karma-points']);
-    });
-
-    it('should return false from viewKarmapoints when menu is disabled', () => {
-      component.disableMenu = true;
-      expect(component.viewKarmapoints()).toBe(false);
-    });
-
-    it('should navigate back to home from TOC pages', () => {
-      component.previousUrl = '/app/toc/do_123';
-      component.handleNavigateBack();
-      expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('/page/home');
-    });
-
-    it('should translate labels', () => {
-      const result = component.translateLabels('test-label', 'test-type');
-      expect(mockLangTranslations.translateLabelWithoutspace).toHaveBeenCalledWith('test-label', 'test-type', '');
-      expect(result).toBe('translated-test-label');
-    });
-
-    it('should get decorated item', () => {
-      // Mock the getter method
-      Object.defineProperty(component, 'isforPreview', {
-        get: jest.fn().mockReturnValue(true)
+    it('should set hideKPOnNav for mobile toc pages', () => {
+      Object.defineProperty(window, 'screen', {
+        value: { availWidth: 500 },
+        writable: true
       });
       
-      const item = { id: 1, name: 'Test' };
-      const result = component.getItem(item);
+      component.ngOnInit();
       
-      expect(result).toEqual({
-        id: 1,
-        name: 'Test',
-        forPreview: false, // !isforPreview
-        enableLang: undefined
-      });
+      const tocNavigation = new NavigationEnd(1, '/app/toc/do_123', '/app/toc/do_123');
+      mockRouter.events.next(tocNavigation);
+      
+      expect(component.hideKPOnNav).toBe(true);
     });
   });
 
-  describe('Computed Properties', () => {
-    it('should check if on home page', () => {
-      // First set the location to public/home
-      Object.defineProperty(window, 'location', {
-        value: { href: 'https://test.com/public/home' },
-        writable: true
-      });
-      
-      expect(component.stillOnHomePage).toBe(true);
-      
-      // Then change to another page
-      Object.defineProperty(window, 'location', {
-        value: { href: 'https://test.com/app/other' },
-        writable: true
-      });
-      
-      expect(component.stillOnHomePage).toBe(false);
-    });
-    
-    it('should determine if in preview mode', () => {
-      // Set to preview URL
-      Object.defineProperty(window, 'location', {
-        value: { href: 'https://test.com/public/home' },
-        writable: true
-      });
-      
-      expect(component.isforPreview).toBe(true);
-      
-      // Set to non-preview URL
-      Object.defineProperty(window, 'location', {
-        value: { href: 'https://test.com/app/home' },
-        writable: true
-      });
-      
-      component.forPreview = false; // Need to reset this as it's set in constructor
-      expect(component.isforPreview).toBe(false);
-    });
-    
-    it('should determine if language is enabled', () => {
-      // Set to URL where language is enabled
-      Object.defineProperty(window, 'location', {
-        value: { href: 'https://test.com/public/faq' },
-        writable: true
-      });
-      
-      expect(component.isenableLang).toBe(true);
-      
-      // Set to URL where language is not enabled
-      Object.defineProperty(window, 'location', {
-        value: { href: 'https://test.com/app/home' },
-        writable: true
-      });
-      
-      expect(component.isenableLang).toBe(false);
-    });
-  });
-
-  describe('Changes Detection', () => {
-    it('should handle mode changes', () => {
+  describe('ngOnChanges', () => {
+    it('should update btnAppsConfig when mode changes to bottom', () => {
       const changes = {
         mode: {
           currentValue: 'bottom',
@@ -427,18 +309,296 @@ describe('AppNavBarComponent', () => {
         }
       };
       
-      // Initial btnAppsConfig setup
-      component.btnAppsConfig = { ...component.basicBtnAppsConfig };
-      component.ngOnChanges(changes as any);
+      component.ngOnChanges(changes);
       
-      // Expect the config to be updated for bottom mode
-      expect(component.btnAppsConfig).toEqual({
-        ...component.basicBtnAppsConfig,
-        widgetData: {
-          ...component.basicBtnAppsConfig.widgetData,
-          showTitle: true
+      expect(component.btnAppsConfig.widgetData.showTitle).toBe(true);
+    });
+
+    it('should reset btnAppsConfig when mode changes to top', () => {
+      component.mode = 'top';
+      const changes = {
+        mode: {
+          currentValue: 'top',
+          previousValue: 'bottom',
+          firstChange: false,
+          isFirstChange: () => false
         }
+      };
+      
+      component.ngOnChanges(changes);
+      
+      expect(component.btnAppsConfig).toEqual(component.basicBtnAppsConfig);
+    });
+  });
+
+  describe('Tour Methods', () => {
+    beforeEach(() => {
+      component.popupTour = { id: 'test-tour' };
+    });
+
+    it('should cancel tour', () => {
+      component.cancelTour();
+      expect(mockTourService.cancelPopupTour).toHaveBeenCalled();
+      expect(component.isTourGuideClosed).toBe(false);
+    });
+
+    it('should not cancel tour if popupTour is not set', () => {
+      component.popupTour = null;
+      component.cancelTour();
+      expect(mockTourService.cancelPopupTour).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Route Subscription', () => {
+    it('should set showAppNavBar to false for public routes', () => {
+      const navigationEnd = new NavigationEnd(1, '/public/home', '/public/home');
+      component.routeSubs(navigationEnd);
+      expect(component.showAppNavBar).toBe(false);
+      expect(component.isPublicHomePage).toBe(true);
+    });
+
+    it('should set showAppNavBar to false for viewer routes', () => {
+      const navigationEnd = new NavigationEnd(1, '/viewer/content', '/viewer/content');
+      component.routeSubs(navigationEnd);
+      expect(component.showAppNavBar).toBe(false);
+    });
+
+    it('should set showAppNavBar to true for app routes', () => {
+      const navigationEnd = new NavigationEnd(1, '/app/home', '/app/home');
+      component.routeSubs(navigationEnd);
+      expect(component.showAppNavBar).toBe(true);
+    });
+
+    it('should set isSetUpPage for setup routes', () => {
+      const navigationEnd = new NavigationEnd(1, '/app/setup', '/app/setup');
+      component.routeSubs(navigationEnd);
+      expect(component.isSetUpPage).toBe(true);
+    });
+  });
+
+  describe('Getter Methods', () => {
+    it('should return correct stillOnHomePage value', () => {
+      window.location.href = 'http://localhost/public/home';
+      expect(component.stillOnHomePage).toBe(true);
+    });
+
+    it('should return correct fullMenuDispaly value', () => {
+      window.location.href = 'http://localhost/app/home';
+      expect(component.fullMenuDispaly).toBe(true);
+      
+      window.location.href = 'http://localhost/viewer/content';
+      expect(component.fullMenuDispaly).toBe(false);
+    });
+
+    it('should return correct isforPreview value', () => {
+      window.location.href = 'http://localhost/public/content';
+      expect(component.isforPreview).toBe(true);
+      
+      window.location.href = 'http://localhost/app/home';
+      expect(component.isforPreview).toBe(false);
+    });
+
+    it('should return correct isenableLang value', () => {
+      window.location.href = 'http://localhost/public/faq';
+      expect(component.isenableLang).toBe(true);
+      
+      window.location.href = 'http://localhost/public/contact';
+      expect(component.isenableLang).toBe(true);
+      
+      window.location.href = 'http://localhost/app/home';
+      expect(component.isenableLang).toBe(false);
+    });
+
+    it('should return correct isThisSetUpPage value', () => {
+      window.location.pathname = '/app/setup';
+      expect(component.isThisSetUpPage).toBe(true);
+      
+      window.location.pathname = '/app/home';
+      expect(component.isThisSetUpPage).toBe(false);
+    });
+
+    it('should return correct needToHide value', () => {
+      component.currentRoute = 'all/assessment/test';
+      expect(component.needToHide).toBe(true);
+      
+      component.currentRoute = 'app/home';
+      expect(component.needToHide).toBe(false);
+    });
+  });
+
+  describe('Utility Methods', () => {
+    it('should translate labels', () => {
+      const result = component.translateLabels('test-label', 'test-type');
+      expect(mockLangTranslations.translateLabelWithoutspace).toHaveBeenCalledWith('test-label', 'test-type', '');
+      expect(result).toBe('translated-label');
+    });
+
+    it('should redirect to path with query params', () => {
+      const pathConfig = { path: '/app/test', key: 'test-key' };
+      component.redirectToPath(pathConfig);
+      expect(mockRouter.navigate).toHaveBeenCalledWith(['/app/test'], { queryParams: { key: 'test-key' } });
+    });
+
+    it('should redirect to path without query params', () => {
+      const pathConfig = { path: '/app/test' };
+      component.redirectToPath(pathConfig);
+      expect(mockRouter.navigate).toHaveBeenCalledWith(['/app/test']);
+    });
+
+    it('should open explore menu', () => {
+      const nextSpy = jest.spyOn(mockConfigSvc.openExploreMenuForMWeb, 'next');
+      component.openExploreMenu();
+      expect(component.activeRoute).toBe('explore');
+      expect(nextSpy).toHaveBeenCalledWith(true);
+    });
+
+    it('should bind URL correctly', () => {
+      component.bindUrl('/app/test');
+      expect(component.currentRoute).toBe('/app/test');
+    });
+
+    it('should not bind competencies URL', () => {
+      component.currentRoute = '/app/home';
+      component.bindUrl('/app/competencies');
+      expect(component.currentRoute).toBe('/app/home');
+    });
+  });
+
+  describe('Karma Points', () => {
+    it('should get karma count from localStorage', () => {
+      const mockEnrollmentData = {
+        userCourseEnrolmentInfo: {
+          karmaPoints: 100
+        }
+      };
+      (window.localStorage.getItem as jest.Mock).mockReturnValue(JSON.stringify(mockEnrollmentData));
+      
+      component.getKarmaCount();
+      
+      expect(component.countdata).toBe(100);
+      expect(component.karmaPointLoading).toBe(false);
+    });
+
+    it('should view karma points if menu is not disabled', () => {
+      component.disableMenu = false;
+      const raiseTelemetrySpy = jest.spyOn(component, 'raiseTelemetry');
+      
+      const result = component.viewKarmapoints();
+      
+      expect(raiseTelemetrySpy).toHaveBeenCalled();
+      expect(mockRouter.navigate).toHaveBeenCalledWith(['/app/person-profile/karma-points']);
+      expect(result).toBeUndefined();
+    });
+
+    it('should not view karma points if menu is disabled', () => {
+      component.disableMenu = true;
+      const result = component.viewKarmapoints();
+      expect(result).toBe(false);
+    });
+
+    // it('should raise telemetry', () => {
+    //   component.raiseTelemetry();
+    //   expect(mockEventService.raiseInteractTelemetry).toHaveBeenCalledWith(
+    //     {
+    //       type: 'click',
+    //       subType: 'nav-karmapoints',
+    //       id: 'nav-karmapoints',
+    //     },
+    //     {},
+    //     {
+    //       module: expect.any(String),
+    //     }
+    //   );
+    // });
+  });
+
+  describe('Navigation', () => {
+    it('should handle navigate back to home when previous URL contains toc', () => {
+      component.previousUrl = '/app/toc/do_123';
+      component.handleNavigateBack();
+      expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('/page/home');
+    });
+
+    it('should handle navigate back to home when previous URL contains viewer/pdf', () => {
+      component.previousUrl = '/viewer/pdf/do_123';
+      component.handleNavigateBack();
+      expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('/page/home');
+    });
+
+    it('should not navigate if previous URL does not match conditions', () => {
+      component.previousUrl = '/app/home';
+      component.handleNavigateBack();
+      expect(mockRouter.navigateByUrl).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Helper Methods', () => {
+    it('should get item with correct properties', () => {
+      const testItem = { id: 'test' };
+      const result = component.getItem(testItem);
+      
+      expect(result).toEqual({
+        id: 'test',
+        forPreview: true,
+        enableLang: component.enableLang
       });
+    });
+
+    it('should fetch enrollment list', () => {
+      component.fetchEnrollmentList();
+      expect(mockUserSvc.fetchUserBatchList).toHaveBeenCalledWith('test-user-id');
+    });
+
+    it('should display logo with animation', (done) => {
+      jest.useRealTimers();
+      component.janDataEnable = true;
+      
+      component.displayLogo();
+      
+      setTimeout(() => {
+        expect(component.janDataEnable).toBe(false);
+        done();
+      }, 1100);
+    });
+  });
+
+  describe('URL Service Subscription', () => {
+    it('should subscribe to previousUrl changes', () => {
+      component.ngOnInit();
+      
+      mockUrlService.previousUrl$.next('/app/test');
+      
+      expect(component.previousUrl).toBe('/app/test');
+    });
+  });
+
+  describe('Language Dropdown', () => {
+    it('should hide language dropdown for karmayogi-saptah URL', () => {
+      window.location.href = 'http://localhost/karmayogi-saptah';
+      
+      const newComponent = new AppNavBarComponent(
+        mockDomSanitizer as any,
+        mockConfigSvc as any,
+        mockTourService as any,
+        mockRouter as any,
+        mockTranslateService as any,
+        mockEventService as any,
+        mockLangTranslations as any,
+        mockUrlService as any,
+        mockUserSvc as any
+      );
+      
+      const navigationEnd = new NavigationEnd(1, '/karmayogi-saptah', '/karmayogi-saptah');
+      mockRouter.events.next(navigationEnd);
+      
+      expect(newComponent.showLangDropdown).toBe(false);
+    });
+
+    it('should show language dropdown for other URLs', () => {
+      const navigationEnd = new NavigationEnd(1, '/app/home', '/app/home');
+      mockRouter.events.next(navigationEnd);
+      
+      expect(component.showLangDropdown).toBe(true);
     });
   });
 });

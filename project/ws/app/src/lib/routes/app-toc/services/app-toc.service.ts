@@ -2,11 +2,13 @@ import { Injectable } from '@angular/core'
 import { Data } from '@angular/router'
 import { Subject, Observable, EMPTY, Subscription, BehaviorSubject} from 'rxjs'
 import { HttpClient } from '@angular/common/http'
-import { NsContent, NsContentConstants, WidgetContentService } from '@sunbird-cb/collection'
 import { NsAppToc, NsCohorts } from '../models/app-toc.model'
 import { TFetchStatus, ConfigurationsService } from '@sunbird-cb/utils-v2'
 // tslint:disable-next-line
 import _ from 'lodash'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
+import { NsContentConstants } from '@sunbird-cb/collection/src/lib/_constants/widget-content.constants'
+import { WidgetContentService } from '@sunbird-cb/collection/src/lib/_services/widget-content.service'
 
 // TODO: move this in some common place
 const PROTECTED_SLAG_V8 = '/apis/protected/v8'
