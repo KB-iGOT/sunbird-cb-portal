@@ -1,13 +1,7 @@
 import { Component, Inject, OnInit, ViewChild, ElementRef } from '@angular/core'
 
 import { UntypedFormControl } from '@angular/forms'
-import {
-  NsAutoComplete,
-  UserAutocompleteService,
-  FeedbackService,
-  EFeedbackType,
-  EFeedbackRole,
-} from '@sunbird-cb/collection'
+
 
 import { NotificationComponent } from '@ws/author/src/lib/modules/shared/components/notification/notification.component'
 import { Notify } from '@ws/author/src/lib/constants/notificationMessage'
@@ -24,6 +18,10 @@ import { MatLegacyAutocompleteSelectedEvent as MatAutocompleteSelectedEvent } fr
 import { MatLegacyChipInputEvent as MatChipInputEvent } from '@angular/material/legacy-chips'
 import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog'
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { EFeedbackRole, EFeedbackType } from '@sunbird-cb/collection/src/lib/btn-content-feedback-v2/models/feedback.model'
+import { NsAutoComplete } from '@sunbird-cb/collection/src/lib/_common/user-autocomplete/user-autocomplete.model'
+import { UserAutocompleteService } from '@sunbird-cb/collection/src/lib/_common/user-autocomplete/user-autocomplete.service'
+import { FeedbackService } from '@sunbird-cb/collection/src/lib/btn-content-feedback-v2/services/feedback.service'
 
 const NOTIFICATION_TIME = 5
 

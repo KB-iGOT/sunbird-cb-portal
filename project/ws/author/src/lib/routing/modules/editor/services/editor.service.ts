@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core'
-import { NsAutoComplete, UserAutocompleteService } from '@sunbird-cb/collection'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import {
   AUTHORING_CONTENT_BASE,
@@ -23,6 +22,8 @@ import { Observable, of } from 'rxjs'
 import { map, mergeMap, catchError } from 'rxjs/operators'
 import { CONTENT_READ_MULTIPLE_HIERARCHY } from './../../../../constants/apiEndpoints'
 import { ISearchContent, ISearchResult } from '../../../../interface/search'
+import { UserAutocompleteService } from '@sunbird-cb/collection/src/lib/_common/user-autocomplete/user-autocomplete.service'
+import { NsAutoComplete } from '@sunbird-cb/collection/src/lib/_common/user-autocomplete/user-autocomplete.model'
 
 @Injectable()
 export class EditorService {

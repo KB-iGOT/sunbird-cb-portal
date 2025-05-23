@@ -15,9 +15,9 @@ import { NetCoreService } from './netcore.service';
 global.smartech = jest.fn();
 
 // Add type definition for global smartech
-declare global {
-  var smartech: any;
-}
+// declare global {
+//   var smartech: any;
+// }
 
 describe('NetCoreService', () => {
   let service: NetCoreService;

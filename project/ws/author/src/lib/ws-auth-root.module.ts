@@ -18,11 +18,11 @@ import { ContentTOCResolver } from './services/content-resolve.service'
 import { AuthoringErrorHandler } from './services/error-handler.service'
 // import { ViewerComponent } from './routing/components/viewer/viewer.component'
 import { PipeSafeSanitizerModule } from '@sunbird-cb/utils-v2'
-import { BtnPageBackModule } from '@sunbird-cb/collection'
 import { ApiService } from './modules/shared/services/api.service'
 import { CKEditorResolverService } from './services/ckeditor-resolve.service'
 import { AuthNavBarToggleService } from './services/auth-nav-bar-toggle.service'
 import { WorkFlowService } from './services/work-flow.service'
+import { BtnPageBackModule } from '@sunbird-cb/collection/src/lib/btn-page-back/btn-page-back.module'
 
 /**
  * This function is used internal to get a string instance of the `<base href="" />` value from `index.html`.
