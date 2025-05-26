@@ -83,7 +83,7 @@ export class IGotSarthiComponent implements OnInit, AfterViewChecked, OnDestroy 
   aiSearchResultArr:any = []
   displayedText = '';
   // tslint: enable
-  @ViewChild('scrollMe') private myScrollContainer: ElementRef | undefined
+  @ViewChild('scrollMe') public myScrollContainer: ElementRef | undefined
   isHubEnable!: boolean
 
   constructor(

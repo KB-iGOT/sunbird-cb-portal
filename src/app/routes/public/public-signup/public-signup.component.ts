@@ -9,7 +9,7 @@ import { ReCaptchaV3Service } from 'ng-recaptcha'
 import { SignupSuccessDialogueComponent } from './signup-success-dialogue/signup-success-dialogue/signup-success-dialogue.component'
 import { DOCUMENT, isPlatformBrowser } from '@angular/common'
 // tslint:disable-next-line: import-name
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { ActivatedRoute, Router } from '@angular/router'
 import { TermsAndConditionComponent } from './terms-and-condition/terms-and-condition.component'
 import { TranslateService } from '@ngx-translate/core'
