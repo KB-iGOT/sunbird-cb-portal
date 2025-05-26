@@ -56,7 +56,7 @@ export class AppChatbotComponent implements OnInit, AfterViewChecked, OnChanges 
   }
   iconPosition = {x:0, y:0}
   // tslint: enable
-  @ViewChild('scrollMe') private myScrollContainer: ElementRef | undefined
+  @ViewChild('scrollMe') public myScrollContainer: ElementRef | undefined
   @ViewChild('dragItem') dragElement!: ElementRef;
   isHubEnable!: boolean
   chatIconOutside = false
@@ -541,11 +541,11 @@ export class AppChatbotComponent implements OnInit, AfterViewChecked, OnChanges 
       this.iconClick('end')
     }
   }
-  private disableScroll() {
+  public disableScroll() {
     this.renderer.addClass(document.body, 'disable-scroll')
   }
 
-  private enableScroll() {
+  public enableScroll() {
     this.renderer.removeClass(document.body, 'disable-scroll')
   }
 
