@@ -1,277 +1,385 @@
-jest.mock('moment', () => {
-  const mockMoment = {
-    format: jest.fn().mockReturnValue('2023-01-01 12:00:00'),
-    add: jest.fn().mockReturnThis()
-  };
-  return jest.fn(() => mockMoment);
-});
-
-// Import the service
-
-import { of, throwError } from 'rxjs';
 import { NetCoreService } from './netcore.service';
+import { HttpClient } from '@angular/common/http';
+import { ConfigurationsService } from '@sunbird-cb/utils-v2';
+import { of, throwError } from 'rxjs';
+import moment from 'moment';
 
 // Mock the global smartech function
-global.smartech = jest.fn();
+const mockSmartech = jest.fn();
+(global as any).smartech = mockSmartech;
 
-// Add type definition for global smartech
-// declare global {
-//   var smartech: any;
-// }
+// Mock moment
+jest.mock('moment', () => {
+  const actualMoment = jest.requireActual('moment');
+  return {
+    __esModule: true,
+    default: jest.fn(() => ({
+      add: jest.fn().mockReturnThis(),
+      format: jest.fn().mockReturnValue('2023-12-01 10:30:00')
+    })),
+    ...actualMoment
+  };
+});
 
 describe('NetCoreService', () => {
   let service: NetCoreService;
-  let httpClientMock: any;
-  let configSvcMock: any;
+  let httpClientMock: jest.Mocked<HttpClient>;
+  let configSvcMock: jest.Mocked<ConfigurationsService>;
 
   beforeEach(() => {
-    // Reset all mocks
-    jest.clearAllMocks();
-
-    // Create mocks for dependencies
+    // Create mocks
     httpClientMock = {
       post: jest.fn(),
       get: jest.fn()
-    };
+    } as any;
 
     configSvcMock = {
-      sitePath: 'http://test-site.com'
-    };
+      sitePath: '/test/path'
+    } as any;
 
-    // Create service instance with mocked dependencies
+    // Create service instance
     service = new NetCoreService(httpClientMock, configSvcMock);
+
+    // Clear all mocks
+    jest.clearAllMocks();
   });
 
   describe('getOrgReadData', () => {
-    it('should make a POST request and return the mapped response', () => {
-      // Arrange
+    it('should make POST request with correct payload and return mapped response', (done) => {
+      const organisationId = 'test-org-id';
       const mockResponse = {
         result: {
-          response: { id: 'org123', name: 'Test Org' }
+          response: { data: 'test-data' }
         }
       };
+      
       httpClientMock.post.mockReturnValue(of(mockResponse));
-      const organisationId = 'org123';
 
-      // Act
-      let result: any;
-      service.getOrgReadData(organisationId).subscribe(res => {
-        result = res;
+      service.getOrgReadData(organisationId).subscribe((result:any) => {
+        expect(httpClientMock.post).toHaveBeenCalledWith('/api/org/v1/read', {
+          request: { organisationId }
+        });
+        expect(result).toEqual({ data: 'test-data' });
+        done();
       });
-
-      // Assert
-      expect(httpClientMock.post).toHaveBeenCalledWith('/api/org/v1/read', {
-        request: {
-          organisationId: 'org123'
-        }
-      });
-      expect(result).toEqual({ id: 'org123', name: 'Test Org' });
-    });
-  });
-
-  describe('netCoreConfigReadData', () => {
-    it('should return form data when formReadData succeeds', () => {
-      // Arrange
-      const mockFormResponse = {
-        result: {
-          form: {
-            data: { key: 'value' }
-          }
-        }
-      };
-      const payload = { data: 'test' };
-      
-      jest.spyOn(service, 'formReadData').mockReturnValue(of(mockFormResponse));
-
-      // Act
-      let result: any;
-      service.netCoreConfigReadData(payload).subscribe(res => {
-        result = res;
-      });
-
-      // Assert
-      expect(service.formReadData).toHaveBeenCalledWith(payload);
-      expect(result).toEqual({ key: 'value' });
     });
 
-    it('should fetch netcore.json when formReadData fails', () => {
-      // Arrange
-      const errorResponse = new Error('Form read failed');
-      const payload = { data: 'test' };
-      const mockJsonResponse = { config: 'jsonData' };
+    it('should handle undefined response gracefully', (done) => {
+      const organisationId = 'test-org-id';
+      const mockResponse = {};
       
-      jest.spyOn(service, 'formReadData').mockReturnValue(throwError(errorResponse));
-      httpClientMock.get.mockReturnValue(of(mockJsonResponse));
+      httpClientMock.post.mockReturnValue(of(mockResponse));
 
-      // Act
-      let result: any;
-      service.netCoreConfigReadData(payload).subscribe(res => {
-        result = res;
+      service.getOrgReadData(organisationId).subscribe((result:any) => {
+        expect(result).toBeUndefined();
+        done();
       });
-
-      // Assert
-      expect(service.formReadData).toHaveBeenCalledWith(payload);
-      expect(httpClientMock.get).toHaveBeenCalledWith('http://test-site.com/netcore.json');
-      expect(result).toEqual(mockJsonResponse);
-    });
-
-    it('should handle error when both formReadData and json fetch fail', () => {
-      // Arrange
-      const formError = new Error('Form read failed');
-      const jsonError = new Error('JSON fetch failed');
-      const payload = { data: 'test' };
-      
-      jest.spyOn(service, 'formReadData').mockReturnValue(throwError(formError));
-      httpClientMock.get.mockReturnValue(throwError(jsonError));
-
-      // Act
-      let result: any;
-      service.netCoreConfigReadData(payload).subscribe(res => {
-        result = res;
-      });
-
-      // Assert
-      expect(result).toEqual({ data: null, error: jsonError });
     });
   });
 
   describe('formReadData', () => {
-    it('should make a POST request with the given payload', () => {
-      // Arrange
-      const mockResponse = { data: 'test response' };
+    it('should make POST request to FORM_READ endpoint', (done) => {
+      const request = { test: 'payload' };
+      const mockResponse = { result: 'success' };
+      
       httpClientMock.post.mockReturnValue(of(mockResponse));
-      const request = { data: 'test request' };
 
-      // Act
-      let result: any;
-      service.formReadData(request).subscribe(res => {
-        result = res;
+      service.formReadData(request).subscribe((result:any) => {
+        expect(httpClientMock.post).toHaveBeenCalledWith('/apis/v1/form/read', request);
+        expect(result).toEqual(mockResponse);
+        done();
       });
-
-      // Assert
-      expect(httpClientMock.post).toHaveBeenCalledWith('/apis/v1/form/read', request);
-      expect(result).toEqual(mockResponse);
     });
   });
 
-  describe('smartech tracking functions', () => {
-    it('should call smartech for netCoreUserLoginSetup', () => {
-      // Arrange
-      const payload = { email: 'test@test.com' };
+  describe('netCoreConfigReadData', () => {
+    it('should return form data when formReadData succeeds', (done) => {
+      const payload = { test: 'payload' };
+      const mockFormResponse = {
+        result: {
+          form: {
+            data: { config: 'test-config' }
+          }
+        }
+      };
+      
+      httpClientMock.post.mockReturnValue(of(mockFormResponse));
 
-      // Act
+      service.netCoreConfigReadData(payload).subscribe((result:any) => {
+        expect(result).toEqual({ config: 'test-config' });
+        done();
+      });
+    });
+
+    it('should fallback to netcore.json when formReadData fails', (done) => {
+      const payload = { test: 'payload' };
+      const fallbackData = { fallback: 'config' };
+      
+      httpClientMock.post.mockReturnValue(throwError('Form read error'));
+      httpClientMock.get.mockReturnValue(of(fallbackData));
+
+      service.netCoreConfigReadData(payload).subscribe((result:any) => {
+        expect(httpClientMock.get).toHaveBeenCalledWith('/test/path/netcore.json');
+        expect(result).toEqual(fallbackData);
+        done();
+      });
+    });
+
+    it('should handle fallback error gracefully', (done) => {
+      const payload = { test: 'payload' };
+      
+      httpClientMock.post.mockReturnValue(throwError('Form read error'));
+      httpClientMock.get.mockReturnValue(throwError('Fallback error'));
+
+      service.netCoreConfigReadData(payload).subscribe((result:any) => {
+        expect(result).toEqual({ data: null, error: 'Fallback error' });
+        done();
+      });
+    });
+
+    it('should handle null form data', (done) => {
+      const payload = { test: 'payload' };
+      const mockFormResponse = {
+        result: {
+          form: {
+            data: null
+          }
+        }
+      };
+      
+      httpClientMock.post.mockReturnValue(of(mockFormResponse));
+
+      service.netCoreConfigReadData(payload).subscribe((result:any) => {
+        expect(result).toBeNull();
+        done();
+      });
+    });
+  });
+
+  describe('netCoreUserLoginSetup', () => {
+    it('should call smartech with correct parameters', () => {
+      const payload = { userId: 'test-user' };
+      
       service.netCoreUserLoginSetup(payload);
-
-      // Assert
-      expect(global.smartech).toHaveBeenCalledWith('contact', '', payload);
+      
+      expect(mockSmartech).toHaveBeenCalledWith('contact', '', payload);
     });
+  });
 
-    it('should call smartech for netCoreUserNameUpdate', () => {
-      // Arrange
-      const payload = { name: 'Test User' };
-
-      // Act
+  describe('netCoreUserNameUpdate', () => {
+    it('should call smartech with correct parameters', () => {
+      const payload = { name: 'John Doe' };
+      
       service.netCoreUserNameUpdate(payload);
-
-      // Assert
-      expect(global.smartech).toHaveBeenCalledWith('contact', '', payload);
+      
+      expect(mockSmartech).toHaveBeenCalledWith('contact', '', payload);
     });
+  });
 
-    it('should call smartech for netCoreUserProfilePhotoUpdate', () => {
-      // Arrange
-      const payload = { photo: 'url/to/photo' };
-
-      // Act
+  describe('netCoreUserProfilePhotoUpdate', () => {
+    it('should call smartech with correct parameters', () => {
+      const payload = { photoUrl: 'test-url' };
+      
       service.netCoreUserProfilePhotoUpdate(payload);
-
-      // Assert
-      expect(global.smartech).toHaveBeenCalledWith('contact', '', payload);
+      
+      expect(mockSmartech).toHaveBeenCalledWith('contact', '', payload);
     });
+  });
 
-    it('should call smartech for netCoreUserProfilepdate', () => {
-      // Arrange
+  describe('netCoreUserProfilepdate', () => {
+    it('should call smartech with correct parameters', () => {
       const payload = { profile: 'data' };
-
-      // Act
+      
       service.netCoreUserProfilepdate(payload);
-
-      // Assert
-      expect(global.smartech).toHaveBeenCalledWith('contact', '', payload);
+      
+      expect(mockSmartech).toHaveBeenCalledWith('contact', '', payload);
     });
+  });
 
-    it('should call smartech identify and dispatch for netCoreUserProfileUpdateEvent', () => {
-      // Arrange
-      const payload = { data: 'test' };
+  describe('netCoreUserProfileUpdateEvent', () => {
+    it('should call smartech identify and dispatch with correct parameters', () => {
+      const payload = { profile: 'data' };
       const eventName = 'profile_update';
       const userIdentifier = 'user123';
-
-      // Act
+      
       service.netCoreUserProfileUpdateEvent(payload, eventName, userIdentifier);
-
-      // Assert
-      expect(global.smartech).toHaveBeenCalledWith('identify', userIdentifier);
-      expect(global.smartech).toHaveBeenCalledWith('dispatch', eventName, payload);
+      
+      expect(mockSmartech).toHaveBeenCalledWith('identify', userIdentifier);
+      expect(mockSmartech).toHaveBeenCalledWith('dispatch', eventName, payload);
+      expect(mockSmartech).toHaveBeenCalledTimes(2);
     });
   });
 
-  // describe('trackEvent', () => {
-  //   it('should call smartech with correct payload', () => {
-  //     // Act
-  //     service.trackEvent('test_event', 'user123');
+  describe('trackEvent', () => {
+    beforeEach(() => {
+      // Reset the moment mock for each test
+      const mockMoment = moment as jest.MockedFunction<typeof moment>;
+      mockMoment.mockReturnValue({
+        add: jest.fn().mockReturnThis(),
+        format: jest.fn().mockReturnValue('2023-12-01 10:30:00')
+      } as any);
+    });
 
-  //     // Assert
-  //     expect(global.smartech).toHaveBeenCalledWith('identify', 'user123');
-  //     expect(global.smartech).toHaveBeenCalledWith('dispatch', 'test_event', {
-  //       action_time: '2023-01-01 12:00:00',
-  //       action_device: 'Desktop'
-  //     });
-  //   });
+    it('should track event with basic payload when no user payload provided', () => {
+      const eventName = 'test_event';
+      const userIdentifier = 'user123';
+      
+      service.trackEvent(eventName, userIdentifier);
+      
+      const expectedPayload = {
+        action_time: '2023-12-01 10:30:00',
+        action_device: 'Desktop'
+      };
+      
+      expect(mockSmartech).toHaveBeenCalledWith('identify', userIdentifier);
+      expect(mockSmartech).toHaveBeenCalledWith('dispatch', eventName, expectedPayload);
+    });
 
-  //   it('should include profile attributes in payload when provided', () => {
-  //     // Act
-  //     service.trackEvent('test_event', 'user123', ['attribute1', 'attribute2']);
+    it('should include profile_attribute_updated when user payload is object', () => {
+      const eventName = 'test_event';
+      const userIdentifier = 'user123';
+      const userPayload = { key: 'value' };
+      
+      service.trackEvent(eventName, userIdentifier, userPayload);
+      
+      const expectedPayload = {
+        action_time: '2023-12-01 10:30:00',
+        action_device: 'Desktop',
+        profile_attribute_updated: '[object Object]'
+      };
+      
+      expect(mockSmartech).toHaveBeenCalledWith('identify', userIdentifier);
+      expect(mockSmartech).toHaveBeenCalledWith('dispatch', eventName, expectedPayload);
+    });
 
-  //     // Assert
-  //     expect(global.smartech).toHaveBeenCalledWith('identify', 'user123');
-  //     expect(global.smartech).toHaveBeenCalledWith('dispatch', 'test_event', {
-  //       action_time: '2023-01-01 12:00:00',
-  //       action_device: 'Desktop',
-  //       profile_attribute_updated: 'attribute1,attribute2'
-  //     });
-  //   });
-  // });
+    it('should include profile_attribute_updated when user payload is array', () => {
+      const eventName = 'test_event';
+      const userIdentifier = 'user123';
+      const userPayload = ['item1', 'item2'];
+      
+      service.trackEvent(eventName, userIdentifier, userPayload);
+      
+      const expectedPayload = {
+        action_time: '2023-12-01 10:30:00',
+        action_device: 'Desktop',
+        profile_attribute_updated: 'item1,item2'
+      };
+      
+      expect(mockSmartech).toHaveBeenCalledWith('identify', userIdentifier);
+      expect(mockSmartech).toHaveBeenCalledWith('dispatch', eventName, expectedPayload);
+    });
 
-  // describe('trackEventForContentAndEvent', () => {
-  //   it('should call smartech with merged payload', () => {
-  //     // Arrange
-  //     const contentPayload = { 
-  //       content_id: 'cont123',
-  //       content_type: 'video' 
-  //     };
+    it('should handle null user payload', () => {
+      const eventName = 'test_event';
+      const userIdentifier = 'user123';
+      
+      service.trackEvent(eventName, userIdentifier, null);
+      
+      const expectedPayload = {
+        action_time: '2023-12-01 10:30:00',
+        action_device: 'Desktop'
+      };
+      
+      expect(mockSmartech).toHaveBeenCalledWith('identify', userIdentifier);
+      expect(mockSmartech).toHaveBeenCalledWith('dispatch', eventName, expectedPayload);
+    });
+  });
 
-  //     // Act
-  //     service.trackEventForContentAndEvent('content_event', 'user123', contentPayload);
+  describe('trackEventForContentAndEvent', () => {
+    beforeEach(() => {
+      // Reset the moment mock for each test
+      const mockMoment = moment as jest.MockedFunction<typeof moment>;
+      mockMoment.mockReturnValue({
+        add: jest.fn().mockReturnThis(),
+        format: jest.fn().mockReturnValue('2023-12-01 10:30:00')
+      } as any);
+    });
 
-  //     // Assert
-  //     expect(global.smartech).toHaveBeenCalledWith('identify', 'user123');
-  //     expect(global.smartech).toHaveBeenCalledWith('dispatch', 'content_event', {
-  //       action_time: '2023-01-01 12:00:00',
-  //       action_device: 'Desktop',
-  //       content_id: 'cont123',
-  //       content_type: 'video'
-  //     });
-  //   });
+    it('should merge content payload with base payload', () => {
+      const eventName = 'content_event';
+      const userIdentifier = 'user123';
+      const contentPayload = { contentId: 'content123', type: 'video' };
+      
+      service.trackEventForContentAndEvent(eventName, userIdentifier, contentPayload);
+      
+      const expectedPayload = {
+        action_time: '2023-12-01 10:30:00',
+        action_device: 'Desktop',
+        contentId: 'content123',
+        type: 'video'
+      };
+      
+      expect(mockSmartech).toHaveBeenCalledWith('identify', userIdentifier);
+      expect(mockSmartech).toHaveBeenCalledWith('dispatch', eventName, expectedPayload);
+    });
 
-  //   it('should handle empty content payload', () => {
-  //     // Act
-  //     service.trackEventForContentAndEvent('content_event', 'user123', {});
+    it('should handle empty content payload object', () => {
+      const eventName = 'content_event';
+      const userIdentifier = 'user123';
+      const contentPayload = {};
+      
+      service.trackEventForContentAndEvent(eventName, userIdentifier, contentPayload);
+      
+      const expectedPayload = {
+        action_time: '2023-12-01 10:30:00',
+        action_device: 'Desktop'
+      };
+      
+      expect(mockSmartech).toHaveBeenCalledWith('identify', userIdentifier);
+      expect(mockSmartech).toHaveBeenCalledWith('dispatch', eventName, expectedPayload);
+    });
 
-  //     // Assert
-  //     expect(global.smartech).toHaveBeenCalledWith('identify', 'user123');
-  //     expect(global.smartech).toHaveBeenCalledWith('dispatch', 'content_event', {
-  //       action_time: '2023-01-01 12:00:00',
-  //       action_device: 'Desktop'
-  //     });
-  //   });
-  // });
+    it('should handle undefined content payload', () => {
+      const eventName = 'content_event';
+      const userIdentifier = 'user123';
+      
+      service.trackEventForContentAndEvent(eventName, userIdentifier, undefined);
+      
+      const expectedPayload = {
+        action_time: '2023-12-01 10:30:00',
+        action_device: 'Desktop'
+      };
+      
+      expect(mockSmartech).toHaveBeenCalledWith('identify', userIdentifier);
+      expect(mockSmartech).toHaveBeenCalledWith('dispatch', eventName, expectedPayload);
+    });
+
+    it('should prioritize content payload values over base payload when keys conflict', () => {
+      const eventName = 'content_event';
+      const userIdentifier = 'user123';
+      const contentPayload = { 
+        action_device: 'Mobile', // This should override the base 'Desktop' value
+        additionalData: 'test' 
+      };
+      
+      service.trackEventForContentAndEvent(eventName, userIdentifier, contentPayload);
+      
+      const expectedPayload = {
+        action_time: '2023-12-01 10:30:00',
+        action_device: 'Mobile', // Content payload should override
+        additionalData: 'test'
+      };
+      
+      expect(mockSmartech).toHaveBeenCalledWith('identify', userIdentifier);
+      expect(mockSmartech).toHaveBeenCalledWith('dispatch', eventName, expectedPayload);
+    });
+  });
+
+  describe('Time handling', () => {
+    it('should add 5 hours and 30 minutes to current time', () => {
+      const mockMomentInstance = {
+        add: jest.fn().mockReturnThis(),
+        format: jest.fn().mockReturnValue('2023-12-01 10:30:00')
+      };
+      
+      const mockMoment = moment as jest.MockedFunction<typeof moment>;
+      mockMoment.mockReturnValue(mockMomentInstance as any);
+      
+      service.trackEvent('test', 'user123');
+      
+      expect(mockMomentInstance.add).toHaveBeenCalledWith(5, 'hours');
+      expect(mockMomentInstance.add).toHaveBeenCalledWith(30, 'minutes');
+      expect(mockMomentInstance.format).toHaveBeenCalledWith('YYYY-MM-DD HH:mm:ss');
+    });
+  });
 });
