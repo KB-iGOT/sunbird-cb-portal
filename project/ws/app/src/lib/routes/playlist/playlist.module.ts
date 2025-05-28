@@ -18,7 +18,7 @@ import {
   BtnFacebookShareModule,
   BtnTwitterShareModule,
 } from '@sunbird-cb/collection'
-import { WidgetResolverModule } from '@sunbird-cb/resolver'
+import { WidgetResolverModule } from '@sunbird-cb/resolver/src/lib/widget-resolver.module'
 import { DefaultThumbnailModule, PipeDurationTransformModule } from '@sunbird-cb/utils-v2'
 import { PlaylistCardComponent } from './components/playlist-card/playlist-card.component'
 import { PlaylistContentDeleteDialogComponent } from './components/playlist-content-delete-dialog/playlist-content-delete-dialog.component'

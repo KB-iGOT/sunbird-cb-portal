@@ -1,16 +1,18 @@
 import { Component, Input, OnInit, Renderer2, SimpleChanges } from '@angular/core'
-import { NsContent, viewerRouteGenerator } from '@sunbird-cb/collection'
+
 import { NsAppToc } from '../models/app-toc.model'
 import { EventService, WsEvents } from '@sunbird-cb/utils-v2'
 import { CertificateDialogComponent } from '@sunbird-cb/collection/src/lib/_common/certificate-dialog/certificate-dialog.component'
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
 import { animate, style, transition, trigger } from '@angular/animations'
 /* tslint:disable*/
-import _ from 'lodash'
+import * as _ from 'lodash'
 import moment from 'moment'
 import { CertificateService } from '@ws/app/src/lib/routes/certificate/services/certificate.service'
 import { AppTocService } from '@ws/app/src/lib/routes/app-toc/services/app-toc.service'
 import { Subscription } from 'rxjs'
+import { NsContent } from '../../../_services/widget-content.model'
+import { viewerRouteGenerator } from '../../../_services/viewer-route-util'
 
 @Component({
   selector: 'ws-widget-app-toc-content-card-v2',

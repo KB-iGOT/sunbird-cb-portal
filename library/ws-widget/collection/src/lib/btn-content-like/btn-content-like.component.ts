@@ -1,8 +1,9 @@
 import { Component, HostBinding, Input, OnDestroy, OnInit } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
 import { Subscription } from 'rxjs'
 import { ConfigurationsService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
 import { BtnContentLikeService } from './btn-content-like.service'
+import { WidgetBaseComponent } from '@sunbird-cb/resolver/src/lib/widget-base.component'
+import { NsWidgetResolver } from '@sunbird-cb/resolver/src/lib/widget-resolver.model'
 
 @Component({
   selector: 'ws-widget-btn-content-like',

@@ -1,5 +1,4 @@
 import { Component, Input, OnInit, OnDestroy, Output, EventEmitter, HostBinding } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
 import { Subscription, fromEvent } from 'rxjs'
 import {
   getFullScreenElement,
@@ -7,6 +6,8 @@ import {
   requestFullScreen,
   hasFullScreenSupport,
 } from './fullscreen.util'
+import { WidgetBaseComponent } from '@sunbird-cb/resolver/src/lib/widget-base.component'
+import { NsWidgetResolver } from '@sunbird-cb/resolver/src/lib/widget-resolver.model'
 
 @Component({
   selector: 'ws-widget-btn-fullscreen',

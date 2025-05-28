@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core'
 import { NSProfileDataV3 } from '../../models/profile-v3.models'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { ActivatedRoute } from '@angular/router'
 import { DialogBoxComponent } from '../../components/dialog-box/dialog-box.component'
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'

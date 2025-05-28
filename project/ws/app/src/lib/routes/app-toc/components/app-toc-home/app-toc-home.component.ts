@@ -11,7 +11,7 @@ import { Subscription, Observable, Subject } from 'rxjs'
 import { share, takeUntil } from 'rxjs/operators'
 import dayjs from 'dayjs'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 dayjs.extend(isSameOrBefore)
 import moment from 'moment'
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore'

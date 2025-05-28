@@ -1,7 +1,7 @@
 import { PublicLogoutComponent } from './public-logout.component';
 import { NsPage } from '@sunbird-cb/utils-v2';
 import { of } from 'rxjs';
-import _ from 'lodash';
+import * as _ from 'lodash';
 
 // Mock services
 const mockAuthKeycloakService = {

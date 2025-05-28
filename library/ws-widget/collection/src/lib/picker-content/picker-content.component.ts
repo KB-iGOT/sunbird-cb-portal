@@ -10,7 +10,8 @@ import {
   ViewChild,
 } from '@angular/core'
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { WidgetBaseComponent } from '@sunbird-cb/resolver/src/lib/widget-base.component'
+import { NsWidgetResolver } from '@sunbird-cb/resolver/src/lib/widget-resolver.model'
 import { ConfigurationsService, TFetchStatus } from '@sunbird-cb/utils-v2'
 // import { SearchServService } from '@ws/app/src/lib/routes/search/services/search-serv.service'
 import { BehaviorSubject, EMPTY, Subscription, timer } from 'rxjs'

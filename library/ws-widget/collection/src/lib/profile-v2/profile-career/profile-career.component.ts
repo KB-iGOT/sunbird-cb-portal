@@ -1,5 +1,6 @@
 import { Component, HostBinding, Input, OnInit } from '@angular/core'
-import { WidgetBaseComponent, NsWidgetResolver } from '@sunbird-cb/resolver'
+import { WidgetBaseComponent } from '@sunbird-cb/resolver/src/lib/widget-base.component'
+import { NsWidgetResolver } from '@sunbird-cb/resolver/src/lib/widget-resolver.model'
 import { IProfileCareer } from './profile-career.model'
 import moment from 'moment'
 import { TranslateService } from '@ngx-translate/core'

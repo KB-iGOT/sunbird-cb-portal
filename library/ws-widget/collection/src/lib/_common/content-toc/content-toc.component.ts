@@ -8,9 +8,9 @@ import { MatLegacyTabGroup as MatTabGroup, MatLegacyTabChangeEvent as MatTabChan
 import { NsDiscussionV2 } from '@sunbird-cb/discussion-v2'
 import { AiTutorConfirmPopupComponent } from './ai-tutor-confirm-popup/ai-tutor-confirm-popup.component'
 import { MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig } from '@angular/material/legacy-dialog'
-import { viewerRouteGenerator } from '@sunbird-cb/collection'
 import { AppTocService } from '@ws/app/src/lib/routes/app-toc/services/app-toc.service'
 import { ActionService } from '@ws/app/src/lib/routes/app-toc/services/action.service'
+import { viewerRouteGenerator } from '../../_services/viewer-route-util'
 @Component({
   selector: 'ws-widget-content-toc',
   templateUrl: './content-toc.component.html',

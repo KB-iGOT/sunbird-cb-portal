@@ -22,7 +22,7 @@ import {
 import { CareersCardComponent } from './components/careers-card/careers-card.component'
 import { CareerDetailComponent } from './routes/career-detail/career-detail.component'
 import { RelatedPostsComponent } from './components/related-posts/related-posts.component'
-import { WidgetResolverModule } from '@sunbird-cb/resolver'
+import { WidgetResolverModule } from '@sunbird-cb/resolver/src/lib/widget-resolver.module'
 import { CareersPaginationComponent } from './components/careers-pagination/careers-pagination.component'
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core'
 import { HttpLoaderFactory } from 'src/app/app.module'

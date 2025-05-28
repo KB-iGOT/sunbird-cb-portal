@@ -12,7 +12,7 @@ import { NSPractice } from '../../../practice.model'
 import { PracticeService } from '../../../practice.service'
 import { jsPlumb, OnConnectionBindInfo } from 'jsplumb'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { Subscription } from 'rxjs'
 import { NsContent } from '@sunbird-cb/utils-v2'
 

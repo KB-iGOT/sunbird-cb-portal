@@ -35,7 +35,7 @@ import { SignupSuccessDialogueComponent } from '../public-signup/signup-success-
 import { TermsAndConditionComponent } from '../public-signup/terms-and-condition/terms-and-condition.component';
 import { DialogBoxComponent as ZohoDialogComponent } from '@ws/app/src/lib/routes/profile-v3/components/dialog-box/dialog-box.component';
 // tslint:disable-next-line: import-name
-import _ from 'lodash';
+import * as _ from 'lodash';
 import { IOrganizationDetails } from './models/public-crp-model';
 import { MobileAppsService } from '../../../services/mobile-apps.service';
 import { AppOtpReaderComponent } from 'src/app/component/app-otp-reader/app-otp-reader.component';

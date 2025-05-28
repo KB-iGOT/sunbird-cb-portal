@@ -5,7 +5,7 @@ import { map } from 'rxjs/operators'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { NSNetworkDataV2 } from '../../models/network-v2.model'
 /* tslint:disable */
-import _ from 'lodash'
+import * as _ from 'lodash'
 /* tslint:enable */
 
 @Component({

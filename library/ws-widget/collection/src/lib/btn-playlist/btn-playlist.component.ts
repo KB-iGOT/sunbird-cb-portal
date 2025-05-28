@@ -1,11 +1,12 @@
 import { Component, HostBinding, Input, OnInit } from '@angular/core'
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
 import { TFetchStatus, ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { NsContent } from '../_services/widget-content.model'
 import { BtnPlaylistDialogComponent } from './btn-playlist-dialog/btn-playlist-dialog.component'
 import { NsPlaylist } from './btn-playlist.model'
 import { BtnPlaylistService } from './btn-playlist.service'
+import { WidgetBaseComponent } from '@sunbird-cb/resolver/src/lib/widget-base.component'
+import { NsWidgetResolver } from '@sunbird-cb/resolver/src/lib/widget-resolver.model'
 
 const VALID_CONTENT_TYPES: NsContent.EContentTypes[] = [
   NsContent.EContentTypes.MODULE,

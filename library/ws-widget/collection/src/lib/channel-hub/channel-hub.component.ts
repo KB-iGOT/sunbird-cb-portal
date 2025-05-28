@@ -1,9 +1,10 @@
 import { Component, OnInit, Input } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
 import { IChannelHub, IChannelHubCard } from './channel-hub.model'
 import * as _moment from 'moment'
 // tslint:disable-next-line:no-duplicate-imports
 import { default as _rollupMoment } from 'moment'
+import { WidgetBaseComponent } from '@sunbird-cb/resolver/src/lib/widget-base.component'
+import { NsWidgetResolver } from '@sunbird-cb/resolver/src/lib/widget-resolver.model'
 const moment = _rollupMoment || _moment
 
 @Component({

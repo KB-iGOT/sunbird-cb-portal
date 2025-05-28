@@ -14,7 +14,7 @@ import { ConnectionHoverService } from '@sunbird-cb/collection/src/lib/_common/c
 import { NsContent, NsAutoComplete } from '@sunbird-cb/collection/src/public-api'
 // import { IdiscussionConfig } from '@project-sunbird/discussions-ui-v8'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { UntypedFormGroup, UntypedFormControl } from '@angular/forms'
 import { RatingService } from '../../../../../../../../../library/ws-widget/collection/src/lib/_services/rating.service'
 import { TranslateService } from '@ngx-translate/core'

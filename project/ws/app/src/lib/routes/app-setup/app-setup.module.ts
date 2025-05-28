@@ -6,7 +6,7 @@ import { AppSetupHomeComponent } from './app-setup-home.component'
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 import { SettingsModule } from '../profile/routes/settings/settings.module'
-import { WidgetResolverModule } from '@sunbird-cb/resolver'
+import { WidgetResolverModule } from '@sunbird-cb/resolver/src/lib/widget-resolver.module'
 import {
   LocaleTranslatorModule,
   LanguageSelectorModule,

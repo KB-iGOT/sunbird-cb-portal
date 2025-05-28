@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common'
 
 import { BtnPageBackNavModule } from '@sunbird-cb/collection'
 import { HorizontalScrollerModule, PipeSafeSanitizerModule } from '@sunbird-cb/utils-v2'
-import { WidgetResolverModule } from '@sunbird-cb/resolver'
+import { WidgetResolverModule } from '@sunbird-cb/resolver/src/lib/widget-resolver.module'
 import { FaqComponent } from './components/faq.component'
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core'
 import { HttpLoaderFactory } from 'src/app/app.module'

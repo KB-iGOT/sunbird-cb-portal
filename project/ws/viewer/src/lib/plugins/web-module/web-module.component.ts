@@ -15,7 +15,7 @@ import { WidgetContentService, NsContent } from '@sunbird-cb/collection'
 import { ViewerUtilService } from '../../viewer-util.service'
 import { ActivatedRoute } from '@angular/router'
 /* tslint:disable*/
-import _ from 'lodash'
+import * as _ from 'lodash'
 @Component({
   selector: 'viewer-plugin-web-module',
   templateUrl: './web-module.component.html',

@@ -3,10 +3,8 @@ import { CommonModule } from '@angular/common'
 import { RouterModule } from '@angular/router'
 import { ContentStripMultipleComponent } from './content-strip-multiple.component'
 import { HorizontalScrollerModule } from '@sunbird-cb/utils-v2'
-import { WidgetResolverModule } from '@sunbird-cb/resolver'
-import { HttpClient } from '@angular/common/http'
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core'
-import { HttpLoaderFactory } from '@sunbird-cb/collection'
+import { WidgetResolverModule } from '@sunbird-cb/resolver/src/lib/widget-resolver.module'
+import { TranslateModule } from '@ngx-translate/core'
 import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button'
 import { MatLegacyCardModule as MatCardModule } from '@angular/material/legacy-card'
 import { MatLegacyChipsModule as MatChipsModule } from '@angular/material/legacy-chips'
@@ -28,11 +26,6 @@ import { MatLegacyTooltipModule as MatTooltipModule } from '@angular/material/le
         MatChipsModule,
         MatCardModule,
         TranslateModule.forRoot({
-            loader: {
-                provide: TranslateLoader,
-                useFactory: HttpLoaderFactory,
-                deps: [HttpClient],
-            },
         }),
     ],
     exports: [ContentStripMultipleComponent]

@@ -12,7 +12,7 @@ import { NPSGridService } from '@sunbird-cb/collection/src/lib/grid-layout/nps-g
 import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog'
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
 /* tslint:disable */
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { TranslateService } from '@ngx-translate/core'
 import { SignupService } from 'src/app/routes/public/public-signup/signup.service'
 

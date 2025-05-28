@@ -22,7 +22,7 @@ import {
   PipePartialContentModule,
 } from '@sunbird-cb/utils-v2'
 
-import { WidgetResolverModule } from '@sunbird-cb/resolver'
+import { WidgetResolverModule } from '@sunbird-cb/resolver/src/lib/widget-resolver.module'
 
 // import { QuizModule as QuizPluginModule } from '../../plugins/quiz/quiz.module'
 import { PracticeModule as PracticeViewContainerModule } from '../../route-view-container/practice/practice.module'

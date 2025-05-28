@@ -71,7 +71,7 @@ import {
   UIORGTableModule,
   BreadcrumbsOrgModule,
 } from '@sunbird-cb/collection'
-import { WidgetResolverModule } from '@sunbird-cb/resolver'
+import { WidgetResolverModule } from '@sunbird-cb/resolver/src/lib/widget-resolver.module'
 import { SbUiResolverModule } from '@sunbird-cb/resolver-v2'
 import { LoggerService, PipeSafeSanitizerModule, ConfigurationsService, PipeOrderByModule, NPSGridService } from '@sunbird-cb/utils-v2'
 import { SearchModule } from '@ws/app/src/public-api'

@@ -1,7 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core'
 import { switchMap, map, catchError } from 'rxjs/operators'
 import { of, Observable } from 'rxjs'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
 import { ConfigurationsService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
 import { NsContent } from '../_services/widget-content.model'
 import {
@@ -11,6 +10,8 @@ import {
 import { WidgetContentShareService } from '../_services/widget-content-share.service'
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { WidgetBaseComponent } from '@sunbird-cb/resolver/src/lib/widget-base.component'
+import { NsWidgetResolver } from '@sunbird-cb/resolver/src/lib/widget-resolver.model'
 
 enum TMailMeResponse {
   NONE,

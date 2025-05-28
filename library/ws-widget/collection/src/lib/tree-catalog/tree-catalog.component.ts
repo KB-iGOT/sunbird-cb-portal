@@ -1,10 +1,10 @@
 import { Component, OnInit, Input } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
 import { TreeCatalogService } from './tree-catalog.service'
 import { NSCatalog } from './tree-catalog.model'
 import { NSSearch } from '../_services/widget-search.model'
 import { TFetchStatus } from '@sunbird-cb/utils-v2'
 import { IWsTree } from '../tree/tree.model'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver/src/public-api'
 
 @Component({
   selector: 'ws-widget-tree-catalog',

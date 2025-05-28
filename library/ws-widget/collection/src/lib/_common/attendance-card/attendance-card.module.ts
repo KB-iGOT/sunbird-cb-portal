@@ -1,9 +1,7 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { AttendanceCardComponent } from './attendance-card.component'
-import { HttpClient } from '@angular/common/http'
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core'
-import { HttpLoaderFactory } from '@sunbird-cb/collection'
+import { TranslateModule } from '@ngx-translate/core'
 import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button'
 import { MatLegacyCardModule as MatCardModule } from '@angular/material/legacy-card'
 import { MatLegacyCheckboxModule as MatCheckboxModule } from '@angular/material/legacy-checkbox'
@@ -54,11 +52,6 @@ import { MatLegacyTooltipModule as MatTooltipModule } from '@angular/material/le
     MatDatepickerModule,
     MatNativeDateModule,
     TranslateModule.forRoot({
-      loader: {
-        provide: TranslateLoader,
-        useFactory: HttpLoaderFactory,
-        deps: [HttpClient],
-      },
     }),
 
   ],

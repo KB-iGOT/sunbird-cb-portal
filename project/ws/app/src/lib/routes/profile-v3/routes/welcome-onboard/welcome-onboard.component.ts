@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
 // tslint:disable-next-line
-import _ from 'lodash';
+import * as _ from 'lodash';
 
 @Component({
     selector: 'ws-app-welcome-onboard',

@@ -3,7 +3,7 @@ import { Router, Event, NavigationEnd, NavigationError, ActivatedRoute } from '@
 import { ValueService } from '@sunbird-cb/utils-v2'
 import { map } from 'rxjs/operators'
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { Subscription } from 'rxjs';
 
 @Component({

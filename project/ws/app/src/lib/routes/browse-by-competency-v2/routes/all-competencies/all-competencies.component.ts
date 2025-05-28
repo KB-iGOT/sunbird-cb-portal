@@ -8,7 +8,7 @@ import { Subject, Observable } from 'rxjs'
 import { NsContent } from '@sunbird-cb/collection/src/public-api'
 
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 // tslint:enable
 import { LocalDataService } from '../../services/localService'
 import { TranslateService } from '@ngx-translate/core'

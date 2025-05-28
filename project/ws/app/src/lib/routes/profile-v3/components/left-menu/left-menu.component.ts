@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, Input } from '@angular/core'
 import { EventService, WsEvents } from '@sunbird-cb/utils-v2'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { Subscription } from 'rxjs'
 import { NSProfileDataV3 } from '../../models/profile-v3.models'
 import { StepService } from '../../services/step.service'

@@ -4,7 +4,7 @@ import { DashboardComponent } from './components/dashboard/dashboard.component'
 import { HorizontalScrollerModule, PipeDurationTransformModule, DefaultThumbnailModule } from '@sunbird-cb/utils-v2'
 import { UserImageModule, CardKnowledgeModule } from '@sunbird-cb/collection'
 
-import { WidgetResolverModule } from '@sunbird-cb/resolver'
+import { WidgetResolverModule } from '@sunbird-cb/resolver/src/lib/widget-resolver.module'
 import { CalendarModule } from '../../module/calendar-module/calendar.module'
 import { RouterModule } from '@angular/router'
 import { CoursePendingCardComponent } from './components/course-pending-card/course-pending-card.component'

@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router'
 import { NSCompetencie } from '../../models/competencies.model'
 import { WsEvents, EventService } from '@sunbird-cb/utils-v2'
 /* tslint:disable*/
-import _ from 'lodash'
+import * as _ from 'lodash'
 
 @Component({
   selector: 'app-competence-left-menu',

@@ -1,6 +1,7 @@
 // import { HttpClient } from '@angular/common/http'
 import { Component, OnInit, Input, OnDestroy, ViewChild, ElementRef } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { WidgetBaseComponent } from '@sunbird-cb/resolver/src/lib/widget-base.component'
+import { NsWidgetResolver } from '@sunbird-cb/resolver/src/lib/widget-resolver.model'
 import { ConfigurationsService, EventService, WsEvents, NPSGridService  } from '@sunbird-cb/utils-v2'
 // import { IUserProfileDetailsFromRegistry } from '@ws/app/src/lib/routes/user-profile/models/user-profile.model'
 import { Subscription } from 'rxjs'
@@ -14,7 +15,7 @@ import {
   IGridLayoutDataMain,
 } from './grid-layout.model'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
 
 // const API_END_POINTS = {

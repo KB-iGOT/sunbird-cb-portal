@@ -4,7 +4,7 @@ import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
 import { NSKnowledgeResource } from '../models/knowledge-resource.models'
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 
 // tslint:enable
 

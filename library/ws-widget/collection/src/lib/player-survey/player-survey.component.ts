@@ -1,6 +1,7 @@
 import { Component, OnInit, Input, OnDestroy } from '@angular/core'
 import { IWidgetsPlayerSurveyData } from './player-survey.model'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { WidgetBaseComponent } from '@sunbird-cb/resolver/src/lib/widget-base.component'
+import { NsWidgetResolver } from '@sunbird-cb/resolver/src/lib/widget-resolver.model'
 import { interval, Subscription } from 'rxjs'
 import { ConfigurationsService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
 import { ROOT_WIDGET_CONFIG } from '../collection.config'
@@ -9,10 +10,10 @@ import { ActivatedRoute } from '@angular/router'
 import { ViewerUtilService } from '@ws/viewer/src/lib/viewer-util.service'
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
 import { ViewerDataService } from '@ws/viewer/src/lib/viewer-data.service'
-import { WidgetContentService } from '@sunbird-cb/collection'
 import { HttpErrorResponse } from '@angular/common/http'
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms'
 import * as _ from 'lodash'
+import { WidgetContentService } from '../_services/widget-content.service'
 
 const EMAIL_PATTERN = /^[a-zA-Z0-9]+[a-zA-Z0-9._-]*[a-zA-Z0-9]+@[a-zA-Z0-9]+([-a-zA-Z0-9]*[a-zA-Z0-9]+)?(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,4}$/
 const MOBILE_PATTERN = /^[0]?[6789]\d{9}$/

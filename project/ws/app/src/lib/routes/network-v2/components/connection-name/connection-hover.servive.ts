@@ -4,7 +4,7 @@ import { Observable, of } from 'rxjs'
 import { NSProfileDataV2 } from '../../../profile-v2/models/profile-v2.model'
 import { catchError, map } from 'rxjs/operators'
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 // tslint:enable
 // const PROTECTED_SLAG_V8 = '/apis/protected/v8'
 

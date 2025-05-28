@@ -10,7 +10,7 @@ import {
 } from '@angular/core';
 import { Subscription } from 'rxjs';
 // tslint:disable-next-line
-import _ from 'lodash';
+import * as _ from 'lodash';
 import { TranslateService } from '@ngx-translate/core';
 import {
   ConfigurationsService,

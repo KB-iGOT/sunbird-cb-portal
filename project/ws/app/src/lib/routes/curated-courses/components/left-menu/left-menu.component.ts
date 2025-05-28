@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core'
 import { WsEvents, EventService } from '@sunbird-cb/utils-v2'
 /* tslint:disable*/
-import _ from 'lodash'
+import * as _ from 'lodash'
 
 @Component({
   selector: 'ws-app-curated-left-menu',

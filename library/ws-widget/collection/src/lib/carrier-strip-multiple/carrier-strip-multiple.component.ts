@@ -1,11 +1,12 @@
 import { Component, OnInit, Input, OnDestroy, HostBinding } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { WidgetBaseComponent } from '@sunbird-cb/resolver/src/lib/widget-base.component'
+import { NsWidgetResolver } from '@sunbird-cb/resolver/src/lib/widget-resolver.model'
 import { NsCarrierStripNewMultiple } from './carrier-strip-multiple.model'
 import { ContentStripNewMultipleService } from './carrier-strip-multiple.service'
 import { WidgetContentService } from '../_services/widget-content.service'
 import { NsContent } from '../_services/widget-content.model'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import {
   TFetchStatus,
   LoggerService,

@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core'
 import { CompetenceService } from '../../services/competence.service'
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { ActivatedRoute } from '@angular/router'
 import { Subscription } from 'rxjs'
 import { NSCompetencie } from '../../models/competencies.model'

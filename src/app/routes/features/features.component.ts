@@ -10,9 +10,10 @@ import {
 
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
 import { AccessControlService } from '../../../../project/ws/author/src/public-api'
-import { CustomTourService, ROOT_WIDGET_CONFIG } from '@sunbird-cb/collection/src/public-api'
 /* tslint:disable*/
-import _ from 'lodash'
+import * as _ from 'lodash'
+import { CustomTourService } from '@sunbird-cb/collection/src/lib/_common/tour-guide/tour-guide.service'
+import { ROOT_WIDGET_CONFIG } from '@sunbird-cb/collection/src/lib/collection.config'
 /* tslint:enable*/
 interface IGroupWithFeatureWidgets extends NsAppsConfig.IGroup {
   featureWidgets: NsWidgetResolver.IRenderConfigWithTypedData<NsPage.INavLink>[]
@@ -117,7 +118,7 @@ export class FeaturesComponent implements OnInit, OnDestroy {
   clear() {
     this.queryControl.setValue('')
   }
-  private filteredFeatures(query: string): IGroupWithFeatureWidgets[] {
+  public filteredFeatures(query: string): IGroupWithFeatureWidgets[] {
     if (!query && this.featuresConfig) {
       return this.featuresConfig
     }
@@ -135,7 +136,7 @@ export class FeaturesComponent implements OnInit, OnDestroy {
       .filter(group => group.featureWidgets && group.featureWidgets.length > 0)
   }
 
-  private queryMatchForFeature(feature: NsAppsConfig.IFeature | undefined, query: string): boolean {
+  public queryMatchForFeature(feature: NsAppsConfig.IFeature | undefined, query: string): boolean {
     if (feature) {
       return Boolean(
         feature.name.includes(query) ||

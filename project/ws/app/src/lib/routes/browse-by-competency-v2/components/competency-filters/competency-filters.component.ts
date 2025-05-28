@@ -4,7 +4,7 @@ import { Subscription } from 'rxjs'
 import { BrowseCompetencyService } from '../../services/browse-competency.service'
 import { NSBrowseCompetency } from '../../models/competencies.model'
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 // tslint:enable
 import { LocalDataService } from '../../services/localService'
 import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'

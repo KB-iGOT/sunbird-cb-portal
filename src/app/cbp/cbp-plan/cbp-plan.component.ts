@@ -4,7 +4,7 @@ import {
   NsContent,
 } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
 /* tslint:disable */
-import _ from 'lodash'
+import * as _ from 'lodash'
 /* tslint:enable */
 import dayjs from 'dayjs'
 import isBetween from 'dayjs/plugin/isBetween'

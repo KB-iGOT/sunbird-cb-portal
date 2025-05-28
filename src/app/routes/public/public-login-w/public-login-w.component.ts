@@ -4,7 +4,7 @@ import { Subscription } from 'rxjs'
 import { ActivatedRoute, Params } from '@angular/router'
 import { HttpClient } from '@angular/common/http'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 
 @Component({
     selector: 'public-login-w',

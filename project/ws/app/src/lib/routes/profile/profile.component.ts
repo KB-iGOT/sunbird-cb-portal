@@ -5,7 +5,7 @@ import { ConfigurationsService, LogoutComponent, NsPage, ValueService } from '@s
 import { Subscription } from 'rxjs'
 import { map } from 'rxjs/operators'
 /* tslint:disable*/
-import _ from 'lodash'
+import * as _ from 'lodash'
 
 @Component({
   selector: 'ws-app-profile',

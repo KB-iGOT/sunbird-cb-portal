@@ -1,11 +1,13 @@
 import { Component, HostBinding, Input, OnDestroy, OnInit } from '@angular/core'
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+
 import { ConfigurationsService, EventService, UtilityService } from '@sunbird-cb/utils-v2'
 import { NsCardContent } from '../card-content-v2/card-content-v2.model'
+import { WidgetBaseComponent } from '@sunbird-cb/resolver/src/lib/widget-base.component'
+import { NsWidgetResolver } from '@sunbird-cb/resolver/src/lib/widget-resolver.model'
 
 /* tslint:disable*/
-import _ from 'lodash'
+import * as _ from 'lodash'
 import moment from 'moment'
 
 @Component({

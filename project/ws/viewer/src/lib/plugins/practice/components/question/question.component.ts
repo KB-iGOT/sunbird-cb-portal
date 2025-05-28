@@ -7,7 +7,7 @@ import { SafeHtml } from '@angular/platform-browser'
 // import { jsPlumb, OnConnectionBindInfo } from 'jsplumb'
 import { PracticeService } from '../../practice.service'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { NsContent } from '@sunbird-cb/utils-v2'
 import { MatLegacySnackBar as MatSnackBar, MatLegacySnackBarConfig as MatSnackBarConfig } from '@angular/material/legacy-snack-bar'
 @Component({

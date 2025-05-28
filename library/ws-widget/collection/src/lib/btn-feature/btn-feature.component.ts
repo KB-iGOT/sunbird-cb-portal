@@ -1,12 +1,13 @@
 import { Component, HostBinding, Input, OnDestroy, OnInit } from '@angular/core'
 import { Event, NavigationEnd, Router } from '@angular/router'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
 import { ConfigurationsService, EventService, NsPage, WsEvents } from '@sunbird-cb/utils-v2'
 import { Subscription } from 'rxjs'
 import { take } from 'rxjs/operators'
 import { MobileAppsService } from '../_services/mobile-apps.service'
 import { CustomTourService } from '../_common/tour-guide/tour-guide.service'
 import { BtnFeatureService } from './btn-feature.service'
+import { WidgetBaseComponent } from '@sunbird-cb/resolver/src/lib/widget-base.component'
+import { NsWidgetResolver } from '@sunbird-cb/resolver/src/lib/widget-resolver.model'
 
 export const typeMap = {
   cardFull: 'card-full',

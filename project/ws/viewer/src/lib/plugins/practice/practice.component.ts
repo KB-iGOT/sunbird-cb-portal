@@ -22,7 +22,7 @@ import { WidgetContentService } from '@sunbird-cb/collection'
 import { ActivatedRoute, NavigationStart, Router } from '@angular/router'
 import { ViewerUtilService } from '../../viewer-util.service'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { NSQuiz } from '../quiz/quiz.model'
 import { environment } from 'src/environments/environment'
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser'

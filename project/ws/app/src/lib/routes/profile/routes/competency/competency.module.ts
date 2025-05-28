@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common'
 import { RouterModule } from '@angular/router'
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
-import { WidgetResolverModule } from '@sunbird-cb/resolver'
+import { WidgetResolverModule } from '@sunbird-cb/resolver/src/lib/widget-resolver.module'
 
 import { CardDetailComponent } from './components/card-detail/card-detail.component'
 import { CompetencyHomeComponent } from './components/competency-home/competency-home.component'

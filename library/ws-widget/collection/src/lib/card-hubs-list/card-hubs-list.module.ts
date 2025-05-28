@@ -4,9 +4,7 @@ import { BrowserModule } from '@angular/platform-browser'
 import { AvatarPhotoModule } from '../_common/avatar-photo/avatar-photo.module'
 import { HorizontalScrollerModule, PipeNameTransformModule, PipeOrderByModule } from '@sunbird-cb/utils-v2'
 import { RouterModule } from '@angular/router'
-import { HttpClient } from '@angular/common/http'
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core'
-import { HttpLoaderFactory } from '@sunbird-cb/collection'
+import { TranslateModule } from '@ngx-translate/core'
 import { ClickOutsideDirective } from './clickoutside.directive'
 import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button'
 import { MatLegacyCardModule as MatCardModule } from '@angular/material/legacy-card'
@@ -22,13 +20,7 @@ import { MatLegacyProgressSpinnerModule as MatProgressSpinnerModule } from '@ang
     imports: [BrowserModule, MatButtonModule, MatCardModule, MatChipsModule, MatDividerModule,
         MatExpansionModule, MatIconModule, MatProgressSpinnerModule, AvatarPhotoModule,
         HorizontalScrollerModule, PipeNameTransformModule, PipeOrderByModule, RouterModule,
-        TranslateModule.forRoot({
-            loader: {
-                provide: TranslateLoader,
-                useFactory: HttpLoaderFactory,
-                deps: [HttpClient],
-            },
-        })]
+        TranslateModule.forRoot()]
 })
 export class CardHubsListModule {
 

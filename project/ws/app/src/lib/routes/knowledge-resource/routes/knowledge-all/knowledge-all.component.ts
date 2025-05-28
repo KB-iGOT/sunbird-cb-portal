@@ -6,7 +6,7 @@ import { NSKnowledgeResource } from '../../models/knowledge-resource.models'
 import { ActivatedRoute } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 // tslint:enable
 
 @Component({

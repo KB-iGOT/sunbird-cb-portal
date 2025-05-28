@@ -4,7 +4,7 @@ import { BrowseProviderService } from '../../services/browse-provider.service'
 import { debounceTime, switchMap, takeUntil } from 'rxjs/operators'
 import { Subject, Observable } from 'rxjs'
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { LocalDataService } from '../../../browse-by-competency/services/localService';
 import { TranslateService } from '@ngx-translate/core'
 import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'

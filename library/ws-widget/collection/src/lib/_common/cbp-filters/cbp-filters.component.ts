@@ -4,7 +4,7 @@ import { UntypedFormControl } from '@angular/forms'
 import { MAT_BOTTOM_SHEET_DATA, MAT_BOTTOM_SHEET_DEFAULT_OPTIONS, MatBottomSheetRef } from '@angular/material/bottom-sheet'
 import { AppCbpPlansService } from 'src/app/services/app-cbp-plans.service'
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { ConfigurationsService, MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 import { NsContent } from '@sunbird-cb/collection/src/public-api'
 import { environment } from 'src/environments/environment'

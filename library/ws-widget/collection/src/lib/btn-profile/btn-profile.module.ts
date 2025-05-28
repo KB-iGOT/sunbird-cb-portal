@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { BtnProfileComponent } from './btn-profile.component'
-import { WidgetResolverModule } from '@sunbird-cb/resolver'
 import { RouterModule } from '@angular/router'
 import { LogoutModule } from '@sunbird-cb/utils-v2'
 import { AvatarPhotoModule } from '../_common/avatar-photo/avatar-photo.module'
@@ -13,6 +12,7 @@ import { MatIconModule } from '@angular/material/icon'
 import { MatLegacyMenuModule as MatMenuModule } from '@angular/material/legacy-menu'
 import { MatLegacySlideToggleModule as MatSlideToggleModule } from '@angular/material/legacy-slide-toggle'
 import { MatLegacyTooltipModule as MatTooltipModule } from '@angular/material/legacy-tooltip'
+import { WidgetResolverModule } from '@sunbird-cb/resolver/src/lib/widget-resolver.module'
 // import { TreeCatalogModule } from '../tree-catalog/tree-catalog.module'
 
 @NgModule({

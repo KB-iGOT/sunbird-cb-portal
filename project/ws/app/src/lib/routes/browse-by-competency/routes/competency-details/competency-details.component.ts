@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core'
 import { BrowseCompetencyService } from '../../services/browse-competency.service'
 import { NSBrowseCompetency } from '../../models/competencies.model'
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { ActivatedRoute } from '@angular/router';
 import { Subscription, Observable } from 'rxjs';
 import { UntypedFormGroup, UntypedFormControl } from '@angular/forms';

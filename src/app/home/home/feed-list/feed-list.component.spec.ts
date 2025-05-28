@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router'
 import { EventService } from '@sunbird-cb/utils-v2'
 import { UtilityService } from '@sunbird-cb/utils-v2'
 import { WsEvents } from '@sunbird-cb/utils-v2'
-import _ from 'lodash'
+import * as _ from 'lodash'
 
 describe('FeedListComponent', () => {
   let component: FeedListComponent

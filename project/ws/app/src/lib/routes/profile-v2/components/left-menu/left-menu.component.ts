@@ -4,7 +4,7 @@ import { NSProfileDataV2 } from '../../models/profile-v2.model'
 import { WsEvents, EventService, MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 import { TranslateService } from '@ngx-translate/core'
 /* tslint:disable*/
-import _ from 'lodash'
+import * as _ from 'lodash'
 
 @Component({
   selector: 'app-profile-v2-left-menu',

@@ -6,7 +6,7 @@ import { MatSnackBar } from '@angular/material/snack-bar'
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
 // import { DiscussService } from '../../../discuss/services/discuss.service'
 /* tslint:disable */
-import _ from 'lodash'
+import * as _ from 'lodash'
 import moment from 'moment'
 import * as fileSaver from 'file-saver'
 import { environment } from 'src/environments/environment'

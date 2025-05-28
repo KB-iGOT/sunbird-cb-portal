@@ -4,7 +4,7 @@ import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
 import { AttendanceHelperComponent } from '@sunbird-cb/collection/src/public-api'
 import { NsContent } from '@sunbird-cb/utils-v2'
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 
 @Component({
   selector: 'ws-widget-attendance-card',

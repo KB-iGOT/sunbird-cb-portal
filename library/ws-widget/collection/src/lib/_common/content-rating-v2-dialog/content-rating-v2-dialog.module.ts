@@ -3,9 +3,7 @@ import { CommonModule } from '@angular/common'
 import { ContentRatingV2DialogComponent } from './content-rating-v2-dialog.component'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 import { EditorQuillModule } from '../../discussion-forum/editor-quill/editor-quill.module'
-import { HttpClient } from '@angular/common/http'
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core'
-import { HttpLoaderFactory } from '@sunbird-cb/collection'
+import { TranslateModule } from '@ngx-translate/core'
 import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button'
 import { MatLegacyCheckboxModule as MatCheckboxModule } from '@angular/material/legacy-checkbox'
 import { MatLegacyDialogModule as MatDialogModule } from '@angular/material/legacy-dialog'
@@ -32,13 +30,7 @@ import { MatLegacyTooltipModule as MatTooltipModule } from '@angular/material/le
         MatInputModule,
         MatSnackBarModule,
         MatCheckboxModule,
-        TranslateModule.forRoot({
-            loader: {
-                provide: TranslateLoader,
-                useFactory: HttpLoaderFactory,
-                deps: [HttpClient],
-            },
-        }),
+        TranslateModule.forRoot(),
     ],
     exports: [
         ContentRatingV2DialogComponent,

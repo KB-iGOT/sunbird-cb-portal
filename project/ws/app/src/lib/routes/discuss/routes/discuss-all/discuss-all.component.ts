@@ -6,7 +6,7 @@ import { DiscussStartComponent } from '../../components/discuss-start/discuss-st
 import { ActivatedRoute, Router } from '@angular/router'
 import { DiscussService } from '../../services/discuss.service'
 /* tslint:disable */
-import _ from 'lodash'
+import * as _ from 'lodash'
 /* tslint:enable */
 
 @Component({

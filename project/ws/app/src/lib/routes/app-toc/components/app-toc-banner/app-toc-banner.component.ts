@@ -26,7 +26,7 @@ import * as  lodash from 'lodash'
 import { TitleTagService } from '../../services/title-tag.service'
 import { ActionService } from '../../services/action.service'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { environment } from 'src/environments/environment'
 import { DatePipe } from '@angular/common'
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore'

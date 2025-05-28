@@ -5,7 +5,7 @@ import { KnowledgeResourceService } from '../../services/knowledge-resource.serv
 import { environment } from 'src/environments/environment'
 
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { TranslateService } from '@ngx-translate/core'
 import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 // tslint:enable

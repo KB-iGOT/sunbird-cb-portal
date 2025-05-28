@@ -1,8 +1,9 @@
 import { Component, HostBinding, Input, OnInit } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
 import { BtnContentFeedbackDialogComponent } from './btn-content-feedback-dialog/btn-content-feedback-dialog.component'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
+import { WidgetBaseComponent } from '@sunbird-cb/resolver/src/lib/widget-base.component'
+import { NsWidgetResolver } from '@sunbird-cb/resolver/src/lib/widget-resolver.model'
 
 interface IWidgetBtnContentFeedback {
   identifier: string

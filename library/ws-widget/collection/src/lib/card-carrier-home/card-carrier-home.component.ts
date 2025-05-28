@@ -1,7 +1,7 @@
 import { Component, HostBinding, Input, OnInit } from '@angular/core'
 import { NSCarrierData } from './carrier.model'
-import { WidgetBaseComponent } from '@sunbird-cb/resolver'
 import { Router } from '@angular/router'
+import { WidgetBaseComponent } from '@sunbird-cb/resolver/src/lib/widget-base.component'
 
 @Component({
   selector: 'ws-widget-card-carrier-home',

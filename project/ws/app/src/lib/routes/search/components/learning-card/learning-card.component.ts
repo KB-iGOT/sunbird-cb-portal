@@ -3,7 +3,7 @@ import { NsContent } from '@sunbird-cb/collection'
 import { ConfigurationsService, EventService } from '@sunbird-cb/utils-v2'
 import { SafeHtml, DomSanitizer } from '@angular/platform-browser'
 /* tslint:disable*/
-import _ from 'lodash'
+import * as _ from 'lodash'
 @Component({
   selector: 'ws-app-learning-card',
   templateUrl: './learning-card.component.html',

@@ -17,7 +17,7 @@ import {
 } from '@sunbird-cb/utils-v2';
 import { ActivatedRoute, Router } from '@angular/router';
 // tslint:disable-next-line
-import _ from 'lodash';
+import * as _ from 'lodash';
 import { TranslateService } from '@ngx-translate/core';
 
 import {

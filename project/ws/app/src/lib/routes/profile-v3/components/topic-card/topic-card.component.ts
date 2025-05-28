@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core'
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { NSProfileDataV3 } from '../../models/profile-v3.models'
 import { TopicService } from '../../services/topics.service'
 import { TranslateService } from '@ngx-translate/core'

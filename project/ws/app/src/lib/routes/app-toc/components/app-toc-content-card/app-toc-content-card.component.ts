@@ -1,11 +1,13 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core'
-import { NsContent, viewerRouteGenerator } from '@sunbird-cb/collection'
+
 import { NsAppToc } from '../../models/app-toc.model'
 import { EventService } from '@sunbird-cb/utils-v2'
 /* tslint:disable*/
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { CertificateDialogComponent } from '@sunbird-cb/collection/src/lib/_common/certificate-dialog/certificate-dialog.component'
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
+import { viewerRouteGenerator } from '@sunbird-cb/collection/src/lib/_services/viewer-route-util'
 
 @Component({
   selector: 'ws-app-toc-content-card',

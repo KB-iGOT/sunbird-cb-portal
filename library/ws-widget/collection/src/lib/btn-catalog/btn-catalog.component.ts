@@ -2,7 +2,8 @@ import { Component, Input } from '@angular/core'
 import { TreeCatalogService } from '../tree-catalog/tree-catalog.service'
 import { TFetchStatus } from '@sunbird-cb/utils-v2'
 import { NSSearch } from '../_services/widget-search.model'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { WidgetBaseComponent } from '@sunbird-cb/resolver/src/lib/widget-base.component'
+import { NsWidgetResolver } from '@sunbird-cb/resolver/src/lib/widget-resolver.model'
 
 @Component({
   selector: 'ws-widget-btn-catalog',

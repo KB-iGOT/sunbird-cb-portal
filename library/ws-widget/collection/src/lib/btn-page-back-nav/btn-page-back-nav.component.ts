@@ -1,9 +1,10 @@
 import { Component, Input, OnInit } from '@angular/core'
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
 import { Router } from '@angular/router'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
 import { BtnPageBackNavService } from './btn-page-back-nav.service'
 import { ConfirmDialogComponent } from '../_common/confirm-dialog/confirm-dialog.component'
+import { WidgetBaseComponent } from '@sunbird-cb/resolver/src/lib/widget-base.component'
+import { NsWidgetResolver } from '@sunbird-cb/resolver/src/lib/widget-resolver.model'
 type TUrl = undefined | 'none' | 'back' | string
 @Component({
   selector: 'ws-widget-btn-page-back-nav',

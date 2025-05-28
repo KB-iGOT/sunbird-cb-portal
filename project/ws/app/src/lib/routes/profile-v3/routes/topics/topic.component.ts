@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { Subscription } from 'rxjs'
 import { AddTopicDialogComponent } from '../../components/add-topic/add-topic.component'
 import { NSProfileDataV3 } from '../../models/profile-v3.models'

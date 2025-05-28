@@ -2,7 +2,7 @@
 import { Component, OnInit } from '@angular/core'
 import { NSDiscussData } from '../../models/discuss.model'
 /* tslint:disable */
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { ActivatedRoute } from '@angular/router'
 import { DiscussUtilsService } from '../../services/discuss-utils.service'
 /* tslint:enable */

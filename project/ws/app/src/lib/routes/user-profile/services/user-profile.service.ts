@@ -12,7 +12,7 @@ import {
 } from '../models/user-profile.model'
 import { map } from 'rxjs/operators'
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 // tslint:enable
 
 const API_ENDPOINTS = {

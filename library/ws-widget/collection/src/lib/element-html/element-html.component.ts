@@ -1,5 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { WidgetBaseComponent } from '@sunbird-cb/resolver/src/lib/widget-base.component'
+import { NsWidgetResolver } from '@sunbird-cb/resolver/src/lib/widget-resolver.model'
 import { IWidgetElementHtml } from './element-html.model'
 import { SafeHtml, DomSanitizer } from '@angular/platform-browser'
 import mustache from 'mustache'

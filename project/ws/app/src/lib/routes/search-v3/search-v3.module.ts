@@ -18,7 +18,7 @@ import {
   UserAutocompleteModule,
   AvatarPhotoModule
 } from '@sunbird-cb/collection';
-import { WidgetResolverModule } from '@sunbird-cb/resolver';
+import { WidgetResolverModule } from '@sunbird-cb/resolver/src/lib/widget-resolver.module'
 import {
   DefaultThumbnailModule,
   HorizontalScrollerModule,

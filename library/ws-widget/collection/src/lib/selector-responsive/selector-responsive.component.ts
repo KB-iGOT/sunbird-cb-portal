@@ -1,5 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { WidgetBaseComponent } from '@sunbird-cb/resolver/src/lib/widget-base.component'
+import { NsWidgetResolver } from '@sunbird-cb/resolver/src/lib/widget-resolver.model'
 import { ISelectorResponsive } from './selector-responsive.model'
 import { BreakpointObserver, BreakpointState } from '@angular/cdk/layout'
 import { debounceTime, map, distinctUntilChanged } from 'rxjs/operators'

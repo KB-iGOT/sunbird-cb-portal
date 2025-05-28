@@ -1,7 +1,7 @@
 import { Component, OnInit, Inject, Input } from '@angular/core'
 import { NSCompetencie } from '../../models/competencies.model'
 // tslint:disable-next-line: import-name
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { Router } from '@angular/router'
 import { CompetenceAssessmentService } from '../../services/comp-assessment.service'
 import { TranslateService } from '@ngx-translate/core'

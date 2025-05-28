@@ -5,7 +5,7 @@ import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { ActivatedRoute, NavigationEnd, NavigationStart, Router } from '@angular/router'
 import { NSProfileDataV3 } from '../../models/profile-v3.models'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { Subscription } from 'rxjs'
 import { StepService } from '../../services/step.service'
 import { CompLocalService } from '../../services/comp.service'

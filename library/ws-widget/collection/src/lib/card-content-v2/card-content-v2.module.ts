@@ -21,9 +21,7 @@ import { BtnKbAnalyticsModule } from '../btn-kb-analytics/btn-kb-analytics.modul
 import { CardContentV2Component } from './card-content-v2.component'
 import { SkeletonLoaderModule } from '../_common/skeleton-loader/skeleton-loader.module'
 import { MatLegacyProgressSpinnerModule as MatProgressSpinnerModule } from '@angular/material/legacy-progress-spinner'
-import { HttpClient } from '@angular/common/http'
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core'
-import { HttpLoaderFactory } from '@sunbird-cb/collection'
+import { TranslateModule } from '@ngx-translate/core'
 import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button'
 import { MatLegacyCardModule as MatCardModule } from '@angular/material/legacy-card'
 import { MatLegacyChipsModule as MatChipsModule } from '@angular/material/legacy-chips'
@@ -70,11 +68,6 @@ import { MatLegacyTooltipModule as MatTooltipModule } from '@angular/material/le
         SkeletonLoaderModule,
         MatProgressSpinnerModule,
         TranslateModule.forRoot({
-            loader: {
-                provide: TranslateLoader,
-                useFactory: HttpLoaderFactory,
-                deps: [HttpClient],
-            },
         }),
     ],
     exports: [CardContentV2Component]

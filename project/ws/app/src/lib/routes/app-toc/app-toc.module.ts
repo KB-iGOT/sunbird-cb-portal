@@ -8,7 +8,7 @@ import { TranslateModule } from '@ngx-translate/core'
 import { InfiniteScrollModule } from 'ngx-infinite-scroll'
 
 // custom modules
-import { WidgetResolverModule } from '@sunbird-cb/resolver'
+import { WidgetResolverModule } from '@sunbird-cb/resolver/src/lib/widget-resolver.module'
 import { DiscussionUiModule } from '@sunbird-cb/discussions-ui-v8'
 import {
   PipeDurationTransformModule,

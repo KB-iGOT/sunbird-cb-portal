@@ -2,9 +2,7 @@ import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { AttendanceHelperComponent } from './attendance-helper.component'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
-import { HttpClient } from '@angular/common/http'
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core'
-import { HttpLoaderFactory } from '@sunbird-cb/collection'
+import { TranslateModule } from '@ngx-translate/core'
 import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button'
 import { MatLegacyCardModule as MatCardModule } from '@angular/material/legacy-card'
 import { MatLegacyDialogModule as MatDialogModule } from '@angular/material/legacy-dialog'
@@ -33,11 +31,6 @@ import { MatLegacyTooltipModule as MatTooltipModule } from '@angular/material/le
         MatSnackBarModule,
         MatMenuModule,
         TranslateModule.forRoot({
-            loader: {
-                provide: TranslateLoader,
-                useFactory: HttpLoaderFactory,
-                deps: [HttpClient],
-            },
         }),
     ],
     exports: [AttendanceHelperComponent]

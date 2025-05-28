@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
 import { CuratedCollectionService } from '../../services/curated-collection.service'
 /* tslint:disable*/
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { ValueService } from '@sunbird-cb/utils-v2';
 import { map } from 'rxjs/operators';
 import { Observable } from 'rxjs';

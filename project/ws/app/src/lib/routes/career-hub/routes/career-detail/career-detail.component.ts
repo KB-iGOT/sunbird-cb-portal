@@ -5,7 +5,7 @@ import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
 import { DiscussService } from '../../../discuss/services/discuss.service'
 /* tslint:disable */
-import _ from 'lodash'
+import * as _ from 'lodash'
 /* tslint:enable */
 
 @Component({

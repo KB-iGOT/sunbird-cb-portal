@@ -4,7 +4,7 @@ import { NSPractice } from './practice.model'
 import { BehaviorSubject, Observable, Subject, of, throwError } from 'rxjs'
 import { concatMap, delay, map, retryWhen } from 'rxjs/operators'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 
 const API_END_POINTS = {
   ASSESSMENT_SUBMIT_V2: `/apis/protected/v8/user/evaluate/assessment/submit/v2`,

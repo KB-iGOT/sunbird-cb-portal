@@ -18,7 +18,7 @@ import {
   WsEvents,
 } from '@sunbird-cb/utils-v2'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { of, Subscription } from 'rxjs'
 import { delay } from 'rxjs/operators'
 import { ViewerDataService } from '../../viewer-data.service'

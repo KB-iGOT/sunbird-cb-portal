@@ -14,7 +14,7 @@ import { ViewerHeaderSideBarToggleService } from './../../viewer-header-side-bar
 import { ResetRatingsService } from '@ws/app/src/lib/routes/app-toc/services/reset-ratings.service'
 import { WidgetContentLibService } from '@sunbird-cb/consumption'
 /* tslint:disable*/
-import _ from 'lodash'
+import * as _ from 'lodash'
 
 @Component({
   selector: 'viewer-viewer-top-bar',

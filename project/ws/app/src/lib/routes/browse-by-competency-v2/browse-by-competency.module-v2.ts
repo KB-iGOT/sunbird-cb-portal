@@ -10,7 +10,7 @@ import {
 } from '@sunbird-cb/utils-v2'
 import { MatGridListModule } from '@angular/material/grid-list'
 import { ReactiveFormsModule, FormsModule } from '@angular/forms'
-import { WidgetResolverModule } from '@sunbird-cb/resolver'
+import { WidgetResolverModule } from '@sunbird-cb/resolver/src/lib/widget-resolver.module'
 import { AvatarPhotoModule, BtnPageBackModule, CardContentModule } from '@sunbird-cb/collection'
 
 import { LoaderService } from '@ws/author/src/lib/services/loader.service'

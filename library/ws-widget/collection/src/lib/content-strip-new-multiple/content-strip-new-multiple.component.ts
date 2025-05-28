@@ -1,5 +1,6 @@
 import { Component, OnInit, Input, OnDestroy, HostBinding } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { WidgetBaseComponent } from '@sunbird-cb/resolver/src/lib/widget-base.component'
+import { NsWidgetResolver } from '@sunbird-cb/resolver/src/lib/widget-resolver.model'
 import { NsContentStripNewMultiple } from './content-strip-new-multiple.model'
 import { ContentStripNewMultipleService } from './content-strip-new-multiple.service'
 import { WidgetContentService } from '../_services/widget-content.service'
@@ -15,7 +16,7 @@ import { Subscription } from 'rxjs'
 import { filter } from 'rxjs/operators'
 import { WidgetUserServiceLib } from '@sunbird-cb/consumption'
  // tslint:disable-next-line
-import _ from 'lodash'
+ import * as _ from 'lodash'
 import { HttpClient } from '@angular/common/http'
 // import { SearchServService } from '../_services/search-serv.service'
 

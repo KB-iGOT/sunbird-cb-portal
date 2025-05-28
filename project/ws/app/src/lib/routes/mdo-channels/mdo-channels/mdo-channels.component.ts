@@ -7,7 +7,7 @@ import { TranslateService } from '@ngx-translate/core'
 import { EventService, MultilingualTranslationsService, WsEvents } from '@sunbird-cb/utils-v2'
 import { debounceTime, switchMap, takeUntil } from 'rxjs/operators'
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { ActivatedRoute } from '@angular/router'
 
 @Component({

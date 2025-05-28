@@ -1,11 +1,14 @@
 import { Component, HostBinding, Input, OnInit } from '@angular/core'
 import { Router, ActivatedRoute } from '@angular/router'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+
 import { ConfigurationsService, EventService, MultilingualTranslationsService, WsEvents } from '@sunbird-cb/utils-v2'
-import { NSSearch, NsContent } from '@sunbird-cb/collection'
 import { SearchApiService } from '../_services/search-api.service'
 import { TranslateService } from '@ngx-translate/core'
 import * as _ from 'lodash'
+import { WidgetBaseComponent } from '@sunbird-cb/resolver/src/lib/widget-base.component'
+import { NsWidgetResolver } from '@sunbird-cb/resolver/src/lib/widget-resolver.model'
+import { NSSearch } from '../_services/widget-search.model'
+import { NsContent } from '../_services/widget-content.model'
 
 // import { ActivitiesService } from '@ws/app/src/lib/routes/activities/services/activities.service'
 // import { IActivity, IActivityCard, IChallenges } from '@ws/app/src/lib/routes/activities/interfaces/activities.model'

@@ -1,7 +1,8 @@
 import { animate, style, transition, trigger } from '@angular/animations'
 import { Component, EventEmitter, HostBinding, Input, OnInit, Output } from '@angular/core'
 import { Router } from '@angular/router'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { WidgetBaseComponent } from '@sunbird-cb/resolver/src/lib/widget-base.component'
+import { NsWidgetResolver } from '@sunbird-cb/resolver/src/lib/widget-resolver.model'
 import { ConfigurationsService, NsInstanceConfig } from '@sunbird-cb/utils-v2'
 import { BreadcrumbsOrgService } from './breadcrumbs-org.service'
 

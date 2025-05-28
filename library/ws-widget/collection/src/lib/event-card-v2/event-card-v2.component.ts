@@ -1,10 +1,11 @@
 import { Component, EventEmitter, HostBinding, Input, OnInit, Output } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { WidgetBaseComponent } from '@sunbird-cb/resolver/src/lib/widget-base.component'
+import { NsWidgetResolver } from '@sunbird-cb/resolver/src/lib/widget-resolver.model'
 import { ConfigurationsService, EventService, NsInstanceConfig, MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 import { NsContent } from '../_services/widget-content.model'
 import { NsCardContent } from './event-card-v2.model'
 /* tslint:disable*/
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { TranslateService } from '@ngx-translate/core'
 import { Router } from '@angular/router'
 

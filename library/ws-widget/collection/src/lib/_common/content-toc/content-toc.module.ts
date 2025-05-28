@@ -2,11 +2,9 @@ import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { RouterModule } from '@angular/router'
 import { FormsModule } from '@angular/forms'
-import { HttpClient } from '@angular/common/http'
 import { InfiniteScrollModule } from 'ngx-infinite-scroll'
 import { NgCircleProgressModule } from 'ng-circle-progress'
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core'
-import { HttpLoaderFactory } from '@sunbird-cb/collection'
+import { TranslateModule } from '@ngx-translate/core'
 import { WidgetResolverModule } from '@sunbird-cb/resolver/src/public-api'
 import { PipeDurationTransformModule, HorizontalScrollerV2Module,
   PipeRelativeTimeModule, PipeSafeSanitizerModule } from '@sunbird-cb/utils-v2'
@@ -87,11 +85,6 @@ import { AiTutorConfirmPopupComponent } from './ai-tutor-confirm-popup/ai-tutor-
     KarmaPointsModule,
     TranslateModule,
     TranslateModule.forRoot({
-      loader: {
-        provide: TranslateLoader,
-        useFactory: HttpLoaderFactory,
-        deps: [HttpClient],
-      },
     }),
     PipeSafeSanitizerModule,
     WidgetCommentModule,

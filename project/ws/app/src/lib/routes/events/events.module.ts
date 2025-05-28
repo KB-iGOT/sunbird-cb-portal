@@ -24,7 +24,7 @@ import { EventsCardComponent } from './components/events-card/events-card.compon
 import { TodayEventCardComponent } from './components/today-event-card/today-event-card.component'
 import { EventDetailComponent } from './routes/event-detail/event-detail.component'
 import { RelatedPostsComponent } from './components/related-posts/related-posts.component'
-import { WidgetResolverModule } from '@sunbird-cb/resolver'
+import { WidgetResolverModule } from '@sunbird-cb/resolver/src/lib/widget-resolver.module'
 import { RightMenuCardComponent } from './components/right-menu-card/right-menu-card.component'
 import { PresenterCardComponent } from './components/presenter-card/presenter-card.component'
 import { EventService } from './services/events.service'

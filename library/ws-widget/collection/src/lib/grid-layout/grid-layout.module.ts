@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { GridLayoutComponent } from './grid-layout.component'
-import { WidgetResolverModule } from '@sunbird-cb/resolver'
+import { WidgetResolverModule } from '@sunbird-cb/resolver/src/lib/widget-resolver.module'
 import { FormsModule } from '@angular/forms'
 import { NPSGridService } from './nps-grid.service'
 import { TranslateModule } from '@ngx-translate/core'

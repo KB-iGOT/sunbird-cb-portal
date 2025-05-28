@@ -6,7 +6,8 @@ import {
   OnDestroy,
   OnInit,
 } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { WidgetBaseComponent } from '@sunbird-cb/resolver/src/lib/widget-base.component'
+import { NsWidgetResolver } from '@sunbird-cb/resolver/src/lib/widget-resolver.model'
 import { Subscription } from 'rxjs'
 import { IWidgetsPlayerOfflineSessionData } from './player-offline-session.model'
 import { WidgetContentService } from '../_services/widget-content.service'

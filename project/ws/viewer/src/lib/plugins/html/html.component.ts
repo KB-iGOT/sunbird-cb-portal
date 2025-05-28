@@ -7,7 +7,7 @@ import { ConfigurationsService, EventService, LoggerService, TFetchStatus } from
 import { MobileAppsService } from '../../../../../../../src/app/services/mobile-apps.service'
 import { SCORMAdapterService, scormLMSStatus } from './SCORMAdapter/scormAdapter'
 /* tslint:disable */
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { environment } from 'src/environments/environment';
 import { Subscription, timer } from 'rxjs'
 import { Storage } from './SCORMAdapter/storage'

@@ -22,7 +22,7 @@ import {
   PipePartialContentModule,
 } from '@sunbird-cb/utils-v2'
 
-import { WidgetResolverModule } from '@sunbird-cb/resolver'
+import { WidgetResolverModule } from '@sunbird-cb/resolver/src/lib/widget-resolver.module'
 
 import { HtmlModule as HtmlViewContainerModule } from '../../route-view-container/html/html.module'
 

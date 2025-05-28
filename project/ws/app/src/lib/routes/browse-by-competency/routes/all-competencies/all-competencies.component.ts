@@ -6,7 +6,7 @@ import { NSBrowseCompetency } from '../../models/competencies.model'
 import { debounceTime, switchMap, takeUntil } from 'rxjs/operators'
 import { Subject, Observable } from 'rxjs'
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 // tslint:enable
 import { LocalDataService } from '../../services/localService'
 import { TranslateService } from '@ngx-translate/core'

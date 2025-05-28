@@ -14,7 +14,8 @@ import { DynamicAssetsLoaderService } from '../_services/dynamic-assets-loader.s
 import { getAmpConfig, isIOS, LINKS } from './player-amp.utility'
 import { ROOT_WIDGET_CONFIG } from '../collection.config'
 import { first, filter } from 'rxjs/operators'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { WidgetBaseComponent } from '@sunbird-cb/resolver/src/lib/widget-base.component'
+import { NsWidgetResolver } from '@sunbird-cb/resolver/src/lib/widget-resolver.model'
 import { ViewerUtilService } from '@ws/viewer/src/lib/viewer-util.service'
 
 @Component({

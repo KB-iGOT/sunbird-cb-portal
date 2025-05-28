@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { RouterModule } from '@angular/router'
-import { WidgetResolverModule } from '@sunbird-cb/resolver'
+import { WidgetResolverModule } from '@sunbird-cb/resolver/src/lib/widget-resolver.module'
 
 import { QnaHomeComponent } from './components/qna-home/qna-home.component'
 import { PipeLimitToModule, PipeCountTransformModule } from '@sunbird-cb/utils-v2'

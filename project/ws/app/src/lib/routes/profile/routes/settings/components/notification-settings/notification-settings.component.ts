@@ -5,7 +5,7 @@ import { SettingsService } from '../../settings.service'
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
 import { TranslateService } from '@ngx-translate/core'
 /* tslint:disable*/
-import _ from 'lodash'
+import * as _ from 'lodash'
 
 @Component({
   selector: 'ws-app-notification-settings',

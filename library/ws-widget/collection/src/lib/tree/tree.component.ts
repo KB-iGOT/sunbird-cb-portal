@@ -1,8 +1,9 @@
 import { Component, Input, OnChanges } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
 import { IWsTree } from './tree.model'
 import { NestedTreeControl } from '@angular/cdk/tree'
 import { MatTreeNestedDataSource } from '@angular/material/tree'
+import { WidgetBaseComponent } from '@sunbird-cb/resolver/src/lib/widget-base.component'
+import { NsWidgetResolver } from '@sunbird-cb/resolver/src/lib/widget-resolver.model'
 
 @Component({
   selector: 'ws-widget-tree',

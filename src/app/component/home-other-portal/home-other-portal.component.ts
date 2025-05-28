@@ -5,7 +5,7 @@ import { AccessControlService } from '@ws/author/src/public-api'
 import { ROOT_WIDGET_CONFIG } from '@sunbird-cb/collection/src/lib/collection.config'
 
 /* tslint:disable*/
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { TranslateService } from '@ngx-translate/core'
 
 

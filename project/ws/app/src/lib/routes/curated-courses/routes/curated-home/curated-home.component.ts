@@ -5,7 +5,7 @@ import { CuratedCollectionService } from '../../services/curated-collection.serv
 import { debounceTime, switchMap, takeUntil } from 'rxjs/operators'
 import { ActivatedRoute } from '@angular/router'
 /* tslint:disable*/
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { TranslateService } from '@ngx-translate/core'
 import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 

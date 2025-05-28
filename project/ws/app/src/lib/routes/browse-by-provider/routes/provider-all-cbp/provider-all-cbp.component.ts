@@ -3,7 +3,7 @@ import { BrowseProviderService } from '../../services/browse-provider.service'
 import { Subscription, Subject, Observable } from 'rxjs'
 import { ActivatedRoute } from '@angular/router'
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { UntypedFormGroup, UntypedFormControl } from '@angular/forms';
 import { debounceTime, switchMap, takeUntil } from 'rxjs/operators';
 import { TranslateService } from '@ngx-translate/core'

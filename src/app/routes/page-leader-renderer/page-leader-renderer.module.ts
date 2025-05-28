@@ -12,7 +12,7 @@ import { SendMailDialogComponent } from './components/send-mail-dialog/send-mail
 import { TweetsComponent } from './components/tweets/tweets.component'
 import { FormsModule } from '@angular/forms'
 import { BtnPageBackModule, DiscussionForumModule } from '@sunbird-cb/collection'
-import { WidgetResolverModule } from '@sunbird-cb/resolver'
+import { WidgetResolverModule } from '@sunbird-cb/resolver/src/lib/widget-resolver.module'
 import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button'
 import { MatLegacyCardModule as MatCardModule } from '@angular/material/legacy-card'
 import { MatLegacyDialogModule as MatDialogModule } from '@angular/material/legacy-dialog'

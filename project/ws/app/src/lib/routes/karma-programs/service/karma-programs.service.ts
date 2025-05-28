@@ -4,7 +4,7 @@ import { Observable, of, Subject } from 'rxjs'
 import { NSSearch } from '@sunbird-cb/collection/src/lib/_services/widget-search.model'
 
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { FormExtService } from 'src/app/services/form-ext.service'
 // tslint:enable
 

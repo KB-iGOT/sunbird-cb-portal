@@ -6,7 +6,7 @@ import { Subject } from 'rxjs'
 import { takeUntil } from 'rxjs/operators'
 
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 // import dayjs from 'dayjs'
 // dayjs.extend(isSameOrBefore)
 // dayjs.extend(isSameOrAfter)

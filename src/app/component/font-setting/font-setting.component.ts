@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core'
-import { BtnSettingsService } from '@sunbird-cb/collection'
+import { BtnSettingsService } from '@sunbird-cb/collection/src/lib/btn-settings/btn-settings.service'
 @Component({
   selector: 'ws-font-setting',
   templateUrl: './font-setting.component.html',

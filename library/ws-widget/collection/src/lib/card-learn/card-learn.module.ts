@@ -8,9 +8,7 @@ import { UserImageModule } from '../_common/user-image/user-image.module'
 import { CardLearnComponent } from '././card-learn.component'
 import { ChallengeModule } from '../challenge/challenge.module'
 import { RouterModule } from '@angular/router'
-import { HttpClient } from '@angular/common/http'
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core'
-import { HttpLoaderFactory } from '@sunbird-cb/collection'
+import { TranslateModule } from '@ngx-translate/core'
 import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button'
 import { MatLegacyCardModule as MatCardModule } from '@angular/material/legacy-card'
 import { MatLegacyChipsModule as MatChipsModule } from '@angular/material/legacy-chips'
@@ -35,11 +33,6 @@ import { MatIconModule } from '@angular/material/icon'
         ChallengeModule,
         RouterModule,
         TranslateModule.forRoot({
-            loader: {
-                provide: TranslateLoader,
-                useFactory: HttpLoaderFactory,
-                deps: [HttpClient],
-            },
         }),
     ],
     schemas: [NO_ERRORS_SCHEMA]

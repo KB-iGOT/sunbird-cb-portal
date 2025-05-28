@@ -1,5 +1,6 @@
 import { Component, HostBinding, Input, OnInit } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { WidgetBaseComponent } from '@sunbird-cb/resolver/src/lib/widget-base.component'
+import { NsWidgetResolver } from '@sunbird-cb/resolver/src/lib/widget-resolver.model'
 import { ICarousel } from './sliders.model'
 import { Subscription, interval } from 'rxjs'
 import { EventService, WsEvents } from '@sunbird-cb/utils-v2'

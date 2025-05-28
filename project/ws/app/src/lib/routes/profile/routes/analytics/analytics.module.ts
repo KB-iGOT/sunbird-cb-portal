@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { LearningComponent } from './routes/learning/learning.component'
-import { WidgetResolverModule } from '@sunbird-cb/resolver'
+import { WidgetResolverModule } from '@sunbird-cb/resolver/src/lib/widget-resolver.module'
 // material modules
 
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'

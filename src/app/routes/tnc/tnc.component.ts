@@ -5,10 +5,11 @@ import { NsTnc } from '../../models/tnc.model'
 import { LoggerService, ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { HttpClient } from '@angular/common/http'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
-import { ROOT_WIDGET_CONFIG, NsError } from '@sunbird-cb/collection'
 import { TncAppResolverService } from '../../services/tnc-app-resolver.service'
 import { TncPublicResolverService } from '../../services/tnc-public-resolver.service'
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { NsError } from '@sunbird-cb/collection/src/lib/error-resolver/error-resolver.model'
+import { ROOT_WIDGET_CONFIG } from '@sunbird-cb/collection/src/lib/collection.config'
 
 @Component({
   selector: 'ws-tnc',

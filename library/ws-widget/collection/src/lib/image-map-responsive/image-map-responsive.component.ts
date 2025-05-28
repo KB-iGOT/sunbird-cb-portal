@@ -2,7 +2,8 @@ import { Component, OnInit, AfterViewInit, OnDestroy, Input, ViewChild, ElementR
 import { fromEvent, Subscription } from 'rxjs'
 import { SafeHtml, DomSanitizer } from '@angular/platform-browser'
 import { debounceTime } from 'rxjs/operators'
-import { WidgetBaseComponent, NsWidgetResolver } from '@sunbird-cb/resolver'
+import { WidgetBaseComponent } from '@sunbird-cb/resolver/src/lib/widget-base.component'
+import { NsWidgetResolver } from '@sunbird-cb/resolver/src/lib/widget-resolver.model'
 import { IWidgetImageMap, IWidgetMapMeta, IWidgetScale, IWidgetMapCoords } from './image-map-responsive.model'
 
 @Component({

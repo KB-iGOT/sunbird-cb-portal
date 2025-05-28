@@ -1,5 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { WidgetBaseComponent } from '@sunbird-cb/resolver/src/lib/widget-base.component'
+import { NsWidgetResolver } from '@sunbird-cb/resolver/src/lib/widget-resolver.model'
 import { NsError } from './error-resolver.model'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { ErrorResolverService } from './error-resolver.service'

@@ -3,7 +3,7 @@ import { fromEvent } from 'rxjs'
 import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators'
 import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 
 import { ReviewComponentDataService } from '../content-services/review-component-data.service'
 

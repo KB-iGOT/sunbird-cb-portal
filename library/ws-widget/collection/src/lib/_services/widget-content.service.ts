@@ -7,7 +7,7 @@ import { NsContentStripMultiple } from '../content-strip-multiple/content-strip-
 import { NsContent } from './widget-content.model'
 import { NSSearch } from './widget-search.model'
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 import {  viewerRouteGenerator } from './viewer-route-util'
 import moment from 'moment'
 // tslint:enable

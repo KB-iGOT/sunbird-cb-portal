@@ -10,7 +10,7 @@ import { LeftMenuComponent } from './components/left-menu/left-menu.component'
 import { MatGridListModule } from '@angular/material/grid-list'
 import { MatExpansionModule } from '@angular/material/expansion'
 import { MatDividerModule } from '@angular/material/divider'
-import { WidgetResolverModule } from '@sunbird-cb/resolver'
+import { WidgetResolverModule } from '@sunbird-cb/resolver/src/lib/widget-resolver.module'
 
 import { MatLegacyCardModule as MatCardModule } from '@angular/material/legacy-card'
 import { ReactiveFormsModule, FormsModule } from '@angular/forms'

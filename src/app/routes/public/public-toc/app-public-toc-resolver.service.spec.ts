@@ -1,7 +1,8 @@
 import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
 import { of, throwError } from 'rxjs';
 import { AppPublicTocResolverService } from './app-public-toc-resolver.service'; // Update the import path as per your project structure
-import { WidgetContentService } from '@sunbird-cb/collection';
+import { WidgetContentService } from '@sunbird-cb/collection/src/lib/_services/widget-content.service';
+
 
 // Mock the dependencies
 jest.mock('@sunbird-cb/collection');
