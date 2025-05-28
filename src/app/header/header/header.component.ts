@@ -51,18 +51,18 @@ export class HeaderComponent implements OnInit {
     const userAgent = navigator.userAgent
     // Windows Phone must come first because its UA also contains "Android"
     if (/windows phone/i.test(userAgent)) {
-      const newWindow = window.open('https://play.google.com/store/apps/details?id=com.igot.karmayogibharat&hl=en&gl=US', '_blank')
+      const newWindow = window.open('https://play.google.com/store/apps/details?id=com.igot.karmayogibharat&hl=en&gl=US', '_blank', 'noopener')
       if (newWindow) newWindow.opener = null;
     }
 
     if (/android/i.test(userAgent)) {
-      const newWindow =  window.open('https://play.google.com/store/apps/details?id=com.igot.karmayogibharat&hl=en&gl=US', '_blank')
+      const newWindow =  window.open('https://play.google.com/store/apps/details?id=com.igot.karmayogibharat&hl=en&gl=US', '_blank', 'noopener')
       if (newWindow) newWindow.opener = null;
     }
 
     // iOS detection from: http://stackoverflow.com/a/9039885/177710
     if (/iPad|iPhone|iPod/.test(userAgent)) {
-      const newWindow =  window.open('https://apps.apple.com/in/app/igot-karmayogi/id6443949491', '_blank')
+      const newWindow =  window.open('https://apps.apple.com/in/app/igot-karmayogi/id6443949491', '_blank', 'noopener')
       if (newWindow) newWindow.opener = null;
     }
   }
