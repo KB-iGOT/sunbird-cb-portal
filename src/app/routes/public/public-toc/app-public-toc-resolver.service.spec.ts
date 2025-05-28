@@ -5,7 +5,7 @@ import { WidgetContentService } from '@sunbird-cb/collection/src/lib/_services/w
 
 
 // Mock the dependencies
-jest.mock('@sunbird-cb/collection');
+jest.mock('@sunbird-cb/collection/src/lib/_services/widget-content.service');
 
 describe('AppPublicTocResolverService', () => {
   let service: AppPublicTocResolverService;
@@ -116,7 +116,7 @@ describe('AppPublicTocResolverService', () => {
           }
         }
       };
-      const expectedResult = {
+      const expectedResult:any = {
         identifier: contentId,
         name: 'Test Content',
         description: 'Test Description',

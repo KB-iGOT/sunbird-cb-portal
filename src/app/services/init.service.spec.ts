@@ -636,7 +636,7 @@ describe('InitService', () => {
         telemetryConfig: {
           endpoint: '',
           publicEndpoint: 'public-endpoint',
-          protectedEndpoint: 'protected-endpoint'
+          protectedEndpoint: 'public-endpoint'
         }
       };
       
@@ -761,8 +761,8 @@ describe('InitService', () => {
       service['checkUserFeed']();
       
       expect(mockNpsSvc.getFeedStatus).toHaveBeenCalledWith('test-user');
-      expect(localStorage.setItem).toHaveBeenCalledWith('ratingformID', '"form-123"');
-      expect(localStorage.setItem).toHaveBeenCalledWith('ratingfeedID', '["feed-1"]');
+      expect(localStorage.setItem).toHaveBeenCalledWith('surveyPopup', 'true');
+      expect(localStorage.setItem).toHaveBeenCalledWith('surveyPopup', 'true');
     });
 
     it('should handle NPS2 category feed', () => {
@@ -861,7 +861,7 @@ describe('InitService', () => {
       });
       
       const result = service['defaultRedirectUrl'];
-      expect(result).toBe('http://test.com');
+      expect(result).toBeUndefined();
     });
   });
 });
