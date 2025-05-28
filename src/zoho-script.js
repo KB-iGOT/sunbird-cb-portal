@@ -237,7 +237,7 @@ function zsValidateMandatoryFields() {
                 return false;
             } else {
                 if (fieldObject.name == 'Email') {
-                    if (!fieldObject.value.match(/^([\w_][\w\-_.+\'&]*)@(?=.{4,256}$)(([\w]+)([\-_]*[\w])*[\.])+[a-zA-Z]{2,22}$/)) {
+                    if (!fieldObject.value.match(/^[a-zA-Z0-9_][\w\-_.+\'&]*@[a-zA-Z0-9]([a-zA-Z0-9\-]*[a-zA-Z0-9])?(\.[a-zA-Z0-9]([a-zA-Z0-9\-]*[a-zA-Z0-9])?)*\.[a-zA-Z]{2,22}$/)) {
                         isError = 1;
                         alert('Enter a valid email-Id');
                         fieldObject.focus();
