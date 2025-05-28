@@ -37,7 +37,7 @@ export class IGotSarthiComponent implements OnInit, AfterViewChecked, OnDestroy 
   initials:any
   copiedIndex = -1
   public circleColor!: string
-  random = Math.random().toString(36).slice(2)
+  random = this.secureRandomString()
 
   // public initials!: string
 
@@ -667,10 +667,11 @@ export class IGotSarthiComponent implements OnInit, AfterViewChecked, OnDestroy 
     return this.initials
   }
   private createInititals(name:any): void {
-    const randomIndex = Math.floor(Math.random() * Math.floor(this.colors.length))
+    let randomNumber = this.createRandomNumber()
+    const randomIndex = Math.floor(randomNumber * Math.floor(this.colors.length))
     this.circleColor = this.colors[randomIndex]
     if (this.randomcolors) {
-      const randomIndex1 = Math.floor(Math.random() * Math.floor(this.randomcolors.length))
+      const randomIndex1 = Math.floor(randomNumber * Math.floor(this.randomcolors.length))
       this.circleColor = this.randomcolors[randomIndex1]
     }
     let initials = ''
@@ -715,6 +716,17 @@ export class IGotSarthiComponent implements OnInit, AfterViewChecked, OnDestroy 
     this.eventSvc.dispatchChatbotEvent<WsEvents.IWsEventTelemetryInteract>(event)
   }
 
+  secureRandomString(length = 16): string {
+    const array = new Uint8Array(length);
+    crypto.getRandomValues(array);
+    return Array.from(array, byte => byte.toString(36)).join('');
+  }
+
+  createRandomNumber() {
+    const array = new Uint32Array(1);
+    crypto.getRandomValues(array);
+    return array[0];
+  }
   ngOnDestroy(): void {
    
   }
