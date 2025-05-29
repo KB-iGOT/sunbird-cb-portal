@@ -175,7 +175,7 @@ export class PublicRequestComponent implements OnInit {
 
   onPhoneChange() {
     const ctrl = this.requestForm.get('mobile')
-    if (ctrl) {
+    if (ctrl instanceof AbstractControl) {
       ctrl
         .valueChanges
         .pipe(startWith(null), pairwise())
@@ -191,7 +191,7 @@ export class PublicRequestComponent implements OnInit {
 
   onEmailChange() {
     const ctrl = this.requestForm.get('email')
-    if (ctrl) {
+    if (ctrl instanceof AbstractControl) {
       ctrl
         .valueChanges
         .pipe(startWith(null), pairwise())

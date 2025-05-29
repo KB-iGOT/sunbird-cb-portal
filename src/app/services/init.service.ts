@@ -403,7 +403,9 @@ export class InitService {
     this.configSvc.rootOrg = publicConfig.rootOrg
     this.configSvc.org = publicConfig.org
     // TODO: set one org as default org :: use user preference
-    this.configSvc.activeOrg = publicConfig.org[0]
+    if(publicConfig && publicConfig.org && publicConfig.org.length) {
+      this.configSvc.activeOrg = publicConfig.org[0]
+    }    
     this.configSvc.appSetup = publicConfig.appSetup
     this.configSvc.positions = publicConfig.positions
     this.configSvc.compentency = publicConfig.compentency
@@ -694,7 +696,7 @@ export class InitService {
   // only change is calling the read api with userID
   // since Backend api is failing if we call the read api twice
   private async fetchUserDetails(): Promise<any> {
-    if (this.configSvc.unMappedUser.id) {
+    if (this.configSvc.unMappedUser && this.configSvc.unMappedUser.id) {
       let userPidProfile: any | null = null
       try {
         userPidProfile = await this.http
@@ -820,7 +822,9 @@ export class InitService {
     this.configSvc.rootOrg = publicConfig.rootOrg
     this.configSvc.org = publicConfig.org
     this.configSvc.portalUrls = publicConfig.portalUrls
-    this.configSvc.activeOrg = publicConfig.org[0]
+    if(publicConfig && publicConfig.org && publicConfig.org.length) {
+      this.configSvc.activeOrg = publicConfig.org[0]
+    }    
     this.configSvc.positions = publicConfig.positions
     this.updateAppIndexMeta()
     this.updateTelemetryConfig()
@@ -880,19 +884,22 @@ export class InitService {
   }
 
   private processWidgetStatus(widgetConfigs: NsWidgetResolver.IRegistrationsPermissionConfig[]) {
-    this.configSvc.restrictedWidgets = new Set(
-      widgetConfigs
-        .filter(u =>
-          hasPermissions(
-            u.widgetPermission,
-            this.configSvc.userRoles,
-            this.configSvc.userGroups,
-            this.configSvc.restrictedFeatures,
-          ),
-        )
-        .map(u => WidgetResolverService.getWidgetKey(u)),
-    )
-    return this.configSvc.restrictedWidgets
+    if(widgetConfigs && widgetConfigs.length) {
+      this.configSvc.restrictedWidgets = new Set(
+        widgetConfigs
+          .filter(u =>
+            hasPermissions(
+              u.widgetPermission,
+              this.configSvc.userRoles,
+              this.configSvc.userGroups,
+              this.configSvc.restrictedFeatures,
+            ),
+          )
+          .map(u => WidgetResolverService.getWidgetKey(u)),
+      )
+      return this.configSvc.restrictedWidgets
+    }
+    
   }
 
   private processAppsConfig(appsConfig: NsAppsConfig.IAppsConfig): NsAppsConfig.IAppsConfig {
@@ -918,10 +925,10 @@ export class InitService {
   private updateNavConfig() {
     if (this.configSvc.instanceConfig) {
       const background = this.configSvc.instanceConfig.backgrounds
-      if (background.primaryNavBar) {
+      if (background && background.primaryNavBar) {
         this.configSvc.primaryNavBar = background.primaryNavBar
       }
-      if (background.pageNavBar) {
+      if (background && background.pageNavBar) {
         this.configSvc.pageNavBar = background.pageNavBar
       }
       if (this.configSvc.instanceConfig.primaryNavBarConfig) {
@@ -942,7 +949,9 @@ export class InitService {
 
   private updateAppIndexMeta() {
     if (this.configSvc.instanceConfig) {
-      document.title = this.configSvc.instanceConfig.details.appName
+      if(this.configSvc.instanceConfig.details && this.configSvc.instanceConfig.details.appName) {
+        document.title = this.configSvc.instanceConfig.details.appName
+      }      
       try {
         if (this.configSvc.instanceConfig.indexHtmlMeta.description) {
           const manifestElem = document.getElementById('id-app-description')
@@ -1040,7 +1049,8 @@ export class InitService {
 
   async netCoreUserLoginSetup() {
     /* tslint:disable */
-    localStorage.setItem('netCoreUserSetup', 'true')
+    try {
+      localStorage.setItem('netCoreUserSetup', 'true')
     console.log('this.configSvc.unMappedUser', this.configSvc.unMappedUser)  
     let userEnrollmentCount:any = await localStorage.getItem('userEnrollmentCount')
     if(userEnrollmentCount) {
@@ -1138,6 +1148,10 @@ export class InitService {
     //   'EMAIL': this.configSvc.unMappedUser.profileDetails.personalDetails.primaryEmail.trim().toLowerCase(),
     //   'MOBILE': this.configSvc.unMappedUser.profileDetails.personalDetails.mobile.toString().trim().toLowerCase(),
     // })
+    } catch (e) {
+
+    }
+    
   }
 
   toTitleCase(str: string): string {

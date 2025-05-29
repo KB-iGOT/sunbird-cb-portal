@@ -76,8 +76,11 @@ dayjs.extend(isBetween)
       this.cbpConfig = this.activatedRoute.snapshot.data.pageData.data.cbpConfig
      this.cbpAllConfig = this.activatedRoute.snapshot.data.pageData.data
     }
-    this.upcommingList = this.transformSkeletonToWidgets(this.cbpAllConfig.cbpUpcomingStrips)
-    this.overDueList = this.transformSkeletonToWidgets(this.cbpAllConfig.cbpUpcomingStrips)
+    if(this.cbpAllConfig) {
+      this.upcommingList = this.transformSkeletonToWidgets(this.cbpAllConfig.cbpUpcomingStrips)
+      this.overDueList = this.transformSkeletonToWidgets(this.cbpAllConfig.cbpUpcomingStrips)
+    }
+   
     this.contentFeedList = this.transformSkeletonToWidgets(this.getFeedStrip())
     this.getCbPlans()
   }
@@ -217,7 +220,10 @@ dayjs.extend(isBetween)
     }))
   }
   getFeedStrip() {
-    return window.screen.width < 768 ? this.cbpAllConfig.cbpFeedMobileStrip : this.cbpAllConfig.cbpFeedStrip
+    if(this.cbpAllConfig) {
+      return window.screen.width < 768 ? this.cbpAllConfig.cbpFeedMobileStrip : this.cbpAllConfig.cbpFeedStrip
+    }
+    
   }
 
   toggleFilterEvent(event: any) {
