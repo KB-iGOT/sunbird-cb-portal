@@ -219,9 +219,13 @@
                   <div class="resource-link">
                     <a [href]="item?.resourceLink" target="_blank">Click to view</a>
                   </div>
-                  <div class="cursor-pointer ml-3" (click)="copyPath(item, ci)" *ngIf="item?.contentType === 'Resource'">
+                  <div class="cursor-pointer ml-3 copy-icon" (click)="copyPath(item, ci)" *ngIf="item?.contentType === 'Resource'">
                     <mat-icon matTooltip="Copy" aria-label="Copy">content_copy</mat-icon>
                     <span *ngIf="copiedIndex === ci" class="copied-tooltip">Link Copied!</span>
+                  </div>
+                  <div class="feefback-section flex flex-row" *ngIf="item?.contentType === 'Resource'">
+                    <div><img src="/assets/ai-tutor/up.svg"></div>
+                    <div class="ml-2"><img src="/assets/ai-tutor/down.svg"></div>
                   </div>
                 </div>
               
@@ -241,6 +245,10 @@
                 <div class="cursor-pointer" (click)="copyPath(item, ci)" *ngIf="item?.contentType !== 'Resource'">
                   <mat-icon matTooltip="Copy" aria-label="Copy">content_copy</mat-icon>
                   <span *ngIf="copiedIndex === ci" class="copied-tooltip">Link Copied!</span>
+                </div>
+                <div class="feefback-section flex flex-row" *ngIf="item?.contentType !== 'Resource'">
+                  <div><img src="/assets/ai-tutor/up.svg"></div>
+                  <div class="ml-2"><img src="/assets/ai-tutor/down.svg"></div>
                 </div>
                 <div class="ml-2 mr-2"><img alt="ai-icon" src="/assets/ai-tutor/ai-icon.svg"></div>
                 <div class="ai-generated-content ml-2">These are AI generated results</div>

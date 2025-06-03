@@ -97,6 +97,10 @@
                 <mat-icon matTooltip="Copy" aria-label="Copy">content_copy</mat-icon>
                 <span *ngIf="copiedIndex === ci" class="copied-tooltip">Link Copied!</span>
               </div>
+              <div class="feefback-section flex flex-row" *ngIf="item?.contentType !== 'Resource'">
+                <div><img src="/assets/ai-tutor/up.svg"></div>
+                <div class="ml-2"><img src="/assets/ai-tutor/down.svg"></div>
+              </div>
               <div class="ml-2 mr-2"><img alt="ai-icon" src="/assets/ai-tutor/ai-icon.svg"></div>
               <div class="ai-generated-content ml-2">These are AI generated results</div>
             </div>

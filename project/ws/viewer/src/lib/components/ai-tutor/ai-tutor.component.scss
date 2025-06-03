@@ -514,8 +514,9 @@
   }
 
   .feefback-section {
-    width: 65%;
-    justify-content: end;
+    // width: 65%;
+    // justify-content: end;
+    margin-left: 5%;
   }
 
   .vertical-middle {
@@ -531,8 +532,8 @@
 }
 
 .resource-icon img {
-  height: 105px;
-  width: 188.25px;
+  height: 65px;
+  width: 115.25px;
 }
 
 .font-12 {
@@ -812,4 +813,12 @@ width: 262px;
 
 .w-92 {
   width: 92%;
+}
+
+::ng-deep .copy-icon .material-icons {
+  font-size: 18px !important;
+}
+
+::ng-deep .copy-icon .mat-icon {
+ vertical-align: middle;
 }
