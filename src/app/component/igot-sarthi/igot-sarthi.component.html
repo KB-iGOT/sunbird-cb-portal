@@ -68,17 +68,18 @@
               <div class="resource-link">
                 <a [href]="item?.resourceLink" target="_blank">Click to view</a>
               </div>
-              <div class="cursor-pointer ml-3" (click)="copyPath(item, ci)" *ngIf="item?.contentType === 'Resource'">
+              <div class="cursor-pointer ml-3 copy-icon" (click)="copyPath(item, ci)" *ngIf="item?.contentType === 'Resource'">
                 <mat-icon matTooltip="Copy" aria-label="Copy">content_copy</mat-icon>
                 <span *ngIf="copiedIndex === ci" class="copied-tooltip">Link Copied!</span>
+              </div>
+              <div class="feefback-section flex flex-row">
+                <div><img src="/assets/ai-tutor/up.svg"></div>
+                <div class="ml-2"><img src="/assets/ai-tutor/down.svg"></div>
               </div>
             </div>
             
           </div>
-          <div class="feefback-section flex flex-row">
-            <div><img src="/assets/ai-tutor/up.svg"></div>
-            <div class="ml-2"><img src="/assets/ai-tutor/down.svg"></div>
-          </div>
+         
           <div class="recommended-question my-5px" [ngClass]="{'margin-left-5': item?.message }">
             <div class="my-5px mr-2 w-92" *ngIf="item?.contentType !== 'Resource'">
               <ng-container>
