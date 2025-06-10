@@ -145,6 +145,7 @@
 
     .route-card-icon { 
       color: #FFFFFF !important;
+      filter: brightness(0) invert(1);
     }
   }
 }
@@ -299,14 +300,16 @@
 }
 
 .mentor-profile {
-  background-color: #1B4CA1;
+  background-color: #1B4CA1 !important;
   width: 125px;
   height: 20px;
   border-radius: 4px;
   /* stylelint-disable */
   font: 400 10px Lato;
   /* stylelint-enable */
-  color: #FFFFFF;
+  color: #FFFFFF !important;
+  padding: 5px;
+  margin-top: 5px;
 }
 
 .disable-button {
@@ -317,5 +320,32 @@
 @media (max-width: 768px) {
   .user-details {
     border-radius: 0px;
+  }
+}
+
+// activities
+.profile-section {
+  border-radius: 12px;
+  border: 1px solid rgba(0, 0, 0, .08);
+  opacity: 1;
+  background-color: #fff;
+}
+
+.connectButton {
+  width: 140px;
+  height: 32px;
+  background-color: #1B4CA11A !important;
+  border: 1px solid #1B4CA1;
+  border-radius: 17px;
+  /* stylelint-disable */
+  font: 700 14px Lato;
+  /* stylelint-enable */
+  color: #1B4CA1 !important;
+  
+  .connect-icon {
+    width: 24px;
+    height: 24px;
+    font-size: 24px;
+    color: #1B4CA1;
   }
 }

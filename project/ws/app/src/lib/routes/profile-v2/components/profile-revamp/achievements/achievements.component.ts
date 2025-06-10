@@ -1,9 +1,10 @@
 import { Component, EventEmitter, Inject, Input, OnInit, Output } from '@angular/core';
 import { achievement } from '../../../models/profile-revamp.model';
-import { MAT_LEGACY_DIALOG_DATA, MatLegacyDialogRef } from '@angular/material/legacy-dialog';
+import { MAT_LEGACY_DIALOG_DATA, MatLegacyDialog, MatLegacyDialogRef } from '@angular/material/legacy-dialog';
 import { ProfileV2RevampService } from '../../../services/profile-v2-revamp.service';
 import { MatLegacySnackBar } from '@angular/material/legacy-snack-bar';
 import * as _ from 'lodash';
+import { CertificateViewPopupComponent } from '../certificate-view-popup/certificate-view-popup.component';
 
 @Component({
   selector: 'ws-app-achievements',
@@ -24,10 +25,12 @@ export class AchievementsComponent implements OnInit {
     @Inject(MAT_LEGACY_DIALOG_DATA) private data: any,
     private profileV2RevampSvc: ProfileV2RevampService,
     private snackBar: MatLegacySnackBar,
+    private dialog: MatLegacyDialog,
   ) {
     if (this.data && this.data.userId) {
       this.userId = data.userId;
       this.isPopup = true
+      this.isCurrentUser = data.isCurrentUser || false;
     }
   }
 
@@ -41,7 +44,7 @@ export class AchievementsComponent implements OnInit {
 
   getAchievementsList(): void {
     if (this.userId) {
-      this.profileV2RevampSvc.fetchProfileEntries(this.userId, 'achievements').subscribe({
+      this.profileV2RevampSvc.fetchProfileEntries(this.userId, 'achievement').subscribe({
         next: (res: any) => {
           if (res) {
             this.achievementsList = _.get(res, 'result.response.achievements', []);
@@ -55,6 +58,7 @@ export class AchievementsComponent implements OnInit {
       })
     }
   }
+
   openEditDialog(entry: any = {}): void {
     this.openProfileEntryEditDialog.emit(entry);
   }
@@ -64,6 +68,20 @@ export class AchievementsComponent implements OnInit {
       achievement.showMore = false;
     } else {
       achievement['showMore'] = true;
+    }
+  }
+
+  openDocument(url: string): void {
+    if (url) {
+      this.dialog.open(CertificateViewPopupComponent, {
+        width: '600px',
+        panelClass: 'cover-photo-edit-popup',
+        data: {
+          certificateUrl: url
+        },
+        disableClose: true,
+        autoFocus: false,
+      })
     }
   }
 

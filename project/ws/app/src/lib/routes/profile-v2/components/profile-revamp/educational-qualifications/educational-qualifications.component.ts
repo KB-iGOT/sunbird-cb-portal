@@ -28,7 +28,8 @@ export class EducationalQualificationsComponent implements OnInit {
   ) { 
     if (this.data && this.data.userId) {
       this.userId = data.userId;
-      this.isPopup = true
+      this.isPopup = true;
+      this.isCurrentUser = data.isCurrentUser || false;
     }
   }
 
@@ -70,7 +71,7 @@ export class EducationalQualificationsComponent implements OnInit {
     }
   }
 
-  private openSnackbar(primaryMsg: string, duration: number = 5000) {
+  openSnackbar(primaryMsg: string, duration: number = 5000) {
     this.snackBar.open(primaryMsg, 'X', {
       duration,
     })
