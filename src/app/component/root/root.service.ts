@@ -9,7 +9,8 @@ const API_END_POINTS = {
   LANGUAGES: '/api/faq/v1/assistant/available/language',
   CONFIG: '/api/faq/v1/assistant/configs/language',
   AI_GLOBAL_SEARCH: `${PROXY_CREATE_V8}/chatbot/v3/search`,
-  AI_CHAT_FEEDBACK:`${PROXY_CREATE_V8}/chatbot/v3/feedbacks/save`  
+  AI_CHAT_FEEDBACK:`${PROXY_CREATE_V8}/chatbot/v3/feedbacks/save`,
+  AI_GLOBAL_INTERNET_SEARCH: `${PROXY_CREATE_V8}/chatbot/v3/global/search`,
 }
 
 @Injectable({
@@ -78,7 +79,7 @@ export class RootService {
   }
 
   aiGlobalSearchFromInternet(requestBody:any) {
-    return this.http.post<any>('https://teaching-styles.uat.karmayogibharat.net/search', requestBody)
+    return this.http.post<any>(`${API_END_POINTS.AI_GLOBAL_INTERNET_SEARCH}`, requestBody)
   }
 
  

@@ -6,6 +6,7 @@ import { environment } from '../../../environments/environment';
 import { NonReleventFeedbackDialogComponent } from '@sunbird-cb/collection/src/lib/_common/non-relevent-feedback-dialog/non-relevent-feedback-dialog.component';
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import cloneDeep from 'lodash/cloneDeep';
 @Component({
   selector: 'ws-app-igot-sarthi',
   templateUrl: './igot-sarthi.component.html',
@@ -40,7 +41,7 @@ export class IGotSarthiComponent implements OnInit, AfterViewChecked, OnDestroy 
   copiedIndex = -1
   public circleColor!: string
   random = Math.random().toString(36).slice(2)
-
+  iGOTAISearchResultArr:any = []
   // public initials!: string
 
   private colors = [
@@ -83,6 +84,7 @@ export class IGotSarthiComponent implements OnInit, AfterViewChecked, OnDestroy 
   aiSearchResult:any = {}
 
   aiSearchResultArr:any = []
+  cloneSearchQuery = ''
   displayedText = '';
   // tslint: enable
   @ViewChild('scrollMe') private myScrollContainer: ElementRef | undefined
@@ -511,6 +513,7 @@ export class IGotSarthiComponent implements OnInit, AfterViewChecked, OnDestroy 
      tab: 'sarthi',
      question: this.searchQuery
    }
+   this.cloneSearchQuery = cloneDeep(this.searchQuery);
    this.aiSearchResultArr.push(sendMsgObj)
    this.aiSearchResultArr.push({type: 'incoming',  tab: 'sarthi', answer: ''})
    
@@ -520,9 +523,7 @@ export class IGotSarthiComponent implements OnInit, AfterViewChecked, OnDestroy 
     },0)
    }   
     this.aiGlobalSearch()
-    setTimeout(()=>{
-      this.searchQuery = ''
-    },1000)
+    this.searchQuery = ''
    
   //  this.getAiTutorMessage()
   // this.sendAITutorMessage()
@@ -532,6 +533,7 @@ export class IGotSarthiComponent implements OnInit, AfterViewChecked, OnDestroy 
   
 
   aiGlobalSearch() {
+    this.iGOTAISearchResultArr = []
     let requestBody:any = {
       "query":this.searchQuery
    }
@@ -539,17 +541,41 @@ export class IGotSarthiComponent implements OnInit, AfterViewChecked, OnDestroy 
     this.chatbotService.aiGlobalSearch(requestBody, this.chatId, this.userId).subscribe((data)=>{
       console.log('data--', data)
     this.aiSearchResult = data 
-    if(data && data.RetrievedChunks === null) {
-      let internetGlobalSearchRequest = {
-        "query": 'gdsgfjsgdjfgsjdfjsdgfjdsghfsjfgsdfgsjgfsjgdhjs',
-        "designation": '',
-        "department": ""
-      }
-      this.chatbotService.aiGlobalSearchFromInternet(internetGlobalSearchRequest).subscribe((idata:any)=>{
-        console.log('idata--', idata)
-      })
-    }
-    let arr:any = []
+    // if(data && data.RetrievedChunks === null) {
+    //   console.log('this.config', this.configSvc)
+      
+    //   let internetGlobalSearchRequest = {
+    //     "query": this.cloneSearchQuery,
+    //     "designation": '',
+    //     "department": ""
+    //   }
+    //   this.chatbotService.aiGlobalSearchFromInternet(internetGlobalSearchRequest).subscribe((idata:any)=>{
+    //     console.log('idata--', idata)
+
+    //     let resultObj = {        
+    //       message: idata.answer,
+    //       recommendedQues: '',
+    //       selectedValue: '',       
+    //       title: idata.answer,
+    //       content: idata,
+    //       mimeType: idata,
+    //       contentType: idata,
+    //       artifactUrl: idata,
+    //       description: idata.answer,
+    //       identifier: idata,    
+    //       contentStart: idata,
+    //       contentEnd: idata, 
+    //       pageNumber:   idata,
+    //       query: this.cloneSearchQuery,
+    //       query_id: '',
+    //       resourceLink : '', 
+    //       fromInternet: true
+    //     }
+  
+    //     arr.push(resultObj)
+    //   })
+    // }
+    
     this.aiSearchResult.RetrievedChunks && this.aiSearchResult.RetrievedChunks.map((item:any)=>{
       let startTime = 0
       let endTime = 0
@@ -583,12 +609,12 @@ export class IGotSarthiComponent implements OnInit, AfterViewChecked, OnDestroy 
         resourceLink : item.mimeType === 'application/pdf'? `https://portal.igotkarmayogi.gov.in/app/amrit-gyaan-kosh/player/pdf/${item.Identifier}?primaryCategory=Learning Resource&from=globalSearch&playerPreview=true&pn=${pageNumber}`: `https://portal.igotkarmayogi.gov.in/app/amrit-gyaan-kosh/player/video/${item.Identifier}?primaryCategory=Learning Resource&from=globalSearch&playerPreview=true&st=${startTime}&et=${endTime}`
       }
 
-      arr.push(resultObj)
+      this.iGOTAISearchResultArr.push(resultObj)
       
     })
     let answer = this.aiSearchResult.answer ? this.aiSearchResult.answer.trim().replace(/\n/g, '<br>') : "Apologies! I wasn't able to find a relevant solution for your current query. However, I specialize in resolving queries and creating personalized learning guidance tailored to your needs. Kindly rephrase or clarify your query so I can assist you more effectively."
     let shortAnswer =  this.splitParagraphByWords(answer)
-    this.aiSearchResultArr.push({ wordsCount: answer.trim().split(/\s+/).length, showLess: answer.trim().split(/\s+/).length > 30 ? true : false ,answer: answer, shortAnswer: shortAnswer ,result: arr, type: 'incoming',  tab: 'sarthi'})
+    this.aiSearchResultArr.push({ wordsCount: answer.trim().split(/\s+/).length, showLess: answer.trim().split(/\s+/).length > 30 ? true : false ,answer: answer, shortAnswer: shortAnswer ,result: this.iGOTAISearchResultArr, type: 'incoming',  tab: 'sarthi', reterivedChunks: this.aiSearchResult.RetrievedChunks, showFromInternet: true})
     this.aiSearchResultArr.map((item:any, index:any)=>{
       if(item && item.answer === '') {
         // delete this.aiSearchResultArr[index]
@@ -790,6 +816,61 @@ export class IGotSarthiComponent implements OnInit, AfterViewChecked, OnDestroy 
         this.matSnackBar.open('Failed to save feedback')
       }
      })
+  }
+
+  callFromInternet(item:any, index:any) {
+    console.log('item--', item, index)
+    this.aiSearchResultArr.push({type: 'incoming',  tab: 'sarthi', answer: ''})
+    if( this.aiSearchResultArr[index] && this.aiSearchResultArr[index]['showFromInternet']) {
+      this.aiSearchResultArr[index]['showFromInternet'] = false
+    }
+    if(item && item.reterivedChunks === null) {
+      console.log('this.config', this.configSvc)
+      
+      let internetGlobalSearchRequest = {
+        "query": this.cloneSearchQuery,
+        "designation": '',
+        "department": ""
+      }
+      this.chatbotService.aiGlobalSearchFromInternet(internetGlobalSearchRequest).subscribe((idata:any)=>{
+        console.log('idata--', idata)
+        this.aiSearchResultArr.map((item:any, index:any)=>{
+          if(item && item.answer === '') {
+            // delete this.aiSearchResultArr[index]
+            this.aiSearchResultArr.splice(index,1)
+          }
+         })
+        let resultObj = {        
+          message: idata.answer,
+          recommendedQues: '',
+          selectedValue: '',       
+          title: idata.answer,
+          content: idata,
+          mimeType: idata,
+          contentType: idata,
+          artifactUrl: idata,
+          description: idata.answer,
+          identifier: idata,    
+          contentStart: idata,
+          contentEnd: idata, 
+          pageNumber:   idata,
+          query: this.cloneSearchQuery,
+          query_id: '',
+          resourceLink : '', 
+          fromInternet: true
+        }
+  
+        this.iGOTAISearchResultArr.push(resultObj)
+      })
+    }
+  }
+
+  rejectFromInternet(item:any, index:any) {
+    console.log('item', item, index)
+    console.log(this.aiSearchResultArr, this.aiSearchResultArr[index])
+    if( this.aiSearchResultArr[index] && this.aiSearchResultArr[index]['showFromInternet']) {
+      this.aiSearchResultArr[index]['showFromInternet'] = false
+    }
   }
 
   ngOnDestroy(): void {
