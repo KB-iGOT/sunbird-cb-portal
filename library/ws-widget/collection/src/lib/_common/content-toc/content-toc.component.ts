@@ -84,25 +84,16 @@ export class ContentTocComponent implements OnInit, AfterViewInit, OnChanges {
     } else {
       this.enableAITutorFlag = false
     }
-    if(this.configService.iGOTAIConfig && this.configService.iGOTAIConfig.transcription) {
+
+    console.log('this.configService.iGOTAIConfig', this.configService.iGOTAIConfig)
+    if(this.configService.iGOTAIConfig && !this.configService.iGOTAIConfig.transcription) {
       this.enableTranscriptionFlag = true      
       this.subTitles$ = this.tocSvc.transcriptionData$.subscribe((value:any)=>{
+        console.log('value', value)
         this.keywordToHighlight = value
       })
-     
-      this.tocSvc.transriptionActiveLanguageDataObject$
-    .subscribe(lang => console.log('Initial subscription lang:', lang));
 
-    
-
-      
-
-     // this.keywordToHighlight = this.subTitles$[this.subTitles$.length -1]
-    } else {
-      this.enableTranscriptionFlag = false
-    }
-
-     this.transriptionLanguageSub = this.tocSvc.transriptionActiveLanguageDataObject$
+      this.transriptionLanguageSub = this.tocSvc.transriptionActiveLanguageDataObject$
       .pipe(
         tap((langvalue:any) => console.log('tap langvalue:', langvalue))
       )
@@ -113,6 +104,14 @@ export class ContentTocComponent implements OnInit, AfterViewInit, OnChanges {
         }
         
       });
+     
+
+     // this.keywordToHighlight = this.subTitles$[this.subTitles$.length -1]
+    } else {
+      this.enableTranscriptionFlag = false
+    }
+
+     
 
     // this.router.events
     //   .pipe(filter(event => event instanceof NavigationEnd))
@@ -166,7 +165,7 @@ export class ContentTocComponent implements OnInit, AfterViewInit, OnChanges {
         }
       })
     }
-    this.parseSRT()
+    this.parseVTT()
   }
 
   // async getVtt() {
@@ -383,18 +382,19 @@ export class ContentTocComponent implements OnInit, AfterViewInit, OnChanges {
     this.enrollUserToAI.emit()
   }
 
-  async parseSRT() {
+  async parseVTT() {
     await this.tocSvc.aiGetResourceVttFile('do_1138666037229731841150').subscribe(async(datas)=>{
       console.log('data---', datas)
       let data:any = datas.data
       if(data && data.length && data[0]['transcription_urls'] && data[0]['transcription_urls'].length) {
         console.log('in')
-       // this.vttLangArr = data[0]['transcription_urls']
+       this.vttLangArr = data[0]['transcription_urls']
 
-        this.vttLangArr = [
-          {type: 'vtt', language: 'en', uri: 'https://storage.googleapis.com/aistoragehypr4/transcriptvtt/en/temp/do_1138666037229731841150_1692700714040_yogaprotocolforstressmanagement1692700705237.mp4.vtt'},
+        // this.vttLangArr = [
+        //   {type: 'vtt', language: 'en', uri: 'https://storage.googleapis.com/aistoragehypr4/transcriptvtt/en/temp/do_1138666037229731841150_1692700714040_yogaprotocolforstressmanagement1692700705237.mp4.vtt'},
         
-          {type: 'vtt', language: 'hi', uri: 'https://storage.googleapis.com/aistoragehypr4/transcriptvtt/hi/temp/do_1138666037229731841150_1692700714040_yogaprotocolforstressmanagement1692700705237.mp4.vtt'}]
+        //   {type: 'vtt', language: 'hi', uri: 'https://storage.googleapis.com/aistoragehypr4/transcriptvtt/hi/temp/do_1138666037229731841150_1692700714040_yogaprotocolforstressmanagement1692700705237.mp4.vtt'}
+        // ]
         let url =  data[0]['transcription_urls'][0]['uri']
         console.log('url',url)
         const file = await VttFile.fromUrl(url);
