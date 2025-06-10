@@ -7,8 +7,29 @@
   <!-- <track kind="captions"
     src="/apis/authContent/content-store/igot/dopt/Public/lex_auth_013114377081208832249/assets/sample1600885058308.vtt"
     srclang="en" label="English" default> -->
-  <track kind="captions" *ngIf="widgetData.subtitles" [src]="widgetData?.subtitles[0]?.url" srclang="en" label="English"
-    default>
+  <!-- <track kind="captions" *ngIf="widgetData.subtitles" [src]="widgetData?.subtitles[0]?.url" srclang="en" label="English"
+    default> -->
+    <!-- <track
+    kind="subtitles"
+    src="https://storage.googleapis.com/aistoragehypr4/transcriptvtt/hi/temp/do_1138666037229731841150_1692700714040_yogaprotocolforstressmanagement1692700705237.mp4.srt"
+    srclang="hi"
+    label="Hindi"    
+  />
+  <track
+    kind="subtitles"
+    src="https://storage.googleapis.com/aistoragehypr4/transcriptvtt/en/temp/do_1138666037229731841150_1692700714040_yogaprotocolforstressmanagement1692700705237.mp4.srt"
+    srclang="en"
+    label="English"
+    default
+  /> -->
+  
+  <!-- <ng-container *ngFor="let track of transcriptionLangArr">
+    <track kind="subtitles"
+           [attr.src]="track?.uri"
+           [attr.srclang]="track?.language"
+           [attr.label]=track?.language === 'en' ? 'English' : 'Hindi'"
+           [attr.default]="track?.language === 'en' ? '' : null">
+  </ng-container> -->
 </video>
 
 <video autoplay="true" muted="muted" crossorigin="Anonymous" id="realvideoTag"  [poster]="widgetData?.posterImage | pipePublicURL" #realvideoTag class="video-js"
@@ -18,8 +39,15 @@
   <!-- <track kind="captions"
     src="/apis/authContent/content-store/igot/dopt/Public/lex_auth_013114377081208832249/assets/sample1600885058308.vtt"
     srclang="en" label="English" default> -->
-  <track kind="captions" *ngIf="widgetData.subtitles" [src]="widgetData?.subtitles[0]?.url" srclang="en" label="English"
-    default>
+  <!-- <track kind="captions" *ngIf="widgetData.subtitles" [src]="widgetData?.subtitles[0]?.url" srclang="en" label="English"
+    default> -->
+    <ng-container *ngFor="let track of transcriptionLangArr">
+      <track kind="subtitles"
+             [attr.src]="track?.uri"
+             [attr.srclang]="track?.language"
+             [attr.label]="track?.language === 'en' ? 'English' : 'Hindi'"
+             [attr.default]="track?.language === 'en' ? '' : null">
+    </ng-container>
 </video>
 
 <ng-container *ngIf="!widgetData?.hideUpNext">

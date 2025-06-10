@@ -35,7 +35,8 @@ const API_END_POINTS = {
   SERVER_DATE: 'apis/public/v8/systemDate',
   SHARE_CONTENT: '/apis/proxies/v8/user/v1/content/recommend',
   GET_FORM_BYID: (formId: string) => `apis/proxies/v8/forms/getFormById?id=${formId}`,
-  SUBMIT_FORM: `/apis/proxies/v8/forms/v1/saveFormSubmit`
+  SUBMIT_FORM: `/apis/proxies/v8/forms/v1/saveFormSubmit`,
+  AI_RESOURCE_VTT_FILE:`${PROXY_SLAG_V8}/chatbot/v3/transcoder/stats`
 }
 
 @Injectable()
@@ -60,6 +61,11 @@ export class AppTocService {
   public getPageScroll = new BehaviorSubject(true)
   updatePageScroll = this.getPageScroll.asObservable()
   public hashmap: any = {}
+  private transriptionDataSubject = new BehaviorSubject<any>(null); // Start with null
+  transcriptionData$ = this.transriptionDataSubject.asObservable(); 
+  public transriptionActiveLanguageDataObject = new BehaviorSubject<any>(null);
+  public transriptionActiveLanguageDataObject$ = this.transriptionActiveLanguageDataObject.asObservable();
+  changeTranscriptionLanguageEvent = new Subject()
   constructor(private http: HttpClient, private configSvc: ConfigurationsService, private widgetSvc: WidgetContentService) {
     // this resume data subscription is for on load
     this.resumeDataSubscription = this.resumeData.subscribe(
@@ -922,5 +928,19 @@ export class AppTocService {
         }
       }
     }
+  }
+
+  setTranscriptionData(data: any) {
+  //  console.log('data--', data)
+    this.transriptionDataSubject.next(data);
+  }
+
+  setActiveSubtitleLanguage(activeLang:any) {
+    console.log('activeLang--', activeLang)
+    this.transriptionActiveLanguageDataObject.next(activeLang)
+  }
+  
+  aiGetResourceVttFile(resourceID:any) {
+    return this.http.get<any>(`${API_END_POINTS.AI_RESOURCE_VTT_FILE}?resource_id=${resourceID}`)
   }
 }

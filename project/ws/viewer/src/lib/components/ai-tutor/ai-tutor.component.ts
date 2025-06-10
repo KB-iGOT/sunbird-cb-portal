@@ -91,7 +91,7 @@ export class AiTutorComponent implements OnInit, AfterViewChecked, OnDestroy {
   learningStyle = [
     { title: 'None', subtitle: 'Learn with Natural query process' },
     { title: 'Socratic Style', subtitle: 'Explore ideas through thoughtful questions.' },
-    // { title: 'Storytelling', subtitle: 'Learn through relatable narratives and real-life examples.' },
+    { title: 'Storytelling', subtitle: 'Learn through relatable narratives and real-life examples.' },
   ]
   selectedLearningStyle :any
   constructor(
@@ -633,7 +633,8 @@ export class AiTutorComponent implements OnInit, AfterViewChecked, OnDestroy {
         identifier: item.Identifier,   
         contentStart: startTime,
         contentEnd: endTime,
-        pageNumber:  pageNumber ? pageNumber : 1,    
+        pageNumber:  pageNumber ? pageNumber : 1,   
+        query: this.aiTutorResult.query, 
         resourceLink : item.MimeType === 'application/pdf'? `https://portal.igotkarmayogi.gov.in/viewer/pdf/${item.Identifier}?${queryString}&from=globalSearch&playerPreview=true&pn=${pageNumber}`: `https://portal.igotkarmayogi.gov.in/viewer/video/${item.Identifier}?${queryString}&from=globalSearch&playerPreview=true&st=${startTime}&et=${endTime}`
       }
 
@@ -783,7 +784,7 @@ export class AiTutorComponent implements OnInit, AfterViewChecked, OnDestroy {
       this.aiTutorResultArr = []
       this.websocketService.closeConnection()
       
-      this.websocketService.connect(`wss://learning-ai.uat.karmayogibharat.net/ws?token=${this.jwtToken}`);
+      this.websocketService.connect(`wss://teaching-styles.uat.karmayogibharat.net/storytelling/v1/ws?token=${this.jwtToken}`);
     }
    // console.log('selectedLearningStyle--', this.selectedLearningStyle)
   }
@@ -804,6 +805,39 @@ export class AiTutorComponent implements OnInit, AfterViewChecked, OnDestroy {
       to: 'Telemetry',
     }
     this.eventSvc.dispatchChatbotEvent<WsEvents.IWsEventTelemetryInteract>(event)
+  }
+
+  sharePositiveContentRating(item:any) {
+    console.log('item--', item)
+    let requestBody:any = {
+      "query": item?.query,
+      "response": item?.description,
+      "feedback": "",
+      "is_liked":true,
+      "rating": "5"
+
+   }
+   console.log('requestBody', requestBody)
+  //   this.chatbotService.aiGlobalSearch(requestBody, this.chatId, this.userId).subscribe((data:any)=>{
+
+  //   })
+  }
+
+  shareAIFeedback(item:any) {
+    console.log('item--', item)
+    let feedback = 'false feedback'
+    let requestBody:any = {
+      "query": item?.query,
+      "response": item?.description,
+      "feedback": feedback,
+      "is_liked":false,
+      "rating": "0"
+
+   }
+  console.log('requestBody', requestBody)
+  //   this.chatbotService.aiGlobalSearch(requestBody, this.chatId, this.userId).subscribe((data:any)=>{
+
+  //   })
   }
 
   ngOnDestroy(): void {

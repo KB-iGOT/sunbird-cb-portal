@@ -73,8 +73,8 @@
                 <span *ngIf="copiedIndex === ci" class="copied-tooltip">Link Copied!</span>
               </div>
               <div class="feefback-section flex flex-row">
-                <div><img src="/assets/ai-tutor/up.svg"></div>
-                <div class="ml-2"><img src="/assets/ai-tutor/down.svg"></div>
+                <div (click)="sharePositiveContentRating(item)" class="cursor-pointer"><img src="/assets/ai-tutor/up.svg"></div>
+                <div (click)="openAIFeedbackPopup(item)" class="ml-2 cursor-pointer"><img src="/assets/ai-tutor/down.svg"></div>
               </div>
             </div>
             
@@ -98,10 +98,12 @@
                 <span *ngIf="copiedIndex === ci" class="copied-tooltip">Link Copied!</span>
               </div>
               <div class="feefback-section flex flex-row" *ngIf="item?.contentType !== 'Resource'">
-                <div><img src="/assets/ai-tutor/up.svg"></div>
-                <div class="ml-2"><img src="/assets/ai-tutor/down.svg"></div>
-              </div>
-              <div class="ml-2 mr-2"><img alt="ai-icon" src="/assets/ai-tutor/ai-icon.svg"></div>
+                <div (click)="sharePositiveContentRating(item)" class="cursor-pointer"><img src="/assets/ai-tutor/up.svg"></div>
+                <div (click)="openAIFeedbackPopup(item)" class="ml-2 cursor-pointer"><img src="/assets/ai-tutor/down.svg"></div>
+              </div>              
+            </div>
+            <div class="flex flex-row font-12 my-2">
+              <div class="ml-2 mr-2 cu"><img alt="ai-icon" src="/assets/ai-tutor/ai-icon.svg"></div>
               <div class="ai-generated-content ml-2">These are AI generated results</div>
             </div>
           </div>
@@ -109,10 +111,13 @@
           
           
         </ng-container>
-        <ng-container *ngIf="!chat?.answer">
-          <div class="flex row-start incoming-msg margin-bottom-s">
+        <ng-container>
+          <div class="flex row-start incoming-msg margin-bottom-s"  *ngIf="!chat?.answer">
             <div class="system-icon"><img alt="ai-icon" src="/assets/icons/bot-chat-small.svg"></div>
-            <div class="loading-bar-icon"><img alt="ai-icon" src="/assets/icons/loading_bar.gif"></div>
+            <div class="loading-bar-icon flex flex-row vertical-middle">
+              <div><span>Retrieving content</span></div>
+              <div><img alt="ai-icon" src="/assets/icons/loading_bar.gif"></div>
+            </div>
           </div>
 
         </ng-container>

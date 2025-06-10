@@ -3,7 +3,9 @@ import { Router, NavigationEnd } from '@angular/router';
 import { ConfigurationsService, EventService, WsEvents } from '@sunbird-cb/utils-v2';
 import { RootService } from '../../component/root/root.service';
 import { environment } from '../../../environments/environment';  
-
+import { NonReleventFeedbackDialogComponent } from '@sunbird-cb/collection/src/lib/_common/non-relevent-feedback-dialog/non-relevent-feedback-dialog.component';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
 @Component({
   selector: 'ws-app-igot-sarthi',
   templateUrl: './igot-sarthi.component.html',
@@ -91,6 +93,8 @@ export class IGotSarthiComponent implements OnInit, AfterViewChecked, OnDestroy 
     private eventSvc: EventService,
     private renderer: Renderer2,
     private chatbotService: RootService,
+    private dialog: MatDialog,
+    private matSnackBar: MatSnackBar,
     private router: Router) { }
 
   ngOnInit() {
@@ -533,7 +537,18 @@ export class IGotSarthiComponent implements OnInit, AfterViewChecked, OnDestroy 
    }
    console.log('requestBody', requestBody)
     this.chatbotService.aiGlobalSearch(requestBody, this.chatId, this.userId).subscribe((data)=>{
+      console.log('data--', data)
     this.aiSearchResult = data 
+    if(data && data.RetrievedChunks === null) {
+      let internetGlobalSearchRequest = {
+        "query": 'gdsgfjsgdjfgsjdfjsdgfjdsghfsjfgsdfgsjgfsjgdhjs',
+        "designation": '',
+        "department": ""
+      }
+      this.chatbotService.aiGlobalSearchFromInternet(internetGlobalSearchRequest).subscribe((idata:any)=>{
+        console.log('idata--', idata)
+      })
+    }
     let arr:any = []
     this.aiSearchResult.RetrievedChunks && this.aiSearchResult.RetrievedChunks.map((item:any)=>{
       let startTime = 0
@@ -563,6 +578,8 @@ export class IGotSarthiComponent implements OnInit, AfterViewChecked, OnDestroy 
         contentStart: startTime,
         contentEnd: endTime, 
         pageNumber:   pageNumber,
+        query: this.aiSearchResult.query,
+        query_id: this.aiSearchResult.query_id,
         resourceLink : item.mimeType === 'application/pdf'? `https://portal.igotkarmayogi.gov.in/app/amrit-gyaan-kosh/player/pdf/${item.Identifier}?primaryCategory=Learning Resource&from=globalSearch&playerPreview=true&pn=${pageNumber}`: `https://portal.igotkarmayogi.gov.in/app/amrit-gyaan-kosh/player/video/${item.Identifier}?primaryCategory=Learning Resource&from=globalSearch&playerPreview=true&st=${startTime}&et=${endTime}`
       }
 
@@ -713,6 +730,66 @@ export class IGotSarthiComponent implements OnInit, AfterViewChecked, OnDestroy 
       to: 'Telemetry',
     }
     this.eventSvc.dispatchChatbotEvent<WsEvents.IWsEventTelemetryInteract>(event)
+  }
+
+  sharePositiveContentRating(item:any) {
+    console.log('item--', item)
+    let requestBody:any = {
+      "query_id": item?.query_id,
+      "response": item?.description,
+      "comments": "",
+      "is_liked":true,
+      "rating": "5"
+
+   }
+   console.log('requestBody', requestBody)
+   //this.matSnackBar.open('Unable to fetch content data, due to some error!')
+   this.chatbotService.saveAIChatPositiveContentRating(requestBody, this.chatId, this.userId).subscribe((data:any)=>{
+    if(data && data.status === 'success') {
+      this.matSnackBar.open('Thanks for Rating')
+    } else {
+      this.matSnackBar.open('Fail to save Rating')
+    }
+
+  })
+  }
+
+  openAIFeedbackPopup(item:any) {
+   
+   const dialogRef = this.dialog.open(NonReleventFeedbackDialogComponent, {
+    disableClose: true,
+    width: '502px',
+    panelClass: ['relevent-feedback-dialog'],
+  })
+  dialogRef.afterClosed().subscribe((result: any) => {
+    if (result) {
+      this.shareAIFeedback(item, result);
+      dialogRef.close();
+    } else {
+      dialogRef.close();
+    }
+  })
+    
+  }
+
+  shareAIFeedback(item:any, result:any) {
+    
+    let requestBody:any = {
+      "query_id": item?.query_id,
+      "response": item?.description,
+      "comments": result,
+      "is_liked":false,
+      "rating": "0"
+
+   }
+   console.log('requestBody', requestBody)
+     this.chatbotService.shareAIFeedback(requestBody, this.chatId, this.userId).subscribe((data:any)=>{
+      if(data  && data.status === 'success') {
+        this.matSnackBar.open('Thanks for provide us the feedback')
+      } else {
+        this.matSnackBar.open('Failed to save feedback')
+      }
+     })
   }
 
   ngOnDestroy(): void {

@@ -143,3 +143,16 @@
   ::ng-deep .section-dd .mat-form-field-underline {
     display: none !important;
   }
+
+  .w-20 {
+    width: 20%;
+  }
+
+  .w-80 {
+    width: 80%;
+  }
+
+  ::ng-deep .highlight {
+    background-color: yellow !important;
+    font-weight: bold !important;
+  }

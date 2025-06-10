@@ -11,6 +11,9 @@ import { MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig 
 import { viewerRouteGenerator } from '@sunbird-cb/collection'
 import { AppTocService } from '@ws/app/src/lib/routes/app-toc/services/app-toc.service'
 import { ActionService } from '@ws/app/src/lib/routes/app-toc/services/action.service'
+import { VttFile } from '@polyflix/vtt-parser';
+import { tap } from 'rxjs/operators'
+// import { tap } from 'rxjs/operators'
 @Component({
   selector: 'ws-widget-content-toc',
   templateUrl: './content-toc.component.html',
@@ -56,6 +59,13 @@ export class ContentTocComponent implements OnInit, AfterViewInit, OnChanges {
   enableAITutorFlag = false
   enableTranscriptionFlag = false
   courseCategory = NsContent.ECourseCategory
+  subTitles$:any = []
+  subTitles:any = []
+  keywordToHighlight:any= ''
+  highlightCondition  = false
+  vttLangArr:any = []
+  transcriptionActiveLanguage = 'en'
+  transriptionLanguageSub:any
   constructor(
     private route: ActivatedRoute,
     private utilityService: UtilityService,
@@ -75,12 +85,44 @@ export class ContentTocComponent implements OnInit, AfterViewInit, OnChanges {
       this.enableAITutorFlag = false
     }
     if(this.configService.iGOTAIConfig && this.configService.iGOTAIConfig.transcription) {
-      this.enableTranscriptionFlag = true
+      this.enableTranscriptionFlag = true      
+      this.subTitles$ = this.tocSvc.transcriptionData$.subscribe((value:any)=>{
+        this.keywordToHighlight = value
+      })
+     
+      this.tocSvc.transriptionActiveLanguageDataObject$
+    .subscribe(lang => console.log('Initial subscription lang:', lang));
+
+    
+
+      
+
+     // this.keywordToHighlight = this.subTitles$[this.subTitles$.length -1]
     } else {
       this.enableTranscriptionFlag = false
     }
+
+     this.transriptionLanguageSub = this.tocSvc.transriptionActiveLanguageDataObject$
+      .pipe(
+        tap((langvalue:any) => console.log('tap langvalue:', langvalue))
+      )
+      .subscribe((langvalue: any) => {
+        console.log('langValue', langvalue);
+        if(langvalue) {
+          this.renderSelectedLanguageTranscription({ target: { value: langvalue } });
+        }
+        
+      });
+
+    // this.router.events
+    //   .pipe(filter(event => event instanceof NavigationEnd))
+    //   .subscribe((event: NavigationEnd) => {
+    //     console.log('Navigation occurred:', event.urlAfterRedirects);
+    //     this.keywordToHighlight = ''
+    //   });
     if (this.route.snapshot.data.pageData && this.route.snapshot.data.pageData.data) {
       this.config = this.route.snapshot.data.pageData.data
+
     }
     if (this.config && this.config.discussWidgetData) {
       this.discussWidgetData = this.config.discussWidgetData
@@ -124,8 +166,19 @@ export class ContentTocComponent implements OnInit, AfterViewInit, OnChanges {
         }
       })
     }
+    this.parseSRT()
   }
 
+  // async getVtt() {
+  //  await this.parseVtt().then((data)=>{
+  //     this.subTitles = data
+  //     console.log('this.subTitles', this.subTitles)
+  //     setTimeout(()=>{
+  //       this.keywordToHighlight = 'Every supplier of taxable goods or services is required to register under GST. There are certain exemptions for small businesses within'
+  //     },0)
+      
+  // })
+  // }
   ngAfterViewInit() {
     this.isMobile = this.utilityService.isMobile
     this.menuPosition = this.tabElement._elementRef.nativeElement.offsetTop
@@ -328,5 +381,52 @@ export class ContentTocComponent implements OnInit, AfterViewInit, OnChanges {
 
   enrollUserForAITutor() {
     this.enrollUserToAI.emit()
+  }
+
+  async parseSRT() {
+    await this.tocSvc.aiGetResourceVttFile('do_1138666037229731841150').subscribe(async(datas)=>{
+      console.log('data---', datas)
+      let data:any = datas.data
+      if(data && data.length && data[0]['transcription_urls'] && data[0]['transcription_urls'].length) {
+        console.log('in')
+       // this.vttLangArr = data[0]['transcription_urls']
+
+        this.vttLangArr = [
+          {type: 'vtt', language: 'en', uri: 'https://storage.googleapis.com/aistoragehypr4/transcriptvtt/en/temp/do_1138666037229731841150_1692700714040_yogaprotocolforstressmanagement1692700705237.mp4.vtt'},
+        
+          {type: 'vtt', language: 'hi', uri: 'https://storage.googleapis.com/aistoragehypr4/transcriptvtt/hi/temp/do_1138666037229731841150_1692700714040_yogaprotocolforstressmanagement1692700705237.mp4.vtt'}]
+        let url =  data[0]['transcription_urls'][0]['uri']
+        console.log('url',url)
+        const file = await VttFile.fromUrl(url);
+       let blocks:any = file.getBlocks();
+       console.log('blocks===', blocks)
+
+     //   blocks.then((subTitlesData:any)=>{
+          this.subTitles = blocks
+          console.log('subTitlesData---', blocks)
+          this.tocSvc.changeTranscriptionLanguageEvent.next({activeLang: this.transcriptionActiveLanguage, langData: this.vttLangArr, loadPlayer:true})
+          //this.keywordToHighlight = 'Every supplier of taxable goods or services is required to register under GST. There are certain exemptions for small businesses within'
+        // })
+        
+       
+      }
+     
+    })
+    
+  }
+
+  async renderSelectedLanguageTranscription(event:any)  {
+    console.log('event', event)
+    this.transcriptionActiveLanguage = event.target.value
+    let currentPath = this.vttLangArr.filter((item:any)=> item?.language === this.transcriptionActiveLanguage)
+    console.log('currentPath?.uri', currentPath)
+    const file = await VttFile.fromUrl(currentPath && currentPath[0]?.uri);
+       let blocks:any = file.getBlocks();
+       console.log('blocks===', blocks)
+
+     //   blocks.then((subTitlesData:any)=>{
+    this.subTitles = blocks
+    this.tocSvc.changeTranscriptionLanguageEvent.next({activeLang: this.transcriptionActiveLanguage, langData: this.vttLangArr, loadPlayer:false})
+
   }
 }

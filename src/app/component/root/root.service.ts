@@ -8,7 +8,8 @@ const API_END_POINTS = {
   CREATE_USER_API: `${PROXY_CREATE_V8}/discussion/user/v1/create`,
   LANGUAGES: '/api/faq/v1/assistant/available/language',
   CONFIG: '/api/faq/v1/assistant/configs/language',
-  AI_GLOBAL_SEARCH: `${PROXY_CREATE_V8}/chatbot/v3/search`
+  AI_GLOBAL_SEARCH: `${PROXY_CREATE_V8}/chatbot/v3/search`,
+  AI_CHAT_FEEDBACK:`${PROXY_CREATE_V8}/chatbot/v3/feedbacks/save`  
 }
 
 @Injectable({
@@ -67,4 +68,20 @@ export class RootService {
   aiGlobalSearch(requestBody:any, chatId:any, userID:any): Observable<any> {
     return this.http.post<any>(`${API_END_POINTS.AI_GLOBAL_SEARCH}?chatID=${chatId}&userID=${userID}`, requestBody)
   }
+
+  saveAIChatPositiveContentRating(requestBody:any, chatId:any, userID:any) {
+    return this.http.post<any>(`${API_END_POINTS.AI_CHAT_FEEDBACK}?chatID=${chatId}&userID=${userID}`, requestBody)
+  }
+
+  shareAIFeedback(requestBody:any, chatId:any, userID:any) {
+    return this.http.post<any>(`${API_END_POINTS.AI_CHAT_FEEDBACK}?chatID=${chatId}&userID=${userID}`, requestBody)
+  }
+
+  aiGlobalSearchFromInternet(requestBody:any) {
+    return this.http.post<any>('https://teaching-styles.uat.karmayogibharat.net/search', requestBody)
+  }
+
+ 
+
+
 }
