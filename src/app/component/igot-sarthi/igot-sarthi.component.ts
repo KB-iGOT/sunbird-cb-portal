@@ -829,10 +829,10 @@ export class IGotSarthiComponent implements OnInit, AfterViewChecked, OnDestroy 
       
       let internetGlobalSearchRequest = {
         "query": this.cloneSearchQuery,
-        "designation": '',
-        "department": ""
+        "designation":  this.userInfo?.professionalDetails && this.userInfo?.professionalDetails.length ? this.userInfo?.professionalDetails[0].designation : '',
+        "department": this.userInfo?.departmentName ? this.userInfo?.departmentName : '',
       }
-      this.chatbotService.aiGlobalSearchFromInternet(internetGlobalSearchRequest).subscribe((idata:any)=>{
+      this.chatbotService.aiGlobalSearchFromInternet(internetGlobalSearchRequest, this.chatId, this.userId).subscribe((idata:any)=>{
         console.log('idata--', idata)
         this.aiSearchResultArr.map((item:any, index:any)=>{
           if(item && item.answer === '') {
@@ -855,7 +855,7 @@ export class IGotSarthiComponent implements OnInit, AfterViewChecked, OnDestroy 
           contentEnd: idata, 
           pageNumber:   idata,
           query: this.cloneSearchQuery,
-          query_id: '',
+          query_id: idata.query_id,
           resourceLink : '', 
           fromInternet: true
         }

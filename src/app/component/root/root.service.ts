@@ -78,8 +78,8 @@ export class RootService {
     return this.http.post<any>(`${API_END_POINTS.AI_CHAT_FEEDBACK}?chatID=${chatId}&userID=${userID}`, requestBody)
   }
 
-  aiGlobalSearchFromInternet(requestBody:any) {
-    return this.http.post<any>(`${API_END_POINTS.AI_GLOBAL_INTERNET_SEARCH}`, requestBody)
+  aiGlobalSearchFromInternet(requestBody:any, chatId:any, userID:any) {
+    return this.http.post<any>(`${API_END_POINTS.AI_GLOBAL_INTERNET_SEARCH}?chatID=${chatId}&user_id=${userID}`, requestBody)
   }
 
  
