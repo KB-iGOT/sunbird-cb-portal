@@ -1,4 +1,4 @@
-<mat-card class="ws-mat-primary-lite-background-on-day margin-top-s"
+<!-- <mat-card class="ws-mat-primary-lite-background-on-day margin-top-s"
   *ngIf="showIframeSupportWarning || isIntranetUrl || htmlContent?.isInIntranet">
   <mat-card-content>
     <h2 class="mat-h2" *ngIf="
@@ -67,9 +67,6 @@
   </mat-card-content>
 </mat-card>
 
-<!-- <h2 class="text-center mat-primary-text margin-top-m load" *ngIf="showIsLoadingMessage " >
-  Please wait! Content requested is loading
-</h2> -->
 
 <div class="text-center" *ngIf="pageFetchStatus !== 'done'">
   <h2 *ngIf="pageFetchStatus === 'error'" >
@@ -83,10 +80,6 @@
   </h2>
 </div>
 <div class="container-v2">
-  <!-- [hidden]="this.pageFetchStatus !== 'done'" *ngIf="
-    htmlContent?.isIframeSupported !== 'No' &&
-    (!htmlContent?.isInIntranet || (htmlContent?.isInIntranet && isUserInIntranet)) &&
-    (!isIntranetUrl || (isIntranetUrl && isUserInIntranet))"-->
   <ng-container *ngIf="playScormContentFlag !== scormLMSStatus.LMSNegative">
     <iframe #iframeElem title=" HTML Content Viewer" i18n-title [src]="iframeUrl"
       (load)="onIframeLoadOrError('load',iframeElem,$event)" (error)="onIframeLoadOrError('error')" [name]="iframeName"
@@ -122,4 +115,14 @@
       </div>
     </div>
   </ng-container>
-</div>
+</div> -->
+
+<app-scorm-player
+        [contentUrl]="iframeUrl"
+        [scormVersion]="'2004'"
+        [lmsCommitUrl]="iframeUrl"
+        [showControls]="true"
+        [debugMode]="true"
+        [contentHeight]="'600px'"
+        [initialData]="htmlContent">
+      </app-scorm-player>

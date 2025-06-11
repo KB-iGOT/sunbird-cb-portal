@@ -2,11 +2,11 @@
   "compileOnSave": false,
   "compilerOptions": {
     "allowJs": true,
-    "esModuleInterop": false,
-    "allowJs": true,
+    "esModuleInterop": true,
     "skipLibCheck": true,
     "types": [
-      "jest"
+      "jest",
+      "node"
     ],
     "alwaysStrict": true,
     "baseUrl": "./",

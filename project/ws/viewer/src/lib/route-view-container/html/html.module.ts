@@ -37,6 +37,7 @@ import { MatLegacyChipsModule as MatChipsModule } from '@angular/material/legacy
 import { MatDividerModule } from '@angular/material/divider'
 import { MatIconModule } from '@angular/material/icon'
 import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/legacy-snack-bar'
+import { ScormAgainModule } from '../../plugins/scorm-again/scorm-again.module'
 // import { ViewerCourseInfoModule } from '../../plugins/viewer-course-info/viewer-course-info.module'
 
 @NgModule({
@@ -44,6 +45,7 @@ import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/
   imports: [
     CommonModule,
     HtmlPluginModule,
+    ScormAgainModule,
     RouterModule,
     // HtmlRoutingModule,
     WidgetResolverModule,
