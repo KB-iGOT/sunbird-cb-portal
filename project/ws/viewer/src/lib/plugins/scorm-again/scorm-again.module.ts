@@ -2,7 +2,6 @@ import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { TranslateModule } from '@ngx-translate/core'
 
-import { HtmlComponent } from './html.component'
 import { RouterModule } from '@angular/router'
 import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button'
 import { MatLegacyCardModule as MatCardModule } from '@angular/material/legacy-card'
@@ -12,10 +11,12 @@ import { MatLegacyProgressBarModule as MatProgressBarModule } from '@angular/mat
 import { MatLegacyProgressSpinnerModule as MatProgressSpinnerModule } from '@angular/material/legacy-progress-spinner'
 import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/legacy-snack-bar'
 import { MatLegacyTooltipModule as MatTooltipModule } from '@angular/material/legacy-tooltip'
-import { ScormAgainModule } from '../scorm-again/scorm-again.module'
+
+import { ScormService } from './scorm_service'
+import { ScormPlayerComponent } from './scorm_player'
 
 @NgModule({
-  declarations: [HtmlComponent],
+  declarations: [ ScormPlayerComponent],
   imports: [
     CommonModule,
     MatCardModule,
@@ -27,11 +28,11 @@ import { ScormAgainModule } from '../scorm-again/scorm-again.module'
     MatIconModule,
     RouterModule,
     MatTooltipModule,
-    TranslateModule,// Assuming ScormAgainModule is imported here
-    ScormAgainModule
+    TranslateModule,
   ],
   exports: [
-    HtmlComponent,
+    ScormPlayerComponent
   ],
+  providers: [ScormService],
 })
-export class HtmlModule { }
+export class ScormAgainModule { }
