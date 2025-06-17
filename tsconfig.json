@@ -90,5 +90,6 @@
       }
     ],
     "useDefineForClassFields": false
-  }
+  },
+  "exclude": ["node_modules"]
 }

@@ -1,6 +1,6 @@
 // scorm.service.ts
 import { Injectable } from '@angular/core';
-import { Scorm12API, Scorm2004API, AICC } from 'kb-scorm-again';
+import { Scorm12API, Scorm2004API, AICC } from 'scorm-again';
 
 export interface ScormSettings {
   autocommit?: boolean;
