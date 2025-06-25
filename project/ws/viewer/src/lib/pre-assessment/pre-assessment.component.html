@@ -1,0 +1,72 @@
+<mat-tab-group class="player-content" *ngIf="enableAITutorFlag" (selectedTabChange)="onTabChanged($event)">
+    <mat-tab label="Structured Content">
+        <ng-container *ngIf="!isFetching; else Loading">
+            <ws-widget-app-toc-content [batchId]="batchId" [componentName]="'viewer'" [tocStructure]="tocStructure"
+                [content]="contentData" [pathSet]="pathSet" [forPreview]="false" [batchData]="batchData"
+                [skeletonLoader]="skeletonLoader" [hierarchyMapData]="hierarchyMapData"
+                [config]="config"></ws-widget-app-toc-content>
+        </ng-container>
+        <!-- Loading Template -->
+        <ng-template #Loading>
+            <div *ngIf="!isErrorOccurred" class="flex flex-center">
+                <mat-spinner></mat-spinner>
+            </div>
+            <div *ngIf="isErrorOccurred" class="flex flex-center">
+                <h2 class="mat-sub-heading">
+                    {{ 'viewertoc.unsupportedType' | translate }}
+                </h2>
+            </div>
+        </ng-template>
+        <ng-template let-content #TocContentList>
+            <!-- <div class="resource-container margin-left-xl"> -->
+            <div class="resource-container">
+                <ws-widget-display-content-type-icon class="flex margin-left-xs" [mimeType]="content?.mimeType">
+                </ws-widget-display-content-type-icon>
+                <div class="resource-meta width-expand">
+                    <a [ngClass]="{ 'content-active': pathSet.has(content.identifier) }"
+                        [routerLink]="content.viewerUrl" queryParamsHandling="preserve">
+                        <h3 *ngIf="content?.type !== enumContentTypes.ASSESSMENT"
+                            class="margin-remove text-truncate flex">
+                            {{ content?.title | pipeLimitTo: 30 }}
+                            <mat-icon *ngIf="
+                    contentProgressHash &&
+                    contentProgressHash[content.identifier] &&
+                    contentProgressHash[content.identifier] > 0.99
+                  " i18n-matTooltip matTooltip="Completed" class="completed-icon margin-left-xs align-self-center">
+                                check_circle_outline</mat-icon>
+                        </h3>
+                        <h1 *ngIf="content?.type === enumContentTypes.ASSESSMENT"
+                            class="margin-remove text-truncate flex">
+                            {{ content?.title | pipeLimitTo: 30 }}
+                            <mat-icon *ngIf="
+                    contentProgressHash &&
+                    contentProgressHash[content.identifier] &&
+                    contentProgressHash[content.identifier] > 0.99
+                  " i18n-matTooltip matTooltip="Completed" class="completed-icon margin-left-xs align-self-center">
+                                check_circle_outline</mat-icon>
+                        </h1>
+                    </a>
+                    <span class="margin-left-xs">{{ content?.duration | pipeDurationTransform: 'hms' }}</span>
+                </div>
+            </div>
+        </ng-template>
+    </mat-tab>
+    <mat-tab class="ai-tutor-tab" *ngIf="showAITutorFlag">
+        <ng-template mat-tab-label>
+            <div class="flex flex-row">
+                <div class="flex">
+                    <img height="29" width="29" src="assets/icons/bot-chat-mini.svg">&nbsp;&nbsp;<span>AI Tutor</span>
+                </div>
+                <div class="red-circle ml-5">
+                    New
+                </div>
+            </div>
+
+        </ng-template>
+        <div class="tab-content-tutor" *ngIf="!isFetching">
+            <!-- aiTutorResourceId -->
+            <viewer-ai-tutor [content]="aiTutorResourceId"></viewer-ai-tutor>
+        </div>
+
+    </mat-tab>
+</mat-tab-group>

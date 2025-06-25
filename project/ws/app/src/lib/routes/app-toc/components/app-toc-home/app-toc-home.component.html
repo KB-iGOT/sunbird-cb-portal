@@ -60,16 +60,16 @@
           </div> -->
         </ng-container>
       <ng-container>
-         <a class="flex action-button enroll-btn justify-center resume">
+         <a class="flex action-button enroll-btn justify-center resume" (click)="routeToPreAssessent()">
               <ng-container >
-                {{ 'apptochome.preEnroll' | translate }}
+                {{ 'apptochome.preEnroll' | translate }} 
               </ng-container>
             </a>
       </ng-container>
        <ng-container>
          <a class="flex preenrolldone-btn justify-center resume">
               <ng-container >
-                {{ 'apptochome.preEnrollDone' | translate }}<img src="/assets/icons/Accept_icon.png" alt="tick" class="tick-icon">
+                {{ 'apptochome.preEnrollDone' | translate }} <img src="/assets/icons/Accept_icon.png" alt="tick" class="tick-icon">
               </ng-container>
             </a>
       </ng-container>

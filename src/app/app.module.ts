@@ -164,6 +164,7 @@ import { MatToolbarModule } from '@angular/material/toolbar'
 import { MatLegacyTooltipModule as MatTooltipModule } from '@angular/material/legacy-tooltip'
 import { PickerModule } from '@ctrl/ngx-emoji-mart'
 import { CKEditorModule } from '@ckeditor/ckeditor5-angular'
+import { AppPreAssessmentContentResolverService } from './services/app-pre-assessment-content-read-resolver.service'
 // @Injectable()
 // export class HammerConfig extends GestureConfig {
 //   buildHammer(element: HTMLElement) {
@@ -380,6 +381,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     AppHierarchyResolverService,
     AppContentResolverService,
     AppEnrollmentResolverService,
+    AppPreAssessmentContentResolverService,
     NPSGridService,
     HttpClient,
     {

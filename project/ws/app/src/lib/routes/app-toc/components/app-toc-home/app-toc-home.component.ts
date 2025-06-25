@@ -18,7 +18,7 @@ import isSameOrBefore from 'dayjs/plugin/isSameOrBefore'
 
 import {
   NsContent, WidgetContentService,
-  viewerRouteGenerator, NsPlaylist, NsGoal,
+  viewerRouteGenerator, NsPlaylist, NsGoal  
 } from '@sunbird-cb/collection'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import {
@@ -50,7 +50,6 @@ import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack
 import { MatSnackBar as MatSnackbarNew } from '@angular/material/snack-bar'
 import { NonReleventFeedbackDialogComponent } from '../../../../../../../../../library/ws-widget/collection/src/lib/_common/non-relevent-feedback-dialog/non-relevent-feedback-dialog.component'
 import { NetCoreService } from '../../../../../../../../../src/app/services/netcore.service'
-
 export enum ErrorType {
   internalServer = 'internalServer',
   serviceUnavailable = 'serviceUnavailable',
@@ -2351,6 +2350,71 @@ export class AppTocHomeComponent implements OnInit, OnDestroy, AfterViewChecked,
      // this.getContinueLearningData(this.content.identifier)
     }
     
+  }
+
+  generatePreAssessmentQuery(type: 'RESUME' | 'START_OVER' | 'START'): { [key: string]: string } {
+    if (this.firstResourceLink && (type === 'START' || type === 'START_OVER')) {
+      let qParams: { [key: string]: string } = {
+        ...this.firstResourceLink.queryParams,
+        viewMode: type,
+        batchId: this.getBatchId(),
+      }
+      if (this.contextId && this.contextPath) {
+        qParams = {
+          ...qParams,
+          collectionId: this.contextId,
+          collectionType: this.contextPath,
+        }
+      }
+      if (this.forPreview) {
+        delete qParams.viewMode
+      }
+      qParams = {
+        ...qParams,
+        channelId: this.channelId,
+      }
+      return qParams
+    }
+
+    if (this.resumeDataLink && type === 'RESUME') {
+      let qParams: { [key: string]: string } = {
+        ...this.resumeDataLink.queryParams,
+        batchId: this.getBatchId(),
+        viewMode: 'RESUME',
+        // courseName: this.content ? this.content.name : '',
+      }
+      if (this.contextId && this.contextPath) {
+        qParams = {
+          ...qParams,
+          collectionId: this.contextId,
+          collectionType: this.contextPath,
+        }
+      }
+      if (this.forPreview) {
+        delete qParams.viewMode
+      }
+      qParams = {
+        ...qParams,
+        channelId: this.channelId,
+      }
+      return qParams
+    }
+    if (this.forPreview) {
+      return {}
+    }
+    return {
+      batchId: this.getBatchId(),
+      viewMode: type,
+    }
+  }
+
+  routeToPreAssessent() {
+    if (this.content) {    
+      let routerLink =  this.resumeData ? this.resumeDataLink?.url : this.firstResourceLink?.url  
+      let queryParams = this.resumeData  ? this.generatePreAssessmentQuery('RESUME') : this.generatePreAssessmentQuery('START')
+      queryParams = { ...queryParams,  preAssessment: 'true' }
+     this.router.navigate([`${routerLink}`], { queryParams })
+    }
   }
 
   enrollUserToAI() {

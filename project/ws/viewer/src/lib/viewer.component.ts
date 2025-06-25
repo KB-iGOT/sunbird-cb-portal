@@ -75,6 +75,7 @@ export class ViewerComponent implements OnInit, OnDestroy, AfterViewChecked {
   coursePrimaryCategory: any = ''
   compatibilityLevel = 0
   loadAllHierarchyData = false
+  isPreAssessment = false
   constructor(
     private activatedRoute: ActivatedRoute,
     private router: Router,
@@ -138,6 +139,13 @@ export class ViewerComponent implements OnInit, OnDestroy, AfterViewChecked {
   }
 
   async ngOnInit() {
+    console.log('this.activatedRoute.snapshot.queryParams--',this.activatedRoute.snapshot.queryParams)
+    console.log('this.activatedRoute.snapshot.data', this.activatedRoute.snapshot.data)
+    if(this.activatedRoute.snapshot.queryParams && this.activatedRoute.snapshot.queryParams['preAssessment']) {
+      this.isPreAssessment = true
+    } else {
+      this.isPreAssessment = false
+    }
     this.getTocConfig()
     // for left side player scroll on right side resource click
     // this.pageScrollSubscription = this.tocSvc.updatePageScroll.subscribe((value: boolean) => {

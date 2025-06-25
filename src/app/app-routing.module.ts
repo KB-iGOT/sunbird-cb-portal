@@ -37,6 +37,7 @@ import { AppTourComponent } from './component/app-tour/app-tour.component'
 import { AppHierarchyResolverService } from './services/app-hierarchy-resolver.service'
 import { AppEnrollmentResolverService } from './services/app-enrollment-resolver.service'
 import { AppContentResolverService } from './services/app-content-read-resolver.service'
+import { AppPreAssessmentContentResolverService } from './services/app-pre-assessment-content-read-resolver.service'
 import { SurveyShikshaComponent } from './component/survey-shiksha/survey-shiksha.component'
 import { MicrosotesComponent } from './routes/microsites/microsotes.component'
 import { MicrositesModule } from './routes/microsites/microsites.module'
@@ -1150,6 +1151,7 @@ const routes: Routes = [
       hierarchyData: AppHierarchyResolverService,
       enrollmentData: AppEnrollmentResolverService,
       contentRead: AppContentResolverService,
+      preAssessmentRead: AppPreAssessmentContentResolverService
     },
     loadChildren: () => import('./routes/route-viewer.module').then(u => u.RouteViewerModule),
     canActivate: [GeneralGuard],
