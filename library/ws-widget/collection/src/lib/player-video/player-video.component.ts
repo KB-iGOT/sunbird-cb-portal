@@ -529,7 +529,7 @@ export class PlayerVideoComponent extends WidgetBaseComponent
       if (Array.isArray(this.transcriptionLangArr)) {
         // console.log('in---')
         const defaultTrack:any = this.transcriptionLangArr.find((t:any) => t.default_lang);
-        console.log('defaultTrack--', defaultTrack)
+        // console.log('defaultTrack--', defaultTrack)
         this.transcriptionLangArr.forEach((track:any) => {
           // console.log(track?.label , defaultTrack?.label)
           // console.log('track--', track)
