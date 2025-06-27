@@ -265,7 +265,17 @@ export class PdfComponent implements OnInit, OnDestroy {
                         this.widgetResolverPdfData.widgetData.resumePage = Number(pageNumber)
                       }
                     } else {
-                      this.widgetResolverPdfData.widgetData.resumePage = 1
+                      // this.widgetResolverPdfData.widgetData.resumePage = 1
+                      if(this.activatedRoute.snapshot.queryParams && this.activatedRoute.snapshot.queryParams.from 
+                        && 
+                        this.activatedRoute.snapshot.queryParams.from === 'globalSearch') {
+                        if(this.activatedRoute.snapshot.queryParams.pn) {
+                          let pageNumber  = this.activatedRoute.snapshot.queryParams.pn
+                          this.widgetResolverPdfData.widgetData.resumePage = Number(pageNumber)
+                        }
+                      } else {
+                        this.widgetResolverPdfData.widgetData.resumePage = 1
+                      }  
                     }                    
                   } else {
                     this.widgetResolverPdfData.widgetData.resumePage = Number(content.progressdetails.current.pop())

@@ -102,7 +102,6 @@ export class ContentTocComponent implements OnInit, AfterViewInit, OnChanges {
       // })
 
       this.subTitles$ = this.tocSvc.transcriptionData$.subscribe((value:any)=>{
-        // console.log('value', value)
         this.keywordToHighlight = value
       })
 
