@@ -62,6 +62,7 @@ export class AppChatbotComponent implements OnInit, AfterViewChecked, OnChanges 
   chatIconOutside = false
   chatId = ''
   maximizeChatFlag = true
+  fullScreenChatFlag = false
   constructor(
     private configSvc: ConfigurationsService,
     private eventSvc: EventService,
@@ -199,6 +200,7 @@ export class AppChatbotComponent implements OnInit, AfterViewChecked, OnChanges 
   }
 
   iconClick(type: string) {
+    this.fullScreenChatFlag = false
     if(!this.dragEnabled) {
       this.showIcon = !this.showIcon
       this.currentFilter = this.configSvc.iGOTAIConfig && this.configSvc.iGOTAIConfig.iGOTAI ? 'sarthi' : 'information'
@@ -586,9 +588,20 @@ export class AppChatbotComponent implements OnInit, AfterViewChecked, OnChanges 
 
   minimizeChat() {
     this.maximizeChatFlag = false
+    this.fullScreenChatFlag = false
   }
 
   maximizeChat() {
+    this.maximizeChatFlag = true
+    this.fullScreenChatFlag = false
+  }
+
+  fullScreenChat() {
+    this.fullScreenChatFlag = true
+  }
+
+  fullScreenExitChat() {
+    this.fullScreenChatFlag = false
     this.maximizeChatFlag = true
   }
 

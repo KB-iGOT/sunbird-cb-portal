@@ -27,7 +27,7 @@
 
   
 
-  <div [ngClass]="enableIGOTAIFlag ?  (maximizeChatFlag ? 'chatbot-with-ai' : 'chatbot-with-ai-min') : 'chatbot'" (clickOutside)="clickOutside()" *ngIf="!showIcon" >
+  <div [ngClass]="enableIGOTAIFlag ? (fullScreenChatFlag ? 'chatbot-with-ai-full' : ( (maximizeChatFlag ? 'chatbot-with-ai' : 'chatbot-with-ai-min'))) : 'chatbot'" (clickOutside)="clickOutside()" *ngIf="!showIcon" >
       <div class="chatbot-wrapper">
         <div class="flex flex-wrap padding-m" [ngClass]="currentFilter === 'sarthi' ? 'cb-header-sarthi':'cb-header'">
             <div class="flex flex-wrap user-info-div" *ngIf="currentFilter !== 'sarthi'">
@@ -41,19 +41,28 @@
             <div class="flex flex-wrap user-info-div" *ngIf="currentFilter === 'sarthi'">
               <div class="user-name"><img class="vertical-middle" src="assets/icons/bot-chat-small.svg"><span class="ml-2">iGOT AI</span></div>             
             </div>
+            <div class="user-info-controls flex flex-row">
             <div class="" *ngIf="maximizeChatFlag && enableIGOTAIFlag">
               <!-- //NOSONAR --><mat-icon  [matTooltip]="Minimize" class="cb-minimize cursor-pointer" (click)="minimizeChat()">minimize</mat-icon> 
             </div>
             <div class="" *ngIf="!maximizeChatFlag && enableIGOTAIFlag">
-              <!-- //NOSONAR --><mat-icon [matTooltip]="Maximize" class="cb-maximize cursor-pointer" (click)="maximizeChat()">fullscreen</mat-icon> 
+              <!-- //NOSONAR --><mat-icon [matTooltip]="Maximize" class="cb-maximize cursor-pointer" (click)="maximizeChat()">maximize</mat-icon> 
             </div>
+            <div class="fullscreen" *ngIf="!fullScreenChatFlag && enableIGOTAIFlag">
+              <!-- //NOSONAR --><mat-icon   class="cb-minimize cursor-pointer" (click)="fullScreenChat()">fullscreen</mat-icon> 
+            </div>
+            <div class="fullscreen-chat-exit" *ngIf="fullScreenChatFlag && enableIGOTAIFlag">
+              <!-- //NOSONAR --><mat-icon   class="cb-minimize cursor-pointer" (click)="fullScreenExitChat()">fullscreen_exit</mat-icon> 
+            </div>
+            
             <div class="">
                 <!-- //NOSONAR --> <mat-icon class="cb-close" (click)="iconClick('end')">close</mat-icon>
+            </div>
             </div>
         </div>
       </div>
       <ng-container>
-      <div class="cb-content-wrapper" #scrollMe [hidden]="!maximizeChatFlag">
+      <div class="cb-content-wrapper" #scrollMe [hidden]="!maximizeChatFlag && !fullScreenChatFlag">
         <div class="flex flex-wrap"  #scrollMe id="chatbot-content" [ngClass]="currentFilter === 'sarthi'?'cb-content-sarthi padding-m':'padding-m cb-content'">
           <ng-container *ngIf="!displayLoader && currentFilter !== 'sarthi'" #scroll>
             <ng-container *ngFor="let chat of userJourney">
@@ -121,7 +130,7 @@
           <ng-container *ngIf="!displayLoader && currentFilter === 'sarthi'" #scroll>
             
             <!-- <viewer-ai-tutor [from]="'chatbot'" [userJourney]="userJourney"></viewer-ai-tutor> -->
-             <ws-app-igot-sarthi [from]="'chatbot'" [chatId]="chatId" [userId]="configSvc?.unMappedUser?.userId" [userJourney]="userJourney" (scrollToBottomEvent)="scrollToBottomEvent($event)"></ws-app-igot-sarthi>
+             <ws-app-igot-sarthi [fullScreenChatFlag]="fullScreenChatFlag" [from]="'chatbot'" [chatId]="chatId" [userId]="configSvc?.unMappedUser?.userId" [userJourney]="userJourney" (scrollToBottomEvent)="scrollToBottomEvent($event)"></ws-app-igot-sarthi>
           </ng-container>
           <ng-container *ngIf="displayLoader">
             <div  class="loader">
