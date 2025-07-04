@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy } from '@angular/core';
 import { FormBuilder, Validators, FormGroup } from '@angular/forms';
 import { UserProfileService } from '../../../user-profile/services/user-profile.service';
 import _ from 'lodash'
@@ -9,7 +9,7 @@ import { MatSnackBar } from '@angular/material/snack-bar';
   templateUrl: './custom-fields.component.html',
   styleUrls: ['./custom-fields.component.scss']
 })
-export class CustomFieldsComponent {
+export class CustomFieldsComponent implements OnDestroy {
 
   editCustomDetails = false
   customAttrList: any = []
@@ -27,6 +27,8 @@ export class CustomFieldsComponent {
   userId: string = ''
   orgId: string = ''
   currentUser: any = {}
+
+  private dropdownSubscriptions: { [key: string]: any } = {}
 
 
   constructor(private fb: FormBuilder,
@@ -114,8 +116,14 @@ export class CustomFieldsComponent {
   }
 
   cancelCustomFormRequest() {
-    this.editCustomDetails = false
-    this.customAttrForm.reset()
+    this.editCustomDetails = false;
+
+    // Clear all fields properly
+    Object.keys(this.hierarchyFields).forEach(fieldName => {
+      this.resetField(fieldName);
+    });
+
+    this.customAttrForm.reset();
   }
 
   buildDynamicForm() {
@@ -357,7 +365,18 @@ export class CustomFieldsComponent {
     const formGroup = this.masterListFormGroups[fieldName];
     const isReversed = this.useReversedData[fieldName];
 
-    if (!hierarchy || !formGroup || hierarchy.length <= 1) return;
+    if (!hierarchy || !formGroup) return;
+
+    // Handle special case for single-level dropdown
+    if (hierarchy.length === 1) {
+      const singleField = hierarchy[0];
+      formGroup.get(singleField)?.valueChanges.subscribe(value => {
+        console.log(`Single field ${singleField} changed to ${value}`);
+        // Just update the combined value for single fields
+        this.updateCombinedValue(fieldName);
+      });
+      return; // Exit early for single fields
+    }
 
     console.log(`Setting up cascade listeners for ${fieldName}, levels: ${hierarchy.length}`);
 
@@ -408,20 +427,43 @@ export class CustomFieldsComponent {
   // Update options for a child field based on parent selection
   updateChildOptions(fieldName: string, parentField: string, parentValue: string, childField: string, isReversed: boolean) {
     const field = this.customAttrList.find((f: any) => f.attributeName === fieldName);
-    if (!field) return;
+    if (!field) {
+      console.warn(`Field not found: ${fieldName}`);
+      return;
+    }
 
     const dataSource = this.getDataSource(field);
-    if (!dataSource) return;
+    if (!dataSource || dataSource.length === 0) {
+      console.warn(`No data source for field: ${fieldName}`);
+      return;
+    }
 
     // Reset the child field
     const formGroup = this.masterListFormGroups[fieldName];
-    formGroup.get(childField)?.setValue('');
+    if (!formGroup) {
+      console.warn(`No form group for field: ${fieldName}`);
+      return;
+    }
+
+    // Verify child field exists in form
+    if (!formGroup.get(childField)) {
+      console.warn(`Child field control not found: ${childField} in ${fieldName}`);
+      return;
+    }
+
+    // Reset child field value
+    formGroup.get(childField)?.setValue('', { emitEvent: false });
+
+    console.log(`Finding options for ${childField} based on ${parentField}=${parentValue}`);
 
     // Find child options based on parent selection
     const options = isReversed ?
       this.findChildOptionsFromReversedData(dataSource, parentField, parentValue, childField) :
       this.findChildOptions(dataSource, parentField, parentValue, childField);
 
+    console.log(`Found ${options.length} options for ${childField}`);
+
+    // Store the options
     this.fieldOptions[fieldName][childField] = options;
 
     // Also reset any grandchild fields
@@ -430,7 +472,7 @@ export class CustomFieldsComponent {
 
     if (childIndex >= 0 && childIndex < hierarchy.length - 1) {
       const grandchildField = hierarchy[childIndex + 1];
-      formGroup.get(grandchildField)?.setValue('');
+      formGroup.get(grandchildField)?.setValue('', { emitEvent: false });
       this.fieldOptions[fieldName][grandchildField] = [];
     }
   }
@@ -741,16 +783,50 @@ export class CustomFieldsComponent {
     if (!value) return;
 
     const hierarchy = this.hierarchyFields[fieldName];
+    if (!hierarchy) return;
+
+    const field = this.customAttrList.find((f: any) => f.attributeName === fieldName);
+    if (!field) return;
+
+    // Always update selected values first
+    field.selectedValues = field.selectedValues || {};
+    field.selectedValues[hierarchyField] = value;
+
     const isLastField = index === hierarchy.length - 1;
+    const isSingleField = hierarchy.length === 1;
 
     console.log(`Dropdown changed: ${fieldName}, field: ${hierarchyField}, value: ${value}, index: ${index}, isLast: ${isLastField}`);
 
-    // If this is the last field in the hierarchy (e.g., city),
-    // we need to try to set parent values (e.g., state, country)
-    if (isLastField) {
-      console.log('Last field selected, trying to set parent values');
+    // For single field dropdowns
+    if (isSingleField) {
+      this.updateCombinedValue(fieldName);
+      return;
+    }
+
+    // For parent fields: update child options
+    if (!isLastField) {
+      const childField = hierarchy[index + 1];
+      const isReversed = this.useReversedData[fieldName];
+
+      // Update options for the immediate child
+      this.updateChildOptions(fieldName, hierarchyField, value, childField, isReversed);
+
+      // Clear all fields below the immediate child
+      const formGroup = this.masterListFormGroups[fieldName];
+      for (let i = index + 2; i < hierarchy.length; i++) {
+        const grandchildField = hierarchy[i];
+        formGroup.get(grandchildField)?.setValue('', { emitEvent: false });
+        field.selectedValues[grandchildField] = '';
+        this.fieldOptions[fieldName][grandchildField] = [];
+      }
+    }
+    // For leaf fields: try to set parents
+    else if (isLastField && index > 0) {
       this.setParentValuesFromChild(fieldName, hierarchyField, value);
     }
+
+    // Always update combined value
+    this.updateCombinedValue(fieldName);
   }
 
   // Method to set parent values when a child is selected
@@ -760,13 +836,13 @@ export class CustomFieldsComponent {
     // Find the field by attributeName
     const field = this.customAttrList.find((f: any) => f.attributeName === fieldName);
     if (!field) {
-      console.log('Field not found');
+      console.warn('Field not found');
       return;
     }
 
     const dataSource = this.getDataSource(field);
-    if (!dataSource) {
-      console.log('Data source not found');
+    if (!dataSource || !Array.isArray(dataSource) || dataSource.length === 0) {
+      console.warn('Data source not found or empty');
       return;
     }
 
@@ -776,17 +852,18 @@ export class CustomFieldsComponent {
 
     console.log(`Hierarchy: ${JSON.stringify(hierarchy)}, isReversed: ${isReversed}`);
 
+    // Clone the data to avoid mutation issues
+    const dataSourceClone = JSON.parse(JSON.stringify(dataSource));
+
     // Find the selected child item in the data source
-    const childItem = this.findItemByFieldAndValue(dataSource, childField, childValue, isReversed);
+    const childItem = this.findItemByFieldAndValue(dataSourceClone, childField, childValue, isReversed);
 
     if (!childItem) {
-      console.log('Child item not found in data source');
+      console.warn(`Child item not found in data source for ${childField}=${childValue}`);
       return;
     }
 
-    console.log('Found child item:', childItem);
-
-    // Make sure the childItem has the attributeName set
+    // Add attributeName to child item
     childItem.attributeName = fieldName;
 
     // Now try to set parent values by traversing up the hierarchy
@@ -795,39 +872,44 @@ export class CustomFieldsComponent {
     console.log('Parent values found:', parentValues);
 
     if (Object.keys(parentValues).length === 0) {
-      console.log('No parent values found');
+      console.warn('No parent values found');
       return;
     }
 
     // Important: Store current values to restore if necessary
     const savedValues: { [key: string]: string } = {};
     hierarchy.forEach(field => {
-      savedValues[field] = formGroup.get(field)?.value;
+      savedValues[field] = formGroup.get(field)?.value || '';
     });
-    savedValues[childField] = childValue; // Ensure we keep the selected child value
 
-    // Temporarily disable ALL valueChanges subscriptions to prevent cascade effects
+    // Ensure we keep the selected child value
+    savedValues[childField] = childValue;
+
+    // Temporarily disable ALL valueChanges subscriptions
     const subscriptions = this.disableValueChangeListeners(fieldName);
 
     try {
-      // Set parent values in the form group - set them in reverse order (from parent to child)
-      // to avoid child options being reset
+      // Set values in hierarchy order (from top to bottom)
       const sortedParentFields = Object.keys(parentValues).sort((a, b) => {
         return hierarchy.indexOf(a) - hierarchy.indexOf(b);
       });
 
-      // First set the top-level parents
+      // First update the field.selectedValues object
+      field.selectedValues = field.selectedValues || {};
+
+      // Set all parent values
       sortedParentFields.forEach(parentField => {
         console.log(`Setting ${parentField} = ${parentValues[parentField]}`);
         formGroup.get(parentField)?.setValue(parentValues[parentField], { emitEvent: false });
+        field.selectedValues[parentField] = parentValues[parentField];
       });
 
-      // Now make sure the child field still has its value
+      // Make sure child field value is set
       formGroup.get(childField)?.setValue(childValue, { emitEvent: false });
+      field.selectedValues[childField] = childValue;
 
       // Update the combined value
       this.updateCombinedValue(fieldName);
-
     } catch (error) {
       console.error('Error setting parent values:', error);
       // Restore saved values if something goes wrong
@@ -837,112 +919,118 @@ export class CustomFieldsComponent {
         }
       });
     } finally {
-      // Re-enable the value change listeners with the subscriptions we saved
-      this.restoreValueChangeListeners(fieldName, subscriptions);
+      // Re-enable the value change listeners
+      setTimeout(() => {
+        this.restoreValueChangeListeners(fieldName, subscriptions);
+      }, 100);
     }
   }
 
   // Find an item in the data source by field name and value
   findItemByFieldAndValue(data: any[], fieldName: string, fieldValue: string, isReversed: boolean): any {
-    if (!data) return null;
+    if (!data || !Array.isArray(data) || data.length === 0) {
+      console.log('No data to search through');
+      return null;
+    }
 
+    console.log(`Searching for item with ${fieldName}=${fieldValue} in data with ${data.length} items`);
 
     // Try to find a direct match
     const directMatch = data.find(item =>
-      item.fieldName === fieldName && item.fieldValue === fieldValue
+      item && item.fieldName === fieldName && item.fieldValue === fieldValue
     );
 
     if (directMatch) {
-      // Ensure the item has all necessary properties
-      if (!directMatch.attributeName) {
-        // Try to determine the attributeName from context
-        for (const field of this.customAttrList) {
-          if (field.type === 'masterList' &&
-            (field.customFieldData === data || field.reversedOrderCustomFieldData === data)) {
-            directMatch.attributeName = field.attributeName;
-            break;
-          }
-        }
-      }
+      console.log('Found direct match:', directMatch);
       return directMatch;
     }
 
     // If not found, search recursively
     for (const item of data) {
-      if (item.fieldValues && item.fieldValues.length > 0) {
+      if (item && item.fieldValues && Array.isArray(item.fieldValues) && item.fieldValues.length > 0) {
         const nestedMatch = this.findItemByFieldAndValue(
           item.fieldValues, fieldName, fieldValue, isReversed
         );
-        if (nestedMatch) return nestedMatch;
+        if (nestedMatch) {
+          console.log('Found nested match:', nestedMatch);
+          return nestedMatch;
+        }
       }
     }
 
+    console.log(`No match found for ${fieldName}=${fieldValue}`);
     return null;
   }
 
   // Find parent values from a child item (up to 5 levels)
   findParentValues(item: any, hierarchy: string[], childField: string, isReversed: boolean, field: any): any {
     const parentValues: { [key: string]: string } = {};
+    console.log(childField);
+    // Skip if the item is null or missing required data
+    if (!item) {
+      console.warn('Cannot find parent values: item is null');
+      return parentValues;
+    }
 
-    console.log('Finding parent values for item:', item, childField);
+    console.log('Finding parent values for item:', item);
 
     if (isReversed) {
       // For reversed data structure
-      const traverseParents = (currentItem: any) => {
-        if (!currentItem || Object.keys(parentValues).length >= 4) return; // Max 4 parents for 5 levels
+      if (item.parentFieldName && item.parentFieldValue && hierarchy.includes(item.parentFieldName)) {
+        // Add direct parent
+        parentValues[item.parentFieldName] = item.parentFieldValue;
 
-        if (currentItem.parentFieldName && currentItem.parentFieldValue) {
-          // Only add if it's in our hierarchy
-          if (hierarchy.includes(currentItem.parentFieldName)) {
-            console.log(`Found parent: ${currentItem.parentFieldName} = ${currentItem.parentFieldValue}`);
-            parentValues[currentItem.parentFieldName] = currentItem.parentFieldValue;
+        // Find parent item to continue traversal
+        const dataSource = this.getDataSource(field);
+        const parentItem = this.findItemByNameAndValueInData(
+          item.parentFieldName,
+          item.parentFieldValue,
+          dataSource
+        );
 
-            // Look for this parent to find its parent
-            const dataSource = this.getDataSource(field);
-            const parentItem = this.findItemByNameAndValueInData(
-              currentItem.parentFieldName,
-              currentItem.parentFieldValue,
-              dataSource
-            );
+        // Recursively find parent's parents
+        if (parentItem) {
+          const grandparentValues = this.findParentValues(
+            parentItem,
+            hierarchy,
+            item.parentFieldName,
+            isReversed,
+            field
+          );
 
-            // Continue traversing up
-            if (parentItem) {
-              traverseParents(parentItem);
-            }
-          }
+          // Merge grandparent values
+          Object.assign(parentValues, grandparentValues);
         }
-      };
-
-      traverseParents(item);
-
+      }
     } else {
       // For regular data structure
-      const traverseUp = (currentItem: any, depth: number = 0) => {
-        if (!currentItem || depth > 4) return; // Max 4 parents for 5 levels
+      // The logic is similar to reversed, just the traversal is different
+      if (item.parentFieldName && item.parentFieldValue && hierarchy.includes(item.parentFieldName)) {
+        // Add direct parent
+        parentValues[item.parentFieldName] = item.parentFieldValue;
 
-        if (currentItem.parentFieldName && currentItem.parentFieldValue) {
-          // Only add if it's in our hierarchy
-          if (hierarchy.includes(currentItem.parentFieldName)) {
-            console.log(`Found parent: ${currentItem.parentFieldName} = ${currentItem.parentFieldValue}`);
-            parentValues[currentItem.parentFieldName] = currentItem.parentFieldValue;
+        // Find parent item
+        const dataSource = this.getDataSource(field);
+        const parentItem = this.findItemByNameAndValueInData(
+          item.parentFieldName,
+          item.parentFieldValue,
+          dataSource
+        );
 
-            // Find this parent to find grandparent
-            const dataSource = this.getDataSource(field);
-            const parentItem = this.findItemByNameAndValueInData(
-              currentItem.parentFieldName,
-              currentItem.parentFieldValue,
-              dataSource
-            );
+        // Recursively find parent's parents
+        if (parentItem) {
+          const grandparentValues = this.findParentValues(
+            parentItem,
+            hierarchy,
+            item.parentFieldName,
+            isReversed,
+            field
+          );
 
-            // Continue traversing up
-            if (parentItem) {
-              traverseUp(parentItem, depth + 1);
-            }
-          }
+          // Merge grandparent values
+          Object.assign(parentValues, grandparentValues);
         }
-      };
-
-      traverseUp(item);
+      }
     }
 
     return parentValues;
@@ -1054,11 +1142,65 @@ export class CustomFieldsComponent {
 
   // Restore value change listeners with saved subscriptions
   restoreValueChangeListeners(fieldName: string, savedSubscriptions: any) {
-    // We'll just re-setup all listeners from scratch
-    console.log(`Restoring value change listeners for ${savedSubscriptions}`);
-    setTimeout(() => {
-      this.setupCascadingDropdownListeners(fieldName);
-    }, 100);
+    console.log(savedSubscriptions)
+    // Clean up any existing subscriptions first
+    if (this.dropdownSubscriptions[fieldName]) {
+      const subs = this.dropdownSubscriptions[fieldName];
+      Object.values(subs).forEach((sub: any) => {
+        if (sub && typeof sub.unsubscribe === 'function') {
+          sub.unsubscribe();
+        }
+      });
+      delete this.dropdownSubscriptions[fieldName];
+    }
+
+    // Create new subscriptions
+    this.dropdownSubscriptions[fieldName] = {};
+
+    // Re-setup the listeners
+    const hierarchy = this.hierarchyFields[fieldName];
+    const formGroup = this.masterListFormGroups[fieldName];
+    const isReversed = this.useReversedData[fieldName];
+
+    // Special case for single field
+    if (hierarchy.length === 1) {
+      const singleField = hierarchy[0];
+      this.dropdownSubscriptions[fieldName][singleField] =
+        formGroup.get(singleField)?.valueChanges.subscribe(() => {
+          this.updateCombinedValue(fieldName);
+        });
+      return;
+    }
+
+    // For each level except the last one
+    for (let i = 0; i < hierarchy.length - 1; i++) {
+      const parentField = hierarchy[i];
+      const childField = hierarchy[i + 1];
+
+      // Set up the subscription and save it for later cleanup
+      this.dropdownSubscriptions[fieldName][parentField] =
+        formGroup.get(parentField)?.valueChanges.subscribe(value => {
+          // Update options for the child field
+          this.updateChildOptions(fieldName, parentField, value, childField, isReversed);
+
+          // Important: Clear all fields below this one
+          for (let j = i + 2; j < hierarchy.length; j++) {
+            const grandchildField = hierarchy[j];
+            formGroup.get(grandchildField)?.setValue('');
+            this.fieldOptions[fieldName][grandchildField] = [];
+          }
+
+          // Update the combined value
+          this.updateCombinedValue(fieldName);
+        });
+    }
+
+    // Also set up subscription for last field
+    const lastField = hierarchy[hierarchy.length - 1];
+    this.dropdownSubscriptions[fieldName][lastField] =
+      formGroup.get(lastField)?.valueChanges.subscribe(() => {
+        this.updateCombinedValue(fieldName);
+      });
   }
 
   // Helper to log nested data structure
@@ -1121,5 +1263,54 @@ export class CustomFieldsComponent {
       this.fieldOptions[fieldName][hierarchyField] =
         this.extractAllOptionsForField(dataSource, hierarchyField, isReversed);
     });
+  }
+
+  // Properly reset a field's form and data structures
+  resetField(fieldName: string) {
+    const field = this.customAttrList.find((f: any) => f.attributeName === fieldName);
+    if (!field) return;
+
+    // Reset the selectedValues
+    field.selectedValues = {};
+
+    // Reset the form controls
+    const formGroup = this.masterListFormGroups[fieldName];
+    const hierarchy = this.hierarchyFields[fieldName];
+
+    if (formGroup && hierarchy) {
+      // Disable event emission temporarily
+      const subscriptions = this.disableValueChangeListeners(fieldName);
+
+      try {
+        // Clear all values in the form group
+        hierarchy.forEach(hierarchyField => {
+          formGroup.get(hierarchyField)?.setValue('', { emitEvent: false });
+        });
+
+        // Clear the main form control
+        this.customAttrForm.get(fieldName)?.setValue('', { emitEvent: false });
+
+        // For all levels except the first, clear options
+        for (let i = 1; i < hierarchy.length; i++) {
+          this.fieldOptions[fieldName][hierarchy[i]] = [];
+        }
+      } finally {
+        // Restore listeners
+        this.restoreValueChangeListeners(fieldName, subscriptions);
+      }
+    }
+  }
+
+  ngOnDestroy() {
+    // Clean up all subscriptions
+    Object.keys(this.dropdownSubscriptions).forEach(fieldName => {
+      const fieldSubs = this.dropdownSubscriptions[fieldName];
+      Object.values(fieldSubs).forEach((sub: any) => {
+        if (sub && typeof sub.unsubscribe === 'function') {
+          sub.unsubscribe();
+        }
+      });
+    });
+    this.dropdownSubscriptions = {};
   }
 }
