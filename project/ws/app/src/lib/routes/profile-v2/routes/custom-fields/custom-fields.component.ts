@@ -754,7 +754,6 @@ export class CustomFieldsComponent {
         }
       }
     })
-    debugger
     let requestPalyoud: any = {
       userId: this.userId,
       organisationId: this.orgId,
