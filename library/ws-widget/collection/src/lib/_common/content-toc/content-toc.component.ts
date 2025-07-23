@@ -157,10 +157,6 @@ export class ContentTocComponent implements OnInit, AfterViewInit, OnChanges {
         if (item && item.resourceCategory && item.resourceCategory === 'Teachers Resource') {
           this.teacherNotesFlag = true
         }
-      })
-    }
-    if (this.contentReadData && this.contentReadData.referenceNodes) {
-      this.contentReadData.referenceNodes.forEach((item: any) => {
         if (item && item.resourceCategory && item.resourceCategory === 'Reference Resource') {
           this.referenceNotesFlag = true
         }
