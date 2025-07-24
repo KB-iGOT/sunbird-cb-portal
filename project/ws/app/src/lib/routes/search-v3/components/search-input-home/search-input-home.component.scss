@@ -79,11 +79,17 @@
 .search-container {
   position: absolute;
   top: 40px;
-  z-index: 9999;
-  max-width: 650px;
-  min-width: 650px;
-  @media (max-width: 768px) {
+  z-index: 999;
+  max-width: 710px;
+  min-width: 710px;
+  @media (min-width:481px) and (max-width: 768px) {
     min-width: 375px;
+  }
+  @media (max-width: 360px) {
+    min-width: 240px;
+  }
+    @media (min-width:361px) and (max-width: 480px) {
+    min-width: 340px;
   }
 }
 
@@ -119,6 +125,10 @@
   .mat-chip-list-wrapper {
     justify-content: center;
   }
+
+  .mat-chip-list-wrapper .mat-standard-chip {
+    margin: 4px 2px;
+}
 }
 
 .recent-search-title {
@@ -140,12 +150,20 @@
   color: $textRecentSearch;
 }
 
+.search-home-icon {
+  height: 15px;
+  // margin-top: 14px;
+  // margin-right: 8px;
+}
+
 mat-list-item .mat-icon-button mat-icon {
   color: $overleyDarkBackground !important;
   font-size: 16px;
+  margin-top: -8px;
 }
 
 mat-list-item {
+  height: 42px !important;
   padding: 0 10px;
   border-radius: 4px;
   &:hover {
@@ -231,4 +249,21 @@ mat-list-item {
 
 .disabled-search-btn.mat-flat-button[disabled] {
   opacity: 100% !important;
+}
+.courser-pointer {
+  cursor: pointer;
+}
+.recent_link {
+  height: 40px;
+  line-height: 1;
+  // span {
+  //   // margin-top: 14px;
+  // }
+}
+.recent-search-list {
+    width: 100% !important;
+
+    .mat-list-item-content {
+      padding: 0 16px !important;
+    }
 }

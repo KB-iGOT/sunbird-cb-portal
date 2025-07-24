@@ -14,7 +14,7 @@ export class RequestParams {
   limit: number;
   offset: number;
   sort_by: SortBy;
-
+  exists?: string[]
   constructor(competenciesKey: any) {
     this.filters = new Filters();
     this.fields = [
@@ -27,7 +27,7 @@ export class RequestParams {
       'name',
       'primaryCategory',
       'contentType',
-      'posterImage', 
+      'posterImage',
       'createdOn',
       'duration',
       'avgRating',
@@ -35,6 +35,7 @@ export class RequestParams {
       'courseCategory',
       'mimeType',
       'contentId',
+      'creatorLogo',
       'sectorDetails_v1'
     ];
     this.facets = [...SearchOthersFacet, ...competenciesKey];
@@ -65,7 +66,7 @@ export class Filters {
 }
 
 export class SortBy {
-  lastUpdatedOn?: string;
+  createdOn?: string;
   startDate?: string;
   avgRating?: string;
   firstName?: string;
@@ -83,20 +84,30 @@ export enum SearchCategory {
   People = 'peoples',
   CaseStudy = 'case-study',
   Communities = 'communities',
+  Resources = 'resources',
+  ExternalContents = 'external-contents',
 }
 
 export const SearchOthersFacet = [
-  'duration',
+  // 'duration',
   'avgRating',
   'language',
   'organisation',
-  'sectorId',
+  // 'sectorId',
   'courseCategory',
   'sectorDetails_v1.sectorName',
+  'sectorDetails_v1.subSectorName',
 ];
 
 // Events
-export const SearchEventfacet = ['duration', 'language', 'sourceName', 'startDateTimeInEpoch', 'endDateTimeInEpoch', 'resourceType'];
+export const SearchEventfacet = [
+  'duration',
+  'language',
+  'sourceName',
+  'startDateTimeInEpoch',
+  'endDateTimeInEpoch',
+  'resourceType',
+];
 
 export const SearchEventFields = [
   'name',
@@ -118,6 +129,21 @@ export const SearchEventFields = [
   'endDateTime',
 ];
 
+export const SearchResourceMimeType = [
+  'application/pdf',
+  'video/mp4',
+  'text/x-url',
+  'audio/mpeg',
+  'application/vnd.ekstep.content-collection',
+];
+
+export const SearchResourceFacets = [
+  "resourceCategory",
+  "sectorDetails_v1.subSectorName",
+  "sectorDetails_v1.sectorName",
+  "years"
+];
+
 export class SearchPeoplesRequest {
   filters: PeoplesFilters;
   facets?: string[];
@@ -129,7 +155,7 @@ export class SearchPeoplesRequest {
   constructor() {
     this.limit = 5;
     this.offset = 0;
-    this.sort_by = { };
+    this.sort_by = {};
     (this.query = ''), (this.fields = []);
     this.filters = new PeoplesFilters();
     this.facets = [
@@ -156,7 +182,7 @@ export class SearchCommunitiesRequest {
   pageNumber: number;
   pageSize: number;
   facets: string[];
-  searchString: string | null;
+  searchString?: string;
   orderBy?: string;
   orderDirection?: string;
 
@@ -166,8 +192,7 @@ export class SearchCommunitiesRequest {
     };
     this.requestedFields = [];
     this.pageNumber = 0;
-    this.pageSize = 3;
-    this.searchString = null;
+    this.pageSize = 6;
     this.facets = ['topicName', 'orgName', ...competenciesKey];
   }
 }
@@ -205,7 +230,15 @@ export enum FacetType {
   SourceName = 'sourceName',
   courseCategory = 'courseCategory',
   sectorNames_v1 = 'sectorDetails_v1.sectorName',
+  subSectorNames_v1 = 'sectorDetails_v1.subSectorName',
   sectorId = 'sectorId',
+  resourceCategory = 'resourceCategory',
+  subSectorId = 'subSectorId',
+  subSectorNameResource = "subSectorName",
+  sectorNameResource = "sectorName",
+  contentPartners = 'contentPartner.contentPartnerName',
+  topic = 'topic',
+  topicName = 'topicName',
 }
 
 export enum SortType {
@@ -217,9 +250,50 @@ export enum SortType {
   Descending = 'desc',
   AtoZ = 'a-z',
   ZtoA = 'z-a',
-
 }
 
 export enum SearchConstantLocalStorage {
   SortType = 'searchSortType',
 }
+
+export class SearchExternalRequest {
+  filterCriteriaMap: {
+    [key: string]: any;
+  };
+  requestedFields: any[];
+  pageNumber: number;
+  pageSize: number;
+  facets: string[];
+  searchString: string | null;
+  orderBy?: string;
+  orderDirection?: string;
+
+  constructor(competenciesKey: any) {
+    this.filterCriteriaMap = {};
+    this.requestedFields = [];
+    this.pageNumber = 0;
+    this.pageSize = 3;
+    this.searchString = null;
+    this.facets = ['topic', 'contentPartner.contentPartnerName', ...competenciesKey];
+    this.orderBy = 'createdOn';
+  }
+}
+
+export const SearchResourcesFields = [
+  'appIcon',
+  'artifactUrl',
+  'channel',
+  'contentType',
+  'createdOn',
+  'creator',
+  'description',
+  'duration',
+  'identifier',
+  'mimeType',
+  'name',
+  'posterImage',
+  'primaryCategory',
+  'resourceType',
+  'source',
+  'additionalTags'
+];

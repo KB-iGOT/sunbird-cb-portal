@@ -26,7 +26,7 @@ import { HttpClient } from '@angular/common/http'
 import {
   // AuthKeycloakService,
   ConfigurationsService,
-  LoggerService,
+  // LoggerService,
   TelemetryService,
   ValueService,
   UtilityService,
@@ -57,11 +57,13 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
   hideHeaderAndFooter = false
   disableHeightOnTop = false
   iGOTAIConfigLoaded = false
+  // dataSubject = new BehaviorSubject<boolean>(false)
+  isHomePage = false
   constructor(
     private router: Router,
     private route: ActivatedRoute,
     private appRef: ApplicationRef,
-    private logger: LoggerService,
+    // private logger: LoggerService,
     private swUpdate: SwUpdate,
     private dialog: MatDialog,
     private http: HttpClient,
@@ -77,6 +79,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
     private utilitySvc: UtilityService,
     private urlService: UrlService,
     private iGOTAIService: iGOTAIService
+     
     // private dialogRef: MatDialogRef<any>,
   ) {
 
@@ -242,9 +245,9 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
     })
     this.configSvc.updateTourGuideMethod(this.showTour)  
     this.route.queryParams
-      .subscribe(params => {
+      .subscribe(_params => {
         // tslint:disable-next-line
-        console.log(params) // { orderby: "price" }
+        // console.log(params) // { orderby: "price" }
       }
     )
     if (window.location.pathname.includes('/public/home')) {
@@ -262,8 +265,17 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
       filter(event => event instanceof NavigationEnd)
     ).subscribe((event: any) => {
       this.prevUrl = this.currUrl
+     
       this.currUrl = event.url
+      
       this.urlService.setPreviousUrl(this.prevUrl)
+      if(this.currUrl === '/page/home') {
+       this.isHomePage = true
+       this.mobileAppsSvc.clearGlobalSearchForHomePage.next(true)
+      } else {
+        this.isHomePage = false
+        this.mobileAppsSvc.clearGlobalSearchForHomePage.next(false)
+      }
     })
 
     this.router.events.subscribe((event: any) => {
@@ -438,8 +450,11 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
       }
     }
     const publicConfig:any = await this.iGOTAIService.iGOTAIConfigReadData(payload).toPromise()
-    console.log('publicConfig', publicConfig)
-    this.configSvc.iGOTAIConfig = publicConfig
+    // console.log('publicConfig', publicConfig)
+    if(publicConfig && publicConfig && publicConfig.web) {
+      this.configSvc.iGOTAIConfig = publicConfig.web
+    }
+    
     // this.configSvc.iGOTAIConfig = {
     //   "aiTutor": true,
     //   "iGOTAI": true,
@@ -509,7 +524,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
   }
 
   initAppUpdateCheck() {
-    this.logger.log('LOGGING IN ROOT FOR PWA INIT CHECK')
+    // this.logger.log('LOGGING IN ROOT FOR PWA INIT CHECK')
     if (environment.production) {
       const appIsStable$ = this.appRef.isStable.pipe(
         first(isStable => isStable),

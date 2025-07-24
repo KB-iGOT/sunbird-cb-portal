@@ -5,6 +5,7 @@ import { TranslateService } from '@ngx-translate/core'
 import { VIEWER_ROUTE_FROM_MIME } from '@sunbird-cb/collection/src/public-api'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { ViewerDataService } from '@ws/viewer/src/public-api'
+import _ from 'lodash'
 
 @Component({
   selector: 'ws-app-gyaan-player',
@@ -21,7 +22,17 @@ export class GyaanPlayerComponent implements OnInit {
   relatedContentStrip: any
   displayContents = true
   collectionId: any = ''
-  from:any = ''
+  from: any = ''
+  isInstructionsExpanded = false
+  hasLongInstructions = false
+
+  sectorsList: any[] = []
+  subSectorsList: any[] = []
+  userProfile: any = null
+  subSectorDetailArr: any = []
+  selectedSector = ''
+  selectedSectorId = ''
+
   constructor(private viewerDataSvc: ViewerDataService,
               private configSvc: ConfigurationsService,
               private route: ActivatedRoute,
@@ -38,8 +49,9 @@ export class GyaanPlayerComponent implements OnInit {
     this.router.events.subscribe(val => {
         // see also
         if (val instanceof NavigationEnd) {
-          this.resourceData = this.viewerDataSvc.resource
+          this.resourceData = _.cloneDeep(this.viewerDataSvc.resource)
           this.relatedContentStrip = {}
+          this.updateSectorData()
           this.getRelatedContent()
         }
     })
@@ -55,8 +67,8 @@ export class GyaanPlayerComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.resourceData = this.viewerDataSvc.resource
-    console.log(' this.resourceData',  this.resourceData)
+    this.resourceData = _.cloneDeep(this.viewerDataSvc.resource)
+    this.updateSectorData()
     this.getRelatedContent()
     if (!this.displayContents) {
       this.titles = [
@@ -86,7 +98,15 @@ export class GyaanPlayerComponent implements OnInit {
       this.from = params['from']; // Access a specific query param
       console.log('this.from', this.from);
     });
+
+    // Set up observer to check if instructions are long enough to require "View More"
+    setTimeout(() => {
+      this.checkInstructionsLength();
+    }, 100);
+    
+    this.handleSubsector(this.resourceData?.sectorDetails_v1?.[0] || []);
   }
+
   // this method is used to close the share popup
   resetEnableShare() {
     this.enableShare = false
@@ -121,5 +141,126 @@ export class GyaanPlayerComponent implements OnInit {
       }
       this.relatedContentStrip = stripData
     }
+  }
+
+  updateSectorData() {
+    if (this.resourceData?.sectorDetails_v1) {
+      // Parse string to array if needed
+      let sectorDetailsArray = this.resourceData.sectorDetails_v1
+  
+      // If it's a string, try to parse it into an array
+      if (typeof sectorDetailsArray === 'string') {
+        try {
+          sectorDetailsArray = JSON.parse(sectorDetailsArray)
+          this.resourceData.sectorDetails_v1 = sectorDetailsArray
+        } catch (e) {
+          console.error('Error parsing sectorDetails_v1:', e)
+          sectorDetailsArray = []
+        }
+      }
+  
+      // Process only if we have a valid array with items
+      if (Array.isArray(sectorDetailsArray) && sectorDetailsArray.length > 0) {
+        // Extract unique sectors using lodash
+        this.resourceData['sectorsList'] = _.uniqBy(
+          sectorDetailsArray
+            .filter((item: any) => item?.sectorName && item?.sectorId)
+            .map((item: any) => ({
+              sectorId: item.sectorId,
+              sectorName: item.sectorName
+            })),
+          'sectorName'
+        )
+  
+        // Extract unique subsectors using lodash
+        this.resourceData['subSectorsList'] = _.uniqBy(
+          sectorDetailsArray
+            .filter((item: any) => item?.subSectorName && item?.subSectorId)
+            .map((item: any) => ({
+              subSectorId: item.subSectorId,
+              subSectorName: item.subSectorName
+            })),
+          'subSectorName'
+        )
+      }
+    }
+  }
+
+  checkInstructionsLength() {
+    if (!this.resourceData?.instructions) {
+      return;
+    }
+    
+    const tempDiv = document.createElement('div');
+    tempDiv.innerHTML = this.resourceData.instructions;
+    const textContent = tempDiv.textContent || tempDiv.innerText || '';
+    
+    // Rough estimate: 200 characters would typically require more than 4 lines
+    this.hasLongInstructions = textContent.length > 200;
+  }
+
+  toggleInstructions() {
+    this.isInstructionsExpanded = !this.isInstructionsExpanded;
+  }
+
+  handleSubsector(item: any): void {
+    // Reset previous state
+    this.subSectorDetailArr = [];
+    this.selectedSector = item.sectorName;
+    this.selectedSectorId = item.sectorId;
+
+    if (!this.resourceData?.sectorDetails_v1?.length) {
+      return;
+    }
+
+    // Filter subsectors for the selected sector
+    const relevantSubSectors = this.resourceData.sectorDetails_v1.filter(
+      (sector: any) => sector.sectorId === this.selectedSectorId && sector.subSectorName
+    );
+
+    // Process subsector data
+    if (relevantSubSectors.length) {
+      // Map to the required structure
+      this.subSectorDetailArr = relevantSubSectors.map((sector: any) => ({
+        sectorId: sector.sectorId,
+        sectorName: sector.sectorName,
+        key: sector.subSectorName,
+        value: [sector.subSectorName]
+      }));
+
+      // Create card data for each subsector
+      this.subSectorsList = this.getUniqueArray(relevantSubSectors).map((sector: any) => ({
+        widgetType: "card",
+        widgetSubType: "competencyCard",
+        widgetHostClass: "mr-4",
+        widgetData: {
+          content: {
+            sectorId: this.selectedSectorId,
+            sectorName: this.selectedSector,
+            key: sector.subSectorName,
+            value: [sector.subSectorName]
+          },
+          competencyArea: "Behavioural",
+          cardCustomeClass: "",
+          context: {
+            pageSection: "blendedPrograms",
+            position: 0
+          }
+        }
+      }));
+    } else {
+      this.subSectorsList = [];
+    }
+  }
+
+  /**
+   * Returns an array with unique objects based on a specific property
+   */
+  getUniqueArray(arrayData: any[]): any[] {
+    if (!arrayData?.length) {
+      return [];
+    }
+    
+    return _.uniqBy(arrayData, 'subSectorName');
   }
 }

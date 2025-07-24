@@ -10,6 +10,8 @@ import { debounceTime, distinctUntilChanged, startWith, takeUntil } from 'rxjs/o
 import { UserProfileService } from '../../../user-profile/services/user-profile.service'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { Subject } from 'rxjs'
+import { ProfileV2RevampService } from '../../services/profile-v2-revamp.service'
+import * as _ from 'lodash'
 
 @Component({
   selector: 'ws-transfer-request',
@@ -27,11 +29,14 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
     designation: new UntypedFormControl('', [Validators.required]),
     searchDesignation: new UntypedFormControl(''),
   })
-  departmentData: any[] = []
+  organizationData: any[] = []
   otherDetails = false
   deptFilterData: any[] = []
   // deptFilterData  : Observable<string[]>
   designationData: any[] = []
+  designationsTotalCount = 0
+  designationSearchText = ''
+  designationsOffset = 0
   private destroySubject$ = new Subject()
   isInValidOrgSelection = false
   onLoad = true
@@ -39,26 +44,29 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
   designationDefaultLoadCount =  50
   isLoadingMoreDesignations = false;
   desigantionFilterEnable = false
+  currentOrg: any = ''
 
   // deptFilterData: any[] = []
-  organizationListLoadCount = 50
-  organizationDefaultLoadCount =  50
+  organizationListLoadCount = 20
+  organizationDefaultLoadCount =  20
   isLoadingMoreOrganization = false
-  organizationFilterEnable = false
+  organizationDataTotalCount = 0
 
   constructor(
     public dialogRef: MatDialogRef<TransferRequestComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
     private userProfileService: UserProfileService,
     private matSnackBar: MatSnackBar,
-    private configService: ConfigurationsService
+    private configService: ConfigurationsService,
+    private profileV2RevampService: ProfileV2RevampService
   ) {
     if (this.data.portalProfile.professionalDetails && this.data.portalProfile.professionalDetails.length) {
       this.transferRequestForm.controls.group.setValue(this.data.portalProfile.professionalDetails[0].group)
       this.transferRequestForm.controls.designation.setValue(this.data.portalProfile.professionalDetails[0].designation || '')
     }
     if (this.data.portalProfile.employmentDetails) {
-      this.transferRequestForm.controls.organization.setValue(this.data.portalProfile.employmentDetails.departmentName)
+      // this.transferRequestForm.controls.organization.setValue(this.data.portalProfile.employmentDetails.departmentName)
+      this.currentOrg = this.data.portalProfile.employmentDetails.departmentName
     }
 
     this.transferRequestForm.get('organization')!.valueChanges
@@ -72,29 +80,23 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
       })
 
     if (this.transferRequestForm.get('searchOrganization')) {
+     
       this.transferRequestForm.get('searchOrganization')!.valueChanges
-        .pipe(
-          debounceTime(250),
-          distinctUntilChanged(),
-          startWith(''),
-        )
-        .subscribe(res => {
-          if (res) {
-            this.deptFilterData = this.departmentData &&
-             this.departmentData.filter(item => item.toLowerCase().includes(res && res.toLowerCase()))
-             const orgSearchVal = this.transferRequestForm.controls['organization']
-             if (this.deptFilterData && this.deptFilterData.length && this.deptFilterData.length > 0) {
-              orgSearchVal.setErrors(null)
-             } else {
-            orgSearchVal.setErrors({ invalidSelection: true })
-             }
-          } else {
-            this.deptFilterData = this.departmentData.slice(0, this.organizationDefaultLoadCount);
-            this.checkCurrentOrganizationPresent()
-          }
-        })
+      .pipe(
+        debounceTime(250),
+        distinctUntilChanged(),
+      )
+      .subscribe(searchText => {
+        // this.organizationFilterEnable = !!searchText;
+        
+          // Call API with search instead of just filtering local data
+          this.organizationData = []; // Clear existing data
+          this.getAllDeptData(true, 0, searchText);
+        
+      });
     }
     if (this.transferRequestForm.get('searchDesignation')) {
+      let settingValueChange = true
       this.transferRequestForm.get('searchDesignation')!.valueChanges
         .pipe(
           debounceTime(250),
@@ -102,27 +104,64 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
           startWith(''),
         )
         .subscribe(res => {
-          if (res) {
-            const designonData = this.data && this.data.designationsMeta
-            this.designationData = designonData.filter((val: any) =>
-              val && val.name.trim().toLowerCase().includes(res && res.toLowerCase())
-            )
-            const designationSearchVal = this.transferRequestForm.controls['designation']
-            if (this.designationData && this.designationData.length && this.designationData.length > 0) {
-              designationSearchVal.setErrors(null)
-             } else {
-            designationSearchVal.setErrors({ invalidSelection: true })
-             }
-          } else {
-            this.designationData = this.data &&  this.data.designationsMeta.slice(0, this.designationDefaultLoadCount);
+          this.designationsOffset = 0
+          if (res && res.length > 1) {
+          this.designationSearchText = res
+            this.getdesignationsMeta()
+            // const designonData = this.data && this.data.designationsMeta
+            // this.designationData = designonData.filter((val: any) =>
+            //   val && val.name.trim().toLowerCase().includes(res && res.toLowerCase())
+            // )
+            // const designationSearchVal = this.transferRequestForm.controls['designation']
+            // if (this.designationData && this.designationData.length && this.designationData.length > 0) {
+            //   designationSearchVal.setErrors(null)
+            //  } else {
+            // designationSearchVal.setErrors({ invalidSelection: true })
+            //  }
+          } else if (!res) {
+          this.designationSearchText = res
+            if(!settingValueChange) {
+              this.getdesignationsMeta() 
+            }
             this.checkCurrentDesignationPresent()
-           }
+          }
+          settingValueChange = false
         })
     }
   }
 
+  getdesignationsMeta() {
+    const requestBody: any = {
+      filterCriteriaMap: {
+        status: 'Active'
+      },
+      requestedFields: [],
+      pageNumber: this.designationsOffset,
+      pageSize: this.designationListLoadCount
+    }
+    if(this.designationSearchText){
+      requestBody['searchString'] = this.designationSearchText
+    }
+    this.isLoadingMoreDesignations = true
+    this.profileV2RevampService.searchDesignation(requestBody).subscribe({
+      next: (res: any) => {
+        this.isLoadingMoreDesignations = false
+        if(this.designationsOffset === 0) {
+          this.designationData = _.get(res, 'result.result.data', [])
+        } else {
+          this.designationData = [...this.designationData, ..._.get(res, 'result.result.data', [])]
+        }
+        this.designationsTotalCount = _.get(res, 'result.result.totalCount', 0)
+        this.checkCurrentDesignationPresent()
+      }, error: (error: HttpErrorResponse) => {
+        if(error) {
+          this.matSnackBar.open('Something went wrong. Please try again later.')
+        }
+      }
+    })
+  }
+
   ngOnInit() {
-    this.getAllDeptData()
 
   }
 
@@ -130,18 +169,6 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
     this.dialogRef.close()
   }
 
-  organizationSearch(value: string) {
-    const filterVal = value.toLowerCase()
-    return this.departmentData.filter(option => option.toLowerCase().includes(filterVal))
-  }
-
-  searchOrg(value: any) {
-    if (value && value.length) {
-      this.departmentData = this.organizationSearch(value)
-    } else {
-      this.getAllDeptData()
-    }
-  }
 
   handleSubmitRequest(): void {
     if (this.transferRequestForm.valid) {
@@ -177,13 +204,52 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
     }
   }
 
-  getAllDeptData(): void {
-    this.userProfileService.getAllDepartments()
+  getOrgRequest(_newCall:boolean , offsetValue: number, searchText:string): any {
+    const request: any = {
+      "request": {
+          "filters": {
+              "isTenant": true,
+              "status": 1,
+              "isMdo": true,
+              "isCbp": true
+          },
+          "fields":["channel", "orgName"],
+          "limit": this.organizationDefaultLoadCount,
+          "offset": offsetValue
+      }
+    }
+
+    if (searchText && searchText.trim() !== '') {
+      request.request.query = searchText;
+    }
+    return request
+  }
+
+  getAllDeptData(onLoad:boolean, offsetValue: number,searchText:string): void {
+    this.userProfileService.getOrganizationData(this.getOrgRequest(onLoad, offsetValue, searchText))
       .pipe(takeUntil(this.destroySubject$))
       .subscribe((res: any) => {
-        this.departmentData = res.sort((a: any, b: any) => {
-          return a.toLowerCase().localeCompare(b.toLowerCase())
-        })
+        // Check if we have valid response data
+      if (res && res.result && res.result.response && res.result.response.content && res.result.response.content.length) {
+        // If onLoad is true, replace the existing data
+        if (onLoad) {
+          this.organizationData = [...res.result.response.content];
+          this.organizationDataTotalCount =res.result.response.count
+        } else {
+          // Otherwise append the new data
+          this.organizationData = [...this.organizationData, ...res.result.response.content];
+        }
+        
+        // Update the filtered data for display
+        this.deptFilterData = this.organizationData;
+        
+      } else {
+        if(onLoad) {
+          this.organizationData = []
+          this.deptFilterData = []
+        }
+      }
+        this.isLoadingMoreOrganization = false
       },         (error: HttpErrorResponse) => {
         if (!error.ok) {
           this.matSnackBar.open(this.handleTranslateTo('orgFetchDataFailed'))
@@ -201,7 +267,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
 
   assignValue(): void {
     if (this.onLoad) {
-      this.deptFilterData = this.departmentData
+      this.deptFilterData = this.organizationData
       this.onLoad = false
     }
   }
@@ -214,55 +280,39 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
     // Check if current designation exists in the list
     if (currentDesignation) {
       const designationExists = this.designationData.some(
-        (designation: any) => designation.name.toLowerCase() === currentDesignation.toLowerCase()
+        (designation: any) => designation.designation.toLowerCase() === currentDesignation.toLowerCase()
       );
       
       // If designation doesn't exist in the list, add it
       if (!designationExists) {
         // Create a new designation object to match the structure of other items
         const newDesignation = { 
-          name: currentDesignation,
+          designation: currentDesignation,
           // Add any other required properties matching your data structure
           id: 'custom-' + Date.now(),
           status: 'Active'
         };
         // Make sure the custom designation appears in the filtered list
-        if (this.designationData.length >= this.designationListLoadCount) {
-          // Replace the last item with the new one to maintain the same number of items
-          this.designationData.pop();
-        }
+        // if (this.designationData.length >= this.designationListLoadCount) {
+        //   // Replace the last item with the new one to maintain the same number of items
+        //   this.designationData.pop();
+        // }
         this.designationData.unshift(newDesignation);
       }
     }
   }
 
 
-  checkCurrentOrganizationPresent() {
-    const currentOrg = this.transferRequestForm.get('organization')!.value;
-    if (currentOrg) {
-      const exists = this.deptFilterData.some(org => org.toLowerCase() === currentOrg.toLowerCase());
-      if (!exists) {
-        const newOrg = {
-          name: currentOrg,
-          id: 'custom-' + Date.now(),
-          status: 'Active',
-        };
-        if (this.deptFilterData.length >= this.organizationListLoadCount) {
-          this.deptFilterData.pop();
-        }
-        this.deptFilterData.unshift(newOrg.name);
-      }
-    }
-  }
-
   setupScrollListener(opened: boolean): void {
     if (opened) {
       if (this.transferRequestForm.get('searchDesignation')) {
         this.transferRequestForm.get('searchDesignation')!.setValue('');
       }
-      this.desigantionFilterEnable = false
-      this.designationListLoadCount = this.designationDefaultLoadCount; // Reset the load count
-      this.designationData = this.data.designationsMeta.slice(0, this.designationDefaultLoadCount);
+      this.designationsOffset = 0
+      this.getdesignationsMeta()
+      // this.desigantionFilterEnable = false
+      // this.designationListLoadCount = this.designationDefaultLoadCount; // Reset the load count
+      // this.designationData = this.data.designationsMeta.slice(0, this.designationDefaultLoadCount);
 
       this.checkCurrentDesignationPresent()
       setTimeout(() => {
@@ -284,16 +334,74 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
     }
   }
 
+  
+
+  onDesignationSelectScroll(event: any): void {
+    const element = event.target;
+    
+    // if(!this.desigantionFilterEnable){
+      // Check if user has scrolled to the bottom (with a small threshold)
+      if (element.scrollTop + element.clientHeight >= element.scrollHeight - 5) {
+        // Only load more if not already loading and if there are potentially more items
+        if (!this.isLoadingMoreDesignations && this.designationData.length < this.designationsTotalCount) {
+          this.isLoadingMoreDesignations = true;
+          this.designationsOffset += 1;
+          this.getdesignationsMeta()
+          
+          // // Increase the load count by designationDefaultLoadCount
+          // this.designationListLoadCount += this.designationDefaultLoadCount;
+          
+          // // Update the filtered list with more items
+          // setTimeout(() => {
+          //   this.designationData = this.data.designationsMeta.slice(0, this.designationListLoadCount);
+          //   this.checkCurrentDesignationPresent()
+          //   this.isLoadingMoreDesignations = false;
+          // }, 500); // Small timeout to simulate loading and prevent multiple triggers
+        }
+      }
+    // }
+  }
+
+
+
+  onDesignationDropdownClosed(): void {
+    const searchDesignationControl = this.transferRequestForm.get('searchDesignation');
+    if (searchDesignationControl) {
+      searchDesignationControl.setValue('')
+      this.designationSearchText = ''
+    }
+    this.checkCurrentDesignationPresent()
+    // Keep the designation value but clear the search input
+    // const currentDesignation = this.transferRequestForm.get('designation')!.value;
+    // setTimeout(() => {
+    //   if (this.transferRequestForm.get('searchDesignation')) {
+    //     this.transferRequestForm.get('searchDesignation')!.setValue('');
+    //   }
+    //   // Ensure the designation value remains selected
+    //   if (currentDesignation) {
+    //     const designationControl = this.transferRequestForm.get('designation');
+    //     if (designationControl) {
+    //       designationControl.setValue(currentDesignation);
+    //     }
+    //   }
+    // }, 100);
+  }
+
+  onOrgSelectionChange(org: any) {
+    if (org && org.channel) {
+      this.transferRequestForm.controls.organization.setValue(org.channel)
+    }
+  }
   setupOrgScrollListener(opened: boolean): void {
     if (opened) {
-      if (this.transferRequestForm.get('searchOrganization')) {
+      if (this.transferRequestForm.get('searchOrganization')?.value) {
         this.transferRequestForm.get('searchOrganization')!.setValue('');
+      } else {
+        this.getAllDeptData(true, 0, '');
       }
-      this.organizationFilterEnable = false
-      this.organizationListLoadCount = this.organizationDefaultLoadCount; // Reset the load count
-      this.deptFilterData = this.departmentData.slice(0, this.organizationDefaultLoadCount);
+      // this.organizationFilterEnable = false
+      this.organizationListLoadCount = this.organizationDefaultLoadCount; 
 
-      this.checkCurrentOrganizationPresent()
       setTimeout(() => {
         const searchInput = document.querySelector('.search-org-input') as HTMLInputElement;
         if (searchInput) {
@@ -313,83 +421,29 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
     }
   }
 
-  onDesignationSelectScroll(event: any): void {
-    const element = event.target;
-    
-    if(!this.desigantionFilterEnable){
-      // Check if user has scrolled to the bottom (with a small threshold)
-      if (element.scrollTop + element.clientHeight >= element.scrollHeight - 5) {
-        // Only load more if not already loading and if there are potentially more items
-        if (!this.isLoadingMoreDesignations && this.data.designationsMeta.length > this.designationData.length) {
-          this.isLoadingMoreDesignations = true;
-          
-          // Increase the load count by designationDefaultLoadCount
-          this.designationListLoadCount += this.designationDefaultLoadCount;
-          
-          // Update the filtered list with more items
-          setTimeout(() => {
-            this.designationData = this.data.designationsMeta.slice(0, this.designationListLoadCount);
-            this.checkCurrentDesignationPresent()
-            this.isLoadingMoreDesignations = false;
-          }, 500); // Small timeout to simulate loading and prevent multiple triggers
-        }
-      }
-    }
-  }
-
   onOrgSelectScroll(event: any): void { 
     const element = event.target;
-    if(!this.organizationFilterEnable){
-      // Check if user has scrolled to the bottom (with a small threshold)
-      if (element.scrollTop + element.clientHeight >= element.scrollHeight - 5) {
-        // Only load more if not already loading and if there are potentially more items
-        if (!this.isLoadingMoreOrganization && this.departmentData.length > this.deptFilterData.length) {
-          this.isLoadingMoreOrganization = true;
-          
-          // Increase the load count by designationDefaultLoadCount
-          this.organizationListLoadCount += this.organizationDefaultLoadCount;
-          // Update the filtered list with more items
-          setTimeout(() => {
-            this.deptFilterData = this.departmentData.slice(0, this.organizationListLoadCount)
-            this.checkCurrentOrganizationPresent()
-            this.isLoadingMoreOrganization = false;
-          }, 500); // Small timeout to simulate loading and prevent multiple triggers
-        }
+    
+    // Check if user has scrolled to the bottom (with a small threshold)
+    if (element.scrollTop + element.clientHeight >= element.scrollHeight - 5) {
+      // Only load more if:
+      // 1. Not already loading
+      // 2. We haven't reached the total available count yet
+      if (!this.isLoadingMoreOrganization && this.organizationData.length < this.organizationDataTotalCount) {
+        this.isLoadingMoreOrganization = true;
+        
+        // Calculate the next offset
+        const nextOffset = this.organizationData.length;
+        
+        // Call API to get more data
+        this.getAllDeptData(false, nextOffset, this.transferRequestForm.get('searchOrganization')?.value || '');
+        
+        // Increase the load count
+        this.organizationListLoadCount += this.organizationDefaultLoadCount;
       }
     }
   }
-
-  onDesignationDropdownClosed(): void {
-    // Keep the designation value but clear the search input
-    const currentDesignation = this.transferRequestForm.get('designation')!.value;
-    setTimeout(() => {
-      if (this.transferRequestForm.get('searchDesignation')) {
-        this.transferRequestForm.get('searchDesignation')!.setValue('');
-      }
-      // Ensure the designation value remains selected
-      if (currentDesignation) {
-        const designationControl = this.transferRequestForm.get('designation');
-        if (designationControl) {
-          designationControl.setValue(currentDesignation);
-        }
-      }
-    }, 100);
-  }
-
-  onOrgDropdownClosed(): void {
-    // Keep the designation value but clear the search input
-    const currentOrg = this.transferRequestForm.get('organization')!.value;
-    setTimeout(() => {
-      if (this.transferRequestForm.get('searchOrganization')) {
-        this.transferRequestForm.get('searchOrganization')!.setValue('');
-      }
-      // Ensure the designation value remains selected
-      if (currentOrg) {
-        const organizationControl = this.transferRequestForm.get('organization');
-        if (organizationControl) {
-          organizationControl.setValue(currentOrg);
-        }
-      }
-    }, 100);
+  trackByFn(_index: number, item: any): number {
+    return item.channel
   }
 }

@@ -18,6 +18,8 @@ export class ViewerUtilService {
     // PROGRESS_UPDATE: `/apis/protected/v8/user/realTimeProgress/update`,
     PROGRESS_UPDATE: `/apis/proxies/v8/content-progres`,
     ASSESSMENT_SECTION: `/apis/proxies/v8/assessment/v5/read`,
+    GET_FORM_BYID: (formId: string) => `apis/proxies/v8/forms/getFormById?id=${formId}`,
+    SUBMIT_FORM: `/apis/proxies/v8/forms/v1/saveFormSubmit`
   }
   downloadRegex = new RegExp(`(/content-store/.*?)(\\\)?\\\\?['"])`, 'gm')
   authoringBase = '/apis/authContent/'
@@ -178,8 +180,9 @@ export class ViewerUtilService {
     if (!this.forPreview) {
       if (tempContentData && tempContentReadData.cumulativeTracking &&
         (tempContentData.primaryCategory === NsContent.EPrimaryCategory.PROGRAM ||
-       tempContentData.primaryCategory === NsContent.EPrimaryCategory.CURATED_PROGRAM ||
-       tempContentData.primaryCategory === NsContent.EPrimaryCategory.BLENDED_PROGRAM)
+       tempContentData.primaryCategory === NsContent.EPrimaryCategory.CURATED_PROGRAM 
+      || tempContentData.primaryCategory === NsContent.EPrimaryCategory.BLENDED_PROGRAM 
+      )
        ) {
        tempContentData.children.forEach(async (childList: NsContent.IContent) => {
          if (childList.primaryCategory === NsContent.EPrimaryCategory.COURSE) {
@@ -196,7 +199,7 @@ export class ViewerUtilService {
              }
            }
          } else if (tempContentData.primaryCategory === NsContent.EPrimaryCategory.BLENDED_PROGRAM) {
-          // if(tempData.courseId === courseId) {
+          if(tempData.courseId === courseId) {
            const bPEnrollmentList = enrollmentList.filter((v: NsContent.ICourse) => v.contentId === tempContentData.identifier)
            if (tempContentData.childNodes && tempContentData.childNodes.indexOf(resourceId) !== -1) {
              if (bPEnrollmentList.length > 0) {
@@ -204,7 +207,7 @@ export class ViewerUtilService {
                tempData.courseId = tempContentData.identifier
              }
            }
-          // }
+          }
          }
        })
      }
@@ -338,5 +341,22 @@ export class ViewerUtilService {
 
     fetchContent(id: string, type: string) {
       return this.http.get<NsContent.IContent>(`/apis/proxies/v8/action/content/v3/hierarchy/${id}?mode=${type}`)
+    }
+
+    updateContentHashMapForAssesstent(contentId: string, contentProgress: any) {
+      if (this.tocSvc.hashmap[contentId] &&
+        (!this.tocSvc.hashmap[contentId]['completionStatus'] || this.tocSvc.hashmap[contentId]['completionStatus'] < 2)) {
+        this.tocSvc.hashmap[contentId]['completionPercentage'] = contentProgress.completionPercentage
+        this.tocSvc.hashmap[contentId]['completionStatus'] = contentProgress.status
+        this.tocSvc.hashmap = { ...this.tocSvc.hashmap }
+      }
+    }
+
+    getFormById(formId: string) {
+      return this.http.get(this.API_ENDPOINTS.GET_FORM_BYID(formId))
+    }
+
+    submitForm(formData: any) {
+      return this.http.post<any>(this.API_ENDPOINTS.SUBMIT_FORM, formData)
     }
 }

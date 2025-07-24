@@ -13,7 +13,9 @@ import { WidgetUserServiceLib } from '@sunbird-cb/consumption'
 import {
   // LoggerService,
   ConfigurationsService,
+  EventService,
   UtilityService,
+  WsEvents,
 } from '@sunbird-cb/utils-v2'
 // tslint:disable-next-line
 import _ from 'lodash'
@@ -82,7 +84,8 @@ export class ViewerTocComponent implements OnInit, OnDestroy {
     private viewSvc: ViewerUtilService,
     private configSvc: ConfigurationsService,
     // private contentProgressSvc: ContentProgressService,
-    private userSvc: WidgetUserServiceLib
+    private userSvc: WidgetUserServiceLib,
+    public eventSvc: EventService
     // private tocSvc: AppTocService,
   ) {
     this.nestedTreeControl = new NestedTreeControl<IViewerTocCard>(this._getChildren)
@@ -119,6 +122,12 @@ export class ViewerTocComponent implements OnInit, OnDestroy {
   enrollmentList: any
   enableAITutorFlag = false
   aiTutorResourceId:any = ''
+  showAITutorFlag = true
+  scormAssessmentCount = 0
+  totalResource = 0
+  defaultTabIndex = 0
+  fromAITutor:any = false
+  isMobile = false
   // tslint:disable-next-line
   hasNestedChild = (_: number, nodeData: IViewerTocCard) =>
     nodeData && nodeData.children && nodeData.children.length
@@ -127,6 +136,7 @@ export class ViewerTocComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.isMobile = this.utilitySvc.isMobile
     if(this.configSvc.iGOTAIConfig && this.configSvc.iGOTAIConfig.aiTutor) {
       this.enableAITutorFlag = true
     } else {
@@ -134,6 +144,12 @@ export class ViewerTocComponent implements OnInit, OnDestroy {
     }
     this.hierarchyData = this.activatedRoute.snapshot.data.hierarchyData
     && this.activatedRoute.snapshot.data.hierarchyData.data || ''
+    if(this.hierarchyData && this.hierarchyData.result 
+      && this.hierarchyData.result.content 
+      && this.hierarchyData.result.content.children) {
+      this.showAITutorFlag = this.onlyscormAssessmentExists(this.hierarchyData.result.content.children, 'mimeType', ['application/vnd.ekstep.html-archive','application/vnd.sunbird.questionset','application/json', 'text/x-url'])      
+    }
+    
     this.enrollmentList = this.activatedRoute.snapshot.data.enrollmentData
     && this.activatedRoute.snapshot.data.enrollmentData.data || ''
     const contentRead = this.activatedRoute.snapshot.data.contentRead
@@ -143,9 +159,9 @@ export class ViewerTocComponent implements OnInit, OnDestroy {
       this.aiTutorResourceId = contentRead.result.content.identifier
     }
      // tslint:disable-next-line
-     console.log(this.hierarchyData,'hierarchyData')
+    //  console.log(this.hierarchyData,'hierarchyData')
      // tslint:disable-next-line
-     console.log(contentRead,'contentRead')
+    //  console.log(contentRead,'contentRead')
 
      
     if (this.configSvc.instanceConfig && this.configSvc.instanceConfig.logos) {
@@ -166,6 +182,10 @@ export class ViewerTocComponent implements OnInit, OnDestroy {
       this.viewMode = params.get('viewMode') || 'START'
       this.forPreview = params.get('preview') === 'true' ? true : false
       this.channelId = params.get('channelId')
+      this.fromAITutor = params.get('fromAITutor')
+      if(this.fromAITutor === true || this.fromAITutor === 'true') {
+        this.defaultTabIndex = 1
+      }
       try {
         this.batchId = params.get('batchId')
       } catch {
@@ -294,7 +314,7 @@ export class ViewerTocComponent implements OnInit, OnDestroy {
       const currentIndex = this.queue.findIndex(c => c.identifier === this.resourceId)
       if(this.queue && currentIndex > -1) {
         if(this.queue[currentIndex] &&  this.queue[currentIndex].identifier) {
-         this.aiTutorResourceId = this.queue[currentIndex].identifier
+        // this.aiTutorResourceId = this.queue[currentIndex].identifier
         }        
       }
       const next =
@@ -329,7 +349,7 @@ export class ViewerTocComponent implements OnInit, OnDestroy {
         this.collectionCard = this.createCollectionCard(contentData)
         const viewerTocCardContent = this.convertContentToIViewerTocCard(contentData)
         this.isFetching = false
-        console.log('this.collection--', this.collection)
+        // console.log('this.collection--', this.collection)
         return viewerTocCardContent
       }
       return null
@@ -577,5 +597,94 @@ export class ViewerTocComponent implements OnInit, OnDestroy {
 
   minimizenav() {
     this.hidenav.emit(false)
+  }
+
+  onlyscormAssessmentExists(data:any, key:any, value:any) {
+    for (let i=0; i<data?.length; i++) {
+      if (data[i] && data[i]['children'] && data[i]['children'].length) { 
+        // this.totalResource = this.totalResource + 1
+        this.onlyscormAssessmentExists(data[i]?.children, key, value)      
+      } else {
+        this.totalResource = this.totalResource + 1
+        if (value.includes(data[i][key])) {
+          // this.showAITutorFlag = false;
+          this.scormAssessmentCount = this.scormAssessmentCount + 1
+        } 
+      }
+    }
+    // console.log('this.totalResource',this.totalResource)
+    // console.log('this.scormAssessmentCount',this.scormAssessmentCount)
+    if(this.totalResource === this.scormAssessmentCount) {
+      this.showAITutorFlag = false;
+    } else {
+      this.showAITutorFlag = true
+    }
+    return this.showAITutorFlag;
+  }
+
+  onTabChanged(event:any) {
+    // console.log('contentData', this.contentData)
+    if(event && event.index && event.index === 1) {
+      this.raiseAITutorStartTelemetry()
+      this.raiseAITutorInteractTelemetry()
+    } else {
+      this.raiseAITutorEndTelemetry()
+    }
+    
+  }
+
+  raiseAITutorStartTelemetry() {
+    const event = {
+      eventType: WsEvents.WsEventType.Telemetry,
+      eventLogLevel: WsEvents.WsEventLogLevel.Info,
+      data: {
+        edata: { type: 'click',  "id": "ai-tutor-player-page", "pageid": `/viewer/${this.contentData?.identifier}`   },
+        object: { "id": this.contentData?.identifier,"type": this.contentData?.courseCategory },
+        state: WsEvents.EnumTelemetrySubType.Loaded,
+        eventSubType: WsEvents.EnumTelemetrySubType.Chatbot,
+        mode: 'view',
+      },
+      pageContext: {pageId: '/viewer', module: 'Learn'},
+      from: '',
+      to: 'Telemetry',
+    }
+    this.eventSvc.dispatchChatbotEvent<WsEvents.IWsEventTelemetryInteract>(event)
+  }
+
+
+  raiseAITutorEndTelemetry() {
+    const event = {
+      eventType: WsEvents.WsEventType.Telemetry,
+      eventLogLevel: WsEvents.WsEventLogLevel.Info,
+      data: {
+        edata: { type: 'click',  "id": "ai-tutor-player-page", "pageid": `/viewer/${this.contentData?.identifier}`  },
+        object: { "id": this.contentData?.identifier,"type": this.contentData?.courseCategory },
+        state: WsEvents.EnumTelemetrySubType.Unloaded,
+        eventSubType: WsEvents.EnumTelemetrySubType.Chatbot,
+        mode: 'view',
+      },
+      pageContext: {pageId: '/viewer', module: 'Learn'},
+      from: '',
+      to: 'Telemetry',
+    }
+    this.eventSvc.dispatchChatbotEvent<WsEvents.IWsEventTelemetryInteract>(event)
+  }
+
+  raiseAITutorInteractTelemetry() {
+    const event = {
+      eventType: WsEvents.WsEventType.Telemetry,
+      eventLogLevel: WsEvents.WsEventLogLevel.Info,
+      data: {
+        edata: { type: 'click',  "id": "ai-tutor-player-page", "pageid": `/viewer/${this.contentData?.identifier}`  },
+        object: { "id": this.contentData?.identifier,"type": this.contentData?.courseCategory },
+        state: WsEvents.EnumTelemetrySubType.Interact,
+        eventSubType: WsEvents.EnumTelemetrySubType.Chatbot,
+        mode: 'view',
+      },
+      pageContext: {pageId: '/viewer', module: 'Learn'},
+      from: '',
+      to: 'Telemetry',
+    }
+    this.eventSvc.dispatchChatbotEvent<WsEvents.IWsEventTelemetryInteract>(event)
   }
 }

@@ -101,7 +101,7 @@ export class AppTocHomeComponent implements OnInit, OnDestroy, AfterViewChecked,
   enrolledCourseData: any
   @Input() forPreview: any = window.location.href.includes('/public/') || window.location.href.includes('/author/')
   // forPreview = window.location.href.includes('/author/')
-  analytics = this.route.snapshot.data.pageData.data.analytics
+  analytics = this.route.snapshot.data.pageData.data?.analytics
   errorWidgetData: NsWidgetResolver.IRenderConfigWithTypedData<any> = {
     widgetType: 'errorResolver',
     widgetSubType: 'errorResolver',
@@ -225,6 +225,7 @@ export class AppTocHomeComponent implements OnInit, OnDestroy, AfterViewChecked,
   SAKSHAMAI_ICON_LOADER = '/assets/images/sakshamAI/saksham_ai_loader.gif'
   recommendedCoursesId = ''
   feedbackGiven: any
+  fromAITutor = false
   @HostListener('window:scroll', ['$event'])
   handleScroll() {
     const windowScroll = window.pageYOffset
@@ -1262,6 +1263,10 @@ export class AppTocHomeComponent implements OnInit, OnDestroy, AfterViewChecked,
           }
         },
         (_error: any) => {
+          // console.log('_error', _error)
+          // if(_error && _error.error && _error.error.params && _error.error.params.err && _error.error.params.err.errmsg) {
+            this.snackBar.open(_.get(_error, 'error.params.errmsg') || 'Please try again later');
+          // }
           this.enrollBtnLoading = false
         }
       )
@@ -1292,6 +1297,7 @@ export class AppTocHomeComponent implements OnInit, OnDestroy, AfterViewChecked,
           // this.enrollBtnLoading = false
         },
         (_error: any) => {
+          this.snackBar.open(_.get(_error, 'error.params.errmsg') || 'Please try again later');
           this.enrollBtnLoading = false
         }
       )
@@ -1317,7 +1323,7 @@ export class AppTocHomeComponent implements OnInit, OnDestroy, AfterViewChecked,
         primaryCategory,
         batchId,
       )
-      this.router.navigate([`${this.firstResourceLink.url}`], { queryParams: { ...this.firstResourceLink.queryParams } })
+      this.router.navigate([`${this.firstResourceLink.url}`], { queryParams: { ...this.firstResourceLink.queryParams, fromAITutor: this.fromAITutor } })
     }
   }
 
@@ -1555,21 +1561,24 @@ export class AppTocHomeComponent implements OnInit, OnDestroy, AfterViewChecked,
 
   private getResumeDataFromList(type?: string): any | void {
     const resumeCopy = [...this.resumeData]
-    if (!type) {
-      // tslint:disable-next-line:max-line-length
+    if (resumeCopy && resumeCopy.length) {
+      if (!type) {
+        // tslint:disable-next-line:max-line-length
 
-      const lastItem = resumeCopy && resumeCopy.sort((a: any, b: any) =>
-        new Date(b.lastAccessTime).getTime() - new Date(a.lastAccessTime).getTime()).shift()
+        const lastItem = resumeCopy && resumeCopy.sort((a: any, b: any) =>
+          new Date(b.lastAccessTime).getTime() - new Date(a.lastAccessTime).getTime()).shift()
+        return {
+          identifier: lastItem.contentId,
+          mimeType: lastItem.progressdetails && lastItem.progressdetails.mimeType,
+        }
+      }
+      const firstItem = resumeCopy && resumeCopy.length && resumeCopy[0]
       return {
-        identifier: lastItem.contentId,
-        mimeType: lastItem.progressdetails && lastItem.progressdetails.mimeType,
+        identifier: firstItem.contentId,
+        mimeType: firstItem.progressdetails && firstItem.progressdetails.mimeType,
       }
     }
-    const firstItem = resumeCopy && resumeCopy.length && resumeCopy[0]
-    return {
-      identifier: firstItem.contentId,
-      mimeType: firstItem.progressdetails && firstItem.progressdetails.mimeType,
-    }
+    return {}
   }
 
   private modifySensibleContentRating() {
@@ -2288,7 +2297,7 @@ export class AppTocHomeComponent implements OnInit, OnDestroy, AfterViewChecked,
       if (this.content && this.content.source) {
         payload['content_provider_name'] = this.content.source
       }
-      console.log('payload', payload)
+      // console.log('payload', payload)
       if (eventType === 'view') {
         this.netCoreService.trackEventForContentAndEvent('content_view', this.configSvc.unMappedUser.identifier.trim().toLowerCase(), payload)
       } else if (eventType === 'enroll') {
@@ -2350,6 +2359,7 @@ export class AppTocHomeComponent implements OnInit, OnDestroy, AfterViewChecked,
   }
 
   enrollUserToAI() {
+    this.fromAITutor = true
     this.handleAutoBatchAssign()
   }
 }

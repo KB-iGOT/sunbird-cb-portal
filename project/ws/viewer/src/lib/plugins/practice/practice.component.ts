@@ -17,7 +17,7 @@ import { QuestionComponent } from './components/question/question.component'
 import { SubmitQuizDialogComponent } from './components/submit-quiz-dialog/submit-quiz-dialog.component'
 import { OnConnectionBindInfo } from 'jsplumb'
 import { PracticeService } from './practice.service'
-import { EventService, NsContent, ValueService, WsEvents } from '@sunbird-cb/utils-v2'
+import { ConfigurationsService, EventService, NsContent, ValueService, WsEvents } from '@sunbird-cb/utils-v2'
 import { WidgetContentService } from '@sunbird-cb/collection'
 import { ActivatedRoute, NavigationStart, Router } from '@angular/router'
 import { ViewerUtilService } from '../../viewer-util.service'
@@ -171,6 +171,7 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
     private router: Router,
     private valueSvc: ValueService,
     // private vws: ViewerDataService,
+        private configSvc: ConfigurationsService,
     private formBuilder: UntypedFormBuilder,
     public snackbar: MatSnackBar,
     private sanitized: DomSanitizer,
@@ -484,7 +485,7 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
       if (this.selectedAssessmentCompatibilityLevel < 7) {
 
         this.quizSvc.getSectionV4(this.identifier, this.forPreview,
-                                  this.getPublicContentRequestData()).subscribe((section: NSPractice.ISectionResponse) => {
+                                  this.getPublicContentRequestData(),this.collectionId).subscribe((section: NSPractice.ISectionResponse) => {
           // console.log(section)
           if (section && section.result && section.result.response) {
             if ((this.forPreview && !this.forCreatorMode)) {
@@ -526,6 +527,18 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
               // this.updateTimer()
               this.startIfonlySection()
             }
+          }
+        }, 
+       (error: any) => {
+          this.fetchingSectionsStatus = 'error'
+          // Only show specific message for 400 status code errors
+          if (error.status === 400) {
+            if (error.error && error.error.params && error.error.params.errmsg) {
+              this.openSnackbar(`${error.error.params.errmsg}`)
+              this.viewerHeaderSideBarToggleService.visibilityStatus.next(true)
+            }
+          } else {
+            this.openSnackbar('Failed to load assessment section. Please try again later.')
           }
         })
       } else {
@@ -1275,7 +1288,7 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
       batchId: this.resBatchId,
       identifier: this.identifier,
       primaryCategory: this.primaryCategory,
-      courseId: this.resCollectionId,
+      courseId: this.forPreview ? this.collectionId:  this.resCollectionId,
       isAssessment: true,
       objectType: 'QuestionSet',
       timeLimit: this.quizJson.timeLimit,
@@ -1647,18 +1660,34 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
         contextId: this.collectionId
       }
       
-      const quizV4Res: any = await this.quizSvc.publicSubmit(requestData).toPromise().catch(_error => {})
-          if (quizV4Res && quizV4Res.params && quizV4Res.params.status.toLowerCase() === 'success') {
-            if (quizV4Res.result.primaryCategory === 'Course Assessment') {
-              setTimeout(() => {
-                this.getQuizResult()
-                if(this.forPreview && this.quizData.isPublic){
-                  this.raiseEvent(WsEvents.EnumTelemetrySubType.Unloaded, this.quizData)
-                }
-              },         environment.quizResultTimeout)
-            } else if (quizV4Res.result.primaryCategory === 'Practice Question Set') {
-              this.assignQuizResult(quizV4Res.result)
-            }
+      if (this.selectedAssessmentCompatibilityLevel < 7) {
+        const quizV4Res: any = await this.quizSvc.publicV4Submit(requestData).toPromise().catch(_error => {})
+            if (quizV4Res && quizV4Res.params && quizV4Res.params.status.toLowerCase() === 'success') {
+              if (quizV4Res.result.primaryCategory === 'Course Assessment') {
+                setTimeout(() => {
+                  this.getQuizResult()
+                  if(this.forPreview && this.quizData.isPublic){
+                    this.raiseEvent(WsEvents.EnumTelemetrySubType.Unloaded, this.quizData)
+                  }
+                },         environment.quizResultTimeout)
+              } else if (quizV4Res.result.primaryCategory === 'Practice Question Set') {
+                this.assignQuizResult(quizV4Res.result)
+              }
+        }
+      } else {
+        const quizV4Res: any = await this.quizSvc.publicV5Submit(requestData).toPromise().catch(_error => {})
+            if (quizV4Res && quizV4Res.params && quizV4Res.params.status.toLowerCase() === 'success') {
+              if (quizV4Res.result.primaryCategory === 'Course Assessment') {
+                setTimeout(() => {
+                  this.getQuizResult()
+                  if(this.forPreview && this.quizData.isPublic){
+                    this.raiseEvent(WsEvents.EnumTelemetrySubType.Unloaded, this.quizData)
+                  }
+                },         environment.quizResultTimeout)
+              } else if (quizV4Res.result.primaryCategory === 'Practice Question Set') {
+                this.assignQuizResult(quizV4Res.result)
+              }
+        }
       }
     }
   }
@@ -1722,6 +1751,7 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
           await this.quizSvc.submitQuizV5(this.generateRequest).toPromise().catch(_error => {}) 
         }    
       }
+      this.fetchProgressOfAssessment()
     } else {
       let requestData : any = this.generateRequest
       requestData = {
@@ -1729,7 +1759,13 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
         ...this.viewerSvc.publicUserDetails,
         contextId: this.collectionId
       }
-      await this.quizSvc.publicSubmit(requestData ).toPromise().catch(_error => {}) 
+
+      if (this.selectedAssessmentCompatibilityLevel < 7) {
+      await this.quizSvc.publicV4Submit(requestData ).toPromise().catch(_error => {}) 
+      } else {
+        await this.quizSvc.publicV5Submit(requestData ).toPromise().catch(_error => {}) 
+
+      }
       if(this.forPreview && this.quizData.isPublic){
         this.raiseEvent(WsEvents.EnumTelemetrySubType.Unloaded, this.quizData)
       }
@@ -2134,6 +2170,9 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
       top.scrollIntoView({ behavior: 'smooth', block: 'start' })
     }
     this.clearStoragePartial()
+    if(!this.forPreview){
+      this.fetchProgressOfAssessment()
+    }
   }
   formate(text: string): SafeHtml {
     let newText = '<ul>'
@@ -2579,5 +2618,37 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
     return (this.widgetContentService.currentMetaData && 
     this.widgetContentService.currentMetaData.courseCategory === this.eCourseCategory.CURATED_PROGRAM && 
     this.widgetContentService.currentMetaData.compatibilityLevel > 4)
+  }
+
+  fetchProgressOfAssessment() {
+    let userId = ''
+    if (this.configSvc.userProfile) {
+      userId = this.configSvc.userProfile.userId || ''
+    }
+    const requestCourse = this.viewerSvc.getBatchIdAndCourseId(
+              this.activatedRoute.snapshot.queryParams.collectionId,
+              this.activatedRoute.snapshot.queryParams.batchId,
+      this.identifier)
+    const req:any = {
+      request: {
+        userId,
+        batchId: requestCourse.batchId,
+        courseId: requestCourse.courseId || '',
+        contentIds: [],
+        fields: ['progressdetails'],
+      },
+    }
+    this.widgetContentService.fetchContentHistoryV2(req).subscribe(
+      data => {
+        if (data && data.result && data.result.contentList.length) {
+          this.widgetContentService.setProgramChildResumeData(data.result.contentList, requestCourse.courseId)
+          let contentProgressData = data.result.contentList && data.result.contentList.length && data.result.contentList.filter((content: any) => {
+            return content.contentId === this.identifier})
+            if(contentProgressData && contentProgressData.length) {
+                this.viewerSvc.updateContentHashMapForAssesstent(this.identifier, contentProgressData[0])
+            }
+        }
+      },
+    )
   }
 }
