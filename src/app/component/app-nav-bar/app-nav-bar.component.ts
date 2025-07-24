@@ -12,7 +12,7 @@ import { CustomTourService } from '@sunbird-cb/collection/src/lib/_common/tour-g
 import { WidgetUserService } from '@sunbird-cb/collection/src/lib/_services/widget-user.service'
 
 
-import { NotificationsService } from 'src/app/services/notifications.service'
+import { NotificationsService } from '../../services/notifications.service'
 import * as _ from 'lodash'
 import { LibNotificationsService } from '@sunbird-cb/notification'
 import { Subscription } from 'rxjs'
@@ -69,7 +69,7 @@ export class AppNavBarComponent implements OnInit, OnChanges, OnDestroy {
   disableMenu = false
   showLangDropdown = true
   notificationsCount: number = 0
-  private myNotificationsSubscription!: Subscription
+  public myNotificationsSubscription!: Subscription
   constructor(
     private domSanitizer: DomSanitizer,
     private configSvc: ConfigurationsService,

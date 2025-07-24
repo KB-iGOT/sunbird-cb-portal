@@ -92,7 +92,7 @@ export class IGotSarthiComponent implements OnInit, AfterViewInit, AfterViewChec
   displayedText = '';
   isLoading = false;
   hasError = false;
-  @ViewChild('scrollMe') private myScrollContainer: ElementRef | undefined
+  @ViewChild('scrollMe') public myScrollContainer: ElementRef | undefined
   // @ViewChild('autoResizeTextarea') textArea!: ElementRef;
   @ViewChild('autoResizeTextarea') textArea!: ElementRef<HTMLTextAreaElement>;
   isHubEnable!: boolean

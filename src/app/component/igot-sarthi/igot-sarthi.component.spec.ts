@@ -39,6 +39,10 @@ class MockNavigationEnd {
   constructor(public url: string) {}
 }
 
+const mockDialog = {}
+
+const mockSnackBar = {}
+
 const mockRouter = {
   events: of(new MockNavigationEnd('/test'))
 };
@@ -120,6 +124,8 @@ describe('IGotSarthiComponent', () => {
       mockEventSvc as any,
       mockRenderer2 as any,
       mockChatbotService as any,
+      mockDialog as any,
+      mockSnackBar as any,
       mockRouter as any
     );
 
@@ -470,7 +476,7 @@ describe('IGotSarthiComponent', () => {
       // Mock scrollToBottomEvent emit
       component.scrollToBottomEvent = { emit: jest.fn() } as any;
       
-      component.submitSearchQuery();
+      component.submitSearchQuery(null as any, null as any);
       
       expect(component.aiSearchResultArr.length).toBeGreaterThan(0);
     });

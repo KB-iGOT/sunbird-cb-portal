@@ -16,7 +16,10 @@ describe('TopRightNavBarComponent', () => {
   let mockTranslate: jest.Mocked<TranslateService>;
   let mockHttpClient: jest.Mocked<HttpClient>;
   let mockSanitizer: jest.Mocked<DomSanitizer>;
-
+  let mockEventService:any;
+  let mockSnackBar:any;
+  let mockRouter:any;
+  let mockNotificationsService:any;
   beforeEach(() => {
     // Mock localStorage
     const localStorageMock = (() => {
@@ -74,6 +77,9 @@ describe('TopRightNavBarComponent', () => {
       bypassSecurityTrustHtml: jest.fn().mockReturnValue('sanitized-html')
     } as any;
 
+    mockEventService = {
+
+    }
     // Instantiate component with mocks
     component = new TopRightNavBarComponent(
       mockDialog,
@@ -82,7 +88,11 @@ describe('TopRightNavBarComponent', () => {
       mockLangTranslations,
       mockTranslate,
       mockHttpClient,
-      mockSanitizer
+      mockSanitizer,
+      mockEventService, 
+      mockSnackBar,
+      mockRouter, 
+      mockNotificationsService
     );
   });
 
@@ -103,7 +113,11 @@ describe('TopRightNavBarComponent', () => {
         mockLangTranslations,
         mockTranslate,
         mockHttpClient,
-        mockSanitizer
+        mockSanitizer,
+        mockEventService, 
+      mockSnackBar,
+      mockRouter, 
+      mockNotificationsService
       );
 
       expect(mockTranslate.setDefaultLang).toHaveBeenCalledWith('en');
