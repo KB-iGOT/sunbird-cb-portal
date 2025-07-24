@@ -13,6 +13,7 @@ import { ActionService } from '@ws/app/src/lib/routes/app-toc/services/action.se
 import { VttFile } from '@polyflix/vtt-parser';
 import { tap } from 'rxjs/operators'
 import { ViewerDataService } from '@ws/viewer/src/lib/viewer-data.service'
+import { viewerRouteGenerator } from '../../_services/viewer-route-util'
 import { MatTab } from '@angular/material/tabs'
 @Component({
   selector: 'ws-widget-content-toc',
