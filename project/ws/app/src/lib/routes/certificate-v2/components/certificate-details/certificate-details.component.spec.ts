@@ -1,96 +1,285 @@
-import { PublicPlayerService } from '@sunbird/public'
-import { CertificateService } from '@sunbird/core'
-import { DeviceDetectorService } from 'ngx-device-detector'
-import { CacheService } from 'ng2-cache-service'
-import { Router, ActivatedRoute } from '@angular/router'
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
-import { CertificateDetailsComponent } from './certificate-details.component'
-import { FormsModule } from '@angular/forms'
-import { SharedModule, ResourceService, ConfigService, BrowserCacheTtlService } from '@sunbird/shared'
-import { SuiModule } from 'ng2-semantic-ui'
-import { HttpClientTestingModule } from '@angular/common/http/testing'
-import { TelemetryModule } from '@sunbird/telemetry'
-import { PlayerHelperModule } from '@sunbird/player-helper'
-import { throwError as observableThrowError, of as observableOf } from 'rxjs'
-import { validateCertMockResponse } from './certificate-details.component.spec.data'
+import { CertificateDetailsComponent } from './certificate-details.component';
+import { of, throwError } from 'rxjs';
+import { ActivatedRoute, Router } from '@angular/router';
+import { DomSanitizer } from '@angular/platform-browser';
+import { ConfigurationsService } from '@sunbird-cb/utils-v2';
+import { ApiService } from '@ws/author/src/public-api';
+import { CertificateService } from '../../services/certificate.service';
+import * as _ from 'lodash';
+import moment from 'moment';
 
 describe('CertificateDetailsComponent', () => {
-  let component: CertificateDetailsComponent
-  let fixture: ComponentFixture<CertificateDetailsComponent>
-
-  class RouterStub {
-    navigate = jasmine.createSpy('navigate')
-  }
-
-  const fakeActivatedRoute = {
-    snapshot: {
-      data: {
-        telemetry: {
-          env: 'course', pageid: 'validate-certificate', type: 'view',
-        },
-      },
-      params: {
-        uuid: '9545879',
-      },
-      queryParams: {
-        clientId: 'android',
-      },
-    },
-  }
-
-  beforeEach(async(() => {
-    TestBed.configureTestingModule({
-      imports: [HttpClientTestingModule, FormsModule, SharedModule.forRoot(), SuiModule, TelemetryModule.forRoot(), PlayerHelperModule],
-      declarations: [CertificateDetailsComponent],
-      providers: [ResourceService, ConfigService, CacheService, BrowserCacheTtlService, DeviceDetectorService,
-        { provide: Router, useClass: RouterStub },
-        { provide: ActivatedRoute, useValue: fakeActivatedRoute },
-      ],
-    })
-      .compileComponents()
-  }))
-
+  let component: CertificateDetailsComponent;
+  let mockActivatedRoute: Partial<ActivatedRoute>;
+  let mockCertificateService: Partial<CertificateService>;
+  let mockConfigService: Partial<ConfigurationsService>;
+  let mockApiService: Partial<ApiService>;
+  let mockDomSanitizer: Partial<DomSanitizer>;
+  let mockRouter: Partial<Router>;
+  
   beforeEach(() => {
-    fixture = TestBed.createComponent(CertificateDetailsComponent)
-    component = fixture.componentInstance
-    fixture.detectChanges()
-  })
-
-  it('should verify the certificate', () => {
-    component.loader = true
-    const certificateService = TestBed.get(CertificateService)
-    spyOn(certificateService, 'validateCertificate').and.returnValue(observableOf(validateCertMockResponse.successResponse))
-    const certData = validateCertMockResponse.successResponse
-    component.certificateVerify()
-    expect(component.loader).toBe(false)
-    expect(component.viewCertificate).toBe(true)
-    expect(component.recipient).toBe(certData.result.response.json.recipient.name)
-    expect(component.courseName).toBe(certData.result.response.json.badge.name)
-  })
-
-  it('should not verify the certificate', () => {
-    component.loader = true
-    const certificateService = TestBed.get(CertificateService)
-    spyOn(certificateService, 'validateCertificate').and.callFake(() => observableThrowError(validateCertMockResponse.errorRespone))
-    const certData = validateCertMockResponse.errorRespone
-    component.certificateVerify()
-    expect(component.loader).toBe(false)
-    expect(component.wrongCertificateCode).toBe(true)
-    expect(component.enableVerifyButton).toBe(false)
-  })
-
-  it('should get content id', () => {
-    const playerService = TestBed.get(PublicPlayerService)
-    spyOn(playerService, 'getCollectionHierarchy').and.returnValue(observableOf(validateCertMockResponse.getCourseIdResponse))
-    component.watchVideoLink = validateCertMockResponse.getCourseIdResponse.result.content.certVideoUrl
-    component.getCourseVideoUrl('do_1126972203209768961327')
-    expect(component.contentId).toBe('do_112831862871203840114')
-  })
-
-  it('should play the content', () => {
-    component.showVideoThumbnail = false
-    const playerService = TestBed.get(PublicPlayerService)
-    spyOn(playerService, 'getContent').and.returnValue(observableOf(validateCertMockResponse.getContentResponse))
-    component.playContent('do_112831862871203840114')
-  })
-})
+    // Mock ActivatedRoute
+    mockActivatedRoute = {
+      snapshot: {
+        params: { uuid: 'test-uuid' },
+        data: { telemetry: { env: 'test-env', type: 'test-type', pageid: 'test-pageid' } },
+        queryParams: {}
+      } as any
+    };
+    
+    // Mock CertificateService
+    mockCertificateService = {
+      validateCertificate: jest.fn()
+    };
+    
+    // Mock ConfigService
+    mockConfigService = {
+      rootOrg: 'karmyogi',
+      // instanceConfig: {
+      //   logos: {
+      //     appTransparent: 'test-logo-url'
+      //   }
+      // }
+    };
+    
+    // Mock ApiService
+    mockApiService = {
+      get: jest.fn()
+    };
+    
+    // Mock DomSanitizer
+    mockDomSanitizer = {
+      bypassSecurityTrustResourceUrl: jest.fn().mockReturnValue('sanitized-url')
+    };
+    
+    // Mock Router
+    mockRouter = {
+      navigate: jest.fn(),
+      url: '/test-url'
+    };
+    
+    // Create component instance
+    component = new CertificateDetailsComponent(
+      mockActivatedRoute as ActivatedRoute,
+      mockCertificateService as CertificateService,
+      mockConfigService as ConfigurationsService,
+      mockDomSanitizer as DomSanitizer,
+      mockApiService as ApiService,
+      mockRouter as Router
+    );
+    
+    // Setup element ref for code input field
+    component.codeInputField = {
+      nativeElement: {
+        value: '',
+        focus: jest.fn()
+      }
+    } as any;
+  });
+  
+  it('should initialize correctly', () => {
+    component.ngOnInit();
+    
+    expect(component.instance).toBe('KARMYOGI');
+    expect(component.appIcon).toBe('sanitized-url');
+    expect(mockDomSanitizer.bypassSecurityTrustResourceUrl).toHaveBeenCalledWith('test-logo-url');
+  });
+  
+  describe('certificateVerify', () => {
+    it('should set view certificate to true and populate certificate data on successful validation', () => {
+      // Arrange
+      const mockCertResponse = {
+        result: {
+          response: {
+            json: {
+              recipient: { name: 'Test User' },
+              badge: { name: 'Test Course' },
+              issuedOn: '2023-05-15T00:00:00Z'
+            }
+          }
+        }
+      };
+      
+      (mockCertificateService.validateCertificate as jest.Mock).mockReturnValue(of(mockCertResponse));
+      component.certificateCode = '123456';
+      
+      // Act
+      component.certificateVerify();
+      
+      // Assert
+      expect(mockCertificateService.validateCertificate).toHaveBeenCalledWith({
+        request: {
+          certId: 'test-uuid',
+          accessCode: '123456',
+          verifySignature: true
+        }
+      });
+      
+      expect(component.loader).toBeFalsy();
+      expect(component.viewCertificate).toBeTruthy();
+      expect(component.recipient).toBe('Test User');
+      expect(component.courseName).toBe('Test Course');
+      expect(component.issuedOn).toBe(moment(new Date('2023-05-15T00:00:00Z')).format('DD MMM YYYY'));
+    });
+    
+    it('should handle validation error correctly', () => {
+      // Arrange
+      (mockCertificateService.validateCertificate as jest.Mock).mockReturnValue(throwError('error'));
+      component.certificateCode = '123456';
+      
+      // Act
+      component.certificateVerify();
+      
+      // Assert
+      expect(component.wrongCertificateCode).toBeTruthy();
+      expect(component.loader).toBeFalsy();
+      expect(component.codeInputField.nativeElement.value).toBe('');
+      expect(component.codeInputField.nativeElement.focus).toHaveBeenCalled();
+      expect(component.enableVerifyButton).toBeFalsy();
+    });
+  });
+  
+  describe('getCodeLength', () => {
+    it('should enable verify button when code length is 6', () => {
+      // Arrange
+      const mockEvent = { target: { value: '123456' } };
+      
+      // Act
+      component.getCodeLength(mockEvent);
+      
+      // Assert
+      expect(component.enableVerifyButton).toBeTruthy();
+      expect(component.wrongCertificateCode).toBeFalsy();
+    });
+    
+    it('should disable verify button when code length is not 6', () => {
+      // Arrange
+      const mockEvent = { target: { value: '12345' } };
+      
+      // Act
+      component.getCodeLength(mockEvent);
+      
+      // Assert
+      expect(component.enableVerifyButton).toBeFalsy();
+    });
+  });
+  
+  describe('navigateToCoursesPage', () => {
+    it('should change window location for android client', () => {
+      // Arrange
+      //const originalWindow = { ...window };
+      const windowSpy = jest.spyOn(global, 'window', 'get');
+      
+      // windowSpy.mockImplementation(() => ({
+      //   ...originalWindow,
+      //   location: {
+      //     ...originalWindow.location,
+      //     href: ''
+      //   }
+      // }));
+      
+      mockActivatedRoute.snapshot!.queryParams = { clientId: 'android' };
+      
+      // Act
+      component.navigateToCoursesPage();
+      
+      // Assert
+      expect(window.location.href).toBe('/page/learn');
+      
+      // Cleanup
+      windowSpy.mockRestore();
+    });
+    
+    it('should navigate using router for non-android clients', () => {
+      // Act
+      component.navigateToCoursesPage();
+      
+      // Assert
+      expect(mockRouter.navigate).toHaveBeenCalledWith(['/page/learn']);
+    });
+  });
+  
+  describe('getCourseVideoUrl', () => {
+    it('should extract content ID from video URL', () => {
+      // Arrange
+      const mockHierarchyResponse = {
+        result: {
+          content: {
+            certVideoUrl: 'https://example.com/do_12345/video'
+          }
+        }
+      };
+      
+      (mockApiService.get as jest.Mock).mockReturnValue(of(mockHierarchyResponse));
+      
+      // Act
+      component.getCourseVideoUrl('course-123');
+      
+      // Assert
+      expect(mockApiService.get).toHaveBeenCalledWith(
+        `${component.urls.HIERARCHY}/course-123`, 
+        undefined
+      );
+      
+      expect(component.watchVideoLink).toBe('https://example.com/do_12345/video');
+      expect(component.contentId).toBe('do_12345');
+    });
+    
+    it('should handle errors when getting course hierarchy', () => {
+      // Arrange
+      (mockApiService.get as jest.Mock).mockReturnValue(throwError('error'));
+      
+      // Act
+      component.getCourseVideoUrl('course-123');
+      
+      // Assert
+      expect(mockApiService.get).toHaveBeenCalled();
+      // No error should be thrown, the method handles it silently
+    });
+    
+    it('should handle cases where video URL is not present', () => {
+      // Arrange
+      const mockHierarchyResponse = {
+        result: {
+          content: {}
+        }
+      };
+      
+      (mockApiService.get as jest.Mock).mockReturnValue(of(mockHierarchyResponse));
+      
+      // Act
+      component.getCourseVideoUrl('course-123');
+      
+      // Assert
+      expect(component.watchVideoLink).toBeUndefined();
+      expect(component.contentId).toBeUndefined();
+    });
+  });
+  
+  describe('getCollectionHierarchy', () => {
+    it('should get collection data and return response', (done) => {
+      // Arrange
+      const mockResponse = {
+        result: {
+          content: { id: 'test-content' }
+        }
+      };
+      
+      (mockApiService.get as jest.Mock).mockReturnValue(of(mockResponse));
+      
+      // Act
+      component.getCollectionHierarchy('test-id').subscribe(response => {
+        // Assert
+        expect(response).toEqual(mockResponse);
+        expect(component.collectionData).toEqual({ id: 'test-content' });
+        done();
+      });
+      
+      // Assert
+      expect(mockApiService.get).toHaveBeenCalledWith(
+        `${component.urls.HIERARCHY}/test-id`, 
+        undefined
+      );
+    });
+  });
+});

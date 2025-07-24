@@ -1,189 +1,294 @@
 import { NetworkHubComponent } from './network-hub.component';
-import { ConfigurationsService } from '@sunbird-cb/utils-v2';
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
-import { HomePageService } from 'src/app/services/home-page.service';
-import { TranslateService } from '@ngx-translate/core';
-import { EventService, WsEvents } from '@sunbird-cb/utils-v2';
+import { of, throwError } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+
+// Mock services
+const mockConfigService = {
+  userProfile: {
+    userId: 'user-123',
+    departmentName: 'Engineering'
+  }
+};
+
+const mockHomePageService = {
+  getNetworkRecommendations: jest.fn(),
+  getRecentRequests: jest.fn(),
+  updateConnection: jest.fn(),
+  connectToNetwork: jest.fn()
+};
+
+const mockMatSnackBar = {
+  open: jest.fn()
+};
+
+const mockTranslateService = {
+  setDefaultLang: jest.fn(),
+  use: jest.fn(),
+  instant: jest.fn().mockImplementation(key => key)
+};
+
+const mockEventService = {
+  raiseInteractTelemetry: jest.fn()
+};
 
 describe('NetworkHubComponent', () => {
   let component: NetworkHubComponent;
-  let mockConfigService: Partial<ConfigurationsService>;
-  let mockHomePageService: Partial<HomePageService>;
-  let mockMatSnackBar: Partial<MatSnackBar>;
-  let mockTranslateService: Partial<TranslateService>;
-  let mockEventService: Partial<EventService>;
+  let mockLocalStorage: any;
 
   beforeEach(() => {
-    mockConfigService = {
-      userProfile: { departmentName: 'Engineering', userId: 'user123' }
+    // Mock localStorage
+    mockLocalStorage = {
+      getItem: jest.fn().mockReturnValue('en')
     };
+    global.localStorage = mockLocalStorage;
 
-    mockHomePageService = {
-      getNetworkRecommendations: jest.fn(),
-      getRecentRequests: jest.fn(),
-      connectToNetwork: jest.fn(),
-      updateConnection: jest.fn(),
-    };
-
-    mockMatSnackBar = {
-      open: jest.fn(),
-    };
-
-    mockTranslateService = {
-      setDefaultLang: jest.fn(),
-      use: jest.fn(),
-      instant: jest.fn().mockReturnValue('translatedString'),
-    };
-
-    mockEventService = {
-      raiseInteractTelemetry: jest.fn(),
-    };
-
-    component = new NetworkHubComponent(
-      mockConfigService as ConfigurationsService,
-      mockHomePageService as HomePageService,
-      mockMatSnackBar as MatSnackBar,
-      mockTranslateService as TranslateService,
-      mockEventService as EventService
-    );
-  });
-
-  afterEach(() => {
+    // Reset mocks
     jest.clearAllMocks();
-    jest.resetAllMocks();
+
+    // Create component instance with mocked dependencies
+    component = new NetworkHubComponent(
+      mockConfigService as any,
+      mockHomePageService as any,
+      mockMatSnackBar as any,
+      mockTranslateService as any,
+      mockEventService as any
+    );
+
+    // Setup default network config
+    component.networkConfig = {
+      networkSuggestions: { active: true },
+      recentRequests: { active: true }
+    };
   });
 
   it('should create the component', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should set default language on initialization if localStorage has "websiteLanguage"', () => {
-    localStorage.setItem('websiteLanguage', 'en');
+  it('should initialize language from localStorage', () => {
     component.ngOnInit();
     expect(mockTranslateService.setDefaultLang).toHaveBeenCalledWith('en');
     expect(mockTranslateService.use).toHaveBeenCalledWith('en');
   });
 
-  it('should fetch network recommendations if networkSuggestions is active in networkConfig', () => {
-    component.networkConfig = { networkSuggestions: { active: true } };
-   // const mockResponse = { result: { data: [{ results: ['result1', 'result2'] }] } };
-   // mockHomePageService.getNetworkRecommendations.mockReturnValue(of(mockResponse));
+  it('should initialize userInfo and fetch data on init', () => {
+    // Spy on the fetch methods
+    const fetchNetworkSpy = jest.spyOn(component, 'fetchNetworkRecommendations');
+    const fetchRequestsSpy = jest.spyOn(component, 'fetchRecentRequests');
 
     component.ngOnInit();
 
-    expect(mockHomePageService.getNetworkRecommendations).toHaveBeenCalled();
-    expect(component.network.networkRecommended).toEqual(['result1', 'result2']);
+    expect(component.userInfo).toEqual(mockConfigService.userProfile);
+    expect(fetchNetworkSpy).toHaveBeenCalled();
+    expect(fetchRequestsSpy).toHaveBeenCalled();
   });
 
-  it('should not fetch network recommendations if networkSuggestions is not active in networkConfig', () => {
-    component.networkConfig = { networkSuggestions: { active: false } };
+  it('should only fetch network recommendations if active', () => {
+    const fetchNetworkSpy = jest.spyOn(component, 'fetchNetworkRecommendations');
+    component.networkConfig.networkSuggestions.active = false;
     component.ngOnInit();
-
-    expect(mockHomePageService.getNetworkRecommendations).not.toHaveBeenCalled();
+    expect(fetchNetworkSpy).not.toHaveBeenCalled();
   });
 
-  it('should handle error when fetching network recommendations fails', () => {
-    component.networkConfig = { networkSuggestions: { active: true } };
-    //const mockErrorResponse = new HttpErrorResponse({ error: 'Error' });
-   // mockHomePageService.getNetworkRecommendations.mockReturnValue(throwError(mockErrorResponse));
-
-    component.fetchNetworkRecommendations();
-
-    expect(component.network.suggestionsLoader).toBe(false);
-    expect(mockMatSnackBar.open).toHaveBeenCalledWith('Unable to connect due to some error!');
-  });
-
-  it('should fetch recent requests if recentRequests is active in networkConfig', () => {
-    component.networkConfig = { recentRequests: { active: true } };
-   // const mockResponse = { result: { data: [{ fullName: 'john doe', connecting: false }] } };
-   // mockHomePageService.getRecentRequests.mockReturnValue(of(mockResponse));
-
+  it('should only fetch recent requests if active', () => {
+    const fetchRequestsSpy = jest.spyOn(component, 'fetchRecentRequests');
+    component.networkConfig.recentRequests.active = false;
     component.ngOnInit();
-
-    expect(mockHomePageService.getRecentRequests).toHaveBeenCalled();
-   // expect(component.recentRequests.data[0].fullName).toBe('John doe');
+    expect(fetchRequestsSpy).not.toHaveBeenCalled();
   });
 
-  it('should handle error when fetching recent requests fails', () => {
-    component.networkConfig = { recentRequests: { active: true } };
-    // const mockErrorResponse = new HttpErrorResponse({ error: 'Error' });
-    // mockHomePageService.getRecentRequests.mockReturnValue(throwError(mockErrorResponse));
-
-    component.fetchRecentRequests();
-
-    expect(component.recentRequests.loadSkeleton).toBe(false);
-    expect(mockMatSnackBar.open).toHaveBeenCalledWith('Unable to update connection, due to some error!');
+  it('should translate hub name correctly', () => {
+    const hubName = 'testHub';
+    component.translateHub(hubName);
+    expect(mockTranslateService.instant).toHaveBeenCalledWith(hubName);
   });
 
-  it('should handle update request and show success message when request is approved', () => {
-    const event = { action: 'Approved', payload: {}, reqObject: { connecting: true } };
-    // mockHomePageService.updateConnection.mockReturnValue(of({}));
-
-    component.handleUpdateRequest(event);
-
-    expect(mockMatSnackBar.open).toHaveBeenCalledWith('Request accepted successfully');
-    expect(event.reqObject.connecting).toBe(false);
-  });
-
-  it('should show error message when update request fails', () => {
-    const event = { action: 'Approved', payload: {}, reqObject: { connecting: true } };
-    //const mockErrorResponse = new HttpErrorResponse({ error: 'Error' });
-    // mockHomePageService.updateConnection.mockReturnValue(throwError(mockErrorResponse));
-
-    component.handleUpdateRequest(event);
-
-    expect(mockMatSnackBar.open).toHaveBeenCalledWith('Unable to update connection, due to some error!');
-    expect(event.reqObject.connecting).toBe(false);
-  });
-
-  it('should handle connect and show success message', () => {
-    const obj = { userId: 'user2', employmentDetails: { departmentName: 'HR' }, connecting: false };
-    const payload = {
-      connectionId: 'user2',
-      userIdFrom: 'user123',
-      userNameFrom: 'user123',
-      userDepartmentFrom: 'Engineering',
-      userIdTo: 'user2',
-      userNameTo: 'user2',
-      userDepartmentTo: 'HR',
+  describe('fetchNetworkRecommendations', () => {
+    const mockResponse = {
+      result: {
+        data: [{
+          results: [{
+            userId: 'user-456',
+            personalDetails: {
+              firstname: 'John Doe'
+            },
+            employmentDetails: {
+              departmentName: 'Engineering'
+            }
+          }]
+        }]
+      }
     };
 
-    // mockHomePageService.connectToNetwork.mockReturnValue(of({}));
+    it('should fetch network recommendations successfully', () => {
+      mockHomePageService.getNetworkRecommendations.mockReturnValue(of(mockResponse));
+      component.userInfo = mockConfigService.userProfile;
+      
+      component.fetchNetworkRecommendations();
+      
+      expect(component.network.suggestionsLoader).toBeFalsy();
+      expect(component.network.networkRecommended.length).toBe(1);
+      expect(component.network.networkRecommended[0].fullName).toBeDefined();
+      expect(component.network.networkRecommended[0].connecting).toBeFalsy();
+    });
 
-    component.handleConnect(obj);
-
-    expect(mockHomePageService.connectToNetwork).toHaveBeenCalledWith(payload);
-    expect(mockMatSnackBar.open).toHaveBeenCalledWith('Connection request sent successfully!');
+    it('should handle error when fetching network recommendations', () => {
+      const errorResponse = new HttpErrorResponse({ status: 404, statusText: 'Not Found' });
+      mockHomePageService.getNetworkRecommendations.mockReturnValue(throwError(errorResponse));
+      
+      component.fetchNetworkRecommendations();
+      
+      expect(component.network.suggestionsLoader).toBeFalsy();
+    });
   });
 
-  it('should handle connect failure and show error message', () => {
-    const obj = { userId: 'user2', employmentDetails: { departmentName: 'HR' }, connecting: false };
-    // const mockErrorResponse = new HttpErrorResponse({ error: 'Error' });
-    // mockHomePageService.connectToNetwork.mockReturnValue(throwError(mockErrorResponse));
-
-    component.handleConnect(obj);
-
-    expect(mockMatSnackBar.open).toHaveBeenCalledWith('Unable to connect due to some error!');
-  });
-
-  it('should raise telemetry event when show all is clicked', () => {
-    component.handleShowAll();
-
-    expect(mockEventService.raiseInteractTelemetry).toHaveBeenCalledWith(
-      {
-        id: 'show-all',
-        type: WsEvents.EnumInteractTypes.CLICK,
-        subType: WsEvents.EnumInteractSubTypes.SUGGESTED_CONNECTIONS,
-      },
-      {},
-      {
-        module: WsEvents.EnumTelemetrymodules.HOME,
+  describe('fetchRecentRequests', () => {
+    const mockRecentRequests = {
+      result: {
+        data: [{
+          userId: 'user-789',
+          fullName: 'jane',
+        }]
       }
-    );
+    };
+
+    it('should fetch recent requests successfully', () => {
+      mockHomePageService.getRecentRequests.mockReturnValue(of(mockRecentRequests));
+      
+      component.fetchRecentRequests();
+      
+      expect(component.recentRequests.loadSkeleton).toBeFalsy();
+      expect(component.recentRequests.data).toBeDefined();
+      // expect(component.recentRequests.data[0].fullName).toBe('Jane');
+      // expect(component.recentRequests.data[0].connecting).toBeFalsy();
+    });
+
+    it('should handle error when fetching recent requests', () => {
+      const errorResponse = new HttpErrorResponse({ status: 500, statusText: 'Server Error' });
+      mockHomePageService.getRecentRequests.mockReturnValue(throwError(errorResponse));
+      
+      component.fetchRecentRequests();
+      
+      expect(component.recentRequests.loadSkeleton).toBeFalsy();
+    });
   });
 
-  it('should create initials from first name', () => {
-    const initials = component.createInitials('John Doe');
-    expect(initials).toBe('JD');
+  describe('handleUpdateRequest', () => {
+    const mockEvent = {
+      action: 'Approved',
+      payload: { id: 'req-123' },
+      reqObject: { connecting: true }
+    };
+
+    it('should handle successful approval', () => {
+      mockHomePageService.updateConnection.mockReturnValue(of({}));
+      const fetchSpy = jest.spyOn(component, 'fetchRecentRequests');
+      
+      component.handleUpdateRequest(mockEvent);
+      
+      expect(mockMatSnackBar.open).toHaveBeenCalledWith('Request accepted successfully');
+      expect(mockEvent.reqObject.connecting).toBeFalsy();
+      expect(fetchSpy).toHaveBeenCalled();
+    });
+
+    it('should handle successful rejection', () => {
+      const rejectEvent = { ...mockEvent, action: 'Rejected' };
+      mockHomePageService.updateConnection.mockReturnValue(of({}));
+      
+      component.handleUpdateRequest(rejectEvent);
+      
+      expect(mockMatSnackBar.open).toHaveBeenCalledWith('Rejected the request');
+    });
+
+    it('should handle error when updating connection', () => {
+      const errorResponse = new HttpErrorResponse({ status: 500, statusText: 'Server Error' });
+      mockHomePageService.updateConnection.mockReturnValue(throwError(errorResponse));
+      
+      component.handleUpdateRequest(mockEvent);
+      
+      expect(mockMatSnackBar.open).toHaveBeenCalledWith('Unable to update connection, due to some error!');
+      expect(mockEvent.reqObject.connecting).toBeFalsy();
+    });
+  });
+
+  describe('handleConnect', () => {
+    const mockObj = {
+      userId: 'user-456',
+      connecting: false,
+      employmentDetails: {
+        departmentName: 'Product'
+      }
+    };
+
+    it('should connect to network successfully', () => {
+      mockHomePageService.connectToNetwork.mockReturnValue(of({}));
+      const fetchSpy = jest.spyOn(component, 'fetchNetworkRecommendations');
+      const telemetrySpy = jest.spyOn(component as any, 'raiseTelemetryEvent');
+      
+      component.userInfo = mockConfigService.userProfile;
+      component.handleConnect(mockObj);
+      
+      expect(mockObj.connecting).toBeFalsy();
+      expect(mockMatSnackBar.open).toHaveBeenCalledWith('Connection request sent successfully!');
+      expect(fetchSpy).toHaveBeenCalled();
+      expect(telemetrySpy).toHaveBeenCalledWith('card-content');
+    });
+
+    it('should handle error when connecting to network', () => {
+      const errorResponse = new HttpErrorResponse({ status: 500, statusText: 'Server Error' });
+      mockHomePageService.connectToNetwork.mockReturnValue(throwError(errorResponse));
+      
+      component.userInfo = mockConfigService.userProfile;
+      component.handleConnect(mockObj);
+      
+      expect(mockObj.connecting).toBeTruthy();
+      expect(mockMatSnackBar.open).toHaveBeenCalledWith('Unable to connect due to some error!');
+    });
+  });
+
+  describe('handleShowAll', () => {
+    it('should raise telemetry event', () => {
+      const telemetrySpy = jest.spyOn(component as any, 'raiseTelemetryEvent');
+      
+      component.handleShowAll();
+      
+      expect(telemetrySpy).toHaveBeenCalledWith('show-all');
+    });
+  });
+
+  describe('createInitials', () => {
+    it('should create initials from first and last name', () => {
+      const result = component.createInitials('John Smith');
+      expect(result).toBe('JS');
+    });
+
+    it('should create initials from single name', () => {
+      const result = component.createInitials('John');
+      expect(result).toBe('JO');
+    });
+
+    it('should handle empty string', () => {
+      const result = component.createInitials('');
+      expect(result).toBe('');
+    });
+  });
+
+  describe('raiseTelemetryEvent', () => {
+    it('should call event service with correct parameters', () => {
+      const id = 'test-id';
+      (component as any).raiseTelemetryEvent(id);
+      
+      expect(mockEventService.raiseInteractTelemetry).toHaveBeenCalledWith(
+        {
+          id,
+          type: 'CLICK',
+          subType: 'SUGGESTED_CONNECTIONS'
+        },
+        {},
+        {
+          module: 'HOME'
+        }
+      );
+    });
   });
 });

@@ -3,10 +3,13 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser'
 import { Router, NavigationStart, NavigationEnd } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
 
-import { IBtnAppsConfig, CustomTourService, WidgetUserService } from '@sunbird-cb/collection'
+
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { ConfigurationsService, EventService, MultilingualTranslationsService, NsInstanceConfig, NsPage, WsEvents } from '@sunbird-cb/utils-v2'
 import { UrlService } from '../../shared/url.service'
+import { IBtnAppsConfig } from '@sunbird-cb/collection/src/lib/btn-apps/btn-apps.model'
+import { CustomTourService } from '@sunbird-cb/collection/src/lib/_common/tour-guide/tour-guide.service'
+import { WidgetUserService } from '@sunbird-cb/collection/src/lib/_services/widget-user.service'
 
 
 import { NotificationsService } from '../../services/notifications.service'

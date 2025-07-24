@@ -596,11 +596,11 @@ export class AppChatbotComponent implements OnInit, AfterViewChecked, OnChanges 
       this.iconClick('end')
     }
   }
-  private disableScroll() {
+  public disableScroll() {
     this.renderer.addClass(document.body, 'disable-scroll')
   }
 
-  private enableScroll() {
+  public enableScroll() {
     this.renderer.removeClass(document.body, 'disable-scroll')
   }
 

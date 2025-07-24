@@ -247,9 +247,9 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
     });
   }
 
-  async updateQuery(query: string) {
+   updateQuery(query: string) {
     if (query && query.length) {
-      await this.searchInNLP(query).then(() => {
+       this.searchInNLP(query).then(() => {
         this.processSearchText(query);
       }).catch(() => {
         this.processSearchText(query);

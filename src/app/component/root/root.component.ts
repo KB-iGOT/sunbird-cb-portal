@@ -21,7 +21,6 @@ import {
   ActivatedRouteSnapshot,
 } from '@angular/router'
 // import { interval, concat, timer } from 'rxjs'
-import { BtnPageBackService } from '@sunbird-cb/collection'
 import { HttpClient } from '@angular/common/http'
 import {
   // AuthKeycloakService,
@@ -46,6 +45,7 @@ import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
 import { DialogConfirmComponent } from '../dialog-confirm/dialog-confirm.component'
 import { concat, interval, timer, of } from 'rxjs'
 import { iGOTAIService } from './../../services/igot-ai.service'
+import { BtnPageBackService } from '@sunbird-cb/collection/src/lib/btn-page-back/btn-page-back.service'
 @Component({
   selector: 'ws-root',
   templateUrl: './root.component.html',

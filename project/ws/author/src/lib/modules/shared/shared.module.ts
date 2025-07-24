@@ -1,7 +1,6 @@
 import { WorkFlowService } from './../../services/work-flow.service'
 import { NotificationService } from './../../services/notification.service'
 import { ConditionCheckService } from './services/condition-check.service'
-import { PipeContentRouteModule } from '@sunbird-cb/collection'
 import { CommonModule } from '@angular/common'
 import { NgModule } from '@angular/core'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
@@ -45,7 +44,6 @@ import { FeedbackFormComponent } from './components/feedback-form/feedback-form.
 import { StatusContentDisplayComponent } from './components/status-content-display/status-content-display.component'
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core'
 import { HttpClient } from '@angular/common/http'
-import { HttpLoaderFactory } from '@sunbird-cb/collection'
 import { MatLegacyAutocompleteModule as MatAutocompleteModule } from '@angular/material/legacy-autocomplete'
 import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button'
 import { MatButtonToggleModule } from '@angular/material/button-toggle'
@@ -60,6 +58,8 @@ import { MatLegacySelectModule as MatSelectModule } from '@angular/material/lega
 import { MatSidenavModule } from '@angular/material/sidenav'
 import { MatLegacySlideToggleModule as MatSlideToggleModule } from '@angular/material/legacy-slide-toggle'
 import { MatLegacyTooltipModule as MatTooltipModule } from '@angular/material/legacy-tooltip'
+import { PipeContentRouteModule } from '@sunbird-cb/collection/src/lib/_common/pipe-content-route/pipe-content-route.module'
+import { HttpLoaderFactory } from '@sunbird-cb/collection/src/lib/content-strip-with-tabs/content-strip-with-tabs.module'
 
 @NgModule({
     declarations: [

@@ -1,97 +1,186 @@
 import { CbpPlanFeedComponent } from './cbp-plan-feed.component';
-import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
-import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2';
 import { of } from 'rxjs';
 
+// Mock dependencies
+jest.mock('@angular/router', () => ({
+  ActivatedRoute: class {
+    snapshot = {
+      data: {
+        pageData: {
+          data: {
+            testConfig: 'testValue'
+          }
+        }
+      }
+    };
+  }
+}));
+
 jest.mock('@ngx-translate/core', () => ({
-  TranslateService: jest.fn().mockImplementation(() => ({
-    setDefaultLang: jest.fn(),
-    use: jest.fn(),
-  })),
+  TranslateService: class {
+    setDefaultLang = jest.fn();
+    use = jest.fn();
+  }
 }));
 
 jest.mock('@sunbird-cb/utils-v2', () => ({
-  MultilingualTranslationsService: jest.fn().mockImplementation(() => ({
-    languageSelectedObservable: of('en'),
-    translateLabel: jest.fn(),
-  })),
+  MultilingualTranslationsService: class {
+    languageSelectedObservable = of({});
+    translateLabel = jest.fn().mockImplementation((label) => `translated-${label}`);
+  }
 }));
 
 describe('CbpPlanFeedComponent', () => {
   let component: CbpPlanFeedComponent;
-  let translateServiceMock: TranslateService;
-  let multilingualTranslationsServiceMock: MultilingualTranslationsService;
-  let activatedRouteMock: ActivatedRoute;
+  let activatedRoute: any;
+  let translateService: any;
+  let multilingualService: any;
 
   beforeEach(() => {
-    translateServiceMock = new TranslateService(null as any,null as any,null as any,null as any,null as any,null as any,null as any,null as any,null as any);
-    multilingualTranslationsServiceMock = new MultilingualTranslationsService(null as any,null as any,null as any);
-    activatedRouteMock = { snapshot: { data: { pageData: { data: 'some config data' } } } } as any;
-
-    component = new CbpPlanFeedComponent(activatedRouteMock, translateServiceMock, multilingualTranslationsServiceMock);
-  });
-
-  afterEach(() => {
+    // Reset mocks
     jest.clearAllMocks();
-    jest.resetAllMocks();
+    
+    // Setup storage mock
+    const localStorageMock = (() => {
+      let store: Record<string, string> = {};
+      return {
+        getItem: jest.fn((key: string) => store[key] || null),
+        setItem: jest.fn((key: string, value: string) => {
+          store[key] = value.toString();
+        }),
+        clear: jest.fn(() => {
+          store = {};
+        })
+      };
+    })();
+    
+    Object.defineProperty(window, 'localStorage', {
+      value: localStorageMock
+    });
+    
+    // Set a value for websiteLanguage
+    localStorage.setItem('websiteLanguage', 'en');
+    
+    // Get dependencies
+    activatedRoute = new (jest.requireMock('@angular/router').ActivatedRoute)();
+    translateService = new (jest.requireMock('@ngx-translate/core').TranslateService)();
+    multilingualService = new (jest.requireMock('@sunbird-cb/utils-v2').MultilingualTranslationsService)();
+    
+    // Create component
+    component = new CbpPlanFeedComponent(
+      activatedRoute,
+      translateService,
+      multilingualService
+    );
   });
 
   it('should create the component', () => {
     expect(component).toBeTruthy();
   });
 
-  it('should initialize cbpConfig on ngOnInit', () => {
+  it('should set cbpConfig on initialization', () => {
+    // Act
     component.ngOnInit();
-    expect(component.cbpConfig).toBe('some config data');
+    
+    // Assert
+    expect(component.cbpConfig).toEqual({ testConfig: 'testValue' });
   });
 
-  it('should emit search event when searchControl value changes', () => {
-    const emitSearchRequestSpy = jest.spyOn(component.searchRequest, 'emit');
-    component.ngOnInit();  // Initialize the component and subscribe to the valueChanges observable
+  it('should set up language translation on constructor', () => {
+    // Assert
+    expect(translateService.setDefaultLang).toHaveBeenCalledWith('en');
+    expect(translateService.use).toHaveBeenCalledWith('en');
+  });
 
-    // Simulate a value change in the search control
+  it('should emit search event when search value changes', () => {
+    // Arrange
+    jest.spyOn(component.searchRequest, 'emit');
+    component.ngOnInit();
+    
+    // Act
     component.searchControl.setValue('test search');
     
-    expect(emitSearchRequestSpy).toHaveBeenCalledWith({ query: 'test search' });
+    // Assert
+    expect(component.searchRequest.emit).toHaveBeenCalledWith({ query: 'test search' });
   });
 
-  it('should toggle filter and emit toggleFilterEvent when openFilter is called', () => {
-    const emitToggleFilterEventSpy = jest.spyOn(component.toggleFilterEvent, 'emit');
+  it('should not emit search event when search value does not change', () => {
+    // Arrange
+    jest.spyOn(component.searchRequest, 'emit');
+    component.ngOnInit();
+    component.searchControl.setValue('test search');
+    
+    // Reset the spy to check if it gets called again
+    jest.clearAllMocks();
+    
+    // Act
+    component.searchControl.setValue('test search'); // Same value
+    
+    // Assert
+    expect(component.searchRequest.emit).not.toHaveBeenCalled();
+  });
+
+  it('should emit toggle filter event when openFilter is called', () => {
+    // Arrange
+    jest.spyOn(component.toggleFilterEvent, 'emit');
+    
+    // Act
     component.openFilter();
     
+    // Assert
     expect(component.toggleFilter).toBe(true);
-    expect(emitToggleFilterEventSpy).toHaveBeenCalledWith(true);
+    expect(component.toggleFilterEvent.emit).toHaveBeenCalledWith(true);
   });
 
-  it('should emit closeFilterKey when closeFilter is called', () => {
-    const emitCloseFilterKeySpy = jest.spyOn(component.closeFilterKey, 'emit');
-    const value = 'test value';
-    const key = 'test key';
-
+  it('should emit closeFilterKey event when closeFilter is called', () => {
+    // Arrange
+    jest.spyOn(component.closeFilterKey, 'emit');
+    const value = 'testValue';
+    const key = 'testKey';
+    
+    // Act
     component.closeFilter(value, key);
     
-    expect(emitCloseFilterKeySpy).toHaveBeenCalledWith({ value, key });
+    // Assert
+    expect(component.closeFilterKey.emit).toHaveBeenCalledWith({ value, key });
   });
 
-  it('should set default language to "en" and use language from localStorage in languageSelectedObservable subscription', () => {
-    // Set up localStorage mock
-    // global.localStorage = {
-    //   getItem: jest.fn().mockReturnValue('fr'), // Mock a different language
-    //   setItem: jest.fn(),
-    // };
-
-    // component.langtranslations.languageSelectedObservable.subscribe(() => {
-    //   expect(translateServiceMock.setDefaultLang).toHaveBeenCalledWith('en');
-    //   expect(translateServiceMock.use).toHaveBeenCalledWith('fr');
-    // });
-  });
-
-  it('should call translateLabel method of multilingualTranslationsService', () => {
+  it('should call translateLabel with correct parameters', () => {
+    // Arrange
     const label = 'testLabel';
     const type = 'testType';
+    
+    // Act
+    const result = component.translateLabel(label, type);
+    
+    // Assert
+    expect(multilingualService.translateLabel).toHaveBeenCalledWith(label, type, '');
+    expect(result).toBe('translated-testLabel');
+  });
 
-    component.translateLabel(label, type);
-    expect(multilingualTranslationsServiceMock.translateLabel).toHaveBeenCalledWith(label, type, '');
+  it('should have correct initial values', () => {
+    // Assert
+    expect(component.toggleFilter).toBe(false);
+    expect(component.contentDataList).toEqual([]);
+    expect(component.filterApplied).toBe(false);
+    expect(component.searchControl.value).toBe(null);
+  });
+
+  it('should have correct filter value bindings', () => {
+    // Assert for status filter values
+    expect(component.filterValuesBinding.status[0]).toBe('Not started');
+    expect(component.filterValuesBinding.status[1]).toBe('In progress');
+    expect(component.filterValuesBinding.status[2]).toBe('Completed');
+    
+    // Assert for timeDuration filter values
+    expect(component.filterValuesBinding.timeDuration['7ad']).toBe('Upcoming 7 Days');
+    expect(component.filterValuesBinding.timeDuration['30ad']).toBe('Upcoming 30 Days');
+    expect(component.filterValuesBinding.timeDuration['90ad']).toBe('Upcoming 3 Months');
+    expect(component.filterValuesBinding.timeDuration['182ad']).toBe('Upcoming 6 Months');
+    expect(component.filterValuesBinding.timeDuration['1sw']).toBe('Last week');
+    expect(component.filterValuesBinding.timeDuration['1sm']).toBe('Last month');
+    expect(component.filterValuesBinding.timeDuration['3sm']).toBe('Last 3 month');
+    expect(component.filterValuesBinding.timeDuration['6sm']).toBe('Last 6 month');
+    expect(component.filterValuesBinding.timeDuration['12sm']).toBe('Last year');
   });
 });

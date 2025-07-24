@@ -1,91 +1,192 @@
 import { EventsEngagementComponent } from './events-engagement.component';
+import { MatBottomSheetRef } from '@angular/material/bottom-sheet';
 import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2';
-
-jest.mock('@sunbird-cb/utils-v2', () => ({
-  MultilingualTranslationsService: jest.fn().mockImplementation(() => ({
-    translateActualLabel: jest.fn((label, type) => `translated-${label}-${type}`),
-  })),
-}));
+import { Router } from '@angular/router';
 
 describe('EventsEngagementComponent', () => {
   let component: EventsEngagementComponent;
-  let mockBottomSheetRef: any;
-  let mockLangTranslations: any;
+  let mockBottomSheetRef: jest.Mocked<MatBottomSheetRef<any>>;
+  let mockLangTranslations: jest.Mocked<MultilingualTranslationsService>;
+  let mockRouter: jest.Mocked<Router>;
 
   beforeEach(() => {
-    // Create mocks
+    // Create mocks for dependencies
     mockBottomSheetRef = {
-      dismiss: jest.fn(),
-    };
+      dismiss: jest.fn()
+    } as any;
     
-    mockLangTranslations = new (MultilingualTranslationsService as any)();
-
-    // Initialize without data
-    component = new EventsEngagementComponent(
-      mockBottomSheetRef,
-      null,
-      mockLangTranslations
-    );
-  });
-
-  it('should create', () => {
-    expect(component).toBeTruthy();
-  });
-
-  it('should initialize with data when provided', () => {
-    const mockData = {
-      engagements: [{ id: 1, name: 'Engagement1' }],
-      engagementDetails: { title: 'Test Engagement' }
-    };
+    mockLangTranslations = {
+      translateActualLabel: jest.fn().mockReturnValue('translated-value')
+    } as any;
     
-    component = new EventsEngagementComponent(
-      mockBottomSheetRef,
-      mockData,
-      mockLangTranslations
-    );
-    
-    expect(component.myEngagements).toEqual(mockData.engagements);
-    expect(component.engagementDetails).toEqual(mockData.engagementDetails);
+    mockRouter = {
+      navigate: jest.fn()
+    } as any;
   });
 
-  it('should translate labels correctly', () => {
-    const result = component.translateLabels('TestLabel', 'TestType');
-    expect(mockLangTranslations.translateActualLabel).toHaveBeenCalledWith('TestLabel', 'TestType', '');
-    expect(result).toBe('translated-TestLabel-TestType');
+  describe('when instantiated with data', () => {
+    beforeEach(() => {
+      // Create component with data
+      component = new EventsEngagementComponent(
+        mockBottomSheetRef,
+        { 
+          engagements: 'mock-engagements',
+          engagementDetails: 'mock-details'
+        },
+        mockLangTranslations,
+        mockRouter
+      );
+    });
+
+    it('should set properties from data', () => {
+      expect(component.myEngagements).toBe('mock-engagements');
+      expect(component.engagementDetails).toBe('mock-details');
+      expect(component.bottomSheet).toBe(true);
+    });
   });
 
-  it('should get value from engagementDetails correctly', () => {
-    component.engagementDetails = {
-      basic: { title: 'Test Title' },
-      details: { description: 'Test Description' }
-    };
-    
-    expect(component.getValue('basic.title')).toBe('Test Title');
-    expect(component.getValue('details.description')).toBe('Test Description');
+  describe('when instantiated without data', () => {
+    beforeEach(() => {
+      // Create component without data
+      component = new EventsEngagementComponent(
+        mockBottomSheetRef,
+        null,
+        mockLangTranslations,
+        mockRouter
+      );
+    });
+
+    it('should not set properties from data', () => {
+      expect(component.myEngagements).toBeUndefined();
+      expect(component.engagementDetails).toBeUndefined();
+      expect(component.bottomSheet).toBe(false);
+    });
   });
 
-  it('should return empty string if key is not found in engagementDetails', () => {
-    component.engagementDetails = { basic: { title: 'Test Title' } };
-    expect(component.getValue('basic.description')).toBe('');
+  describe('translateLabels', () => {
+    beforeEach(() => {
+      component = new EventsEngagementComponent(
+        mockBottomSheetRef,
+        null,
+        mockLangTranslations,
+        mockRouter
+      );
+    });
+
+    it('should call translateActualLabel with correct params', () => {
+      const result = component.translateLabels('test-label', 'test-type');
+      expect(mockLangTranslations.translateActualLabel).toHaveBeenCalledWith('test-label', 'test-type', '');
+      expect(result).toBe('translated-value');
+    });
   });
 
-  it('should return empty string if engagementDetails is null', () => {
-    component.engagementDetails = null;
-    expect(component.getValue('basic.title')).toBe('');
+  describe('getValue', () => {
+    beforeEach(() => {
+      component = new EventsEngagementComponent(
+        mockBottomSheetRef,
+        null,
+        mockLangTranslations,
+        mockRouter
+      );
+      component.engagementDetails = {
+        prop1: 'value1',
+        nested: {
+          prop2: 'value2'
+        }
+      };
+    });
+
+    it('should return empty string when key is not provided', () => {
+      expect(component.getValue('')).toBe('');
+    });
+
+    it('should return empty string when engagementDetails is not available', () => {
+      component.engagementDetails = null;
+      expect(component.getValue('prop1')).toBe('');
+    });
+
+    it('should return value for simple property', () => {
+      expect(component.getValue('prop1')).toBe('value1');
+    });
+
+    it('should return value for nested property', () => {
+      expect(component.getValue('nested.prop2')).toBe('value2');
+    });
+
+    it('should return empty string for non-existent property', () => {
+      expect(component.getValue('unknown')).toBe('');
+    });
   });
 
-  it('should return empty string if key is null or undefined', () => {
-    component.engagementDetails = { basic: { title: 'Test Title' } };
-    expect(component.getValue('')).toBe('');
-    expect(component.getValue('')).toBe('');
+  describe('closeDiaolg', () => {
+    beforeEach(() => {
+      component = new EventsEngagementComponent(
+        mockBottomSheetRef,
+        null,
+        mockLangTranslations,
+        mockRouter
+      );
+    });
+
+    it('should call dismiss on bottomSheetRef', () => {
+      component.closeDiaolg();
+      expect(mockBottomSheetRef.dismiss).toHaveBeenCalled();
+    });
   });
 
-  it('should close dialog when closeDiaolg is called', () => {
-    component.closeDiaolg();
-    expect(mockBottomSheetRef.dismiss).toHaveBeenCalled();
-  });
+  describe('redirectToEvents', () => {
+    describe('when bottomSheet is true', () => {
+      beforeEach(() => {
+        component = new EventsEngagementComponent(
+          mockBottomSheetRef,
+          null,
+          mockLangTranslations,
+          mockRouter
+        );
+        component.bottomSheet = true;
+      });
 
-  it('should call ngOnInit without errors', () => {
-    expect(() => component.ngOnInit()).not.toThrow();
+      it('should dismiss bottomSheet and navigate', () => {
+        component.redirectToEvents();
+        expect(mockBottomSheetRef.dismiss).toHaveBeenCalled();
+        expect(mockRouter.navigate).toHaveBeenCalledWith(
+          ['app/seeAll/new'],
+          {
+            queryParams: { 
+              key: 'continueLearning', 
+              tabSelected: 'Events', 
+              pillSelected: 'completed' 
+            }
+          }
+        );
+      });
+    });
+
+    describe('when bottomSheet is false', () => {
+      beforeEach(() => {
+        component = new EventsEngagementComponent(
+          mockBottomSheetRef,
+          null,
+          mockLangTranslations,
+          mockRouter
+        );
+        component.bottomSheet = false;
+      });
+
+      it('should not dismiss bottomSheet but still navigate', () => {
+        component.redirectToEvents();
+        expect(mockBottomSheetRef.dismiss).not.toHaveBeenCalled();
+        expect(mockRouter.navigate).toHaveBeenCalledWith(
+          ['app/seeAll/new'],
+          {
+            queryParams: { 
+              key: 'continueLearning', 
+              tabSelected: 'Events', 
+              pillSelected: 'completed' 
+            }
+          }
+        );
+      });
+    });
   });
 });

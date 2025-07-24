@@ -102,7 +102,7 @@ export class PublicWelcomeComponent implements OnInit, OnDestroy {
     orgs: any[] = []
     masterOrgs!: Observable<any> | undefined
     usr: any
-    private subscriptionContact: Subscription | null = null
+    public subscriptionContact: Subscription | null = null
     groupsOriginal: any = []
     masterGroup!: Observable<any> | undefined
     customCharsPattern = `^[a-zA-Z0-9 \\w\-\&\(\)]*$`

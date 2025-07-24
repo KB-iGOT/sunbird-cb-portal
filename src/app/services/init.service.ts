@@ -4,13 +4,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http'
 import { Inject, Injectable } from '@angular/core'
 import { MatIconRegistry } from '@angular/material/icon'
 import { DomSanitizer } from '@angular/platform-browser'
-import { BtnSettingsService } from '@sunbird-cb/collection'
-import {
-  hasPermissions,
-  hasUnitPermission,
-  NsWidgetResolver,
-  WidgetResolverService,
-} from '@sunbird-cb/resolver'
+
 import {
   // AuthKeycloakService,
   // AuthKeycloakService,
@@ -34,6 +28,10 @@ import moment from 'moment'
 import { TranslateService } from '@ngx-translate/core'
 import { SbUiResolverService } from '@sunbird-cb/resolver-v2'
 import { NetCoreService } from './netcore.service'
+import { BtnSettingsService } from '@sunbird-cb/collection/src/lib/btn-settings/btn-settings.service'
+import { WidgetResolverService } from '@sunbird-cb/resolver/src/lib/widget-resolver.service'
+import { hasPermissions, hasUnitPermission } from '@sunbird-cb/resolver/src/lib/widget-resolver.permissions'
+import { NsWidgetResolver } from '@sunbird-cb/resolver/src/lib/widget-resolver.model'
 declare const smartech:any
 // import { of } from 'rxjs'
 /* tslint:enable */
