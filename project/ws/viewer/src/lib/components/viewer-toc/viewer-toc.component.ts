@@ -125,6 +125,9 @@ export class ViewerTocComponent implements OnInit, OnDestroy {
   showAITutorFlag = true
   scormAssessmentCount = 0
   totalResource = 0
+  defaultTabIndex = 0
+  fromAITutor:any = false
+  isMobile = false
   // tslint:disable-next-line
   hasNestedChild = (_: number, nodeData: IViewerTocCard) =>
     nodeData && nodeData.children && nodeData.children.length
@@ -133,6 +136,7 @@ export class ViewerTocComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    this.isMobile = this.utilitySvc.isMobile
     if(this.configSvc.iGOTAIConfig && this.configSvc.iGOTAIConfig.aiTutor) {
       this.enableAITutorFlag = true
     } else {
@@ -140,12 +144,10 @@ export class ViewerTocComponent implements OnInit, OnDestroy {
     }
     this.hierarchyData = this.activatedRoute.snapshot.data.hierarchyData
     && this.activatedRoute.snapshot.data.hierarchyData.data || ''
-    console.log('this.hierarchyData', this.hierarchyData)
     if(this.hierarchyData && this.hierarchyData.result 
       && this.hierarchyData.result.content 
       && this.hierarchyData.result.content.children) {
-      this.showAITutorFlag = this.onlyscormAssessmentExists(this.hierarchyData.result.content.children, 'mimeType', ['application/vnd.ekstep.html-archive','application/vnd.sunbird.questionset'])
-      console.log('this.scormExistsFlag', this.showAITutorFlag)
+      this.showAITutorFlag = this.onlyscormAssessmentExists(this.hierarchyData.result.content.children, 'mimeType', ['application/vnd.ekstep.html-archive','application/vnd.sunbird.questionset','application/json', 'text/x-url'])      
     }
     
     this.enrollmentList = this.activatedRoute.snapshot.data.enrollmentData
@@ -180,6 +182,10 @@ export class ViewerTocComponent implements OnInit, OnDestroy {
       this.viewMode = params.get('viewMode') || 'START'
       this.forPreview = params.get('preview') === 'true' ? true : false
       this.channelId = params.get('channelId')
+      this.fromAITutor = params.get('fromAITutor')
+      if(this.fromAITutor === true || this.fromAITutor === 'true') {
+        this.defaultTabIndex = 1
+      }
       try {
         this.batchId = params.get('batchId')
       } catch {
@@ -308,7 +314,7 @@ export class ViewerTocComponent implements OnInit, OnDestroy {
       const currentIndex = this.queue.findIndex(c => c.identifier === this.resourceId)
       if(this.queue && currentIndex > -1) {
         if(this.queue[currentIndex] &&  this.queue[currentIndex].identifier) {
-         this.aiTutorResourceId = this.queue[currentIndex].identifier
+        // this.aiTutorResourceId = this.queue[currentIndex].identifier
         }        
       }
       const next =

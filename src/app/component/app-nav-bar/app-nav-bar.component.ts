@@ -1,4 +1,4 @@
-import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core'
+import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core'
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser'
 import { Router, NavigationStart, NavigationEnd } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
@@ -12,13 +12,17 @@ import { CustomTourService } from '@sunbird-cb/collection/src/lib/_common/tour-g
 import { WidgetUserService } from '@sunbird-cb/collection/src/lib/_services/widget-user.service'
 
 
+import { NotificationsService } from 'src/app/services/notifications.service'
+import * as _ from 'lodash'
+import { LibNotificationsService } from '@sunbird-cb/notification'
+import { Subscription } from 'rxjs'
 
 @Component({
   selector: 'ws-app-nav-bar',
   templateUrl: './app-nav-bar.component.html',
   styleUrls: ['./app-nav-bar.component.scss'],
 })
-export class AppNavBarComponent implements OnInit, OnChanges {
+export class AppNavBarComponent implements OnInit, OnChanges, OnDestroy {
   @Input() mode: 'top' | 'bottom' = 'top'
   @Input() headerFooterConfigData: any
   hideKPOnNav = false
@@ -64,6 +68,8 @@ export class AppNavBarComponent implements OnInit, OnChanges {
   previousUrl = ''
   disableMenu = false
   showLangDropdown = true
+  notificationsCount: number = 0
+  private myNotificationsSubscription!: Subscription
   constructor(
     private domSanitizer: DomSanitizer,
     private configSvc: ConfigurationsService,
@@ -73,7 +79,9 @@ export class AppNavBarComponent implements OnInit, OnChanges {
     private events: EventService,
     private langtranslations: MultilingualTranslationsService,
     private urlService: UrlService,
-    private userSvc: WidgetUserService
+    private userSvc: WidgetUserService,
+    private notificationsService: NotificationsService,
+    private libNotificationsService: LibNotificationsService
   ) {
     this.btnAppsConfig = { ...this.basicBtnAppsConfig }
     if (this.configSvc.restrictedFeatures) {
@@ -91,7 +99,7 @@ export class AppNavBarComponent implements OnInit, OnChanges {
         this.bindUrl(event.url && event.url.replace('/app/competencies/', ''))
       }
       this.showLangDropdown = window.location.href.includes('/karmayogi-saptah') ?
-      false : true
+        false : true
 
     })
 
@@ -112,33 +120,33 @@ export class AppNavBarComponent implements OnInit, OnChanges {
         this.janDataEnable = true
         this.displayLogo()
         // tslint:disable-next-line
-       }, this.logoDisplayTime)
+      }, this.logoDisplayTime)
     }
 
     this.router.events.subscribe((event: any) => {
       if (event instanceof NavigationEnd) {
-          if (localStorage.getItem('activeRoute')) {
-            const route = localStorage.getItem('activeRoute')
-            this.activeRoute = route ? route.toLowerCase().toString() : ''
-          }
+        if (localStorage.getItem('activeRoute')) {
+          const route = localStorage.getItem('activeRoute')
+          this.activeRoute = route ? route.toLowerCase().toString() : ''
+        }
 
-          if (event.url && event.url.includes('/app/toc/do') && window.screen.availWidth < 768) {
-            this.hideKPOnNav = true
-          } else {
-            this.hideKPOnNav = false
-          }
+        if (event.url.includes('/app/toc/do') && window.screen.availWidth < 768) {
+          this.hideKPOnNav = true
+        } else {
+          this.hideKPOnNav = false
+        }
 
-          if (event.url && event.url.includes('/page/home')) {
-            this.activeRoute = 'home'
-          } else if (event.url && event.url.includes('/page/explore')) {
-            this.activeRoute = 'explorer'
-          } else if (event.url && event.url.includes('app/globalsearch')  || event.url.includes('/app/search/home')) {
-            this.activeRoute = 'search'
-          } else if (event.url && event.url.includes('app/careers')) {
-            this.activeRoute = 'Career'
-          } else if (event.url && event.url.includes('app/seeAll?key=continueLearning')) {
-            this.activeRoute = 'my learnings'
-          }
+        if (event.url.includes('/page/home')) {
+          this.activeRoute = 'home'
+        } else if (event.url.includes('/page/explore')) {
+          this.activeRoute = 'explorer'
+        } else if (event.url.includes('app/globalsearch') || event.url.includes('/app/search/home')) {
+          this.activeRoute = 'search'
+        } else if (event.url.includes('app/careers')) {
+          this.activeRoute = 'Career'
+        } else if (event.url.includes('app/seeAll?key=continueLearning')) {
+          this.activeRoute = 'my learnings'
+        }
       }
     })
 
@@ -182,7 +190,7 @@ export class AppNavBarComponent implements OnInit, OnChanges {
     this.startTour()
     this.enrollInterval = setInterval(() => {
       this.getKarmaCount()
-    // tslint:disable-next-line
+      // tslint:disable-next-line
     }, 1000)
 
     this.urlService.previousUrl$.subscribe((previousUrl: string) => {
@@ -199,7 +207,7 @@ export class AppNavBarComponent implements OnInit, OnChanges {
       && this.configSvc.unMappedUser.profileDetails
       && this.configSvc.unMappedUser.profileDetails.employmentDetails
       && this.configSvc.unMappedUser.profileDetails.employmentDetails.departmentName) {
-        isIgotOrg = this.configSvc.unMappedUser.profileDetails.employmentDetails.departmentName.toLowerCase() === 'igot' ? true : false
+      isIgotOrg = this.configSvc.unMappedUser.profileDetails.employmentDetails.departmentName.toLowerCase() === 'igot' ? true : false
     }
     // let isIgotOrg = true
     if (isNotMyUser && isIgotOrg) {
@@ -209,6 +217,23 @@ export class AppNavBarComponent implements OnInit, OnChanges {
     } else {
       this.disableMenu = false
     }
+    if (this.configSvc.unMappedUser && this.configSvc.unMappedUser.identifier) {
+      this.getMyCount()
+    }
+    this.myNotificationsSubscription = this.libNotificationsService._unreadCount.subscribe((res: boolean) => {
+      if (res === true) {
+        this.getMyCount()
+      }
+    })
+  }
+
+  getMyCount() {
+    this.notificationsService.getNotificationsData().subscribe((res: any) => {
+      this.notificationsCount = _.get(res, 'result.unread', 0)
+    }, error => {
+      console.error('Error while fetching notifications count', error)
+      this.notificationsCount = 0
+    })
   }
 
   displayLogo() {
@@ -240,8 +265,8 @@ export class AppNavBarComponent implements OnInit, OnChanges {
       } else {
         this.isPublicHomePage = false
       }
-    // tslint:disable-next-line: max-line-length
-    } else if (e && e.url && (e.url.includes('/app/setup') && this.configSvc.instanceConfig && !this.configSvc.instanceConfig.showNavBarInSetup)) {
+      // tslint:disable-next-line: max-line-length
+    } else if ((e.url.includes('/app/setup') && this.configSvc.instanceConfig && !this.configSvc.instanceConfig.showNavBarInSetup)) {
       this.showAppNavBar = false
     } else {
       this.showAppNavBar = true
@@ -325,8 +350,8 @@ export class AppNavBarComponent implements OnInit, OnChanges {
   // parichay changes
   get isforPreview(): boolean {
     this.forPreview = window.location.href.includes('/public/')
-    || window.location.href.includes('&preview=true')
-    || window.location.href.includes('/certs')
+      || window.location.href.includes('&preview=true')
+      || window.location.href.includes('/certs')
     return this.forPreview
   }
 
@@ -369,7 +394,7 @@ export class AppNavBarComponent implements OnInit, OnChanges {
     if (localStorage.getItem('userEnrollmentCount')) {
       enrollList = JSON.parse(localStorage.getItem('userEnrollmentCount') || '')
       this.countdata = enrollList && enrollList.userCourseEnrolmentInfo &&
-       enrollList.userCourseEnrolmentInfo.karmaPoints || 0
+        enrollList.userCourseEnrolmentInfo.karmaPoints || 0
       this.karmaPointLoading = false
       clearInterval(this.enrollInterval)
     }
@@ -396,7 +421,7 @@ export class AppNavBarComponent implements OnInit, OnChanges {
         // tslint: disable-next-line: whitespace
       }
       // tslint: disable-next-line: whitespace
-      )
+    )
   }
 
   handleNavigateBack(): void {
@@ -419,6 +444,12 @@ export class AppNavBarComponent implements OnInit, OnChanges {
     this.userSvc.fetchUserBatchList(userId).subscribe(_res => {
 
     })
+  }
+
+  ngOnDestroy() {
+    if (this.myNotificationsSubscription) {
+      this.myNotificationsSubscription.unsubscribe()
+    }
   }
 
 }
