@@ -93,7 +93,7 @@ export class SupportAIComponent implements OnInit, OnChanges, AfterViewInit, Aft
   startNewChat = false
   initiateSupportNewChat = false
   // tslint: enable
-  @ViewChild('scrollMe') private myScrollContainer: ElementRef | undefined
+  @ViewChild('scrollMe') public myScrollContainer: ElementRef | undefined
   isHubEnable!: boolean
   @ViewChild('autoResizeTextarea') textArea!: ElementRef<HTMLTextAreaElement>;
   containerHeight = 36;

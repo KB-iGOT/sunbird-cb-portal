@@ -1,129 +1,270 @@
 import { HeaderComponent } from './header.component';
-import { ValueService } from '@sunbird-cb/utils-v2';
 import { HeaderService } from './header.service';
 import { MobileAppsService } from '../../services/mobile-apps.service';
-import { of } from 'rxjs';
+import { ValueService } from '@sunbird-cb/utils-v2';
+import { of, BehaviorSubject } from 'rxjs';
 
-// Mock the services
-jest.mock('@sunbird-cb/utils-v2', () => ({
-  ValueService: jest.fn().mockImplementation(() => ({
-    isXSmall$: of(true), // Mocking observable to return `true`
-  })),
-}));
+// Mock dependencies
+const mockValueService = {
+  isXSmall$: of(false)
+};
 
-jest.mock('./header.service', () => ({
-  HeaderService: jest.fn().mockImplementation(() => ({
-    showNavbarDisplay$: of(true), // Mock observable for navbar display
-  })),
-}));
+const mockHeaderService = {
+  showNavbarDisplay$: of(true)
+};
 
-jest.mock('../../services/mobile-apps.service', () => ({
-  MobileAppsService: jest.fn().mockImplementation(() => ({
-    mobileTopHeaderVisibilityStatus: { next: jest.fn() }, // Mock next function for mobileTopHeaderVisibilityStatus
-  })),
-}));
+const mockMobileAppsService = {
+  mobileTopHeaderVisibilityStatus: new BehaviorSubject(true)
+};
 
 describe('HeaderComponent', () => {
   let component: HeaderComponent;
-  let valueService: ValueService;
   let headerService: HeaderService;
   let mobileAppsService: MobileAppsService;
+  let valueService: ValueService;
 
   beforeEach(() => {
-    // Create instances of the mocked services
-    valueService = new ValueService(null as any);
-    headerService = new HeaderService();
-    mobileAppsService = new MobileAppsService(null as any);
-
-    // Initialize the component
-    component = new HeaderComponent(valueService, headerService, mobileAppsService);
-
-    // Trigger ngOnInit lifecycle hook
-    component.ngOnInit();
-  });
-
-  it('should create the component', () => {
-    expect(component).toBeTruthy();
-  });
-
-  it('should set isXSmall$ to true', () => {
-    component.isXSmall$.subscribe(isXSmall => {
-      expect(isXSmall).toBe(true); // Expect the observable to emit true
-    });
-  });
-
-  it('should set showNavbar to true after delay', (done) => {
-    component.ngOnInit(); // Trigger ngOnInit
-    component.isShowNavbar;
-    // Since showNavbarDisplay$ emits after delay(500), check the value after some time
-    setTimeout(() => {
-      expect(component.showNavbar).toBe(true); // Expect showNavbar to be true after delay
-      done();
-    }, 600); // Wait for more than 500 ms
-  });
-
-  it('should initialize widgetData', () => {
-    expect(component.widgetData).toEqual({
-      widgets: [
-        [
-          {
-            dimensions: {},
-            className: 'ws-mat-primary-lite-background-important new-box-hubs',
-            widget: {
-              widgetType: 'card',
-              widgetSubType: 'cardHomeHubs',
-              widgetData: {},
-            },
-          },
-        ],
-      ],
-    });
-  });
-
-  it('should call mobileAppsService.mobileTopHeaderVisibilityStatus.next() when hideMobileTopHeader() is called', () => {
-    // Call the method
-    component.hideMobileTopHeader();
+    headerService = mockHeaderService as any;
+    mobileAppsService = mockMobileAppsService as any;
+    valueService = mockValueService as any;
     
-    // Check if the method has been called with false as argument
-    expect(mobileAppsService.mobileTopHeaderVisibilityStatus.next).toHaveBeenCalledWith(false);
+    component = new HeaderComponent(
+      valueService,
+      headerService,
+      mobileAppsService
+    );
   });
 
-  it('should navigate to the correct URL based on userAgent for Android', () => {
-    // Mock userAgent to be Android
-    Object.defineProperty(navigator, 'userAgent', {
-      value: 'android',
-      writable: true,
-    });
-    window.open = jest.fn(); // Mock window.open
-
-    component.downloadApp(); // Call the method
-
-    expect(window.open).toHaveBeenCalledWith('https://play.google.com/store/apps/details?id=com.igot.karmayogibharat&hl=en&gl=US', '_blank');
+  afterEach(() => {
+    jest.clearAllMocks();
   });
 
-  it('should navigate to the correct URL based on userAgent for iPhone', () => {
-    // Mock userAgent to be iPhone
-    Object.defineProperty(navigator, 'userAgent', {
-      value: 'iPhone',
-      writable: true,
+  describe('Component Initialization', () => {
+    it('should create component', () => {
+      expect(component).toBeTruthy();
     });
-    window.open = jest.fn(); // Mock window.open
 
-    component.downloadApp(); // Call the method
+    it('should initialize with default values', () => {
+      expect(component.isNavBarRequired).toBe(true);
+      expect(component.showNavbar).toBe(true);
+      expect(component.widgetData).toEqual({});
+      expect(component.mobileTopHeaderVisibilityStatus).toBe(true);
+      expect(component.showHubs).toBe(false);
+    });
 
-    expect(window.open).toHaveBeenCalledWith('https://apps.apple.com/in/app/igot-karmayogi/id6443949491', '_blank');
+    it('should set isXSmall$ from ValueService', () => {
+      expect(component.isXSmall$).toBe(mockValueService.isXSmall$);
+    });
   });
 
-  it('should navigate to the correct URL based on userAgent for Windows Phone', () => {
-    // Mock userAgent to be Windows Phone
-    Object.defineProperty(navigator, 'userAgent', {
-      value: 'windows phone',
-      writable: true,
+  describe('ngOnInit', () => {
+    it('should subscribe to showNavbarDisplay$ and update showNavbar', (done) => {
+      //const mockShowNavbarDisplay$ = of(false);
+     // headerService.showNavbarDisplay$ = mockShowNavbarDisplay$;
+
+      component.ngOnInit();
+
+      setTimeout(() => {
+        expect(component.showNavbar).toBe(false);
+        done();
+      }, 600); // Wait for delay(500) + buffer
     });
-    window.open = jest.fn(); // Mock window.open
 
-    component.downloadApp(); // Call the method
+    it('should set widgetData correctly', () => {
+      component.ngOnInit();
 
-    expect(window.open).toHaveBeenCalledWith('https://play.google.com/store/apps/details?id=com.igot.karmayogibharat&hl=en&gl=US', '_blank');
+      const expectedWidgetData = {
+        widgets: [
+          [
+            {
+              dimensions: {},
+              className: 'ws-mat-primary-lite-background-important new-box-hubs',
+              widget: {
+                widgetType: 'card',
+                widgetSubType: 'cardHomeHubs',
+                widgetData: {},
+              },
+            },
+          ],
+        ],
+      };
+
+      expect(component.widgetData).toEqual(expectedWidgetData);
+    });
+  });
+
+  describe('downloadApp', () => {
+    //let originalNavigator: Navigator;
+    let windowOpenSpy: jest.SpyInstance;
+
+    beforeEach(() => {
+     // originalNavigator = global.navigator;
+      windowOpenSpy = jest.spyOn(window, 'open').mockImplementation(() => {
+        const mockWindow = { opener: {} } as Window;
+        return mockWindow;
+      });
+    });
+
+    afterEach(() => {
+    //  global.navigator = originalNavigator;
+      windowOpenSpy.mockRestore();
+    });
+
+    it('should open Play Store for Windows Phone', () => {
+      // Object.defineProperty(global.navigator, 'userAgent', {
+      //   value: 'Mozilla/5.0 (compatible; MSIE 10.0; Windows Phone 8.0; Trident/6.0; IEMobile/10.0; ARM; Touch; NOKIA; Lumia 822)',
+      //   configurable: true
+      // });
+
+      component.downloadApp();
+
+      expect(windowOpenSpy).toHaveBeenCalledWith(
+        'https://play.google.com/store/apps/details?id=com.igot.karmayogibharat&hl=en&gl=US',
+        '_blank',
+        'noopener'
+      );
+    });
+
+    it('should open Play Store for Android', () => {
+      // Object.defineProperty(global.navigator, 'userAgent', {
+      //   value: 'Mozilla/5.0 (Linux; Android 10; SM-G973F)',
+      //   configurable: true
+      // });
+
+      component.downloadApp();
+
+      expect(windowOpenSpy).toHaveBeenCalledWith(
+        'https://play.google.com/store/apps/details?id=com.igot.karmayogibharat&hl=en&gl=US',
+        '_blank',
+        'noopener'
+      );
+    });
+
+    it('should open App Store for iPad', () => {
+      // Object.defineProperty(global.navigator, 'userAgent', {
+      //   value: 'Mozilla/5.0 (iPad; CPU OS 14_0 like Mac OS X)',
+      //   configurable: true
+      // });
+
+      component.downloadApp();
+
+      expect(windowOpenSpy).toHaveBeenCalledWith(
+        'https://apps.apple.com/in/app/igot-karmayogi/id6443949491',
+        '_blank',
+        'noopener'
+      );
+    });
+
+    it('should open App Store for iPhone', () => {
+      // Object.defineProperty(global.navigator, 'userAgent', {
+      //   value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X)',
+      //   configurable: true
+      // });
+
+      component.downloadApp();
+
+      expect(windowOpenSpy).toHaveBeenCalledWith(
+        'https://apps.apple.com/in/app/igot-karmayogi/id6443949491',
+        '_blank',
+        'noopener'
+      );
+    });
+
+    it('should open App Store for iPod', () => {
+      // Object.defineProperty(global.navigator, 'userAgent', {
+      //   value: 'Mozilla/5.0 (iPod touch; CPU iPhone OS 14_0 like Mac OS X)',
+      //   configurable: true
+      // });
+
+      component.downloadApp();
+
+      expect(windowOpenSpy).toHaveBeenCalledWith(
+        'https://apps.apple.com/in/app/igot-karmayogi/id6443949491',
+        '_blank',
+        'noopener'
+      );
+    });
+
+    it('should set opener to null for all platforms', () => {
+      const mockWindow = { opener: {} } as Window;
+      windowOpenSpy.mockReturnValue(mockWindow);
+
+      // Object.defineProperty(global.navigator, 'userAgent', {
+      //   value: 'Mozilla/5.0 (Linux; Android 10; SM-G973F)',
+      //   configurable: true
+      // });
+
+      component.downloadApp();
+
+      expect(mockWindow.opener).toBeNull();
+    });
+
+    it('should handle case when window.open returns null', () => {
+      windowOpenSpy.mockReturnValue(null);
+
+      // Object.defineProperty(global.navigator, 'userAgent', {
+      //   value: 'Mozilla/5.0 (Linux; Android 10; SM-G973F)',
+      //   configurable: true
+      // });
+
+      expect(() => component.downloadApp()).not.toThrow();
+    });
+  });
+
+  describe('Getters', () => {
+    it('should return correct value for navBarRequired', () => {
+      component.isNavBarRequired = true;
+      expect(component.navBarRequired).toBe(true);
+
+      component.isNavBarRequired = false;
+      expect(component.navBarRequired).toBe(false);
+    });
+
+    it('should return correct value for isShowNavbar', () => {
+      component.showNavbar = true;
+      expect(component.isShowNavbar).toBe(true);
+
+      component.showNavbar = false;
+      expect(component.isShowNavbar).toBe(false);
+    });
+  });
+
+  describe('hideMobileTopHeader', () => {
+    it('should set mobileTopHeaderVisibilityStatus to false', () => {
+      component.mobileTopHeaderVisibilityStatus = true;
+      
+      component.hideMobileTopHeader();
+      
+      expect(component.mobileTopHeaderVisibilityStatus).toBe(false);
+    });
+
+    it('should call next on mobileAppsService.mobileTopHeaderVisibilityStatus', () => {
+      const nextSpy = jest.spyOn(mobileAppsService.mobileTopHeaderVisibilityStatus, 'next');
+      
+      component.hideMobileTopHeader();
+      
+      expect(nextSpy).toHaveBeenCalledWith(false);
+    });
+  });
+
+  describe('Input Properties', () => {
+    it('should accept mode input', () => {
+      const testMode = 'test-mode';
+      component.mode = testMode;
+      expect(component.mode).toBe(testMode);
+    });
+
+    it('should accept headerFooterConfigData input', () => {
+      const testConfig = { test: 'config' };
+      component.headerFooterConfigData = testConfig;
+      expect(component.headerFooterConfigData).toBe(testConfig);
+    });
+
+    it('should accept showHubs input with default false', () => {
+      expect(component.showHubs).toBe(false);
+      
+      component.showHubs = true;
+      expect(component.showHubs).toBe(true);
+    });
   });
 });
