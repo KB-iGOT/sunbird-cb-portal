@@ -42,7 +42,7 @@
             <div class="flex row my-2 justify-start mx-10 my-5">
               <div (click)="viewSimiliarResults(i)" class="mx-2" *ngIf="chat?.showSimiliarResultsFlag">
                 <button type="button" class="web-button py-2 px-4 cursor-pointer">
-                  <img class="web-search-icon" src="assets/ai-tutor/frame.svg"/><span class="blue-color">View similiar results</span>
+                  <img alt="frame" class="web-search-icon" src="assets/ai-tutor/frame.svg"/><span class="blue-color">View similiar results</span>
                 </button>
               </div>
               <div (click)="callFromInternet(chat, i)" *ngIf="chat?.showFromInternet">
@@ -72,7 +72,7 @@
                 </div> -->
                 <div class="btn-default mb-2" (click)="redirectToResource(item);raiseTelemetryForResource(item)">
                   <a [href]="item?.resourceLink" target="_blank" (click)="raiseTelemetryForResource(item)">
-                    <img class="vertical-middle h-w-34" src="/assets/ai-tutor/pdf.svg">
+                    <img alt="pdf" class="vertical-middle h-w-34" src="/assets/ai-tutor/pdf.svg">
                   </a>
                   {{item?.title}}
                   <mat-icon class="vertical-middle" *ngIf="!(item?.fromInternet)">navigate_next</mat-icon>
@@ -89,7 +89,7 @@
                     <div class="flex flex-row">
                     <div>
                     <a [href]="item?.resourceLink" target="_blank">
-                      <img class="vertical-middle h-w-34" src="/assets/ai-tutor/video.svg">
+                      <img alt="video" class="vertical-middle h-w-34" src="/assets/ai-tutor/video.svg">
                     </a>
                   </div>
                   <div class="ml-1 pt-1">
@@ -141,14 +141,14 @@
                 <div class="feefback-section flex flex-row my-1">
                   <div  (click)="sharePositiveContentRating(item,i, ci)" class="cursor-pointer feedback-icon mt-1" 
                   >
-                    <img [ngClass]="'rotate-180'" *ngIf="item?.feedback !== 'up' && !item?.showLoaderForUp" src="/assets/ai-tutor/down.svg">
-                    <img *ngIf="item?.feedback === 'up'  && !item?.showLoaderForUp" src="/assets/ai-tutor/up.svg">
-                    <img *ngIf="item?.showLoaderForUp" class="blue-loader-animation" height="18" width="18" src="/assets/ai-tutor/blue-loader.png">
+                    <img alt="down" [ngClass]="'rotate-180'" *ngIf="item?.feedback !== 'up' && !item?.showLoaderForUp" src="/assets/ai-tutor/down.svg">
+                    <img alt="up" *ngIf="item?.feedback === 'up'  && !item?.showLoaderForUp" src="/assets/ai-tutor/up.svg">
+                    <img alt="blue-loader" *ngIf="item?.showLoaderForUp" class="blue-loader-animation" height="18" width="18" src="/assets/ai-tutor/blue-loader.png">
                   </div>
                   <div (click)="openAIFeedbackPopup(item,i, ci)" class="ml-2 cursor-pointer feedback-icon mt-1">
-                    <img *ngIf="item?.feedback !== 'down' && !item?.showLoaderForDown" src="/assets/ai-tutor/down.svg"> 
-                    <img *ngIf="item?.feedback === 'down'  && !item?.showLoaderForDown" src="/assets/ai-tutor/fill-down.svg"> 
-                    <img *ngIf="item?.showLoaderForDown" class="blue-loader-animation" height="18" width="18" src="/assets/ai-tutor/blue-loader.png">
+                    <img alt="down" *ngIf="item?.feedback !== 'down' && !item?.showLoaderForDown" src="/assets/ai-tutor/down.svg"> 
+                    <img alt="fill-down" *ngIf="item?.feedback === 'down'  && !item?.showLoaderForDown" src="/assets/ai-tutor/fill-down.svg"> 
+                    <img alt="blue-loader" *ngIf="item?.showLoaderForDown" class="blue-loader-animation" height="18" width="18" src="/assets/ai-tutor/blue-loader.png">
                   </div> 
                 </div>
                 <!-- <div class="flex flex-row font-12 mt-1">
@@ -205,14 +205,14 @@
                 <div class="feefback-section flex flex-row" *ngIf="item?.contentType !== 'Resource'">
                   <div  (click)="sharePositiveContentRating(item,i, ci)" class="cursor-pointer feedback-icon mt-1" 
                   >
-                    <img [ngClass]="'rotate-180'" *ngIf="item?.feedback !== 'up' && !item?.showLoaderForUp" src="/assets/ai-tutor/down.svg">
-                    <img *ngIf="item?.feedback === 'up'  && !item?.showLoaderForUp" src="/assets/ai-tutor/up.svg">
-                    <img *ngIf="item?.showLoaderForUp" class="blue-loader-animation" height="18" width="18" src="/assets/ai-tutor/blue-loader.png">
+                    <img alt="down" [ngClass]="'rotate-180'" *ngIf="item?.feedback !== 'up' && !item?.showLoaderForUp" src="/assets/ai-tutor/down.svg">
+                    <img alt="up" *ngIf="item?.feedback === 'up'  && !item?.showLoaderForUp" src="/assets/ai-tutor/up.svg">
+                    <img alt="blue-loader" *ngIf="item?.showLoaderForUp" class="blue-loader-animation" height="18" width="18" src="/assets/ai-tutor/blue-loader.png">
                   </div>
                   <div (click)="openAIFeedbackPopup(item,i, ci)" class="ml-2 cursor-pointer feedback-icon mt-1">
-                    <img *ngIf="item?.feedback !== 'down' && !item?.showLoaderForDown" src="/assets/ai-tutor/down.svg"> 
-                    <img *ngIf="item?.feedback === 'down'  && !item?.showLoaderForDown" src="/assets/ai-tutor/fill-down.svg"> 
-                    <img *ngIf="item?.showLoaderForDown" class="blue-loader-animation" height="18" width="18" src="/assets/ai-tutor/blue-loader.png">
+                    <img alt="down" *ngIf="item?.feedback !== 'down' && !item?.showLoaderForDown" src="/assets/ai-tutor/down.svg"> 
+                    <img alt="fill-down" *ngIf="item?.feedback === 'down'  && !item?.showLoaderForDown" src="/assets/ai-tutor/fill-down.svg"> 
+                    <img alt="blue-loader" *ngIf="item?.showLoaderForDown" class="blue-loader-animation" height="18" width="18" src="/assets/ai-tutor/blue-loader.png">
                   </div> 
                 </div>
               </div>

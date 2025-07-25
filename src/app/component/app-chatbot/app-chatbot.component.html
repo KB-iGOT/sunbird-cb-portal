@@ -35,8 +35,8 @@
             </div>
             <div class="flex flex-wrap user-info-div" *ngIf="currentFilter === 'sarthi' ||  currentFilter === 'support-ai'">
               <div class="user-name">
-                <img  *ngIf="currentFilter === 'sarthi'" class="vertical-middle" src="assets/icons/bot-chat-small.svg">
-                <img  *ngIf="currentFilter === 'support-ai'" class="vertical-middle" src="assets/icons/support-bot.svg" height="40" width="40">
+                <img alt="bot-chat-small"  *ngIf="currentFilter === 'sarthi'" class="vertical-middle" src="assets/icons/bot-chat-small.svg">
+                <img alt="support-ai"  *ngIf="currentFilter === 'support-ai'" class="vertical-middle" src="assets/icons/support-bot.svg" height="40" width="40">
                 <span class="ml-2" *ngIf="currentFilter === 'sarthi'">iGOT AI</span>
                 <span class="ml-2" *ngIf="currentFilter === 'support-ai'">Support AI</span>
               </div> 
@@ -50,7 +50,7 @@
             <div  *ngIf="currentFilter === 'support-ai'">
               <div class="cursor-pointer mt-2" matTooltipClass="right-nav-tooltip" matTooltip="Need Help"
                 (click)="getZohoForm()" class="help-icon" id="help-icon">
-                <img class="" src="/assets/icons/top-nav/help_icon.svg" alt="">
+                <img class="" src="/assets/icons/top-nav/help_icon.svg" alt="help">
             </div>
             </div>
             <div class="" *ngIf="maximizeChatFlag && (enableIGOTAIFlag || enableSupportAI)">
@@ -169,7 +169,7 @@
         </div>
             <!-- //NOSONAR --> <div class="info br-bl padding-top-xs" *ngIf="enableSupportAI" [ngClass]="{active: currentFilter === 'support-ai'}" (click)="toggleFilter('support-ai')">
               <div class="info-icon">
-                <img src="assets/icons/support-bot.svg" height="28" width="28">
+                <img alt="support-bot" src="assets/icons/support-bot.svg" height="28" width="28">
             </div>
             <div class="info-text">
                 Support AI

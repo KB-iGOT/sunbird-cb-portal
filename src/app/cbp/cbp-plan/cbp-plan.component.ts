@@ -51,9 +51,9 @@ export class CbpPlanComponent implements OnInit {
   contentCompletedStatus = 2
   constructor(
     private activatedRoute: ActivatedRoute,
-    private widgetSvc: WidgetUserServiceLib,
+    private readonly widgetSvc: WidgetUserServiceLib,
     private translate: TranslateService,
-    private configSvc: ConfigurationsService,
+    private readonly configSvc: ConfigurationsService,
     private langtranslations: MultilingualTranslationsService
 
     ) {
