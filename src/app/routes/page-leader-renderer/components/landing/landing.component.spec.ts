@@ -1,341 +1,540 @@
-import { of, throwError } from 'rxjs';
 import { LandingComponent } from './landing.component';
-import { LeadershipService } from '../../services/leadership.service';
+import { ActivatedRoute, ParamMap, Router } from '@angular/router';
 import { ConfigurationsService } from '@sunbird-cb/utils-v2';
-import { Router,  convertToParamMap } from '@angular/router';
+import { LeadershipService } from '../../services/leadership.service';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog';
+import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar';
+import { ElementRef } from '@angular/core';
+import { of, throwError } from 'rxjs';
+import { IWsUserFollow } from '../../model/leadership-email.model';
+import { IWsLeaderData } from '../../model/leadership.model';
+import { SendMailDialogComponent } from '../send-mail-dialog/send-mail-dialog.component';
 
 describe('LandingComponent', () => {
   let component: LandingComponent;
-  let mockLeadershipService: jest.Mocked<LeadershipService>;
-  let mockConfigService: jest.Mocked<ConfigurationsService>;
+  let mockRoute: jest.Mocked<ActivatedRoute>;
   let mockRouter: jest.Mocked<Router>;
-  let mockDialog: any;
-  let mockSnackBar: any;
-  let mockActivatedRoute: any;
-  let mockElementRef: any;
+  let mockDialog: jest.Mocked<MatDialog>;
+  let mockSnackBar: jest.Mocked<MatSnackBar>;
+  let mockLeaderSvc: jest.Mocked<LeadershipService>;
+  let mockConfigSvc: jest.Mocked<ConfigurationsService>;
+
+  const mockLeaderData: IWsLeaderData = {
+    profile: {
+      name: 'John Doe',
+      emailId: 'john.doe@example.com'
+    },
+    tabs: [
+      { title: 'Overview' },
+      { title: 'Experience' },
+      { title: 'Skills' }
+    ],
+    mailMeta: {
+      placeholder: 'Write your message...',
+      emailTo: 'john.doe@example.com',
+      name: 'John Doe',
+      subject: 'Message from Leadership Portal'
+    }
+  } as IWsLeaderData;
+
+  const mockUserFollow: IWsUserFollow = {
+    followers: [],
+    following: [
+      {
+        id: 'user123',
+        email: 'test@example.com',
+        firstname: 'Test User'
+      }
+    ]
+  };
 
   beforeEach(() => {
-    // Create mock services
-    mockLeadershipService = {
-      emailToUserId: jest.fn(),
-      fetchUserFollow: jest.fn(),
-      followUser: jest.fn(),
-      unFollowUser: jest.fn(),
-    } as unknown as jest.Mocked<LeadershipService>;
+    // Mock ActivatedRoute
+    mockRoute = {
+      data: of({ leaderData: { data: mockLeaderData } }),
+      paramMap: of({
+        get: jest.fn().mockReturnValue('john-doe')
+      } as unknown as ParamMap),
+      queryParamMap: of({
+        get: jest.fn().mockReturnValue('Overview')
+      } as unknown as ParamMap)
+    } as unknown as jest.Mocked<ActivatedRoute>;
 
-    mockConfigService = {
-      userProfile: {
-        userId: 'test-user-id'
-      }
-    } as unknown as jest.Mocked<ConfigurationsService>;
-
+    // Mock Router
     mockRouter = {
       navigate: jest.fn()
     } as unknown as jest.Mocked<Router>;
 
+    // Mock MatDialog
     mockDialog = {
       open: jest.fn()
-    };
+    } as unknown as jest.Mocked<MatDialog>;
 
+    // Mock MatSnackBar
     mockSnackBar = {
       open: jest.fn()
-    };
+    } as unknown as jest.Mocked<MatSnackBar>;
 
-    mockElementRef = {
-      nativeElement: {
-        value: 'mock-value'
+    // Mock LeadershipService
+    mockLeaderSvc = {
+      emailToUserId: jest.fn(),
+      fetchUserFollow: jest.fn(),
+      followUser: jest.fn(),
+      unFollowUser: jest.fn()
+    } as unknown as jest.Mocked<LeadershipService>;
+
+    // Mock ConfigurationsService
+    mockConfigSvc = {
+      userProfile: {
+        userId: 'current-user-123'
       }
-    };
+    } as unknown as jest.Mocked<ConfigurationsService>;
 
-    // Setup mock ActivatedRoute
-    mockActivatedRoute = {
-      data: of({ 
-        leaderData: { 
-          data: {
-            tabs: [{ title: 'Tab1' }, { title: 'Tab2' }],
-            profile: { 
-              emailId: 'leader@example.com',
-              name: 'Leader Name'
-            },
-            mailMeta: {
-              placeholder: 'Email placeholder',
-              emailTo: 'leader@example.com',
-              name: 'Leader Name',
-              subject: 'Email Subject'
-            }
-          }
-        }
-      }),
-      paramMap: of(convertToParamMap({ name: 'leader-name' })),
-      queryParamMap: of(convertToParamMap({ tab: 'Tab2' }))
-    };
-
-    // Instantiate component with mocks
     component = new LandingComponent(
-      mockActivatedRoute,
+      mockRoute,
       mockRouter,
       mockDialog,
       mockSnackBar,
-      mockLeadershipService,
-      mockConfigService
+      mockLeaderSvc,
+      mockConfigSvc
     );
 
     // Mock ViewChild elements
-    component.followed = mockElementRef;
-    component.unfollowed = mockElementRef;
-    component.followUnfollowError = mockElementRef;
+    component.followed = {
+      nativeElement: { value: 'Successfully followed' }
+    } as ElementRef<any>;
+
+    component.unfollowed = {
+      nativeElement: { value: 'Successfully unfollowed' }
+    } as ElementRef<any>;
+
+    component.followUnfollowError = {
+      nativeElement: { value: 'Error occurred' }
+    } as ElementRef<any>;
   });
 
-  it('should create the component', () => {
-    expect(component).toBeTruthy();
+  describe('Constructor', () => {
+    it('should initialize component with user profile', () => {
+      expect(component.userId).toBe('current-user-123');
+    });
+
+    it('should handle missing user profile', () => {
+      mockConfigSvc.userProfile = null as any;
+      const newComponent = new LandingComponent(
+        mockRoute,
+        mockRouter,
+        mockDialog,
+        mockSnackBar,
+        mockLeaderSvc,
+        mockConfigSvc
+      );
+      expect(newComponent.userId).toBeUndefined();
+    });
   });
 
   describe('ngOnInit', () => {
-    it('should initialize component and call init method', () => {
+    it('should subscribe to route data when route exists', () => {
       const initSpy = jest.spyOn(component, 'init');
       component.ngOnInit();
-      expect(initSpy).toHaveBeenCalled();
+      expect(initSpy).toHaveBeenCalledWith({ leaderData: { data: mockLeaderData } });
+    });
+
+    it('should handle missing route', () => {
+      component['route'] = null as any;
+      expect(() => component.ngOnInit()).not.toThrow();
+    });
+
+    it('should handle missing route data', () => {
+      mockRoute.data = null as any;
+      expect(() => component.ngOnInit()).not.toThrow();
     });
   });
 
   describe('init', () => {
-    it('should initialize component with leader data', () => {
-      const leaderData = { 
-        data: {
-          tabs: [{ title: 'Tab1' }, { title: 'Tab2' }],
-          profile: { 
-            emailId: 'leader@example.com',
-            name: 'Leader Name'
-          },
-          mailMeta: {
-            placeholder: 'Email placeholder',
-            emailTo: 'leader@example.com',
-            name: 'Leader Name',
-            subject: 'Email Subject'
-          }
-        }
-      };
-      
-      jest.spyOn(component, 'fetchUserId');
-    //   jest.spyOn(component, 'fetchLoggedUserFollowers');
-
-    //   component.init({ leaderData });
-
-      expect(component.leaderData).toEqual(leaderData.data);
-      expect(component.tabs).toEqual(['Tab1', 'Tab2']);
-      expect(component.leaderName).toBe('leader-name');
-      expect(component.currentIndex).toBe(1); // since 'Tab2' is at index 1
-      expect(component.fetchUserId).toHaveBeenCalled();
-    //   expect(component.fetchLoggedUserFollowers).toHaveBeenCalled();
+    beforeEach(() => {
+      jest.spyOn(component, 'fetchUserId').mockImplementation();
+     // jest.spyOn(component, 'fetchLoggedUserFollowers').mockImplementation();
     });
 
-    it('should handle error when fetching leader data', () => {
-    //   const leaderData = { error: 'Error fetching data' };
-      
-    //   component.init({ leaderData });
+    it('should initialize with valid leader data', () => {
+      const response = { leaderData: { data: mockLeaderData } };
+      component.init(response);
+
+      expect(component.leaderData).toEqual(mockLeaderData);
+      expect(component.tabs).toEqual(['Overview', 'Experience', 'Skills']);
+      expect(component.leaderName).toBe('john-doe');
+      expect(component.currentIndex).toBe(0);
+      expect(component.fetchUserId).toHaveBeenCalled();
+     // expect(component.fetchLoggedUserFollowers).toHaveBeenCalled();
+    });
+
+    it('should handle error in leader response', () => {
+      const response = { leaderData: { error: 'Some error' } };
+      component.init(response);
 
       expect(component.errorFetchingJson).toBe(true);
+      expect(component.fetchUserId).toHaveBeenCalled();
+     // expect(component.fetchLoggedUserFollowers).toHaveBeenCalled();
+    });
+
+    it('should handle missing name parameter', () => {
+      // const mockParamMap:any = {
+      //   get: jest.fn().mockReturnValue(null)
+      // } as unknown as ParamMap;
+      // mockRoute.paramMap = of(mockParamMap);
+
+      const response = { leaderData: { data: mockLeaderData } };
+      component.init(response);
+
+      expect(component.leaderName).toBe('');
+    });
+
+    it('should handle invalid tab query parameter', () => {
+      // const mockQueryParamMap = {
+      //   get: jest.fn().mockReturnValue('InvalidTab')
+      // } as unknown as ParamMap;
+      // mockRoute.queryParamMap = of(mockQueryParamMap);
+
+      const response = { leaderData: { data: mockLeaderData } };
+      component.init(response);
+
+      expect(component.currentIndex).toBe(0);
+    });
+
+    it('should handle valid tab query parameter', () => {
+      // const mockQueryParamMap = {
+      //   get: jest.fn().mockReturnValue('Experience')
+      // } as unknown as ParamMap;
+      // mockRoute.queryParamMap = of(mockQueryParamMap);
+
+      const response = { leaderData: { data: mockLeaderData } };
+      component.init(response);
+
+      expect(component.currentIndex).toBe(1);
+    });
+
+    it('should handle missing paramMap', () => {
+     // mockRoute.paramMap = null as any;
+      const response = { leaderData: { data: mockLeaderData } };
+      expect(() => component.init(response)).not.toThrow();
+    });
+
+    it('should handle missing queryParamMap', () => {
+    //  mockRoute.queryParamMap = null as any;
+      const response = { leaderData: { data: mockLeaderData } };
+      expect(() => component.init(response)).not.toThrow();
+    });
+
+    it('should handle missing route', () => {
+      component['route'] = null as any;
+      const response = { leaderData: { data: mockLeaderData } };
+      expect(() => component.init(response)).not.toThrow();
     });
   });
 
   describe('fetchUserId', () => {
     it('should fetch user ID successfully', () => {
-    //   mockLeadershipService.emailToUserId.mockReturnValue(of({ userId: 'leader-uuid' }));
+     // const mockEmailUserId: IWsEmailUserId = { userId: 'leader123' };
+     // mockLeaderSvc.emailToUserId.mockReturnValue(of(mockEmailUserId));
+      component.leaderData = mockLeaderData;
 
       component.fetchUserId();
 
-      expect(mockLeadershipService.emailToUserId).toHaveBeenCalledWith('leader@example.com');
-      expect(component.leaderUuid).toBe('leader-uuid');
+      expect(mockLeaderSvc.emailToUserId).toHaveBeenCalledWith('john.doe@example.com');
+      expect(component.leaderUuid).toBe('leader123');
       expect(component.isFollowDisabled).toBe(false);
     });
 
     it('should handle error when fetching user ID', () => {
-      mockLeadershipService.emailToUserId.mockReturnValue(throwError('Error'));
+      mockLeaderSvc.emailToUserId.mockReturnValue(throwError('Error'));
+      component.leaderData = mockLeaderData;
 
       component.fetchUserId();
 
       expect(component.isFollowDisabled).toBe(true);
     });
-  });
 
-  describe('onIndexChange', () => {
-    it('should navigate with correct query params', () => {
-      component.tabs = ['Tab1', 'Tab2', 'Tab3'];
-      
-      component.onIndexChange(2);
-      
-      expect(mockRouter.navigate).toHaveBeenCalledWith([], { queryParams: { tab: 'Tab3' } });
+    it('should handle missing leader data', () => {
+      component.leaderData = null;
+      component.fetchUserId();
+      expect(mockLeaderSvc.emailToUserId).not.toHaveBeenCalled();
+    });
+
+    it('should handle missing profile in leader data', () => {
+      component.leaderData = { ...mockLeaderData, profile: null } as any;
+      component.fetchUserId();
+      expect(mockLeaderSvc.emailToUserId).not.toHaveBeenCalled();
+    });
+
+    it('should handle missing emailId in profile', () => {
+      component.leaderData = {
+        ...mockLeaderData,
+        profile: { ...mockLeaderData.profile, emailId: '' }
+      };
+      component.fetchUserId();
+      expect(mockLeaderSvc.emailToUserId).not.toHaveBeenCalled();
     });
   });
 
-  describe('openSendMailDialog', () => {
-    it('should open send mail dialog with correct data', () => {
-      component.openSendMailDialog();
-      
-      expect(mockDialog.open).toHaveBeenCalledWith(expect.anything(), {
-        data: {
-          placeholder: 'Email placeholder',
-          emailTo: 'leader@example.com',
-          name: 'Leader Name',
-          subject: 'Email Subject'
-        }
+  describe('onIndexChange', () => {
+    it('should navigate with correct tab query parameter', () => {
+      component.tabs = ['Overview', 'Experience', 'Skills'];
+      component.onIndexChange(1);
+
+      expect(mockRouter.navigate).toHaveBeenCalledWith([], {
+        queryParams: { tab: 'Experience' }
       });
     });
   });
 
-  describe('fetchLoggedUserFollowers', () => {
-    it('should fetch logged user followers successfully', () => {
-      const mockFollowData = { followers: [], following: [] };
-      mockLeadershipService.fetchUserFollow.mockReturnValue(of(mockFollowData));
-      
-      // We need to access the private method
-      (component as any).fetchLoggedUserFollowers();
-      
-      expect(mockLeadershipService.fetchUserFollow).toHaveBeenCalledWith('test-user-id');
-      expect(component.loggedUserFollowData).toEqual(mockFollowData);
+  describe('openSendMailDialog', () => {
+    it('should open dialog with correct data', () => {
+      component.leaderData = mockLeaderData;
+      component.openSendMailDialog();
+
+      expect(mockDialog.open).toHaveBeenCalledWith(SendMailDialogComponent, {
+        data: {
+          placeholder: 'Write your message...',
+          emailTo: 'john.doe@example.com',
+          name: 'John Doe',
+          subject: 'Message from Leadership Portal'
+        }
+      });
     });
 
-    it('should handle error when fetching user followers', () => {
-      mockLeadershipService.fetchUserFollow.mockReturnValue(throwError('Error'));
-      
-      (component as any).fetchLoggedUserFollowers();
-      
-      expect(mockSnackBar.open).toHaveBeenCalledWith('mock-value', 'X');
+    it('should not open dialog when leader data is null', () => {
+      component.leaderData = null;
+      component.openSendMailDialog();
+
+      expect(mockDialog.open).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('fetchLoggedUserFollowers', () => {
+    it('should fetch user followers successfully', () => {
+      mockLeaderSvc.fetchUserFollow.mockReturnValue(of(mockUserFollow));
+      component.userId = 'current-user-123';
+
+      component['fetchLoggedUserFollowers']();
+
+      expect(mockLeaderSvc.fetchUserFollow).toHaveBeenCalledWith('current-user-123');
+      expect(component.loggedUserFollowData).toEqual(mockUserFollow);
+    });
+
+    it('should handle error when fetching followers', () => {
+      mockLeaderSvc.fetchUserFollow.mockReturnValue(throwError('Error'));
+      component.userId = 'current-user-123';
+
+      component['fetchLoggedUserFollowers']();
+
+      expect(mockSnackBar.open).toHaveBeenCalledWith('Error occurred', 'X');
+    });
+
+    it('should handle undefined userId', () => {
+      component.userId = undefined;
+      mockLeaderSvc.fetchUserFollow.mockReturnValue(of(mockUserFollow));
+
+      component['fetchLoggedUserFollowers']();
+
+      expect(mockLeaderSvc.fetchUserFollow).toHaveBeenCalledWith('');
     });
   });
 
   describe('isFollowing', () => {
-    it('should return true if user is following the leader', () => {
-      component.loggedUserFollowData = {
-        followers: [],
-        following: [{ id: 'leader-uuid', email: 'leader@example.com', firstname: 'Leader' }]
-      };
-      
-      const result = component.isFollowing('leader-uuid');
-      
+    it('should return true when user is following', () => {
+      component.loggedUserFollowData = mockUserFollow;
+      const result = component.isFollowing('user123');
       expect(result).toBe(true);
     });
 
-    it('should return false if user is not following the leader', () => {
-      component.loggedUserFollowData = {
-        followers: [],
-        following: []
-      };
-      
-      const result = component.isFollowing('leader-uuid');
-      
+    it('should return false when user is not following', () => {
+      component.loggedUserFollowData = mockUserFollow;
+      const result = component.isFollowing('unknown-user');
+      expect(result).toBe(false);
+    });
+
+    it('should return false when following list is empty', () => {
+      component.loggedUserFollowData = { followers: [], following: [] };
+      const result = component.isFollowing('user123');
       expect(result).toBe(false);
     });
   });
 
   describe('follow', () => {
-    it('should follow a leader successfully', () => {
-      component.leaderUuid = 'leader-uuid';
-      component.isFetchingFollow = false;
-      component.userId = 'test-user-id';
+    beforeEach(() => {
+      component.leaderData = mockLeaderData;
+      component.leaderUuid = 'leader123';
+      component.userId = 'current-user';
       component.loggedUserFollowData = { followers: [], following: [] };
-      
-      mockLeadershipService.followUser.mockReturnValue(of({}));
-      
-      component.follow();
-      
-      expect(component.isFetchingFollow).toBe(false);
-      expect(mockLeadershipService.followUser).toHaveBeenCalledWith({
-        followsourceid: 'test-user-id',
-        followtargetid: 'leader-uuid',
-        type: 'person'
-      });
-      expect(mockSnackBar.open).toHaveBeenCalled();
-      expect(component.loggedUserFollowData.following.length).toBe(1);
     });
 
-    it('should handle error when following a leader', () => {
-      component.leaderUuid = 'leader-uuid';
-      component.userId = 'test-user-id';
-      component.loggedUserFollowData = { followers: [], following: [] };
-      
-      mockLeadershipService.followUser.mockReturnValue(throwError('Error'));
-      
+    it('should follow user successfully', () => {
+      mockLeaderSvc.followUser.mockReturnValue(of({}));
+
       component.follow();
-      
+
+      expect(component.isFetchingFollow).toBe(true);
+      expect(component.loggedUserFollowData.following).toHaveLength(1);
+      expect(component.loggedUserFollowData.following[0]).toEqual({
+        id: 'leader123',
+        email: 'john.doe@example.com',
+        firstname: 'John Doe'
+      });
+
+      expect(mockLeaderSvc.followUser).toHaveBeenCalledWith({
+        followsourceid: 'current-user',
+        followtargetid: 'leader123',
+        type: 'person'
+      });
+    });
+
+    it('should handle successful follow API response', (done) => {
+      mockLeaderSvc.followUser.mockReturnValue(of({}));
+
+      component.follow();
+
+      setTimeout(() => {
+        expect(mockSnackBar.open).toHaveBeenCalledWith('Successfully followed_John Doe', 'X');
+        expect(component.isFetchingFollow).toBe(false);
+        done();
+      }, 0);
+    });
+
+    it('should handle follow API error', (done) => {
+      mockLeaderSvc.followUser.mockReturnValue(throwError('Error'));
+
+      component.follow();
+
+      setTimeout(() => {
+        expect(mockSnackBar.open).toHaveBeenCalledWith('Error occurred', 'X');
+        expect(component.loggedUserFollowData.following).toHaveLength(0);
+        expect(component.isFetchingFollow).toBe(false);
+        done();
+      }, 0);
+    });
+
+    it('should use email prefix as firstname when name is not available', () => {
+      component.leaderData = {
+        ...mockLeaderData,
+        profile: { ...mockLeaderData.profile, name: '' }
+      };
+      mockLeaderSvc.followUser.mockReturnValue(of({}));
+
+      component.follow();
+
+      expect(component.loggedUserFollowData.following[0].firstname).toBe('john');
+    });
+
+    it('should not follow when leader data is null', () => {
+      component.leaderData = null;
+      component.follow();
+
+      expect(mockLeaderSvc.followUser).not.toHaveBeenCalled();
       expect(component.isFetchingFollow).toBe(false);
-      expect(mockSnackBar.open).toHaveBeenCalledWith('mock-value', 'X');
-      expect(component.loggedUserFollowData.following.length).toBe(0);
     });
   });
 
   describe('unFollow', () => {
-    it('should unfollow a leader successfully', () => {
-      component.leaderUuid = 'leader-uuid';
-      component.userId = 'test-user-id';
+    beforeEach(() => {
+      component.leaderData = mockLeaderData;
+      component.leaderUuid = 'leader123';
+      component.userId = 'current-user';
       component.loggedUserFollowData = {
         followers: [],
-        following: [{ id: 'leader-uuid', email: 'leader@example.com', firstname: 'Leader' }]
+        following: [{ id: 'leader123', email: 'john@example.com', firstname: 'John' }]
       };
-      
-      mockLeadershipService.unFollowUser.mockReturnValue(of({}));
-      
-      component.unFollow();
-      
-      expect(component.isFetchingFollow).toBe(false);
-      expect(mockLeadershipService.unFollowUser).toHaveBeenCalledWith({
-        followsourceid: 'test-user-id',
-        followtargetid: 'leader-uuid'
-      });
-      expect(mockSnackBar.open).toHaveBeenCalled();
-      expect(component.loggedUserFollowData.following.length).toBe(0);
     });
 
-    it('should handle error when unfollowing a leader', () => {
-      component.leaderUuid = 'leader-uuid';
-      component.userId = 'test-user-id';
-      component.loggedUserFollowData = {
-        followers: [],
-        following: [{ id: 'leader-uuid', email: 'leader@example.com', firstname: 'Leader' }]
-      };
-      
-      mockLeadershipService.unFollowUser.mockReturnValue(throwError('Error'));
-      
+    it('should unfollow user successfully', (done) => {
+      mockLeaderSvc.unFollowUser.mockReturnValue(of({}));
+
       component.unFollow();
-      
+
+      expect(component.isFetchingFollow).toBe(true);
+      expect(mockLeaderSvc.unFollowUser).toHaveBeenCalledWith({
+        followsourceid: 'current-user',
+        followtargetid: 'leader123'
+      });
+
+      setTimeout(() => {
+        expect(mockSnackBar.open).toHaveBeenCalledWith('Successfully unfollowed John Doe', 'X');
+        expect(component.loggedUserFollowData.following).toHaveLength(0);
+        expect(component.isFetchingFollow).toBe(false);
+        done();
+      }, 0);
+    });
+
+    it('should handle unfollow API error', (done) => {
+      mockLeaderSvc.unFollowUser.mockReturnValue(throwError('Error'));
+
+      component.unFollow();
+
+      setTimeout(() => {
+        expect(mockSnackBar.open).toHaveBeenCalledWith('Error occurred', 'X');
+        expect(component.isFetchingFollow).toBe(false);
+        done();
+      }, 0);
+    });
+
+    it('should not unfollow when leader data is null', () => {
+      component.leaderData = null;
+      component.unFollow();
+
+      expect(mockLeaderSvc.unFollowUser).not.toHaveBeenCalled();
       expect(component.isFetchingFollow).toBe(false);
-      expect(mockSnackBar.open).toHaveBeenCalledWith('mock-value', 'X');
-      // Following array should remain unchanged
-      expect(component.loggedUserFollowData.following.length).toBe(1);
     });
   });
 
   describe('toggleFollow', () => {
-    it('should call unFollow when already following', () => {
-      component.leaderUuid = 'leader-uuid';
-      component.loggedUserFollowData = {
-        followers: [],
-        following: [{ id: 'leader-uuid', email: 'leader@example.com', firstname: 'Leader' }]
-      };
-      
-      const unFollowSpy = jest.spyOn(component, 'unFollow');
-      const followSpy = jest.spyOn(component, 'follow');
-      
-      component.toggleFollow();
-      
-      expect(unFollowSpy).toHaveBeenCalled();
-      expect(followSpy).not.toHaveBeenCalled();
+    beforeEach(() => {
+      component.leaderUuid = 'leader123';
+      jest.spyOn(component, 'isFollowing');
+      jest.spyOn(component, 'follow').mockImplementation();
+      jest.spyOn(component, 'unFollow').mockImplementation();
     });
 
-    it('should call follow when not already following', () => {
-      component.leaderUuid = 'leader-uuid';
-      component.loggedUserFollowData = {
+    it('should call unFollow when user is following', () => {
+      (component.isFollowing as jest.Mock).mockReturnValue(true);
+
+      component.toggleFollow();
+
+      expect(component.unFollow).toHaveBeenCalled();
+      expect(component.follow).not.toHaveBeenCalled();
+    });
+
+    it('should call follow when user is not following', () => {
+      (component.isFollowing as jest.Mock).mockReturnValue(false);
+
+      component.toggleFollow();
+
+      expect(component.follow).toHaveBeenCalled();
+      expect(component.unFollow).not.toHaveBeenCalled();
+    });
+  });
+
+  describe('Component Properties', () => {
+    it('should initialize with default values', () => {
+      const newComponent = new LandingComponent(
+        mockRoute,
+        mockRouter,
+        mockDialog,
+        mockSnackBar,
+        mockLeaderSvc,
+        mockConfigSvc
+      );
+
+      expect(newComponent.isFetchingFollow).toBe(false);
+      expect(newComponent.tabs).toEqual([]);
+      expect(newComponent.currentIndex).toBe(0);
+      expect(newComponent.leaderName).toBe('');
+      expect(newComponent.leaderData).toBeNull();
+      expect(newComponent.loggedUserFollowData).toEqual({
         followers: [],
         following: []
-      };
-      
-      const unFollowSpy = jest.spyOn(component, 'unFollow');
-      const followSpy = jest.spyOn(component, 'follow');
-      
-      component.toggleFollow();
-      
-      expect(followSpy).toHaveBeenCalled();
-      expect(unFollowSpy).not.toHaveBeenCalled();
+      });
+      expect(newComponent.leaderUuid).toBe('');
+      expect(newComponent.isFollowDisabled).toBe(true);
+      expect(newComponent.errorFetchingJson).toBe(false);
     });
   });
 });

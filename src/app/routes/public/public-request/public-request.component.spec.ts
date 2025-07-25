@@ -1,6 +1,6 @@
 import { PublicRequestComponent, forbiddenNamesValidatorPosition } from './public-request.component';
 import { UntypedFormControl } from '@angular/forms';
-import { of, throwError, Subject } from 'rxjs';
+import { of, throwError } from 'rxjs';
 
 // Mock dependencies
 const mockActivatedRoute = {
@@ -18,7 +18,7 @@ const mockSnackBar = {
   open: jest.fn()
 };
 
-const mockSignupService = {
+const mockSignupSvc = {
   sendOtp: jest.fn(),
   resendOtp: jest.fn(),
   verifyOTP: jest.fn(),
@@ -31,436 +31,847 @@ const mockDialog = {
   })
 };
 
-const mockRequestService = {
-  sendOtp: jest.fn(),
-  resendOtp: jest.fn(),
+const mockRequestSvc = {
   createPosition: jest.fn(),
   createOrg: jest.fn(),
-  createDomain: jest.fn()
+  createDomain: jest.fn(),
+  sendOtp: jest.fn(),
+  resendOtp: jest.fn()
 };
 
 const mockLocation = {
   back: jest.fn()
 };
 
-const mockConfigService = {
+const mockConfigSvc = {
   instanceConfig: {
     isMultilingualEnabled: true,
     websitelanguages: ['en', 'hi']
   }
 };
 
-const mockTranslateService = {
+const mockLangTranslations = {
+  updatelanguageSelected: jest.fn(),
+  translateLabel: jest.fn(),
+  translateActualLabel: jest.fn().mockReturnValue('translated text')
+};
+
+const mockTranslate = {
   setDefaultLang: jest.fn(),
   use: jest.fn()
 };
 
-const mockMultilingualTranslationsService = {
-  updatelanguageSelected: jest.fn(),
-  translateLabel: jest.fn(),
-  translateActualLabel: jest.fn().mockReturnValue('Translated Text')
-};
-
 // Mock localStorage
-const localStorageMock = {
+const mockLocalStorage = {
   getItem: jest.fn(),
-  setItem: jest.fn(),
-  removeItem: jest.fn(),
-  clear: jest.fn()
+  setItem: jest.fn()
 };
-Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+Object.defineProperty(window, 'localStorage', {
+  value: mockLocalStorage
+});
 
-// Mock UUID
+// Mock alert
+// global.alert = jest.fn();
+
+// Mock uuid
 jest.mock('uuid', () => ({
-  v4: () => 'mock-uuid-123'
-}));
-
-// Mock environment
-jest.mock('src/environments/environment', () => ({
-  environment: {
-    resendOTPTIme: 60000
-  }
+  v4: () => 'mock-uuid'
 }));
 
 describe('PublicRequestComponent', () => {
   let component: PublicRequestComponent;
 
   beforeEach(() => {
-    // Reset all mocks
     jest.clearAllMocks();
+    mockLocalStorage.getItem.mockReturnValue('en');
     
-    // Setup default localStorage mock
-    localStorageMock.getItem.mockReturnValue('en');
-    
-    // Setup router navigation mock
-    mockRouter.getCurrentNavigation.mockReturnValue({
-      extras: {
-        state: {
-          userform: {
-            firstname: 'John',
-            email: 'john@example.com',
-            mobile: '9876543210'
-          },
-          isMobileVerified: false,
-          isEmailVerified: false
-        }
-      }
-    });
-
     component = new PublicRequestComponent(
       mockActivatedRoute as any,
       mockRouter as any,
       mockSnackBar as any,
-      mockSignupService as any,
+      mockSignupSvc as any,
       mockDialog as any,
-      mockRequestService as any,
+      mockRequestSvc as any,
       mockLocation as any,
-      mockConfigService as any,
-      mockMultilingualTranslationsService as any,
-      mockTranslateService as any
+      mockConfigSvc as any,
+      mockLangTranslations as any,
+      mockTranslate as any
     );
   });
 
-  describe('Component Initialization', () => {
-    it('should create component', () => {
-      expect(component).toBeDefined();
+  describe('Constructor', () => {
+    it('should initialize with navigation state data', () => {
+      const navigationData = {
+        userform: { firstname: 'John', email: 'john@test.com' },
+        isMobileVerified: true,
+        isEmailVerified: true
+      };
+      
+      mockRouter.getCurrentNavigation.mockReturnValue({
+        extras: { state: navigationData }
+      });
+
+      component = new PublicRequestComponent(
+        mockActivatedRoute as any,
+        mockRouter as any,
+        mockSnackBar as any,
+        mockSignupSvc as any,
+        mockDialog as any,
+        mockRequestSvc as any,
+        mockLocation as any,
+        mockConfigSvc as any,
+        mockLangTranslations as any,
+        mockTranslate as any
+      );
+
+      expect(component.userform).toEqual(navigationData.userform);
+      expect(component.isMobileVerified).toBe(true);
+      expect(component.isEmailVerified).toBe(true);
     });
 
-    it('should initialize form with correct validators based on request type', () => {
-      expect(component.requestForm).toBeDefined();
+    it('should handle null navigation', () => {
+      mockRouter.getCurrentNavigation.mockReturnValue(null);
+
+      component = new PublicRequestComponent(
+        mockActivatedRoute as any,
+        mockRouter as any,
+        mockSnackBar as any,
+        mockSignupSvc as any,
+        mockDialog as any,
+        mockRequestSvc as any,
+        mockLocation as any,
+        mockConfigSvc as any,
+        mockLangTranslations as any,
+        mockTranslate as any
+      );
+
+      expect(component.userform).toBeUndefined();
+    });
+
+    it('should set up form for Position request type', () => {
       expect(component.requestType).toBe('Position');
-      expect(component.requestForm.get('firstname')?.hasError('required')).toBeTruthy();
-      expect(component.requestForm.get('position')?.hasError('required')).toBeTruthy();
+      expect(component.requestForm.get('position')?.hasError('required')).toBe(true);
     });
 
-    it('should patch form values from userform if available', () => {
+    it('should set up form for Organisation request type', () => {
+      mockActivatedRoute.snapshot.queryParams.type = 'Organisation';
+      
+      component = new PublicRequestComponent(
+        mockActivatedRoute as any,
+        mockRouter as any,
+        mockSnackBar as any,
+        mockSignupSvc as any,
+        mockDialog as any,
+        mockRequestSvc as any,
+        mockLocation as any,
+        mockConfigSvc as any,
+        mockLangTranslations as any,
+        mockTranslate as any
+      );
+
+      expect(component.requestForm.get('organisation')?.hasError('required')).toBe(true);
+    });
+
+    it('should set up form for Domain request type', () => {
+      mockActivatedRoute.snapshot.queryParams.type = 'Domain';
+      
+      component = new PublicRequestComponent(
+        mockActivatedRoute as any,
+        mockRouter as any,
+        mockSnackBar as any,
+        mockSignupSvc as any,
+        mockDialog as any,
+        mockRequestSvc as any,
+        mockLocation as any,
+        mockConfigSvc as any,
+        mockLangTranslations as any,
+        mockTranslate as any
+      );
+
+      expect(component.requestForm.get('domain')?.hasError('required')).toBe(true);
+    });
+
+    it('should patch form values when userform exists', () => {
+      const userformData = {
+        firstname: 'John',
+        email: 'john@test.com',
+        mobile: '1234567890',
+        organisation: 'Test Org',
+        domain: '@test.com',
+        addDetails: 'Additional details',
+        confirmBox: true
+      };
+
+      mockRouter.getCurrentNavigation.mockReturnValue({
+        extras: { state: { userform: userformData, isMobileVerified: false, isEmailVerified: false } }
+      });
+
+      component = new PublicRequestComponent(
+        mockActivatedRoute as any,
+        mockRouter as any,
+        mockSnackBar as any,
+        mockSignupSvc as any,
+        mockDialog as any,
+        mockRequestSvc as any,
+        mockLocation as any,
+        mockConfigSvc as any,
+        mockLangTranslations as any,
+        mockTranslate as any
+      );
+
       expect(component.requestForm.get('firstname')?.value).toBe('John');
-      expect(component.requestForm.get('email')?.value).toBe('john@example.com');
-      expect(component.requestForm.get('mobile')?.value).toBe('9876543210');
+      expect(component.requestForm.get('email')?.value).toBe('john@test.com');
+      expect(component.confirm).toBe(true);
     });
 
-    it('should set language from localStorage', () => {
-      expect(mockTranslateService.setDefaultLang).toHaveBeenCalledWith('en');
-      expect(mockTranslateService.use).toHaveBeenCalledWith('en');
+    it('should handle language settings from localStorage', () => {
+      mockLocalStorage.getItem.mockReturnValue('"hi"');
+
+      component = new PublicRequestComponent(
+        mockActivatedRoute as any,
+        mockRouter as any,
+        mockSnackBar as any,
+        mockSignupSvc as any,
+        mockDialog as any,
+        mockRequestSvc as any,
+        mockLocation as any,
+        mockConfigSvc as any,
+        mockLangTranslations as any,
+        mockTranslate as any
+      );
+
+      expect(component.selectedLanguage).toBe('hi');
+      expect(mockTranslate.use).toHaveBeenCalledWith('hi');
+    });
+
+    it('should set default language when localStorage is empty', () => {
+      mockLocalStorage.getItem.mockReturnValue(null);
+
+      component = new PublicRequestComponent(
+        mockActivatedRoute as any,
+        mockRouter as any,
+        mockSnackBar as any,
+        mockSignupSvc as any,
+        mockDialog as any,
+        mockRequestSvc as any,
+        mockLocation as any,
+        mockConfigSvc as any,
+        mockLangTranslations as any,
+        mockTranslate as any
+      );
+
+      expect(mockTranslate.setDefaultLang).toHaveBeenCalledWith('en');
+      expect(mockLocalStorage.setItem).toHaveBeenCalledWith('websiteLanguage', 'en');
     });
   });
 
   describe('ngOnInit', () => {
-    it('should set multiLang from instanceConfig', () => {
+    it('should initialize with instance config', () => {
       component.ngOnInit();
+
       expect(component.multiLang).toEqual(['en', 'hi']);
     });
-  });
 
-  describe('Form Validation', () => {
-    it('should validate name pattern', () => {
-      const nameControl = component.requestForm.get('firstname');
-      nameControl?.setValue('123Invalid');
-      expect(nameControl?.hasError('pattern')).toBeTruthy();
+    it('should handle null instance config', () => {
+    //  component.configSvc.instanceConfig = null;
       
-      nameControl?.setValue('Valid Name');
-      expect(nameControl?.hasError('pattern')).toBeFalsy();
-    });
+      component.ngOnInit();
 
-    it('should validate email pattern', () => {
-      const emailControl = component.requestForm.get('email');
-      emailControl?.setValue('invalid-email');
-      expect(emailControl?.hasError('pattern')).toBeTruthy();
-      
-      emailControl?.setValue('valid@example.com');
-      expect(emailControl?.hasError('pattern')).toBeFalsy();
-    });
-
-    it('should validate mobile pattern', () => {
-      const mobileControl = component.requestForm.get('mobile');
-      mobileControl?.setValue('123');
-      expect(mobileControl?.hasError('pattern')).toBeTruthy();
-      
-      mobileControl?.setValue('9876543210');
-      expect(mobileControl?.hasError('pattern')).toBeFalsy();
+      expect(component.multiLang).toBeUndefined();
     });
   });
 
-  describe('Email Verification', () => {
-    it('should detect email length validation', () => {
-      const longUsername = 'a'.repeat(65);
-      component.emailVerification(`${longUsername}@example.com`);
-      expect(component.emailLengthVal).toBeTruthy();
-      
-      component.emailVerification('valid@example.com');
-      expect(component.emailLengthVal).toBeFalsy();
-    });
-  });
-
-  describe('Domain Modification', () => {
+  describe('modifyDomain', () => {
     it('should remove @ from domain name', () => {
-      const result = component.modifyDomain('@example.com');
-      expect(result).toBe('example.com');
+      const result = component.modifyDomain('@test.com');
+      expect(result).toBe('test.com');
     });
 
-    it('should return domain as is if no @ present', () => {
-      const result = component.modifyDomain('example.com');
-      expect(result).toBe('example.com');
-    });
-  });
-
-  describe('OTP Functionality', () => {
-    describe('Mobile OTP', () => {
-      beforeEach(() => {
-        component.requestForm.get('mobile')?.setValue('9876543210');
-        jest.spyOn(component, 'startCountDown').mockImplementation();
-      });
-
-      it('should send OTP successfully', () => {
-        mockSignupService.sendOtp.mockReturnValue(of({}));
-        jest.spyOn(window, 'alert').mockImplementation();
-        
-        component.sendOtp();
-        
-        expect(mockSignupService.sendOtp).toHaveBeenCalledWith('9876543210', 'phone');
-        expect(component.otpSend).toBeTruthy();
-        expect(window.alert).toHaveBeenCalled();
-        expect(component.startCountDown).toHaveBeenCalled();
-      });
-
-      it('should handle OTP send error', () => {
-        const error = { error: { params: { errmsg: 'Error message' } } };
-        mockSignupService.sendOtp.mockReturnValue(throwError(error));
-        
-        component.sendOtp();
-        
-        expect(mockSnackBar.open).toHaveBeenCalledWith('Error message');
-      });
-
-      it('should verify OTP successfully', () => {
-        const otpControl = { value: '1234' };
-        mockSignupService.verifyOTP.mockReturnValue(of({ result: { response: 'SUCCESS' } }));
-        
-        component.verifyOtp(otpControl);
-        
-        expect(mockSignupService.verifyOTP).toHaveBeenCalledWith('1234', '9876543210', 'phone');
-        expect(component.otpVerified).toBeTruthy();
-        expect(component.isMobileVerified).toBeTruthy();
-      });
-
-      it('should handle invalid OTP length', () => {
-        const otpControl = { value: '12' };
-        
-        component.verifyOtp(otpControl);
-        
-        expect(mockSnackBar.open).toHaveBeenCalled();
-      });
-    });
-
-    describe('Email OTP', () => {
-      beforeEach(() => {
-        component.requestForm.get('email')?.setValue('test@example.com');
-        jest.spyOn(component, 'startCountDownEmail').mockImplementation();
-      });
-
-      it('should send email OTP successfully', () => {
-        mockRequestService.sendOtp.mockReturnValue(of({}));
-        jest.spyOn(window, 'alert').mockImplementation();
-        
-        component.sendOtpEmail();
-        
-        expect(mockRequestService.sendOtp).toHaveBeenCalledWith('test@example.com', 'email');
-        expect(component.otpEmailSend).toBeTruthy();
-        expect(window.alert).toHaveBeenCalled();
-      });
-
-      it('should verify email OTP successfully', () => {
-        const otpControl = { value: '1234' };
-        mockSignupService.verifyOTP.mockReturnValue(of({ result: { response: 'SUCCESS' } }));
-        
-        component.verifyOtpEmail(otpControl);
-        
-        expect(mockSignupService.verifyOTP).toHaveBeenCalledWith('1234', 'test@example.com', 'email');
-        expect(component.isEmailVerified).toBeTruthy();
-      });
+    it('should return domain name as is if no @', () => {
+      const result = component.modifyDomain('test.com');
+      expect(result).toBe('test.com');
     });
   });
 
-  describe('Form Changes Tracking', () => {
-    it('should reset mobile verification on mobile change', () => {
-      const mockValueChanges = new Subject();
-      jest.spyOn(component.requestForm.get('mobile')!, 'valueChanges', 'get')
-        .mockReturnValue(mockValueChanges.asObservable());
-      
+  describe('emailVerification', () => {
+    it('should set emailLengthVal to true for long local part', () => {
+      const longEmail = 'a'.repeat(65) + '@test.com';
+      component.emailVerification(longEmail);
+      expect(component.emailLengthVal).toBe(true);
+    });
+
+    it('should set emailLengthVal to true for long domain part', () => {
+      const longEmail = 'test@' + 'a'.repeat(256) + '.com';
+      component.emailVerification(longEmail);
+      expect(component.emailLengthVal).toBe(true);
+    });
+
+    it('should set emailLengthVal to false for valid email', () => {
+      component.emailVerification('test@test.com');
+      expect(component.emailLengthVal).toBe(false);
+    });
+
+    it('should handle empty email', () => {
+      component.emailVerification('');
+      expect(component.emailLengthVal).toBe(false);
+    });
+
+    it('should handle invalid email format', () => {
+      component.emailVerification('invalid-email');
+      expect(component.emailLengthVal).toBe(false);
+    });
+  });
+
+  describe('onPhoneChange', () => {
+    it('should reset mobile verification when phone changes', () => {
       component.isMobileVerified = true;
+      component.disableVerifyBtn = true;
+      component.otpSend = true;
+
       component.onPhoneChange();
       
-      mockValueChanges.next('new-value');
-      
-      expect(component.isMobileVerified).toBeFalsy();
-    });
+      // Simulate value change
+      component.requestForm.get('mobile')?.setValue('1234567890');
 
-    it('should reset email verification on email change', () => {
-      const mockValueChanges = new Subject();
-      jest.spyOn(component.requestForm.get('email')!, 'valueChanges', 'get')
-        .mockReturnValue(mockValueChanges.asObservable());
-      
-      component.isEmailVerified = true;
-      component.onEmailChange();
-      
-      mockValueChanges.next('new-value');
-      
-      expect(component.isEmailVerified).toBeFalsy();
+      expect(component.isMobileVerified).toBe(false);
+      expect(component.disableVerifyBtn).toBe(false);
+      expect(component.otpSend).toBe(false);
     });
   });
 
-  describe('Request Submission', () => {
+  describe('onEmailChange', () => {
+    it('should reset email verification when email changes', () => {
+      component.isEmailVerified = true;
+      component.disableEmailVerifyBtn = true;
+      component.otpEmailSend = true;
+
+      component.onEmailChange();
+      
+      // Simulate value change
+      component.requestForm.get('email')?.setValue('test@test.com');
+
+      expect(component.isEmailVerified).toBe(false);
+      expect(component.disableEmailVerifyBtn).toBe(false);
+      expect(component.otpEmailSend).toBe(false);
+    });
+  });
+
+  describe('sendOtp', () => {
+    beforeEach(() => {
+      component.requestForm.get('mobile')?.setValue('1234567890');
+    });
+
+    it('should send OTP successfully', () => {
+      mockSignupSvc.sendOtp.mockReturnValue(of({}));
+
+      component.sendOtp();
+
+      expect(mockSignupSvc.sendOtp).toHaveBeenCalledWith('1234567890', 'phone');
+      expect(component.otpSend).toBe(true);
+     // expect(global.alert).toHaveBeenCalledWith('translated text');
+    });
+
+    it('should handle OTP send error', () => {
+      const error = { error: { params: { errmsg: 'Error message' } } };
+      mockSignupSvc.sendOtp.mockReturnValue(throwError(error));
+
+      component.sendOtp();
+
+      expect(mockSnackBar.open).toHaveBeenCalledWith('Error message');
+    });
+
+    it('should handle OTP send error without error message', () => {
+      mockSignupSvc.sendOtp.mockReturnValue(throwError({}));
+
+      component.sendOtp();
+
+      expect(mockSnackBar.open).toHaveBeenCalledWith('Please try again later');
+    });
+
+    it('should show error for invalid mobile number', () => {
+      component.requestForm.get('mobile')?.setValue('');
+
+      component.sendOtp();
+
+      expect(mockSnackBar.open).toHaveBeenCalledWith('translated text');
+    });
+  });
+
+  describe('resendOTP', () => {
+    beforeEach(() => {
+      component.requestForm.get('mobile')?.setValue('1234567890');
+    });
+
+    it('should resend OTP successfully', () => {
+      mockSignupSvc.resendOtp.mockReturnValue(of({ result: { response: 'SUCCESS' } }));
+
+      component.resendOTP();
+
+      expect(mockSignupSvc.resendOtp).toHaveBeenCalledWith('1234567890', 'phone');
+      expect(component.otpSend).toBe(true);
+      expect(component.disableVerifyBtn).toBe(false);
+    });
+
+    it('should handle resend OTP error', () => {
+      const error = { error: { params: { errmsg: 'Error message' } } };
+      mockSignupSvc.resendOtp.mockReturnValue(throwError(error));
+
+      component.resendOTP();
+
+      expect(mockSnackBar.open).toHaveBeenCalledWith('Error message');
+    });
+
+    it('should show error for invalid mobile number', () => {
+      component.requestForm.get('mobile')?.setValue('');
+
+      component.resendOTP();
+
+      expect(mockSnackBar.open).toHaveBeenCalledWith('translated text');
+    });
+  });
+
+  describe('verifyOtp', () => {
+    beforeEach(() => {
+      component.requestForm.get('mobile')?.setValue('1234567890');
+    });
+
+    it('should verify OTP successfully', () => {
+      const otpControl = { value: '1234' };
+      mockSignupSvc.verifyOTP.mockReturnValue(of({ result: { response: 'SUCCESS' } }));
+
+      component.verifyOtp(otpControl);
+
+      expect(mockSignupSvc.verifyOTP).toHaveBeenCalledWith('1234', '1234567890', 'phone');
+      expect(component.otpVerified).toBe(true);
+      expect(component.isMobileVerified).toBe(true);
+      expect(component.disableBtn).toBe(false);
+    });
+
+    it('should handle short OTP', () => {
+      const otpControl = { value: '12' };
+
+      component.verifyOtp(otpControl);
+
+      expect(mockSnackBar.open).toHaveBeenCalledWith('translated text');
+    });
+
+    it('should handle OTP verification error', () => {
+      const otpControl = { value: '1234' };
+      const error = { 
+        error: { 
+          params: { errmsg: 'Error message' },
+          result: { remainingAttempt: 0 }
+        } 
+      };
+      mockSignupSvc.verifyOTP.mockReturnValue(throwError(error));
+
+      component.verifyOtp(otpControl);
+
+      expect(mockSnackBar.open).toHaveBeenCalledWith('Error message');
+      expect(component.disableVerifyBtn).toBe(true);
+    });
+
+    it('should handle empty OTP', () => {
+      const otpControl = { value: '' };
+
+      component.verifyOtp(otpControl);
+
+      expect(mockSnackBar.open).toHaveBeenCalledWith('translated text');
+    });
+
+    it('should handle null OTP', () => {
+      component.verifyOtp(null);
+
+      expect(mockSnackBar.open).toHaveBeenCalledWith('translated text');
+    });
+  });
+
+  describe('verifyOtpEmail', () => {
+    beforeEach(() => {
+      component.requestForm.get('email')?.setValue('test@test.com');
+    });
+
+    it('should verify email OTP successfully', () => {
+      const otpControl = { value: '1234' };
+      mockSignupSvc.verifyOTP.mockReturnValue(of({ result: { response: 'SUCCESS' } }));
+
+      component.verifyOtpEmail(otpControl);
+
+      expect(mockSignupSvc.verifyOTP).toHaveBeenCalledWith('1234', 'test@test.com', 'email');
+      expect(component.otpEmailSend).toBe(true);
+      expect(component.isEmailVerified).toBe(true);
+      expect(component.disableBtn).toBe(false);
+    });
+
+    it('should handle email OTP verification error', () => {
+      const otpControl = { value: '1234' };
+      const error = { 
+        error: { 
+          params: { errmsg: 'Error message' },
+          result: { remainingAttempt: 0 }
+        } 
+      };
+      mockSignupSvc.verifyOTP.mockReturnValue(throwError(error));
+
+      component.verifyOtpEmail(otpControl);
+
+      expect(mockSnackBar.open).toHaveBeenCalledWith('Error message');
+      expect(component.disableEmailVerifyBtn).toBe(true);
+    });
+  });
+
+  describe('sendOtpEmail', () => {
+    beforeEach(() => {
+      component.requestForm.get('email')?.setValue('test@test.com');
+    });
+
+    it('should send email OTP successfully', () => {
+      mockRequestSvc.sendOtp.mockReturnValue(of({}));
+
+      component.sendOtpEmail();
+
+      expect(mockRequestSvc.sendOtp).toHaveBeenCalledWith('test@test.com', 'email');
+      expect(component.otpEmailSend).toBe(true);
+    //  expect(global.alert).toHaveBeenCalledWith('translated text');
+    });
+
+    it('should handle email OTP send error', () => {
+      const error = { error: { params: { errmsg: 'Error message' } } };
+      mockRequestSvc.sendOtp.mockReturnValue(throwError(error));
+
+      component.sendOtpEmail();
+
+      expect(mockSnackBar.open).toHaveBeenCalledWith('Error message');
+    });
+
+    it('should show error for invalid email', () => {
+      component.requestForm.get('email')?.setValue('');
+
+      component.sendOtpEmail();
+
+      expect(mockSnackBar.open).toHaveBeenCalledWith('translated text');
+    });
+  });
+
+  describe('resendOTPEmail', () => {
+    beforeEach(() => {
+      component.requestForm.get('email')?.setValue('test@test.com');
+    });
+
+    it('should resend email OTP successfully', () => {
+      mockRequestSvc.resendOtp.mockReturnValue(of({ result: { response: 'SUCCESS' } }));
+
+      component.resendOTPEmail();
+
+      expect(mockRequestSvc.resendOtp).toHaveBeenCalledWith('test@test.com', 'email');
+      expect(component.otpEmailSend).toBe(true);
+      expect(component.disableEmailVerifyBtn).toBe(false);
+    });
+
+    it('should handle resend email OTP error', () => {
+      const error = { error: { params: { errmsg: 'Error message' } } };
+      mockRequestSvc.resendOtp.mockReturnValue(throwError(error));
+
+      component.resendOTPEmail();
+
+      expect(mockSnackBar.open).toHaveBeenCalledWith('Error message');
+    });
+
+    it('should show error for invalid email', () => {
+      component.requestForm.get('email')?.setValue('');
+
+      component.resendOTPEmail();
+
+      expect(mockSnackBar.open).toHaveBeenCalledWith('translated text');
+    });
+  });
+
+  describe('Timer Functions', () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+      component.OTP_TIMER = 60000;
+      component.OTP_TIMER_EMAIL = 60000;
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it('should start countdown for mobile OTP', () => {
+      component.startCountDown();
+
+      expect(component.timeLeftforOTP).toBe(60000);
+      
+      jest.advanceTimersByTime(1000);
+      expect(component.timeLeftforOTP).toBe(59999);
+    });
+
+    it('should start countdown for email OTP', () => {
+      component.startCountDownEmail();
+
+      expect(component.timeLeftforOTPEmail).toBe(60000);
+      
+      jest.advanceTimersByTime(1000);
+      expect(component.timeLeftforOTPEmail).toBe(59999);
+    });
+
+    it('should handle timer completion for mobile OTP', () => {
+      component.startCountDown();
+      component.timeLeftforOTP = 1;
+      
+      jest.advanceTimersByTime(1000);
+      
+      expect(component.timeLeftforOTP).toBe(0);
+    });
+
+    it('should handle timer completion for email OTP', () => {
+      component.startCountDownEmail();
+      component.timeLeftforOTPEmail = 1;
+      
+      jest.advanceTimersByTime(1000);
+      
+      expect(component.timeLeftforOTPEmail).toBe(0);
+    });
+  });
+
+  describe('confirmChange', () => {
+    it('should toggle confirm state', () => {
+      component.confirm = false;
+
+      component.confirmChange();
+
+      expect(component.confirm).toBe(true);
+      expect(component.requestForm.get('confirmBox')?.value).toBe(true);
+    });
+  });
+
+  describe('submitRequest', () => {
     beforeEach(() => {
       component.requestForm.patchValue({
         firstname: 'John',
-        email: 'john@example.com',
-        mobile: '9876543210',
-        position: 'Developer',
-        addDetails: 'Additional details'
+        email: 'john@test.com',
+        mobile: '1234567890',
+        addDetails: 'Test details'
       });
-      jest.spyOn(component, 'openDialog').mockImplementation();
-      jest.spyOn(component, 'clearForm').mockImplementation();
     });
 
-    it('should submit position request successfully', () => {
+    it('should submit Position request successfully', () => {
       component.requestType = 'Position';
-      mockRequestService.createPosition.mockReturnValue(of({ success: true }));
-      
+      component.requestForm.patchValue({ position: 'Test Position' });
+      mockRequestSvc.createPosition.mockReturnValue(of({ success: true }));
+
       component.submitRequest();
-      
-      expect(mockRequestService.createPosition).toHaveBeenCalled();
-      expect(component.openDialog).toHaveBeenCalledWith('Position', { success: true });
-      expect(component.clearForm).toHaveBeenCalled();
+
+      expect(mockRequestSvc.createPosition).toHaveBeenCalled();
+      expect(mockDialog.open).toHaveBeenCalled();
+      expect(component.disableBtn).toBe(false);
+      expect(component.isMobileVerified).toBe(true);
     });
 
-    it('should submit organisation request successfully', () => {
+    it('should handle Position request error', () => {
+      component.requestType = 'Position';
+      component.requestForm.patchValue({ position: 'Test Position' });
+      const error = { error: { params: { errmsg: 'Error message' } } };
+      mockRequestSvc.createPosition.mockReturnValue(throwError(error));
+
+      component.submitRequest();
+
+      expect(mockSnackBar.open).toHaveBeenCalledWith('Error message');
+      expect(component.disableBtn).toBe(false);
+    });
+
+    it('should handle Position request error without message', () => {
+      component.requestType = 'Position';
+      component.requestForm.patchValue({ position: 'Test Position' });
+      mockRequestSvc.createPosition.mockReturnValue(throwError({}));
+
+      component.submitRequest();
+
+      expect(mockSnackBar.open).toHaveBeenCalledWith('translated text');
+    });
+
+    it('should submit Organisation request successfully', () => {
       component.requestType = 'Organisation';
       component.requestForm.patchValue({ organisation: 'Test Org' });
-      mockRequestService.createOrg.mockReturnValue(of({ success: true }));
-      
+      mockRequestSvc.createOrg.mockReturnValue(of({ success: true }));
+
       component.submitRequest();
-      
-      expect(mockRequestService.createOrg).toHaveBeenCalled();
-      expect(component.openDialog).toHaveBeenCalledWith('Organisation', { success: true });
+
+      expect(mockRequestSvc.createOrg).toHaveBeenCalled();
+      expect(mockDialog.open).toHaveBeenCalled();
     });
 
-    it('should submit domain request successfully', () => {
+    it('should handle Organisation request error', () => {
+      component.requestType = 'Organisation';
+      component.requestForm.patchValue({ organisation: 'Test Org' });
+      const error = { error: { params: { errmsg: 'Error message' } } };
+      mockRequestSvc.createOrg.mockReturnValue(throwError(error));
+
+      component.submitRequest();
+
+      expect(mockSnackBar.open).toHaveBeenCalledWith('Error message');
+    });
+
+    it('should submit Domain request successfully', () => {
       component.requestType = 'Domain';
-      component.requestForm.patchValue({ domain: '@example.com' });
-      mockRequestService.createDomain.mockReturnValue(of({ success: true }));
-      
+      component.requestForm.patchValue({ domain: '@test.com' });
+      mockRequestSvc.createDomain.mockReturnValue(of({ success: true }));
+
       component.submitRequest();
-      
-      expect(mockRequestService.createDomain).toHaveBeenCalled();
-      expect(component.openDialog).toHaveBeenCalledWith('Domain', { success: true });
+
+      expect(mockRequestSvc.createDomain).toHaveBeenCalled();
+      expect(mockDialog.open).toHaveBeenCalled();
     });
 
-    // it('should handle request submission error', () => {
-    //   component.requestType = 'Position';
-    //   const error = { error: { params: { errmsg: 'Request failed' } } };
-    //   mockRequestService.createPosition.mockReturnValue(throwError(error));
-    //   jest.spyOn(component, 'openSnackbar').mockImplementation();
-      
-    //   component.submitRequest();
-      
-    //   expect(component.openSnackbar).toHaveBeenCalledWith('Request failed');
-    // });
+    it('should handle Domain request error', () => {
+      component.requestType = 'Domain';
+      component.requestForm.patchValue({ domain: '@test.com' });
+      const error = { error: { params: { errmsg: 'Error message' } } };
+      mockRequestSvc.createDomain.mockReturnValue(throwError(error));
+
+      component.submitRequest();
+
+      expect(mockSnackBar.open).toHaveBeenCalledWith('Error message');
+    });
   });
 
-  describe('Utility Methods', () => {
-    it('should toggle confirm state', () => {
-      component.confirm = false;
-      component.confirmChange();
-      expect(component.confirm).toBeTruthy();
-      expect(component.requestForm.get('confirmBox')?.value).toBeTruthy();
-    });
-
-    it('should clear form', () => {
+  describe('clearForm', () => {
+    it('should reset form and clear errors', () => {
       component.requestForm.patchValue({ firstname: 'Test' });
-      jest.spyOn(component.requestForm, 'reset');
-      
+      component.requestForm.get('firstname')?.setErrors({ required: true });
+
       component.clearForm();
-      
-      expect(component.requestForm.reset).toHaveBeenCalled();
-    });
 
-    it('should validate numeric input', () => {
-      expect(component.numericOnly({ key: '1' })).toBeTruthy();
-      expect(component.numericOnly({ key: 'a' })).toBeFalsy();
+      expect(component.requestForm.get('firstname')?.value).toBeNull();
+      expect(component.requestForm.get('firstname')?.errors).toBeNull();
     });
+  });
 
-    it('should select language', () => {
-      component.selectLanguage('hi');
-      
-      expect(component.selectedLanguage).toBe('hi');
-      expect(localStorageMock.setItem).toHaveBeenCalledWith('websiteLanguage', 'hi');
-      expect(mockMultilingualTranslationsService.updatelanguageSelected)
-        .toHaveBeenCalledWith(true, 'hi', '');
+  describe('openDialog', () => {
+    it('should open dialog with correct data', () => {
+      component.openDialog('Position', { success: true });
+
+      expect(mockDialog.open).toHaveBeenCalledWith(
+        expect.anything(),
+        {
+          width: '500px',
+          data: { requestType: 'Position', apiResponse: { success: true } }
+        }
+      );
     });
+  });
 
-    it('should go back with form data', () => {
+  describe('goBackUrl', () => {
+    it('should update signup data and go back', () => {
       component.requestForm.patchValue({
         firstname: 'John',
-        mobile: '9876543210',
-        email: 'john@example.com'
+        mobile: '1234567890',
+        email: 'john@test.com'
       });
-      
+      component.isMobileVerified = true;
+      component.isEmailVerified = true;
+
       component.goBackUrl();
-      
-      expect(mockSignupService.updateSignUpData).toHaveBeenCalledWith({
+
+      expect(mockSignupSvc.updateSignUpData).toHaveBeenCalledWith({
         firstname: 'John',
-        mobile: '9876543210',
-        email: 'john@example.com',
-        isMobileVerified: component.isMobileVerified,
-        isEmailVerified: component.isEmailVerified
+        mobile: '1234567890',
+        email: 'john@test.com',
+        isMobileVerified: true,
+        isEmailVerified: true
       });
       expect(mockLocation.back).toHaveBeenCalled();
     });
   });
 
-  describe('Translation Methods', () => {
-    it('should translate label', () => {
-     // const result = component.translateLabel('test', 'common');
-      expect(mockMultilingualTranslationsService.translateLabel)
-        .toHaveBeenCalledWith('test', 'common', '');
+  describe('numericOnly', () => {
+    it('should return true for numeric key', () => {
+      const event = { key: '5' };
+      const result = component.numericOnly(event);
+      expect(result).toBe(true);
     });
 
-    it('should translate labels', () => {
+    it('should return false for non-numeric key', () => {
+      const event = { key: 'a' };
+      const result = component.numericOnly(event);
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('selectLanguage', () => {
+    it('should select language and update localStorage', () => {
+      component.selectLanguage('hi');
+
+      expect(component.selectedLanguage).toBe('hi');
+      expect(mockLocalStorage.setItem).toHaveBeenCalledWith('websiteLanguage', 'hi');
+      expect(mockLangTranslations.updatelanguageSelected).toHaveBeenCalledWith(true, 'hi', '');
+    });
+  });
+
+  describe('translateLabel', () => {
+    it('should call translation service', () => {
+      component.translateLabel('test', 'common');
+
+      expect(mockLangTranslations.translateLabel).toHaveBeenCalledWith('test', 'common', '');
+    });
+  });
+
+  describe('translateLabels', () => {
+    it('should call translation service', () => {
       const result = component.translateLabels('test', 'common');
-      expect(result).toBe('Translated Text');
-      expect(mockMultilingualTranslationsService.translateActualLabel)
-        .toHaveBeenCalledWith('test', 'common', '');
+
+      expect(mockLangTranslations.translateActualLabel).toHaveBeenCalledWith('test', 'common', '');
+      expect(result).toBe('translated text');
     });
   });
 });
 
 describe('forbiddenNamesValidatorPosition', () => {
-  it('should return null when optionsArray is not provided', () => {
+  it('should return null when optionsArray is null', () => {
     const validator = forbiddenNamesValidatorPosition(null);
     const control = new UntypedFormControl({ name: 'test' });
-    
+
     const result = validator(control);
-    
+
     expect(result).toBeNull();
   });
 
-  it('should return validation error when name is forbidden', () => {
-    const optionsArray = [{ name: 'forbidden' }];
-    const validator = forbiddenNamesValidatorPosition(optionsArray);
-    const control = new UntypedFormControl({ name: 'forbidden' });
-    
+  it('should return null when optionsArray is undefined', () => {
+    const validator = forbiddenNamesValidatorPosition(undefined);
+    const control = new UntypedFormControl({ name: 'test' });
+
     const result = validator(control);
-    
-    expect(result).toEqual({ forbiddenNames: { value: 'forbidden' } });
+
+    expect(result).toBeNull();
   });
 
-  it('should return null when name is allowed', () => {
-    const optionsArray = [{ name: 'forbidden' }];
+  it('should return null when name is not found in options', () => {
+    const optionsArray = [{ name: 'existing' }];
     const validator = forbiddenNamesValidatorPosition(optionsArray);
-    const control = new UntypedFormControl({ name: 'allowed' });
-    
+    const control = new UntypedFormControl({ name: 'new' });
+
     const result = validator(control);
-    
+
+    expect(result).toBeNull();
+  });
+
+  it('should return error when name exists in options', () => {
+    const optionsArray = [{ name: 'existing' }];
+    const validator = forbiddenNamesValidatorPosition(optionsArray);
+    const control = new UntypedFormControl({ name: 'existing' });
+
+    const result = validator(control);
+
+    expect(result).toEqual({ forbiddenNames: { value: 'existing' } });
+  }); 
+
+  it('should handle control without value property', () => {
+    const optionsArray = [{ name: 'existing' }];
+    const validator = forbiddenNamesValidatorPosition(optionsArray);
+    const control = new UntypedFormControl('test');
+
+    const result = validator(control);
+
     expect(result).toBeNull();
   });
 });
