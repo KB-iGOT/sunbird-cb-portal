@@ -1,8 +1,6 @@
 import { AfterViewChecked, AfterViewInit, Component,ElementRef,EventEmitter,Input, OnDestroy, OnInit, Output, Renderer2, ViewChild } from '@angular/core';
 import { ActivatedRoute, Router, NavigationEnd } from '@angular/router';
 import { ConfigurationsService, EventService, UtilityService, WsEvents } from '@sunbird-cb/utils-v2';
-import { RootService } from 'src/app/component/root/root.service';
-import { environment } from 'src/environments/environment';
 import { WebSocketService } from './socket.service';
 import { Subscription } from 'rxjs';
 import { NonReleventFeedbackDialogComponent } from '@sunbird-cb/collection/src/lib/_common/non-relevent-feedback-dialog/non-relevent-feedback-dialog.component';
@@ -10,6 +8,8 @@ import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
 // import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
 import cloneDeep from 'lodash/cloneDeep';
 import { MatSnackBar as MatSnackbarNew } from '@angular/material/snack-bar'
+import { RootService } from '../../../../../../../src/app/component/root/root.service';
+import { environment } from '../../../../../../../src/environments/environment';
 
 @Component({
   selector: 'viewer-ai-tutor',

@@ -50,11 +50,11 @@ export class AppTocService {
   getSelectedBatch: Subject<any> = new Subject()
   setWFDataSubject: Subject<any> = new Subject()
   resumeData: Subject<NsContent.IContinueLearningData | null> = new Subject<any>()
-  private showSubtitleOnBanners = false
-  private canShowDescription = false
+  public showSubtitleOnBanners = false
+  public canShowDescription = false
   resumeDataSubscription: Subscription | null = null
   primaryCategory = NsContent.EPrimaryCategory
-  private updateReviews = new BehaviorSubject(false)
+  public updateReviews = new BehaviorSubject(false)
   updateReviewsObservable = this.updateReviews.asObservable()
   public serverDate = new BehaviorSubject('')
   currentServerDate = this.serverDate.asObservable()
@@ -63,14 +63,14 @@ export class AppTocService {
   public getPageScroll = new BehaviorSubject(true)
   updatePageScroll = this.getPageScroll.asObservable()
   public hashmap: any = {}
-  private transriptionDataSubject = new BehaviorSubject<any>(null); // Start with null
+  public transriptionDataSubject = new BehaviorSubject<any>(null); // Start with null
   transcriptionData$ = this.transriptionDataSubject.asObservable(); 
   public transriptionActiveLanguageDataObject = new BehaviorSubject<any>(null);
   public transriptionActiveLanguageDataObject$ = this.transriptionActiveLanguageDataObject.asObservable();
   public transriptionIdentifier = new Subject(); // Start with null
   changeTranscriptionLanguageEvent = new Subject()
   playTranscriptionVideo = new Subject()
-  constructor(private http: HttpClient, private configSvc: ConfigurationsService, private widgetSvc: WidgetContentService) {
+  constructor(public http: HttpClient, public configSvc: ConfigurationsService, public widgetSvc: WidgetContentService) {
     // this resume data subscription is for on load
     this.resumeDataSubscription = this.resumeData.subscribe(
       (_dataResult: any) => {

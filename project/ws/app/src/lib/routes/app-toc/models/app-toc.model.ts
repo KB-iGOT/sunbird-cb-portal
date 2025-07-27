@@ -68,6 +68,7 @@ export namespace NsCohorts {
     AUTHORS = 'authors',
     EDUCATORS = 'educators',
     TOP_PERFORMERS = 'top-performers',
+    BATCH = "BATCH",
   }
   export interface ICohortsContent {
     first_name: string
