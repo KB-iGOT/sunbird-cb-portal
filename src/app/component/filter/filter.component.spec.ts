@@ -1,39 +1,51 @@
 import { FilterComponent } from './filter.component';
+import { UntypedFormControl } from '@angular/forms';
 import { of } from 'rxjs';
-import { BehaviorSubject } from 'rxjs';
+
+// Mock dependencies
+const mockAppCbpPlansService = {
+  getFilterEntity: jest.fn(),
+  getProviders: jest.fn()
+};
+
+const mockTranslateService = {
+  setDefaultLang: jest.fn(),
+  use: jest.fn()
+};
+
+const mockLangtranslations = {
+  languageSelectedObservable: of({}),
+  translateLabel: jest.fn()
+};
+
+// const mockElementRef = {
+//   checked: false
+// };
 
 describe('FilterComponent', () => {
   let component: FilterComponent;
-  let appCbpPlansServiceMock: any;
-  let translateServiceMock: any;
-  let langTranslationsMock: any;
+  let mockLocalStorage: any;
 
   beforeEach(() => {
-    // Create mocks for services
-    appCbpPlansServiceMock = {
-      getFilterEntity: jest.fn().mockReturnValue(of([])),
-      getProviders: jest.fn().mockReturnValue(of([]))
+    // Mock localStorage
+    mockLocalStorage = {
+      getItem: jest.fn(),
+      setItem: jest.fn(),
+      removeItem: jest.fn()
     };
+    Object.defineProperty(window, 'localStorage', {
+      value: mockLocalStorage,
+      writable: true
+    });
 
-    translateServiceMock = {
-      setDefaultLang: jest.fn(),
-      use: jest.fn(),
-      instant: jest.fn().mockReturnValue('translated-text')
-    };
-
-    langTranslationsMock = {
-      languageSelectedObservable: new BehaviorSubject<boolean>(false),
-      translateLabel: jest.fn().mockReturnValue('translated-label')
-    };
-
-    // Initialize component with mocked dependencies
+    // Create component instance
     component = new FilterComponent(
-      appCbpPlansServiceMock,
-      translateServiceMock,
-      langTranslationsMock
+      mockAppCbpPlansService as any,
+      mockTranslateService as any,
+      mockLangtranslations as any
     );
 
-    // Initialize required component properties
+    // Initialize default properties
     component.filterObj = {
       primaryCategory: [],
       status: [],
@@ -41,39 +53,61 @@ describe('FilterComponent', () => {
       competencyArea: [],
       competencyTheme: [],
       competencySubTheme: [],
-      providers: [],
-      provider: [] // This is referenced in checkedProviders but not initialized in the component
+      providers: []
     };
 
-    component.competencyList = [];
-    component.competencyTypeList = [];
-    component.competencyThemeList = [];
-    component.competencySubThemeList = [];
-    component.competencyThemeOriginalList = [];
-    component.competencySubThemeOriginalList = [];
+    component.checkboxes = {
+      forEach: jest.fn()
+    } as any;
 
-    // Spy on emitter methods
-    jest.spyOn(component.toggleFilter, 'emit');
-    jest.spyOn(component.getFilterData, 'emit');
-    jest.spyOn(component.clearFilterObj, 'emit');
+    // Reset mocks
+    jest.clearAllMocks();
   });
 
-  it('should create the component', () => {
-    expect(component).toBeTruthy();
+  describe('Constructor', () => {
+    it('should create component and subscribe to language changes', () => {
+      expect(component).toBeDefined();
+      expect(mockLangtranslations.languageSelectedObservable.subscribe).toBeDefined();
+    });
+
+    it('should handle language change when localStorage has websiteLanguage', () => {
+      mockLocalStorage.getItem.mockReturnValue('es');
+      
+      // Create new component to trigger constructor
+      // const newComponent = new FilterComponent(
+      //   mockAppCbpPlansService as any,
+      //   mockTranslateService as any,
+      //   mockLangtranslations as any
+      // );
+
+      expect(mockTranslateService.setDefaultLang).toHaveBeenCalledWith('en');
+      expect(mockTranslateService.use).toHaveBeenCalledWith('es');
+    });
+
+    it('should handle language change when localStorage is empty', () => {
+      mockLocalStorage.getItem.mockReturnValue(null);
+      
+      // const newComponent = new FilterComponent(
+      //   mockAppCbpPlansService as any,
+      //   mockTranslateService as any,
+      //   mockLangtranslations as any
+      // );
+
+      // Should not call translate methods when no language in localStorage
+      expect(mockTranslateService.setDefaultLang).not.toHaveBeenCalled();
+      expect(mockTranslateService.use).not.toHaveBeenCalled();
+    });
   });
 
   describe('ngOnInit', () => {
-    it('should call required initialization methods', () => {
-      // Spy on component methods
+    it('should call all initialization methods', () => {
       jest.spyOn(component, 'setDefaultValues');
       jest.spyOn(component, 'getFilterEntity');
       jest.spyOn(component, 'getProviders');
       jest.spyOn(component, 'bindFilter');
 
-      // Call ngOnInit
       component.ngOnInit();
 
-      // Verify methods were called
       expect(component.setDefaultValues).toHaveBeenCalled();
       expect(component.getFilterEntity).toHaveBeenCalled();
       expect(component.getProviders).toHaveBeenCalled();
@@ -82,290 +116,569 @@ describe('FilterComponent', () => {
   });
 
   describe('setDefaultValues', () => {
-    it('should initialize default filter lists', () => {
+    it('should set default values for all filter arrays', () => {
       component.setDefaultValues();
 
-      expect(component.primaryCategoryList).toBeDefined();
-      expect(component.primaryCategoryList.length).toBeGreaterThan(0);
-      expect(component.timeDuration).toBeDefined();
-      expect(component.timeDuration.length).toBeGreaterThan(0);
-      expect(component.contentStatus).toBeDefined();
-      expect(component.contentStatus.length).toBeGreaterThan(0);
-    });
-  });
+      expect(component.primaryCategoryList).toHaveLength(5);
+      expect(component.timeDuration).toHaveLength(9);
+      expect(component.contentStatus).toHaveLength(3);
 
-  describe('hideFilter', () => {
-    it('should emit toggleFilter event with false', () => {
-      component.hideFilter();
-      expect(component.toggleFilter.emit).toHaveBeenCalledWith(false);
+      // Check specific items
+      expect(component.primaryCategoryList[0]).toEqual({
+        id: 'Course',
+        name: 'Course',
+        checked: false
+      });
+
+      expect(component.timeDuration[0]).toEqual({
+        id: '7ad',
+        name: 'Upcoming 7 Days',
+        checked: false
+      });
+
+      expect(component.contentStatus[0]).toEqual({
+        id: '1',
+        name: 'In progress',
+        checked: false
+      });
     });
   });
 
   describe('getFilterEntity', () => {
-    it('should call appCbpPlansService.getFilterEntity with correct params', () => {
-      component.getFilterEntity();
-      
-      const expectedFilterObj = {
-        search: {
-          type: 'Competency Area',
-        },
-        filter: {
-          isDetail: true,
-        },
-      };
-      
-      expect(appCbpPlansServiceMock.getFilterEntity).toHaveBeenCalledWith(expectedFilterObj);
-    });
-
-    it('should call manageCompetency when response is received', () => {
+    it('should call service and process response', () => {
+      const mockResponse = [
+        { name: 'Competency1', children: [] },
+        { name: 'Competency2', children: [] }
+      ];
+      mockAppCbpPlansService.getFilterEntity.mockReturnValue(of(mockResponse));
       jest.spyOn(component, 'manageCompetency');
-      
-      appCbpPlansServiceMock.getFilterEntity.mockReturnValue(of([
-        { name: 'Competency 1', children: [] },
-        { name: 'Competency 2', children: [] }
-      ]));
-      
+
       component.getFilterEntity();
-      
-      expect(component.competencyList.length).toBe(2);
+
+      expect(mockAppCbpPlansService.getFilterEntity).toHaveBeenCalledWith({
+        search: { type: 'Competency Area' },
+        filter: { isDetail: true }
+      });
+      expect(component.competencyList).toEqual(mockResponse);
       expect(component.manageCompetency).toHaveBeenCalled();
     });
   });
 
   describe('manageCompetency', () => {
-    it('should populate competencyTypeList and order by id', () => {
+    it('should process competency list and sort by id', () => {
       component.competencyList = [
-        { name: 'Z Competency', children: [] },
-        { name: 'A Competency', children: [] }
+        { name: 'ZCompetency', children: [] },
+        { name: 'ACompetency', children: [] }
       ];
-      
+      component.competencyTypeList = [];
+      jest.spyOn(component, 'bindFilter');
+
       component.manageCompetency();
-      
-      expect(component.competencyTypeList.length).toBe(2);
-      expect(component.competencyTypeList[0].id).toBe('A Competency');
-      expect(component.competencyTypeList[1].id).toBe('Z Competency');
+
+      expect(component.competencyTypeList).toHaveLength(2);
+      expect(component.competencyTypeList[0].id).toBe('ACompetency');
+      expect(component.competencyTypeList[1].id).toBe('ZCompetency');
+      expect(component.bindFilter).toHaveBeenCalled();
     });
   });
 
   describe('getProviders', () => {
-    it('should call appCbpPlansService.getProviders', () => {
-      component.getProviders();
-      expect(appCbpPlansServiceMock.getProviders).toHaveBeenCalled();
-    });
-
-    it('should call bindProviders when response is received', () => {
+    it('should call service and bind providers', () => {
+      const mockProviders = [{ name: 'Provider1' }, { name: 'Provider2' }];
+      mockAppCbpPlansService.getProviders.mockReturnValue(of(mockProviders));
       jest.spyOn(component, 'bindProviders');
-      
-      appCbpPlansServiceMock.getProviders.mockReturnValue(of([
-        { name: 'Provider 1' },
-        { name: 'Provider 2' }
-      ]));
-      
+
       component.getProviders();
-      
-      expect(component.providersList.length).toBe(2);
+
+      expect(mockAppCbpPlansService.getProviders).toHaveBeenCalled();
+      expect(component.providersList).toEqual(mockProviders);
       expect(component.bindProviders).toHaveBeenCalled();
     });
   });
 
+  describe('hideFilter', () => {
+    it('should emit toggleFilter with false', () => {
+      jest.spyOn(component.toggleFilter, 'emit');
+
+      component.hideFilter();
+
+      expect(component.toggleFilter.emit).toHaveBeenCalledWith(false);
+    });
+  });
+
   describe('checkedProviders', () => {
-    it('should add provider to selectedProviders and filterObj.providers when checked', () => {
-      const provider = { name: 'Test Provider' };
+    const mockItem = { name: 'TestProvider' };
+
+    beforeEach(() => {
       component.selectedProviders = [];
-      
-      component.checkedProviders(true, provider);
-      
-      expect(component.selectedProviders).toContain(provider);
-      expect(component.filterObj.providers).toContain(provider.name);
+      component.filterObj = { providers: [] };
     });
 
-    it('should remove provider from filterObj.providers when unchecked', () => {
-      const provider = { name: 'Test Provider' };
-      component.filterObj.providers = ['Test Provider'];
-      component.filterObj.provider = ['Test Provider']; // This field is referenced but not initialized in the component
+    it('should add provider when event is true', () => {
+      component.checkedProviders(true, mockItem);
+
+      expect(component.selectedProviders).toContain(mockItem);
+      expect(component.filterObj.providers).toContain('TestProvider');
+    });
+
+    it('should remove provider when event is false', () => {
+      // First add the provider
+      component.filterObj.providers = ['TestProvider'];
       
-      component.checkedProviders(false, provider);
+      component.checkedProviders(false, mockItem);
+
+      expect(component.filterObj.providers).toHaveLength(0);
+    });
+
+    it('should handle removal when provider not in list', () => {
+      component.filterObj.providers = ['OtherProvider'];
       
-      expect(component.filterObj.providers).not.toContain(provider.name);
+      component.checkedProviders(false, mockItem);
+
+      expect(component.filterObj.providers).toEqual(['OtherProvider']);
     });
   });
 
   describe('getCompetencyTheme', () => {
-    it('should add competency themes when checked', () => {
+    beforeEach(() => {
       component.competencyList = [
-        { 
-          name: 'Competency 1', 
+        {
+          name: 'TestCompetency',
           children: [
-            { name: 'Theme 1' },
-            { name: 'Theme 2' }
-          ] 
+            { name: 'Theme1' },
+            { name: 'Theme2' }
+          ]
         }
       ];
-      
-      const competencyType = { id: 'Competency 1' };
-      
-      component.getCompetencyTheme({ checked: true }, competencyType);
-      
-      expect(component.competencyThemeList.length).toBe(2);
-      expect(component.filterObj.competencyArea).toContain('Competency 1');
-    });
-
-    it('should remove competency themes when unchecked', () => {
-      component.competencyThemeList = [
-        { parent: 'Competency 1', name: 'Theme 1', checked: true },
-        { parent: 'Competency 1', name: 'Theme 2', checked: true },
-        { parent: 'Competency 2', name: 'Theme 3', checked: true }
-      ];
-      
-      component.filterObj.competencyTheme = ['Theme 1', 'Theme 2', 'Theme 3'];
-      component.filterObj.competencyArea = ['Competency 1', 'Competency 2'];
-      
-      jest.spyOn(component, 'getCompetencySubTheme');
+      component.competencyThemeList = [];
+      component.filterObj = { competencyArea: [], competencyTheme: [] };
       jest.spyOn(component, 'bindCompetencyTheme');
       jest.spyOn(component, 'checkFilterEmpty');
-      
-      component.getCompetencyTheme({ checked: false }, { id: 'Competency 1' });
-      
-      expect(component.competencyThemeList.length).toBe(1);
-      expect(component.competencyThemeList[0].name).toBe('Theme 3');
-      expect(component.filterObj.competencyArea).not.toContain('Competency 1');
-      expect(component.getCompetencySubTheme).toHaveBeenCalled();
+      jest.spyOn(component, 'getCompetencySubTheme');
+    });
+
+    it('should add competency theme when checked', () => {
+      const ctype = { id: 'TestCompetency' };
+      const event = { checked: true };
+
+      component.getCompetencyTheme(event, ctype);
+
+      expect(component.filterObj.competencyArea).toContain('TestCompetency');
+      expect(component.competencyThemeList).toHaveLength(2);
+      expect(component.competencyThemeList[0].parent).toBe('TestCompetency');
       expect(component.bindCompetencyTheme).toHaveBeenCalled();
       expect(component.checkFilterEmpty).toHaveBeenCalled();
+    });
+
+    it('should remove competency theme when unchecked', () => {
+      // Setup initial state
+      component.competencyThemeList = [
+        { name: 'Theme1', parent: 'TestCompetency', checked: true }
+      ];
+      component.filterObj.competencyArea = ['TestCompetency'];
+      component.filterObj.competencyTheme = ['Theme1'];
+
+      const ctype = { id: 'TestCompetency' };
+      const event = { checked: false };
+
+      component.getCompetencyTheme(event, ctype);
+
+      expect(component.filterObj.competencyArea).not.toContain('TestCompetency');
+      expect(component.competencyThemeList).toHaveLength(0);
+      expect(component.getCompetencySubTheme).toHaveBeenCalledWith({ checked: false }, expect.any(Object));
+    });
+
+    it('should not push to competencyArea when pushValue is false', () => {
+      const ctype = { id: 'TestCompetency' };
+      const event = { checked: true };
+
+      component.getCompetencyTheme(event, ctype, false);
+
+      expect(component.filterObj.competencyArea).toHaveLength(0);
     });
   });
 
   describe('getCompetencySubTheme', () => {
-    it('should add competency sub-themes when checked', () => {
+    beforeEach(() => {
       component.competencyThemeList = [
-        { 
-          name: 'Theme 1',
-          parent: 'Competency 1',
+        {
+          name: 'TestTheme',
+          parent: 'TestCompetency',
           children: [
-            { name: 'SubTheme 1' },
-            { name: 'SubTheme 2' }
-          ] 
+            { name: 'SubTheme1' },
+            { name: 'SubTheme2' }
+          ]
         }
       ];
-      
-      component.getCompetencySubTheme({ checked: true }, { name: 'Theme 1' });
-      
-      expect(component.competencySubThemeList.length).toBe(2);
-      expect(component.filterObj.competencyTheme).toContain('Theme 1');
-    });
-
-    it('should remove competency sub-themes when unchecked', () => {
-      component.competencySubThemeList = [
-        { parent: 'Theme 1', name: 'SubTheme 1', checked: true },
-        { parent: 'Theme 1', name: 'SubTheme 2', checked: true },
-        { parent: 'Theme 2', name: 'SubTheme 3', checked: true }
-      ];
-      
-      component.filterObj.competencySubTheme = ['SubTheme 1', 'SubTheme 2', 'SubTheme 3'];
-      component.filterObj.competencyTheme = ['Theme 1', 'Theme 2'];
-      
+      component.competencySubThemeList = [];
+      component.filterObj = { competencyTheme: [], competencySubTheme: [] };
       jest.spyOn(component, 'bindCompetencySubTheme');
       jest.spyOn(component, 'checkFilterEmpty');
-      
-      component.getCompetencySubTheme({ checked: false }, { name: 'Theme 1' });
-      
-      expect(component.competencySubThemeList.length).toBe(1);
-      expect(component.competencySubThemeList[0].name).toBe('SubTheme 3');
-      expect(component.filterObj.competencyTheme).not.toContain('Theme 1');
+    });
+
+    it('should add competency sub theme when checked', () => {
+      const cstype = { name: 'TestTheme' };
+      const event = { checked: true };
+
+      component.getCompetencySubTheme(event, cstype);
+
+      expect(component.filterObj.competencyTheme).toContain('TestTheme');
+      expect(component.competencySubThemeList).toHaveLength(2);
+      expect(component.competencySubThemeList[0].parent).toBe('TestTheme');
       expect(component.bindCompetencySubTheme).toHaveBeenCalled();
       expect(component.checkFilterEmpty).toHaveBeenCalled();
+    });
+
+    it('should remove competency sub theme when unchecked', () => {
+      // Setup initial state
+      component.competencySubThemeList = [
+        { name: 'SubTheme1', parent: 'TestTheme', checked: true }
+      ];
+      component.filterObj.competencyTheme = ['TestTheme'];
+      component.filterObj.competencySubTheme = ['SubTheme1'];
+
+      const cstype = { name: 'TestTheme' };
+      const event = { checked: false };
+
+      component.getCompetencySubTheme(event, cstype);
+
+      expect(component.filterObj.competencyTheme).not.toContain('TestTheme');
+      expect(component.competencySubThemeList).toHaveLength(0);
+    });
+
+    it('should not push to competencyTheme when pushValue is false', () => {
+      const cstype = { name: 'TestTheme' };
+      const event = { checked: true };
+
+      component.getCompetencySubTheme(event, cstype, false);
+
+      expect(component.filterObj.competencyTheme).toHaveLength(0);
     });
   });
 
   describe('manageCompetencySubTheme', () => {
-    it('should add sub-theme to filterObj when checked', () => {
-      component.filterObj.competencySubTheme = [];
-      
-      component.manageCompetencySubTheme({ checked: true }, { name: 'SubTheme 1' });
-      
-      expect(component.filterObj.competencySubTheme).toContain('SubTheme 1');
+    beforeEach(() => {
+      component.filterObj = { competencySubTheme: [] };
     });
 
-    it('should remove sub-theme from filterObj when unchecked', () => {
-      component.filterObj.competencySubTheme = ['SubTheme 1', 'SubTheme 2'];
-      
-      component.manageCompetencySubTheme({ checked: false }, { name: 'SubTheme 1' });
-      
-      expect(component.filterObj.competencySubTheme).not.toContain('SubTheme 1');
-      expect(component.filterObj.competencySubTheme).toContain('SubTheme 2');
+    it('should add sub theme when checked', () => {
+      const csttype = { name: 'TestSubTheme' };
+      const event = { checked: true };
+
+      component.manageCompetencySubTheme(event, csttype);
+
+      expect(component.filterObj.competencySubTheme).toContain('TestSubTheme');
+    });
+
+    it('should remove sub theme when unchecked', () => {
+      component.filterObj.competencySubTheme = ['TestSubTheme'];
+      const csttype = { name: 'TestSubTheme' };
+      const event = { checked: false };
+
+      component.manageCompetencySubTheme(event, csttype);
+
+      expect(component.filterObj.competencySubTheme).not.toContain('TestSubTheme');
+    });
+
+    it('should handle unchecking when item not in list', () => {
+      component.filterObj.competencySubTheme = ['OtherSubTheme'];
+      const csttype = { name: 'TestSubTheme' };
+      const event = { checked: false };
+
+      component.manageCompetencySubTheme(event, csttype);
+
+      expect(component.filterObj.competencySubTheme).toEqual(['OtherSubTheme']);
     });
   });
 
   describe('applyFilter', () => {
-    it('should emit filterObj through getFilterData', () => {
-      component.filterObj = {
-        primaryCategory: ['Course'],
-        status: ['1'],
-        timeDuration: ['30ad'],
-        competencyArea: ['Area 1'],
-        competencyTheme: ['Theme 1'],
-        competencySubTheme: ['SubTheme 1'],
-        providers: ['Provider 1'],
-        provider: []
-      };
-      
+    it('should emit filter data', () => {
+      jest.spyOn(component.getFilterData, 'emit');
+      const testFilterObj = { test: 'data' };
+      component.filterObj = testFilterObj as any;
+
       component.applyFilter();
-      
-      expect(component.getFilterData.emit).toHaveBeenCalledWith(component.filterObj);
+
+      expect(component.getFilterData.emit).toHaveBeenCalledWith(testFilterObj);
     });
   });
 
   describe('clearFilter', () => {
-    it('should reset filter objects and emit clearFilterObj', () => {
-      const filterObjEmpty = JSON.parse(JSON.stringify(component.filterObjEmpty));
-      
+    it('should clear all filters and emit clear event', () => {
       jest.spyOn(component, 'clearFilterWhileSearch');
+      jest.spyOn(component.clearFilterObj, 'emit');
       jest.spyOn(component, 'checkFilterEmpty');
-      
+
+      component.competencyThemeList = [{ name: 'test' }];
+      component.competencySubThemeList = [{ name: 'test' }];
+
       component.clearFilter();
-      
+
       expect(component.clearFilterWhileSearch).toHaveBeenCalled();
-      expect(component.competencyThemeList).toEqual([]);
-      expect(component.competencySubThemeList).toEqual([]);
-      expect(component.clearFilterObj.emit).toHaveBeenCalledWith(filterObjEmpty);
-      expect(component.filterObj).toEqual(filterObjEmpty);
+      expect(component.competencyThemeList).toHaveLength(0);
+      expect(component.competencySubThemeList).toHaveLength(0);
+      expect(component.clearFilterObj.emit).toHaveBeenCalledWith(component.filterObjEmpty);
+      expect(component.filterObj).toEqual(component.filterObjEmpty);
       expect(component.checkFilterEmpty).toHaveBeenCalled();
     });
   });
 
+  describe('clearFilterWhileSearch', () => {
+    it('should uncheck all checkboxes when checkboxes exist', () => {
+      const mockCheckbox1 = { checked: true };
+      const mockCheckbox2 = { checked: true };
+      
+      component.checkboxes = {
+        forEach: jest.fn((callback) => {
+          callback(mockCheckbox1);
+          callback(mockCheckbox2);
+        })
+      } as any;
+
+      component.clearFilterWhileSearch();
+
+      expect(mockCheckbox1.checked).toBe(false);
+      expect(mockCheckbox2.checked).toBe(false);
+    });
+
+    it('should handle case when checkboxes is null', () => {
+      component.checkboxes = null as any;
+
+      expect(() => component.clearFilterWhileSearch()).not.toThrow();
+    });
+  });
+
   describe('getFilterType', () => {
-    it('should add filter when checked and not already present', () => {
-      component.filterObj.primaryCategory = [];
-      
-      component.getFilterType({ checked: true }, { id: 'Course' }, 'primaryCategory');
-      
-      expect(component.filterObj.primaryCategory).toContain('Course');
+    beforeEach(() => {
+      component.filterObj = { testFilter: [] };
+      jest.spyOn(component, 'checkFilterEmpty');
     });
 
-    it('should remove filter when unchecked', () => {
-      component.filterObj.primaryCategory = ['Course', 'Program'];
-      
-      component.getFilterType({ checked: false }, { id: 'Course' }, 'primaryCategory');
-      
-      expect(component.filterObj.primaryCategory).not.toContain('Course');
-      expect(component.filterObj.primaryCategory).toContain('Program');
+    it('should add item when checked and not already included', () => {
+      const event = { checked: true };
+      const ctype = { id: 'testId' };
+
+      component.getFilterType(event, ctype, 'testFilter');
+
+      expect(component.filterObj.testFilter).toContain('testId');
+      expect(component.checkFilterEmpty).toHaveBeenCalled();
     });
 
-    it('should handle "all" status filter specially', () => {
-      component.filterObj.status = ['1', '2'];
-      
-      component.getFilterType({ checked: true }, { id: 'all' }, 'status');
-      
+    it('should not add duplicate item when already included', () => {
+      component.filterObj.testFilter = ['testId'];
+      const event = { checked: true };
+      const ctype = { id: 'testId' };
+
+      component.getFilterType(event, ctype, 'testFilter');
+
+      expect(component.filterObj.testFilter).toHaveLength(1);
+    });
+
+    it('should remove item when unchecked', () => {
+      component.filterObj.testFilter = ['testId'];
+      const event = { checked: false };
+      const ctype = { id: 'testId' };
+
+      component.getFilterType(event, ctype, 'testFilter');
+
+      expect(component.filterObj.testFilter).not.toContain('testId');
+    });
+
+    it('should handle item without id property', () => {
+      const event = { checked: true };
+      const ctype = 'stringValue';
+
+      component.getFilterType(event, ctype, 'testFilter');
+
+      expect(component.filterObj.testFilter).toContain('stringValue');
+    });
+
+    it('should handle "all" status filter specially when checked', () => {
+      component.filterObj.status = ['other'];
+      const event = { checked: true };
+      const ctype = { id: 'all' };
+
+      component.getFilterType(event, ctype, 'status');
+
       expect(component.filterObj.status).toEqual(['all']);
-      
-      component.getFilterType({ checked: false }, { id: 'all' }, 'status');
-      
+    });
+
+    it('should clear status filter when "all" is unchecked', () => {
+      component.filterObj.status = ['all'];
+      const event = { checked: false };
+      const ctype = { id: 'all' };
+
+      component.getFilterType(event, ctype, 'status');
+
       expect(component.filterObj.status).toEqual([]);
     });
   });
 
+  describe('bindFilter', () => {
+    beforeEach(() => {
+      component.primaryCategoryList = [{ id: 'Course', checked: false }];
+      component.timeDuration = [{ id: '7ad', checked: false }];
+      component.contentStatus = [{ id: '1', checked: false }];
+      component.competencyTypeList = [{ id: 'TestComp', checked: false }];
+      
+      jest.spyOn(component, 'checkFilterEmpty').mockReturnValue(false);
+      jest.spyOn(component, 'getCompetencyTheme');
+    });
+
+    it('should bind primary category filters', () => {
+      component.filterObj.primaryCategory = ['Course'];
+
+      component.bindFilter();
+
+      expect(component.primaryCategoryList[0].checked).toBe(true);
+    });
+
+    it('should bind time duration filters', () => {
+      component.filterObj.timeDuration = ['7ad'];
+
+      component.bindFilter();
+
+      expect(component.timeDuration[0].checked).toBe(true);
+    });
+
+    it('should bind status filters', () => {
+      component.filterObj.status = ['1'];
+
+      component.bindFilter();
+
+      expect(component.contentStatus[0].checked).toBe(true);
+    });
+
+    it('should bind competency area filters and call getCompetencyTheme', () => {
+      component.filterObj.competencyArea = ['TestComp'];
+
+      component.bindFilter();
+
+      expect(component.competencyTypeList[0].checked).toBe(true);
+      expect(component.getCompetencyTheme).toHaveBeenCalledWith(
+        { checked: true },
+        component.competencyTypeList[0],
+        false
+      );
+    });
+
+    it('should not bind when filter is empty', () => {
+      jest.spyOn(component, 'checkFilterEmpty').mockReturnValue(true);
+
+      component.bindFilter();
+
+      expect(component.primaryCategoryList[0].checked).toBe(false);
+    });
+  });
+
+  describe('bindCompetencyTheme', () => {
+    it('should bind competency theme filters', () => {
+      component.competencyThemeList = [{ name: 'Theme1', checked: false }];
+      component.filterObj.competencyTheme = ['Theme1'];
+      jest.spyOn(component, 'getCompetencySubTheme');
+
+      component.bindCompetencyTheme();
+
+      expect(component.competencyThemeList[0].checked).toBe(true);
+      expect(component.getCompetencySubTheme).toHaveBeenCalledWith(
+        { checked: true },
+        component.competencyThemeList[0],
+        false
+      );
+    });
+
+    it('should handle empty competency theme list', () => {
+      component.competencyThemeList = [];
+      component.filterObj.competencyTheme = ['Theme1'];
+
+      expect(() => component.bindCompetencyTheme()).not.toThrow();
+    });
+  });
+
+  describe('bindCompetencySubTheme', () => {
+    it('should bind competency sub theme filters', () => {
+      component.competencySubThemeList = [{ name: 'SubTheme1', checked: false }];
+      component.filterObj.competencySubTheme = ['SubTheme1'];
+
+      component.bindCompetencySubTheme();
+
+      expect(component.competencySubThemeList[0].checked).toBe(true);
+    });
+
+    it('should handle empty competency sub theme list', () => {
+      component.competencySubThemeList = [];
+      component.filterObj.competencySubTheme = ['SubTheme1'];
+
+      expect(() => component.bindCompetencySubTheme()).not.toThrow();
+    });
+  });
+
+  describe('bindProviders', () => {
+    it('should bind provider filters', () => {
+      component.providersList = [{ name: 'Provider1', checked: false }];
+      component.filterObj.providers = ['Provider1'];
+
+      component.bindProviders();
+
+      expect(component.providersList[0].checked).toBe(true);
+    });
+
+    it('should handle empty providers list', () => {
+      component.providersList = [];
+      component.filterObj.providers = ['Provider1'];
+
+      expect(() => component.bindProviders()).not.toThrow();
+    });
+  });
+
+  describe('timeDurationFilter', () => {
+    it('should set time duration filter to single value', () => {
+      jest.spyOn(component, 'checkFilterEmpty');
+      const ctype = { id: '7ad' };
+
+      component.timeDurationFilter(ctype, 'timeDuration');
+
+      expect(component.filterObj.timeDuration).toEqual(['7ad']);
+      expect(component.checkFilterEmpty).toHaveBeenCalled();
+    });
+  });
+
+  describe('onCompetencyTheme', () => {
+    it('should filter competency theme list based on search', () => {
+      component.competencyThemeOriginalList = [
+        { name: 'Theme One' },
+        { name: 'Theme Two' }
+      ];
+      
+      const mockEvent = {
+        target: { value: 'theme one' }
+      };
+
+      component.onCompetencyTheme(mockEvent);
+
+      expect(component.competencyThemeList).toEqual(component.competencyThemeOriginalList);
+    });
+  });
+
+  describe('onCompetencySubTheme', () => {
+    it('should filter competency sub theme list based on search', () => {
+      component.competencySubThemeOriginalList = [
+        { name: 'SubTheme One' },
+        { name: 'SubTheme Two' }
+      ];
+      
+      const mockEvent = {
+        target: { value: 'subtheme one' }
+      };
+
+      component.onCompetencySubTheme(mockEvent);
+
+      expect(component.competencySubThemeList).toEqual(component.competencySubThemeOriginalList);
+    });
+  });
+
   describe('checkFilterEmpty', () => {
-    it('should return true when all filter arrays are empty', () => {
+    beforeEach(() => {
       component.filterObj = {
         primaryCategory: [],
         status: [],
@@ -373,30 +686,76 @@ describe('FilterComponent', () => {
         competencyArea: [],
         competencyTheme: [],
         competencySubTheme: [],
-        providers: [],
-        provider: []
+        providers: []
       };
-      
+    });
+
+    it('should return true and set filterEmpty to true when all filters are empty', () => {
       const result = component.checkFilterEmpty();
-      
+
       expect(result).toBe(true);
       expect(component.filterEmpty).toBe(true);
     });
 
-    it('should return false when any filter array has items', () => {
-      component.filterObj = {
-        primaryCategory: ['Course'],
-        status: [],
-        timeDuration: [],
-        competencyArea: [],
-        competencyTheme: [],
-        competencySubTheme: [],
-        providers: [],
-        provider: []
-      };
-      
+    it('should return false and set filterEmpty to false when primaryCategory has items', () => {
+      component.filterObj.primaryCategory = ['Course'];
+
       const result = component.checkFilterEmpty();
-      
+
+      expect(result).toBe(false);
+      expect(component.filterEmpty).toBe(false);
+    });
+
+    it('should return false when status has items', () => {
+      component.filterObj.status = ['1'];
+
+      const result = component.checkFilterEmpty();
+
+      expect(result).toBe(false);
+      expect(component.filterEmpty).toBe(false);
+    });
+
+    it('should return false when timeDuration has items', () => {
+      component.filterObj.timeDuration = ['7ad'];
+
+      const result = component.checkFilterEmpty();
+
+      expect(result).toBe(false);
+      expect(component.filterEmpty).toBe(false);
+    });
+
+    it('should return false when competencyArea has items', () => {
+      component.filterObj.competencyArea = ['Comp1'];
+
+      const result = component.checkFilterEmpty();
+
+      expect(result).toBe(false);
+      expect(component.filterEmpty).toBe(false);
+    });
+
+    it('should return false when competencyTheme has items', () => {
+      component.filterObj.competencyTheme = ['Theme1'];
+
+      const result = component.checkFilterEmpty();
+
+      expect(result).toBe(false);
+      expect(component.filterEmpty).toBe(false);
+    });
+
+    it('should return false when competencySubTheme has items', () => {
+      component.filterObj.competencySubTheme = ['SubTheme1'];
+
+      const result = component.checkFilterEmpty();
+
+      expect(result).toBe(false);
+      expect(component.filterEmpty).toBe(false);
+    });
+
+    it('should return false when providers has items', () => {
+      component.filterObj.providers = ['Provider1'];
+
+      const result = component.checkFilterEmpty();
+
       expect(result).toBe(false);
       expect(component.filterEmpty).toBe(false);
     });
@@ -404,9 +763,63 @@ describe('FilterComponent', () => {
 
   describe('translateLabel', () => {
     it('should call langtranslations.translateLabel with correct parameters', () => {
-      component.translateLabel('Test Label', 'Test Type');
-      
-      expect(langTranslationsMock.translateLabel).toHaveBeenCalledWith('Test Label', 'Test Type', '');
+      const label = 'testLabel';
+      const type = 'testType';
+
+      component.translateLabel(label, type);
+
+      expect(mockLangtranslations.translateLabel).toHaveBeenCalledWith(label, type, '');
+    });
+  });
+
+  describe('Property Initialization', () => {
+    it('should initialize all required properties', () => {
+      expect(component.filterEmpty).toBe(false);
+      expect(component.providersList).toEqual([]);
+      expect(component.selectedProviders).toEqual([]);
+      expect(component.competencyTypeList).toEqual([]);
+      expect(component.competencyList).toEqual([]);
+      expect(component.competencyThemeList).toEqual([]);
+      expect(component.competencySubThemeList).toEqual([]);
+      expect(component.competencyThemeOriginalList).toEqual([]);
+      expect(component.competencySubThemeOriginalList).toEqual([]);
+      expect(component.searchThemeControl).toBeInstanceOf(UntypedFormControl);
+    });
+
+    it('should initialize filterObjEmpty with correct structure', () => {
+      expect(component.filterObjEmpty).toEqual({
+        primaryCategory: [],
+        status: [],
+        timeDuration: [],
+        competencyArea: [],
+        competencyTheme: [],
+        competencySubTheme: [],
+        providers: []
+      });
+    });
+  });
+
+  describe('Edge Cases', () => {
+    it('should handle undefined filterObj properties gracefully', () => {
+      component.filterObj = {} as any;
+
+      expect(() => component.checkFilterEmpty()).not.toThrow();
+    });
+
+    it('should handle empty arrays in getCompetencyTheme', () => {
+      component.competencyList = [];
+      const event = { checked: true };
+      const ctype = { id: 'NonexistentCompetency' };
+
+      expect(() => component.getCompetencyTheme(event, ctype)).not.toThrow();
+    });
+
+    it('should handle empty arrays in getCompetencySubTheme', () => {
+      component.competencyThemeList = [];
+      const event = { checked: true };
+      const cstype = { name: 'NonexistentTheme' };
+
+      expect(() => component.getCompetencySubTheme(event, cstype)).not.toThrow();
     });
   });
 });

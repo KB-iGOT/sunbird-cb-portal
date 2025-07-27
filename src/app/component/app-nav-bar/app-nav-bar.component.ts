@@ -84,11 +84,11 @@ export class AppNavBarComponent implements OnInit, OnChanges, OnDestroy {
     private libNotificationsService: LibNotificationsService
   ) {
     this.btnAppsConfig = { ...this.basicBtnAppsConfig }
-    if (this.configSvc.restrictedFeatures) {
+    if (this.configSvc?.restrictedFeatures) {
       this.isHelpMenuRestricted = this.configSvc.restrictedFeatures.has('helpNavBarMenu')
     }
 
-    this.router.events.subscribe(event => {
+    this.router.events && this.router.events.subscribe(event => {
       if (event instanceof NavigationStart) {
         this.isHubEnable = event.url && ((event.url.includes('/certs') || event.url.includes('/public/certs'))) ? false : true
         this.cancelTour()
@@ -123,7 +123,7 @@ export class AppNavBarComponent implements OnInit, OnChanges, OnDestroy {
       }, this.logoDisplayTime)
     }
 
-    this.router.events.subscribe((event: any) => {
+    this.router.events && this.router.events.subscribe((event: any) => {
       if (event instanceof NavigationEnd) {
         if (localStorage.getItem('activeRoute')) {
           const route = localStorage.getItem('activeRoute')
@@ -177,9 +177,9 @@ export class AppNavBarComponent implements OnInit, OnChanges, OnDestroy {
       this.featureApps = Object.keys(this.configSvc.appsConfig.features)
     }
 
-    this.configSvc.tourGuideNotifier.subscribe(canShow => {
+    this.configSvc.tourGuideNotifier && this.configSvc.tourGuideNotifier?.subscribe(canShow => {
       if (
-        this.configSvc.restrictedFeatures &&
+        this.configSvc?.restrictedFeatures &&
         !this.configSvc.restrictedFeatures.has('tourGuide')
       ) {
         this.isTourGuideAvailable = canShow
@@ -193,7 +193,7 @@ export class AppNavBarComponent implements OnInit, OnChanges, OnDestroy {
       // tslint:disable-next-line
     }, 1000)
 
-    this.urlService.previousUrl$.subscribe((previousUrl: string) => {
+    this.urlService.previousUrl$ && this.urlService.previousUrl$?.subscribe((previousUrl: string) => {
       this.previousUrl = previousUrl
     })
     let isNotMyUser = false
@@ -220,7 +220,7 @@ export class AppNavBarComponent implements OnInit, OnChanges, OnDestroy {
     if (this.configSvc.unMappedUser && this.configSvc.unMappedUser.identifier) {
       this.getMyCount()
     }
-    this.myNotificationsSubscription = this.libNotificationsService._unreadCount.subscribe((res: boolean) => {
+    this.myNotificationsSubscription = this.libNotificationsService._unreadCount?.subscribe((res: boolean) => {
       if (res === true) {
         this.getMyCount()
       }
@@ -228,7 +228,7 @@ export class AppNavBarComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   getMyCount() {
-    this.notificationsService.getNotificationsData().subscribe((res: any) => {
+    this.notificationsService.getNotificationsData()?.subscribe((res: any) => {
       this.notificationsCount = _.get(res, 'result.unread', 0)
     }, error => {
       console.error('Error while fetching notifications count', error)
@@ -441,7 +441,7 @@ export class AppNavBarComponent implements OnInit, OnChanges, OnDestroy {
       userId = this.configSvc.userProfile.userId || ''
     }
 
-    this.userSvc.fetchUserBatchList(userId).subscribe(_res => {
+    this.userSvc.fetchUserBatchList(userId)?.subscribe(_res => {
 
     })
   }

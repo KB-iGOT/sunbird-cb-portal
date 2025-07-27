@@ -86,9 +86,9 @@ export class PublicCrpComponent {
   zohoHtml: any;
   zohoUrl: any = '/assets/static-data/zoho-code.html';
   invalidLinkMessage = '';
-  private subscriptionContact: Subscription | null = null;
-  private recaptchaSubscription!: Subscription;
-  private userdataSubscription!: Subscription;
+  public subscriptionContact: Subscription | null = null;
+  public recaptchaSubscription!: Subscription;
+  public userdataSubscription!: Subscription;
   searching = false;
   groupsOriginal: any = [];
 
@@ -148,7 +148,7 @@ export class PublicCrpComponent {
 
     let userData: any = {};
     this.userdataSubscription =
-      this.signupSvc.updateSignupDataObservable.subscribe((res: any) => {
+      this.signupSvc.updateSignupDataObservable?.subscribe((res: any) => {
         userData = res;
       });
     this.isMobileVerified = (userData && userData.isMobileVerified) || false;
@@ -256,7 +256,7 @@ export class PublicCrpComponent {
     if (isPlatformBrowser(this._platformId)) {
       this._document.body.classList.add('cs-recaptcha');
     }
-    this.http.get(this.zohoUrl, { responseType: 'text' }).subscribe((res) => {
+    this.http.get(this.zohoUrl, { responseType: 'text' })?.subscribe((res) => {
       this.zohoHtml = this.sanitizer.bypassSecurityTrustHtml(res);
     });
   }
@@ -289,7 +289,7 @@ export class PublicCrpComponent {
     if (ctrl) {
       ctrl.valueChanges
         .pipe(startWith(null), pairwise())
-        .subscribe(([prev, next]: [any, any]) => {
+        ?.subscribe(([prev, next]: [any, any]) => {
           if (!(prev == null && next)) {
             this.isMobileVerified = false;
             this.otpSend = false;
@@ -304,7 +304,7 @@ export class PublicCrpComponent {
     if (ctrl) {
       ctrl.valueChanges
         .pipe(startWith(null), pairwise())
-        .subscribe(([prev, next]: [any, any]) => {
+        ?.subscribe(([prev, next]: [any, any]) => {
           if (!(prev == null && next)) {
             this.isEmailVerified = false;
             this.otpEmailSend = false;
@@ -316,7 +316,7 @@ export class PublicCrpComponent {
   sendOtp() {
     const mob = this.registrationForm.get('mobile');
     if (mob && mob.value && Math.floor(mob.value) && mob.valid) {
-      this.signupSvc.sendOtp(mob.value, 'phone').subscribe(
+      this.signupSvc.sendOtp(mob.value, 'phone')?.subscribe(
         () => {
           this.otpSend = true;
           alert(
@@ -341,7 +341,7 @@ export class PublicCrpComponent {
   resendOTP() {
     const mob = this.registrationForm.get('mobile');
     if (mob && mob.value && Math.floor(mob.value) && mob.valid) {
-      this.signupSvc.resendOtp(mob.value, 'phone').subscribe(
+      this.signupSvc.resendOtp(mob.value, 'phone')?.subscribe(
         (res: any) => {
           if (_.get(res, 'result.response').toUpperCase() === 'SUCCESS') {
             this.otpSend = true;
@@ -375,7 +375,7 @@ export class PublicCrpComponent {
           this.translateLabels('pleaseEnterValidOtp', 'publicsignup')
         );
       } else if (mob && mob.value && Math.floor(mob.value) && mob.valid) {
-        this.signupSvc.verifyOTP(otp, mob.value, 'phone').subscribe(
+        this.signupSvc.verifyOTP(otp, mob.value, 'phone')?.subscribe(
           (res: any) => {
             if (_.get(res, 'result.response').toUpperCase() === 'SUCCESS') {
               this.otpVerified = true;
@@ -408,7 +408,7 @@ export class PublicCrpComponent {
     if (this.OTP_TIMER > 0) {
       this.timerSubscription = interval(1000)
         .pipe(map(() => startTime + this.OTP_TIMER - Date.now()))
-        .subscribe((_timeRemaining: any) => {
+        ?.subscribe((_timeRemaining: any) => {
           this.timeLeftforOTP -= 1;
           if (this.timeLeftforOTP < 0) {
             this.timeLeftforOTP = 0;
@@ -424,7 +424,7 @@ export class PublicCrpComponent {
   sendOtpEmail() {
     const email = this.registrationForm.get('email');
     if (email && email.value && email.valid) {
-      this.signupSvc.sendOtpV2(email.value, 'email').subscribe(
+      this.signupSvc.sendOtpV2(email.value, 'email')?.subscribe(
         () => {
           this.otpEmailSend = true;
           alert(
@@ -447,7 +447,7 @@ export class PublicCrpComponent {
   resendOTPEmail() {
     const email = this.registrationForm.get('email');
     if (email && email.value && email.valid) {
-      this.signupSvc.resendOtpv2(email.value, 'email').subscribe(
+      this.signupSvc.resendOtpv2(email.value, 'email')?.subscribe(
         (res: any) => {
           if (_.get(res, 'result.response').toUpperCase() === 'SUCCESS') {
             this.otpEmailSend = true;
@@ -477,7 +477,7 @@ export class PublicCrpComponent {
           this.translateLabels('pleaseEnterValidOtp', 'publicsignup')
         );
       } else if (email && email.value && email.valid) {
-        this.signupSvc.verifyOTP(otp, email.value, 'email').subscribe(
+        this.signupSvc.verifyOTP(otp, email.value, 'email')?.subscribe(
           (res: any) => {
             if (_.get(res, 'result.response').toUpperCase() === 'SUCCESS') {
               this.otpEmailSend = true;
@@ -507,7 +507,7 @@ export class PublicCrpComponent {
     if (this.OTP_TIMER_EMAIL > 0) {
       this.timerSubscriptionEmail = interval(1000)
         .pipe(map(() => startTime + this.OTP_TIMER_EMAIL - Date.now()))
-        .subscribe((_timeRemaining) => {
+        ?.subscribe((_timeRemaining) => {
           this.timeLeftforOTPEmail -= 1;
           if (this.timeLeftforOTPEmail < 0) {
             this.timeLeftforOTPEmail = 0;
@@ -554,7 +554,7 @@ export class PublicCrpComponent {
         // position: this.registrationForm.value.position.name || '',
         group: this.registrationForm.value.group || '',
         source: `${environment.name}.${this.portalID}` || '',
-        orgName: this.heirarchyObject.orgName || '',
+        orgName: this.heirarchyObject?.orgName || '',
         channel: this.heirarchyObject.channel || '',
         organisationType: this.heirarchyObject.sbOrgType || '',
         organisationSubType: this.heirarchyObject.sbOrgSubType || '',
@@ -567,7 +567,7 @@ export class PublicCrpComponent {
       };
     }
 
-    this.signupSvc.register(req).subscribe(
+    this.signupSvc.register(req)?.subscribe(
       (_res: any) => {
         this.openDialog();
         this.disableBtn = false;
@@ -620,7 +620,7 @@ export class PublicCrpComponent {
       width: '500px',
       // data: { content, userId: this.userId, userRating: this.userRating },
     });
-    dialogRef.afterClosed().subscribe((_result: any) => { });
+    dialogRef.afterClosed()?.subscribe((_result: any) => { });
   }
 
   termsAndConditionClick() {
@@ -630,7 +630,7 @@ export class PublicCrpComponent {
       width: '90%',
       minHeight: 'auto',
     });
-    dialogRef.afterClosed().subscribe((_result: any) => {
+    dialogRef.afterClosed()?.subscribe((_result: any) => {
       if (_result) {
         this.confirmTerms = _result;
       }
@@ -695,7 +695,7 @@ export class PublicCrpComponent {
         value: this.zohoHtml,
       },
     });
-    dialogRef.afterClosed().subscribe(() => { });
+    dialogRef.afterClosed()?.subscribe(() => { });
     setTimeout(() => {
       this.callXMLRequest();
     }, 0);
@@ -750,11 +750,11 @@ export class PublicCrpComponent {
         },
       },
     };
-    this.signupSvc.searchOrgsByIdentifier(params).subscribe({
+    this.signupSvc.searchOrgsByIdentifier(params)?.subscribe({
       next: (response: any) => {
         if (response.result && response.result.response) {
           const organization = response.result.response.find(
-            (org: any) => org.orgName === this.organizationDetails!.orgName
+            (org: any) => org?.orgName === this.organizationDetails!?.orgName
           );
           if (organization) {
             this.heirarchyObject = organization;

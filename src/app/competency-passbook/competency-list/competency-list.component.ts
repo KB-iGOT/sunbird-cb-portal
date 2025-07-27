@@ -28,7 +28,7 @@ export class CompetencyListComponent implements OnInit, OnDestroy {
   toggleFilter = false
   skeletonArr = <any>[]
   showAll = false
-  private destroySubject$ = new Subject()
+  public destroySubject$ = new Subject()
   // not used so commenting these variables
   // three_month_back = new Date(new Date().setMonth(new Date().getMonth() - 3))
   // six_month_back = new Date(new Date().setMonth(new Date().getMonth() - 6))
@@ -151,9 +151,9 @@ export class CompetencyListComponent implements OnInit, OnDestroy {
       primaryCategory: [],
       status: [],
       timeDuration: [],
-      [this.compentencyKey.vCompetencyArea]: [],
-      [this.compentencyKey.vCompetencyTheme]: [],
-      [this.compentencyKey.vCompetencySubTheme]: [],
+      [this.compentencyKey && this.compentencyKey.vCompetencyArea]: [],
+      [this.compentencyKey && this.compentencyKey && this.compentencyKey.vCompetencyTheme]: [],
+      [this.compentencyKey && this.compentencyKey?.vCompetencySubTheme]: [],
       providers: [],
     }
     this.filterObjData2 = { ...this.filterObjData }
@@ -165,7 +165,7 @@ export class CompetencyListComponent implements OnInit, OnDestroy {
 
     let enrollmentMapData: any = {}
     const userId: any = this.configService && this.configService.userProfile && this.configService.userProfile.userId
-    this.widgetService.fetchUserBatchList(userId)
+    this.widgetService.fetchUserBatchList(userId) && this.widgetService.fetchUserBatchList(userId)
       .pipe(takeUntil(this.destroySubject$))
       .subscribe(
         (response: any) => {
@@ -184,7 +184,7 @@ export class CompetencyListComponent implements OnInit, OnDestroy {
               batchId: eachCourse.batchId,
               contentId: eachCourse.contentId,
             }
-            if (eachCourse.issuedCertificates.length) {
+            if (eachCourse.issuedCertificates && eachCourse.issuedCertificates?.length) {
               // tslint: disable-next-line
               eachCourse.issuedCertificates = eachCourse.issuedCertificates.map((icObj: any) => {
                 const nicObj = { ...icObj, ...courseDetails }
@@ -193,56 +193,56 @@ export class CompetencyListComponent implements OnInit, OnDestroy {
             } else {
               eachCourse.issuedCertificates.push(courseDetails)
             }
-            if ((eachCourse.content[this.compentencyKey.vKey] && eachCourse.content[this.compentencyKey.vKey].length)) {
+            if ((eachCourse.content[this.compentencyKey.vKey] && eachCourse.content[this.compentencyKey.vKey] && eachCourse.content[this.compentencyKey.vKey]?.length)) {
               const subThemeMapping: any = {}
               eachCourse.content[this.compentencyKey.vKey].forEach((v5Obj: any) => {
-                if (this.certificateMappedObject[v5Obj[this.compentencyKey.vCompetencyTheme]]) {
+                if (this.certificateMappedObject[v5Obj[this.compentencyKey && this.compentencyKey.vCompetencyTheme]]) {
 
                   // Certificate consumed logic...
                   eachCourse.issuedCertificates.forEach((certObj: any) => {
                     // tslint:disable-next-line: max-line-length
-                    if (this.certificateMappedObject[v5Obj[this.compentencyKey.vCompetencyTheme]].certificate
+                    if (this.certificateMappedObject[v5Obj[this.compentencyKey && this.compentencyKey.vCompetencyTheme]] && this.certificateMappedObject[v5Obj[this.compentencyKey && this.compentencyKey.vCompetencyTheme]].certificate
                       .findIndex((_obj: any) => _obj.courseName === certObj.courseName) === -1) {
-                      this.certificateMappedObject[v5Obj[this.compentencyKey.vCompetencyTheme]].certificate
+                      this.certificateMappedObject[v5Obj[this.compentencyKey && this.compentencyKey.vCompetencyTheme]]?.certificate
                       .push(certObj)
                     }
                   })
 
                   // Content consumed logic...
-                  if (this.certificateMappedObject[v5Obj[this.compentencyKey.vCompetencyTheme]].contentConsumed
+                  if (this.certificateMappedObject[v5Obj[this.compentencyKey && this.compentencyKey.vCompetencyTheme]]?.contentConsumed
                     .indexOf(eachCourse.courseName.trim()) === -1) {
-                    this.certificateMappedObject[v5Obj[this.compentencyKey.vCompetencyTheme]].contentConsumed
+                    this.certificateMappedObject[v5Obj[this.compentencyKey && this.compentencyKey.vCompetencyTheme]]?.contentConsumed
                     .push(eachCourse.courseName.trim())
 
                     // Completed on logic...
-                    this.certificateMappedObject[v5Obj[this.compentencyKey.vCompetencyTheme]].completedOn
-                    .push(eachCourse.completedOn)
+                    this.certificateMappedObject[v5Obj[this.compentencyKey && this.compentencyKey.vCompetencyTheme]]?.completedOn
+                    .push(eachCourse?.completedOn)
                   }
 
                 } else {
-                  this.certificateMappedObject[v5Obj[this.compentencyKey.vCompetencyTheme]] = {
+                  this.certificateMappedObject[v5Obj[this.compentencyKey && this.compentencyKey.vCompetencyTheme]] = {
                     certificate: eachCourse.issuedCertificates,
                     contentConsumed: [eachCourse.courseName],
                     subThemes: [],
-                    completedOn: [eachCourse.completedOn],
+                    completedOn: [eachCourse?.completedOn],
                   }
                 }
                 // Sub theme mapping logic...
-                if (subThemeMapping[v5Obj[this.compentencyKey.vCompetencyTheme]]) {
-                  if (subThemeMapping[v5Obj[this.compentencyKey.vCompetencyTheme]]
-                    .indexOf(v5Obj[this.compentencyKey.vCompetencySubTheme]) === -1) {
-                    subThemeMapping[v5Obj[this.compentencyKey.vCompetencyTheme]]
-                      .push(v5Obj[this.compentencyKey.vCompetencySubTheme])
+                if (subThemeMapping[v5Obj[this.compentencyKey && this.compentencyKey.vCompetencyTheme]]) {
+                  if (subThemeMapping[v5Obj[this.compentencyKey && this.compentencyKey.vCompetencyTheme]]
+                    .indexOf(v5Obj[this.compentencyKey?.vCompetencySubTheme]) === -1) {
+                    subThemeMapping[v5Obj[this.compentencyKey && this.compentencyKey.vCompetencyTheme]]
+                      .push(v5Obj[this.compentencyKey?.vCompetencySubTheme])
                   }
                 } else {
-                  subThemeMapping[v5Obj[this.compentencyKey.vCompetencyTheme]] = []
-                  subThemeMapping[v5Obj[this.compentencyKey.vCompetencyTheme]]
-                    .push(v5Obj[this.compentencyKey.vCompetencySubTheme])
+                  subThemeMapping[v5Obj[this.compentencyKey && this.compentencyKey.vCompetencyTheme]] = []
+                  subThemeMapping[v5Obj[this.compentencyKey && this.compentencyKey.vCompetencyTheme]]
+                    .push(v5Obj[this.compentencyKey?.vCompetencySubTheme])
                 }
               })
               for (const key in subThemeMapping) {
                 if (subThemeMapping.hasOwnProperty(key)) {
-                  this.certificateMappedObject[key].subThemes.push(subThemeMapping[key])
+                  this.certificateMappedObject[key]?.subThemes.push(subThemeMapping[key])
                 }
               }
             }
@@ -253,19 +253,19 @@ export class CompetencyListComponent implements OnInit, OnDestroy {
             v5Obj.contentConsumed = []
             v5Obj.issuedCertificates = []
             // tslint:disable-next-line: max-line-length
-            const competencyArea = (v5Obj[this.compentencyKey.vCompetencyArea].toLowerCase() === 'behavioral')
-            ? 'behavioural' : v5Obj[this.compentencyKey.vCompetencyArea].toLowerCase()
+            const competencyArea = (v5Obj[this.compentencyKey && this.compentencyKey.vCompetencyArea]?.toLowerCase() === 'behavioral')
+            ? 'behavioural' : v5Obj[this.compentencyKey && this.compentencyKey.vCompetencyArea]?.toLowerCase()
             if (this.competency[competencyArea]
               .findIndex((obj: any) =>
-                obj[this.compentencyKey.vCompetencyTheme] === v5Obj[this.compentencyKey.vCompetencyTheme]
+                obj[this.compentencyKey && this.compentencyKey.vCompetencyTheme] === v5Obj[this.compentencyKey && this.compentencyKey.vCompetencyTheme]
               ) === -1) {
             this.competency[competencyArea].push(v5Obj)
           }
 
             this.competency[competencyArea].forEach((_obj: any) => {
-              if (_obj[this.compentencyKey.vCompetencyTheme] === v5Obj[this.compentencyKey.vCompetencyTheme]) {
-                if (_obj.subTheme.indexOf(v5Obj[this.compentencyKey.vCompetencySubTheme]) === -1) {
-                  _obj.subTheme.push(v5Obj[this.compentencyKey.vCompetencySubTheme])
+              if (_obj[this.compentencyKey && this.compentencyKey.vCompetencyTheme] === v5Obj[this.compentencyKey && this.compentencyKey.vCompetencyTheme]) {
+                if (_obj.subTheme.indexOf(v5Obj[this.compentencyKey?.vCompetencySubTheme]) === -1) {
+                  _obj.subTheme.push(v5Obj[this.compentencyKey?.vCompetencySubTheme])
                   // tslint: disable-next-line: whitespace
                 }
                 // tslint: disable-next-line: whitespace
@@ -292,16 +292,16 @@ export class CompetencyListComponent implements OnInit, OnDestroy {
   getOtherData(): void {
 
     this.competency.all.forEach((allObj: any) => {
-      allObj.issuedCertificates = this.certificateMappedObject[allObj[this.compentencyKey.vCompetencyTheme]].certificate
-      allObj.contentConsumed = this.certificateMappedObject[allObj[this.compentencyKey.vCompetencyTheme]].contentConsumed
-      allObj.courseSubThemes = this.certificateMappedObject[allObj[this.compentencyKey.vCompetencyTheme]].subThemes
+      allObj.issuedCertificates = this.certificateMappedObject[allObj[this.compentencyKey && this.compentencyKey.vCompetencyTheme]]?.certificate
+      allObj.contentConsumed = this.certificateMappedObject[allObj[this.compentencyKey && this.compentencyKey.vCompetencyTheme]]?.contentConsumed
+      allObj.courseSubThemes = this.certificateMappedObject[allObj[this.compentencyKey && this.compentencyKey.vCompetencyTheme]]?.subThemes
       // tslint:disable-next-line: max-line-length
-      allObj['latest'] = (this.certificateMappedObject[allObj[this.compentencyKey.vCompetencyTheme]].completedOn.length) ? Math.max(...this.certificateMappedObject[allObj[this.compentencyKey.vCompetencyTheme]].completedOn) : null
+      allObj['latest'] = (this.certificateMappedObject[allObj[this.compentencyKey && this.compentencyKey.vCompetencyTheme]]?.completedOn?.length) ? Math.max(...this.certificateMappedObject[allObj[this.compentencyKey && this.compentencyKey.vCompetencyTheme]]?.completedOn) : null
 
       this.leftCardDetails.forEach((_lObj: any) => {
-        if (_lObj.type === allObj[this.compentencyKey.vCompetencyArea]) {
-          _lObj.competencySubTheme += allObj.subTheme.length
-          _lObj.contentConsumed += allObj.contentConsumed.length
+        if (_lObj.type === allObj[this.compentencyKey && this.compentencyKey.vCompetencyArea]) {
+          _lObj.competencySubTheme += allObj.subTheme?.length
+          _lObj.contentConsumed += allObj?.contentConsumed?.length
         }
       })
     })
@@ -321,7 +321,7 @@ export class CompetencyListComponent implements OnInit, OnDestroy {
   }
 
   handleTabChange(event: MatTabChangeEvent): void {
-    const param = event.tab.textLabel.toLowerCase()
+    const param = event.tab.textLabel?.toLowerCase()
     this.tabValue = param
     this.competencyArray = this.competency[param].sort((a: any, b: any) => b.latest - a.latest)
     this.filterObjData2 = { ...this.filterObjData }
@@ -347,11 +347,11 @@ export class CompetencyListComponent implements OnInit, OnDestroy {
 
   handleSearch(event: string, competencyTheme: string): void {
     // tslint:disable-next-line
-    competencyTheme = competencyTheme.toLowerCase()
+    competencyTheme = competencyTheme?.toLowerCase()
     // tslint:disable-next-line
-    if (!this.competency[competencyTheme].length) return
+    if (!this.competency[competencyTheme]?.length) return
     // tslint:disable-next-line: max-line-length
-    this.competencyArray = (!event.length) ? this.competency[competencyTheme] : this.competency[competencyTheme].filter((obj: any) => obj[this.compentencyKey.vCompetencyTheme].toLowerCase().trim().includes(event.toLowerCase()))
+    this.competencyArray = (!event?.length) ? this.competency[competencyTheme] : this.competency[competencyTheme].filter((obj: any) => obj[this.compentencyKey && this.compentencyKey.vCompetencyTheme]?.toLowerCase().trim().includes(event?.toLowerCase()))
   }
 
   // Filters related functionalities...
@@ -380,38 +380,38 @@ export class CompetencyListComponent implements OnInit, OnDestroy {
   filterData(filterValue: any) {
     let finalFilterValue: any = []
     // tslint:disable-next-line: max-line-length
-    if (filterValue[this.compentencyKey.vCompetencyArea].length || filterValue[this.compentencyKey.vCompetencyTheme].length || filterValue[this.compentencyKey.vCompetencySubTheme].length) {
+    if (filterValue[this.compentencyKey && this.compentencyKey.vCompetencyArea]?.length || filterValue[this.compentencyKey && this.compentencyKey.vCompetencyTheme]?.length || filterValue[this.compentencyKey?.vCompetencySubTheme]?.length) {
       let filterAppliedOnLocal = false
       this.filteredData = this.competency[this.tabValue || 'all']
       // tslint: disable-next-line: whitespace
-      if (filterValue[this.compentencyKey.vCompetencyArea].length) {
+      if (filterValue[this.compentencyKey.vCompetencyArea]?.length) {
         filterAppliedOnLocal = filterAppliedOnLocal ? true : false
         finalFilterValue = (filterAppliedOnLocal ? finalFilterValue : this.filteredData).filter((data: any) => {
           // tslint:disable-next-line: max-line-length
-          if (filterValue[this.compentencyKey.vCompetencyArea].some((r: any) =>  data[this.compentencyKey.vCompetencyArea].toLowerCase().trim().includes((r.toLowerCase() === 'behavior') ? 'behavioural' : r.toLowerCase()))) {
+          if (filterValue[this.compentencyKey && this.compentencyKey.vCompetencyArea].some((r: any) =>  data[this.compentencyKey && this.compentencyKey.vCompetencyArea]?.toLowerCase().trim().includes((r?.toLowerCase() === 'behavior') ? 'behavioural' : r?.toLowerCase()))) {
             return data
           }
         })
         filterAppliedOnLocal = true
       }
 
-      if (filterValue[this.compentencyKey.vCompetencyTheme].length) {
+      if (filterValue[this.compentencyKey && this.compentencyKey.vCompetencyTheme] && filterValue[this.compentencyKey && this.compentencyKey.vCompetencyTheme]?.length) {
         filterAppliedOnLocal = filterAppliedOnLocal ? true : false
         finalFilterValue = (filterAppliedOnLocal ? finalFilterValue : this.filteredData).filter((data: any) => {
-          return filterValue[this.compentencyKey.vCompetencyTheme].includes(data[this.compentencyKey.vCompetencyTheme])
+          return filterValue[this.compentencyKey && this.compentencyKey.vCompetencyTheme].includes(data[this.compentencyKey && this.compentencyKey.vCompetencyTheme])
           // tslint: disable-next-line: whitespace
         })
         // tslint: disable-next-line: whitespace
         filterAppliedOnLocal = true
         // tslint: disable-next-line: whitespace
       }
-      if (filterValue[this.compentencyKey.vCompetencySubTheme].length) {
+      if (filterValue[this.compentencyKey?.vCompetencySubTheme] && filterValue[this.compentencyKey?.vCompetencySubTheme]?.length) {
         filterAppliedOnLocal = filterAppliedOnLocal ? true : false
         finalFilterValue = (filterAppliedOnLocal ? finalFilterValue : this.filteredData).filter((data: any) => {
           const returnedValue = data.subTheme.filter((stName: any) => {
-            return filterValue[this.compentencyKey.vCompetencySubTheme].includes(stName)
+            return filterValue[this.compentencyKey?.vCompetencySubTheme].includes(stName)
           })
-          return (returnedValue.length) ? data : false
+          return (returnedValue?.length) ? data : false
         })
         filterAppliedOnLocal = true
       }

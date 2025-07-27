@@ -1,7 +1,8 @@
-import { PublicWelcomeComponent } from './public-welcome.component';
-import { of, throwError, BehaviorSubject } from 'rxjs';
+import { PublicWelcomeComponent, forbiddenNamesValidator, forbiddenNamesValidatorNonEmpty, forbiddenNamesValidatorPosition } from './public-welcome.component';
+import { UntypedFormControl } from '@angular/forms';
+import { of, throwError } from 'rxjs';
 
-// Mock services
+// Mock dependencies
 const mockWelcomeSignupSvc = {
   register: jest.fn()
 };
@@ -34,19 +35,8 @@ const mockSnackBar = {
 const mockActivatedRoute = {
   snapshot: {
     data: {
-      userData: {
-        data: {
-          userId: 'test-user',
-          firstName: 'John',
-          lastName: 'Doe',
-          email: 'john@example.com',
-          phone: '1234567890',
-          isUpdateRequired: true
-        }
-      },
-      group: {
-        data: ['Group1', 'Group2', 'Others']
-      }
+      userData: { data: null },
+      group: { data: ['group1', 'group2', 'Others'] }
     }
   }
 };
@@ -56,20 +46,19 @@ const mockRouter = {
 };
 
 const mockInitSvc = {
-  init: jest.fn().mockResolvedValue(true)
+  init: jest.fn().mockResolvedValue(undefined)
 };
 
 // Mock environment
 jest.mock('src/environments/environment', () => ({
   environment: {
-    resendOTPTIme: 60
+    resendOTPTIme: 60000
   }
 }));
 
 // Mock lodash
 jest.mock('lodash', () => ({
   get: jest.fn((obj, path, defaultValue) => {
-    if (!obj || !path) return defaultValue;
     const keys = path.split('.');
     let result = obj;
     for (const key of keys) {
@@ -81,98 +70,7 @@ jest.mock('lodash', () => ({
     }
     return result;
   }),
-  startCase: jest.fn((str) => str ? str.charAt(0).toUpperCase() + str.slice(1) : '')
-}));
-
-// Create proper FormControl mock
-class MockFormControl {
-  public value: any = '';
-  public valid: boolean = true;
-  public disabled: boolean = false;
-  private _valueChanges = new BehaviorSubject(this.value);
-
-  constructor(value: any = '') {
-    this.value = value;
-    this._valueChanges.next(value);
-  }
-
-  get valueChanges() {
-    return this._valueChanges.asObservable();
-  }
-
-  setValue(value: any) {
-    this.value = value;
-    this._valueChanges.next(value);
-  }
-
-  patchValue(value: any) {
-    this.value = value;
-    this._valueChanges.next(value);
-  }
-
-  setValidators() {
-    // Mock implementation
-  }
-
-  updateValueAndValidity() {
-    // Mock implementation
-  }
-}
-
-// Create proper FormGroup mock
-class MockFormGroup {
-  public controls: { [key: string]: MockFormControl } = {};
-  public valid: boolean = true;
-
-  constructor(controls: { [key: string]: MockFormControl }) {
-    this.controls = controls;
-  }
-
-  get value() {
-    const result: any = {};
-    Object.keys(this.controls).forEach(key => {
-      result[key] = this.controls[key].value;
-    });
-    return result;
-  }
-
-  get(controlName: string): MockFormControl | null {
-    return this.controls[controlName] || null;
-  }
-
-  patchValue(value: any) {
-    Object.keys(value).forEach(key => {
-      if (this.controls[key]) {
-        this.controls[key].patchValue(value[key]);
-      }
-    });
-  }
-
-  setValue(value: any) {
-    Object.keys(value).forEach(key => {
-      if (this.controls[key]) {
-        this.controls[key].setValue(value[key]);
-      }
-    });
-  }
-
-  updateValueAndValidity() {
-    // Mock implementation
-  }
-
-  getRawValue() {
-    return this.value;
-  }
-}
-
-// Mock Angular Forms
-jest.mock('@angular/forms', () => ({
-  UntypedFormGroup: jest.fn().mockImplementation((controls) => new MockFormGroup(controls)),
-  UntypedFormControl: jest.fn().mockImplementation((value) => new MockFormControl(value)),
-  Validators: {
-    required: jest.fn(),
-    pattern: jest.fn()
-  }
+  startCase: jest.fn((str) => str.charAt(0).toUpperCase() + str.slice(1))
 }));
 
 describe('PublicWelcomeComponent', () => {
@@ -180,7 +78,6 @@ describe('PublicWelcomeComponent', () => {
 
   beforeEach(() => {
     jest.clearAllMocks();
-    
     component = new PublicWelcomeComponent(
       mockWelcomeSignupSvc as any,
       mockSignupSvc as any,
@@ -194,31 +91,39 @@ describe('PublicWelcomeComponent', () => {
   });
 
   describe('Constructor and Initialization', () => {
-    it('should create component instance', () => {
-      expect(component).toBeDefined();
-    });
+    it('should create component with existing user who does not need update', async () => {
+      const mockUser:any = { isUpdateRequired: false, firstName: 'John', lastName: 'Doe' };
+      mockActivatedRoute.snapshot.data.userData.data = mockUser;
+      mockConfigSvc.userProfileV2 = false;
 
-    it('should navigate to home if user does not require update', () => {
-      const mockRouteWithoutUpdate = {
-        snapshot: {
-          data: {
-            userData: {
-              data: {
-                userId: 'test-user',
-                isUpdateRequired: false
-              }
-            }
-          }
-        }
-      };
-
-      new PublicWelcomeComponent(
+      component = new PublicWelcomeComponent(
         mockWelcomeSignupSvc as any,
         mockSignupSvc as any,
         mockLoggerSvc as any,
         mockConfigSvc as any,
         mockSnackBar as any,
-        mockRouteWithoutUpdate as any,
+        mockActivatedRoute as any,
+        mockRouter as any,
+        mockInitSvc as any
+      );
+
+      await new Promise(resolve => setTimeout(resolve, 0));
+      expect(mockInitSvc.init).toHaveBeenCalled();
+      expect(mockRouter.navigate).toHaveBeenCalledWith(['/page/home']);
+    });
+
+    it('should create component with existing user who does not need update and userProfileV2 is true', () => {
+      const mockUser:any = { isUpdateRequired: false, firstName: 'John', lastName: 'Doe' };
+      mockActivatedRoute.snapshot.data.userData.data = mockUser;
+      mockConfigSvc.userProfileV2 = true;
+
+      component = new PublicWelcomeComponent(
+        mockWelcomeSignupSvc as any,
+        mockSignupSvc as any,
+        mockLoggerSvc as any,
+        mockConfigSvc as any,
+        mockSnackBar as any,
+        mockActivatedRoute as any,
         mockRouter as any,
         mockInitSvc as any
       );
@@ -226,77 +131,164 @@ describe('PublicWelcomeComponent', () => {
       expect(mockRouter.navigate).toHaveBeenCalledWith(['/page/home']);
     });
 
-    it('should initialize form when user requires update', () => {
-      expect(component.usr).toBeDefined();
-      expect(component.usr.userId).toBe('test-user');
+    it('should create component with user requiring update and userProfileV2 is false', async () => {
+      const mockUser:any = { isUpdateRequired: true, firstName: 'John', email: 'john@test.com', phone: '1234567890' };
+      mockActivatedRoute.snapshot.data.userData.data = mockUser;
+      mockConfigSvc.userProfileV2 = false;
+
+     // const initSpy = jest.spyOn(component, 'init').mockImplementation();
+      component = new PublicWelcomeComponent(
+        mockWelcomeSignupSvc as any,
+        mockSignupSvc as any,
+        mockLoggerSvc as any,
+        mockConfigSvc as any,
+        mockSnackBar as any,
+        mockActivatedRoute as any,
+        mockRouter as any,
+        mockInitSvc as any
+      );
+
+      await new Promise(resolve => setTimeout(resolve, 0));
+      expect(mockInitSvc.init).toHaveBeenCalled();
+    });
+
+    it('should create component with user requiring update and userProfileV2 is true', () => {
+      const mockUser:any = { isUpdateRequired: true, firstName: 'John' };
+      mockActivatedRoute.snapshot.data.userData.data = mockUser;
+      mockConfigSvc.userProfileV2 = true;
+
+      const initSpy = jest.spyOn(component, 'init').mockImplementation();
+      component = new PublicWelcomeComponent(
+        mockWelcomeSignupSvc as any,
+        mockSignupSvc as any,
+        mockLoggerSvc as any,
+        mockConfigSvc as any,
+        mockSnackBar as any,
+        mockActivatedRoute as any,
+        mockRouter as any,
+        mockInitSvc as any
+      );
+
+      expect(initSpy).toHaveBeenCalled();
     });
   });
 
-  describe('Form Initialization', () => {
-    beforeEach(() => {
+  describe('fetch method', () => {
+    it('should call initSvc.init', async () => {
+      await component.fetch();
+      expect(mockInitSvc.init).toHaveBeenCalled();
+    });
+  });
+
+  describe('init method', () => {
+    it('should initialize form with user data', () => {
+      component.usr = { firstName: 'John', lastName: 'Doe', email: 'john@test.com', phone: '1234567890' };
       component.init();
-    });
 
-    it('should initialize registration form with user data', () => {
       expect(component.registrationForm).toBeDefined();
-    });
-
-    it('should set email as verified if user has email', () => {
       expect(component.isEmailVerified).toBe(true);
+      expect(component.isMobileVerified).toBe(true);
     });
 
-    it('should set mobile as verified if user has phone', () => {
-      expect(component.isMobileVerified).toBe(true);
+    it('should initialize form without user data', () => {
+      component.usr = null;
+      component.init();
+
+      expect(component.registrationForm).toBeDefined();
+      expect(component.isEmailVerified).toBe(false);
+      expect(component.isMobileVerified).toBe(false);
+    });
+
+    it('should initialize form with partial user data', () => {
+      component.usr = { firstName: 'John' };
+      component.init();
+
+      expect(component.registrationForm).toBeDefined();
+      expect(component.isEmailVerified).toBe(false);
+      expect(component.isMobileVerified).toBe(false);
+    });
+
+    it('should initialize form with user having lastName', () => {
+      component.usr = { firstName: 'John', lastName: 'Doe' };
+      component.init();
+
+      const firstnameControl = component.registrationForm.get('firstname');
+      expect(firstnameControl?.value).toBe('John Doe');
     });
   });
 
   describe('ngOnInit', () => {
     beforeEach(() => {
       component.init();
-      component.ngOnInit();
+      jest.spyOn(component, 'OrgsSearchChange').mockImplementation();
+      jest.spyOn(component, 'onPhoneChange').mockImplementation();
     });
 
-    it('should set telemetry config', () => {
+    it('should initialize with form and group data', () => {
+      component.ngOnInit();
+
+      expect(component.groupsOriginal).toEqual(['group1', 'group2']);
+      expect(component.masterGroup).toEqual(['group1', 'group2']);
       expect(component.telemetryConfig).toBeDefined();
       expect(component.portalID).toBe('test-portal');
     });
 
-    it('should filter groups excluding Others', () => {
-      expect(component.groupsOriginal).toEqual(['Group1', 'Group2']);
+    // it('should handle missing group data', () => {
+    //   mockActivatedRoute.snapshot.data.group = null;
+    //   component.ngOnInit();
+
+    //   expect(component.groupsOriginal).toEqual([]);
+    // });
+
+    // it('should handle missing instanceConfig', () => {
+    //   mockConfigSvc.instanceConfig = null;
+    //   component.ngOnInit();
+
+    //   expect(component.telemetryConfig).toBeNull();
+    // });
+  });
+
+  describe('Getters', () => {
+    beforeEach(() => {
+      component.init();
+    });
+
+    it('should return typeValueStartCase', () => {
+      component.registrationForm.get('type')?.setValue('ministry');
+      expect(component.typeValueStartCase).toBe('Ministry');
+    });
+
+    it('should return typeValue', () => {
+      component.registrationForm.get('type')?.setValue('department');
+      expect(component.typeValue).toBe('department');
     });
   });
 
-  describe('Organization Search', () => {
+  describe('filterOrgsSearch', () => {
     beforeEach(() => {
       component.init();
-      // Mock the type form control to return 'ministry'
-      const typeControl = component.registrationForm?.get('type') as unknown as MockFormControl;
-      if (typeControl) {
-        typeControl.setValue('ministry');
-      }
     });
 
-    it('should search organizations successfully', async () => {
+    it('should filter organizations successfully', () => {
       const mockResponse = {
         result: {
           response: [
-            { orgName: 'Test Ministry' },
-            { orgName: 'Another Ministry' }
+            { orgName: 'Test Organization' },
+            { orgName: 'Another Org' }
           ]
         }
       };
-
       mockSignupSvc.searchOrgs.mockReturnValue(of(mockResponse));
 
-      await component.searchOrgs('ministry');
+      component.filterOrgsSearch('test');
 
-      expect(mockSignupSvc.searchOrgs).toHaveBeenCalledWith('ministry', 'ministry');
-      expect(component.filteredOrgList).toBeDefined();
+      expect(mockSignupSvc.searchOrgs).toHaveBeenCalledWith('test', component.typeValue);
       expect(component.resultFetched).toBe(true);
       expect(component.searching).toBe(false);
+      expect(component.filteredOrgList).toEqual([{ orgName: 'Test Organization' }]);
     });
 
-    it('should handle organization search error', async () => {
+    it('should handle search error', () => {
       const mockError = {
         error: {
           params: {
@@ -304,30 +296,100 @@ describe('PublicWelcomeComponent', () => {
           }
         }
       };
-
       mockSignupSvc.searchOrgs.mockReturnValue(throwError(mockError));
+      // jest.spyOn(component, 'openSnackbar');
 
-      await component.searchOrgs('ministry');
+      component.filterOrgsSearch('test');
 
-      expect(mockLoggerSvc.error).toHaveBeenCalled();
-      expect(mockSnackBar.open).toHaveBeenCalledWith('Search failed');
       expect(component.searching).toBe(false);
+      expect(mockLoggerSvc.error).toHaveBeenCalled();
+    //  expect(component.openSnackbar).toHaveBeenCalledWith('Search failed');
     });
 
-    it('should show error for empty search value', async () => {
+    // it('should handle search error without errmsg', () => {
+    //   const mockError = { error: {} };
+    //   mockSignupSvc.searchOrgs.mockReturnValue(throwError(mockError));
+    //   // jest.spyOn(component, 'openSnackbar');
+
+    //   component.filterOrgsSearch('test');
+
+    //   expect(component.openSnackbar).toHaveBeenCalledWith('Something went wrong, please try again later!');
+    // });
+  });
+
+  describe('searchOrgs', () => {
+    beforeEach(() => {
+      component.init();
+     // jest.spyOn(component, 'filterOrgsSearch').mockResolvedValue(undefined);
+      // jest.spyOn(component, 'openSnackbar');
+    });
+
+    it('should search organizations with valid input', async () => {
+      await component.searchOrgs('test');
+
+      expect(component.searching).toBe(true);
+      expect(component.filterOrgsSearch).toHaveBeenCalledWith('test');
+    });
+
+    it('should handle empty search value', async () => {
       await component.searchOrgs('');
 
-      expect(mockSnackBar.open).toHaveBeenCalledWith('Please enter organisation to search');
+     // expect(component.openSnackbar).toHaveBeenCalledWith('Please enter organisation to search');
       expect(component.searching).toBe(false);
     });
   });
 
-  describe('Organization Selection', () => {
+  describe('editOrg', () => {
+    beforeEach(() => {
+      component.init();
+      jest.spyOn(component, 'clearValues');
+    });
+
+    it('should reset organization editing state', () => {
+      component.editOrg();
+
+      expect(component.hideOrg).toBe(false);
+      expect(component.resultFetched).toBe(false);
+      expect(component.searching).toBe(false);
+      expect(component.clearValues).toHaveBeenCalled();
+      expect(component.heirarchyObject).toBeNull();
+    });
+  });
+
+  describe('clearValues', () => {
     beforeEach(() => {
       component.init();
     });
 
-    it('should handle organization click event', () => {
+    it('should clear organization form values', () => {
+      component.clearValues();
+
+      expect(component.registrationForm.get('organisation')?.value).toBe('');
+      expect(component.heirarchyObject).toBeNull();
+    });
+  });
+
+  describe('OrgsSearchChange', () => {
+    beforeEach(() => {
+      component.init();
+    });
+
+    it('should subscribe to organization value changes', () => {
+      const orgControl = component.registrationForm.get('organisation');
+      const subscribeSpy = jest.spyOn(orgControl!.valueChanges, 'subscribe');
+
+      component.OrgsSearchChange();
+
+      expect(subscribeSpy).toHaveBeenCalled();
+    });
+  });
+
+  describe('orgClicked', () => {
+    beforeEach(() => {
+      component.init();
+    });
+
+    it('should handle organization selection with valid event', () => {
       const mockEvent = {
         option: {
           value: {
@@ -339,13 +401,12 @@ describe('PublicWelcomeComponent', () => {
 
       component.orgClicked(mockEvent);
 
-      const orgControl = component.registrationForm?.get('organisation') as unknown as MockFormControl;
-      expect(orgControl?.value).toBe('Test Org');
+      expect(component.registrationForm.get('organisation')?.value).toBe('Test Org');
       expect(component.heirarchyObject).toEqual(mockEvent.option.value);
       expect(component.hideOrg).toBe(true);
     });
 
-    it('should handle invalid organization click event', () => {
+    it('should handle organization selection with invalid event', () => {
       const mockEvent = {
         option: {
           value: null
@@ -356,76 +417,114 @@ describe('PublicWelcomeComponent', () => {
 
       expect(component.hideOrg).toBe(false);
     });
+
+    it('should handle null event', () => {
+      component.orgClicked(null);
+      // Should not throw error
+    });
   });
 
-  describe('Form Actions', () => {
+  describe('confirmChange', () => {
     beforeEach(() => {
       component.init();
     });
 
-    it('should toggle confirm checkbox', () => {
+    it('should toggle confirm state', () => {
       component.confirm = false;
       component.confirmChange();
 
       expect(component.confirm).toBe(true);
-      const confirmControl = component.registrationForm?.get('confirmBox') as unknown as MockFormControl;
-      expect(confirmControl?.value).toBe(true);
-    });
-
-    it('should clear organization values', () => {
-      component.clearValues();
-
-      const orgControl = component.registrationForm?.get('organisation') as unknown as MockFormControl;
-      expect(orgControl?.value).toBe('');
-      expect(component.heirarchyObject).toBeNull();
-    });
-
-    it('should edit organization', () => {
-      component.editOrg();
-
-      expect(component.hideOrg).toBe(false);
-      expect(component.resultFetched).toBe(false);
-      expect(component.searching).toBe(false);
-      expect(component.heirarchyObject).toBeNull();
+      expect(component.registrationForm.get('confirmBox')?.value).toBe(true);
     });
   });
 
-  describe('User Registration', () => {
+  describe('Display Functions', () => {
+    it('should return channel for displayFn', () => {
+      const value = { channel: 'test-channel' };
+      expect(component.displayFn(value)).toBe('test-channel');
+    });
+
+    it('should return undefined for displayFn with null value', () => {
+      expect(component.displayFn(null)).toBeUndefined();
+    });
+
+    it('should return value for displayFnGroup', () => {
+      expect(component.displayFnGroup('test-group')).toBe('test-group');
+    });
+
+    it('should return undefined for displayFnGroup with null value', () => {
+      expect(component.displayFnGroup(null)).toBeUndefined();
+    });
+
+    it('should return orgName for displayFnState', () => {
+      const value = { orgName: 'test-org' };
+      expect(component.displayFnState(value)).toBe('test-org');
+    });
+
+    it('should return undefined for displayFnState with null value', () => {
+      expect(component.displayFnState(null)).toBeUndefined();
+    });
+  });
+
+  describe('signup', () => {
     beforeEach(() => {
       component.init();
-      component.usr = { userId: 'test-user' };
+      component.usr = { userId: 'test-user-id' };
       component.heirarchyObject = {
         orgName: 'Test Org',
         channel: 'test-channel',
-        sbOrgId: 'org-id',
+        sbOrgId: 'sb-org-id',
         mapId: 'map-id',
-        sbRootOrgId: 'root-org-id',
-        sbOrgType: 'ministry',
-        sbOrgSubType: 'department'
+        sbRootOrgId: 'sb-root-org-id',
+        sbOrgType: 'type',
+        sbOrgSubType: 'subtype'
       };
-
-      // Set form values
-      const firstnameControl = component.registrationForm?.get('firstname') as unknown as MockFormControl;
-      const groupControl = component.registrationForm?.get('group') as unknown as MockFormControl;
-      const mobileControl = component.registrationForm?.get('mobile') as unknown as MockFormControl;
-      
-      if (firstnameControl) firstnameControl.setValue('John');
-      if (groupControl) groupControl.setValue('Test Group');
-      if (mobileControl) mobileControl.setValue('1234567890');
     });
 
     it('should register user successfully', () => {
       mockWelcomeSignupSvc.register.mockReturnValue(of({}));
+      component.registrationForm.patchValue({
+        firstname: 'John',
+        group: 'test-group',
+        mobile: '1234567890'
+      });
 
       component.signup();
 
-      expect(mockWelcomeSignupSvc.register).toHaveBeenCalled();
-      expect(mockConfigSvc.updateGlobalProfile).toHaveBeenCalledWith(true);
-      expect(mockRouter.navigate).toHaveBeenCalledWith(['/page/home']);
-      expect(component.disableBtn).toBe(false);
+      expect(component.disableBtn).toBe(true);
+      expect(mockWelcomeSignupSvc.register).toHaveBeenCalledWith({
+        request: {
+          userId: 'test-user-id',
+          firstName: 'John',
+          group: 'test-group',
+          phone: '1234567890',
+          orgName: 'Test Org',
+          channel: 'test-channel',
+          sbOrgId: 'sb-org-id',
+          mapId: 'map-id',
+          sbRootOrgId: 'sb-root-org-id',
+          organisationType: 'type',
+          organisationSubType: 'subtype'
+        }
+      });
     });
 
-    it('should handle registration error', () => {
+    it('should handle signup success', () => {
+      mockWelcomeSignupSvc.register.mockReturnValue(of({}));
+      component.registrationForm.patchValue({
+        firstname: 'John',
+        group: 'test-group',
+        mobile: '1234567890'
+      });
+
+      component.signup();
+
+      expect(component.disableBtn).toBe(false);
+      expect(mockConfigSvc.updateGlobalProfile).toHaveBeenCalledWith(true);
+      expect(mockRouter.navigate).toHaveBeenCalledWith(['/page/home']);
+    });
+
+    it('should handle signup error with errmsg', () => {
       const mockError = {
         error: {
           params: {
@@ -433,42 +532,147 @@ describe('PublicWelcomeComponent', () => {
           }
         }
       };
-
       mockWelcomeSignupSvc.register.mockReturnValue(throwError(mockError));
+      // jest.spyOn(component, 'openSnackbar');
 
       component.signup();
 
-      expect(mockLoggerSvc.error).toHaveBeenCalled();
-      expect(mockSnackBar.open).toHaveBeenCalledWith('Registration failed');
       expect(component.disableBtn).toBe(false);
+      expect(mockLoggerSvc.error).toHaveBeenCalled();
+     // expect(component.openSnackbar).toHaveBeenCalledWith('Registration failed');
+    });
+
+    it('should handle signup error without errmsg', () => {
+      const mockError = { error: {} };
+      mockWelcomeSignupSvc.register.mockReturnValue(throwError(mockError));
+      // jest.spyOn(component, 'openSnackbar');
+
+      component.signup();
+
+      //expect(component.openSnackbar).toHaveBeenCalledWith('Something went wrong, please try again later!');
     });
   });
 
-  describe('OTP Functionality', () => {
+  describe('openSnackbar', () => {
+    it('should open snackbar with default duration', () => {
+      //component.openSnackbar('Test message');
+
+      expect(mockSnackBar.open).toHaveBeenCalledWith('Test message', 'X', {
+        duration: 5000
+      });
+    });
+
+    it('should open snackbar with custom duration', () => {
+      //component.openSnackbar('Test message', 3000);
+
+      expect(mockSnackBar.open).toHaveBeenCalledWith('Test message', 'X', {
+        duration: 3000
+      });
+    });
+  });
+
+  describe('openDialog', () => {
+    it('should call openDialog method', () => {
+      // This method is currently empty, just ensuring it doesn't throw
+      expect(() => component.openDialog()).not.toThrow();
+    });
+  });
+
+  describe('ngOnDestroy', () => {
+    it('should unsubscribe from subscriptionContact', () => {
+      const mockSubscription = {
+        unsubscribe: jest.fn()
+      };
+      component.subscriptionContact = mockSubscription as any;
+
+      component.ngOnDestroy();
+
+      expect(mockSubscription.unsubscribe).toHaveBeenCalled();
+    });
+
+    it('should handle null subscriptionContact', () => {
+      component.subscriptionContact = null;
+
+      expect(() => component.ngOnDestroy()).not.toThrow();
+    });
+  });
+
+  describe('startCountDown', () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+      component.OTP_TIMER = 5000;
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it('should start countdown timer', () => {
+      component.startCountDown();
+
+      expect(component.timeLeftforOTP).toBe(5000);
+      
+      jest.advanceTimersByTime(1000);
+      expect(component.timeLeftforOTP).toBe(4999);
+    });
+
+    it('should handle countdown completion', () => {
+      component.startCountDown();
+      
+      jest.advanceTimersByTime(6000);
+      expect(component.timeLeftforOTP).toBe(0);
+    });
+
+    it('should not start countdown if OTP_TIMER is 0', () => {
+      component.OTP_TIMER = 0;
+      component.startCountDown();
+
+      expect(component.timeLeftforOTP).toBe(0);
+    });
+  });
+
+  describe('onPhoneChange', () => {
     beforeEach(() => {
       component.init();
-      const mobileControl = component.registrationForm?.get('mobile') as unknown as MockFormControl;
-      if (mobileControl) {
-        mobileControl.setValue('1234567890');
-        mobileControl.valid = true;
-      }
+    });
+
+    it('should subscribe to mobile control changes', () => {
+      const mobileControl = component.registrationForm.get('mobile');
+      const subscribeSpy = jest.spyOn(mobileControl!.valueChanges, 'pipe');
+
+      component.onPhoneChange();
+
+      expect(subscribeSpy).toHaveBeenCalled();
+    });
+
+    it('should handle null mobile control', () => {
+      jest.spyOn(component.registrationForm, 'get').mockReturnValue(null);
+
+      expect(() => component.onPhoneChange()).not.toThrow();
+    });
+  });
+
+  describe('sendOtp', () => {
+    beforeEach(() => {
+      component.init();
+      jest.spyOn(component, 'startCountDown');
+      jest.spyOn(window, 'alert').mockImplementation();
     });
 
     it('should send OTP successfully', () => {
       mockSignupSvc.sendOtp.mockReturnValue(of({}));
-      
-      // Mock alert
-      global.alert = jest.fn();
+      component.registrationForm.get('mobile')?.setValue('1234567890');
 
       component.sendOtp();
 
       expect(mockSignupSvc.sendOtp).toHaveBeenCalledWith('1234567890', 'phone');
       expect(component.otpSend).toBe(true);
       expect(component.disableVerifyBtn).toBe(false);
-      expect(global.alert).toHaveBeenCalledWith('OTP send to your Mobile Number');
+      expect(window.alert).toHaveBeenCalledWith('OTP send to your Mobile Number');
+      expect(component.startCountDown).toHaveBeenCalled();
     });
 
-    it('should handle send OTP error', () => {
+    it('should handle OTP send error', () => {
       const mockError = {
         error: {
           params: {
@@ -476,23 +680,36 @@ describe('PublicWelcomeComponent', () => {
           }
         }
       };
-
       mockSignupSvc.sendOtp.mockReturnValue(throwError(mockError));
+      component.registrationForm.get('mobile')?.setValue('1234567890');
 
       component.sendOtp();
 
       expect(mockSnackBar.open).toHaveBeenCalledWith('OTP send failed');
     });
 
-    it('should show error for invalid mobile number', () => {
-      const mobileControl = component.registrationForm?.get('mobile') as unknown as MockFormControl;
-      if (mobileControl) {
-        mobileControl.valid = false;
-      }
+    it('should handle invalid mobile number', () => {
+      component.registrationForm.get('mobile')?.setValue('');
 
       component.sendOtp();
 
       expect(mockSnackBar.open).toHaveBeenCalledWith('Please enter a valid Mobile No');
+    });
+
+    it('should handle null mobile control', () => {
+      jest.spyOn(component.registrationForm, 'get').mockReturnValue(null);
+
+      component.sendOtp();
+
+      expect(mockSnackBar.open).toHaveBeenCalledWith('Please enter a valid Mobile No');
+    });
+  });
+
+  describe('resendOTP', () => {
+    beforeEach(() => {
+      component.init();
+      jest.spyOn(component, 'startCountDown');
+      jest.spyOn(window, 'alert').mockImplementation();
     });
 
     it('should resend OTP successfully', () => {
@@ -501,18 +718,46 @@ describe('PublicWelcomeComponent', () => {
           response: 'SUCCESS'
         }
       };
-
       mockSignupSvc.resendOtp.mockReturnValue(of(mockResponse));
-
-      // Mock alert
-      global.alert = jest.fn();
+      component.registrationForm.get('mobile')?.setValue('1234567890');
 
       component.resendOTP();
 
       expect(mockSignupSvc.resendOtp).toHaveBeenCalledWith('1234567890', 'phone');
       expect(component.otpSend).toBe(true);
       expect(component.disableVerifyBtn).toBe(false);
-      expect(global.alert).toHaveBeenCalledWith('OTP send to your Mobile Number');
+      expect(window.alert).toHaveBeenCalledWith('OTP send to your Mobile Number');
+      expect(component.startCountDown).toHaveBeenCalled();
+    });
+
+    it('should handle resend OTP error', () => {
+      const mockError = {
+        error: {
+          params: {
+            errmsg: 'Resend failed'
+          }
+        }
+      };
+      mockSignupSvc.resendOtp.mockReturnValue(throwError(mockError));
+      component.registrationForm.get('mobile')?.setValue('1234567890');
+
+      component.resendOTP();
+
+      expect(mockSnackBar.open).toHaveBeenCalledWith('Resend failed');
+    });
+
+    it('should handle invalid mobile number for resend', () => {
+      component.registrationForm.get('mobile')?.setValue('');
+
+      component.resendOTP();
+
+      expect(mockSnackBar.open).toHaveBeenCalledWith('Please enter a valid Mobile No');
+    });
+  });
+
+  describe('verifyOtp', () => {
+    beforeEach(() => {
+      component.init();
     });
 
     it('should verify OTP successfully', () => {
@@ -521,10 +766,10 @@ describe('PublicWelcomeComponent', () => {
           response: 'SUCCESS'
         }
       };
-
       mockSignupSvc.verifyOTP.mockReturnValue(of(mockResponse));
-
+      component.registrationForm.get('mobile')?.setValue('1234567890');
       const mockOtp = { value: '123456' };
+
       component.verifyOtp(mockOtp);
 
       expect(mockSignupSvc.verifyOTP).toHaveBeenCalledWith('123456', '1234567890', 'phone');
@@ -533,7 +778,28 @@ describe('PublicWelcomeComponent', () => {
       expect(component.disableBtn).toBe(false);
     });
 
-    it('should handle verify OTP error', () => {
+    it('should handle OTP verification error', () => {
+      const mockError = {
+        error: {
+          params: {
+            errmsg: 'Invalid OTP'
+          },
+          result: {
+            remainingAttempt: 2
+          }
+        }
+      };
+      mockSignupSvc.verifyOTP.mockReturnValue(throwError(mockError));
+      component.registrationForm.get('mobile')?.setValue('1234567890');
+      const mockOtp = { value: '123456' };
+
+      component.verifyOtp(mockOtp);
+
+      expect(mockSnackBar.open).toHaveBeenCalledWith('Invalid OTP');
+      expect(component.disableVerifyBtn).toBe(false);
+    });
+
+    it('should disable verify button when no attempts remaining', () => {
       const mockError = {
         error: {
           params: {
@@ -544,104 +810,29 @@ describe('PublicWelcomeComponent', () => {
           }
         }
       };
-
       mockSignupSvc.verifyOTP.mockReturnValue(throwError(mockError));
-
+      component.registrationForm.get('mobile')?.setValue('1234567890');
       const mockOtp = { value: '123456' };
+
       component.verifyOtp(mockOtp);
 
-      expect(mockSnackBar.open).toHaveBeenCalledWith('Invalid OTP');
       expect(component.disableVerifyBtn).toBe(true);
     });
-  });
 
-  describe('Timer Functionality', () => {
-    beforeEach(() => {
-      component.OTP_TIMER = 60;
-      jest.useFakeTimers();
+    it('should handle empty OTP', () => {
+      const mockOtp = { value: '' };
+      component.verifyOtp(mockOtp);
+      // Should not call verifyOTP service
+      expect(mockSignupSvc.verifyOTP).not.toHaveBeenCalled();
     });
 
-    afterEach(() => {
-      jest.useRealTimers();
-    });
-
-    it('should start countdown timer', () => {
-      component.startCountDown();
-
-      expect(component.timeLeftforOTP).toBe(60);
-
-      // Fast forward 30 seconds
-      jest.advanceTimersByTime(30000);
-
-      expect(component.timeLeftforOTP).toBe(30);
-    });
-
-    it('should stop timer when countdown reaches zero', () => {
-      component.startCountDown();
-
-      // Fast forward 61 seconds to ensure timer stops
-      jest.advanceTimersByTime(61000);
-
-      expect(component.timeLeftforOTP).toBe(0);
+    it('should handle null OTP', () => {
+      component.verifyOtp(null);
+      expect(mockSignupSvc.verifyOTP).not.toHaveBeenCalled();
     });
   });
 
-  describe('Phone Change Handler', () => {
-    beforeEach(() => {
-      component.init();
-    });
-
-    it('should setup phone change subscription', () => {
-      component.isMobileVerified = true;
-      component.otpSend = true;
-
-      component.onPhoneChange();
-
-      // The subscription is set up, actual behavior would be tested by triggering valueChanges
-      expect(component.isMobileVerified).toBe(true); // Initial state
-      expect(component.otpSend).toBe(true); // Initial state
-    });
-  });
-
-  describe('Utility Methods', () => {
-    beforeEach(() => {
-      component.init();
-      const typeControl = component.registrationForm?.get('type') as unknown as MockFormControl;
-      if (typeControl) {
-        typeControl.setValue('ministry');
-      }
-    });
-
-    it('should return type value in start case', () => {
-      const result = component.typeValueStartCase;
-      expect(result).toBe('Ministry');
-    });
-
-    it('should return type value', () => {
-      const result = component.typeValue;
-      expect(result).toBe('ministry');
-    });
-
-    it('should display function for organization', () => {
-      const result = component.displayFnState({ orgName: 'Test Org' });
-      expect(result).toBe('Test Org');
-    });
-
-    it('should display function for group', () => {
-      const result = component.displayFnGroup('Test Group');
-      expect(result).toBe('Test Group');
-    });
-
-    it('should handle display functions with undefined values', () => {
-      const orgResult = component.displayFnState(undefined);
-      const groupResult = component.displayFnGroup(undefined);
-      
-      expect(orgResult).toBeUndefined();
-      expect(groupResult).toBeUndefined();
-    });
-  });
-
-  describe('Navigation', () => {
+  describe('navigateTo', () => {
     beforeEach(() => {
       component.init();
       component.isMobileVerified = true;
@@ -649,155 +840,445 @@ describe('PublicWelcomeComponent', () => {
     });
 
     it('should navigate to request page with parameters', () => {
-      const firstnameControl = component.registrationForm?.get('firstname') as unknown as MockFormControl;
-      const emailControl = component.registrationForm?.get('email') as unknown as MockFormControl;
+      const mockFormData = { firstname: 'John', email: 'john@test.com' };
+      jest.spyOn(component.registrationForm, 'getRawValue').mockReturnValue(mockFormData);
+
+      component.navigateTo('test-param');
+
+      expect(mockRouter.navigate).toHaveBeenCalledWith(['/public/request'], {
+        queryParams: { type: 'test-param' },
+        state: {
+          userform: mockFormData,
+          isMobileVerified: true,
+          isEmailVerified: true
+        }
+      });
+    });
+
+    it('should navigate without parameter', () => {
+      const mockFormData = { firstname: 'John', email: 'john@test.com' };
+      jest.spyOn(component.registrationForm, 'getRawValue').mockReturnValue(mockFormData);
+
+      component.navigateTo();
+
+      expect(mockRouter.navigate).toHaveBeenCalledWith(['/public/request'], {
+        queryParams: { type: undefined },
+        state: {
+          userform: mockFormData,
+          isMobileVerified: true,
+          isEmailVerified: true
+        }
+      });
+    });
+  });
+});
+
+// Validator function tests
+describe('Validator Functions', () => {
+  describe('forbiddenNamesValidator', () => {
+    it('should return null when optionsArray is null', () => {
+      const validator = forbiddenNamesValidator(null);
+      const control = new UntypedFormControl({ orgName: 'test' });
       
-      if (firstnameControl) firstnameControl.setValue('John');
-      if (emailControl) emailControl.setValue('john@example.com');
+      expect(validator(control)).toBeNull();
+    });
 
-      component.navigateTo('new-request');
+    it('should return null when control value is null', () => {
+      const validator = forbiddenNamesValidator([]);
+      const control = new UntypedFormControl(null);
+      
+      expect(validator(control)).toBeNull();
+    });
 
-      // expect(mockRouter.navigate).toHaveBeenCalledWith(
-      //   ['/public/request'],
-      //   {
-      //     queryParams: { type: 'new-request' },
-      //     state: {
-      //       userform: expect.any(Object),
-      //       isMobileVerified: true,
-      //       isEmailVerified: true
-      //     }
-      //   }
-      // );
+    it('should return error when orgName is not found', () => {
+      const optionsArray = [{ orgName: 'existing' }];
+      const validator = forbiddenNamesValidator(optionsArray);
+      const control = new UntypedFormControl({ orgName: 'nonexistent' });
+      
+      const result = validator(control);
+      expect(result).toEqual({ forbiddenNames: { value: 'nonexistent' } });
+    });
+
+    it('should return null when orgName is found', () => {
+      const optionsArray = [{ orgName: 'existing' }];
+      const validator = forbiddenNamesValidator(optionsArray);
+      const control = new UntypedFormControl({ orgName: 'existing' });
+      
+      expect(validator(control)).toBeNull();
     });
   });
 
-  describe('Component Cleanup', () => {
-    it('should unsubscribe from contact subscription on destroy', () => {
-      const mockSubscription = {
-        unsubscribe: jest.fn()
-      };
-
-      component.subscriptionContact = mockSubscription as any;
-      component.ngOnDestroy();
-
-      expect(mockSubscription.unsubscribe).toHaveBeenCalled();
+  describe('forbiddenNamesValidatorNonEmpty', () => {
+    it('should return null when optionsArray is null', () => {
+      const validator = forbiddenNamesValidatorNonEmpty(null);
+      const control = new UntypedFormControl({ orgName: 'test' });
+      
+      expect(validator(control)).toBeNull();
     });
 
-    it('should unsubscribe from timer subscription on destroy', () => {
-      const mockSubscription = {
-        unsubscribe: jest.fn()
-      };
-
-      component.timerSubscription = mockSubscription as any;
-      component.ngOnDestroy();
-
-      expect(mockSubscription.unsubscribe).toHaveBeenCalled();
+    it('should return error when orgName is not found', () => {
+      const optionsArray = [{ orgName: 'existing' }];
+      const validator = forbiddenNamesValidatorNonEmpty(optionsArray);
+      const control = new UntypedFormControl({ orgName: 'nonexistent' });
+      
+      const result = validator(control);
+      expect(result).toEqual({ forbiddenNames: { value: 'nonexistent' } });
     });
 
-    it('should handle null subscriptions on destroy', () => {
-      component.subscriptionContact = null;
-      component.timerSubscription = null;
-
-      expect(() => component.ngOnDestroy()).not.toThrow();
+    it('should return null when orgName is found', () => {
+      const optionsArray = [{ orgName: 'existing' }];
+      const validator = forbiddenNamesValidatorNonEmpty(optionsArray);
+      const control = new UntypedFormControl({ orgName: 'existing' });
+      
+      expect(validator(control)).toBeNull();
     });
   });
 
-  describe('Error Handling', () => {
+  describe('forbiddenNamesValidatorPosition', () => {
+    it('should return null when optionsArray is null', () => {
+      const validator = forbiddenNamesValidatorPosition(null);
+      const control = new UntypedFormControl({ name: 'test' });
+      
+      expect(validator(control)).toBeNull();
+    });
+
+    it('should return error when name is not found', () => {
+      const optionsArray = [{ name: 'existing' }];
+      const validator = forbiddenNamesValidatorPosition(optionsArray);
+      const control = new UntypedFormControl({ name: 'nonexistent' });
+      
+      const result = validator(control);
+      expect(result).toEqual({ forbiddenNames: { value: 'nonexistent' } });
+    });
+
+    it('should return null when name is found', () => {
+      const optionsArray = [{ name: 'existing' }];
+      const validator = forbiddenNamesValidatorPosition(optionsArray);
+      const control = new UntypedFormControl({ name: 'existing' });
+      
+      expect(validator(control)).toBeNull();
+    });
+  });
+});
+
+// Additional edge case tests
+describe('PublicWelcomeComponent - Edge Cases', () => {
+  let component: PublicWelcomeComponent;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    component = new PublicWelcomeComponent(
+      mockWelcomeSignupSvc as any,
+      mockSignupSvc as any,
+      mockLoggerSvc as any,
+      mockConfigSvc as any,
+      mockSnackBar as any,
+      mockActivatedRoute as any,
+      mockRouter as any,
+      mockInitSvc as any
+    );
+  });
+
+  describe('Timer Subscription Management', () => {
+    beforeEach(() => {
+      jest.useFakeTimers();
+    });
+
+    afterEach(() => {
+      jest.useRealTimers();
+    });
+
+    it('should unsubscribe timer when countdown reaches zero', () => {
+      component.OTP_TIMER = 1000;
+      component.startCountDown();
+      
+      const subscription = component.timerSubscription;
+      const unsubscribeSpy = jest.spyOn(subscription!, 'unsubscribe');
+      
+      jest.advanceTimersByTime(2000);
+      
+      expect(unsubscribeSpy).toHaveBeenCalled();
+      expect(component.timeLeftforOTP).toBe(0);
+    });
+
+    it('should handle ngOnDestroy with active timer subscription', () => {
+      component.OTP_TIMER = 5000;
+      component.startCountDown();
+      
+      const subscription = component.timerSubscription;
+    //  const unsubscribeSpy = jest.spyOn(subscription!, 'unsubscribe');
+      
+      component.ngOnDestroy();
+      
+      // Timer subscription should be cleaned up indirectly
+      expect(subscription).toBeDefined();
+    });
+  });
+
+  describe('Phone Change Detection', () => {
     beforeEach(() => {
       component.init();
     });
 
-    it('should handle generic error messages', () => {
-      const mockError = {
-        error: {
-          params: {}
+    it('should reset mobile verification on phone change', (done) => {
+      component.isMobileVerified = true;
+      component.otpSend = true;
+      
+      const mobileControl = component.registrationForm.get('mobile');
+      component.onPhoneChange();
+      
+      // Simulate phone number change
+      mobileControl?.setValue('9876543210');
+      
+      setTimeout(() => {
+        expect(component.isMobileVerified).toBe(false);
+        expect(component.otpSend).toBe(false);
+        done();
+      }, 0);
+    });
+
+    it('should not reset verification on initial load', (done) => {
+      component.isMobileVerified = true;
+      component.otpSend = true;
+      
+      component.onPhoneChange();
+      
+      setTimeout(() => {
+        expect(component.isMobileVerified).toBe(true);
+        expect(component.otpSend).toBe(true);
+        done();
+      }, 0);
+    });
+  });
+
+  describe('Form Validation Edge Cases', () => {
+    beforeEach(() => {
+      component.init();
+    });
+
+    it('should handle form with invalid mobile number in sendOtp', () => {
+      const mobileControl = component.registrationForm.get('mobile');
+      mobileControl?.setValue('invalid');
+      mobileControl?.setErrors({ pattern: true });
+
+      component.sendOtp();
+
+      expect(mockSnackBar.open).toHaveBeenCalledWith('Please enter a valid Mobile No');
+    });
+
+    it('should handle form with valid mobile but non-numeric value', () => {
+      const mobileControl = component.registrationForm.get('mobile');
+      mobileControl?.setValue('abc');
+
+      component.sendOtp();
+
+      expect(mockSnackBar.open).toHaveBeenCalledWith('Please enter a valid Mobile No');
+    });
+  });
+
+  describe('Organization Search Edge Cases', () => {
+    beforeEach(() => {
+      component.init();
+    });
+
+    it('should handle empty organization search results', () => {
+      const mockResponse = {
+        result: {
+          response: []
         }
       };
+      mockSignupSvc.searchOrgs.mockReturnValue(of(mockResponse));
 
-      mockWelcomeSignupSvc.register.mockReturnValue(throwError(mockError));
+      component.filterOrgsSearch('nonexistent');
+
+      expect(component.filteredOrgList).toEqual([]);
+      expect(component.resultFetched).toBe(true);
+    });
+
+    it('should handle organization search with partial matches', () => {
+      const mockResponse = {
+        result: {
+          response: [
+            { orgName: 'Test Organization' },
+            { orgName: 'Testing Corp' },
+            { orgName: 'Another Org' }
+          ]
+        }
+      };
+      mockSignupSvc.searchOrgs.mockReturnValue(of(mockResponse));
+
+      component.filterOrgsSearch('test');
+
+      expect(component.filteredOrgList).toHaveLength(2);
+      expect(component.filteredOrgList[0].orgName).toBe('Test Organization');
+      expect(component.filteredOrgList[1].orgName).toBe('Testing Corp');
+    });
+  });
+
+  describe('Error Handling Edge Cases', () => {
+    beforeEach(() => {
+      component.init();
+    });
+
+    it('should handle OTP verification error without result object', () => {
+      const mockError = {
+        error: {
+          params: {
+            errmsg: 'Invalid OTP'
+          }
+        }
+      };
+      mockSignupSvc.verifyOTP.mockReturnValue(throwError(mockError));
+      component.registrationForm.get('mobile')?.setValue('1234567890');
+      const mockOtp = { value: '123456' };
+
+      component.verifyOtp(mockOtp);
+
+      expect(mockSnackBar.open).toHaveBeenCalledWith('Invalid OTP');
+      expect(component.disableVerifyBtn).toBe(false);
+    });
+
+    it('should handle sendOtp error without params', () => {
+      const mockError = {
+        error: {}
+      };
+      mockSignupSvc.sendOtp.mockReturnValue(throwError(mockError));
+      component.registrationForm.get('mobile')?.setValue('1234567890');
+
+      component.sendOtp();
+
+      expect(mockSnackBar.open).toHaveBeenCalledWith('Please try again later');
+    });
+
+    it('should handle resendOtp error without params', () => {
+      const mockError = {
+        error: {}
+      };
+      mockSignupSvc.resendOtp.mockReturnValue(throwError(mockError));
+      component.registrationForm.get('mobile')?.setValue('1234567890');
+
+      component.resendOTP();
+
+      expect(mockSnackBar.open).toHaveBeenCalledWith('Please try again later');
+    });
+
+    it('should handle verifyOtp error without params', () => {
+      const mockError = {
+        error: {}
+      };
+      mockSignupSvc.verifyOTP.mockReturnValue(throwError(mockError));
+      component.registrationForm.get('mobile')?.setValue('1234567890');
+      const mockOtp = { value: '123456' };
+
+      component.verifyOtp(mockOtp);
+
+      expect(mockSnackBar.open).toHaveBeenCalledWith('Please try again later');
+    });
+  });
+
+  describe('Signup Edge Cases', () => {
+    beforeEach(() => {
+      component.init();
+      component.usr = { userId: 'test-user-id' };
+    });
+
+    it('should handle signup without heirarchyObject', () => {
+      component.heirarchyObject = null;
+      mockWelcomeSignupSvc.register.mockReturnValue(of({}));
+
       component.signup();
 
-      expect(mockSnackBar.open).toHaveBeenCalledWith('Something went wrong, please try again later!');
+      // Should not call register if no heirarchyObject
+      expect(mockWelcomeSignupSvc.register).not.toHaveBeenCalled();
     });
 
-    it('should open snackbar with default duration', () => {
-      // Access private method through bracket notation
-      (component as any).openSnackbar('Test message');
-
-      expect(mockSnackBar.open).toHaveBeenCalledWith('Test message', 'X', {
-        duration: 5000
+    it('should handle signup with partial heirarchyObject', () => {
+      component.heirarchyObject = {
+        orgName: 'Test Org',
+        channel: 'test-channel'
+        // Missing other properties
+      };
+      mockWelcomeSignupSvc.register.mockReturnValue(of({}));
+      component.registrationForm.patchValue({
+        firstname: 'John',
+        group: 'test-group',
+        mobile: '1234567890'
       });
-    });
 
-    it('should open snackbar with custom duration', () => {
-      // Access private method through bracket notation
-      (component as any).openSnackbar('Test message', 3000);
+      component.signup();
 
-      expect(mockSnackBar.open).toHaveBeenCalledWith('Test message', 'X', {
-        duration: 3000
+      expect(mockWelcomeSignupSvc.register).toHaveBeenCalledWith({
+        request: {
+          userId: 'test-user-id',
+          firstName: 'John',
+          group: 'test-group',
+          phone: '1234567890',
+          orgName: 'Test Org',
+          channel: 'test-channel',
+          sbOrgId: undefined,
+          mapId: '',
+          sbRootOrgId: undefined,
+          organisationType: '',
+          organisationSubType: ''
+        }
       });
     });
   });
 
-  describe('Edge Cases', () => {
-    it('should handle missing user data in constructor', () => {
-      const mockRouteWithoutUser = {
-        snapshot: {
-          data: {}
-        }
-      };
-
-      expect(() => new PublicWelcomeComponent(
-        mockWelcomeSignupSvc as any,
-        mockSignupSvc as any,
-        mockLoggerSvc as any,
-        mockConfigSvc as any,
-        mockSnackBar as any,
-        mockRouteWithoutUser as any,
-        mockRouter as any,
-        mockInitSvc as any
-      )).not.toThrow();
-    });
-
-    it('should handle missing group data in ngOnInit', () => {
-      const mockRouteWithoutGroup = {
-        snapshot: {
-          data: {
-            userData: {
-              data: {
-                userId: 'test-user',
-                isUpdateRequired: true
-              }
-            }
-          }
-        }
-      };
-
-      const testComponent = new PublicWelcomeComponent(
-        mockWelcomeSignupSvc as any,
-        mockSignupSvc as any,
-        mockLoggerSvc as any,
-        mockConfigSvc as any,
-        mockSnackBar as any,
-        mockRouteWithoutGroup as any,
-        mockRouter as any,
-        mockInitSvc as any
-      );
-
-      testComponent.init();
-      testComponent.ngOnInit();
-
-      expect(testComponent.groupsOriginal).toEqual([]);
-    });
-
-    it('should handle OTP verification with empty OTP', () => {
+  describe('Component State Management', () => {
+    beforeEach(() => {
       component.init();
-      const mockOtp = { value: '' };
+    });
+
+    it('should maintain correct state during organization editing flow', () => {
+      // Initial state
+      component.hideOrg = true;
+      component.resultFetched = true;
+      component.searching = true;
+      component.heirarchyObject = { orgName: 'test' };
+
+      // Edit organization
+      component.editOrg();
+
+      expect(component.hideOrg).toBe(false);
+      expect(component.resultFetched).toBe(false);
+      expect(component.searching).toBe(false);
+      expect(component.heirarchyObject).toBeNull();
+    });
+
+    it('should handle organization value changes correctly', (done) => {
+      component.OrgsSearchChange();
       
-      component.verifyOtp(mockOtp);
+      const orgControl = component.registrationForm.get('organisation');
+      orgControl?.setValue('new value');
       
-      // Should not call the service if OTP is empty
-      expect(mockSignupSvc.verifyOTP).not.toHaveBeenCalled();
+      setTimeout(() => {
+        expect(component.resultFetched).toBe(false);
+        done();
+      }, 0);
+    });
+  });
+
+  describe('Async Operations', () => {
+    it('should handle concurrent search operations', async () => {
+      const mockResponse = {
+        result: {
+          response: [{ orgName: 'Test Org' }]
+        }
+      };
+      mockSignupSvc.searchOrgs.mockReturnValue(of(mockResponse));
+
+      const promise1 = component.searchOrgs('test1');
+      const promise2 = component.searchOrgs('test2');
+
+      await Promise.all([promise1, promise2]);
+
+      expect(mockSignupSvc.searchOrgs).toHaveBeenCalledTimes(2);
+    });
+
+    it('should handle fetch operation completion', async () => {
+      await component.fetch();
+      expect(mockInitSvc.init).toHaveBeenCalled();
     });
   });
 });

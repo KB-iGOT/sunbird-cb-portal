@@ -1,256 +1,737 @@
-import { Subject, of, throwError } from 'rxjs';
 import { CompetencyCardDetailsComponent } from './competency-card-details.component';
+import { ActivatedRoute, Router } from '@angular/router';
+import { CompetencyPassbookService } from '../competency-passbook.service';
+import { TranslateService } from '@ngx-translate/core';
+import { MultilingualTranslationsService, EventService, WsEvents, ConfigurationsService } from '@sunbird-cb/utils-v2';
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { CertificateDialogComponent } from '@sunbird-cb/collection/src/lib/_common/certificate-dialog/certificate-dialog.component';
+import { of, throwError, Subject } from 'rxjs';
 import { HttpErrorResponse } from '@angular/common/http';
+import { environment } from 'src/environments/environment';
+
+// Mock jsPDF
+jest.mock('jspdf', () => ({
+  jsPDF: jest.fn().mockImplementation(() => ({
+    addImage: jest.fn(),
+    save: jest.fn()
+  }))
+}));
+
+// Mock environment
+jest.mock('src/environments/environment', () => ({
+  environment: {
+    compentencyVersionKey: 'v1',
+    contentHost: 'https://test.com'
+  }
+}));
 
 describe('CompetencyCardDetailsComponent', () => {
   let component: CompetencyCardDetailsComponent;
-  let mockActivatedRoute: any;
-  let mockRouter: any;
-  let mockCpService: any;
-  let mockTranslate: any;
-  let mockLangTranslations: any;
-  let mockEvents: any;
-  let mockDialog: any;
-  let mockConfigSvc: any;
-  let mockQueryList: any;
-  let mockSubject: Subject<any>;
+  let mockActivatedRoute: jest.Mocked<ActivatedRoute>;
+  let mockRouter: jest.Mocked<Router>;
+  let mockCpService: jest.Mocked<CompetencyPassbookService>;
+  let mockTranslate: jest.Mocked<TranslateService>;
+  let mockLangTranslations: jest.Mocked<MultilingualTranslationsService>;
+  let mockEvents: jest.Mocked<EventService>;
+  let mockDialog: jest.Mocked<MatDialog>;
+  let mockConfigSvc: jest.Mocked<ConfigurationsService>;
+
+  // Mock localStorage
+  const mockLocalStorage = {
+    getItem: jest.fn(),
+    setItem: jest.fn(),
+    removeItem: jest.fn(),
+    clear: jest.fn()
+  };
+
+  // Mock window
+  const mockWindow = {
+    innerWidth: 1024,
+    open: jest.fn()
+  };
 
   beforeEach(() => {
-    mockSubject = new Subject();
-    
+    // Mock dependencies
     mockActivatedRoute = {
-      queryParams: mockSubject
-    };
-    
+      queryParams: of({ param1: 'value1' })
+    } as any;
+
     mockRouter = {
       navigateByUrl: jest.fn()
-    };
-    
+    } as any;
+
     mockCpService = {
       fetchCertificate: jest.fn()
-    };
-    
+    } as any;
+
     mockTranslate = {
       setDefaultLang: jest.fn(),
       use: jest.fn()
-    };
-    
+    } as any;
+
     mockLangTranslations = {
-      languageSelectedObservable: {
-        subscribe: jest.fn(callback => {
-          callback();
-          return { unsubscribe: jest.fn() };
-        })
-      }
-    };
-    
+      languageSelectedObservable: of({})
+    } as any;
+
     mockEvents = {
       raiseInteractTelemetry: jest.fn()
-    };
-    
+    } as any;
+
     mockDialog = {
       open: jest.fn()
-    };
-    
+    } as any;
+
     mockConfigSvc = {
       compentency: {
-        competencyVersion: {}
+        v1: { key: 'value' }
       }
-    };
+    } as any;
 
-    mockQueryList = {
-      forEach: jest.fn()
-    };
+    // Setup global mocks
+    Object.defineProperty(window, 'localStorage', { value: mockLocalStorage });
+    Object.defineProperty(window, 'innerWidth', { value: mockWindow.innerWidth, configurable: true });
+    Object.defineProperty(window, 'open', { value: mockWindow.open });
 
-    // Mock local storage
-    const localStorageMock = (() => {
-      let store: Record<string, string> = {};
-      return {
-        getItem: jest.fn((key) => store[key] || null),
-        setItem: jest.fn((key, value) => {
-          store[key] = value.toString();
-        }),
-        clear: jest.fn(() => {
-          store = {};
-        }),
-        removeItem: jest.fn((key) => {
-          delete store[key];
-        })
-      };
-    })();
-    
-    Object.defineProperty(window, 'localStorage', { value: localStorageMock });
-    Object.defineProperty(window, 'innerWidth', { value: 1024 });
-
-    // Mock Element functions
-    // const mockNativeElement = {
-    //   getBoundingClientRect: jest.fn().mockReturnValue({ height: 50 })
-    // };
-
-    // Set up the mock details page data
-    const mockDetailsData = {
-      issuedCertificates: [
-        { 
-          courseName: 'test course', 
-          identifier: 'cert123', 
-          lastIssuedOn: '2023-01-01',
-          contentId: 'content123',
-          batchId: 'batch123'
-        }
-      ]
-    };
-
-    localStorageMock.getItem.mockReturnValue(JSON.stringify(mockDetailsData));
-
-    // Set up environment
-    jest.mock('src/environments/environment', () => ({
-      environment: {
-        compentencyVersionKey: 'competencyVersion',
-        contentHost: 'https://example.com'
-      }
-    }));
-
-    // Create component instance
-    component = new CompetencyCardDetailsComponent(
-      mockActivatedRoute,
-      mockRouter,
-      mockCpService,
-      mockTranslate,
-      mockLangTranslations,
-      mockEvents,
-      mockDialog,
-      mockConfigSvc
-    );
-
-    // Mock ViewChildren
-    component.courseNameDiv = mockQueryList as any;
-    
-    // Mock window.open
-    //global.open = jest.fn();
+    // Clear mocks
+    jest.clearAllMocks();
   });
 
   afterEach(() => {
-    jest.clearAllMocks();
-    jest.resetAllMocks();
+    jest.restoreAllMocks();
   });
 
-  it('should create', () => {
-    expect(component).toBeTruthy();
+  describe('Constructor', () => {
+    it('should create component and initialize with desktop view', () => {
+      mockLocalStorage.getItem.mockReturnValue(null);
+      Object.defineProperty(window, 'innerWidth', { value: 1024, configurable: true });
+
+      component = new CompetencyCardDetailsComponent(
+        mockActivatedRoute,
+        mockRouter,
+        mockCpService,
+        mockTranslate,
+        mockLangTranslations,
+        mockEvents,
+        mockDialog,
+        mockConfigSvc
+      );
+
+      expect(component.isMobile).toBe(false);
+      expect(mockTranslate.setDefaultLang).toHaveBeenCalledWith('en');
+    });
+
+    it('should create component and initialize with mobile view', () => {
+      mockLocalStorage.getItem.mockReturnValue(null);
+      Object.defineProperty(window, 'innerWidth', { value: 600, configurable: true });
+
+      component = new CompetencyCardDetailsComponent(
+        mockActivatedRoute,
+        mockRouter,
+        mockCpService,
+        mockTranslate,
+        mockLangTranslations,
+        mockEvents,
+        mockDialog,
+        mockConfigSvc
+      );
+
+      expect(component.isMobile).toBe(true);
+    });
+
+    it('should set language when websiteLanguage exists in localStorage', () => {
+      mockLocalStorage.getItem.mockReturnValue('es');
+      
+      component = new CompetencyCardDetailsComponent(
+        mockActivatedRoute,
+        mockRouter,
+        mockCpService,
+        mockTranslate,
+        mockLangTranslations,
+        mockEvents,
+        mockDialog,
+        mockConfigSvc
+      );
+
+      expect(mockTranslate.use).toHaveBeenCalledWith('es');
+    });
+
+    it('should subscribe to queryParams and set params', () => {
+      mockLocalStorage.getItem.mockReturnValue(null);
+      
+      component = new CompetencyCardDetailsComponent(
+        mockActivatedRoute,
+        mockRouter,
+        mockCpService,
+        mockTranslate,
+        mockLangTranslations,
+        mockEvents,
+        mockDialog,
+        mockConfigSvc
+      );
+
+      expect(component.params).toEqual({ param1: 'value1' });
+    });
+
+    it('should process details data when exists in localStorage', () => {
+      const mockDetailsData = {
+        issuedCertificates: [
+          {
+            courseName: 'test course',
+            identifier: 'cert123',
+            lastIssuedOn: '2023-01-01'
+          },
+          {
+            courseName: 'another course',
+            identifier: 'cert456',
+            lastIssuedOn: '2023-02-01'
+          }
+        ]
+      };
+      
+      mockLocalStorage.getItem.mockImplementation((key) => {
+        if (key === 'details_page') return JSON.stringify(mockDetailsData);
+        return null;
+      });
+
+      component = new CompetencyCardDetailsComponent(
+        mockActivatedRoute,
+        mockRouter,
+        mockCpService,
+        mockTranslate,
+        mockLangTranslations,
+        mockEvents,
+        mockDialog,
+        mockConfigSvc
+      );
+
+      expect(component.detailsData).toEqual(mockDetailsData);
+      expect(component.themeDetails).toEqual(mockDetailsData);
+      expect(component.certificateData).toEqual(mockDetailsData.issuedCertificates);
+      expect(component.certificateData[0].courseName).toBe('Test course');
+      expect(component.certificateData[0].loading).toBe(false);
+      expect(component.updatedTime).toBe('2023-02-01');
+    });
+
+    it('should handle empty or undefined details_page in localStorage', () => {
+      mockLocalStorage.getItem.mockImplementation((key) => {
+        if (key === 'details_page') return '';
+        return null;
+      });
+
+      component = new CompetencyCardDetailsComponent(
+        mockActivatedRoute,
+        mockRouter,
+        mockCpService,
+        mockTranslate,
+        mockLangTranslations,
+        mockEvents,
+        mockDialog,
+        mockConfigSvc
+      );
+
+      expect(component.detailsData).toBeUndefined();
+    });
+
+    it('should handle undefined details_page in localStorage', () => {
+      mockLocalStorage.getItem.mockImplementation((key) => {
+        if (key === 'details_page') return 'undefined';
+        return null;
+      });
+
+      component = new CompetencyCardDetailsComponent(
+        mockActivatedRoute,
+        mockRouter,
+        mockCpService,
+        mockTranslate,
+        mockLangTranslations,
+        mockEvents,
+        mockDialog,
+        mockConfigSvc
+      );
+
+      expect(component.detailsData).toBeUndefined();
+    });
   });
 
-  it('should initialize with correct data from localStorage', () => {
-    expect(component.detailsData).toBeDefined();
-    expect(component.certificateData.length).toBe(1);
-    expect(component.certificateData[0].courseName).toBe('Test course'); // First letter capitalized
+  describe('ngOnInit', () => {
+    beforeEach(() => {
+      mockLocalStorage.getItem.mockReturnValue(null);
+      component = new CompetencyCardDetailsComponent(
+        mockActivatedRoute,
+        mockRouter,
+        mockCpService,
+        mockTranslate,
+        mockLangTranslations,
+        mockEvents,
+        mockDialog,
+        mockConfigSvc
+      );
+    });
+
+    it('should set compentencyKey from config service', () => {
+      component.ngOnInit();
+      expect(component.compentencyKey).toEqual({ key: 'value' });
+    });
   });
 
-  it('should handle ngAfterViewInit', () => {
-    // Mock the QueryList forEach implementation
-    // component.courseNameDiv.forEach.mockImplementation((callback) => {
-    //   callback({ nativeElement: { getBoundingClientRect: () => ({ height: 50 }) } }, 0);
-    // });
-    
-    component.ngAfterViewInit();
-    
-    expect(component.detailsData.issuedCertificates[0].courseEllipsis).toBe(true);
+  describe('ngAfterViewInit', () => {
+    beforeEach(() => {
+      const mockDetailsData = {
+        issuedCertificates: [
+          { courseName: 'test course', identifier: 'cert123' },
+          { courseName: 'another course', identifier: 'cert456' }
+        ]
+      };
+      
+      mockLocalStorage.getItem.mockImplementation((key) => {
+        if (key === 'details_page') return JSON.stringify(mockDetailsData);
+        return null;
+      });
+
+      component = new CompetencyCardDetailsComponent(
+        mockActivatedRoute,
+        mockRouter,
+        mockCpService,
+        mockTranslate,
+        mockLangTranslations,
+        mockEvents,
+        mockDialog,
+        mockConfigSvc
+      );
+    });
+
+    it('should set courseEllipsis to true when element height >= 48', () => {
+      const mockElement1 = {
+        nativeElement: {
+          getBoundingClientRect: () => ({ height: 50 })
+        }
+      };
+      const mockElement2 = {
+        nativeElement: {
+          getBoundingClientRect: () => ({ height: 30 })
+        }
+      };
+
+      component.courseNameDiv = {
+        forEach: jest.fn((callback) => {
+          callback(mockElement1, 0);
+          callback(mockElement2, 1);
+        })
+      } as any;
+
+      component.ngAfterViewInit();
+
+      expect(component.detailsData.issuedCertificates[0]['courseEllipsis']).toBe(true);
+      expect(component.detailsData.issuedCertificates[1]['courseEllipsis']).toBeUndefined();
+    });
   });
 
-  it('should handle getCertificateSVG download for existing printURI', () => {
-    const mockObj = { printURI: 'test-uri', loading: false };
-    const spy = jest.spyOn(component, 'handleDownloadCertificatePDF').mockImplementation();
-    
-    component.getCertificateSVG(mockObj, 'DOWNLOAD');
-    
-    expect(spy).toHaveBeenCalledWith('test-uri');
-    expect(mockObj.loading).toBe(false);
+  describe('getCertificateSVG', () => {
+    beforeEach(() => {
+      mockLocalStorage.getItem.mockReturnValue(null);
+      component = new CompetencyCardDetailsComponent(
+        mockActivatedRoute,
+        mockRouter,
+        mockCpService,
+        mockTranslate,
+        mockLangTranslations,
+        mockEvents,
+        mockDialog,
+        mockConfigSvc
+      );
+    });
+
+    it('should handle download when printURI exists and type is DOWNLOAD', () => {
+      const mockObj:any = { printURI: 'test-uri' };
+      const handleDownloadSpy = jest.spyOn(component, 'handleDownloadCertificatePDF').mockImplementation();
+      
+      component.getCertificateSVG(mockObj, 'DOWNLOAD');
+      
+      expect(mockObj.loading).toBe(true);
+      expect(handleDownloadSpy).toHaveBeenCalledWith('test-uri');
+      expect(mockObj.loading).toBe(false);
+    });
+
+    it('should handle share when printURI exists and type is SHARE', () => {
+      const mockObj:any = { printURI: 'test-uri', identifier: 'cert123' };
+      const shareSpy = jest.spyOn(component, 'shareCertificate').mockImplementation();
+      
+      component.getCertificateSVG(mockObj, 'SHARE');
+      
+      expect(mockObj.loading).toBe(true);
+      expect(shareSpy).toHaveBeenCalledWith('cert123');
+      expect(mockObj.loading).toBe(false);
+    });
+
+    it('should fetch certificate when printURI does not exist', () => {
+      const mockObj:any = { identifier: 'cert123' };
+      const mockResponse = { result: { printUri: 'fetched-uri' } };
+      mockCpService.fetchCertificate.mockReturnValue(of(mockResponse));
+      
+      component.getCertificateSVG(mockObj);
+      
+      expect(mockObj.loading).toBe(true);
+      expect(mockCpService.fetchCertificate).toHaveBeenCalledWith('cert123');
+      expect(mockObj.printURI).toBe('fetched-uri');
+      expect(mockObj.loading).toBe(false);
+      expect(mockDialog.open).toHaveBeenCalledWith(CertificateDialogComponent, {
+        width: '1200px',
+        data: { cet: 'fetched-uri', certId: 'cert123' }
+      });
+    });
+
+    it('should handle error when fetching certificate fails', () => {
+      const mockObj:any = { identifier: 'cert123' };
+      const mockError = { ok: false } as HttpErrorResponse;
+      mockCpService.fetchCertificate.mockReturnValue(throwError(mockError));
+      
+      component.getCertificateSVG(mockObj);
+      
+      expect(mockObj.loading).toBe(false);
+      expect(mockObj.error).toBe('Failed to fetch Certificate');
+    });
   });
 
-  it('should handle getCertificateSVG share for existing printURI', () => {
-    const mockObj = { printURI: 'test-uri', loading: false, identifier: 'cert123' };
-    const spy = jest.spyOn(component, 'shareCertificate').mockImplementation();
-    
-    component.getCertificateSVG(mockObj, 'SHARE');
-    
-    expect(spy).toHaveBeenCalledWith('cert123');
-    expect(mockObj.loading).toBe(false);
+  describe('handleDownloadCertificatePDF', () => {
+    beforeEach(() => {
+      mockLocalStorage.getItem.mockReturnValue(null);
+      component = new CompetencyCardDetailsComponent(
+        mockActivatedRoute,
+        mockRouter,
+        mockCpService,
+        mockTranslate,
+        mockLangTranslations,
+        mockEvents,
+        mockDialog,
+        mockConfigSvc
+      );
+
+      // Mock DOM elements
+      // const mockCanvas = {
+      //   width: 0,
+      //   height: 0,
+      //   getContext: jest.fn(() => ({
+      //     drawImage: jest.fn()
+      //   })),
+      //   toDataURL: jest.fn(() => 'data:image/png;base64,test')
+      // };
+      
+      // global.document.createElement = jest.fn(() => mockCanvas as any);
+      // global.Image = jest.fn().mockImplementation(() => ({
+      //   src: '',
+      //   width: 0,
+      //   height: 0,
+      //   onload: null
+      // })) as any;
+    });
+
+    it('should create PDF and download when image loads successfully', async () => {
+      const mockPdf:any = {
+        addImage: jest.fn(),
+        save: jest.fn()
+      };
+    //  (jsPDF as jest.Mock).mockReturnValue(mockPdf);
+
+      const uriData = 'test-uri';
+      const promise = component.handleDownloadCertificatePDF(uriData);
+
+      // Simulate image load
+      // const imageInstance:any = (jest.Mock).mock.instances[0];
+      // expect(imageInstance.src).toBe(uriData);
+      // expect(imageInstance.width).toBe(1820);
+      // expect(imageInstance.height).toBe(1000);
+
+      // Trigger onload
+      //imageInstance.onload();
+
+      await promise;
+
+      expect(mockPdf.addImage).toHaveBeenCalledWith('data:image/png;base64,test', 10, 20, 600, 350);
+      expect(mockPdf.save).toHaveBeenCalledWith('Certificate.pdf');
+    });
+
+    it('should handle case when canvas context is null', async () => {
+      const mockCanvas = {
+        width: 0,
+        height: 0,
+        getContext: jest.fn(() => null),
+        toDataURL: jest.fn()
+      };
+      
+      //global.document.createElement = jest.fn(() => mockCanvas as any);
+
+      const uriData = 'test-uri';
+      const promise = component.handleDownloadCertificatePDF(uriData);
+
+      // const imageInstance = (global.Image as jest.Mock).mock.instances[0];
+      // imageInstance.onload();
+
+      await promise;
+
+      expect(mockCanvas.toDataURL).not.toHaveBeenCalled();
+    });
   });
 
-  it('should handle getCertificateSVG for new certificate', () => {
-    const mockObj = { identifier: 'cert123', loading: false };
-    const mockResponse = { result: { printUri: 'test-uri' } };
-    
-    mockCpService.fetchCertificate.mockReturnValue(of(mockResponse));
-    
-    component.getCertificateSVG(mockObj);
-    
-    expect(mockCpService.fetchCertificate).toHaveBeenCalledWith('cert123');
-    // expect(mockObj.printURI).toBe('test-uri');
-    expect(mockObj.loading).toBe(false);
-    expect(mockDialog.open).toHaveBeenCalled();
+  describe('shareCertificate', () => {
+    beforeEach(() => {
+      mockLocalStorage.getItem.mockReturnValue(null);
+      component = new CompetencyCardDetailsComponent(
+        mockActivatedRoute,
+        mockRouter,
+        mockCpService,
+        mockTranslate,
+        mockLangTranslations,
+        mockEvents,
+        mockDialog,
+        mockConfigSvc
+      );
+    });
+
+    it('should raise telemetry and open LinkedIn share URL', () => {
+      const raiseTelemetrySpy = jest.spyOn(component, 'raiseShareIntreactTelemetry').mockImplementation();
+      const certId = 'cert123';
+      
+      component.shareCertificate(certId);
+      
+      expect(raiseTelemetrySpy).toHaveBeenCalledWith(certId, 'share');
+      expect(mockWindow.open).toHaveBeenCalledWith(
+        `https://www.linkedin.com/sharing/share-offsite/?url=${environment.contentHost}/apis/public/v8/cert/download/${certId}`,
+        '_blank'
+      );
+    });
   });
 
-  it('should handle getCertificateSVG error', () => {
-    const mockObj = { identifier: 'cert123', loading: false };
-    const mockError = new HttpErrorResponse({ status: 404, statusText: 'Not Found' });
-    
-    mockCpService.fetchCertificate.mockReturnValue(throwError(mockError));
-    
-    component.getCertificateSVG(mockObj);
-    
-    expect(mockCpService.fetchCertificate).toHaveBeenCalledWith('cert123');
-    expect(mockObj.loading).toBe(false);
-    // expect(mockObj.error).toBe('Failed to fetch Certificate');
+  describe('handleNavigate', () => {
+    beforeEach(() => {
+      mockLocalStorage.getItem.mockReturnValue(null);
+      component = new CompetencyCardDetailsComponent(
+        mockActivatedRoute,
+        mockRouter,
+        mockCpService,
+        mockTranslate,
+        mockLangTranslations,
+        mockEvents,
+        mockDialog,
+        mockConfigSvc
+      );
+    });
+
+    it('should navigate to course TOC page', () => {
+      const courseObj = { contentId: 'content123', batchId: 'batch456' };
+      
+      component.handleNavigate(courseObj);
+      
+      expect(mockRouter.navigateByUrl).toHaveBeenCalledWith(
+        'app/toc/content123/overview?batchId=batch456'
+      );
+    });
   });
 
-  it('should navigate to course overview', () => {
-    const mockCourseObj = { contentId: 'content123', batchId: 'batch123' };
-    
-    component.handleNavigate(mockCourseObj);
-    
-    expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('app/toc/content123/overview?batchId=batch123');
+  describe('handleViewMore', () => {
+    beforeEach(() => {
+      mockLocalStorage.getItem.mockReturnValue(null);
+      component = new CompetencyCardDetailsComponent(
+        mockActivatedRoute,
+        mockRouter,
+        mockCpService,
+        mockTranslate,
+        mockLangTranslations,
+        mockEvents,
+        mockDialog,
+        mockConfigSvc
+      );
+    });
+
+    it('should toggle viewMore to true when no flag provided', () => {
+      const obj = { viewMore: false };
+      
+      component.handleViewMore(obj);
+      
+      expect(obj.viewMore).toBe(true);
+    });
+
+    it('should set viewMore to false when flag is provided', () => {
+      const obj = { viewMore: true };
+      
+      component.handleViewMore(obj, 'any');
+      
+      expect(obj.viewMore).toBe(false);
+    });
   });
 
-  it('should handle view more toggle', () => {
-    const mockObj = { viewMore: false };
-    
-    component.handleViewMore(mockObj);
-    expect(mockObj.viewMore).toBe(true);
-    
-    component.handleViewMore(mockObj, 'flag');
-    expect(mockObj.viewMore).toBe(false);
+  describe('raiseShareIntreactTelemetry', () => {
+    beforeEach(() => {
+      mockLocalStorage.getItem.mockReturnValue(null);
+      component = new CompetencyCardDetailsComponent(
+        mockActivatedRoute,
+        mockRouter,
+        mockCpService,
+        mockTranslate,
+        mockLangTranslations,
+        mockEvents,
+        mockDialog,
+        mockConfigSvc
+      );
+    });
+
+    it('should raise interact telemetry with provided parameters', () => {
+      const certId = 'cert123';
+      const type = 'share';
+      const action = 'click';
+      
+      component.raiseShareIntreactTelemetry(certId, type, action);
+      
+      expect(mockEvents.raiseInteractTelemetry).toHaveBeenCalledWith(
+        {
+          type: WsEvents.EnumInteractTypes.CLICK,
+          id: `${type}-${WsEvents.EnumInteractSubTypes.CERTIFICATE}`,
+          subType: action,
+        },
+        {
+          id: certId,
+          type: WsEvents.EnumInteractSubTypes.CERTIFICATE,
+        }
+      );
+    });
+
+    it('should raise interact telemetry with empty subType when action not provided', () => {
+      const certId = 'cert123';
+      const type = 'share';
+      
+      component.raiseShareIntreactTelemetry(certId, type);
+      
+      expect(mockEvents.raiseInteractTelemetry).toHaveBeenCalledWith(
+        {
+          type: WsEvents.EnumInteractTypes.CLICK,
+          id: `${type}-${WsEvents.EnumInteractSubTypes.CERTIFICATE}`,
+          subType: '',
+        },
+        {
+          id: certId,
+          type: WsEvents.EnumInteractSubTypes.CERTIFICATE,
+        }
+      );
+    });
   });
 
-  it('should share certificate', () => {
-    const spy = jest.spyOn(component, 'raiseShareIntreactTelemetry');
-    jest.spyOn(window, 'open').mockReturnValue(null as any);
-    
-    component.shareCertificate('cert123');
-    
-    expect(spy).toHaveBeenCalledWith('cert123', 'share');
-    expect(window.open).toHaveBeenCalled();
+  describe('ngOnDestroy', () => {
+    beforeEach(() => {
+      mockLocalStorage.getItem.mockReturnValue(null);
+      component = new CompetencyCardDetailsComponent(
+        mockActivatedRoute,
+        mockRouter,
+        mockCpService,
+        mockTranslate,
+        mockLangTranslations,
+        mockEvents,
+        mockDialog,
+        mockConfigSvc
+      );
+    });
+
+    it('should unsubscribe from destroySubject$', () => {
+      const unsubscribeSpy = jest.spyOn(component['destroySubject$'], 'unsubscribe');
+      
+      component.ngOnDestroy();
+      
+      expect(unsubscribeSpy).toHaveBeenCalled();
+    });
   });
 
-  it('should raise share interaction telemetry', () => {
-    component.raiseShareIntreactTelemetry('cert123', 'share', 'action');
-    
-    expect(mockEvents.raiseInteractTelemetry).toHaveBeenCalledWith(
-      {
-        type: 'CLICK',
-        id: 'share-CERTIFICATE',
-        subType: 'action',
-      },
-      {
-        id: 'cert123',
-        type: 'CERTIFICATE',
-      }
-    );
+  describe('Language translation subscription', () => {
+    it('should handle language translation observable when websiteLanguage is not set', () => {
+      mockLocalStorage.getItem.mockImplementation((key) => {
+        if (key === 'websiteLanguage') return null;
+        return null;
+      });
+
+      const languageSubject = new Subject();
+     // mockLangTranslations.languageSelectedObservable = languageSubject.asObservable();
+
+      component = new CompetencyCardDetailsComponent(
+        mockActivatedRoute,
+        mockRouter,
+        mockCpService,
+        mockTranslate,
+        mockLangTranslations,
+        mockEvents,
+        mockDialog,
+        mockConfigSvc
+      );
+
+      // Trigger the observable
+      languageSubject.next({});
+
+      expect(mockTranslate.setDefaultLang).toHaveBeenCalledWith('en');
+      expect(mockTranslate.use).not.toHaveBeenCalled();
+    });
   });
 
-  it('should unsubscribe on destroy', () => {
-    const spy = jest.spyOn(component['destroySubject$'], 'unsubscribe');
-    
-    component.ngOnDestroy();
-    
-    expect(spy).toHaveBeenCalled();
+  describe('Certificate data processing edge cases', () => {
+    it('should handle certificate without identifier', () => {
+      const mockDetailsData = {
+        issuedCertificates: [
+          {
+            courseName: 'test course',
+            lastIssuedOn: '2023-01-01'
+            // no identifier
+          }
+        ]
+      };
+      
+      mockLocalStorage.getItem.mockImplementation((key) => {
+        if (key === 'details_page') return JSON.stringify(mockDetailsData);
+        return null;
+      });
+
+      component = new CompetencyCardDetailsComponent(
+        mockActivatedRoute,
+        mockRouter,
+        mockCpService,
+        mockTranslate,
+        mockLangTranslations,
+        mockEvents,
+        mockDialog,
+        mockConfigSvc
+      );
+
+      expect(component.certificateData[0].loading).toBeUndefined();
+      expect(component.updatedTime).toBeUndefined();
+    });
+
+    it('should handle earlier updatedTime correctly', () => {
+      const mockDetailsData = {
+        issuedCertificates: [
+          {
+            courseName: 'test course',
+            identifier: 'cert123',
+            lastIssuedOn: '2023-01-01'
+          },
+          {
+            courseName: 'another course', 
+            identifier: 'cert456',
+            lastIssuedOn: '2022-12-01'
+          }
+        ]
+      };
+      
+      mockLocalStorage.getItem.mockImplementation((key) => {
+        if (key === 'details_page') return JSON.stringify(mockDetailsData);
+        return null;
+      });
+
+      component = new CompetencyCardDetailsComponent(
+        mockActivatedRoute,
+        mockRouter,
+        mockCpService,
+        mockTranslate,
+        mockLangTranslations,
+        mockEvents,
+        mockDialog,
+        mockConfigSvc
+      );
+
+      expect(component.updatedTime).toBe('2023-01-01');
+    });
   });
 });
