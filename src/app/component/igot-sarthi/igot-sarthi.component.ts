@@ -101,9 +101,9 @@ export class IGotSarthiComponent implements OnInit, AfterViewInit, AfterViewChec
     private configSvc: ConfigurationsService,
     private eventSvc: EventService,
     private renderer: Renderer2,
-    private chatbotService: RootService,
-    private dialog: MatDialog,
-    private matSnackBarNew: MatSnackbarNew,
+    public chatbotService: RootService,
+    public dialog: MatDialog,
+    public matSnackBarNew: MatSnackbarNew,
     private router: Router) { }
 
   ngOnInit() {
@@ -129,7 +129,7 @@ export class IGotSarthiComponent implements OnInit, AfterViewInit, AfterViewChec
    
     if(this.chatbotService.iGOTAIChatHistory && this.chatbotService.iGOTAIChatHistory.length) {
       this.aiSearchResultArr = this.chatbotService.iGOTAIChatHistory 
-      this.aiSearchResultArr.map((item:any, index:any)=>{
+      this.aiSearchResultArr?.map((item:any, index:any)=>{
         if(item && (item?.newMessage === '')) {
           // delete this.aiSearchResultArr[index]
           this.aiSearchResultArr.splice(index,1)
@@ -199,7 +199,7 @@ export class IGotSarthiComponent implements OnInit, AfterViewInit, AfterViewChec
     this.getQns()
   }
   getQns() {
-    this.responseData.quesMap.map((q: any) => {
+    this.responseData.quesMap?.map((q: any) => {
       this.questionsAndAns[q.quesId] = q
     })
   }
@@ -294,8 +294,8 @@ export class IGotSarthiComponent implements OnInit, AfterViewInit, AfterViewChec
   getPriorityQuestion(priority: any) {
     const recommendedQues: any[] = []
     const isLogedIn: string = this.userInfo ? 'Logged-In' : 'Not Logged-In'
-    this.responseData.recommendationMap.map((question: any) => {
-      question.recommendedQues.map((ques: any)=> {
+    this.responseData.recommendationMap?.map((question: any) => {
+      question.recommendedQues?.map((ques: any)=> {
         if (ques.priority === priority && (question.categoryType === isLogedIn || question.categoryType === 'Both')) {
           recommendedQues.push(ques)
         }
@@ -467,8 +467,8 @@ export class IGotSarthiComponent implements OnInit, AfterViewInit, AfterViewChec
     this.categories = [{ catId: 'all', catName: this.localization[this.selectedLaguage]['categories'], priority: 0 }]
     const categories: any = []
     const isLogedIn: string = this.userInfo ? 'Logged-In' : 'Not Logged-In'
-    this.responseData.recommendationMap.map((catandques: any) => {
-      this.responseData.categoryMap.map((cat: any) => {
+    this.responseData.recommendationMap?.map((catandques: any) => {
+      this.responseData.categoryMap?.map((cat: any) => {
         if (catandques.catId === cat.catId && (catandques.categoryType === isLogedIn || catandques.categoryType === 'Both')) {
           const category = {
             catId: cat.catId,
@@ -532,7 +532,7 @@ export class IGotSarthiComponent implements OnInit, AfterViewInit, AfterViewChec
     // console.log('this.aiSearchResultArr--->', this.aiSearchResultArr)
     this.searchQuery = this.searchQuery.trim()
     if(this.searchQuery && !this.searchAPIResponseInProgress) {
-    this.aiSearchResultArr.map((item:any, index:any)=>{
+    this.aiSearchResultArr?.map((item:any, index:any)=>{
       if(item && (item.newMessage === '')) {
         // delete this.aiSearchResultArr[index]
         this.aiSearchResultArr.splice(index,1)
@@ -667,7 +667,7 @@ export class IGotSarthiComponent implements OnInit, AfterViewInit, AfterViewChec
     if(!this.aiSearchResult.answer  &&  !this.aiSearchResult.RetrievedChunks?.length) {
       showFromInternet = true
     } 
-    this.aiSearchResult.RetrievedChunks && this.aiSearchResult.RetrievedChunks.map((item:any)=>{
+    this.aiSearchResult.RetrievedChunks && this.aiSearchResult.RetrievedChunks?.map((item:any)=>{
       let startTime = -1
       let endTime = -1
       let pageNumber:any = 1
@@ -711,7 +711,7 @@ export class IGotSarthiComponent implements OnInit, AfterViewInit, AfterViewChec
     
     
     this.aiSearchResultArr.push({ wordsCount: answer.trim().split(/\s+/).length, showLess: answer.trim().split(/\s+/).length > 30 ? true : false ,answer: answer, shortAnswer: shortAnswer ,result: this.iGOTAISearchResultArr, type: 'incoming',  tab: 'sarthi', reterivedChunks: this.aiSearchResult.RetrievedChunks, showFromInternet: showFromInternet, showSimiliarResultsFlag : showSimiliarResultsFlag, showReterivedChunks: showReterivedChunks})
-    this.aiSearchResultArr.map((item:any, index:any)=>{
+    this.aiSearchResultArr?.map((item:any, index:any)=>{
       if(item && (item.newMessage === '')) {
         // delete this.aiSearchResultArr[index]
         this.aiSearchResultArr.splice(index,1)
@@ -959,7 +959,7 @@ export class IGotSarthiComponent implements OnInit, AfterViewInit, AfterViewChec
       this.chatbotService.aiGlobalSearchFromInternet(internetGlobalSearchRequest, this.chatId, this.userId).subscribe((idata:any)=>{
         this.searchAPIResponseInProgress = false
         this.resultFetch = true
-        this.aiSearchResultArr.map((item:any, index:any)=>{
+        this.aiSearchResultArr?.map((item:any, index:any)=>{
           if(item && (item.newMessage === '')) {
             // delete this.aiSearchResultArr[index]
             this.aiSearchResultArr.splice(index,1)
@@ -990,7 +990,7 @@ export class IGotSarthiComponent implements OnInit, AfterViewInit, AfterViewChec
         let answer = idata.answer ? idata.answer.trim().replace(/\n/g, '<br>') : ""
         let shortAnswer =  this.splitParagraphByWords(answer)
         this.aiSearchResultArr.push({ wordsCount: answer.trim().split(/\s+/).length, showLess: answer.trim().split(/\s+/).length > 30 ? true : false ,answer: answer, shortAnswer: shortAnswer ,result: this.iGOTAISearchResultArr, type: 'incoming',  tab: 'sarthi', reterivedChunks: this.aiSearchResult.RetrievedChunks, showFromInternet: false, fromInternet: true})
-        this.aiSearchResultArr.map((item:any, index:any)=>{
+        this.aiSearchResultArr?.map((item:any, index:any)=>{
           if(item && (item.newMessage === '')) {
             // delete this.aiSearchResultArr[index]
             this.aiSearchResultArr.splice(index,1)
@@ -1009,7 +1009,7 @@ export class IGotSarthiComponent implements OnInit, AfterViewInit, AfterViewChec
       this.aiSearchResultArr[index]['showFromInternet'] = false
     }
     this.resultFetch = true
-    this.aiSearchResultArr.map((item:any, index:any)=>{
+    this.aiSearchResultArr?.map((item:any, index:any)=>{
       if(item && (item.newMessage === '')) {
         // delete this.aiSearchResultArr[index]
         this.aiSearchResultArr.splice(index,1)
