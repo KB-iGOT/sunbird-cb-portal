@@ -414,7 +414,6 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
     }
 
     if (category && category === 'peoples' && nlpSearchQuery) {
-      console.log('peoples', nlpSearchQuery);
       const req = {
         filters: {},
         facets: [
