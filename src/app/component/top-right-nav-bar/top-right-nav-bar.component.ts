@@ -53,6 +53,8 @@ export class TopRightNavBarComponent implements OnInit, OnChanges {
   isMultiLangEnabled: any
   showDropdown: boolean = false
   roles: string[] = []
+  devnagiriMultiLangEnabled = true
+
 
   constructor(public dialog: MatDialog, public homePageService: HomePageService,
     private configSvc: ConfigurationsService,
@@ -87,6 +89,7 @@ export class TopRightNavBarComponent implements OnInit, OnChanges {
     if (instanceConfig) {
       this.multiLang = instanceConfig.websitelanguages
       this.isMultiLangEnabled = instanceConfig.isMultilingualEnabled
+      this.devnagiriMultiLangEnabled = instanceConfig.devnagiriMultiLangEnabled
     }
     this.rightNavConfig = this.rightNavConfig.topRightNavConfig ? this.rightNavConfig.topRightNavConfig : this.rightNavConfig
     this.homePageService.closeDialogPop.subscribe((data: any) => {
@@ -136,14 +139,54 @@ export class TopRightNavBarComponent implements OnInit, OnChanges {
   }
 
   selectLanguage(event: any) {
-    this.selectedLanguage = event
-    localStorage.setItem('websiteLanguage', this.selectedLanguage)
-    this.langtranslations.updatelanguageSelected(
-      true,
-      this.selectedLanguage,
-      this.configSvc.unMappedUser ? this.configSvc.unMappedUser.id : ''
-    )
-    this.configSvc.languageTranslationFlag.next(true)
+    if(this.devnagiriMultiLangEnabled) {
+      const langSubdomains:any = {
+        hi: 'hi',
+        ta: 'ta',
+        bn: 'bn',
+        kn: 'kn',
+        mr: 'mr'
+      };
+      this.selectedLanguage = event
+      localStorage.setItem('websiteLanguage', this.selectedLanguage)
+      this.langtranslations.updatelanguageSelected(
+        true,
+        this.selectedLanguage,
+        this.configSvc.unMappedUser ? this.configSvc.unMappedUser.id : ''
+      )
+      this.configSvc.languageTranslationFlag.next(true)
+
+      const selectedLang = event;
+      const path = this.router.url;
+      const protocol = window.location.protocol;
+      const parsedUrl = new URL(environment.contentHost);
+      const domain = parsedUrl.hostname;
+      window.addEventListener('beforeunload', () => {
+        localStorage.setItem('lang', selectedLang);
+      });    
+      let url = '';    
+      if (this.selectedLanguage === 'en') {
+        url = `${environment.contentHost}/${path}`;
+      } else if (langSubdomains[selectedLang]) {
+        const subdomain = langSubdomains[selectedLang];
+        url = `${protocol}//${subdomain}.${domain}/${path}`;
+      }    
+      if (url) {
+        setTimeout(() => {
+          window.location.href = url;
+        },100)   
+      }  
+    } else {
+      this.selectedLanguage = event
+      localStorage.setItem('websiteLanguage', this.selectedLanguage)
+      this.langtranslations.updatelanguageSelected(
+        true,
+        this.selectedLanguage,
+        this.configSvc.unMappedUser ? this.configSvc.unMappedUser.id : ''
+      )
+      this.configSvc.languageTranslationFlag.next(true)
+    }
+    
   }
 
   getZohoForm() {
