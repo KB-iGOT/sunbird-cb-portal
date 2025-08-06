@@ -60,7 +60,7 @@ export class SearchSortInputComponent implements AfterViewInit, OnChanges {
     const sortType = localStorage.getItem(SearchConstantLocalStorage.SortType);
     if (sortType && this.options.some((option) => option.value === sortType)) {
       this.selectedOption = sortType;
-      // this.searchSorter.emit(this.selectedOption);
+      this.searchSorter.emit(this.selectedOption);
     }
   }
   

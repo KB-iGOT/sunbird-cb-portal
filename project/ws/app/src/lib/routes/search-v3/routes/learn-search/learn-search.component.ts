@@ -234,6 +234,11 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
           : this.searchQuery.query,
         path: 'Search',
       };
+
+      this.checkIfExploreContentTab()
+      if(this.isExploreContentTab) {
+        this.searchSortFilter = SortType.RecentlyAdded;
+      }
       
       if (changes.searchQuery.currentValue?.searchCategory) {
         const category = changes.searchQuery.currentValue?.searchCategory || '';
@@ -326,7 +331,9 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async searchCourses() {
-  
+    if(this.isExploreContentTab && this.searchSortFilter === SortType.RecentlyAdded) {
+      this.searchRequestCourse.request.sort_by.createdOn = 'desc';
+    }
     this.searchRequestCourse.request.query = this.statedata?.param;
     const result = await this.searchV3Service.searchCoursesv4(
       this.searchRequestCourse
