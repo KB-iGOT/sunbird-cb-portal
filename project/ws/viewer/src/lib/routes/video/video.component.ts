@@ -3,7 +3,7 @@ import { Subscription } from 'rxjs'
 import { AccessControlService } from '@ws/author'
 import {
   NsContent,
-  IWidgetsPlayerMediaData,
+  // IWidgetsPlayerMediaData,
   NsDiscussionForum,
   WidgetContentService,
 } from '@sunbird-cb/collection'
