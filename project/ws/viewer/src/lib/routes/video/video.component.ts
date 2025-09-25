@@ -29,9 +29,10 @@ export class VideoComponent implements OnInit, OnDestroy {
   videoData: NsContent.IContent | null = null
   isFetchingDataComplete = false
   isNotEmbed = true
-  widgetResolverVideoData: NsWidgetResolver.IRenderConfigWithTypedData<
-    IWidgetsPlayerMediaData
-  > | null = null
+  // widgetResolverVideoData: NsWidgetResolver.IRenderConfigWithTypedData<
+  //   IWidgetsPlayerMediaData
+  // > | null = null
+  widgetResolverVideoData: any = null
   discussionForumWidget: NsWidgetResolver.IRenderConfigWithTypedData<
     NsDiscussionForum.IDiscussionForumInput
   > | null = null
@@ -88,6 +89,7 @@ export class VideoComponent implements OnInit, OnDestroy {
           this.widgetResolverVideoData.widgetData.version = `${this.videoData.version}${''}`
           this.widgetResolverVideoData.widgetData.channel = this.channelId
           this.widgetResolverVideoData.widgetData.size = this.videoData.duration
+          this.widgetResolverVideoData.widgetData.streamingUrl = this.videoData.streamingUrl
         }
         if (this.widgetResolverVideoData && this.widgetResolverVideoData.widgetData) {
           this.widgetResolverVideoData.widgetData['hideUpNext'] = this.hideUpNext
@@ -155,6 +157,7 @@ export class VideoComponent implements OnInit, OnDestroy {
           this.widgetResolverVideoData.widgetData.channel = this.channelId
           this.widgetResolverVideoData.widgetData.version = `${data.content.data.version}${''}`
           this.widgetResolverVideoData.widgetData.size = data.content.data.duration
+          this.widgetResolverVideoData.widgetData.streamingUrl = data.content.data.streamingUrl
           if (this.widgetResolverVideoData && this.widgetResolverVideoData.widgetData) {
             this.widgetResolverVideoData.widgetData['hideUpNext'] = this.hideUpNext
           }

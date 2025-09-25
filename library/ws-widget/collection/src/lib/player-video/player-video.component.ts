@@ -16,6 +16,7 @@ import { WidgetContentService } from '../_services/widget-content.service'
 import { ViewerUtilService } from '@ws/viewer/src/lib/viewer-util.service'
 import { AppTocService } from '@ws/app/src/lib/routes/app-toc/services/app-toc.service'
 import { Subscription } from 'rxjs'
+import 'videojs-hls-quality-selector';
 const videoJsOptions: videoJs.PlayerOptions = {
   controls: true,
   autoplay: true,
@@ -34,6 +35,11 @@ const videoJsOptions: videoJs.PlayerOptions = {
     nativeTextTracks: false,
   },
   nativeControlsForTouch: false,
+  plugins: {
+    hlsQualitySelector: {
+      displayCurrentQuality: true, // ✅ Show current quality in the menu
+    },
+  },
 }
 
 @Component({
@@ -47,7 +53,7 @@ export class PlayerVideoComponent extends WidgetBaseComponent
   AfterViewInit,
   OnDestroy,
   NsWidgetResolver.IWidgetData<IWidgetsPlayerMediaData> {
-  @Input() widgetData!: IWidgetsPlayerMediaData
+  @Input() widgetData!: any
   @ViewChild('videoTag') videoTag!: ElementRef<HTMLVideoElement>
   @ViewChild('realvideoTag') realvideoTag!: ElementRef<HTMLVideoElement>
   @HostBinding('id')
@@ -65,6 +71,7 @@ export class PlayerVideoComponent extends WidgetBaseComponent
   previousSubtitleLanguage = 'en'
   playTranscriptionVideoSubscription:Subscription | null = null
   changeTranscriptionLanguageEventSubscription: Subscription | null = null  
+  videoUrl = 'https://portal.uat.karmayogibharat.net/stream-store/content/do_114194996168163328192/artifact/manifest.m3u8'
   constructor(
     private eventSvc: EventService,
     private contentSvc: WidgetContentService,
@@ -585,7 +592,14 @@ export class PlayerVideoComponent extends WidgetBaseComponent
         //   }
         // }
        
-        initObj.player.src(this.viewerSvc.getCdnUrl(this.widgetData.url))
+        // initObj.player.src(this.viewerSvc.getCdnUrl(this.widgetData.url))
+        if(this.widgetData && this.widgetData.streamingUrl) {
+          initObj.player.src(this.widgetData.streamingUrl)
+          //this.videoUrl = this.widgetData.streamingUrl
+        } else {
+          initObj.player.src(this.viewerSvc.getCdnUrl(this.widgetData.url))
+          this.videoUrl = this.widgetData.url
+        }
 
         if(startTime && endTime) {
           initObj.player.currentTime(startTime); // jump to start  
