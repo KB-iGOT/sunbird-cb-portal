@@ -558,6 +558,26 @@ export class PlayerVideoComponent extends WidgetBaseComponent
             }
           }
         }
+        const qualityBtn = document.querySelector('.vjs-quality-selector .vjs-menu-button');
+
+        if (qualityBtn) {
+          qualityBtn.innerHTML = '';
+      
+          const wrapper = document.createElement('div');
+          wrapper.className = 'quality-wrapper'; // flex container
+      
+          const icon = document.createElement('span');
+          icon.className = 'vjs-icon-placeholder';
+          icon.innerHTML = '<i class="material-icons" style="color: white;font-size:30px;" title="Quality">tune</i>';
+      
+          // const text = document.createElement('span');
+          // text.className = 'vjs-menu-value';
+          // text.textContent = 'Quality';
+      
+          wrapper.appendChild(icon);
+          // wrapper.appendChild(text);
+          qualityBtn.appendChild(wrapper);
+        }
       }, 100);
       this.activeTranscriptionLanguage = this.transcriptionSubscriptionData?.activeLang
       this.transcriptionLangArr = this.transcriptionSubscriptionData?.langData
