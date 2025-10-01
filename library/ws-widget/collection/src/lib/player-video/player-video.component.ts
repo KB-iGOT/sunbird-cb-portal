@@ -568,7 +568,7 @@ export class PlayerVideoComponent extends WidgetBaseComponent
       
           const icon = document.createElement('span');
           icon.className = 'vjs-icon-placeholder';
-          icon.innerHTML = '<i class="material-icons" style="color: white;font-size:30px;" title="Quality">tune</i>';
+          icon.innerHTML = '<i class="material-icons quality-icons"  title="Quality">tune</i>';
       
           // const text = document.createElement('span');
           // text.className = 'vjs-menu-value';

@@ -165,10 +165,40 @@
 
   :host ::ng-deep .video-js .vjs-control {
     width: 3em;
-    font-size: 16px;
+    font-size: 12px;
     vertical-align: middle;
     margin:0.25em;
   
+  }
+
+  :host ::ng-deep .quality-wrapper  {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 12px ;
+    margin-top: -15px ;
+    font-weight: 700 ;
+    
+  }
+
+  :host ::ng-deep .quality-wrapper .vjs-icon-placeholder {
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+   font-size: 14px !important;
+        margin-top: -54px !important;
+        font-weight: 700 !important;
+        margin-left: 0px !important;
+    
+  }
+
+  :host ::ng-deep .vjs-progress-control {
+    margin-top: -5px !important;
+  }
+
+  :host ::ng-deep .quality-icons {
+    color: white !important;
+    font-size:22px !important;
   }
 
   :host ::ng-deep .video-js.vjs-paused .vjs-play-control {
@@ -317,21 +347,21 @@
     align-items: center;
     justify-content: center;
     font-size: 18px;
-    margin-top: -10px !important;
-    font-weight: 700 !important;
+    margin-top: -10px ;
+    font-weight: 700 ;
     
   }
 
   .quality-wrapper {
-    margin-top: -10px !important;
+    margin-top: -10px ;
     .vjs-icon-placeholder {
       display: inline-flex;
       align-items: center;
       justify-content: center;
       font-size: 18px;
       // margin-top: -10px !important;
-      font-weight: 700 !important;
-      margin-left: 10px !important;
+      font-weight: 700 ;
+      margin-left: 10px ;
       text-transform: capitalize;
     }
   }
@@ -347,6 +377,10 @@
     /* Don't force display: flex here, Video.js manages it */
   }
     
+  .quality-icons {
+    color: white;
+    font-size:30px;
+  }
 }
 
 
