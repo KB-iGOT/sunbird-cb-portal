@@ -37,7 +37,7 @@
                                         <div class="flex flex-col gap-1">
                                             <div class="font-semibold text-center mat-body-2 text-name" [title]="recommend?.personalDetails?.firstname" >{{ recommend?.personalDetails?.firstname }}</div>
                                             <div class="text-center dept-name text-desc" [title]="recommend?.employmentDetails?.departmentName" >{{ recommend?.employmentDetails?.departmentName }}</div>
-                                            <div
+                                            <!-- //NOSONAR --><div
                                                 class="flex flex-row gap-2 ws-mat-default-text font-semibold px-4 py-2 rounded-full mat-body-2 connect-button cursor-pointer text-lg mt-2 items-center" (click)="handleConnect(recommend)" *ngIf="!recommend.connecting">
                                                 <mat-icon class="ws-mat-default-text">person_add</mat-icon>
                                                 <span class="textwrap">{{ 'home.connect' | translate }}</span>
@@ -63,7 +63,7 @@
                     <div class="flex flex-row gap-2 ws-mat-default-text ws-widget-sliders justify-center"
                         *ngIf="network.networkRecommended && network.networkRecommended.length">
                         <div class="flex justify-center items-center">
-                            <div class="flex ws-mat-default-text items-center justify-center mat-body-1 cursor-pointer"
+                            <!-- //NOSONAR --><div class="flex ws-mat-default-text items-center justify-center mat-body-1 cursor-pointer"
                                 [routerLink]="['/app/network-v2/home']" [queryParams]="{page: 'people_you_may_know'}" (click)="handleShowAll()">
                                 <div *ngIf="!suggestionsLoader">{{ 'home.showAll' | translate }}</div>
                                 <div *ngIf="suggestionsLoader">

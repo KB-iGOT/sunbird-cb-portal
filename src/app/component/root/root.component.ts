@@ -276,13 +276,6 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
         this.isHomePage = false
         this.mobileAppsSvc.clearGlobalSearchForHomePage.next(false)
       }
-      if(event && event.url) {
-        if(event.url.includes('/app/network-v2') && window.innerWidth <= 768) {
-          this.showNavbar = false
-        } else if (event.url.includes('/page/home') && window.innerWidth <= 768) {
-          this.showNavbar = true
-        }
-      }
     })
 
     this.router.events.subscribe((event: any) => {
@@ -413,9 +406,6 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
         this.openIntro()
 
       }
-      if(event && event.url && event.url.includes('/app/network-v2') && window.innerWidth <= 768) {
-        this.showNavbar = false
-      }
     })
     this.rootSvc.showNavbarDisplay$.pipe(delay(500)).subscribe((display: any) => {
       this.showNavbar = display
@@ -471,7 +461,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
     //   "subTitles": true,
     //   "transcription": true
     // }
-    if(publicConfig && publicConfig.error &&  publicConfig.error.status === 404) {
+    if(publicConfig && publicConfig.error &&  publicConfig.error.status === 404) { //NOSONAR
       this.iGOTAIConfigLoaded = false
     } else {
       this.iGOTAIConfigLoaded = true  

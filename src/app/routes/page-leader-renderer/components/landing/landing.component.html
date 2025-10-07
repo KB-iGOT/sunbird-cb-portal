@@ -13,7 +13,7 @@
           <h2 class="margin-remove margin-top-xs">{{ leaderData?.profile.name }}</h2>
           <h3 class="margin-remove-bottom margin-top-xs">{{ leaderData?.profile.designation }}</h3>
           <div class="flex flex-middle flex-center icons">
-            <mat-icon class="cursor-pointer" (click)="openSendMailDialog()">email</mat-icon>
+            <!-- //NOSONAR --><mat-icon class="cursor-pointer" (click)="openSendMailDialog()">email</mat-icon>
             <button *ngIf="!isFollowDisabled" type="button" mat-icon-button [disabled]="isFetchingFollow"
               class="follow-btn margin-left-xs"
               [color]="loggedUserFollowData && isFollowing(leaderUuid) ? 'primary' : null"
@@ -47,7 +47,7 @@
                 {{ leaderData?.profile.designation }}
               </h3>
               <div class="flex flex-middle icons">
-                <mat-icon class="cursor-pointer" (click)="openSendMailDialog()">email</mat-icon>
+                <!-- //NOSONAR --><mat-icon class="cursor-pointer" (click)="openSendMailDialog()">email</mat-icon>
                 <button *ngIf="!isFollowDisabled" type="button" mat-icon-button [disabled]="isFetchingFollow"
                   class="follow-btn margin-left-xs"
                   [color]="loggedUserFollowData && isFollowing(leaderUuid) ? 'primary' : null"

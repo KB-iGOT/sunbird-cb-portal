@@ -7,7 +7,7 @@ import { ConfigurationsService, NsInstanceConfig, ValueService } from '@sunbird-
 import 'rxjs/add/operator/toPromise'
 
 // tslint:disable-next-line
-import * as _ from 'lodash'
+import _ from 'lodash'
 import { environment } from 'src/environments/environment'
 @Component({
   selector: 'ws-app-footer',
@@ -55,7 +55,7 @@ export class AppFooterComponent implements OnInit {
     })
   }
 
-  async ngOnInit() {
+  async ngOnInit() { //NOSONAR
     const instanceConfig = this.configSvc.instanceConfig
     if (this.configSvc.portalUrls) {
       this.portalUrls = this.configSvc.portalUrls

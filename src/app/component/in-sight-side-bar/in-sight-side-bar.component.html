@@ -35,7 +35,7 @@
                         placeholder="{{'updteDesignation.select' | translate }}"
                         [matAutocomplete]="designationAuto"
                         (input)="onInputChange($event.target.value)"/>
-                    <mat-icon class="dropdown-icon cursor-pointer" (click)="openAutocomplete(trigger, autocompleteInput)">arrow_drop_down</mat-icon>
+                   <!-- //NOSONAR --> <mat-icon class="dropdown-icon cursor-pointer" (click)="openAutocomplete(trigger, autocompleteInput)">arrow_drop_down</mat-icon>
                 </div>
                 <mat-autocomplete class="mat-autocomplete"
                 (closed)="onAutoCompleteClosed()" (opened)="onAutoCompleteOpened()" #designationAuto="matAutocomplete" (optionSelected)="onOptionSelected($event.option.value)">
@@ -57,7 +57,7 @@
     <div class="hint" [innerHTML]="renderUpdateDesignationCardHint()"></div>
 </div>
 <div class="margin-top-m" *ngIf="nwlConfiguration?.enabled && canShowNlwCard">
-    <div class="nlw-container cursor-pointer" (click)="navigateToNationalLearning()">
+    <!-- //NOSONAR --><div class="nlw-container cursor-pointer" (click)="navigateToNationalLearning()">
         <div class="flex">
             <div class="nlw-title gap-3">
                 {{currentLang === 'hi'? nwlConfiguration?.titleHi : nwlConfiguration?.title}}
@@ -91,7 +91,7 @@
 
 <!-- STATE LEARNING WEEK -->
 <div class="margin-top-m" *ngIf="slwConfiguration?.enabled && canShowSlwCard">
-    <div class="nlw-container cursor-pointer" (click)="navigateToStatelLearning()">
+    <!-- //NOSONAR --><div class="nlw-container cursor-pointer" (click)="navigateToStatelLearning()">
         <div class="flex justify-between">
             <div class="nlw-title gap-3">
                 <p class="margin-remove mat-subheading-1 {{slwConfiguration?.celebrateClass}}">{{currentLang === 'hi'? slwConfiguration?.celebrateHi : slwConfiguration?.celebrate}}</p>

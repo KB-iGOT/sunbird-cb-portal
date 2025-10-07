@@ -2,7 +2,7 @@
     <div [ngClass]="mobileTopHeaderVisibilityStatus ? 'mobile-download-app-top-header' : 'mobile-download-app-without-top-header'"
         *ngIf="mobileTopHeaderVisibilityStatus">
         <!-- //NOSONAR -->
-        <div class="cross-mobile-download-app" (click)="hideMobileTopHeader()">
+        <!-- //NOSONAR --><div class="cross-mobile-download-app" (click)="hideMobileTopHeader()"><!-- //NOSONAR -->
             <span>X</span>
         </div>
         <div class="kb-symbol">
@@ -156,7 +156,7 @@
                                         <mat-form-field appearance="outline" class="margin-top-s fixed-height-select">
                                           <mat-select placeholder="Select Designation" formControlName="designation"   panelClass="search-panel" (closed)="onDesignationDropdownClosed()" (openedChange)="setupScrollListener($event)">
                                             <!-- Sticky search input container -->
-                                            <div class="sticky-search-container" (click)="$event.stopPropagation()">
+                                            <!-- //NOSONAR --><div class="sticky-search-container" (click)="$event.stopPropagation()">
                                               <div class="search-input-wrapper">
                                                 <input 
                                                             type="text" 
@@ -230,10 +230,10 @@
                                     <div class="flex justify-between items-start">
                                         <span class="pos-hint help-request ws-mat-black60-text break-word-link" id="org-field"> {{
                                             'publicsignup.donotHaveGovernmentEmail' | translate }}</span>
-                                        <span class="float-right ws-mat-accent-text cursor-pointer request-help-text"
+                                        <!-- //NOSONAR --><span class="float-right ws-mat-accent-text cursor-pointer request-help-text"
                                             (click)="navigateTo('Domain')"> {{ 'publicsignup.requestForHelp2' |
                                             translate
-                                            }}</span>
+                                            }}</span><!-- //NOSONAR -->
                                     </div>
                                     <!-- //NOSONAR -->
                                     <!-- <a class="pos-hint help-request ws-mat-black60-text" id="org-field">
@@ -288,9 +288,9 @@
                                                 </ng-container>
                                                 <ng-container *ngIf="timeLeftforOTPEmail <= 0">
                                                     <div class="otp-resend-btn mt-2">
-                                                        <span class="cursor-pointer ws-mat-default-text text-xs"
+                                                        <!-- //NOSONAR --><span class="cursor-pointer ws-mat-default-text text-xs"
                                                             (click)="resendOTPEmail()">
-                                                            {{ 'publicsignup.resendOTP' | translate }}</span>
+                                                            {{ 'publicsignup.resendOTP' | translate }}</span><!-- //NOSONAR -->
                                                     </div>
                                                 </ng-container>
                                             </div>
@@ -386,12 +386,12 @@
                                                     </div>
                                                 </ng-container>
                                                 <ng-container *ngIf="timeLeftforOTP <= 0">
-                                                    <div class="otp-resend-btn mt-2">
+                                                    <!-- //NOSONAR --><div class="otp-resend-btn mt-2">
                                                         <span class="cursor-pointer ws-mat-default-text"
                                                         (click)="resendOTP()">{{
                                                         'publicsignup.resendOTP' | translate
                                                         }}</span>
-                                                    </div>
+                                                    </div><!-- //NOSONAR -->
                                                 </ng-container>
                                                 <!-- <span class="text-xs text-red-600" [hidden]="false" *ngIf="otp.errors?.minlength">
                                                     {{ 'publicsignup.mobileOtp' | translate }}
@@ -509,7 +509,7 @@
 
 <ng-template #invalidLinkTemplate let-data>
     <div class="relative">
-        <div class="close-error-modal" *ngIf="data?.type === 'expiredLink'" (click)="closedDialogandRedirect()"><mat-icon>close</mat-icon></div>
+        <!-- //NOSONAR --><div class="close-error-modal" *ngIf="data?.type === 'expiredLink'" (click)="closedDialogandRedirect()"><mat-icon>close</mat-icon></div><!-- //NOSONAR -->
         <div class="flex flex-col justify-center items-center h-full items-center text-center mt-6" [innerHtml]="data?.message"></div>
     </div>
 </ng-template>

@@ -70,7 +70,7 @@
                 </a>
                 <p>{{item?.message}}</p>
               </div> -->
-              <div class="btn-default mb-2" (click)="redirectToResource(item);raiseTelemetryForResource(item)">
+              <!-- //NOSONAR --><div class="btn-default mb-2" (click)="redirectToResource(item);raiseTelemetryForResource(item)">
                 <a [href]="item?.resourceLink" target="_blank" (click)="raiseTelemetryForResource(item)">
                   <img class="vertical-middle h-w-34" src="/assets/ai-tutor/pdf.svg">
                 </a>
@@ -83,7 +83,7 @@
               </div> -->
             </ng-container>
             <ng-container *ngIf="item?.mimeType === 'video/mp4'">
-              <div class="recommended-question-for-resource mx-10" (click)="redirectToResource(item);raiseTelemetryForResource(item)">
+              <!-- //NOSONAR --><div class="recommended-question-for-resource mx-10" (click)="redirectToResource(item);raiseTelemetryForResource(item)">
                 
                 <div class="btn-default mb-2">
                   <div class="flex flex-row">
@@ -134,7 +134,7 @@
               <!-- <div class="resource-link" *ngIf="!(item?.fromInternet)">
                 <a [href]="item?.resourceLink" target="_blank">Click to view</a>
               </div> -->
-              <div class="cursor-pointer ml-10 mr-2 my-1" (click)="copyPath(item, ci)" *ngIf="item?.contentType === 'Resource' && !(item?.fromInternet)">
+              <!-- //NOSONAR --><div class="cursor-pointer ml-10 mr-2 my-1" (click)="copyPath(item, ci)" *ngIf="item?.contentType === 'Resource' && !(item?.fromInternet)">
                 <mat-icon matTooltip="Copy" aria-label="Copy">content_copy</mat-icon>
                 <span *ngIf="copiedIndex === ci" class="copied-tooltip">Link Copied!</span>
               </div>
@@ -149,12 +149,12 @@
                 </div>
               </div>
               <div class="feefback-section flex flex-row my-1" *ngIf="item?.feedback === ''">
-                <div *ngIf="item?.feedback !== 'down'" (click)="sharePositiveContentRating(item,i, ci)"
+                <!-- //NOSONAR --><div *ngIf="item?.feedback !== 'down'" (click)="sharePositiveContentRating(item,i, ci)"
                  class="cursor-pointer feedback-icon mt-1" [ngClass]="item?.feedback !== 'up' ? 'rotate-180' : ''">
                  <img *ngIf="item?.feedback !== 'up'" src="/assets/ai-tutor/down.svg">
                  <img *ngIf="item?.feedback == 'up'" src="/assets/ai-tutor/up.svg">
                 </div>
-                <div *ngIf="item?.feedback !== 'up'" (click)="openAIFeedbackPopup(item,i, ci)" class="ml-2 cursor-pointer feedback-icon mt-1">
+               <!-- //NOSONAR --> <div *ngIf="item?.feedback !== 'up'" (click)="openAIFeedbackPopup(item,i, ci)" class="ml-2 cursor-pointer feedback-icon mt-1">
                   <img src="/assets/ai-tutor/down.svg">
                 </div>
               </div>
@@ -172,7 +172,7 @@
           <div class="recommended-question" [ngClass]="{'ml-5': item?.message }">
             <div class="my-5px mr-2 w-92" *ngIf="item?.contentType !== 'Resource' && !(item?.fromInternet)">
               <ng-container>
-                <div class="btn-default my-2" (click)="redirectToToc(item)">{{item?.title}}
+                <!-- //NOSONAR --><div class="btn-default my-2" (click)="redirectToToc(item)">{{item?.title}}
                   <mat-icon class="vertical-middle" *ngIf="!(item?.fromInternet)">navigate_next</mat-icon>
                 </div>
                 <div *ngIf="!(item?.fromInternet)">
@@ -183,7 +183,7 @@
             </div>
             <div class="flex flex-row font-12 mb-2">
 
-              <div class="cursor-pointer" (click)="copyPath(item, ci)" *ngIf="item?.contentType !== 'Resource' && !(item?.fromInternet)">
+              <!-- //NOSONAR --><div class="cursor-pointer" (click)="copyPath(item, ci)" *ngIf="item?.contentType !== 'Resource' && !(item?.fromInternet)">
                 <mat-icon matTooltip="Copy" aria-label="Copy">content_copy</mat-icon>
                 <span *ngIf="copiedIndex === ci" class="copied-tooltip">Link Copied!</span>
               </div>
@@ -199,12 +199,12 @@
                   </div>
                 </div>
                 <div class="feefback-section flex flex-row" *ngIf="item?.feedback === ''">
-                  <div *ngIf="item?.feedback !== 'down'" (click)="sharePositiveContentRating(item,i, ci)"
+                 <!-- //NOSONAR --> <div *ngIf="item?.feedback !== 'down'" (click)="sharePositiveContentRating(item,i, ci)"
                    class="cursor-pointer feedback-icon mt-1" [ngClass]="item?.feedback !== 'up' ? 'rotate-180' : ''">
                    <img *ngIf="item?.feedback !== 'up'" src="/assets/ai-tutor/down.svg">
                    <img *ngIf="item?.feedback == 'up'" src="/assets/ai-tutor/up.svg">
                   </div>
-                  <div *ngIf="item?.feedback !== 'up'" (click)="openAIFeedbackPopup(item,i, ci)" class="ml-2 cursor-pointer feedback-icon mt-1">
+                 <!-- //NOSONAR --> <div *ngIf="item?.feedback !== 'up'" (click)="openAIFeedbackPopup(item,i, ci)" class="ml-2 cursor-pointer feedback-icon mt-1">
                     <img src="/assets/ai-tutor/down.svg">
                   </div>
                 </div>

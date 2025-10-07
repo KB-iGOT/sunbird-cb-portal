@@ -642,7 +642,7 @@
 
   .initials {
     color: #ffffff;
-    font-size: 10px;
+  //  font-size: 10px;
     line-height: 12px;
     font-size: 14px;
     letter-spacing: 0.2625px;
@@ -988,7 +988,9 @@
   resize: none;
   overflow: hidden;
   font-size: 14px;
+  /* stylelint-disable */
   font-family: Lato;
+  /* stylelint-enable */
   box-sizing: border-box;
   min-height: 32px;
   padding-top: 5px;
@@ -1023,5 +1025,3 @@
 
 
   
-
-

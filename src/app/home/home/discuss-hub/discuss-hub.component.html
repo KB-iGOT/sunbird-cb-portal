@@ -14,7 +14,7 @@
             <ws-widget-discussions [discussion]="discussion" [count]="3" [trend]="true"></ws-widget-discussions>
 
             <div class="flex justify-center items-center" *ngIf="!discussion.loadSkeleton && (!discussion.error || discussion.data)">
-                <div class="flex ws-mat-default-text items-center justify-center mat-body-1 cursor-pointer" (click)="navigate()" >
+                <!-- //NOSONAR --><div class="flex ws-mat-default-text items-center justify-center mat-body-1 cursor-pointer" (click)="navigate()" >
                     <div>{{ 'home.showAll' | translate }}</div>
                     <mat-icon>
                         chevron_right

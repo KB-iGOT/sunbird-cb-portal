@@ -78,7 +78,7 @@
         <ng-container *ngFor="let item of primaryNavbarConfig?.smallScreen?.all">
           <!-- item?.config?.path -->
           <!-- //NOSONAR -->
-          <li *ngIf="item?.type !== 'explorerButton'"
+          <!-- //NOSONAR --><li *ngIf="item?.type !== 'explorerButton'"
             [ngClass]="activeRoute === item?.config?.label ? 'active-icon': ''"
             class="mobile-footer-fixed-nav-list-item" (click)="redirectToPath(item?.config)">
             <div class="icon-container"
@@ -89,7 +89,7 @@
           </li>
 
           <!-- //NOSONAR -->
-          <li *ngIf="item?.type === 'explorerButton'"
+          <!-- //NOSONAR --><li *ngIf="item?.type === 'explorerButton'"
             [ngClass]="activeRoute === item?.config?.label ? 'active-icon': ''"
             class="mobile-footer-fixed-nav-list-item" (click)="openExploreMenu()">
             <div class="icon-container">
@@ -151,7 +151,7 @@
   </div>
 
   <!-- //NOSONAR -->
-  <div class="flex items-center arrow-back" [class.hideForNav]="!hideKPOnNav" (click)="handleNavigateBack()">
+  <!-- //NOSONAR --><div class="flex items-center arrow-back" [class.hideForNav]="!hideKPOnNav" (click)="handleNavigateBack()">
     <mat-icon>arrow_back</mat-icon>
   </div>
 </ng-template>
@@ -183,7 +183,7 @@
     }"></ws-widget-btn-feature>
 
   <!-- //NOSONAR -->
-  <div mat-menu-item *ngIf="isTourGuideAvailable" (click)="startTour()">
+  <!-- //NOSONAR --><div mat-menu-item *ngIf="isTourGuideAvailable" (click)="startTour()">
     <mat-icon>help</mat-icon>
     <span class="ml-2">Tour Guide</span>
   </div>

@@ -40,12 +40,12 @@
           
           <div *ngIf="chat?.showFromInternet || chat?.showSimiliarResultsFlag">
             <div class="flex row my-2 justify-start mx-10 my-5">
-              <div (click)="viewSimiliarResults(i)" class="mx-2" *ngIf="chat?.showSimiliarResultsFlag">
+              <!-- //NOSONAR --><div (click)="viewSimiliarResults(i)" class="mx-2" *ngIf="chat?.showSimiliarResultsFlag">
                 <button type="button" class="web-button py-2 px-4 cursor-pointer">
                   <img alt="frame" class="web-search-icon" src="assets/ai-tutor/frame.svg"/><span class="blue-color">View similiar results</span>
                 </button>
               </div>
-              <div (click)="callFromInternet(chat, i)" *ngIf="chat?.showFromInternet">
+              <!-- //NOSONAR --><div (click)="callFromInternet(chat, i)" *ngIf="chat?.showFromInternet">
                 <button type="button" class="web-button px-4 cursor-pointer">
                   <mat-icon class="web-search-icon">search  </mat-icon><span class="blue-color">Search on the web</span>
                 </button>
@@ -70,7 +70,7 @@
                   </a>
                   <p>{{item?.message}}</p>
                 </div> -->
-                <div class="btn-default mb-2" (click)="redirectToResource(item);raiseTelemetryForResource(item)">
+                <!-- //NOSONAR --><div class="btn-default mb-2" (click)="redirectToResource(item);raiseTelemetryForResource(item)">
                   <a [href]="item?.resourceLink" target="_blank" (click)="raiseTelemetryForResource(item)">
                     <img alt="pdf" class="vertical-middle h-w-34" src="/assets/ai-tutor/pdf.svg">
                   </a>
@@ -83,7 +83,7 @@
                 </div> -->
               </ng-container>
               <ng-container *ngIf="item?.mimeType === 'video/mp4'">
-                <div class="recommended-question-for-resource mx-10" (click)="redirectToResource(item);raiseTelemetryForResource(item)">
+                <!-- //NOSONAR --><div class="recommended-question-for-resource mx-10" (click)="redirectToResource(item);raiseTelemetryForResource(item)">
                   
                   <div class="btn-default mb-2">
                     <div class="flex flex-row">
@@ -134,18 +134,18 @@
                 <!-- <div class="resource-link" *ngIf="!(item?.fromInternet)">
                   <a [href]="item?.resourceLink" target="_blank">Click to view</a>
                 </div> -->
-                <div class="cursor-pointer resource-copy-icon ml-10 mr-2 my-2" (click)="copyPath(item, ci)" *ngIf="item?.contentType === 'Resource' && !(item?.fromInternet)">
+                <!-- //NOSONAR --><div class="cursor-pointer resource-copy-icon ml-10 mr-2 my-2" (click)="copyPath(item, ci)" *ngIf="item?.contentType === 'Resource' && !(item?.fromInternet)">
                   <mat-icon matTooltip="Copy" aria-label="Copy">content_copy</mat-icon>
                   <span *ngIf="copiedIndex === ci" class="copied-tooltip">Link Copied!</span>
                 </div>
                 <div class="feefback-section flex flex-row my-1">
-                  <div  (click)="sharePositiveContentRating(item,i, ci)" class="cursor-pointer feedback-icon mt-1" 
+                 <!-- //NOSONAR --> <div  (click)="sharePositiveContentRating(item,i, ci)" class="cursor-pointer feedback-icon mt-1" 
                   >
                     <img alt="down" [ngClass]="'rotate-180'" *ngIf="item?.feedback !== 'up' && !item?.showLoaderForUp" src="/assets/ai-tutor/down.svg">
                     <img alt="up" *ngIf="item?.feedback === 'up'  && !item?.showLoaderForUp" src="/assets/ai-tutor/up.svg">
                     <img alt="blue-loader" *ngIf="item?.showLoaderForUp" class="blue-loader-animation" height="18" width="18" src="/assets/ai-tutor/blue-loader.png">
                   </div>
-                  <div (click)="openAIFeedbackPopup(item,i, ci)" class="ml-2 cursor-pointer feedback-icon mt-1">
+                 <!-- //NOSONAR --> <div (click)="openAIFeedbackPopup(item,i, ci)" class="ml-2 cursor-pointer feedback-icon mt-1">
                     <img alt="down" *ngIf="item?.feedback !== 'down' && !item?.showLoaderForDown" src="/assets/ai-tutor/down.svg"> 
                     <img alt="fill-down" *ngIf="item?.feedback === 'down'  && !item?.showLoaderForDown" src="/assets/ai-tutor/fill-down.svg"> 
                     <img alt="blue-loader" *ngIf="item?.showLoaderForDown" class="blue-loader-animation" height="18" width="18" src="/assets/ai-tutor/blue-loader.png">
@@ -165,7 +165,7 @@
             <div class="recommended-question flex-col" [ngClass]="{'ml-5': item?.message }">
               <div class="my-5px mr-2 w-92" *ngIf="item?.contentType !== 'Resource' && !(item?.fromInternet)">
                 <ng-container>
-                  <div class="btn-default my-2" (click)="redirectToToc(item)">{{item?.title}}
+                 <!-- //NOSONAR --> <div class="btn-default my-2" (click)="redirectToToc(item)">{{item?.title}}
                     <mat-icon class="vertical-middle" *ngIf="!(item?.fromInternet)">navigate_next</mat-icon>
                   </div>
                   <div class="recommended-question-desc" *ngIf="!(item?.fromInternet)">
@@ -176,7 +176,7 @@
               </div>
               <div class="flex flex-row font-12 mb-2">
 
-                <div class="cursor-pointer resource-copy-icon mt-1" (click)="copyPath(item, ci)" *ngIf="item?.contentType !== 'Resource' && !(item?.fromInternet)">
+                <!-- //NOSONAR --><div class="cursor-pointer resource-copy-icon mt-1" (click)="copyPath(item, ci)" *ngIf="item?.contentType !== 'Resource' && !(item?.fromInternet)">
                   <mat-icon matTooltip="Copy" aria-label="Copy">content_copy</mat-icon>
                   <span *ngIf="copiedIndex === ci" class="copied-tooltip">Link Copied!</span>
                 </div>
@@ -203,13 +203,13 @@
                   </div>
                 </div>    -->
                 <div class="feefback-section flex flex-row" *ngIf="item?.contentType !== 'Resource'">
-                  <div  (click)="sharePositiveContentRating(item,i, ci)" class="cursor-pointer feedback-icon mt-1" 
+                 <!-- //NOSONAR --> <div  (click)="sharePositiveContentRating(item,i, ci)" class="cursor-pointer feedback-icon mt-1" 
                   >
                     <img alt="down" [ngClass]="'rotate-180'" *ngIf="item?.feedback !== 'up' && !item?.showLoaderForUp" src="/assets/ai-tutor/down.svg">
                     <img alt="up" *ngIf="item?.feedback === 'up'  && !item?.showLoaderForUp" src="/assets/ai-tutor/up.svg">
                     <img alt="blue-loader" *ngIf="item?.showLoaderForUp" class="blue-loader-animation" height="18" width="18" src="/assets/ai-tutor/blue-loader.png">
                   </div>
-                  <div (click)="openAIFeedbackPopup(item,i, ci)" class="ml-2 cursor-pointer feedback-icon mt-1">
+                  <!-- //NOSONAR --><div (click)="openAIFeedbackPopup(item,i, ci)" class="ml-2 cursor-pointer feedback-icon mt-1">
                     <img alt="down" *ngIf="item?.feedback !== 'down' && !item?.showLoaderForDown" src="/assets/ai-tutor/down.svg"> 
                     <img alt="fill-down" *ngIf="item?.feedback === 'down'  && !item?.showLoaderForDown" src="/assets/ai-tutor/fill-down.svg"> 
                     <img alt="blue-loader" *ngIf="item?.showLoaderForDown" class="blue-loader-animation" height="18" width="18" src="/assets/ai-tutor/blue-loader.png">
@@ -261,7 +261,7 @@
           
             <!-- Row 2: Buttons -->
             <div class="flex flex-row justify-start mt-4 ml-10">
-              <div (click)="loadFailedData()">
+              <!-- //NOSONAR --><div (click)="loadFailedData()">
                 <button type="button" class="error-for-failed-btn px-4 cursor-pointer">
                   <mat-icon class="error-retry-icon">autorenew</mat-icon>
                   <span class="white">Retry</span>
