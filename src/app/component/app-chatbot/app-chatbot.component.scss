@@ -513,7 +513,7 @@
   box-sizing: border-box;
 }
 ::ng-deep .disable-scroll {
-  overflow-x: hidden !important;
+  // overflow-x: hidden !important;
   overflow: hidden;
 }
 @media only screen and (max-width: 600px) {
@@ -702,7 +702,7 @@
 
   .cb-content-sarthi {
     background: url('/assets/ai-tutor/background.svg');
-    background-color: #F0F3F4;
+    // background-color: #F0F3F4;
     overflow-y : auto;
     overflow-x: hidden;
     position: relative;
@@ -769,7 +769,7 @@
 
   .cb-content-sarthi {
     background: url('/assets/ai-tutor/background.svg');
-    background-color: #F0F3F4;
+   // background-color: #F0F3F4;
     overflow-y : auto;
     overflow-x: hidden;
     position: relative;
@@ -827,7 +827,7 @@
 
   .cb-content-sarthi {
     background: url('/assets/ai-tutor/background.svg');
-    background-color: #F0F3F4;
+   // background-color: #F0F3F4;
     overflow-y : auto;
     overflow-x: hidden;
     position: relative;

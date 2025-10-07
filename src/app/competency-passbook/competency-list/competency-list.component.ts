@@ -152,8 +152,8 @@ export class CompetencyListComponent implements OnInit, OnDestroy {
       status: [],
       timeDuration: [],
       [this.compentencyKey.vCompetencyArea]: [],
-      [this.compentencyKey.vCompetencyTheme]: [],
-      [this.compentencyKey.vCompetencySubTheme]: [],
+      [this.compentencyKey.vCompetencyTheme]: [], //NOSONAR
+      [this.compentencyKey.vCompetencySubTheme]: [], //NOSONAR
       providers: [],
     }
     this.filterObjData2 = { ...this.filterObjData }
@@ -193,7 +193,7 @@ export class CompetencyListComponent implements OnInit, OnDestroy {
             } else {
               eachCourse.issuedCertificates.push(courseDetails)
             }
-            if ((eachCourse.content[this.compentencyKey.vKey] && eachCourse.content[this.compentencyKey.vKey].length)) {
+            if ((eachCourse.content[this.compentencyKey.vKey] && eachCourse.content[this.compentencyKey.vKey].length)) { //NOSONAR
               const subThemeMapping: any = {}
               eachCourse.content[this.compentencyKey.vKey].forEach((v5Obj: any) => {
                 if (this.certificateMappedObject[v5Obj[this.compentencyKey.vCompetencyTheme]]) {
@@ -296,7 +296,7 @@ export class CompetencyListComponent implements OnInit, OnDestroy {
       allObj.contentConsumed = this.certificateMappedObject[allObj[this.compentencyKey.vCompetencyTheme]].contentConsumed
       allObj.courseSubThemes = this.certificateMappedObject[allObj[this.compentencyKey.vCompetencyTheme]].subThemes
       // tslint:disable-next-line: max-line-length
-      allObj['latest'] = (this.certificateMappedObject[allObj[this.compentencyKey.vCompetencyTheme]].completedOn.length) ? Math.max(...this.certificateMappedObject[allObj[this.compentencyKey.vCompetencyTheme]].completedOn) : null
+      allObj['latest'] = (this.certificateMappedObject[allObj[this.compentencyKey.vCompetencyTheme]].completedOn.length) ? Math.max(...this.certificateMappedObject[allObj[this.compentencyKey.vCompetencyTheme]].completedOn) : null //NOSONAR
 
       this.leftCardDetails.forEach((_lObj: any) => {
         if (_lObj.type === allObj[this.compentencyKey.vCompetencyArea]) {

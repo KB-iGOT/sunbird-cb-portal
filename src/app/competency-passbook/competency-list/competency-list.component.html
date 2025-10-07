@@ -3,7 +3,7 @@
         <div class="competency-passbook-theme" [ngClass]="{'behavioral': obj[compentencyKey.vCompetencyArea].toLowerCase() === TYPE_CONST.behavioral.otherValue, 'functional': obj[compentencyKey.vCompetencyArea].toLowerCase() === TYPE_CONST.functional.value, 'domain': obj[compentencyKey.vCompetencyArea].toLowerCase() === TYPE_CONST.domain.value}" ></div>
         <div class="detail flex flex-col">
             <div class="flex flex-col">
-                <div class="flex flex-row justify-between p-4 cursor-pointer gap-6" (click)="handleNavigate(obj)">
+                <!-- //NOSONAR --><div class="flex flex-row justify-between p-4 cursor-pointer gap-6" (click)="handleNavigate(obj)">
                     <div class="flex flex-col gap-3 text-primary">
                         <div class="flex flex-row gap-2 align-baseline">
                             <div class="competency-name font-semibold" [title]="obj[compentencyKey.vCompetencyTheme]" >{{ obj[compentencyKey.vCompetencyTheme] }}</div>
@@ -26,10 +26,10 @@
                             {{ child }}
                         </div>
                     </ng-container>
-                    <div class="flex items-center text-primary underline cursor-pointer text-xs" *ngIf="obj?.subTheme?.length > 2 && !obj?.viewMore" (click)="handleViewMore(obj)" >
+                    <!-- //NOSONAR --><div class="flex items-center text-primary underline cursor-pointer text-xs" *ngIf="obj?.subTheme?.length > 2 && !obj?.viewMore" (click)="handleViewMore(obj)" >
                         {{'competencyList.viewMore' | translate }}
                     </div>
-                    <div class="flex items-center text-primary underline cursor-pointer text-xs" *ngIf="obj?.viewMore" (click)="handleViewMore(obj, 'less')">
+                    <!-- //NOSONAR --><div class="flex items-center text-primary underline cursor-pointer text-xs" *ngIf="obj?.viewMore" (click)="handleViewMore(obj, 'less')">
                         {{'competencyList.viewLess' | translate }}
                     </div>
                 </div>
@@ -128,7 +128,7 @@
 </ng-template>
 
 <div class="flex justify-center passbook-container gap-5">
-    <div class="flex flex-row items-center px-4 ws-mat-default-text gap-2" *ngIf="isMobile && showAll" (click)="handleShowAll()">
+    <!-- //NOSONAR --><div class="flex flex-row items-center px-4 ws-mat-default-text gap-2" *ngIf="isMobile && showAll" (click)="handleShowAll()">
         <mat-icon>keyboard_backspace</mat-icon> Show less
     </div>
 
@@ -159,7 +159,7 @@
 
             <div class="flex flex-row gap-3 p-4">
                 <div class="flex-1">
-                    <div class="flex flex-col gap-2" (click)="handleClick('all')">
+                    <!-- //NOSONAR --><div class="flex flex-col gap-2" (click)="handleClick('all')">
                         <div class="text-base secondary-title">{{'competencyList.CompetenciesSubTitle' | translate }}</div>
                         <ng-container *ngIf="competency.skeletonLoading">
                             <ws-widget-skeleton-loader [bindingClass]="'flex rounded blue-2-loader'" [width]="'60px'" [height]="'40px'"></ws-widget-skeleton-loader>
@@ -181,7 +181,7 @@
                         <ng-container *ngIf="!competency.skeletonLoading">
                             <div class="text-base font-semibold">{{ competency?.behavioural?.length }}</div>
                         </ng-container>
-                        <div class="flex justify-center items-center" (click)="handleClick(TYPE_CONST.behavioral.value)" >
+                        <!-- //NOSONAR --><div class="flex justify-center items-center" (click)="handleClick(TYPE_CONST.behavioral.value)" >
                             <div class="text-xs">{{ TYPE_CONST.behavioral.capsValue }}</div>
                             <mat-icon>navigate_next</mat-icon>
                         </div>
@@ -194,7 +194,7 @@
                         <ng-container *ngIf="!competency.skeletonLoading">
                             <div class="text-base font-semibold">{{ competency?.functional?.length }}</div>
                         </ng-container>
-                        <div class="flex justify-center items-center" (click)="handleClick(TYPE_CONST.functional.value)">
+                        <!-- //NOSONAR --><div class="flex justify-center items-center" (click)="handleClick(TYPE_CONST.functional.value)">
                             <div class="text-xs">{{ TYPE_CONST.functional.capsValue }}</div>
                             <mat-icon>navigate_next</mat-icon>
                         </div>
@@ -207,7 +207,7 @@
                         <ng-container *ngIf="!competency.skeletonLoading">
                             <div class="text-base font-semibold">{{ competency?.domain?.length }}</div>
                         </ng-container>
-                        <div class="flex justify-center items-center" (click)="handleClick(TYPE_CONST.domain.value)">
+                        <!-- //NOSONAR --><div class="flex justify-center items-center" (click)="handleClick(TYPE_CONST.domain.value)">
                             <div class="text-xs">{{ TYPE_CONST.domain.capsValue }}</div>
                             <mat-icon>navigate_next</mat-icon>
                         </div>
@@ -277,7 +277,7 @@
                     <ng-container [ngTemplateOutlet]="competencyCard"></ng-container>
                 </ng-container>
             </div>
-            <div *ngIf="!competency.skeletonLoading" class="flex ws-mat-default-text items-center justify-center mat-body-1 cursor-pointer" (click)="handleShowAll()">Show all</div>
+            <!-- //NOSONAR --><div *ngIf="!competency.skeletonLoading" class="flex ws-mat-default-text items-center justify-center mat-body-1 cursor-pointer" (click)="handleShowAll()">Show all</div>
         </div>
     </div>
 

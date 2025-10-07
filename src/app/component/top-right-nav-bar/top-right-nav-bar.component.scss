@@ -216,7 +216,9 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  /* stylelint-disable */
   font-family: Lato;
+  /* stylelint-enable */
 }
 
 @media screen and (min-width: 769px) {

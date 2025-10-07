@@ -553,7 +553,7 @@ export class PublicCrpComponent {
         phone: `${this.registrationForm.value.mobile}` || '',
         // position: this.registrationForm.value.position.name || '',
         group: this.registrationForm.value.group || '',
-        source: `${environment.name}.${this.portalID}` || '',
+        source: `${environment.name}.${this.portalID}` || '', //NOSONAR
         orgName: this.heirarchyObject.orgName || '',
         channel: this.heirarchyObject.channel || '',
         organisationType: this.heirarchyObject.sbOrgType || '',

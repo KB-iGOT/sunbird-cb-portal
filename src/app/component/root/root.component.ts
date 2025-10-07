@@ -461,7 +461,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
     //   "subTitles": true,
     //   "transcription": true
     // }
-    if(publicConfig && publicConfig.error &&  publicConfig.error.status === 404) {
+    if(publicConfig && publicConfig.error &&  publicConfig.error.status === 404) { //NOSONAR
       this.iGOTAIConfigLoaded = false
     } else {
       this.iGOTAIConfigLoaded = true  

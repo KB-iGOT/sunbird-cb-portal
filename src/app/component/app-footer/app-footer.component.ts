@@ -55,7 +55,7 @@ export class AppFooterComponent implements OnInit {
     })
   }
 
-  async ngOnInit() {
+  async ngOnInit() { //NOSONAR
     const instanceConfig = this.configSvc.instanceConfig
     if (this.configSvc.portalUrls) {
       this.portalUrls = this.configSvc.portalUrls

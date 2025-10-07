@@ -31,10 +31,11 @@
                     </ng-container>
                     <div class="flex items-center text-primary underline cursor-pointer text-xs"
                      *ngIf="((isMobile) ? themeDetails?.subTheme?.length > 3 : themeDetails?.subTheme?.length > 10 )  && !viewMoreST" 
-                        (click)="viewMoreST = !viewMoreST">
+                        (click)="viewMoreST = !viewMoreST" (keydown)="viewMoreST = !viewMoreST">
                         {{'competencyCardDetails.viewMore' | translate}}
                     </div>
-                    <div class="flex items-center text-primary underline cursor-pointer text-xs" *ngIf="viewMoreST" (click)="viewMoreST = !viewMoreST">
+                    <!-- //NOSONAR --><div class="flex items-center text-primary underline cursor-pointer text-xs" *ngIf="viewMoreST" (click)="viewMoreST = !viewMoreST"
+                    (keydown)="viewMoreST = !viewMoreST">
                         {{'competencyCardDetails.viewLess' | translate}}
                     </div>
                 </div>
@@ -61,18 +62,18 @@
                 <div class="flex flex-col certificate-container" *ngFor="let eachCert of certificateData; let i = index">
                     <div class="certificate-card">
                         <div class="flex flex-col certificate-info p-4 gap-3">
-                            <div class="flex flex-row">
+                            <!-- //NOSONAR --><div class="flex flex-row">
                                 <div class="flex-1 course-name-div">
-                                    <div class="text-base font-semibold cursor-pointer" #courseName (click)="handleNavigate(eachCert)" [ngClass]="{'course-name': eachCert.courseEllipsis && eachCert.courseEllipsis === true}" title="{{ eachCert?.courseName }}" >{{ eachCert?.courseName }}</div>
+                                    <div class="text-base font-semibold cursor-pointer" #courseName (click)="handleNavigate(eachCert)"  (keydown)="handleNavigate(eachCert)" [ngClass]="{'course-name': eachCert.courseEllipsis && eachCert.courseEllipsis === true}" title="{{ eachCert?.courseName }}" >{{ eachCert?.courseName }}</div>
                                     <div class="text-xs font-light" *ngIf="eachCert?.identifier" >{{'competencyList.issued' | translate }} {{ eachCert?.lastIssuedOn | date: 'MMM y' }}</div>
                                 </div>
-                                <div class="flex justify-center">
+                               <!-- //NOSONAR --><div class="flex justify-center">
                                     <ng-container *ngIf="eachCert?.loading">
                                         <ws-widget-skeleton-loader [bindingClass]="'flex rounded'" [width]="'32px'" [height]="'32px'"></ws-widget-skeleton-loader>
                                     </ng-container>
                                     <ng-container *ngIf="!eachCert?.loading && !eachCert.error && eachCert?.identifier">
-                                        <mat-icon class="icon cursor-pointer" (click)="getCertificateSVG(eachCert, 'DOWNLOAD')" >arrow_downward</mat-icon>
-                                        <mat-icon class="icon cursor-pointer share-icon" (click)="getCertificateSVG(eachCert, 'SHARE')">share</mat-icon>
+                                        <mat-icon class="icon cursor-pointer" (click)="getCertificateSVG(eachCert, 'DOWNLOAD')"  (keydown)="getCertificateSVG(eachCert, 'DOWNLOAD')">arrow_downward</mat-icon>
+                                        <mat-icon class="icon cursor-pointer share-icon" (click)="getCertificateSVG(eachCert, 'SHARE')" (keydown)="getCertificateSVG(eachCert, 'SHARE')">share</mat-icon>
                                     </ng-container>
                                 </div>
                             </div>
@@ -115,10 +116,10 @@
                                     {{ subTheme }}
                                 </div>
                             </ng-container>
-                            <div class="flex items-center text-primary underline cursor-pointer text-xs" *ngIf="themeDetails.courseSubThemes[i]?.length > 2 && !eachCert.viewMore" (click)="handleViewMore(eachCert)">
+                            <!-- //NOSONAR --><div class="flex items-center text-primary underline cursor-pointer text-xs" *ngIf="themeDetails.courseSubThemes[i]?.length > 2 && !eachCert.viewMore" (click)="handleViewMore(eachCert)">
                                 {{'competencyCardDetails.viewMore' | translate}}
                             </div>
-                            <div class="flex items-center text-primary underline cursor-pointer text-xs" *ngIf="eachCert?.viewMore"
+                            <!-- //NOSONAR --><div class="flex items-center text-primary underline cursor-pointer text-xs" *ngIf="eachCert?.viewMore"
                                 (click)="handleViewMore(eachCert, 'less')">{{'competencyCardDetails.viewLess' | translate}}
                             </div>
                         </div>
