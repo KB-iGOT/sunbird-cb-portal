@@ -451,7 +451,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
     }
     const publicConfig:any = await this.iGOTAIService.iGOTAIConfigReadData(payload).toPromise()
     // console.log('publicConfig', publicConfig)
-    if(publicConfig && publicConfig && publicConfig.web) {
+    if(publicConfig && publicConfig.web) {
       this.configSvc.iGOTAIConfig = publicConfig.web
     }
     

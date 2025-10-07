@@ -368,9 +368,11 @@
       max-width: 85%;
       height: 100%;
       word-break: break-word;
+      /* stylelint-disable */
       ::ng-deep markdown p {
         margin: 0;
       }
+      /* stylelint-enable */
     }
   }
   .word-break {
@@ -541,7 +543,7 @@
     box-sizing: border-box;
   }
   ::ng-deep .disable-scroll {
-    overflow-x: hidden !important;
+    // overflow-x: hidden !important;
     overflow: hidden;
   }
   @media only screen and (max-width: 600px) {
