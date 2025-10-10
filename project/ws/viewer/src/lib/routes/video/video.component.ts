@@ -3,6 +3,7 @@ import { Subscription } from 'rxjs'
 import { AccessControlService } from '@ws/author'
 import {
   NsContent,
+  // IWidgetsPlayerMediaData,
   NsDiscussionForum,
   WidgetContentService,
 } from '@sunbird-cb/collection'
@@ -28,6 +29,9 @@ export class VideoComponent implements OnInit, OnDestroy {
   videoData: NsContent.IContent | null = null
   isFetchingDataComplete = false
   isNotEmbed = true
+  // widgetResolverVideoData: NsWidgetResolver.IRenderConfigWithTypedData<
+  //   IWidgetsPlayerMediaData
+  // > | null = null
   widgetResolverVideoData: any = null
   discussionForumWidget: NsWidgetResolver.IRenderConfigWithTypedData<
     NsDiscussionForum.IDiscussionForumInput
