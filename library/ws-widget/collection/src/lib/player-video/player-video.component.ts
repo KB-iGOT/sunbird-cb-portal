@@ -40,7 +40,6 @@ const videoJsOptions: videoJs.PlayerOptions = {
       displayCurrentQuality: true, // ✅ Show current quality in the menu
     },
   },
-
 }
 
 @Component({
@@ -561,6 +560,26 @@ export class PlayerVideoComponent extends WidgetBaseComponent
             }
           }
         }
+        const qualityBtn = document.querySelector('.vjs-quality-selector .vjs-menu-button');
+        
+        if (qualityBtn && this.widgetData && this.widgetData.streamingUrl) {
+          qualityBtn.innerHTML = '';
+      
+          const wrapper = document.createElement('div');
+          wrapper.className = 'quality-wrapper'; // flex container
+      
+          const icon = document.createElement('span');
+          icon.className = 'vjs-icon-placeholder';
+          icon.innerHTML = '<i class="material-icons quality-icons"  title="Quality">tune</i>';
+      
+          // const text = document.createElement('span');
+          // text.className = 'vjs-menu-value';
+          // text.textContent = 'Quality';
+      
+          wrapper.appendChild(icon);
+          // wrapper.appendChild(text);
+          qualityBtn.appendChild(wrapper);
+        }
       }, 100);
       this.activeTranscriptionLanguage = this.transcriptionSubscriptionData?.activeLang
       this.transcriptionLangArr = this.transcriptionSubscriptionData?.langData
@@ -594,6 +613,8 @@ export class PlayerVideoComponent extends WidgetBaseComponent
         //     });
         //   }
         // }
+       
+        // initObj.player.src(this.viewerSvc.getCdnUrl(this.widgetData.url))
         if(this.widgetData && this.widgetData.streamingUrl) {
           initObj.player.src(this.widgetData.streamingUrl)
           //this.videoUrl = this.widgetData.streamingUrl
@@ -601,7 +622,6 @@ export class PlayerVideoComponent extends WidgetBaseComponent
           initObj.player.src(this.viewerSvc.getCdnUrl(this.widgetData.url))
           this.videoUrl = this.widgetData.url
         }
-        
 
         if(startTime && endTime) {
           initObj.player.currentTime(startTime); // jump to start  

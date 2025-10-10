@@ -9,7 +9,7 @@ export class ChatbotService {
 
   LANGUAGES = '/api/faq/v1/assistant/available/language'
   CONFIG = '/api/faq/v1/assistant/configs/language'
-
+  
   constructor(private http: HttpClient) {}
 
   getLangugages(): Observable<any> {
