@@ -561,8 +561,8 @@ export class PlayerVideoComponent extends WidgetBaseComponent
           }
         }
         const qualityBtn = document.querySelector('.vjs-quality-selector .vjs-menu-button');
-
-        if (qualityBtn) {
+        
+        if (qualityBtn && this.widgetData && this.widgetData.streamingUrl) {
           qualityBtn.innerHTML = '';
       
           const wrapper = document.createElement('div');
