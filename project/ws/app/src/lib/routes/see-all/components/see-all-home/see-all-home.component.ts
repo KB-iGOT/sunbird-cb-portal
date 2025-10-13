@@ -516,6 +516,12 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
             userRootOrgId = this.configSvc.userProfile.rootOrgId
           }
           request.trendingSearch.request.filters.organisation = userRootOrgId
+        } else if (request.trendingSearch.request.filters.createdFor && request.trendingSearch.request.filters.createdFor.indexOf('<orgID>') >= 0) {
+          let userRootOrgId
+          if (this.configSvc.userProfile) {
+            userRootOrgId = this.configSvc.userProfile.rootOrgId
+          }
+          request.trendingSearch.request.filters.createdFor = userRootOrgId
         }
         request.trendingSearch['request']['limit'] = 50
         this.seeAllSvc.trendingContentSearch(request.trendingSearch).subscribe(results => {
@@ -559,12 +565,16 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
   }
 
   async getTabDataByNewReqSearchV6(
-    strip: NsContentStripWithTabs.IContentStripUnit,
+    strip: any,
     tabIndex: number,
     currentTab: NsContentStripWithTabs.IContentStripTab,
     calculateParentStatus: boolean
   ) {
     try {
+      // TODO: work on pagination logic for tabs
+      if(currentTab?.request?.searchV6?.request?.limit){
+        delete currentTab.request.searchV6.request.limit
+      }
       const response = await this.searchV6Request(strip, currentTab.request, calculateParentStatus)
       if (response && response.results) {
         const widgets = this.transformContentsToWidgets(response.results.result.content, strip)
@@ -636,7 +646,7 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
   ): Promise<any> {
     return new Promise<any>((resolve, reject) => {
       if (request && request) {
-        this.consumWidgetSvc.postApiMethod(apiUrl, request).subscribe(results => {
+        this.consumWidgetSvc.postApiMethod(apiUrl, request).subscribe((results: any) => {
           if (results && results.data) {
             const showViewMore = Boolean(
               results.data && results.data.length > 5 && strip.stripConfig && strip.stripConfig.postCardForSearch,
