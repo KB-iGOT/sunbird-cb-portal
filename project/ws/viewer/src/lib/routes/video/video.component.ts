@@ -274,9 +274,10 @@ export class VideoComponent implements OnInit, OnDestroy {
       if (this.configSvc.userProfile) {
         userId = this.configSvc.userProfile.userId || ''
       }
+      const isPreAssessment = this.activatedRoute?.snapshot?.queryParams && this.activatedRoute.snapshot.queryParams.preAssessment || false
       if (this.activatedRoute.snapshot.queryParams.collectionId &&
         this.activatedRoute.snapshot.queryParams.batchId &&
-        videoId
+        videoId && !isPreAssessment
       ) {
         const requestCourse = this.viewerSvc.getBatchIdAndCourseId(
           this.activatedRoute.snapshot.queryParams.collectionId,
