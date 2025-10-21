@@ -13,6 +13,7 @@ import { AppTocService } from '@ws/app/src/lib/routes/app-toc/services/app-toc.s
 import { Subscription } from 'rxjs'
 import { NsContent } from '../../../_services/widget-content.model'
 import { viewerRouteGenerator } from '../../../_services/viewer-route-util'
+import { ContentLanguageService } from '@sunbird-cb/consumption'
 
 @Component({
   selector: 'ws-widget-app-toc-content-card-v2',
@@ -43,6 +44,9 @@ export class AppTocContentCardV2Component implements OnInit {
   @Input() expandActive = true
   @Input() hierarchyMapData: any = {}
   @Input() batchData: /**NsContent.IBatchListResponse */ any | null = null
+  @Input() isPreAssessment = false
+  @Input() baseContentReadData: NsContent.IContent | null = null
+  @Input() mlCourse: NsContent.IContent | null = null
   hasContentStructure = false
   downloadCertificateLoading = false
   enumContentTypes = NsContent.EDisplayContentTypes
@@ -75,7 +79,8 @@ export class AppTocContentCardV2Component implements OnInit {
     private dialog: MatDialog,
     private renderer: Renderer2,
     private certificateService: CertificateService,
-    private appTocSvc: AppTocService
+    private appTocSvc: AppTocService,
+    private contentLangSvc: ContentLanguageService,
   ) { }
 
   ngOnInit() {
@@ -132,6 +137,8 @@ export class AppTocContentCardV2Component implements OnInit {
         }
       }
     }
+    // console.log('pre assessment content---', this.content)
+    // console.log('this.hierarchyMapData---', this.hierarchyMapData)
   }
 
   check(content: any) {
@@ -193,21 +200,34 @@ export class AppTocContentCardV2Component implements OnInit {
         // || this.content.primaryCategory === NsContent.EPrimaryCategory.KNOWLEDGE_ARTIFACT
         || this.content.primaryCategory === NsContent.EPrimaryCategory.PRACTICE_RESOURCE
         || this.content.primaryCategory === NsContent.EPrimaryCategory.FINAL_ASSESSMENT
-        || this.content.primaryCategory === NsContent.EPrimaryCategory.COMP_ASSESSMENT
+        || this.content.primaryCategory === NsContent.EPrimaryCategory.COMP_ASSESSMENT        
       )
     }
     return false
   }
   get resourceLink(): { url: string; queryParams: { [key: string]: any } } {
     if (this.content) {
+      let mimeType:any = ''
+      if(this.content && this.content.courseCategory === 'Pre Enrolment Assessment' && 
+        this.content.mimeType === 'application/vnd.ekstep.content-collection'
+      ) {
+        mimeType = 'application/vnd.sunbird.questionset'
+        this.content.mimeType = NsContent.EMimeTypes.FINAL_ASSESSMENT
+      } else {
+        mimeType = this.content.mimeType
+      }
+      let selectedLanguage = this.mlCourse ? this.contentLangSvc.getSelectedLanguage(this.mlCourse) : undefined
       let url = viewerRouteGenerator(
-        this.content.identifier,
-        this.content.mimeType,
-        this.rootId,
-        this.rootContentType,
+       this.content.identifier,
+        mimeType,
+        this.baseContentReadData?.identifier || this.rootId,
+        this.baseContentReadData?.contentType || this.rootContentType,
         this.forPreview,
         this.content.primaryCategory,
-        this.batchId
+        this.batchId,
+         this.content?.name || this.baseContentReadData?.name,
+        (selectedLanguage? selectedLanguage.langId : null),
+        (selectedLanguage? selectedLanguage.identifier : null),
       )
       /* tslint:disable-next-line */
       // console.log(this.content.identifier, '------', url,'=====> content card url link <========')
@@ -397,8 +417,17 @@ export class AppTocContentCardV2Component implements OnInit {
     // console.log('getCompletionPercentage', identifier)
     // console.log('this.hierarchyMapData[identifier] : ', this.hierarchyMapData[identifier])
     // const item = this.updateChildParentMap(identifier)
-    return this.hierarchyMapData && this.hierarchyMapData[identifier] && this.hierarchyMapData[identifier].completionPercentage  
+    let percent =  this.hierarchyMapData && this.hierarchyMapData[identifier] && this.hierarchyMapData[identifier].completionPercentage || 0 
+    return this.roundIfDecimal(percent)
   }
+  
+  roundIfDecimal(value: number): number {
+    if (!Number.isInteger(value)) {
+      return parseFloat(value.toFixed(2));
+    }
+    return value;
+  }
+
 
   getCompletionStatus(identifier: string) {
     // console.log('getCompletionStatus')
@@ -506,6 +535,16 @@ export class AppTocContentCardV2Component implements OnInit {
     } else {
       return true
     }
+  }
+
+  get computedQueryParams() {
+    if (this.isAllowed && !this.forPreview && this.isEnabled) {
+      return {
+        ...this.resourceLink.queryParams,
+        preAssessment: 'true'
+      };
+    }
+    return null;
   }
 
 }

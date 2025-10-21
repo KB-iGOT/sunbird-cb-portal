@@ -21,6 +21,7 @@ module.exports = {
     '@ckeditor/.*': '<rootDir>/test/mocks/mock-ckeditor.js',
     '^@sunbird-cb/discussion-v2': '<rootDir>/test/mocks/mock-ckeditor.js',
     "uuid": require.resolve('uuid'),
+    '^@sunbird-cb/collection/src/lib/_common/confirm-dialog/confirm-dialog.component$': '<rootDir>/__mocks__/confirm-dialog.component.js',
   },
   coverageReporters: ["clover", "json", "lcov", "text", "text-summary"],
   collectCoverage: true,

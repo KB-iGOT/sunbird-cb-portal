@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core'
 import { Data } from '@angular/router'
-import { Subject, Observable, EMPTY, Subscription, BehaviorSubject} from 'rxjs'
+import { Subject, Observable, EMPTY, Subscription, BehaviorSubject, of} from 'rxjs'
 import { HttpClient } from '@angular/common/http'
 import { NsAppToc, NsCohorts } from '../models/app-toc.model'
 import { TFetchStatus, ConfigurationsService } from '@sunbird-cb/utils-v2'
@@ -9,6 +9,7 @@ import * as _ from 'lodash'
 import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
 import { NsContentConstants } from '@sunbird-cb/collection/src/lib/_constants/widget-content.constants'
 import { WidgetContentService } from '@sunbird-cb/collection/src/lib/_services/widget-content.service'
+import { ContentLanguageService } from '@sunbird-cb/consumption/lib/_services/content-language.service'
 
 // TODO: move this in some common place
 const PROTECTED_SLAG_V8 = '/apis/protected/v8'
@@ -38,7 +39,8 @@ const API_END_POINTS = {
   SHARE_CONTENT: '/apis/proxies/v8/user/v1/content/recommend',
   GET_FORM_BYID: (formId: string) => `apis/proxies/v8/forms/getFormById?id=${formId}`,
   SUBMIT_FORM: `/apis/proxies/v8/forms/v1/saveFormSubmit`,
-  AI_RESOURCE_VTT_FILE:`${PROXY_SLAG_V8}/chatbot/v3/transcoder/stats`
+  AI_RESOURCE_VTT_FILE:`${PROXY_SLAG_V8}/chatbot/v3/transcoder/stats`,
+  PRE_ENROLLMENT_STATE_READ: `/apis/proxies/v8/content/v2/state/read`
 }
 
 @Injectable()
@@ -70,7 +72,7 @@ export class AppTocService {
   public transriptionIdentifier = new Subject(); // Start with null
   changeTranscriptionLanguageEvent = new Subject()
   playTranscriptionVideo = new Subject()
-  constructor(public http: HttpClient, public configSvc: ConfigurationsService, public widgetSvc: WidgetContentService) {
+  constructor(private http: HttpClient, private contentLangSvc: ContentLanguageService, private configSvc: ConfigurationsService, private widgetSvc: WidgetContentService) {
     // this resume data subscription is for on load
     this.resumeDataSubscription = this.resumeData.subscribe(
       (_dataResult: any) => {
@@ -561,8 +563,7 @@ export class AppTocService {
     )
   }
 
-  async mapCompletionPercentageProgram(content: NsContent.IContent | null,  enrolmentList: any) {
-    debugger
+  async mapCompletionPercentageProgram(content: NsContent.IContent | null,  enrolmentList: any, collectionId?: string) {
     this.contentLoader.next(true)
     let totalCount = 0
     let leafnodeCount = 0
@@ -572,10 +573,9 @@ export class AppTocService {
     if (content && content.children) {
       leafnodeCount = content.leafNodesCount
       this.contentLoader.next(true)
-      const foundParentContent = this.findEnrolmentByCollectionId(enrolmentList, content?.identifier)
+      const foundParentContent = this.findEnrolmentByCollectionId(enrolmentList, collectionId || content.identifier)
       if (foundParentContent && foundParentContent.completionPercentage === 100) {
         await this.mapCompletionChildPercentageProgram(content)
-        console.log('if program is 100 persent complete', content)
         totalCount = content.leafNodesCount
       } else {
         if (content?.primaryCategory !== NsContent.EPrimaryCategory.COURSE ) {
@@ -607,14 +607,15 @@ export class AppTocService {
                   parentChild.completionPercentage = 100
                   parentChild.completionStatus = 2
                   await this.mapCompletionChildPercentageProgram(parentChild)
-                  console.log('if course is 100 persent complete', parentChild)
                 } else {
                   if (foundContent) {
                     this.contentLoader.next(true)
+                    const language = this.contentLangSvc.getContentLanguage(parentChild)
                     const req = {
                       request: {
                         batchId: foundContent.batch.batchId,
                         userId: foundContent.userId,
+                        language: language,
                         courseId: foundContent.collectionId,
                         contentIds: [],
                         fields: [
@@ -686,12 +687,14 @@ export class AppTocService {
           || content.primaryCategory === NsContent.EPrimaryCategory.STANDALONE_ASSESSMENT
           || content.primaryCategory === NsContent.EPrimaryCategory.CURATED_PROGRAM) {
           // this.mapCompletionPercentage(content, this.resumeData)
-          const foundParentContent = this.findEnrolmentByCollectionId(enrolmentList, content?.identifier)
+          const foundParentContent = this.findEnrolmentByCollectionId(enrolmentList,  collectionId || content?.identifier)
+          const language = this.contentLangSvc.getContentLanguage(content)
           const req = {
             request: {
-              batchId: foundParentContent?.batch.batchId,
+              batchId: foundParentContent?.batch?.batchId,
               userId: foundParentContent?.userId,
               courseId: foundParentContent?.collectionId,
+              language: language,
               contentIds: [],
               fields: [
                 'progressdetails',
@@ -700,7 +703,7 @@ export class AppTocService {
           }
           await this.fetchContentHistoryV2(req).toPromise().then((progressdata: any) => {
             const data: any  = progressdata
-            if (data.result && data.result.contentList.length > 0) {
+            if (data && data.result && data.result.contentList.length > 0) {
               const completedCount = data.result.contentList.filter((ele: any) => ele.progress === 100)
               this.checkCompletedLeafnodes(completedLeafNodes, completedCount)
               totalCount = completedLeafNodes.length
@@ -760,7 +763,6 @@ export class AppTocService {
       // // }
       // })
       // this.mapModuleDurationAndProgress(content, content)
-      console.log('content percentage bind final', content)
       this.callHirarchyProgressHashmap(content)
       this.checkModuleWiseData(content)
       this.contentLoader.next(false)
@@ -847,6 +849,31 @@ export class AppTocService {
     }
   }
 
+  public createPreAssessmentHirarchyProgressHashmap(hierarchyData: NsContent.IContent) {
+    console.log('hierarchyData--', hierarchyData)
+    if (hierarchyData && hierarchyData.preEnrolmentResources) {
+      hierarchyData.preEnrolmentResources.forEach((child: NsContent.IContent) => {
+        if (child && child.preEnrolmentResources) {
+          this.createPreAssessmentHirarchyProgressHashmap(child)
+        }
+        let localMap = {}
+        localMap = {
+          parent: child.parent,
+          identifier: child.identifier,
+          leafNodesCount: child.leafNodesCount || null,
+          leafNodes: child.leafNodes || [],
+          completionPercentage: child.completionPercentage || child.progress,
+          completionStatus: child.completionStatus,
+          progress: child.progress,
+          primaryCategory: child.primaryCategory,
+          duration: child.duration || 0,
+          expectedDuration: child.expectedDuration || 0,
+        }
+        this.hashmap[child.identifier] = localMap
+      })
+    }
+  }
+
   public callHirarchyProgressHashmap(hierarchyData: NsContent.IContent | null) {
     if (hierarchyData) {
       this.hashmap[hierarchyData.identifier] = {
@@ -886,10 +913,18 @@ export class AppTocService {
 
   fetchContentHistoryV2(req: NsContent.IContinueLearningDataReq): Observable<NsContent.IContinueLearningData> {
     req.request.fields = ['progressdetails']
-    const reslut: any = this.http.post<NsContent.IContinueLearningData>(
-      `${API_END_POINTS.CONTENT_HISTORYV2}/${req.request.courseId}`, req
-    )
+    
+     if(req.request.courseId) {
+      const reslut: any = this.http.post<NsContent.IContinueLearningData>(
+        `${API_END_POINTS.CONTENT_HISTORYV2}/${req.request.courseId}`, req
+      )
+        // data.subscribe((subscribeData: any) => {
+        //       this.programChildCourseResumeData.next({ resumeData: subscribeData.result.contentList, courseId: req.request.courseId })
+        //     })
     return reslut
+      }
+      return of()
+    
   }
 
   dowonloadCertificate(certId: any): Observable<any> {
@@ -965,5 +1000,10 @@ export class AppTocService {
 
   aiGetResourceVttFile(resourceID:any) {
     return this.http.get<any>(`${API_END_POINTS.AI_RESOURCE_VTT_FILE}?resource_id=${resourceID}`)
+  }
+
+  readPreEnrollmentResourcesState(req:any) {
+    return this.http
+      .post(`${API_END_POINTS.PRE_ENROLLMENT_STATE_READ}`, req)
   }
 }

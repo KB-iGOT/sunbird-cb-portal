@@ -60,7 +60,7 @@ export class CardContentV2Component extends WidgetBaseComponent
     private translate: TranslateService,
     private contSvc: WidgetContentLibService,
     private router: Router,
-    private route: ActivatedRoute
+    private route: ActivatedRoute,
 
   ) {
     super()
@@ -244,6 +244,7 @@ export class CardContentV2Component extends WidgetBaseComponent
         return ['description', this.widgetData.content.resourceType]
     }
   }
+  
 
   private modifySensibleContentRating() {
     if (this.widgetData.content)

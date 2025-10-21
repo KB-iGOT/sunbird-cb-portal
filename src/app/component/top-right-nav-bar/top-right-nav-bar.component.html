@@ -55,8 +55,8 @@
             </li>
 
             <!-- //NOSONAR -->
-            <!-- //NOSONAR --><li matTooltipClass="right-nav-tooltip" matTooltip="{{ 'toprightnavbar.needHelp' | translate }}"
-                (click)="getZohoForm()" class="help-icon" id="help-icon"
+            <li matTooltipClass="right-nav-tooltip" matTooltip="{{ 'toprightnavbar.needHelp' | translate }}"
+                (click)="openSupportChatBot()" class="help-icon" id="help-icon"
                 *ngIf="item.type === 'helpButton' && rnc.section === 'help' && rnc.active && item?.forPreview">
                 <img src="/assets/icons/top-nav/help_icon.svg" alt="">
             </li>

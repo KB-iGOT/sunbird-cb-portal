@@ -1,14 +1,14 @@
 import { trigger, transition, style, animate } from '@angular/animations'
 import { Component, HostBinding, Input, OnDestroy, OnInit } from '@angular/core'
 import { Router, NavigationEnd } from '@angular/router'
-import { ConfigurationsService, MultilingualTranslationsService, NsInstanceConfig, ValueService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
+import { ConfigurationsService, MultilingualTranslationsService, NsInstanceConfig, ValueService, EventService, WsEvents, NsWidgetResolver } from '@sunbird-cb/utils-v2'
 import { Subscription } from 'rxjs'
 import { DiscussUtilsService } from '@ws/app/src/lib/routes/discuss/services/discuss-utils.service'
 import { environment } from 'src/environments/environment'
 // tslint:disable
 import * as _ from 'lodash'
-import { WidgetBaseComponent } from '@sunbird-cb/resolver/src/lib/widget-base.component'
-import { NsWidgetResolver } from '@sunbird-cb/resolver/src/lib/widget-resolver.model'
+import { LibNotificationsService } from '@sunbird-cb/notification'
+import { WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 // tslint:enable
 // import { AccessControlService } from '@ws/author/src/public-api'
 
@@ -67,7 +67,8 @@ export class CardHubsListComponent extends WidgetBaseComponent
     private router: Router,
     private valueSvc: ValueService,
     private langtranslations: MultilingualTranslationsService,
-    private events: EventService
+    private events: EventService,
+    private libNotificationsService: LibNotificationsService
     // private accessService: AccessControlService
   ) {
     super()
@@ -234,6 +235,7 @@ export class CardHubsListComponent extends WidgetBaseComponent
     if (this.disableMenu) {
       return false
     }
+    this.libNotificationsService.updateUnreadCount()
     this.router.navigate([path])
   }
 
@@ -333,6 +335,7 @@ export class CardHubsListComponent extends WidgetBaseComponent
   }
 
   exploreContent() {
+    this.libNotificationsService.updateUnreadCount()
     this.raiseTelemetryExploreContent()
     const queryParams = {
       q: '',

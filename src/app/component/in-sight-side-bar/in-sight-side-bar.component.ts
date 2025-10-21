@@ -1,5 +1,6 @@
 import { AUTO_STYLE, animate, state, transition, trigger, style } from '@angular/animations'
 import { Component, EventEmitter, OnInit, Output } from '@angular/core'
+import { HomePageService } from '../../services/home-page.service'
 import { ConfigurationsService, EventService, WsEvents, MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 import { HttpErrorResponse } from '@angular/common/http'
 import { ActivatedRoute, Router } from '@angular/router'
@@ -12,7 +13,6 @@ import * as _ from 'lodash';
 import { ProfileV2Service } from '@ws/app/src/lib/routes/profile-v2/services/profile-v2.servive'
 import { UserProfileService } from '@ws/app/src/lib/routes/user-profile/services/user-profile.service'
 import { MatAutocompleteTrigger } from '@angular/material/autocomplete'
-import { HomePageService } from '../..//services/home-page.service'
 
 const DEFAULT_WEEKLY_DURATION = 300
 const DEFAULT_DISCUSS_DURATION = 600
@@ -184,7 +184,7 @@ export class InsightSideBarComponent implements OnInit {
     this.getInsights()
     this.getPendingRequestData()
     this.noDataValue = noData
-    this.getDiscussionsData()
+    // this.getDiscussionsData()
     // this.displayRandomlearnAdvisoryData()
 
     if (this.activatedRoute.snapshot.data.pageData && this.activatedRoute.snapshot.data.pageData.data.assessmentData) {
@@ -400,22 +400,23 @@ export class InsightSideBarComponent implements OnInit {
   }
 
   getPendingRequestData() {
-    this.homePageSvc.getRecentRequests().subscribe(
-      (res: any) => {
-        this.pendingRequestSkeleton = false
-        this.pendingRequestData = res.result.data && res.result.data.map((elem: any) => {
-          elem.fullName = elem.fullName.charAt(0).toUpperCase() + elem.fullName.slice(1)
-          return elem
-        })
-        // tslint:disable-next-line: align
-      }, (error: HttpErrorResponse) => {
-        // tslint:disable-next-line: align
-        if (!error.ok) {
-          // tslint:disable-next-line: align
-          this.pendingRequestSkeleton = false
-        }
-      }
-    )
+    this.pendingRequestSkeleton = false
+    // this.homePageSvc.getRecentRequests().subscribe(
+    //   (res: any) => {
+    //     this.pendingRequestSkeleton = false
+    //     this.pendingRequestData = res.result.data && res.result.data.map((elem: any) => {
+    //       elem.fullName = elem.fullName.charAt(0).toUpperCase() + elem.fullName.slice(1)
+    //       return elem
+    //     })
+    //     // tslint:disable-next-line: align
+    //   }, (error: HttpErrorResponse) => {
+    //     // tslint:disable-next-line: align
+    //     if (!error.ok) {
+    //       // tslint:disable-next-line: align
+    //       this.pendingRequestSkeleton = false
+    //     }
+    //   }
+    // )
   }
 
   navigateTo() {

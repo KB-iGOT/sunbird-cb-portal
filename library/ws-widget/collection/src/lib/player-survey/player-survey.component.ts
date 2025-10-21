@@ -111,29 +111,37 @@ export class PlayerSurveyComponent extends WidgetBaseComponent
           userId = this.configSvc.userProfile.userId || ''
           this.userid = this.configSvc.userProfile.userId || ''
         }
-        if (this.activatedRoute.snapshot.queryParams.collectionId &&
-          this.activatedRoute.snapshot.queryParams.batchId &&
-          this.identifierId) {
-          const resData = this.viewerSvc.getBatchIdAndCourseId(this.activatedRoute.snapshot.queryParams.collectionId,
-                                                               this.activatedRoute.snapshot.queryParams.batchId, this.identifierId)
-          const req = {
-            request: {
-              userId,
-              batchId: resData.batchId || '',
-              courseId: resData.courseId || '',
-              contentIds: [],
-              fields: ['progressdetails'],
-            },
+        const isPreAssessment = this.activatedRoute.snapshot.queryParams.preAssessment
+        if(isPreAssessment) {
+          this.progressStatus  = this.viewerSvc.getPreAssessmentResourceStatus(this.identifierId)
+        } else {
+
+          if (this.activatedRoute.snapshot.queryParams.collectionId &&
+            this.activatedRoute.snapshot.queryParams.batchId &&
+            this.identifierId) {
+            const resData = this.viewerSvc.getBatchIdAndCourseId(this.activatedRoute.snapshot.queryParams.collectionId,
+                                                                this.activatedRoute.snapshot.queryParams.batchId, this.identifierId)
+            const language = this.viewerSvc.getResourceContentLanguage(this.identifierId)
+            const req = {
+              request: {
+                userId,
+                language,
+                batchId: resData.batchId || '',
+                courseId: resData.courseId || '',
+                contentIds: [],
+                fields: ['progressdetails'],
+              },
+            }
+            this.widgetServ.fetchContentHistoryV2(req).subscribe(
+              (data: any) => {
+                this.contentProgressHash = data.result.contentList.filter((i: any) => i.contentId === this.currentResourceId)
+                if (this.contentProgressHash && this.contentProgressHash.length > 0) {
+                  this.progressStatus = this.contentProgressHash[0].status
+                }
+                this.widgetServ.setProgramChildResumeData(data.result.contentList, resData.courseId)
+                // console.log(this.progressStatus)
+            })
           }
-          this.widgetServ.fetchContentHistoryV2(req).subscribe(
-            (data: any) => {
-              this.contentProgressHash = data.result.contentList.filter((i: any) => i.contentId === this.currentResourceId)
-              if (this.contentProgressHash && this.contentProgressHash.length > 0) {
-                this.progressStatus = this.contentProgressHash[0].status
-              }
-              this.widgetServ.setProgramChildResumeData(data.result.contentList, resData.courseId)
-              // console.log(this.progressStatus)
-          })
         }
       }
     })
@@ -363,6 +371,14 @@ export class PlayerSurveyComponent extends WidgetBaseComponent
                                                          this.activatedRoute.snapshot.queryParams.batchId, id)
     const collectionId = (resData && resData.courseId) ? resData.courseId : ''
     const batchId = (resData && resData.batchId) ? resData.batchId : ''
+    const isPreAssessment = this.activatedRoute.snapshot.queryParams.preAssessment
+    if(isPreAssessment) {
+      const MIME_TYPE = this.widgetData?.mimeType || "application/survey"
+      if (id && collectionId) {
+        this.viewerSvc
+          .realTimeProgressUpdateForPreAssessmentQuiz(id, status,MIME_TYPE)
+      }
+    } else 
     if (collectionId && batchId && id) {
       this.viewerSvc.realTimeProgressUpdateQuiz(id, collectionId, batchId, status)
     }

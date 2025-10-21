@@ -20,10 +20,11 @@
             </ng-container>
         </div>
         <div class="flex flex-row flex-wrap content-container"
-            *ngIf="tabResults.length > 0">
+            *ngIf="tabResults.length > 0" infinite-scroll [infiniteScrollDistance]="scrollDistance"
+            [infiniteScrollThrottle]="throttle" (scrolled)="onScrollEnd()" >
             <mat-tab-group animationDuration="0ms"
                   class="mat-tab-labels w-full strips-tabgroup" dynamicHeight
-                  (selectedTabChange)="tabClicked($event, seeAllPageConfig, seeAllPageConfig.key)" [(selectedIndex)]="dynamicTabIndex">
+                  (selectedIndexChange)="tabClicked($event, seeAllPageConfig, seeAllPageConfig.key)" [selectedIndex]="dynamicTabIndex">
             <mat-tab *ngFor="let tab of tabResults; let last = last;" [label]="tab?.label">
                 <ng-template mat-tab-label>
                     <span>{{translateLabels(tab?.label,'seeAllHome')}} &nbsp;</span>

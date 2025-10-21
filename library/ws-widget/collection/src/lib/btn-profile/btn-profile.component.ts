@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, OnDestroy, HostBinding } from '@angular/core'
-
-import { ConfigurationsService, LogoutComponent, NsPage, NsAppsConfig, EventService, WsEvents } from '@sunbird-cb/utils-v2'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { ConfigurationsService, LogoutComponent, NsPage, NsAppsConfig, EventService, WsEvents, DomainConfService } from '@sunbird-cb/utils-v2'
 import { IBtnAppsConfig } from '../btn-apps/btn-apps.model'
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
 import { Subscription } from 'rxjs'
@@ -10,8 +10,8 @@ import * as _ from 'lodash'
 import { AccessControlService } from '@ws/author/src/lib/modules/shared/services/access-control.service'
 import { ActivatedRoute, Router } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
-import { WidgetBaseComponent } from '@sunbird-cb/resolver/src/lib/widget-base.component'
-import { NsWidgetResolver } from '@sunbird-cb/resolver/src/lib/widget-resolver.model'
+import { LibNotificationsService } from '@sunbird-cb/notification'
+import { environment } from 'src/environments/environment'
 /* tslint:enable*/
 interface IGroupWithFeatureWidgets extends NsAppsConfig.IGroup {
   featureWidgets: NsWidgetResolver.IRenderConfigWithTypedData<NsPage.INavLink>[]
@@ -51,6 +51,7 @@ export class BtnProfileComponent extends WidgetBaseComponent
   private readonly featuresConfig: IGroupWithFeatureWidgets[] = []
   portalLinks: any[] = []
   hideMenu = false
+  isKbPortal: boolean = true
   constructor(
     private configSvc: ConfigurationsService,
     private dialog: MatDialog,
@@ -58,7 +59,9 @@ export class BtnProfileComponent extends WidgetBaseComponent
     private router: Router,
     private activatedRoute: ActivatedRoute,
     private translate: TranslateService,
-    private events: EventService
+    private events: EventService,
+    private libNotificationsService: LibNotificationsService,
+    private domainConfSvc:DomainConfService
   ) {
     super()
     this.btnAppsConfig = { ...this.basicBtnAppsConfig }
@@ -110,6 +113,7 @@ export class BtnProfileComponent extends WidgetBaseComponent
       const lang = localStorage.getItem('websiteLanguage')!
       this.translate.use(lang)
     }
+    this.isKbPortal = this.domainConfSvc.isKbPortal()
   }
   updateUserInfo() {
     if (this.configSvc.userProfile) {
@@ -238,6 +242,9 @@ export class BtnProfileComponent extends WidgetBaseComponent
   }
 
   raiseTelemetry(tabname: string) {
+    if (tabname === 'view profile') {
+      this.libNotificationsService.updateUnreadCount()
+    }
     const name = tabname.toLowerCase().split(' ').join('-')
     this.events.raiseInteractTelemetry(
       {
@@ -265,4 +272,8 @@ export class BtnProfileComponent extends WidgetBaseComponent
   //     data,
   //   )
   // }
+  redirectToKBPortal() {
+    const kbUrl: any =  (environment && environment.missionKarmayogiPath)&& environment?.missionKarmayogiPath
+    window.open(kbUrl, '_blank')
+  }      
 }

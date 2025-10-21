@@ -17,6 +17,7 @@ import { WidgetContentService } from '../_services/widget-content.service'
 import { ViewerUtilService } from '@ws/viewer/src/lib/viewer-util.service'
 import { AppTocService } from '@ws/app/src/lib/routes/app-toc/services/app-toc.service'
 import { Subscription } from 'rxjs'
+import 'videojs-hls-quality-selector';
 const videoJsOptions: videoJs.PlayerOptions = {
   controls: true,
   autoplay: true,
@@ -35,6 +36,12 @@ const videoJsOptions: videoJs.PlayerOptions = {
     nativeTextTracks: false,
   },
   nativeControlsForTouch: false,
+  plugins: {
+    hlsQualitySelector: {
+      displayCurrentQuality: true, // ✅ Show current quality in the menu
+    },
+  },
+
 }
 
 @Component({
@@ -48,7 +55,7 @@ export class PlayerVideoComponent extends WidgetBaseComponent
   AfterViewInit,
   OnDestroy,
   NsWidgetResolver.IWidgetData<IWidgetsPlayerMediaData> {
-  @Input() widgetData!: IWidgetsPlayerMediaData
+  @Input() widgetData!: any
   @ViewChild('videoTag') videoTag!: ElementRef<HTMLVideoElement>
   @ViewChild('realvideoTag') realvideoTag!: ElementRef<HTMLVideoElement>
   @HostBinding('id')
@@ -65,7 +72,8 @@ export class PlayerVideoComponent extends WidgetBaseComponent
   playerInitObj:any
   previousSubtitleLanguage = 'en'
   playTranscriptionVideoSubscription:Subscription | null = null
-  changeTranscriptionLanguageEventSubscription: Subscription | null = null
+  changeTranscriptionLanguageEventSubscription: Subscription | null = null  
+  videoUrl = 'https://portal.uat.karmayogibharat.net/stream-store/content/do_114194996168163328192/artifact/manifest.m3u8'
   constructor(
     private eventSvc: EventService,
     private contentSvc: WidgetContentService,
@@ -147,7 +155,7 @@ export class PlayerVideoComponent extends WidgetBaseComponent
 
   async ngAfterViewInit() {
     let playerInitialize = false
-    //console.log('this.widgetData--', this.widgetData)
+    
     this.widgetData = {
       ...this.widgetData,
     }
@@ -368,8 +376,13 @@ export class PlayerVideoComponent extends WidgetBaseComponent
               this.activatedRoute.snapshot.queryParams.collectionId : ''
       const batchId = this.activatedRoute.snapshot.queryParams.batchId ?
               this.activatedRoute.snapshot.queryParams.batchId : ''
-
-      if (this.widgetData.identifier && identifier && data) {
+      const isPreAssessment = this.activatedRoute.snapshot.queryParams.preAssessment
+      if(isPreAssessment) {
+        if (this.widgetData.identifier && identifier && data) {
+          this.viewerSvc
+            .realTimeProgressUpdateForPreAssessment(identifier, data)
+        }
+      } else if (this.widgetData.identifier && identifier && data) {
           this.viewerSvc
             .realTimeProgressUpdate(identifier, data, collectionId, batchId)
       }
@@ -454,7 +467,13 @@ export class PlayerVideoComponent extends WidgetBaseComponent
                                                            this.activatedRoute.snapshot.queryParams.batchId, identifier)
       const collectionId = (resData && resData.courseId) ? resData.courseId : ''
       const batchId = (resData && resData.batchId) ? resData.batchId : ''
-        if (this.widgetData.identifier && identifier && data && collectionId && batchId) {
+      const isPreAssessment = this.activatedRoute.snapshot.queryParams.preAssessment
+      if(isPreAssessment) {
+        if (this.widgetData.identifier && identifier && data) {
+          this.viewerSvc
+            .realTimeProgressUpdateForPreAssessment(identifier, data)
+        }
+      } else if (this.widgetData.identifier && identifier && data && collectionId && batchId) {
           this.viewerSvc
             .realTimeProgressUpdate(identifier, data, collectionId, batchId)
       }
@@ -484,11 +503,13 @@ export class PlayerVideoComponent extends WidgetBaseComponent
     )
     this.playerInitObj = initObj
     this.player = initObj.player
+   ;
     this.dispose = initObj.dispose
     
     
 
     initObj.player.ready(() => {
+      
       let tracks = initObj.player.textTracks()
       setTimeout(() => {
         const ccButton = initObj.player.controlBar.getChild('SubsCapsButton') as any;
@@ -541,6 +562,26 @@ export class PlayerVideoComponent extends WidgetBaseComponent
             }
           }
         }
+         const qualityBtn = document.querySelector('.vjs-quality-selector .vjs-menu-button');
+
+        if (qualityBtn && this.widgetData && this.widgetData.streamingUrl) {
+          qualityBtn.innerHTML = '';
+
+          const wrapper = document.createElement('div');
+          wrapper.className = 'quality-wrapper'; // flex container
+
+          const icon = document.createElement('span');
+          icon.className = 'vjs-icon-placeholder';
+          icon.innerHTML = '<i class="material-icons quality-icons"  title="Quality">tune</i>';
+
+          // const text = document.createElement('span');
+          // text.className = 'vjs-menu-value';
+          // text.textContent = 'Quality';
+
+          wrapper.appendChild(icon);
+          // wrapper.appendChild(text);
+          qualityBtn.appendChild(wrapper);
+        }
       }, 100);
       this.activeTranscriptionLanguage = this.transcriptionSubscriptionData?.activeLang
       this.transcriptionLangArr = this.transcriptionSubscriptionData?.langData
@@ -574,8 +615,16 @@ export class PlayerVideoComponent extends WidgetBaseComponent
         //     });
         //   }
         // }
-       
-        initObj.player.src(this.viewerSvc.getCdnUrl(this.widgetData.url))
+
+        // initObj.player.src(this.viewerSvc.getCdnUrl(this.widgetData.url))
+        if(this.widgetData && this.widgetData.streamingUrl) {
+          initObj.player.src(this.widgetData.streamingUrl)
+          //this.videoUrl = this.widgetData.streamingUrl
+        } else {
+          initObj.player.src(this.viewerSvc.getCdnUrl(this.widgetData.url))
+          this.videoUrl = this.widgetData.url
+        }
+        
 
         if(startTime && endTime) {
           initObj.player.currentTime(startTime); // jump to start  

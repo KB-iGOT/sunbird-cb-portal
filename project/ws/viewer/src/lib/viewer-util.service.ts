@@ -1,4 +1,4 @@
-import { ConfigurationsService } from '@sunbird-cb/utils-v2'
+import { ConfigurationsService, DomainConfService } from '@sunbird-cb/utils-v2'
 import { Injectable } from '@angular/core'
 import { HttpClient } from '@angular/common/http'
 import { noop, Observable, Subject } from 'rxjs'
@@ -7,7 +7,7 @@ import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-conte
 import { environment } from 'src/environments/environment'
 import { WidgetContentService } from '@sunbird-cb/collection/src/lib/_services/widget-content.service'
 import { AppTocService } from '@ws/app/src/lib/routes/app-toc/services/app-toc.service'
-import { WidgetUserServiceLib } from '@sunbird-cb/consumption'
+import { ContentLanguageService, WidgetUserServiceLib } from '@sunbird-cb/consumption'
 
 @Injectable({
   providedIn: 'root',
@@ -19,7 +19,9 @@ export class ViewerUtilService {
     PROGRESS_UPDATE: `/apis/proxies/v8/content-progres`,
     ASSESSMENT_SECTION: `/apis/proxies/v8/assessment/v5/read`,
     GET_FORM_BYID: (formId: string) => `apis/proxies/v8/forms/getFormById?id=${formId}`,
-    SUBMIT_FORM: `/apis/proxies/v8/forms/v1/saveFormSubmit`
+    SUBMIT_FORM: `/apis/proxies/v8/forms/v1/saveFormSubmit`,
+    PRE_ASSESSMENT_STATE_UPDATE: `/apis/proxies/v8/content/v2/state/update`
+    
   }
   downloadRegex = new RegExp(`(/content-store/.*?)(\\\)?\\\\?['"])`, 'gm')
   authoringBase = '/apis/authContent/'
@@ -34,6 +36,8 @@ export class ViewerUtilService {
     private contentSvc: WidgetContentService,
     private tocSvc: AppTocService,
     private userSvc: WidgetUserServiceLib,
+    private contentLangSvc: ContentLanguageService,
+    private domainConfSvc: DomainConfService
     ) { }
 
   async fetchManifestFile(url: string) {
@@ -122,6 +126,7 @@ export class ViewerUtilService {
   realTimeProgressUpdate(contentId: string, request: any, collectionId?: string, batchId?: string) {
     let req: any
     if (this.configservice.userProfile) {
+      const language = this.getResourceContentLanguage(contentId) 
       req = {
         request: {
           userId: this.configservice.userProfile.userId || '',
@@ -129,6 +134,7 @@ export class ViewerUtilService {
             {
               contentId,
               batchId,
+              language,
               status: this.getStatus(request.current, request.max_size, request.mime_type),
               courseId: collectionId,
               lastAccessTime: dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss:SSSZZ'),
@@ -214,6 +220,32 @@ export class ViewerUtilService {
     }
     return tempData
   }
+
+  getResourceContentLanguage(resourceId: string) {
+
+    let tempLanguage:any =  'english'
+    let languageFound = false
+    const tempContentData = this.contentSvc.currentMetaData
+     if (!this.forPreview) {
+      tempContentData.children?.forEach(async (childList: NsContent.IContent) => {
+         if (childList.primaryCategory === NsContent.EPrimaryCategory.COURSE) {
+           // tslint:disable-next-line: max-line-length
+           if (childList.leafNodes && childList.leafNodes.indexOf(resourceId) !== -1) {
+            tempLanguage = this.contentLangSvc.getContentLanguage(childList)
+            languageFound = true
+           }
+         }
+       } 
+      )
+      if(!languageFound) {
+        if (tempContentData.leafNodes && tempContentData.leafNodes.indexOf(resourceId) !== -1) {
+              tempLanguage = this.contentLangSvc.getContentLanguage(tempContentData)
+        }
+      }
+    }
+    return tempLanguage
+  }
+
   async checkForCourseEnrollment(childList: NsContent.IContent, _resourceId: string, _enrollmentList: any, _tempData: any) {
     // tslint:disable-next-line: max-line-length
     const courseData: any  = await this.contentSvc.autoAssignBatchApi(childList.identifier).toPromise().then(async (data: NsContent.IBatchListResponse) => {
@@ -240,6 +272,7 @@ export class ViewerUtilService {
   realTimeProgressUpdateQuiz(contentId: string, collectionId?: string, batchId?: string, status?: number) {
     let req: any
     if (this.configservice.userProfile) {
+      const language = this.getResourceContentLanguage(contentId) 
       req = {
         request: {
           userId: this.configservice.userProfile.userId || '',
@@ -247,6 +280,7 @@ export class ViewerUtilService {
             {
               contentId,
               batchId,
+              language,
               status: status || 2,
               courseId: collectionId,
               lastAccessTime: dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss:SSSZZ'),
@@ -322,7 +356,7 @@ export class ViewerUtilService {
 
   getCdnUrl(url: string): string {
     const mainUrl = url.split('/content').pop() || ''
-    return `${environment.cdnContentHost}/${environment.cdnContentBucket}/content${mainUrl}`
+    return `${this.domainConfSvc.getDomainCDNHost()}/${environment.cdnContentBucket}/content${mainUrl}`    
   }
 
   //  fetchContent(
@@ -359,4 +393,134 @@ export class ViewerUtilService {
     submitForm(formData: any) {
       return this.http.post<any>(this.API_ENDPOINTS.SUBMIT_FORM, formData)
     }
+
+    realTimeProgressUpdateForPreAssessment(contentId: string, request: any) {
+      let req: any
+      if (this.configservice.userProfile) {
+        req = {
+          request: {
+            userId: this.configservice.userProfile.userId || '',
+            contents: [
+              {
+                contentId,
+                // batchId,
+                status: this.getStatus(request.current, request.max_size, request.mime_type),
+                // courseId: collectionId,
+                lastAccessTime: dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss:SSSZZ'),
+                progressdetails: {
+                  max_size: request.max_size,
+                  current: request.current,
+                  mimeType: request.mime_type,
+                },
+                completionPercentage: this.calculatePercent(request.current, request.max_size, request.mime_type),
+              },
+            ],
+          },
+        }
+        // if (this.configservice.cstoken !== '') {
+        //   const headers = new HttpHeaders()
+        //   .set('cstoken', this.configservice.cstoken)
+  
+        //   this.http
+        //   .patch(`${this.API_ENDPOINTS.PROGRESS_UPDATE}/${contentId}`, { headers } , req)
+        //   .subscribe(noop, noop)
+        // } else {
+        //   this.http
+        //   .patch(`${this.API_ENDPOINTS.PROGRESS_UPDATE}/${contentId}`, req)
+        //   .subscribe(noop, noop)
+        // }
+        // this.http
+        //   .patch(`${this.API_ENDPOINTS.PROGRESS_UPDATE}/${contentId}`, req)
+        //   .subscribe(noop, noop)
+        //const contentIdNew= req.request.contents[0].contentId
+        // const updatedCompletionPercentage = req.request.contents[0].completionPercentage
+        // const updatedStatus = req.request.contents[0].status
+
+        // // Clone the inner object and update
+        // const existingContent = this.tocSvc.hashmap[contentIdNew] || {}
+
+        // this.tocSvc.hashmap = {
+        //   ...this.tocSvc.hashmap,
+        //   [contentIdNew]: {
+        //     ...existingContent,
+        //     completionPercentage: updatedCompletionPercentage,
+        //     completionStatus: updatedStatus
+        //   }
+        // }
+        // console.log('req', JSON.stringify(req))
+        // console.log('req', req)
+        
+        const resourceStatus = this.getPreAssessmentResourceStatus(contentId)
+        if(resourceStatus < 2) {
+          this.http
+          .patch(`${this.API_ENDPOINTS.PRE_ASSESSMENT_STATE_UPDATE}`, req)
+          .subscribe(noop, noop)
+        }
+        if (this.tocSvc.hashmap[contentId] &&
+          (!this.tocSvc.hashmap[contentId]['completionStatus'] || this.tocSvc.hashmap[contentId]['completionStatus'] < 2)) {
+          this.tocSvc.hashmap[contentId]['completionPercentage'] = req.request.contents[0].completionPercentage
+          this.tocSvc.hashmap[contentId]['completionStatus'] = req.request.contents[0].status
+          this.tocSvc.hashmap[contentId]['parent'] = req.request.contents[0].courseId
+          this.tocSvc.hashmap[contentId]['progress'] = req.request.contents[0].progressdetails
+          this.tocSvc.hashmap = { ...this.tocSvc.hashmap }
+        }
+        
+        // console.log('Updated hashmap:', this.tocSvc.hashmap)
+         
+          // console.log('this.tocSvc.hashmap---', this.tocSvc.hashmap)
+      } else {
+        req = {}
+        // do nothing
+      }
+    }
+
+    realTimeProgressUpdateForPreAssessmentQuiz(contentId: string, status?: number, mimeType?: string) {
+      let req: any
+      if (this.configservice.userProfile) {
+        req = {
+          request: {
+            //userId: this.configservice.userProfile.userId || '',
+            contents: [
+              {
+                contentId,
+                // batchId,
+                status: status || 2,
+                // courseId: collectionId,
+                lastAccessTime: dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss:SSSZZ'),
+                completionPercentage: status === 2 ? 100.0 : 0,
+                progressdetails: {
+                    "mimeType": mimeType || "application/vnd.sunbird.questionset"
+                },
+              },
+            ],
+          },
+        }
+        const resourceStatus = this.getPreAssessmentResourceStatus(contentId)
+        if(resourceStatus < 2) {
+          this.http
+          .patch(`${this.API_ENDPOINTS.PRE_ASSESSMENT_STATE_UPDATE}`, req)
+          .subscribe(noop, noop)
+        }
+        if (this.tocSvc.hashmap && this.tocSvc.hashmap[contentId] && req.request.contents[0]) {
+          if (this.tocSvc.hashmap[contentId] &&
+            (!this.tocSvc.hashmap[contentId]['completionStatus'] || this.tocSvc.hashmap[contentId]['completionStatus'] < 2)) {
+            this.tocSvc.hashmap[contentId]['completionPercentage'] = req.request.contents[0].completionPercentage
+            this.tocSvc.hashmap[contentId]['completionStatus'] = req.request.contents[0].status
+            this.tocSvc.hashmap = { ...this.tocSvc.hashmap }
+          }
+        }
+      } else {
+        req = {}
+        // do nothing
+      }
+    }
+
+    getPreAssessmentResourceStatus(resourceId:string){
+      if(this.tocSvc && this.tocSvc.hashmap && this.tocSvc.hashmap[resourceId]) {
+        return this.tocSvc.hashmap[resourceId]['completionStatus'] || 1
+      }
+      return 1
+    }
+
+   
 }

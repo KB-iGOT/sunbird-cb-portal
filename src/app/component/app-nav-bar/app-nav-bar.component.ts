@@ -4,12 +4,13 @@ import { Router, NavigationStart, NavigationEnd } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
 
 
-import { NsWidgetResolver } from '@sunbird-cb/resolver'
-import { ConfigurationsService, EventService, MultilingualTranslationsService, NsInstanceConfig, NsPage, WsEvents } from '@sunbird-cb/utils-v2'
+import { NsWidgetResolver } from '@sunbird-cb/resolver-v2'
 import { UrlService } from '../../shared/url.service'
 import { IBtnAppsConfig } from '@sunbird-cb/collection/src/lib/btn-apps/btn-apps.model'
 import { CustomTourService } from '@sunbird-cb/collection/src/lib/_common/tour-guide/tour-guide.service'
 import { WidgetUserService } from '@sunbird-cb/collection/src/lib/_services/widget-user.service'
+
+import { ConfigurationsService, DomainConfService, EventService, MultilingualTranslationsService, NsInstanceConfig, NsPage, WsEvents } from '@sunbird-cb/utils-v2'
 
 
 import { NotificationsService } from '../../services/notifications.service'
@@ -69,7 +70,8 @@ export class AppNavBarComponent implements OnInit, OnChanges, OnDestroy {
   disableMenu = false
   showLangDropdown = true
   notificationsCount: number = 0
-  public myNotificationsSubscription!: Subscription
+  private myNotificationsSubscription!: Subscription
+  redirectPath = '/page/home'
   constructor(
     private domSanitizer: DomSanitizer,
     private configSvc: ConfigurationsService,
@@ -81,7 +83,8 @@ export class AppNavBarComponent implements OnInit, OnChanges, OnDestroy {
     private urlService: UrlService,
     private userSvc: WidgetUserService,
     private notificationsService: NotificationsService,
-    private libNotificationsService: LibNotificationsService
+    private libNotificationsService: LibNotificationsService,
+    private domainConfSvc: DomainConfService
   ) {
     this.btnAppsConfig = { ...this.basicBtnAppsConfig }
     if (this.configSvc?.restrictedFeatures) {
@@ -156,8 +159,10 @@ export class AppNavBarComponent implements OnInit, OnChanges, OnDestroy {
 
     if (this.configSvc.instanceConfig) {
       this.appIcon = this.domSanitizer.bypassSecurityTrustResourceUrl(
-        this.configSvc.instanceConfig.logos.app,
+        this.domainConfSvc.getDomainAppLogo()
       )
+      this.redirectPath = this.domainConfSvc.getDomainRedirectPath()
+        
 
       this.appIconSecondary = this.domSanitizer.bypassSecurityTrustResourceUrl(
         this.configSvc.instanceConfig.logos.appSecondary,
@@ -219,12 +224,12 @@ export class AppNavBarComponent implements OnInit, OnChanges, OnDestroy {
     }
     if (this.configSvc.unMappedUser && this.configSvc.unMappedUser.identifier) {
       this.getMyCount()
+      this.myNotificationsSubscription = this.libNotificationsService.unreadCount$.subscribe((res: number) => {
+        if (res > 0) {
+          this.getMyCount()
+        }
+      })
     }
-    this.myNotificationsSubscription = this.libNotificationsService._unreadCount?.subscribe((res: boolean) => {
-      if (res === true) {
-        this.getMyCount()
-      }
-    })
   }
 
   getMyCount() {
