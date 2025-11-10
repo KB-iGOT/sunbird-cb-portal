@@ -23,7 +23,7 @@
             <!-- //NOSONAR -->
             <li matTooltipClass="right-nav-tooltip" matTooltip="{{ 'toprightnavbar.downloadApp' | translate }}"
                 *ngIf="rnc.section === 'download' && rnc.active && item.type === 'downloadButton' && item?.forPreview"
-                class="download-app-chip" (click)="openDialog()">
+                class="download-app-chip" (click)="openDialog()" (keyup)="openDialog()">
                 <span class="mat-body-2">{{ 'toprightnavbar.downloadApp' | translate }}</span>
             </li>
             <li matTooltipClass="right-nav-tooltip" matTooltip="{{ translateLabels('font', 'toprightnavbar')}}"
