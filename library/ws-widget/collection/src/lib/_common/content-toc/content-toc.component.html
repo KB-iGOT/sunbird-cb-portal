@@ -206,8 +206,8 @@
 
         <ng-container *ngIf="config?.commentsTab && !forPreview">
             <mat-tab label="{{ 'apptocsinglepage.comments' | translate }}">
-                <!-- <ng-template matTabContent> -->
-                <div class="flex flex-col ratings-div mt-5" id="commentsDiv" *ngIf="discussWidgetData">
+                <ng-template matTabContent>
+                <div class="flex flex-col ratings-div mt-5" id="commentsDiv" *ngIf="discussWidgetData && discussWidgetData?.newCommentSection?.commentTreeData?.entityId">
                     <ng-container *ngIf="!commentId">
                         <d-v2-widget-comment [widgetData]="discussWidgetData"></d-v2-widget-comment>
                     </ng-container>
@@ -220,7 +220,7 @@
                             [skeletonLoader]></d-v2-widget-comment>
                     </ng-container>
                 </div>
-                <!-- </ng-template> -->
+                </ng-template>
             </mat-tab>
         </ng-container>
 
@@ -245,6 +245,16 @@
                             [notesDisplayType]="'Reference Resource'"></ws-widget-app-toc-teachers-notes>
 
                         <!-- <ws-widget-app-toc-reference-notes [content]="contentReadData"></ws-widget-app-toc-reference-notes> -->
+                    </div>
+                </ng-template>
+            </mat-tab>
+        </ng-container>
+
+        <ng-container *ngIf="showAssignmentsTab && !forPreview">
+            <mat-tab label="{{ 'apptocsinglepage.assignments' | translate }}">
+                <ng-template matTabContent>
+                    <div class="flex flex-col ratings-div mt-5" id="takeAssessmentDiv">
+                        <ws-widget-app-batch-assignments [content]="content"></ws-widget-app-batch-assignments>
                     </div>
                 </ng-template>
             </mat-tab>
