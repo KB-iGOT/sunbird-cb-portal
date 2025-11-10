@@ -541,8 +541,6 @@ span.tooltip-check:hover .tooltiptext-check {
   /* stylelint-enable */
   background-color: #e0e0e0;
   border-radius: 16px;
-  position: relative;
-
   box-sizing: border-box;
 }
 
@@ -657,7 +655,6 @@ span.tooltip-check:hover .tooltiptext-check {
       left: 20%;
       padding: 2px 8px;
       height: fit-content;
-      opacity: 1;
       color: rgba(0, 0, 0, 0.87);
       /* stylelint-disable */
       font-family: "Lato-Regular";
@@ -713,16 +710,13 @@ span.tooltip-check:hover .tooltiptext-check {
     .stats-title {
       opacity: 1;
       color: rgba(0, 0, 0, 0.6);
-      /* stylelint-disable */
       font-weight: 400;
-      /* stylelint-enable */
       font-style: normal;
       word-break: break-word;
       height: 20px;
       /* stylelint-disable */
       font-family: Lato;
       /* stylelint-enable */
-      font-weight: 400;
       font-size: 12px;
       line-height: 14.4px;
     }
@@ -792,9 +786,6 @@ span.tooltip-check:hover .tooltiptext-check {
 
     span {
       border-radius: 8px;
-      /* stylelint-disable */
-      opacity: 1;
-      /* stylelint-enable */
       background-color: white;
       width: fit-content;
       position: absolute;
