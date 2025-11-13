@@ -12,6 +12,7 @@
   <ng-container [ngSwitch]="header">
     <ng-container *ngSwitchCase="'Profile'" [ngTemplateOutlet]="profileTopSection"></ng-container>
     <ng-container *ngSwitchCase="'Primary Details'" [ngTemplateOutlet]="primaryDetails"></ng-container>
+    <ng-container *ngSwitchCase="'Mandatory Section'" [ngTemplateOutlet]="mandatorySection"></ng-container>
     <ng-container *ngSwitchCase="'About Me'" [ngTemplateOutlet]="aboutMe"></ng-container>
     <ng-container *ngSwitchCase="'Other Details'" [ngTemplateOutlet]="otherDetails"></ng-container>
   </ng-container>
@@ -145,6 +146,143 @@
     </form>
   </ng-template>
   <!-- #endregion (Primary Details) -->
+
+  <!-- #region (Mandatory Section) -->
+  <ng-template #mandatorySection>
+    <form [formGroup]="profileForm" class="profile-editor-form">
+      <div class="profile-editor-description">
+        {{'NetworkV2Profile.pdTooltipMsg' | translate}}
+      </div>
+
+      <div class="form-fields-container">
+        <div class="flex flex-col profile-control">
+          <div class="lable required">{{'NetworkV2Profile.group' | translate}}</div>
+          <mat-form-field appearance="outline">
+            <mat-select formControlName="group" placeholder="{{'NetworkV2Profile.chooseAGroup' | translate}}">
+              <mat-option value="" disabled>{{ 'NetworkV2Profile.chooseAGroup' | translate }}</mat-option>
+              <mat-option *ngFor="let group of groupsList" value="{{group}}">{{ group }}</mat-option>
+            </mat-select>
+            <mat-error *ngIf="hasError('group', 'required')">{{'NetworkV2Profile.groupIsRequired' | translate}}</mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="flex flex-col profile-control">
+          <div class="lable required">{{'NetworkV2Profile.designation' | translate}}</div>
+          <mat-form-field appearance="outline">
+            <mat-select formControlName="designation" placeholder="{{'NetworkV2Profile.chooseADesignation' | translate}}" panelClass="profile-control"
+              (openedChange)="setupScrollListener($event)" (closed)="onDesignationDropdownClosed()">
+              <div class="sticky-search-container" (click)="$event.stopPropagation()">
+                <div class="search-input-wrapper profile-control">
+                  <input type="text" placeholder="Search designation" formControlName="searchDesignation"
+                    class="search-input" (keydown)="$event.stopPropagation()" (click)="$event.stopPropagation()"
+                    autocomplete="off">
+                </div>
+              </div>
+              <mat-option *ngFor="let option of designationsMeta" [value]="option?.designation">
+                {{ option?.designation }}
+              </mat-option>
+              <div *ngIf="isLoadingMoreDesignations" class="loading-indicator">
+                {{'NetworkV2Profile.loadingMore' | translate}}
+              </div>
+              <mat-option *ngIf="(designationsMeta )?.length === 0" disabled>
+                {{'NetworkV2Profile.noMatchesFound' | translate}}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="hasError('designation', 'required')">{{'NetworkV2Profile.designationIsRequired' | translate}}</mat-error>
+          </mat-form-field>
+          <div class="note-container p-2">
+            <div class="flex flex-start items-center gap-2">
+              <mat-icon class="info-icon-designation">info</mat-icon>
+              <div class="designation-note" [innerHTML]="getDesignationHint()"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-fields-container">
+        <div class="flex flex-col profile-control">
+          <div class="lable required">{{'NetworkV2Profile.transferOrganization' | translate}}</div>
+          <mat-form-field appearance="outline">
+            <mat-select placeholder="Select organization" formControlName="transferOrganization" panelClass="search-panel"
+              (openedChange)="setupTransferOrgScrollListener($event)">
+              <!-- Sticky search input container -->
+              <div class="sticky-search-container" (click)="$event.stopPropagation()">
+                <div class="search-input-wrapper">
+                  <input 
+                    type="text" 
+                    placeholder="Search organization" 
+                    formControlName="searchTransferOrganization" 
+                    class="search-org-input"
+                    (keydown)="$event.stopPropagation()"
+                    (click)="$event.stopPropagation()"
+                    autocomplete="off">
+                  <button 
+                    *ngIf="searchTransferOrganization?.value" 
+                    type="button" 
+                    class="clear-button" 
+                    (click)="searchTransferOrganization?.setValue('')">
+                    ✕
+                  </button>
+                </div>
+              </div>
+              <!-- Options list -->
+              <mat-option *ngFor="let org of transferOrgFilterData; trackBy: trackByOrgFn" [value]="org?.channel" (onSelectionChange)="onTransferOrgSelectionChange(org)">
+                {{ org?.channel }}
+              </mat-option>
+              <!-- Loading indicator -->
+              <div *ngIf="isLoadingMoreTransferOrg" class="loading-indicator">
+                {{'NetworkV2Profile.loadingMore' | translate}}
+              </div>
+              <!-- No results message -->
+              <mat-option *ngIf="(transferOrgFilterData)?.length === 0" disabled>
+                {{'NetworkV2Profile.noMatchesFound' | translate}}
+              </mat-option>
+            </mat-select>
+            <mat-error *ngIf="hasError('transferOrganization', 'required')">
+              {{'NetworkV2Profile.organizationIsRequired' | translate}}
+            </mat-error>
+          </mat-form-field>
+        </div>
+
+        <div class="flex flex-col profile-control">
+          <div class="lable required">{{'NetworkV2Profile.email' | translate}}</div>
+          <mat-form-field appearance="outline">
+            <input matInput type="email" formControlName="primaryEmail" (keyup)="handleEmpty('primaryEmail')">
+            <mat-error *ngIf="hasError('primaryEmail', 'required')">
+              {{ 'NetworkV2Profile.emailIsRequired' | translate }}
+            </mat-error>
+            <mat-error *ngIf="hasError('primaryEmail', 'pattern')">
+              {{ 'NetworkV2Profile.invalidEmail' | translate }}
+            </mat-error>
+          </mat-form-field>
+          <div class="flex justify-end" *ngIf="verifyEmail">
+            <span class="get-otp" (click)="handleGenerateEmailOTP('email')">{{ 'NetworkV2Profile.getOTP' | translate}}</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-fields-container">
+        <div class="flex flex-col profile-control">
+          <div class="lable required">{{'NetworkV2Profile.mobileNumber' | translate}}</div>
+          <div class="flex gap-2">
+            <div class="country-code">
+              +91
+            </div>
+            <mat-form-field appearance="outline">
+              <input matInput maxlength="10" (keyup)="handleEmpty('mobile')" formControlName="mobile">
+              <mat-error class="text-xs" *ngIf="hasError('mobile', 'required') || hasError('mobile', 'pattern')">
+                {{ 'NetworkV2Profile.pleaseEnterValidMobileNumber' | translate }}
+              </mat-error>
+            </mat-form-field>
+          </div>
+          <div class="flex justify-end" *ngIf="verifyMobile">
+            <span class="get-otp" (click)="handleGenerateOTP('phone')">{{ 'NetworkV2Profile.getOTP' | translate}}</span>
+          </div>
+        </div>
+      </div>
+    </form>
+  </ng-template>
+  <!-- #endregion (Mandatory Section) -->
 
   <!-- #region (About Me) -->
   <ng-template #aboutMe>

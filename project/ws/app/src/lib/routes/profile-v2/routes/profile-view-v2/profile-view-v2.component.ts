@@ -661,7 +661,9 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
       }
     } else if (header === 'Primary Details') {
       dialogDetails['groupsList'] = this.groupsList
+      dialogDetails['header'] = 'Mandatory Section'
     }
+    console.log('dialogDetails', dialogDetails  )
     const dialogRef = this.dialog.open(PrfileEditV2Component, {
       data: dialogDetails,
       disableClose: true,

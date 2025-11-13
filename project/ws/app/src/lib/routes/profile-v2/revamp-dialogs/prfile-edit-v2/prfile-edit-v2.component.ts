@@ -52,6 +52,15 @@ export class PrfileEditV2Component implements OnInit, OnDestroy {
   isLoadingMoreDesignations = false;
   designationListLoadCount = 50
 
+  // Transfer Organization properties
+  transferOrganizationData: any[] = []
+  transferOrgFilterData: any[] = []
+  transferOrgListLoadCount = 20
+  transferOrgDefaultLoadCount = 20
+  isLoadingMoreTransferOrg = false
+  transferOrgDataTotalCount = 0
+  selectedTransferOrgId: string = ''
+
   verifyEmail: boolean = false;
   verifyMobile: boolean = false;
   approvedDomainList: any = []
@@ -163,6 +172,11 @@ getDesignationHint(): string {
         break;
       case 'Primary Details':
         this.createPrimaryDetailsForm();
+        this.checkOrgHasDesignations();
+        // this.getdesignationsMeta();
+        break;
+      case 'Mandatory Section':
+        this.createMandatoryDetailsForm();
         this.checkOrgHasDesignations();
         // this.getdesignationsMeta();
         break;
@@ -1064,12 +1078,54 @@ getDesignationHint(): string {
         }
         if (this.header === 'Other Details') {
           this.genrateOtehrDetailsForm()
+        } else if (this.header === 'Mandatory Section') {
+          this.generateMandatorySectionForm()
         } else {
           this.dialogRef.close(this.profileForm.value);
         }
       } else {
         this.markFormGroupTouched(this.profileForm);
       }
+    }
+  }
+
+  generateMandatorySectionForm(): void {
+    if (this.profileForm.valid) {
+      const formValue = this.profileForm.value;
+      const data: any = {
+        'name': formValue.transferOrganization,
+        'designation': formValue.designation,
+        'group': formValue.group,
+      }
+      const postData: any = {
+        'request': {
+          'userId': this.configSvc.unMappedUser.id,
+          'employmentDetails': {
+            'departmentName': formValue.transferOrganization,
+          },
+          'profileDetails': {
+            'professionalDetails': [data],
+            'personalDetails': {
+              'primaryEmail': formValue.primaryEmail,
+              'mobile': formValue.mobile
+            }
+          },
+        },
+      }
+      
+      this.userProfileService.editProfileDetails(postData)
+        .pipe(takeUntil(this.destroySubject$))
+        .subscribe({
+          next: (_res: any) => {
+            this.openSnackbar('Your request has been sent for approval')
+            this.dialogRef.close({ success: true });
+          },
+          error: (error: HttpErrorResponse) => {
+            if (!error.ok) {
+              this.openSnackbar('Request failed. Please try again.')
+            }
+          }
+        })
     }
   }
 
@@ -1150,6 +1206,11 @@ getDesignationHint(): string {
           return true
         }
         return false
+      case 'Mandatory Section':
+        if (isFormValid && !this.verifyEmail && !this.verifyMobile) {
+          return true
+        }
+        return false
       case 'About Me':
         if (isFormValid) {
           return true
@@ -1192,7 +1253,210 @@ getDesignationHint(): string {
     })
   }
 
+  // Transfer Organization Methods
+  getTransferOrgRequest(_newCall: boolean, offsetValue: number, searchText: string): any {
+    const request: any = {
+      "request": {
+        "filters": {
+          "isTenant": true,
+          "status": 1,
+          "isMdo": true,
+          "isCbp": true
+        },
+        "fields": ["channel", "rootOrgId"],
+        "limit": this.transferOrgDefaultLoadCount,
+        "offset": offsetValue
+      }
+    }
+
+    if (searchText && searchText.trim() !== '') {
+      request.request.query = searchText;
+    }
+    return request
+  }
+
+  getAllTransferOrgData(onLoad: boolean, offsetValue: number, searchText: string): void {
+    this.userProfileService.getOrganizationData(this.getTransferOrgRequest(onLoad, offsetValue, searchText))
+      .pipe(takeUntil(this.destroySubject$))
+      .subscribe({
+        next: (res: any) => {
+          if (res && res.result && res.result.response && res.result.response.content && res.result.response.content.length) {
+            if (onLoad) {
+              this.transferOrganizationData = [...res.result.response.content];
+              this.transferOrgDataTotalCount = res.result.response.count
+            } else {
+              this.transferOrganizationData = [...this.transferOrganizationData, ...res.result.response.content];
+            }
+            this.transferOrgFilterData = this.transferOrganizationData;
+          } else {
+            if (onLoad) {
+              this.transferOrganizationData = []
+              this.transferOrgFilterData = []
+            }
+          }
+          this.isLoadingMoreTransferOrg = false
+        },
+        error: (error: HttpErrorResponse) => {
+          this.isLoadingMoreTransferOrg = false
+          if (!error.ok) {
+            this.openSnackbar('Failed to fetch organizations')
+          }
+        }
+      })
+  }
+
+  onTransferOrgSelectionChange(org: any) {
+    if (org && org.channel) {
+      this.selectedTransferOrgId = org.rootOrgId
+      this.profileForm.controls['transferOrganization'].setValue(org.channel)
+    }
+  }
+
+  setupTransferOrgScrollListener(opened: boolean): void {
+    if (opened) {
+      if (this.profileForm.get('searchTransferOrganization')?.value) {
+        this.profileForm.get('searchTransferOrganization')!.setValue('');
+      } else {
+        this.getAllTransferOrgData(true, 0, '');
+      }
+      this.transferOrgListLoadCount = this.transferOrgDefaultLoadCount;
+
+      setTimeout(() => {
+        const searchInput = document.querySelector('.search-org-input') as HTMLInputElement;
+        if (searchInput) {
+          searchInput.focus();
+        }
+      }, 100);
+
+      setTimeout(() => {
+        const panel = document.querySelector('.mat-select-panel');
+        if (panel) {
+          panel.addEventListener('scroll', this.onTransferOrgSelectScroll.bind(this));
+        }
+      }, 100);
+    }
+  }
+
+  onTransferOrgSelectScroll(event: any): void {
+    const element = event.target;
+
+    if (element.scrollTop + element.clientHeight >= element.scrollHeight - 5) {
+      if (!this.isLoadingMoreTransferOrg && this.transferOrganizationData.length < this.transferOrgDataTotalCount) {
+        this.isLoadingMoreTransferOrg = true;
+        const nextOffset = this.transferOrganizationData.length;
+        this.getAllTransferOrgData(false, nextOffset, this.profileForm.get('searchTransferOrganization')?.value || '');
+        this.transferOrgListLoadCount += this.transferOrgDefaultLoadCount;
+      }
+    }
+  }
+
+  trackByOrgFn(_index: number, item: any): string {
+    return item.channel
+  }
+
+  get searchTransferOrganization() {
+    return this.profileForm.get('searchTransferOrganization');
+  }
+
   ngOnDestroy() {
     this.destroySubject$.unsubscribe()
   }
+
+   //#region (primary details)
+  private createMandatoryDetailsForm(): void {
+    this.profileForm = this.fb.group({
+      group: [_.get(this.profileDetails, 'group', ''), Validators.required],
+      designation: [_.get(this.profileDetails, 'designation', ''), Validators.required],
+      searchDesignation: [''],
+      primaryEmail: [_.get(this.profileDetails, 'primaryEmail', ''), [Validators.required, Validators.pattern(EMAIL_PATTERN)]],
+      mobile: [_.get(this.profileDetails, 'mobile', ''), [Validators.required, Validators.minLength(10), Validators.maxLength(10), Validators.pattern(MOBILE_PATTERN)]],
+      transferOrganization: [_.get(this.profileDetails, 'departmentName', ''), [Validators.required]],
+      searchTransferOrganization: [''],
+    });
+    this.checkCurrentDesignationPresent();
+    
+    // Set up value change listeners for email and mobile
+    this.setupMandatorySectionValueChanges();
+    
+    setTimeout(() => {
+      this.initilisationInProgress = false;
+    }, 10)
+    
+    // Search Designation Control
+    const searchDesignationControl = this.profileForm.get('searchDesignation');
+    if (searchDesignationControl) {
+      let settingValueChange = true
+      searchDesignationControl.valueChanges
+        .pipe(
+          debounceTime(250),
+          distinctUntilChanged(),
+          startWith(''),
+        )
+        .subscribe(searchText => {
+          this.designationsOffset = 0
+          if (searchText && searchText.length > 1) {
+            this.designationSearchText = searchText // to avoid api call with single character
+            this.getdesignationsMeta()
+          } else if(!searchText) {
+            if(!settingValueChange) {
+              this.designationSearchText = searchText
+              this.getdesignationsMeta() 
+            }
+            this.checkCurrentDesignationPresent()
+          }
+          settingValueChange = false
+        })
+    }
+
+    // Search Transfer Organization Control
+    const searchTransferOrgControl = this.profileForm.get('searchTransferOrganization');
+    if (searchTransferOrgControl) {
+      searchTransferOrgControl.valueChanges
+        .pipe(
+          debounceTime(250),
+          distinctUntilChanged(),
+        )
+        .subscribe(searchText => {
+          // Call API with search instead of just filtering local data
+          this.transferOrganizationData = []; // Clear existing data
+          this.getAllTransferOrgData(true, 0, searchText);
+        });
+    }
+  }
+
+  setupMandatorySectionValueChanges(): void {
+    const primaryEmailControl = this.profileForm.get('primaryEmail');
+    const mobileControl = this.profileForm.get('mobile');
+
+    if (primaryEmailControl) {
+      primaryEmailControl.valueChanges.subscribe((value: string) => {
+        if (value && value !== _.get(this.profileDetails, 'primaryEmail', '')) {
+          if (primaryEmailControl.valid) {
+            this.verifyEmail = true;
+          } else {
+            this.verifyEmail = false;
+          }
+        } else if (!value) {
+          this.verifyEmail = false;
+        } else if (value === _.get(this.profileDetails, 'primaryEmail', '')) {
+          this.verifyEmail = false;
+        }
+      })
+    }
+
+    if (mobileControl) {
+      mobileControl.valueChanges.subscribe((value: string) => {
+        if (value && value !== _.get(this.profileDetails, 'mobile', '')) {
+          if (mobileControl.valid) {
+            this.verifyMobile = true;
+          } else {
+            this.verifyMobile = false;
+          }
+        } else if (!value || value === _.get(this.profileDetails, 'mobile', '')) {
+          this.verifyMobile = false;
+        }
+      })
+    }
+  }
+
 }
