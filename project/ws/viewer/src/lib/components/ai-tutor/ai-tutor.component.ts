@@ -577,7 +577,7 @@ export class AiTutorComponent implements OnInit, AfterViewInit, AfterViewChecked
     this.renderer.removeClass(document.body, 'disable-scroll')
   }
 
-  submitSearchQuery(textArea: HTMLTextAreaElement, event:any) {
+  submitSearchQuery(textArea: HTMLTextAreaElement | any, event:any) {
     if (!this.searchQueryAItutor.trim()) {
       event.preventDefault(); // Prevents Enter key from adding a new line
     }

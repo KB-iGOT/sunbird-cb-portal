@@ -13,7 +13,7 @@ import * as _ from 'lodash';
   styleUrls: ['./connection-people-card.component.scss']
 })
 export class ConnectionPeopleCardComponent implements OnInit {
-  @Input() user!: NSNetworkDataV2.INetworkUser
+  @Input() user!: NSNetworkDataV2.INetworkUser | any
   @Input() addMargin = false
   @ViewChild('toastSuccess', { static: true }) toastSuccess!: ElementRef<any>
   @ViewChild('toastError', { static: true }) toastError!: ElementRef<any>
@@ -51,7 +51,7 @@ export class ConnectionPeopleCardComponent implements OnInit {
       if(this.user.verifiedKarmayogi) {
         this.showBadge = true
       }
-      if (this.user.role && this.user.role.some(role => role.toLowerCase() === 'mentor')) {
+      if (this.user.role && this.user.role.some((role: string) => role.toLowerCase() === 'mentor')) {
         this.showMentor = true
       }
     }

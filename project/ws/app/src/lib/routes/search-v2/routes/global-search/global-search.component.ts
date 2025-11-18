@@ -44,7 +44,7 @@ export class GlobalSearchComponent implements OnInit {
         this.searchParam = queryParams.get('q') || ''
       }
       if (queryParams.has('t')) {
-        this.searchParam = 'moderatedCourses' || ''
+        this.searchParam = 'moderatedCourses'
         this.userValue = 'moderatedCourses'
       }
       if (queryParams.has('f')) {

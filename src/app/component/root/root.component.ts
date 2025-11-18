@@ -42,9 +42,7 @@ import { UrlService } from 'src/app/shared/url.service'
 import { CsModule } from '@project-sunbird/client-services'
 import { SwUpdate } from '@angular/service-worker'
 import { environment } from '../../../environments/environment'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
-import { DialogConfirmComponent } from '../dialog-confirm/dialog-confirm.component'
-import { concat, interval, timer, of } from 'rxjs'
+import { concat, interval,  of } from 'rxjs'
 import { iGOTAIService } from './../../services/igot-ai.service'
 @Component({
   selector: 'ws-root',
@@ -65,7 +63,6 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
     private appRef: ApplicationRef,
     // private logger: LoggerService,
     private swUpdate: SwUpdate,
-    private dialog: MatDialog,
     private http: HttpClient,
     // public authSvc: AuthKeycloakService,
     public configSvc: ConfigurationsService,
@@ -547,33 +544,33 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
       const everySixHoursOnceAppIsStable$ = concat(appIsStable$, everySixHours$)
       everySixHoursOnceAppIsStable$.subscribe(() => this.swUpdate.checkForUpdate())
       if (this.swUpdate.isEnabled) {
-        this.swUpdate.available.subscribe(() => {
-          const dialogRef = this.dialog.open(DialogConfirmComponent, {
-            data: {
-              title: (this.appUpdateTitleRef && this.appUpdateTitleRef.nativeElement.value) || '',
-              body: (this.appUpdateBodyRef && this.appUpdateBodyRef.nativeElement.value) || '',
-            },
-          })
-          dialogRef.afterClosed().subscribe(
-            result => {
-              if (result) {
-                this.swUpdate.activateUpdate().then(() => {
-                  if ('caches' in window) {
-                    caches.keys()
-                      .then(keyList => {
-                        timer(2000).subscribe(
-                          _ => window.location.reload(),
-                        )
-                        return Promise.all(keyList.map(key => {
-                          return caches.delete(key)
-                        }))
-                      })
-                  }
-                })
-              }
-            },
-          )
-        })
+        // this.swUpdate.available.subscribe(() => {
+        //   const dialogRef = this.dialog.open(DialogConfirmComponent, {
+        //     data: {
+        //       title: (this.appUpdateTitleRef && this.appUpdateTitleRef.nativeElement.value) || '',
+        //       body: (this.appUpdateBodyRef && this.appUpdateBodyRef.nativeElement.value) || '',
+        //     },
+        //   })
+        //   dialogRef.afterClosed().subscribe(
+        //     result => {
+        //       if (result) {
+        //         this.swUpdate.activateUpdate().then(() => {
+        //           if ('caches' in window) {
+        //             caches.keys()
+        //               .then(keyList => {
+        //                 timer(2000).subscribe(
+        //                   _ => window.location.reload(),
+        //                 )
+        //                 return Promise.all(keyList.map(key => {
+        //                   return caches.delete(key)
+        //                 }))
+        //               })
+        //           }
+        //         })
+        //       }
+        //     },
+        //   )
+        // })
       }
     }
   }

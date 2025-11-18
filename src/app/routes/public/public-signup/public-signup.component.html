@@ -304,8 +304,8 @@
                             class="search-input" (keydown)="$event.stopPropagation()" (keydown.enter)="$event.preventDefault(); $event.stopPropagation()"
                             (keyup)="designationSearch($event)"
                             autocomplete="off">
-                          <button *ngIf="searchDesignation?.value" type="button" class="clear-button"
-                            (click)="searchDesignation?.setValue('')">
+                          <button *ngIf="this.registrationForm.get('searchDesignation')?.value" type="button" class="clear-button"
+                            (click)="this.registrationForm.get('searchDesignation')?.setValue('')">
                             ✕
                           </button>
                         </div>

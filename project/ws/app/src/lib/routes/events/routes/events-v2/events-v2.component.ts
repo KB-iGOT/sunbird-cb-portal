@@ -19,8 +19,8 @@ import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 })
 export class EventsV2Component {
 
-  eventsHome!: NsWidgetResolver.IWidgetData<any>
-  banner!: NsWidgetResolver.IWidgetData<any>
+  eventsHome!: NsWidgetResolver.IWidgetData<any> | any
+  banner!: NsWidgetResolver.IWidgetData<any>| any
   engagementDetails: any = {
   }
 

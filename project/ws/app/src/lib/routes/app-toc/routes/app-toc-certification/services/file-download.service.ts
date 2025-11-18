@@ -14,7 +14,7 @@ export class FileDownloadService {
     try {
       const byteString = this.window.atob(base64String)
       const arrayBuffer: ArrayBuffer = new ArrayBuffer(byteString.length)
-      const int8Array: Uint8Array = new Uint8Array(arrayBuffer)
+      const int8Array: any = new Uint8Array(arrayBuffer)
 
       for (let i = 0; i < byteString.length; i += 1) {
         int8Array[i] = byteString.charCodeAt(i)

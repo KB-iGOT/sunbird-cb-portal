@@ -1,5 +1,5 @@
 <div class="document-viewer-container">
-  <div *ngIf="loading" class="loading-container">
+  <div *ngIf="isLoading" class="loading-container">
     <mat-spinner diameter="40"></mat-spinner>
     <p class="loading-text">Loading document...</p>
   </div>
@@ -20,7 +20,7 @@
           </button>
         </div>
       </div>
-      <div class="loaders" *ngIf="loading">
+      <div class="loaders" *ngIf="isLoading">
         <mat-spinner diameter="40" class="blue-spinner m-auto"></mat-spinner>
       </div>
       <div *ngIf="showPdfViewer && !isLoading && !error" class="iframe-container pl-4">

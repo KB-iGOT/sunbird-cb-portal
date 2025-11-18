@@ -525,7 +525,7 @@ export class IGotSarthiComponent implements OnInit, AfterViewInit, AfterViewChec
     this.renderer.removeClass(document.body, 'disable-scroll')
   }
 
-  submitSearchQuery(textArea: HTMLTextAreaElement, event:any) {
+  submitSearchQuery(textArea: HTMLTextAreaElement | any, event:any) {
     if (!this.searchQuery.trim()) {
       event.preventDefault(); // Prevents Enter key from adding a new line
     }

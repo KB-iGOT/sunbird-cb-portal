@@ -75,7 +75,9 @@ export namespace NSNetworkDataV2 {
         channel: string,
         requestSent: boolean | undefined,
         fullName: string,
-        role: string[]
+        role: string[],
+        profileImageUrl: string | null | undefined,
+        designation: string | null | undefined
     }
 
     export interface IAutocompleteUser {

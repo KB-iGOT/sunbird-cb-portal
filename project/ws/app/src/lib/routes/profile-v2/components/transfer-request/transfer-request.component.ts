@@ -22,7 +22,7 @@ import * as _ from 'lodash'
 export class TransferRequestComponent implements OnInit, OnDestroy {
 
   @Output() enableWithdraw = new EventEmitter<boolean>()
-  transferRequestForm = new UntypedFormGroup({
+  transferRequestForm:any = new UntypedFormGroup({
     organization: new UntypedFormControl('', [Validators.required]),
     searchOrganization: new UntypedFormControl(''),
     group: new UntypedFormControl('', [Validators.required]),
@@ -35,7 +35,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
   // deptFilterData  : Observable<string[]>
   designationData: any[] = []
   designationsTotalCount = 0
-  designationSearchText = ''
+  designationSearchText:any = ''
   designationsOffset = 0
   private destroySubject$ = new Subject()
   isInValidOrgSelection = false
@@ -88,7 +88,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
         debounceTime(250),
         distinctUntilChanged(),
       )
-      .subscribe(searchText => {
+      .subscribe((searchText: string) => {
         // this.organizationFilterEnable = !!searchText;
         
           // Call API with search instead of just filtering local data
@@ -105,7 +105,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
           distinctUntilChanged(),
           startWith(''),
         )
-        .subscribe(res => {
+        .subscribe((res: string | any[]) => {
           this.designationsOffset = 0
           if (res && res.length > 1) {
           this.designationSearchText = res

@@ -31,7 +31,7 @@ export class CardHomeDiscussComponent extends WidgetBaseComponent implements OnI
   // starColorW: StarRatingColor = StarRatingColor.warn
   ngOnInit(): void {
     if (this.widgetData && this.widgetData.content) {
-      this.discuss = ([this.widgetData.content] || []).map((d: any) => {
+      this.discuss = ([this.widgetData.content]).map((d: any) => {
         return {
           tid: d.tid,
           title: d.title,

@@ -21,7 +21,7 @@ export class DiscussConfigResolve
     _state: RouterStateSnapshot,
   ): Observable<any> {
 
-    const config = {
+    const config:any = {
       menuOptions: [
         {
           route: 'all-discussions',

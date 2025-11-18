@@ -535,7 +535,7 @@ export class SupportAIComponent implements OnInit, OnChanges, AfterViewInit, Aft
     this.renderer.removeClass(document.body, 'disable-scroll')
   }
 
-  submitSearchQuery(textArea: HTMLTextAreaElement, event:any) {
+  submitSearchQuery(textArea: HTMLTextAreaElement | any, event:any) {
     if(!this.initiateSupportNewChat) {
       return false
     }

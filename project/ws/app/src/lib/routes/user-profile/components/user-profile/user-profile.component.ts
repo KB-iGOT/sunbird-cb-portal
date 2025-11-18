@@ -1274,7 +1274,8 @@ export class UserProfileComponent implements OnInit, OnDestroy {
               case 'otherDetailsDoj': return employmentDetails['dojOfService'] = form.value.otherDetailsDoj
               case 'otherDetailsOfficeAddress': return employmentDetails['officialPostalAddress'] = currentControl.value
               case 'otherDetailsOfficePinCode': return employmentDetails['pinCode'] = form.value.otherDetailsOfficePinCode
-              case 'orgName' || 'orgNameOther': return employmentDetails['departmentName'] = currentControl.value || ''
+              case 'orgName': return employmentDetails['departmentName'] = currentControl.value || ''
+              case 'orgNameOther': return employmentDetails['departmentName'] = currentControl.value || ''
               default: return employmentDetails[name] = currentControl.value
             }
 
