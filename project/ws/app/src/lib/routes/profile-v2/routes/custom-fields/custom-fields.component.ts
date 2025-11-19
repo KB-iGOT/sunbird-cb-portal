@@ -220,7 +220,7 @@ export class CustomFieldsComponent {
     // Add the nested form groups to the main form
     Object.keys(this.masterListFormGroups).forEach(fieldName => {
       const nestedGroup = this.masterListFormGroups[fieldName];
-     this.customAttrForm.addControl(`${fieldName}_group`, nestedGroup);
+      this.customAttrForm.addControl(`${fieldName}_group`, nestedGroup);
 
       // Set up change listeners for cascading dropdowns
       this.setupCascadingDropdownListeners(fieldName);
@@ -247,7 +247,7 @@ export class CustomFieldsComponent {
       }
     });
 
-   
+
     console.log('customAttrForm', this.customAttrForm)
   }
 
