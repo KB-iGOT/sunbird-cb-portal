@@ -229,6 +229,15 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
         this.translateService.use(lang)
       }
     })
+    this.activatedRoute.fragment.subscribe(fragment => {
+      if (fragment === 'mandatorySection') {
+        debugger
+        setTimeout(() => {
+              this.handleEditMandatoryDetails()
+          
+        }, 500)
+      }
+    })
     this.breakpointObserver.observe([Breakpoints.Handset])
       .subscribe(result => {
         this.isMobile = result.matches;
@@ -661,7 +670,8 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
       }
     } else if (header === 'Primary Details') {
       dialogDetails['groupsList'] = this.groupsList
-      dialogDetails['header'] = 'Mandatory Section'
+    } else if (header === 'mandatorySection') {
+      dialogDetails['groupsList'] = this.groupsList
     }
     console.log('dialogDetails', dialogDetails  )
     const dialogRef = this.dialog.open(PrfileEditV2Component, {
@@ -1591,5 +1601,34 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
       }
     })
   }
+
+
+   // Update handleEditCustomDetails to build the form and populate values
+  handleEditMandatoryDetails() {
+     const dialogDetails: any = {
+      header: 'Mandatory Section',
+      profileDetails: this.primaryDetails,
+      groupsList: this.groupsList
+    }
+     const dialogRef = this.dialog.open(PrfileEditV2Component, {
+      data: {dialogDetails,
+        unVerifiedObj: this.unVerifiedObj,
+        rejectedFields: this.rejectedFields,
+        approvalPendingFields: this.approvalPendingFields,
+        enableWTR: this.enableWTR,
+        isCurrentUser: this.isCurrentUser,
+        primaryDetails:this.primaryDetails
+      },
+      disableClose: true,
+      panelClass: 'dialog_sidenav',
+      autoFocus: false
+    })
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result) {
+        // this.getOrgDetails()
+      }
+    })
+  }
+
 
 }

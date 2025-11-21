@@ -11,6 +11,8 @@ import { ProfileV2RevampService } from '../../services/profile-v2-revamp.service
 import { ConfirmDialogComponent } from '@sunbird-cb/collection/src/lib/_common/confirm-dialog/confirm-dialog.component'
 import { OtpService } from '../../../user-profile/services/otp.services';
 import { VerifyOtpComponent } from '../../components/verify-otp/verify-otp.component'
+import { RejectionReasonPopupComponent } from '../../components/rejection-reason-popup/rejection-reason-popup.component'
+import { WithdrawRequestComponent } from '../../components/withdraw-request/withdraw-request.component'
 import { NsUserProfileDetails } from '../../../user-profile/models/NsUserProfile'
 import { DatePipe } from '@angular/common';
 import { ConfigurationsService, ImageCropComponent, PipeCertificateImageURL } from '@sunbird-cb/utils-v2';
@@ -97,6 +99,15 @@ export class PrfileEditV2Component implements OnInit, OnDestroy {
   nodalEmail: string = ''
   nodalName: string = ''
 
+  // Approval status properties for Mandatory Section
+  groupApprovedTime = 0
+  designationApprovedTime = 0
+  panelOpenState = false
+  isIgotOrg = false
+  isNotMyUser = false
+  enableWTR = false
+  enableWR = false
+  approvalPendingFields: any[] = []
 
 
   constructor(
@@ -113,15 +124,23 @@ export class PrfileEditV2Component implements OnInit, OnDestroy {
     private configSvc: ConfigurationsService,
     private translate: TranslateService,
   ) {
-    this.header = _.get(this.data, 'header', '');
-    this.profileDetails = _.get(this.data, 'profileDetails', {});
-    this.profileImage = _.get(this.data, 'profileImage', null);
-    this.groupsList = _.get(this.data, 'groupsList', []);
+    this.header = _.get(this.data, 'header', '') || _.get(this.data, 'dialogDetails.header', '') ;
+    this.profileDetails = _.get(this.data, 'profileDetails', {}) || _.get(this.data, 'dialogDetails.profileDetails', {});
+    this.profileImage = _.get(this.data, 'profileImage', null) || _.get(this.data, 'dialogDetails.profileImage', null);
+    this.groupsList = this.data?.groupsList?.length ? _.get(this.data, 'groupsList', []) : _.get(this.data, 'dialogDetails.groupsList', []);
+    this.enableWTR = _.get(this.data, 'enableWTR', false);
+    this.enableWR = _.get(this.data, 'enableWR', false);
+    this.approvalPendingFields = _.get(this.data, 'approvalPendingFields', []);
   }
 
   ngOnInit(): void {
     this.initForm();
-    this.loadDynamicEmail()
+    this.loadDynamicEmail();
+    if (this.header === 'Mandatory Section') {
+      this.getApprovedFields();
+      this.isNotMyUser = _.get(this.configSvc, 'unMappedUser.profileDetails.profileStatus', '').toLowerCase() === 'not-my-user' ? true : false;
+      this.isIgotOrg = _.get(this.configSvc, 'unMappedUser.profileDetails.employmentDetails.departmentName', '').toLowerCase() === 'igot' ? true : false;
+    }
   }
 
 loadDynamicEmail() {
@@ -1092,27 +1111,54 @@ getDesignationHint(): string {
   generateMandatorySectionForm(): void {
     if (this.profileForm.valid) {
       const formValue = this.profileForm.value;
-      const data: any = {
-        'name': formValue.transferOrganization,
-        'designation': formValue.designation,
-        'group': formValue.group,
-      }
+      const primaryDetails = _.get(this.data, 'primaryDetails', this.profileDetails);
+      console.log('formValue', formValue);
+      
+      // MANDATORY: Always include userId and profileDetails with lastProfileVerificationPromptDate
       const postData: any = {
         'request': {
           'userId': this.configSvc.unMappedUser.id,
-          'employmentDetails': {
-            'departmentName': formValue.transferOrganization,
-          },
           'profileDetails': {
-            'professionalDetails': [data],
             'personalDetails': {
-              'primaryEmail': formValue.primaryEmail,
-              'mobile': formValue.mobile
+              'lastProfileVerificationPromptDate': new Date().getTime().toString()
             }
-          },
+          }
         },
       }
+
+      // Only add employmentDetails if transferOrganization changed
+      if (formValue.transferOrganization !== _.get(primaryDetails, 'departmentName', '')) {
+        postData.request.employmentDetails = {
+          'departmentName': formValue.transferOrganization,
+        }
+      }
+
+      // Check if any professional details changed
+      const groupChanged = formValue.group !== _.get(primaryDetails, 'group', '');
+      const designationChanged = formValue.designation !== _.get(primaryDetails, 'designation', '');
+      const orgChanged = formValue.transferOrganization !== _.get(primaryDetails, 'departmentName', '');
+
+      if (groupChanged || designationChanged || orgChanged) {
+        postData.request.profileDetails.professionalDetails = [{
+          'name': formValue.transferOrganization,
+          'designation': formValue.designation,
+          'group': formValue.group,
+        }]
+      }
+
+      // Check if any personal details changed and add them to existing personalDetails
+      const emailChanged = formValue.primaryEmail !== _.get(primaryDetails, 'primaryEmail', '');
+      const mobileChanged = formValue.mobile !== _.get(primaryDetails, 'mobile', '');
+
+      if (emailChanged) {
+        postData.request.profileDetails.personalDetails.primaryEmail = formValue.primaryEmail;
+      }
       
+      if (mobileChanged) {
+        postData.request.profileDetails.personalDetails.mobile = formValue.mobile;
+      }
+
+      console.log('postData', postData);
       this.userProfileService.editProfileDetails(postData)
         .pipe(takeUntil(this.destroySubject$))
         .subscribe({
@@ -1194,7 +1240,7 @@ getDesignationHint(): string {
       return false;
     }
     const isFormValid = this.profileForm.valid;
-
+    
     switch (this.header) {
       case 'Profile':
         if (isFormValid || this.profileImageChanged) {
@@ -1358,25 +1404,273 @@ getDesignationHint(): string {
     return this.profileForm.get('searchTransferOrganization');
   }
 
+  // Approval status methods for Mandatory Section
+  getApprovedFields(): void {
+    const requesrtBody = {
+      serviceName: 'profile',
+      applicationStatus: 'APPROVED',
+    }
+    this.profileV2RevampService.fetchApprovalDetails(requesrtBody)
+      .subscribe((_res: any) => {
+        if (_res && _res.result && _res.result.data && Array.isArray(_res.result.data)) {
+          _res.result.data.filter((obj: any) => {
+            this.groupApprovedTime = (obj.hasOwnProperty('group') && obj.lastUpdatedOn > this.groupApprovedTime) ?
+              obj.lastUpdatedOn : this.groupApprovedTime
+
+            this.designationApprovedTime = (obj.hasOwnProperty('designation') && obj.lastUpdatedOn > this.designationApprovedTime) ?
+              obj.lastUpdatedOn : this.designationApprovedTime
+          })
+        }
+      }, (error: HttpErrorResponse) => {
+        if (!error.ok) {
+          this.openSnackbar(this.handleTranslateTo('somethingWentWrongPleaseTryAgain'))
+        }
+      })
+  }
+
+  get showApprovalStatus(): boolean {
+    if (
+      (this.groupApprovedTime < _.get(this.data, 'rejectedFields.groupRejectionTime', 0) ||
+        this.groupApprovedTime < _.get(this.data, 'unVerifiedObj.groupRequestTime', 0) ||
+        this.designationApprovedTime < _.get(this.data, 'rejectedFields.designationRejectionTime', 0) ||
+        this.designationApprovedTime < _.get(this.data, 'unVerifiedObj.designationRequestTime', 0)) &&
+      _.get(this.data, 'isCurrentUser', false)
+    ) {
+      return true
+    }
+    return false
+  }
+
+  get showGroupPending(): boolean {
+    const unVerifiedObj = _.get(this.data, 'unVerifiedObj', {});
+    const rejectedFields = _.get(this.data, 'rejectedFields', {});
+    if (
+      this.groupApprovedTime < unVerifiedObj.groupRequestTime &&
+      rejectedFields.groupRejectionTime < unVerifiedObj.groupRequestTime &&
+      unVerifiedObj.group
+    ) {
+      if ((unVerifiedObj.groupRequestTime + 100) < rejectedFields.designationRejectionTime ||
+        (unVerifiedObj.groupRequestTime + 100) < unVerifiedObj.designationRequestTime) {
+        return false
+      }
+      return true
+    }
+    return false
+  }
+
+  get showGroupRejection(): boolean {
+    const unVerifiedObj = _.get(this.data, 'unVerifiedObj', {});
+    const rejectedFields = _.get(this.data, 'rejectedFields', {});
+    if (
+      this.groupApprovedTime < rejectedFields.groupRejectionTime &&
+      unVerifiedObj.groupRequestTime < rejectedFields.groupRejectionTime &&
+      rejectedFields.group
+    ) {
+      if ((rejectedFields.groupRejectionTime + 100) < rejectedFields.designationRejectionTime ||
+        (rejectedFields.groupRejectionTime + 100) < unVerifiedObj.designationRequestTime) {
+        return false
+      }
+      return true
+    }
+    return false
+  }
+
+  get showDesignationPending(): boolean {
+    const unVerifiedObj = _.get(this.data, 'unVerifiedObj', {});
+    const rejectedFields = _.get(this.data, 'rejectedFields', {});
+    if (
+      this.designationApprovedTime < unVerifiedObj.designationRequestTime &&
+      rejectedFields.designationRejectionTime < unVerifiedObj.designationRequestTime &&
+      unVerifiedObj.designation
+    ) {
+      if ((unVerifiedObj.designationRequestTime + 100) < rejectedFields.groupRejectionTime ||
+        (unVerifiedObj.designationRequestTime + 100) < unVerifiedObj.groupRequestTime) {
+        return false
+      }
+      return true
+    }
+    return false
+  }
+
+  get showDesignationRejection(): boolean {
+    const unVerifiedObj = _.get(this.data, 'unVerifiedObj', {});
+    const rejectedFields = _.get(this.data, 'rejectedFields', {});
+    if (
+      this.designationApprovedTime < rejectedFields.designationRejectionTime &&
+      unVerifiedObj.designationRequestTime < rejectedFields.designationRejectionTime &&
+      rejectedFields.designation
+    ) {
+      if ((rejectedFields.designationRejectionTime + 100) < rejectedFields.groupRejectionTime ||
+        (rejectedFields.designationRejectionTime + 100) < unVerifiedObj.groupRequestTime) {
+        return false
+      }
+      return true
+    }
+    return false
+  }
+
+  openProfileEditDialog(header: string): void {
+    // This method can be used if needed for nested dialog opening
+    console.log('Open profile edit dialog:', header);
+  }
+
+  getSendApprovalStatus(): void {
+    // Refresh approval status
+    this.getApprovedFields();
+  }
+
+  updateWithdrawalStatus(): void {
+    // Update withdrawal status if needed
+  }
+
+  viewReason(comments: string): void {
+    this.dialog.open(RejectionReasonPopupComponent, {
+      data: {
+        comments,
+        buttonText: 'OK',
+      },
+      disableClose: true,
+      width: '500px',
+      maxWidth: '90vw',
+    })
+  }
+
+  get showWithdrawRequestBtn(): boolean {
+    if (this.enableWR && !(this.isNotMyUser && this.isIgotOrg)) {
+      return true
+    }
+    return false
+  }
+
+  showWithdrawRequestPopup() {
+    const dialogRef = this.dialog.open(WithdrawRequestComponent, {
+      data: {
+        withDrawType: 'primaryDetails',
+      },
+      disableClose: true,
+      panelClass: 'common-modal',
+    })
+
+    dialogRef.afterClosed().subscribe((value: boolean) => {
+      if (value) {
+        this.handleWithdrawRequest()
+      }
+    })
+  }
+
+  handleWithdrawRequest(): void {
+    this.approvalPendingFields.forEach((_obj: any) => {
+      const userId = _.get(this.configSvc.unMappedUser, 'id')
+      const payload = {
+        action: 'WITHDRAW',
+        state: 'SEND_FOR_APPROVAL',
+        userId: userId,
+        applicationId: userId,
+        actorUserId: userId,
+        wfId: _obj.wfId,
+        serviceName: 'profile',
+        updateFieldValues: [],
+        comment: '',
+      }
+      this.profileV2RevampService.withDrawRequest(payload)
+        .subscribe((_res: any) => {
+          // Clear pending and rejected fields data
+          if (this.data.unVerifiedObj) {
+            this.data.unVerifiedObj.group = ''
+            this.data.unVerifiedObj.designation = ''
+            this.data.unVerifiedObj.organization = ''
+            this.data.unVerifiedObj.groupRequestTime = 0
+            this.data.unVerifiedObj.designationRequestTime = 0
+          }
+          if (this.data.rejectedFields) {
+            this.data.rejectedFields.group = ''
+            this.data.rejectedFields.designation = ''
+            this.data.rejectedFields.organization = ''
+            this.data.rejectedFields.groupRejectionTime = 0
+            this.data.rejectedFields.designationRejectionTime = 0
+          }
+          
+          // Enable all form fields
+          const groupControl = this.profileForm.get('group');
+          const designationControl = this.profileForm.get('designation');
+          const transferOrgControl = this.profileForm.get('transferOrganization');
+          
+          if (groupControl && groupControl.disabled) groupControl.enable();
+          if (designationControl && designationControl.disabled) designationControl.enable();
+          if (transferOrgControl && transferOrgControl.disabled) transferOrgControl.enable();
+          
+          this.openSnackbar(this.handleTranslateTo('withdrawRequestSuccess'))
+          this.enableWR = false
+          
+          // Refresh approval fields to update timestamps
+          this.getApprovedFields()
+        }, (error: HttpErrorResponse) => {
+          if (!error.ok) {
+            this.openSnackbar(this.handleTranslateTo('unableWithdrawRequest'))
+          }
+        })
+    })
+  }
+
+  disablePendingFields(): void {
+    const groupControl = this.profileForm.get('group');
+    const designationControl = this.profileForm.get('designation');
+    const transferOrgControl = this.profileForm.get('transferOrganization');
+
+    // Check if ANY field has pending/rejected status
+    const anyFieldPendingOrRejected = this.isOrganizationPendingOrRejected || 
+                                      this.isGroupPendingOrRejected || 
+                                      this.isDesignationPendingOrRejected;
+
+    if (anyFieldPendingOrRejected) {
+      // Disable all three fields if any one is pending/rejected
+      if (groupControl) groupControl.disable();
+      if (designationControl) designationControl.disable();
+      if (transferOrgControl) transferOrgControl.disable();
+    }
+  }
+
+  get isOrganizationPendingOrRejected(): boolean {
+    const unVerifiedObj = _.get(this.data, 'unVerifiedObj', {});
+    const rejectedFields = _.get(this.data, 'rejectedFields', {});
+    
+    // Check if organization field exists in pending or rejected
+    return !!(unVerifiedObj.organization || rejectedFields.organization);
+  }
+
+  get isGroupPendingOrRejected(): boolean {
+    return this.showGroupPending || this.showGroupRejection;
+  }
+
+  get isDesignationPendingOrRejected(): boolean {
+    return this.showDesignationPending || this.showDesignationRejection;
+  }
+
   ngOnDestroy() {
     this.destroySubject$.unsubscribe()
   }
 
    //#region (primary details)
   private createMandatoryDetailsForm(): void {
+    // Get values from primaryDetails or profileDetails
+    const primaryDetails = _.get(this.data, 'primaryDetails', this.profileDetails);
+    
     this.profileForm = this.fb.group({
-      group: [_.get(this.profileDetails, 'group', ''), Validators.required],
-      designation: [_.get(this.profileDetails, 'designation', ''), Validators.required],
+      group: [_.get(primaryDetails, 'group', ''), Validators.required],
+      designation: [_.get(primaryDetails, 'designation', ''), Validators.required],
       searchDesignation: [''],
-      primaryEmail: [_.get(this.profileDetails, 'primaryEmail', ''), [Validators.required, Validators.pattern(EMAIL_PATTERN)]],
-      mobile: [_.get(this.profileDetails, 'mobile', ''), [Validators.required, Validators.minLength(10), Validators.maxLength(10), Validators.pattern(MOBILE_PATTERN)]],
-      transferOrganization: [_.get(this.profileDetails, 'departmentName', ''), [Validators.required]],
+      primaryEmail: [_.get(primaryDetails, 'primaryEmail', ''), [Validators.required, Validators.pattern(EMAIL_PATTERN)]],
+      mobile: [_.get(primaryDetails, 'mobile', ''), [Validators.required, Validators.minLength(10), Validators.maxLength(10), Validators.pattern(MOBILE_PATTERN)]],
+      transferOrganization: [_.get(primaryDetails, 'departmentName', ''), [Validators.required]],
       searchTransferOrganization: [''],
     });
     this.checkCurrentDesignationPresent();
     
     // Set up value change listeners for email and mobile
     this.setupMandatorySectionValueChanges();
+    
+    // Disable fields if they have pending/rejected status
+    this.disablePendingFields();
     
     setTimeout(() => {
       this.initilisationInProgress = false;
@@ -1427,10 +1721,11 @@ getDesignationHint(): string {
   setupMandatorySectionValueChanges(): void {
     const primaryEmailControl = this.profileForm.get('primaryEmail');
     const mobileControl = this.profileForm.get('mobile');
+    const primaryDetails = _.get(this.data, 'primaryDetails', this.profileDetails);
 
     if (primaryEmailControl) {
       primaryEmailControl.valueChanges.subscribe((value: string) => {
-        if (value && value !== _.get(this.profileDetails, 'primaryEmail', '')) {
+        if (value && value !== _.get(primaryDetails, 'primaryEmail', '')) {
           if (primaryEmailControl.valid) {
             this.verifyEmail = true;
           } else {
@@ -1438,7 +1733,7 @@ getDesignationHint(): string {
           }
         } else if (!value) {
           this.verifyEmail = false;
-        } else if (value === _.get(this.profileDetails, 'primaryEmail', '')) {
+        } else if (value === _.get(primaryDetails, 'primaryEmail', '')) {
           this.verifyEmail = false;
         }
       })
@@ -1446,13 +1741,13 @@ getDesignationHint(): string {
 
     if (mobileControl) {
       mobileControl.valueChanges.subscribe((value: string) => {
-        if (value && value !== _.get(this.profileDetails, 'mobile', '')) {
+        if (value && value !== _.get(primaryDetails, 'mobile', '')) {
           if (mobileControl.valid) {
             this.verifyMobile = true;
           } else {
             this.verifyMobile = false;
           }
-        } else if (!value || value === _.get(this.profileDetails, 'mobile', '')) {
+        } else if (!value || value === _.get(primaryDetails, 'mobile', '')) {
           this.verifyMobile = false;
         }
       })
