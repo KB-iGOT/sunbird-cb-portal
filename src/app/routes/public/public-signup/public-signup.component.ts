@@ -217,7 +217,7 @@ export class PublicSignupComponent implements OnInit, OnDestroy {
       // organisation: new FormControl('', [Validators.required, Validators.pattern(this.customCharsPattern)]),
       organisation: new UntypedFormControl('', [Validators.required]),
       // recaptchaReactive: new FormControl(null, [Validators.required]),
-      designation: new UntypedFormControl('', [Validators.required]),
+      position: new UntypedFormControl('', [Validators.required]),
       searchDesignation: new UntypedFormControl('', [])
     })
     if (this.configSvc.instanceConfig && this.configSvc.instanceConfig.isMultilingualEnabled) {
@@ -330,7 +330,7 @@ private getDesignationSafe(): void {
     // indicate loading state so scroll handlers don't trigger parallel calls
     this.isLoadingMoreDesignations = true
 
-    this.usersService.searchDesignation(requestBody).pipe(finalize(() => {
+    this.usersService.searchPublicDesignation(requestBody).pipe(finalize(() => {
       this.isLoadingMoreDesignations = false
       this.designationInitInProgress = false
     }))
@@ -380,7 +380,7 @@ private getDesignationSafe(): void {
   }
    checkCurrentDesignationPresent() {
     // Get the current designation value
-    const currentDesignation = this.registrationForm.get('designation')!.value
+    const currentDesignation = this.registrationForm.get('position')!.value
     // Check if current designation exists in the list
     if (currentDesignation) {
       const designationExists = this.masterData?.designation.some(
@@ -408,7 +408,7 @@ private getDesignationSafe(): void {
   }
     onDesignationDropdownClosed(): void {
     // Keep the designation value but clear the search input
-    const currentDesignation = this.registrationForm.get('designation')!.value
+    const currentDesignation = this.registrationForm.get('position')!.value
     setTimeout(() => {
       if (this.registrationForm.get('searchDesignation')) {
         this.registrationForm.get('searchDesignation')!.setValue('')
@@ -821,7 +821,9 @@ setupScrollListener(opened: boolean): void {
         this.startCountDownEmail()
         // tslint:disable-next-line: align
       }, (error: any) => {
-        this.snackBar.open(_.get(error, 'error.params.errmsg') || 'Please try again later')
+        const isError= _.get(error, 'error.params.errmsg')
+        const errMsg = isError ? "Your email domain isn’t recognised — please contact your department for registration." : "Please try again later"
+        this.snackBar.open(errMsg)
       })
     } else {
       this.snackBar.open(this.translateLabels('validEmail', 'publicsignup'))
@@ -963,7 +965,7 @@ setupScrollListener(opened: boolean): void {
               mapId: this.heirarchyObject.mapId || '',
               sbRootOrgId: this.heirarchyObject.sbRootOrgId,
               sbOrgId: this.heirarchyObject.sbOrgId,
-              designation: this.registrationForm.value.designation || '',
+              position: this.registrationForm.value.position || '',
             }
           }
 
