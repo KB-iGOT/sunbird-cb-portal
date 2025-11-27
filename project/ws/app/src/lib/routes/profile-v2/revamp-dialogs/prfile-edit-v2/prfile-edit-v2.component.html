@@ -31,7 +31,7 @@
     </ng-template>
   </div>
   <div  class="form-actions flex justify-end items-center gap-4" *ngIf="header === 'Mandatory Section'">
-      <button mat-button class="save-btn flex align-center justify-center px-2" (click)="handleSubmit()"
+      <button mat-button class="save-btn flex align-center justify-center px-2" (click)="handleSubmit('mandatorySection')"
         [ngClass]="{'disableBtn': !canSaveChanges}">{{ 'NetworkV2Profile.saveChanges' | translate }}</button>
 
   </div>
@@ -161,9 +161,9 @@
       </div>
     </div>
 
-    <!-- Display Current Group and Designation with Verification Status -->
+    <!-- Display Current Group, Designation, and Organization with Verification Status -->
     <div class="mb-4" *ngIf="showApprovalStatus">
-      <div class="flex gap-10 mb-4">
+      <div class="flex gap-10 mb-4 flex-wrap">
         <div class="flex flex-col gap-2 pr-3">
           <span class="label font-semibold">{{ 'NetworkV2Profile.group' | translate }}</span>
           <span class="primaryDetailsvalue flex gap-2 items-center">{{ data?.primaryDetails?.group || profileDetails?.group }}
@@ -185,6 +185,20 @@
               <img class="status-icon ml-1" src="./assets/icons/Accept_icon.png" alt="verified" style="width: 16px; height: 16px;">
             </ng-container>
             <ng-template #designationNotVerified>
+              <div class="profile-not-verified flex gap-1 justify-center items-center" style="background: #FFF3E0; padding: 2px 8px; border-radius: 4px;">
+                <div class="text" style="font-size: 12px; color: #E65100;">{{ 'NetworkV2Profile.notVerified' | translate }}</div>
+                <mat-icon style="font-size: 14px; width: 14px; height: 14px; color: #E65100;">info_outline</mat-icon>
+              </div>
+            </ng-template>
+          </span>
+        </div>
+        <div class="flex flex-col gap-2 pr-3" *ngIf="data?.primaryDetails?.departmentName || profileDetails?.departmentName">
+          <span class="label font-semibold">{{ 'NetworkV2Profile.organization' | translate }}</span>
+          <span class="primaryDetailsvalue flex gap-2 items-center">{{ data?.primaryDetails?.departmentName || profileDetails?.departmentName }}
+            <ng-container *ngIf="data?.primaryDetails?.profileStatus === 'VERIFIED'; else organizationNotVerified">
+              <img class="status-icon ml-1" src="./assets/icons/Accept_icon.png" alt="verified" style="width: 16px; height: 16px;">
+            </ng-container>
+            <ng-template #organizationNotVerified>
               <div class="profile-not-verified flex gap-1 justify-center items-center" style="background: #FFF3E0; padding: 2px 8px; border-radius: 4px;">
                 <div class="text" style="font-size: 12px; color: #E65100;">{{ 'NetworkV2Profile.notVerified' | translate }}</div>
                 <mat-icon style="font-size: 14px; width: 14px; height: 14px; color: #E65100;">info_outline</mat-icon>
@@ -260,6 +274,32 @@
                         <div class="approvalStatusRejected flex justify-center items-center">{{ 'NetworkV2Profile.rejected' | translate }}</div>
                       </div>
                       <div mat-icon-button (click)="viewReason(data?.rejectedFields?.designationRejectionComments)" class="flex gap-2 items-center viewReason cursor-pointer">
+                        <span>{{ 'NetworkV2Profile.viewReason' | translate }}</span>
+                      </div>
+                    </ng-container>
+                  </div>
+                </ng-container>
+                <ng-container *ngIf="data?.unVerifiedObj?.organization || data?.rejectedFields?.organization">
+                  <div class="flex justify-between items-center px-5 py-3">
+                    <ng-container >
+                      <div class="w-full">
+                        <div class="statusLable">{{ 'NetworkV2Profile.organization' | translate }}</div>
+                        <div class="approvalStausValue">{{data?.unVerifiedObj?.organization}}</div>
+                      </div>
+                      <div class="w-full">
+                        <div class="approvalStatusPending flex justify-center items-center">{{ 'NetworkV2Profile.pending' | translate }}</div>
+                      </div>
+                      <div class="flex justify-center" style="width: 200px;">-</div>
+                    </ng-container>
+                    <ng-container *ngIf="showOrganizationRejection">
+                      <div class="w-full">
+                        <div class="statusLable">{{ 'NetworkV2Profile.organization' | translate }}</div>
+                        <div class="approvalStausValue">{{data?.rejectedFields?.organization}}</div>
+                      </div>
+                      <div class="w-full">
+                        <div class="approvalStatusRejected flex justify-center items-center">{{ 'NetworkV2Profile.rejected' | translate }}</div>
+                      </div>
+                      <div mat-icon-button (click)="viewReason(data?.rejectedFields?.organizationRejectionComments)" class="flex gap-2 items-center viewReason cursor-pointer">
                         <span>{{ 'NetworkV2Profile.viewReason' | translate }}</span>
                       </div>
                     </ng-container>

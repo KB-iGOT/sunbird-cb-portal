@@ -626,18 +626,25 @@ export class HomeComponent implements OnInit, AfterViewInit {
   }
   mandatoryDetails() {
     let unMappedUser = this.configSvc.unMappedUser
-    debugger
-    let userProfileUpdateDate= unMappedUser && unMappedUser.profileDetails && unMappedUser.profileDetails.personalDetails &&  unMappedUser.profileDetails.personalDetails?.lastProfileVerificationPromptDate ? Number(unMappedUser.profileDetails.personalDetails.lastProfileVerificationPromptDate) : new Date().getTime()
+    let userProfileUpdateDate= unMappedUser && unMappedUser.profileDetails && unMappedUser.profileDetails.personalDetails &&  unMappedUser.profileDetails.personalDetails?.lastProfileVerificationPromptDate ? Number(unMappedUser.profileDetails.personalDetails.lastProfileVerificationPromptDate) : null
     // Difference in milliseconds
     const currentEpochTime = new Date().getTime();
-    const diffMs = Math.abs(currentEpochTime - userProfileUpdateDate);
+    let diffMs = 0
+    if(userProfileUpdateDate !== null) {
+     diffMs = Math.abs(currentEpochTime - userProfileUpdateDate);
+    }
     // Convert ms → days
     const diffDays = diffMs / (1000 * 60 * 60 * 24);
 
-    if(diffDays && diffDays> 90 ) {
+    if((diffDays && diffDays> 90 ) || userProfileUpdateDate === null) {
+      let userData = {
+        ...this.configSvc.userProfile,
+        mobile: this.configSvc.unMappedUser.profileDetails?.personalDetails?.mobile || '',
+        primaryEmail: this.configSvc.unMappedUser.profileDetails?.personalDetails?.primaryEmail || '',
+      }
         let dialogRef = this.dialog.open(ProfileVerificationDialogComponent, {
           data: {
-            userProfile: this.configSvc.userProfile
+            userProfile: userData
           },
           panelClass: 'profile-verification-dialog-container',
           disableClose: true,

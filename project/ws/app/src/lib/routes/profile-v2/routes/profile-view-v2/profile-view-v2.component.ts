@@ -673,9 +673,26 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
     } else if (header === 'mandatorySection') {
       dialogDetails['groupsList'] = this.groupsList
     }
-    console.log('dialogDetails', dialogDetails  )
+    
+    // For mandatorySection, wrap dialogDetails and include approval fields
+    let dialogData: any;
+    if (header === 'mandatorySection') {
+      dialogData = {
+        dialogDetails,
+        unVerifiedObj: this.unVerifiedObj,
+        rejectedFields: this.rejectedFields,
+        approvalPendingFields: this.approvalPendingFields,
+        enableWTR: this.enableWTR,
+        enableWR: this.enableWR,
+        isCurrentUser: this.isCurrentUser,
+        primaryDetails: this.primaryDetails
+      };
+    } else {
+      dialogData = dialogDetails;
+    }
+    
     const dialogRef = this.dialog.open(PrfileEditV2Component, {
-      data: dialogDetails,
+      data: dialogData,
       disableClose: true,
       panelClass: 'dialog_sidenav',
       autoFocus: false

@@ -14,7 +14,7 @@ import { VerifyOtpComponent } from '../../components/verify-otp/verify-otp.compo
 import { RejectionReasonPopupComponent } from '../../components/rejection-reason-popup/rejection-reason-popup.component'
 import { WithdrawRequestComponent } from '../../components/withdraw-request/withdraw-request.component'
 import { NsUserProfileDetails } from '../../../user-profile/models/NsUserProfile'
-import { DatePipe } from '@angular/common';
+import { DatePipe, Location } from '@angular/common';
 import { ConfigurationsService, ImageCropComponent, PipeCertificateImageURL } from '@sunbird-cb/utils-v2';
 import { NotificationComponent } from '@ws/author/src/lib/modules/shared/components/notification/notification.component'
 import { PROFILE_IMAGE_SUPPORT_TYPES } from '@ws/author/src/lib/constants/upload'
@@ -22,9 +22,10 @@ import { Notify } from '@ws/author/src/lib/constants/notificationMessage';
 import { NOTIFICATION_TIME } from '@ws/author/src/lib/constants/constant';
 import { UserProfileService } from '../../../user-profile/services/user-profile.service';
 import { TranslateService } from '@ngx-translate/core';
+// import { Router } from '@angular/router';
 
 
-@Component({
+@Component({  
   selector: 'ws-app-prfile-edit-v2',
   templateUrl: './prfile-edit-v2.component.html',
   styleUrls: ['./prfile-edit-v2.component.scss']
@@ -102,6 +103,7 @@ export class PrfileEditV2Component implements OnInit, OnDestroy {
   // Approval status properties for Mandatory Section
   groupApprovedTime = 0
   designationApprovedTime = 0
+  organizationApprovedTime = 0
   panelOpenState = false
   isIgotOrg = false
   isNotMyUser = false
@@ -123,14 +125,28 @@ export class PrfileEditV2Component implements OnInit, OnDestroy {
     private userProfileService: UserProfileService,
     private configSvc: ConfigurationsService,
     private translate: TranslateService,
+    // private router: Router,
+    private location: Location
   ) {
-    this.header = _.get(this.data, 'header', '') || _.get(this.data, 'dialogDetails.header', '') ;
-    this.profileDetails = _.get(this.data, 'profileDetails', {}) || _.get(this.data, 'dialogDetails.profileDetails', {});
-    this.profileImage = _.get(this.data, 'profileImage', null) || _.get(this.data, 'dialogDetails.profileImage', null);
-    this.groupsList = this.data?.groupsList?.length ? _.get(this.data, 'groupsList', []) : _.get(this.data, 'dialogDetails.groupsList', []);
+    
+    // Handle both data structures - direct and wrapped in dialogDetails
+    const hasDialogDetails = this.data && this.data.hasOwnProperty('dialogDetails');
+    
+    this.header = hasDialogDetails ? _.get(this.data, 'dialogDetails.header', '') : _.get(this.data, 'header', '');
+    this.profileDetails = hasDialogDetails ? _.get(this.data, 'dialogDetails.profileDetails', {}) : _.get(this.data, 'profileDetails', {});
+    this.profileImage = hasDialogDetails ? _.get(this.data, 'dialogDetails.profileImage', null) : _.get(this.data, 'profileImage', null);
+    
+    // groupsList can come from either location
+    this.groupsList = _.get(this.data, 'groupsList', []);
+    if (!this.groupsList.length && hasDialogDetails) {
+      this.groupsList = _.get(this.data, 'dialogDetails.groupsList', []);
+    }
+    
+    // These fields are always at the top level when passed from openProfileEditDialog or handleEditMandatoryDetails
     this.enableWTR = _.get(this.data, 'enableWTR', false);
     this.enableWR = _.get(this.data, 'enableWR', false);
     this.approvalPendingFields = _.get(this.data, 'approvalPendingFields', []);
+   
   }
 
   ngOnInit(): void {
@@ -1084,7 +1100,7 @@ getDesignationHint(): string {
 
   //#endregion (end of other details)
 
-  handleSubmit(): void {
+  handleSubmit(sectionType?:any): void {
     if (this.profileForm) {
       if (this.canSaveChanges) {
         const profileData = this.profileForm.value;
@@ -1106,13 +1122,22 @@ getDesignationHint(): string {
         this.markFormGroupTouched(this.profileForm);
       }
     }
+    if(sectionType === 'mandatorySection') {
+      // const urlWithoutFragment = this.router.url.split('#')[0];
+      // console.log('urlWithoutFragment', urlWithoutFragment);
+      // this.location.replaceState(urlWithoutFragment);
+      // window.location.reload();
+      this.location.replaceState('/page/home');
+       window.location.reload();
+      // this.router.navigate(['/page/home']);
+    }
   }
 
   generateMandatorySectionForm(): void {
     if (this.profileForm.valid) {
       const formValue = this.profileForm.value;
       const primaryDetails = _.get(this.data, 'primaryDetails', this.profileDetails);
-      console.log('formValue', formValue);
+     
       
       // MANDATORY: Always include userId and profileDetails with lastProfileVerificationPromptDate
       const postData: any = {
@@ -1158,7 +1183,6 @@ getDesignationHint(): string {
         postData.request.profileDetails.personalDetails.mobile = formValue.mobile;
       }
 
-      console.log('postData', postData);
       this.userProfileService.editProfileDetails(postData)
         .pipe(takeUntil(this.destroySubject$))
         .subscribe({
@@ -1419,6 +1443,9 @@ getDesignationHint(): string {
 
             this.designationApprovedTime = (obj.hasOwnProperty('designation') && obj.lastUpdatedOn > this.designationApprovedTime) ?
               obj.lastUpdatedOn : this.designationApprovedTime
+
+            this.organizationApprovedTime = (obj.hasOwnProperty('organization') && obj.lastUpdatedOn > this.organizationApprovedTime) ?
+              obj.lastUpdatedOn : this.organizationApprovedTime
           })
         }
       }, (error: HttpErrorResponse) => {
@@ -1433,9 +1460,45 @@ getDesignationHint(): string {
       (this.groupApprovedTime < _.get(this.data, 'rejectedFields.groupRejectionTime', 0) ||
         this.groupApprovedTime < _.get(this.data, 'unVerifiedObj.groupRequestTime', 0) ||
         this.designationApprovedTime < _.get(this.data, 'rejectedFields.designationRejectionTime', 0) ||
-        this.designationApprovedTime < _.get(this.data, 'unVerifiedObj.designationRequestTime', 0)) &&
+        this.designationApprovedTime < _.get(this.data, 'unVerifiedObj.designationRequestTime', 0) ||
+        this.organizationApprovedTime < _.get(this.data, 'rejectedFields.organizationRejectionTime', 0) ||
+        this.organizationApprovedTime < _.get(this.data, 'unVerifiedObj.organizationRequestTime', 0)) &&
       _.get(this.data, 'isCurrentUser', false)
     ) {
+      return true
+    }
+    return false
+  }
+
+  get showOrganizationPending(): boolean {
+    const unVerifiedObj = _.get(this.data, 'unVerifiedObj', {});
+    const rejectedFields = _.get(this.data, 'rejectedFields', {});
+    if (
+      this.organizationApprovedTime < unVerifiedObj.organizationRequestTime &&
+      rejectedFields.organizationRejectionTime < unVerifiedObj.organizationRequestTime &&
+      unVerifiedObj.organization
+    ) {
+      if ((unVerifiedObj.organizationRequestTime + 100) < rejectedFields.designationRejectionTime ||
+        (unVerifiedObj.organizationRequestTime + 100) < unVerifiedObj.designationRequestTime) {
+        return false
+      }
+      return true
+    }
+    return false
+  }
+
+  get showOrganizationRejection(): boolean {
+    const unVerifiedObj = _.get(this.data, 'unVerifiedObj', {});
+    const rejectedFields = _.get(this.data, 'rejectedFields', {});
+    if (
+      this.organizationApprovedTime < rejectedFields.organizationRejectionTime &&
+      unVerifiedObj.organizationRequestTime < rejectedFields.organizationRejectionTime &&
+      rejectedFields.organization
+    ) {
+      if ((rejectedFields.organizationRejectionTime + 100) < rejectedFields.designationRejectionTime ||
+        (rejectedFields.organizationRejectionTime + 100) < unVerifiedObj.designationRequestTime) {
+        return false
+      }
       return true
     }
     return false
@@ -1543,6 +1606,57 @@ getDesignationHint(): string {
   }
 
   showWithdrawRequestPopup() {
+    // If organization transfer is pending, open withdraw dialog in 'department' mode so
+    // the dialog itself performs the withdraw and emits an event on success.
+    if (this.showOrganizationPending || this.isOrganizationPendingOrRejected) {
+      const dialogRef = this.dialog.open(WithdrawRequestComponent, {
+        data: {
+          withDrawType: 'department',
+          approvalPendingFields: this.approvalPendingFields,
+        },
+        disableClose: true,
+        panelClass: 'common-modal',
+      })
+
+      // Listen for the component emitter to know when withdraw succeeded and enable transfer
+      const compInstance: any = dialogRef.componentInstance;
+      if (compInstance && compInstance.enableMakeTransfer) {
+        compInstance.enableMakeTransfer.pipe(takeUntil(this.destroySubject$)).subscribe(() => {
+          // Clear pending and rejected fields data (organization prioritized)
+          if (this.data.unVerifiedObj) {
+            this.data.unVerifiedObj.organization = ''
+            this.data.unVerifiedObj.organizationRequestTime = 0
+            this.data.unVerifiedObj.group = ''
+            this.data.unVerifiedObj.designation = ''
+            this.data.unVerifiedObj.groupRequestTime = 0
+            this.data.unVerifiedObj.designationRequestTime = 0
+          }
+          if (this.data.rejectedFields) {
+            this.data.rejectedFields.organization = ''
+            this.data.rejectedFields.organizationRejectionTime = 0
+            this.data.rejectedFields.group = ''
+            this.data.rejectedFields.designation = ''
+            this.data.rejectedFields.groupRejectionTime = 0
+            this.data.rejectedFields.designationRejectionTime = 0
+          }
+
+          // Enable form fields
+          const groupControl = this.profileForm.get('group');
+          const designationControl = this.profileForm.get('designation');
+          const transferOrgControl = this.profileForm.get('transferOrganization');
+          if (groupControl && groupControl.disabled) { groupControl.enable(); }
+          if (designationControl && designationControl.disabled) { designationControl.enable(); }
+          if (transferOrgControl && transferOrgControl.disabled) { transferOrgControl.enable(); }
+
+          this.openSnackbar(this.handleTranslateTo('withdrawRequestSuccess'))
+          this.enableWR = false
+          this.getApprovedFields()
+        })
+      }
+      return
+    }
+
+    // Default behavior: open simple withdraw for primary details
     const dialogRef = this.dialog.open(WithdrawRequestComponent, {
       data: {
         withDrawType: 'primaryDetails',
@@ -1624,9 +1738,14 @@ getDesignationHint(): string {
 
     if (anyFieldPendingOrRejected) {
       // Disable all three fields if any one is pending/rejected
-      if (groupControl) groupControl.disable();
-      if (designationControl) designationControl.disable();
-      if (transferOrgControl) transferOrgControl.disable();
+      if (groupControl) groupControl.disable({ emitEvent: false });
+      if (designationControl) designationControl.disable({ emitEvent: false });
+      if (transferOrgControl) transferOrgControl.disable({ emitEvent: false });
+    } else {
+      // Re-enable fields if no pending/rejected status
+      if (groupControl && groupControl.disabled) groupControl.enable({ emitEvent: false });
+      if (designationControl && designationControl.disabled) designationControl.enable({ emitEvent: false });
+      if (transferOrgControl && transferOrgControl.disabled) transferOrgControl.enable({ emitEvent: false });
     }
   }
 
