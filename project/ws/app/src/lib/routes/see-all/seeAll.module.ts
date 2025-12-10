@@ -48,12 +48,14 @@ import { MatSidenavModule } from '@angular/material/sidenav'
 import { MatLegacySlideToggleModule as MatSlideToggleModule } from '@angular/material/legacy-slide-toggle'
 import { MatLegacyTabsModule as MatTabsModule } from '@angular/material/legacy-tabs'
 import { MatToolbarModule } from '@angular/material/toolbar'
-import { MatLegacyTooltipModule as MatTooltipModule } from '@angular/material/legacy-tooltip'
+import { MatLegacyTooltipModule as MatTooltipModule } from '@angular/material/legacy-tooltip';
+import { SeeAllDynamicComponent } from './components/see-all-dynamic/see-all-dynamic.component'
 
 @NgModule({
     declarations: [
         SeeAllHomeComponent,
         SeeAllWithPillsComponent,
+        SeeAllDynamicComponent,
     ],
     imports: [
         CommonModule,

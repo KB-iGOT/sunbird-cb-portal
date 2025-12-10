@@ -358,9 +358,18 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
       // }
       try {
         const response = await this.postRequestMethod(strip, strip.request.ciosContent, strip.request.apiUrl, calculateParentStatus)
-        if (response && response.results) {
-          if (response.results.data && response.results.data.length) {
-            this.contentDataList = this.transformContentsToWidgets(response.results.data, strip)
+        if (response && response.results && response.results.result) {
+          if (response.results.result.data && response.results.result.data.length) {
+            let data  = response.results.result.data.map((item: any) => {
+              return {
+                ...item,
+                "name": item?.contentPartnerName || '',
+                "logoUrl": item?.link || '',
+                "description": item?.description || '',
+              }
+            })
+            this.contentDataList = this.transformContentsToWidgets(data, strip)
+            console.log(this.contentDataList);
           }
         }
       } catch (error) {
@@ -676,6 +685,10 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
             }
               : null
             resolve({ results, viewMoreUrl })
+          } else  if (results && results.results&& results.results.data) {
+            resolve({ results })
+          } else {
+            resolve({ results })
           }
         },                                                            (error: any) => {
           // this.processStrip(strip, [], 'error', calculateParentStatus, null);

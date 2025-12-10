@@ -15,7 +15,8 @@
             </ng-container>
             <ng-container *ngIf="isCoisContent">
                 <div class="mr-2" *ngFor="let c of contentDataList">
-                    <sb-uic-card-portrait-ext [widgetData]="c.widgetData" (contentData)="takeExtClickAction($event)"></sb-uic-card-portrait-ext>
+                    <sb-uic-provider-card  [isCardLoading]="false" [widgetData]="c.widgetData"></sb-uic-provider-card>
+                    <!-- <sb-uic-card-portrait-ext [widgetData]="c.widgetData" (contentData)="takeExtClickAction($event)"></sb-uic-card-portrait-ext> -->
                 </div>
             </ng-container>
         </div>
