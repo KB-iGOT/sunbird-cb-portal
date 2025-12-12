@@ -27,7 +27,7 @@ import { SeeAllHomeComponent } from './components/see-all-home/see-all-home.comp
 import { CardContentV2Module } from '@sunbird-cb/collection/src/lib/card-content-v2/card-content-v2.module'
 import { TranslateModule } from '@ngx-translate/core'
 import { SeeAllWithPillsComponent } from './components/see-all-with-pills/see-all-with-pills.component'
-import { CardsModule } from '@sunbird-cb/consumption'
+import { CardsModule, PaginationModule } from '@sunbird-cb/consumption'
 import { MatLegacyAutocompleteModule as MatAutocompleteModule } from '@angular/material/legacy-autocomplete'
 import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button'
 import { MatLegacyCardModule as MatCardModule } from '@angular/material/legacy-card'
@@ -107,6 +107,7 @@ import { SeeAllDynamicComponent } from './components/see-all-dynamic/see-all-dyn
         InfiniteScrollModule,
         TranslateModule,
         CardsModule,
+        PaginationModule
     ],
     exports: [SeeAllHomeComponent],
     providers: [],
