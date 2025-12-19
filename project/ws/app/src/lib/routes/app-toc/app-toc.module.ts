@@ -147,7 +147,6 @@ import { AppTocHomeV2Component } from './components/app-toc-home-v2/app-toc-home
 import { EnrollLanguageDialogueComponent } from './components/enroll-language-dialogue/enroll-language-dialogue.component';
 import { CompletionSurveyFormComponent } from './components/completion-survey-form/completion-survey-form.component';
 import { PublicSurveyFormComponent } from './components/public-survey-form/public-survey-form.component'
-import { ConsentDialogComponent } from './components/app-toc-cios-home/consent-dialog.component'
 
 @NgModule({
   declarations: [
@@ -180,7 +179,6 @@ import { ConsentDialogComponent } from './components/app-toc-cios-home/consent-d
     EnrollQuestionnaireComponent,
     EnrollProfileFormComponent,
     AppTocCiosHomeComponent,
-    ConsentDialogComponent,
     EnrollLanguageDialogueComponent,
     CompletionSurveyFormComponent,
     PublicSurveyFormComponent,
