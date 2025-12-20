@@ -173,9 +173,6 @@ export class EventDetailComponent implements OnInit {
         }
       }
 
-
-      console.log('this.configSvc', this.configSvc)
-      console.log('this.eventOrg', this.eventOrg)
       if (this.eventData?.preEventReads?.length === 1 && this.eventData?.preEventReads?.[0] === '') {
         this.eventData.preEventReads = []
       }
@@ -263,6 +260,16 @@ export class EventDetailComponent implements OnInit {
         })
       })
       this.eventData.preEventReads = preEventReadsDetails
+    }
+    if (this.eventData && this.eventData.postEventSummary && this.eventData.postEventSummary.length > 0) {
+      const postEventSummaryDetails: { documentName: string, url: string }[] = []
+      this.eventData.postEventSummary.forEach((eventSummary: any) => {
+        postEventSummaryDetails.push({
+          documentName: this.uploadedFileName(eventSummary),
+          url: eventSummary
+        })
+      })
+      this.eventData.postEventSummary = postEventSummaryDetails
     }
   }
 
@@ -493,7 +500,7 @@ export class EventDetailComponent implements OnInit {
   }
 
   fileImage(name: string) {
-    return name.includes('.ppt') ? '/assets/icons/ppt.svg' :
+    return name && name.includes('.ppt') ? '/assets/icons/ppt.svg' :
       (name.includes('.doc') ? '/assets/icons/doc.svg' : '/assets/icons/pdf.svg')
   }
 
