@@ -92,9 +92,9 @@
                                                 </p>
                                             </div>
                                             <div class="ml-4 subtitle-text-slot mr-4">
-                                                <p class="black-text" [innerHtml]="subtitle?.text 
-                                    | highlight : keywordToHighlight?.text 
-                                                : ((subtitle?.startTime / 1000) >= keywordToHighlight?.start 
+                                                <p class="black-text" [innerHtml]="subtitle?.text
+                                    | highlight : keywordToHighlight?.text
+                                                : ((subtitle?.startTime / 1000) >= keywordToHighlight?.start
                                                     && (subtitle?.endTime / 1000) <= keywordToHighlight?.end)">
                                                 </p>
                                             </div>
@@ -186,7 +186,8 @@
                     [tocStructure]="tocStructure" [config]="config" [forPreview]="false" [sticky]="sticky"
                     [selectedBatchData]="selectedBatchData" [selectedTabValue]="selectedTabIndex"
                     [resumeData]="resumeData" [batchData]="batchData" [skeletonLoader]="skeletonLoader"
-                    [condition]="condition" [kparray]="kparray" [showReviews]="'true'" [languageList]="languageList">
+                    [condition]="condition" [kparray]="kparray" [showReviews]="'true'" [languageList]="languageList"
+                    [lockCertificate]="lockCertificate" (trigerCompletionSurveyForm)="openSurveyFormPopup($event)">
                 </ws-widget-app-toc-about>
             </ng-template>
         </mat-tab>
@@ -196,7 +197,7 @@
             <mat-tab label="{{ 'apptocsinglepage.content' | translate }}" *ngIf="contentTabFlag">
                 <ng-template matTabContent>
                     <ws-widget-app-toc-content [batchId]="batchId" [componentName]="componentName" [pathSet]="pathSet"
-                        [content]="content" [tocStructure]="tocStructure" [config]="config" [forPreview]="false"
+                        [content]="content" [tocStructure]="tocStructure" [config]="config" [forPreview]="forPreview"
                         [resumeData]="resumeData" [batchData]="batchData" [skeletonLoader]="skeletonLoader"
                         [hierarchyMapData]="hierarchyMapData" [baseContentReadData]="baseContentReadData">
                     </ws-widget-app-toc-content>
@@ -205,21 +206,34 @@
         </ng-container>
 
         <ng-container *ngIf="config?.commentsTab && !forPreview">
-            <mat-tab label="{{ 'apptocsinglepage.comments' | translate }}">
+            <mat-tab label="{{ 'apptocsinglepage.startDiscussion' | translate }}">
                 <ng-template matTabContent>
-                <div class="flex flex-col ratings-div mt-5" id="commentsDiv" *ngIf="discussWidgetData && discussWidgetData?.newCommentSection?.commentTreeData?.entityId">
-                    <ng-container *ngIf="!commentId">
-                        <d-v2-widget-comment [widgetData]="discussWidgetData"></d-v2-widget-comment>
-                    </ng-container>
-                    <ng-container *ngIf="commentId">
-                        <div class="flex flex-row gap-3 cursor-pointer mb-5" (click)="clearCommentIdFromUrl()">
-                            <mat-icon class="cursor-pointer">arrow_back</mat-icon>
-                            Back to all comments
-                        </div>
-                        <d-v2-widget-comment [widgetData]="discussWidgetData" [commentId]="commentId"
-                            [skeletonLoader]></d-v2-widget-comment>
-                    </ng-container>
-                </div>
+                    <div class="flex flex-col ratings-div mt-5" id="commentsDiv"
+                        *ngIf="discussWidgetData && discussWidgetData?.newCommentSection?.commentTreeData?.entityId">
+                        <ng-container *ngIf="!commentId">
+                            <d-v2-widget-comment [widgetData]="discussWidgetData"></d-v2-widget-comment>
+                        </ng-container>
+                        <ng-container *ngIf="commentId">
+                            <div class="flex flex-row gap-3 cursor-pointer mb-5" (click)="clearCommentIdFromUrl()">
+                                <mat-icon class="cursor-pointer">arrow_back</mat-icon>
+                                Back to all comments
+                            </div>
+                            <d-v2-widget-comment [widgetData]="discussWidgetData" [commentId]="commentId"
+                                [skeletonLoader]></d-v2-widget-comment>
+                        </ng-container>
+                    </div>
+                </ng-template>
+            </mat-tab>
+        </ng-container>
+        <ng-container
+            *ngIf="config?.samuhikCharchaTab && condition && contentReadData?.eventLinked?.length > 0 && enableSamuhikCharchaTab">
+            <mat-tab label="{{ 'apptocsinglepage.samuhikCharcha' | translate }}">
+                <ng-template matTabContent>
+                    <div class="flex flex-col ratings-div mt-5" id="samuhikCharchaDiv">
+                        <ws-widget-samuhik-charcha-content [content]="contentReadData" [conditionData]="condition"
+                            (resumeContent)="resumeContentCall()">
+                        </ws-widget-samuhik-charcha-content>
+                    </div>
                 </ng-template>
             </mat-tab>
         </ng-container>

@@ -28,7 +28,7 @@ import {
   UtilityService, WidgetEnrollService, WsEvents,
 } from '@sunbird-cb/utils-v2'
 
-import { ContentLanguageService, TOCMultiLingualDialogComponent, WidgetContentLibService, WidgetUserServiceLib } from '@sunbird-cb/consumption'
+import { ConfirmationDialogComponent, ContentLanguageService, TOCMultiLingualDialogComponent, WidgetContentLibService, WidgetUserServiceLib } from '@sunbird-cb/consumption'
 import { NsAppToc } from '../../models/app-toc.model'
 import { AppTocService } from '../../services/app-toc.service'
 import { AccessControlService } from '@ws/author/src/public-api'
@@ -51,6 +51,8 @@ import { MatSnackBar as MatSnackbarNew } from '@angular/material/snack-bar'
 import { NonReleventFeedbackDialogComponent } from '../../../../../../../../../library/ws-widget/collection/src/lib/_common/non-relevent-feedback-dialog/non-relevent-feedback-dialog.component'
 import { NetCoreService } from '../../../../../../../../../src/app/services/netcore.service'
 import { EnrollLanguageDialogueComponent } from '../enroll-language-dialogue/enroll-language-dialogue.component'
+import { CompletionSurveyFormComponent } from '../completion-survey-form/completion-survey-form.component'
+import { PublicSurveyFormComponent } from '../public-survey-form/public-survey-form.component'
 
 export enum ErrorType {
   internalServer = 'internalServer',
@@ -155,6 +157,7 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
   showIntranetMessage = false
   firstResourceLink: { url: string; queryParams: { [key: string]: any } } | null = null
   resumeDataLink: { url: string; queryParams: { [key: string]: any } } | null = null
+  certData: any = null
   showTakeAssessment: NsAppToc.IPostAssessment | null = null
   checkRegistrationSources: Set<string> = new Set([
     'SkillSoft Digitalization',
@@ -231,7 +234,9 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
   languageList: any = []
   selectedLanguage: any
   languageMapProgress: any
-  preAssessmentRequiredFlag:any = false
+  preAssessmentRequiredFlag: any = false
+  lockCertificate = false
+  environment: any
   @HostListener('window:scroll', ['$event'])
   handleScroll() {
     const windowScroll = window.pageYOffset
@@ -245,10 +250,10 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
       if ((window.scrollY + this.rcElem.BottomPos) >= this.scrollLimit) {
         this.rcElement.nativeElement.style.position = 'sticky'
       } else {
-        if(this.rcElement) {
+        if (this.rcElement) {
           this.rcElement.nativeElement.style.position = 'fixed'
         }
-        
+
       }
     }
 
@@ -295,6 +300,7 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
     public netCoreService: NetCoreService
   ) {
     this.historyData = history.state
+    this.environment = environment
     this.handleBreadcrumbs()
     this.mobileAppsSvc.mobileTopHeaderVisibilityStatus.next(true)
     if (localStorage.getItem('websiteLanguage')) {
@@ -753,9 +759,9 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
   }
 
   public autoEnrollCuratedProgram(programType: any, batchData: any) {
-    if(!batchData){
+    if (!batchData) {
       this.enrollBtnLoading = false
-      this.snackBar.open('No bacthes found');
+      this.snackBar.open('No bacthes found')
       return
     }
     if (this.content && this.content.identifier) {
@@ -792,7 +798,7 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
         (_error: any) => {
           // console.log('_error', _error)
           // if(_error && _error.error && _error.error.params && _error.error.params.err && _error.error.params.err.errmsg) {
-            this.snackBar.open(_.get(_error, 'error.params.errmsg') || 'Please try again later');
+          this.snackBar.open(_.get(_error, 'error.params.errmsg') || 'Please try again later')
           // }
           this.enrollBtnLoading = false
         }
@@ -820,7 +826,7 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
           // this.enrollBtnLoading = false
         },
         (_error: any) => {
-          this.snackBar.open(_.get(_error, 'error.params.errmsg') || 'Please try again later');
+          this.snackBar.open(_.get(_error, 'error.params.errmsg') || 'Please try again later')
           this.enrollBtnLoading = false
         }
       )
@@ -831,11 +837,11 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
     if (this.content) {
       this.enrollBtnLoading = true
       let firstPlayableContent
-      if(this.content && this.content.identifier === this.selectedLanguage.identifier) {
+      if (this.content && this.content.identifier === this.selectedLanguage.identifier) {
         firstPlayableContent = this.contentSvc.getFirstChildInHierarchy(this.content)
       } else {
         // fetch hierarchy for the selected language in popup first, then get first playable content and redirect to it
-        await this.fetchContentHierarchy(this.selectedLanguage.identifier);
+        await this.fetchContentHierarchy(this.selectedLanguage.identifier)
         firstPlayableContent = this.contentSvc.getFirstChildInHierarchy(this.content)
       }
       let primaryCategory
@@ -1032,13 +1038,12 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
       } else {
         primaryCategory = firstPlayableContent.primaryCategory || this.content.primaryCategory
       }
-      this.firstResourceLink = this.getResumeUrl(firstPlayableContent,null, primaryCategory)
+      this.firstResourceLink = this.getResumeUrl(firstPlayableContent, null, primaryCategory)
 
       /* tslint:disable-next-line */
-
-      if (firstPlayableContent.optionalReading && firstPlayableContent.primaryCategory === 'Learning Resource') {
-        this.updateProgress(2, firstPlayableContent.identifier)
-      }
+      // if (firstPlayableContent.optionalReading && firstPlayableContent.primaryCategory === 'Learning Resource') {
+      //   this.updateProgress(2, firstPlayableContent.identifier)
+      // }
     }
   }
 
@@ -1222,10 +1227,10 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
     const batchId = this.route.snapshot.queryParams.batchId ?
       this.route.snapshot.queryParams.batchId : ''
     const isPreAssessment = this.route.snapshot.queryParams.preAssessment
-    if(isPreAssessment) {
-        return this.viewerSvc
-          .realTimeProgressUpdateForPreAssessmentQuiz(resourceId,  status)
-      
+    if (isPreAssessment) {
+      return this.viewerSvc
+        .realTimeProgressUpdateForPreAssessmentQuiz(resourceId, status)
+
     }
     return this.viewerSvc.realTimeProgressUpdateQuiz(resourceId, collectionId, batchId, status)
   }
@@ -1432,7 +1437,14 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
     this.autoEnrollCuratedProgram(NsContent.ECourseCategory.MODERATED_PROGRAM, batchData)
   }
 
-  raiseTelemetryForPublic() {
+  raiseTelemetryForPublic($event: any) {
+    // Check if we should first prevent navigation to player page
+    const shouldPreventNavigation = this.shouldShowSurveyPopup()
+    if (shouldPreventNavigation) {
+      $event.preventDefault()
+      $event.stopPropagation()
+    }
+
     this.events.raiseInteractTelemetry(
       {
         type: 'click',
@@ -1442,6 +1454,26 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
       {
         module: 'Landing Page',
       })
+    console.log('raiseTelemetryForPublic $event', $event)
+
+    if (shouldPreventNavigation) {
+      // Prepare navigation details
+      const navigationUrl = (this.resumeData && !this.certData) ? this.resumeDataLink?.url : this.firstResourceLink?.url
+      const queryParams = (this.resumeData && !this.certData) ? this.generateQuery('RESUME') : this.generateQuery('START')
+
+      // Open survey popup directly with navigation details
+      if (navigationUrl) {
+        this.openPublicSurveyPopup(navigationUrl, queryParams)
+      }
+      return false
+    }
+  }
+
+  shouldShowSurveyPopup(): boolean {
+    // Single source of truth for survey popup condition
+    // Check if it's public view and content is a case study
+    return this.forPreview && this.content && this.contentReadData
+      && this.contentReadData.courseCategory === NsContent.ECourseCategory.CASE_STUDY
   }
 
 
@@ -1501,7 +1533,7 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
           }
         }
         // if enrolled course is completed then to make all languages courses as well as all content as completed
-        if(enrolledCourse.status === 2){
+        if (enrolledCourse.status === 2) {
           this.content['completionPercentage'] = 100
           this.content['completionStatus'] = 2
           await this.tocSvc.mapCompletionChildPercentageProgram(this.content)
@@ -1509,9 +1541,11 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
           this.getContinueLearningData(this.baseContentReadData.identifier, enrolledCourse.batchId, contentLag)
           this.enrollBtnLoading = false
           this.tocSvc.mapModuleCount(this.content)
-        } else{
+          this.checkForCompletionSurveyTrigger()
+        } else {
           if (this.contentReadData && this.contentReadData.cumulativeTracking) {
             await this.tocSvc.mapCompletionPercentageProgram(this.content, this.userEnrollmentList)
+            this.checkForCompletionSurveyTrigger()
             this.resumeDataSubscription = this.tocSvc.resumeData.subscribe((res: any) => {
               if (res) {
                 this.resumeData = res
@@ -1519,7 +1553,7 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
                 this.generateResumeDataLinkNew()
               }
             })
-  
+
             this.enrollBtnLoading = false
             // this.tocSvc.contentLoader.next(false)
           } else {
@@ -1568,26 +1602,26 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
   bindCompletionPercentage() {
     let completionPercentage = 0
     let completionStatus = 0
-    if(this.languageMapProgress && Object.keys(this.languageMapProgress).length) {
+    if (this.languageMapProgress && Object.keys(this.languageMapProgress).length) {
       let langPercentage = this.languageMapProgress[this.selectedLanguage.langId] || 0
-        completionPercentage = langPercentage
-        completionStatus = langPercentage >= 100 ? 2 : 0
+      completionPercentage = langPercentage
+      completionStatus = langPercentage >= 100 ? 2 : 0
     } else {
       let enrolledData = this.tocSvc.findEnrolmentByCollectionId(this.userEnrollmentList, (this.baseContentReadData?.identifier || ''))
-      if(enrolledData && enrolledData.completionPercentage) {
+      if (enrolledData && enrolledData.completionPercentage) {
         completionPercentage = enrolledData.completionPercentage
         completionStatus = enrolledData.status
       }
     }
 
-    if(this.content) {
+    if (this.content) {
       this.content.completionPercentage = completionPercentage
       this.content.completionStatus = completionStatus
     }
   }
 
   handleAcceptRelevent() {
-    this.saveFeedback('', 1);
+    this.saveFeedback('', 1)
   }
 
   handleDeclineRelevent() {
@@ -1598,10 +1632,10 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
     })
     dialogRef.afterClosed().subscribe((result: any) => {
       if (result) {
-        this.saveFeedback(result, 0);
-        dialogRef.close();
+        this.saveFeedback(result, 0)
+        dialogRef.close()
       } else {
-        dialogRef.close();
+        dialogRef.close()
       }
     })
   }
@@ -1665,15 +1699,15 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
   }
 
   secondsToTime(d: any) {
-    d = Number(d);
-    var h = Math.floor(d / 3600);
-    var m = Math.floor(d % 3600 / 60);
-    var s = Math.floor(d % 3600 % 60);
+    d = Number(d)
+    var h = Math.floor(d / 3600)
+    var m = Math.floor(d % 3600 / 60)
+    var s = Math.floor(d % 3600 % 60)
 
-    var hDisplay = h > 0 ? h + (h == 1 ? " hour, " : " hours, ") : "";
-    var mDisplay = m > 0 ? m + (m == 1 ? " minute, " : " minutes, ") : "";
-    var sDisplay = s > 0 ? s + (s == 1 ? " second" : " seconds") : "";
-    return hDisplay + mDisplay + sDisplay;
+    var hDisplay = h > 0 ? h + (h == 1 ? " hour, " : " hours, ") : ""
+    var mDisplay = m > 0 ? m + (m == 1 ? " minute, " : " minutes, ") : ""
+    var sDisplay = s > 0 ? s + (s == 1 ? " second" : " seconds") : ""
+    return hDisplay + mDisplay + sDisplay
   }
 
 
@@ -1690,29 +1724,35 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
       this.matSnackbarNew.open(
         'Thank you for your feedback.', 'X',
         { duration: SNACKBAR_DURATION, panelClass: ['success'] }
-      );
+      )
       this.feedbackGiven = { course_id: this.courseID, rating: rating, comments: comment }
 
     } else if (!response) {
       this.matSnackbarNew.open(
         'Something is wrong. Please try again later.', 'X',
         { duration: SNACKBAR_DURATION, panelClass: ['error'] }
-      );
+      )
     }
   }
 
   playResumeForAI() {
-    if(this.content) {
-      if(this.firstResourceLink) {
-        this.router.navigate([this.firstResourceLink.url],{queryParams: this.firstResourceLink.queryParams} )
+    if (this.content) {
+      if (this.firstResourceLink) {
+        this.router.navigate([this.firstResourceLink.url], { queryParams: this.firstResourceLink.queryParams })
       }
     }
-    
+
   }
 
   enrollUserToAI() {
     this.fromAITutor = true
     this.handleAutoBatchAssign()
+  }
+
+  openSurveyFormPopup(event: boolean) {
+    if (event) {
+      this.openCompletionSurveyFormPopup()
+    }
   }
 
   generatePreAssessmentQuery(type: 'RESUME' | 'START_OVER' | 'START'): { [key: string]: string } {
@@ -1772,10 +1812,10 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
   }
 
   routeToPreAssessent() {
-    if (this.contentReadData) { 
+    if (this.contentReadData) {
       // this.generatePreAssessmentQuery('START')
-      let firstResource  = this.contentReadData.preEnrolmentResources[0]
-      let mimeType = firstResource?.courseCategory === 'Pre Enrolment Assessment' ? 'application/vnd.sunbird.questionset' : firstResource.mimeType      
+      let firstResource = this.contentReadData.preEnrolmentResources[0]
+      let mimeType = firstResource?.courseCategory === 'Pre Enrolment Assessment' ? 'application/vnd.sunbird.questionset' : firstResource.mimeType
       this.firstResourceLink = viewerRouteGenerator(
         firstResource.identifier,
         mimeType,
@@ -1785,19 +1825,19 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
         this.contentReadData && this.contentReadData.preEnrolmentResources[0]?.primaryCategory || '',
         '',
       )
-       let routerLink =  this.firstResourceLink?.url  
+      let routerLink = this.firstResourceLink?.url
       let queryParams = this.generatePreAssessmentQuery('START')
-      queryParams = { ...queryParams,  preAssessment: 'true' }
+      queryParams = { ...queryParams, preAssessment: 'true' }
       this.router.navigate([`${routerLink}`], { queryParams })
     }
   }
 
   getPreAssessmentRequired() {
     this.preAssessmentRequiredFlag = false
-    if(this.contentReadData?.preEnrolmentResources?.length) {
-      this.contentReadData?.preEnrolmentResources?.forEach((item:any)=>{
-        if(item && item?.isMandatory) {
-          this.preAssessmentRequiredFlag = true          
+    if (this.contentReadData?.preEnrolmentResources?.length) {
+      this.contentReadData?.preEnrolmentResources?.forEach((item: any) => {
+        if (item && item?.isMandatory) {
+          this.preAssessmentRequiredFlag = true
         }
       })
     }
@@ -1805,36 +1845,36 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
 
   getPreAssessmentCompletionStatus() {
     this.preAssessmentCompletionStatus = false
-    let preEnrollmentResourcesArr:any = []
-    let preEnrollmentMandatoryResourcesArr:any = []
-    if(this.contentReadData?.preEnrolmentResources?.length) {
-      this.contentReadData?.preEnrolmentResources?.forEach((item:any)=>{
-          preEnrollmentResourcesArr.push(item?.identifier)
-          if(item && item?.isMandatory) {
-            preEnrollmentMandatoryResourcesArr.push(item?.identifier)
+    let preEnrollmentResourcesArr: any = []
+    let preEnrollmentMandatoryResourcesArr: any = []
+    if (this.contentReadData?.preEnrolmentResources?.length) {
+      this.contentReadData?.preEnrolmentResources?.forEach((item: any) => {
+        preEnrollmentResourcesArr.push(item?.identifier)
+        if (item && item?.isMandatory) {
+          preEnrollmentMandatoryResourcesArr.push(item?.identifier)
         }
       })
     }
-    if(preEnrollmentResourcesArr && preEnrollmentResourcesArr.length) {
-      let req ={
+    if (preEnrollmentResourcesArr && preEnrollmentResourcesArr.length) {
+      let req = {
         "request": {
           "contentIds": preEnrollmentResourcesArr,
           "fields": [
           ]
+        }
       }
-      } 
-      this.tocSvc.readPreEnrollmentResourcesState(req).subscribe((data:any)=>{
+      this.tocSvc.readPreEnrollmentResourcesState(req).subscribe((data: any) => {
         let mandatoryIdsCompleted = []
-        if(data && data.result && data.result.contentList && data.result.contentList.length) {
-          for(let i=0; i<data.result.contentList.length; i++) {
-              if(data.result.contentList[i]['status'] === 2 && preEnrollmentMandatoryResourcesArr.includes(data.result.contentList[i]['contentId']))  {
-                mandatoryIdsCompleted.push(data.result.contentList[i]['contentId'])
-              }
+        if (data && data.result && data.result.contentList && data.result.contentList.length) {
+          for (let i = 0; i < data.result.contentList.length; i++) {
+            if (data.result.contentList[i]['status'] === 2 && preEnrollmentMandatoryResourcesArr.includes(data.result.contentList[i]['contentId'])) {
+              mandatoryIdsCompleted.push(data.result.contentList[i]['contentId'])
             }
-          if(preEnrollmentResourcesArr?.length === data.result.contentList?.length) {
-             this.preAssessmentCompletionStatus = true
-          } else if(mandatoryIdsCompleted.length === preEnrollmentMandatoryResourcesArr.length) {
-             this.preAssessmentCompletionStatus = true
+          }
+          if (preEnrollmentResourcesArr?.length === data.result.contentList?.length) {
+            this.preAssessmentCompletionStatus = true
+          } else if (mandatoryIdsCompleted.length === preEnrollmentMandatoryResourcesArr.length) {
+            this.preAssessmentCompletionStatus = true
           } else {
             this.preAssessmentCompletionStatus = false
           }
@@ -1844,7 +1884,7 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
       })
     }
   }
-  
+
   ngOnInit() {
     this.dataTransferSvc.setEnrollData(null)
     this.getServerDateTime()
@@ -1872,7 +1912,7 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
     this.setupBatchControlSubscription()
     this.tocSvc.contentLoader.next(false)
   }
-  
+
   private setErrorCode(errorCode: NsAppToc.EWsTocErrorCode) {
     this.errorCode = errorCode
     switch (this.errorCode) {
@@ -1880,13 +1920,13 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
       case NsAppToc.EWsTocErrorCode.INVALID_DATA:
       case NsAppToc.EWsTocErrorCode.NO_DATA:
         this.errorWidgetData.widgetData.errorType = ErrorType.internalServer
-        break;
+        break
       default:
         this.errorWidgetData.widgetData.errorType = ErrorType.somethingWrong
-        break;
+        break
     }
   }
-  
+
   private processContentBody() {
     this.body = this.domSanitizer.bypassSecurityTrustHtml(
       this.content && this.content.body
@@ -1896,7 +1936,7 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
         : ''
     )
   }
-  
+
   private initializeTocStructure() {
     this.contentParents = {}
     this.tocStructure = {
@@ -1920,7 +1960,7 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
       offlineSession: 0,
     }
   }
-  
+
   private setupBatchControlSubscription() {
     this.batchControl.valueChanges.subscribe((batch: NsContent.IBatch) => {
       if (batch) {
@@ -1928,11 +1968,11 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
       }
     })
   }
-  
+
   private handleBatchEnrollment(batch: NsContent.IBatch) {
     this.disableEnrollBtn = true
     let userId = this.configSvc.userProfile?.userId || ''
-    
+
     const req = {
       request: {
         userId,
@@ -1940,7 +1980,7 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
         batchId: batch.batchId,
       },
     }
-    
+
     this.contentSvc.enrollUserToBatch(req).then((datab: any) => {
       if (datab?.result?.response === 'SUCCESS') {
         this.handleSuccessfulEnrollment(batch)
@@ -1949,7 +1989,7 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
       }
     })
   }
-  
+
   private handleSuccessfulEnrollment(batch: NsContent.IBatch) {
     this.batchData = {
       content: [batch],
@@ -1961,30 +2001,30 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
     this.openSnackbar('Enrolled Successfully!')
     this.disableEnrollBtn = false
   }
-  
+
   private handleEnrollmentFailure() {
     this.openSnackbar('Something went wrong, please try again later!')
     this.disableEnrollBtn = false
   }
-  
+
   private loadLearnerAdvisoryData() {
     if (this.route.snapshot.data.pageData && this.route.snapshot.data.pageData.data) {
       this.learnAdvisoryData = this.route.snapshot.data.pageData.data.learnerAdvisory
     }
   }
-  
+
   private setupSelectedBatchSubscription() {
     this.selectedBatchSubscription = this.tocSvc.getSelectedBatch.subscribe(batchData => {
       this.selectedBatchData = batchData
     })
   }
-  
+
   private setChannelId() {
-    this.channelId = this.telemetryService.telemetryConfig 
-      ? this.telemetryService.telemetryConfig.channel 
+    this.channelId = this.telemetryService.telemetryConfig
+      ? this.telemetryService.telemetryConfig.channel
       : ''
   }
-  
+
   private checkIframeContext() {
     try {
       this.isInIframe = window.self !== window.top
@@ -1992,7 +2032,7 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
       this.isInIframe = false
     }
   }
-  
+
   private setupRouteSubscriptions() {
     let queryParamstemp: any = {}
     if (this.route) {
@@ -2005,67 +2045,139 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
     }
     return queryParamstemp
   }
-  
+
   private async processRouteData(data: Data) {
-    this.courseID = data.content.data.identifier;
-    const initData = this.tocSvc.initData(data, true);
-    
+    this.courseID = data.content.data.identifier
+    const initData = this.tocSvc.initData(data, true)
+
     // Get query parameters
-    const queryParamsDataTemp = await this.getQueryParams();
+    const queryParamsDataTemp = await this.getQueryParams()
     // Handle multilingual content if mlId is present in query parameters
     if (queryParamsDataTemp.MLId) {
       // Store the original content data for reference
-      this.baseContentReadData = initData.content;
-      
+      this.baseContentReadData = initData.content
+
       // Fetch the multilingual content
       try {
-        const success = await this.fetchContentRead(queryParamsDataTemp.MLId);
+        const success = await this.fetchContentRead(queryParamsDataTemp.MLId)
         if (!success) {
           // If multilingual content fetch fails, fall back to the original content
-          this.contentReadData = initData.content;
-          this.loggerSvc.warn('Failed to load multilingual content, using original content instead');
+          this.contentReadData = initData.content
+          this.loggerSvc.warn('Failed to load multilingual content, using original content instead')
         }
       } catch (error) {
         // On error, use the original content
-        this.contentReadData = initData.content;
-        this.loggerSvc.error('Error loading multilingual content:', error);
+        this.contentReadData = initData.content
+        this.loggerSvc.error('Error loading multilingual content:', error)
         this.snackBar.open('Failed to load content in selected language', 'X', {
           duration: 3000,
-        });
+        })
       }
     } else {
       // No multilingual content requested, use the original content
-      this.contentReadData = initData.content;
-      this.baseContentReadData = initData.content;
+      this.contentReadData = initData.content
+      this.baseContentReadData = initData.content
     }
     // Added to make sure this reference was incorrect, assigning again to make sure global variable is properly updated
-    this.queryParamsData = queryParamsDataTemp;
-  
+    this.queryParamsData = queryParamsDataTemp
+
     // Continue with the rest of the processing
-    this.loadLanguageData();
-    this.getPreAssessmentCompletionStatus();
+    this.loadLanguageData()
+    this.getPreAssessmentCompletionStatus()
     this.getPreAssessmentRequired()
-    
-    await this.handleContentPreviewOrEnrollment();
-    
-    this.initialrouteData = data;
-    this.loadBannerAndTocConfig(data);
-    this.fetchPostAssessmentStatusIfNeeded();
-    this.initData(data);
+
+    await this.handleContentPreviewOrEnrollment()
+
+    this.initialrouteData = data
+    this.loadBannerAndTocConfig(data)
+    this.fetchPostAssessmentStatusIfNeeded()
+    this.initData(data)
+
+    // to clear public survey data if any on load,
+    // if not cleared then it will be cleared on popup close,
+    //  but the teachers notes will be visible on ciming back from player page
+    const surveyId = this.environment.publicContentSurveyId || ''
+    const courseId = this.contentReadData?.identifier || ''
+    this.clearExistingPublicSurveyData(surveyId, courseId)
+
     return queryParamsDataTemp
   }
-  
+
+  openCompletionSurveyFormPopup() {
+    if (this.baseContentReadData && _.get(this.baseContentReadData, 'completionSurveyLink')) {
+      const sID = this.baseContentReadData.completionSurveyLink.split('surveys/')
+      const surveyId = sID[1]
+      const data = {
+        surveyId,
+        courseName: this.contentReadData?.name || '',
+        courseID: this.contentReadData?.identifier || '',
+        contextOrgId: this.contentReadData?.createdFor && this.contentReadData?.createdFor.length > 0 ?
+          this.contentReadData?.createdFor[0] : ''
+      }
+      const dialogRef = this.dialog.open(CompletionSurveyFormComponent, {
+        disableClose: true,
+        width: '750px',
+        maxWidth: '90vw',
+        data: data,
+        autoFocus: false,
+      })
+      dialogRef.afterClosed().subscribe((result) => {
+        if (result) {
+          this.openConfirmationDialog()
+        } else {
+          this.lockCertificate = true
+        }
+      })
+    }
+  }
+
+  openConfirmationDialog() {
+    const dialogData = {
+      messages: [
+        {
+          message: this.translate.instant('apptoc.surveySubmitted'),
+          classes: 'dialog-title'
+        },
+        {
+          message: this.translate.instant('apptoc.surveyCompletedCertificateGenerating'),
+          classes: 'dialog-description mb-2'
+        }
+      ],
+      iconName: 'check_circle',
+      type: 'primary',
+      buttonsPositionClass: 'justify-center items-center',
+      buttons: [
+        {
+          classes: 'succes-button width-full',
+          text: this.translate.instant('apptoc.returnToProgramPage'),
+          response: true
+        }
+      ]
+    }
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      data: dialogData,
+      disableClose: true,
+      width: '500px',
+      maxWidth: '90vw'
+    })
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.lockCertificate = false
+      }
+    })
+  }
+
   private loadLanguageData() {
     this.languageList = this.contentLangSvc.getAllContentLanguages(this.contentReadData)
     this.selectedLanguage = this.contentLangSvc.getSelectedLanguage(this.contentReadData)
   }
-  
+
   private async handleContentPreviewOrEnrollment() {
     if (this.forPreview) {
-      await this.loadContentForPreview();
+      await this.loadContentForPreview()
     } else {
       // // If we're working with multilingual content, make sure to fetch its hierarchy
-      // if (this.queryParamsData.mlId && this.contentReadData && 
+      // if (this.queryParamsData.mlId && this.contentReadData &&
       //     this.contentReadData.identifier === this.queryParamsData.mlId) {
       //   // Fetch content hierarchy for the multilingual content
       //   try {
@@ -2076,12 +2188,12 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
       //     this.loggerSvc.error('Error fetching hierarchy for multilingual content:', error);
       //   }
       // }
-      
+
       // Continue with regular enrollment flow
-      this.fetchUserEnrollmentDataV2();
+      this.fetchUserEnrollmentDataV2()
     }
   }
-  
+
   private async loadContentForPreview() {
     this.tocSvc.contentLoader.next(true)
     await this.fetchContentHierarchy(this.contentReadData?.identifier || '')
@@ -2089,7 +2201,7 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
     this.tocSvc.checkModuleWiseData(this.content)
     this.skeletonLoader = false
   }
-  
+
   private loadBannerAndTocConfig(data: Data) {
     this.banners = data.pageData.data.banners
     this.tocSvc.subtitleOnBanners = data.pageData.data.subtitleOnBanners || false
@@ -2097,7 +2209,7 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
     this.tocConfig = data.pageData.data
     this.kparray = this.tocConfig.karmaPoints
   }
-  
+
   private fetchPostAssessmentStatusIfNeeded() {
     if (this.content && this.isPostAssessment) {
       this.tocSvc.fetchPostAssessmentStatus(this.content.identifier).subscribe(res => {
@@ -2111,46 +2223,46 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
       })
     }
   }
-  
+
   private setupFragmentSubscription() {
     this.currentFragment = 'overview'
     this.route.fragment.subscribe((fragment: any) => {
       this.currentFragment = fragment || 'overview'
     })
   }
-  
+
   private setupBatchSubscriptions() {
     this.batchSubscription = this.tocSvc.batchReplaySubject.subscribe(
       () => this.handleBatchUpdate(),
       () => this.loggerSvc.error('error on batchSubscription')
     )
-  
+
     this.batchDataSubscription = this.tocSvc.setBatchDataSubject.subscribe(
       () => this.handleBlendedProgramUpdate(),
       () => this.loggerSvc.error('error on batchDataSubscription')
     )
   }
-  
+
   private handleBatchUpdate() {
     this.fetchBatchDetails()
     if (this.content?.primaryCategory === this.primaryCategory.BLENDED_PROGRAM) {
       this.fetchUserWFForBlended()
     }
   }
-  
+
   private handleBlendedProgramUpdate() {
     if (this.content?.primaryCategory === this.primaryCategory.BLENDED_PROGRAM) {
       this.fetchUserWFForBlended()
     }
   }
-  
+
   private configureDefaultLogo() {
     const instanceConfig = this.configSvc.instanceConfig
     if (instanceConfig?.logos?.defaultSourceLogo) {
       this.defaultSLogo = instanceConfig.logos.defaultSourceLogo
     }
   }
-  
+
   private configureFeatureFlags() {
     if (this.configSvc.restrictedFeatures) {
       this.isGoalsEnabled = !this.configSvc.restrictedFeatures.has('goals')
@@ -2158,7 +2270,7 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
       this.showIntranetMessage = !this.configSvc.restrictedFeatures.has('showIntranetMessageDesktop')
     }
   }
-  
+
   private setupRouterEventSubscription() {
     this.routerParamSubscription = this.router.events.subscribe((routerEvent: Event) => {
       if (routerEvent instanceof NavigationEnd) {
@@ -2170,43 +2282,43 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
 
 
   fetchUserEnrollmentDataV2() {
-    
-    const identifier = this.baseContentReadData?.identifier  || '';
+
+    const identifier = this.baseContentReadData?.identifier || ''
     if (!identifier) {
-      this.loggerSvc.error('Cannot fetch enrollment data: content identifier is missing');
-      this.userEnrollmentList = [];
-      this.checkIfUserEnrolled();
-      return;
+      this.loggerSvc.error('Cannot fetch enrollment data: content identifier is missing')
+      this.userEnrollmentList = []
+      this.checkIfUserEnrolled()
+      return
     }
-    
+
     const request = {
       request: {
         retiredCoursesEnabled: true,
         courseId: [identifier]
       }
-    };
-  
+    }
+
     this.enrollSvc.fetchEnrollContentData(request).pipe(
       takeUntil(this.destroySubject$),
       switchMap((res: any) => {
         if (res?.result?.courses?.length) {
-          this.userEnrollmentList = res.result.courses;
+          this.userEnrollmentList = res.result.courses
           // Check for completed content
           const completedContentData = this.userEnrollmentList.find(
-            (el: any) => el.collectionId === this.baseContentReadData?.identifier && 
-                         el.completionPercentage === 100
-          );
+            (el: any) => el.collectionId === this.baseContentReadData?.identifier &&
+              el.completionPercentage === 100
+          )
           if (completedContentData) {
-            this.contentViewEventForNetCore('complete'); 
+            this.contentViewEventForNetCore('complete')
           }
-          this.dataTransferSvc.setEnrollData(this.userEnrollmentList);
+          this.dataTransferSvc.setEnrollData(this.userEnrollmentList)
           // in case of back from player we need to check recent language and load
-          if(!this.contentLibSvc?.oneStepResumeEnable &&this.baseContentReadData?.identifier === this.contentReadData?.identifier) {
+          if (!this.contentLibSvc?.oneStepResumeEnable && this.baseContentReadData?.identifier === this.contentReadData?.identifier) {
             let lang = this.baseContentReadData?.language.length ? this.baseContentReadData?.language[0] : ''
             let baseContentFromEnrollData = this.userEnrollmentList.find((el: any) => el.collectionId === this.baseContentReadData?.identifier)
-            if(lang && baseContentFromEnrollData && baseContentFromEnrollData?.recent_language?.toLowerCase() !== lang){
+            if (lang && baseContentFromEnrollData && baseContentFromEnrollData?.recent_language?.toLowerCase() !== lang) {
               let localLang = this.contentLangSvc.getRequiredLanguageDetails(this.baseContentReadData, baseContentFromEnrollData?.recent_language)
-              if(localLang && Object.keys(localLang).length){
+              if (localLang && Object.keys(localLang).length) {
                 this.processLanguageSelection(this.contentLangSvc.getRequiredLanguageDetails(this.baseContentReadData, baseContentFromEnrollData?.recent_language))
               } else {
                 this.processLanguageSelection(this.contentLangSvc.getSelectedLanguage(this.contentReadData))
@@ -2214,83 +2326,83 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
             }
             return of(false)
           } else {
-             // Always call fetchContentHierarchy first
+            // Always call fetchContentHierarchy first
             return from(this.fetchContentHierarchy(this.contentReadData?.identifier || ''))
           }
 
         } else {
-          this.userEnrollmentList = [];
+          this.userEnrollmentList = []
           // Check if we have content ID from either content or contentReadData
-          const contentId = this.contentReadData?.identifier || this.baseContentReadData?.identifier || '';
+          const contentId = this.contentReadData?.identifier || this.baseContentReadData?.identifier || ''
           if (!contentId) {
-            this.loggerSvc.error('Cannot fetch hierarchy: content identifier is missing');
-            return of(false);
+            this.loggerSvc.error('Cannot fetch hierarchy: content identifier is missing')
+            return of(false)
           }
           // Fetch hierarchy content for additional data
-          return from(this.fetchContentHierarchy(contentId));
+          return from(this.fetchContentHierarchy(contentId))
         }
       }),
       // Add catchError here to handle errors from fetchContentHierarchy
       catchError(error => {
-        this.loggerSvc.error('Error in enrollment data processing', error);
-        return of(false);
+        this.loggerSvc.error('Error in enrollment data processing', error)
+        return of(false)
       })
     ).subscribe({
       next: () => {
         if (this.userEnrollmentList?.length && this.contentLibSvc?.oneStepResumeEnable) {
-          this.handleOneStepResume();
-          this.checkIfUserEnrolled();
+          this.handleOneStepResume()
+          this.checkIfUserEnrolled()
         } else {
-          this.checkIfUserEnrolled();
+          this.checkIfUserEnrolled()
         }
       },
       error: (error) => {
-        this.loggerSvc.error('Failed to fetch user enrollment data', error);
-        this.userEnrollmentList = [];
-        this.checkIfUserEnrolled();
+        this.loggerSvc.error('Failed to fetch user enrollment data', error)
+        this.userEnrollmentList = []
+        this.checkIfUserEnrolled()
       },
       complete: () => {
         // Optional completion handler if needed
       }
-    });
+    })
   }
 
   private async handleOneStepResume() {
     try {
       if (!this.content) {
-        this.loggerSvc.error('Content not available for one-step resume');
-        
+        this.loggerSvc.error('Content not available for one-step resume')
+
       }
-      
+
       const foundContent = this.userEnrollmentList.find(
         (el: any) => el.collectionId === this.baseContentReadData?.identifier
-      );
-      
+      )
+
       if (!foundContent) {
-        this.loggerSvc.warn('No matching enrolled content found for one-step resume');
-        
+        this.loggerSvc.warn('No matching enrolled content found for one-step resume')
+
       }
-      
+
       const urlData = await this.contentLibSvc.getResourseLink(
-        this.content, 
-        [foundContent], 
+        this.content,
+        [foundContent],
         true,
         this.baseContentReadData,
         this.contentReadData?.identifier || '',
-      );
-      
+      )
+
       if (!urlData) {
-        this.loggerSvc.warn('No URL data returned for one-step resume');
-        
+        this.loggerSvc.warn('No URL data returned for one-step resume')
+
       }
-      
+
       if (urlData?.url) {
         if (urlData.url.includes('app/toc')) {
-          this.contentLibSvc.oneStepResumeEnable = false;
+          this.contentLibSvc.oneStepResumeEnable = false
         } else {
-          this.contentLibSvc.oneStepResumeEnable = false;
+          this.contentLibSvc.oneStepResumeEnable = false
           // When coming from search page for particular language content, confirm first to one step resume or load the searched language
-          if(urlData?.queryParams?.ML && (urlData?.queryParams?.ML !==  this.queryParamsData['ML'])) {
+          if (urlData?.queryParams?.ML && (urlData?.queryParams?.ML !== this.queryParamsData['ML'])) {
             this.showOneStepResumeConfirm(urlData)
           } else {
             this.router.navigate(
@@ -2299,51 +2411,51 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
           }
         }
       }
-      
+
     } catch (error) {
-      this.loggerSvc.error('Error in handleOneStepResume', error);
-      this.contentLibSvc.oneStepResumeEnable = false;
+      this.loggerSvc.error('Error in handleOneStepResume', error)
+      this.contentLibSvc.oneStepResumeEnable = false
     }
   }
   private fetchContentHierarchy(identifier: string): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
       if (!identifier) {
-        resolve(false);
-        return;
+        resolve(false)
+        return
       }
-      
+
       // Make sure fetchHierarchyContent returns an Observable
-      const observable = this.contentSvc.fetchHierarchyContent(identifier, 'detail');
-      
+      const observable = this.contentSvc.fetchHierarchyContent(identifier, 'detail')
+
       if (!observable) {
-        this.loggerSvc.error('fetchHierarchyContent did not return an Observable');
-        resolve(false);
-        return;
+        this.loggerSvc.error('fetchHierarchyContent did not return an Observable')
+        resolve(false)
+        return
       }
-      
+
       const subscription = observable.subscribe({
         next: (response: any) => {
           if (response?.result?.content) {
-            this.content = response.result.content;
+            this.content = response.result.content
             this.getOrgIdForShare()
             this.getTocStructure()
             if (!this.forPreview) {
               this.userRating = undefined
               this.getUserRating(false)
             }
-            resolve(true);
+            resolve(true)
           } else {
-            resolve(false);
+            resolve(false)
           }
-          subscription.unsubscribe();
+          subscription.unsubscribe()
         },
         error: (error: any) => {
-          this.loggerSvc.error('Failed to fetch hierarchy content', error);
-          reject(error);
-          subscription.unsubscribe();
+          this.loggerSvc.error('Failed to fetch hierarchy content', error)
+          reject(error)
+          subscription.unsubscribe()
         }
-      });
-    });
+      })
+    })
   }
 
   getTocStructure() {
@@ -2371,15 +2483,15 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
   onLanguageSelect(lang: any) {
     // Check if the selected language is already set
     if (this.selectedLanguage && this.selectedLanguage.identifier === lang.identifier) {
-      console.log('Language is already selected:', lang.name);
-      return; // Exit the function if the language is the same
+      console.log('Language is already selected:', lang.name)
+      return // Exit the function if the language is the same
     }
 
-    if(this.userEnrollmentList && this.userEnrollmentList.length) {
-      let data = {} 
+    if (this.userEnrollmentList && this.userEnrollmentList.length) {
+      let data = {}
       // TODO: Remove hardcode strings
       const enrolledCourse = this.tocSvc.findEnrolmentByCollectionId(this.userEnrollmentList, (this.baseContentReadData?.identifier || ''))
-      if(enrolledCourse && enrolledCourse.status === 2) {
+      if (enrolledCourse && enrolledCourse.status === 2) {
         this.processLanguageSelection(lang)
       } else {
         // If there is progress in the selected language,
@@ -2419,11 +2531,11 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
   }
 
   showLangSwitchPopup(lang: any, data?: any) {
-    const dialogRef = this.dialog.open(TOCMultiLingualDialogComponent, data);
+    const dialogRef = this.dialog.open(TOCMultiLingualDialogComponent, data)
     dialogRef.afterClosed().subscribe((confirmed) => {
       if (confirmed) {
-       console.log('confirmed')
-       this.processLanguageSelection(lang)
+        console.log('confirmed')
+        this.processLanguageSelection(lang)
       }
     })
   }
@@ -2441,7 +2553,7 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
         acceptButton: 'Resume',
       }
     }
-    const dialogRef = this.dialog.open(TOCMultiLingualDialogComponent, data);
+    const dialogRef = this.dialog.open(TOCMultiLingualDialogComponent, data)
     dialogRef.afterClosed().subscribe((confirmed) => {
       if (confirmed) {
         this.router.navigate(
@@ -2455,52 +2567,52 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
   }
 
   processLanguageSelection(lang: any) {
-    this.selectedLanguage = lang;
-    console.log('Selected language:', lang);
-    
+    this.selectedLanguage = lang
+    console.log('Selected language:', lang)
+
     // Set skeleton loader to show loading state
-    this.skeletonLoader = true;
+    this.skeletonLoader = true
     // Check if language object has required properties
     if (lang && lang.identifier) {
       // Create a promise chain to fetch content data and hierarchy sequentially
       this.fetchContentRead(lang.identifier)
         .then(() => {
           // After content read is successful, fetch the hierarchy
-          return this.fetchContentHierarchy(lang.identifier);
+          return this.fetchContentHierarchy(lang.identifier)
         })
         .then(() => {
           // Both operations were successful
           // Update UI as needed with new content
           this.routerChangeHandler(true)
-          if(this.userEnrollmentList && this.userEnrollmentList.length) {
-            this.generateResumeDataLinkNew();
+          if (this.userEnrollmentList && this.userEnrollmentList.length) {
+            this.generateResumeDataLinkNew()
           }
           if (this.content) {
-            this.getLearningUrls();
+            this.getLearningUrls()
             // Reset user progress and fetch enrollment data if not in preview mode
             if (!this.forPreview) {
-              this.checkIfUserEnrolled();
+              this.checkIfUserEnrolled()
             }
           }
           // Update subject to notify rating summry component and load the sumamry of selected language
           this.resetRatingsService.setRatingServiceUpdate(true)
           // Finally set loading state to false
-          this.skeletonLoader = false;
+          this.skeletonLoader = false
         })
         .catch((error) => {
           // Handle any errors in the promise chain
-          this.loggerSvc.error('Error during language change:', error);
-          this.skeletonLoader = false;
+          this.loggerSvc.error('Error during language change:', error)
+          this.skeletonLoader = false
           this.snackBar.open('Failed to load content in selected language', 'X', {
             duration: 3000,
-          });
-        });
+          })
+        })
     } else {
-      this.loggerSvc.error('Invalid language selection', lang);
-      this.skeletonLoader = false;
+      this.loggerSvc.error('Invalid language selection', lang)
+      this.skeletonLoader = false
       this.snackBar.open('Invalid language selection', 'X', {
         duration: 3000,
-      });
+      })
     }
   }
 
@@ -2512,79 +2624,79 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
   private async fetchContentRead(identifier: string): Promise<boolean> {
     return new Promise<boolean>((resolve, reject) => {
       if (!identifier) {
-        this.loggerSvc.error('Cannot fetch content: identifier is missing');
-        resolve(false);
-        return;
+        this.loggerSvc.error('Cannot fetch content: identifier is missing')
+        resolve(false)
+        return
       }
-      
-      const observable = this.contentSvc.fetchContentData(identifier);
-      
+
+      const observable = this.contentSvc.fetchContentData(identifier)
+
       if (!observable) {
-        this.loggerSvc.error('fetchContentData did not return an Observable');
-        resolve(false);
-        return;
+        this.loggerSvc.error('fetchContentData did not return an Observable')
+        resolve(false)
+        return
       }
-      
+
       const subscription = observable.subscribe({
         next: (response: any) => {
           if (response?.result?.content) {
             // Update contentReadData with the fetched content
-            this.contentReadData = response.result.content;
-            
+            this.contentReadData = response.result.content
+
             // Update language list after content is fetched
             if (this.contentReadData) {
-              this.languageList = this.contentLangSvc.getAllContentLanguages(this.contentReadData);
-              this.selectedLanguage = this.contentLangSvc.getSelectedLanguage(this.contentReadData);
+              this.languageList = this.contentLangSvc.getAllContentLanguages(this.contentReadData)
+              this.selectedLanguage = this.contentLangSvc.getSelectedLanguage(this.contentReadData)
             }
-            
-            resolve(true);
+
+            resolve(true)
           } else {
-            this.loggerSvc.warn('Content data not found in response', response);
-            resolve(false);
+            this.loggerSvc.warn('Content data not found in response', response)
+            resolve(false)
           }
-          subscription.unsubscribe();
+          subscription.unsubscribe()
         },
         error: (error: any) => {
-          this.loggerSvc.error('Failed to fetch content data', error);
-          reject(error);
-          subscription.unsubscribe();
+          this.loggerSvc.error('Failed to fetch content data', error)
+          reject(error)
+          subscription.unsubscribe()
         }
-      });
-    });
+      })
+    })
   }
 
   routerChangeHandler(appendBatchId: boolean) {
-    const queryParams: any = {};
-    
+    const queryParams: any = {}
+
     // Add batch ID if needed
     if (appendBatchId && this.getBatchId()) {
-      queryParams.batchId = this.getBatchId();
+      queryParams.batchId = this.getBatchId()
     }
-    
+
     // Add multilingual ID and language to query params if available
     if (this.contentReadData && this.contentReadData.identifier) {
-      let language = '';
-      
+      let language = ''
+
       // Handle both string and array language formats
       if (Array.isArray(this.contentReadData.language)) {
-        language = this.contentReadData.language[0].toLowerCase();
+        language = this.contentReadData.language[0].toLowerCase()
       } else if (this.contentReadData.language) {
-        language = this.contentReadData.language.toLowerCase();
+        language = this.contentReadData.language.toLowerCase()
       }
-      if(!(this.selectedLanguage && Object.keys(this.selectedLanguage).length)) {
+      if (!(this.selectedLanguage && Object.keys(this.selectedLanguage).length)) {
         this.selectedLanguage = {
           langId: language,
           name: this.contentReadData.language[0]
-        };
+        }
       }
       // Only add parameters if we have valid data
       if (language) {
-        queryParams.ML = language;
+        queryParams.ML = language
       }
-      
-      queryParams.MLId = this.contentReadData.identifier;
+
+      queryParams.MLId = this.contentReadData.identifier
     }
-    
+
     // Only navigate if we have batch ID or other parameters
     if (Object.keys(queryParams).length > 0) {
       this.router.navigate(
@@ -2594,7 +2706,7 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
           queryParams: queryParams,
           queryParamsHandling: 'merge',
         }
-      );
+      )
     }
   }
 
@@ -2613,7 +2725,7 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
         courseId: contentId || '',
         contentIds: [],
         fields: ['progressdetails'],
-        ...(lang ? { language: lang }: null),
+        ...(lang ? { language: lang } : null),
       },
     }
     if (this.content && this.content.primaryCategory !== NsContent.EPrimaryCategory.RESOURCE) {
@@ -2650,7 +2762,7 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
             this.tocSvc.updateResumaData(this.resumeData)
             // this.tocSvc.mapModuleDurationAndProgress(this.content, this.content)
             this.getLastPlayedResource()
-            if(this.content?.completionPercentage !== 100){
+            if (this.content?.completionPercentage !== 100) {
               this.tocSvc.mapCompletionPercentage(this.content, this.resumeData)
             }
             this.tocSvc.callHirarchyProgressHashmap(this.content)
@@ -2662,7 +2774,7 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
           }
 
           this.contentSvc.setProgramChildResumeData(this.resumeData, contentId)
-          if(this.content?.completionPercentage !== 100){
+          if (this.content?.completionPercentage !== 100) {
             this.bindCompletionPercentage()
           }
         },
@@ -2691,45 +2803,45 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
   }
   isSelectedInMoreDropdown(): boolean {
     if (!this.selectedLanguage?.identifier || !this.languageList) {
-      return false;
+      return false
     }
-    return this.languageList.slice(5).some((lang:any) => 
+    return this.languageList.slice(5).some((lang: any) =>
       lang?.identifier === this.selectedLanguage?.identifier
-    );
+    )
   }
 
   async getQueryParams() {
     const tempQueryParamsData: any = {}
     this.routeSubscription = this.route.queryParamMap.subscribe(async qParamsMap => {
-      
+
       // Extract all parameters from the ParamMap
       qParamsMap.keys.forEach(key => {
-        tempQueryParamsData[key] = qParamsMap.get(key) ?? '';
-      });
+        tempQueryParamsData[key] = qParamsMap.get(key) ?? ''
+      })
       tempQueryParamsData
-      
+
       // Process specific parameters
-      const contextId = tempQueryParamsData['contextId'];
-      const contextPath = tempQueryParamsData['contextPath'];
-      const recommendedCoursesId = tempQueryParamsData['recommendationId'];
-      
+      const contextId = tempQueryParamsData['contextId']
+      const contextPath = tempQueryParamsData['contextPath']
+      const recommendedCoursesId = tempQueryParamsData['recommendationId']
+
       if (contextId && contextPath) {
-        this.contextId = contextId;
-        this.contextPath = contextPath;
+        this.contextId = contextId
+        this.contextPath = contextPath
       }
-      
+
       if (recommendedCoursesId) {
-        this.recommendedCoursesId = recommendedCoursesId;
+        this.recommendedCoursesId = recommendedCoursesId
         try {
-          const response = await this.userServiceLib.getRecommendedCoursesSakshamAI(recommendedCoursesId).toPromise();
+          const response = await this.userServiceLib.getRecommendedCoursesSakshamAI(recommendedCoursesId).toPromise()
           if (response && response.feedbacks && response.feedbacks.length) {
-            this.feedbackGiven = response.feedbacks.find((feedback: any) => feedback?.course_id === this.courseID);
+            this.feedbackGiven = response.feedbacks.find((feedback: any) => feedback?.course_id === this.courseID)
           }
         } catch (error) {
-          this.loggerSvc.error('Error fetching recommended courses:', error);
+          this.loggerSvc.error('Error fetching recommended courses:', error)
         }
       }
-    });
+    })
     return tempQueryParamsData
   }
 
@@ -2746,7 +2858,7 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
       }
     }
   }
-  
+
   /**
    * Fetches and processes content creator data from the current content
    * - Sets contentCreatorData from parsed creator contacts
@@ -2757,30 +2869,30 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
     try {
       // Only proceed if we have valid content data
       if (!this.contentReadData) {
-        this.loggerSvc.warn('Cannot get creator data: contentReadData is not available');
-        return;
+        this.loggerSvc.warn('Cannot get creator data: contentReadData is not available')
+        return
       }
 
       // Process content name for comparison (safely handle null/undefined)
-      const contentName = this.contentReadData.name?.trim() || '';
-      
+      const contentName = this.contentReadData.name?.trim() || ''
+
       // Parse and set creator contacts if available
       if (this.contentReadData.creatorContacts) {
         // Use the existing parsing method to handle creator contacts
-        this.contentCreatorData = this.handleParseJsonData(this.contentReadData.creatorContacts);
+        this.contentCreatorData = this.handleParseJsonData(this.contentReadData.creatorContacts)
       } else {
         // Reset to empty array if no creator contacts
-        this.contentCreatorData = [];
+        this.contentCreatorData = []
       }
-      
+
       // Set showBtn flag based on dakshta name comparison (case insensitive)
       // This determines if the special button for dakshta content is shown
-      this.showBtn = contentName.toLowerCase() === this.dakshtaName.toLowerCase();
+      this.showBtn = contentName.toLowerCase() === this.dakshtaName.toLowerCase()
     } catch (error) {
       // Handle any unexpected errors
-      this.loggerSvc.error('Error processing content creator data:', error);
-      this.contentCreatorData = [];
-      this.showBtn = false;
+      this.loggerSvc.error('Error processing content creator data:', error)
+      this.contentCreatorData = []
+      this.showBtn = false
     }
   }
 
@@ -2793,24 +2905,24 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
           // Only proceed if we have valid data
           if (data) {
             // Check if website language is set in localStorage
-            const storedLanguage = localStorage.getItem('websiteLanguage');
+            const storedLanguage = localStorage.getItem('websiteLanguage')
             if (storedLanguage) {
               // Set default language as fallback
-              this.translate.setDefaultLang('en');
-              
+              this.translate.setDefaultLang('en')
+
               // Use the stored language preference
-              this.translate.use(storedLanguage);
+              this.translate.use(storedLanguage)
             }
           }
         },
         error: (error) => {
           // Log any errors that occur during subscription
-          this.loggerSvc.error('Error in language translation subscription:', error);
+          this.loggerSvc.error('Error in language translation subscription:', error)
         }
-      });
-      
+      })
+
     // Store subscription for cleanup (optional alternative to takeUntil)
-    this.translationSubscription = translationSubscription;
+    this.translationSubscription = translationSubscription
   }
 
   getServerDateTime() {
@@ -2828,7 +2940,7 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
           this.tocSvc.changeServerDate(clientTime)
           this.serverDate = clientTime
         }
-        
+
         // Initialize dependent functions that need server date
         this.findACPB()
         this.getKarmapointsLimit()
@@ -2836,14 +2948,14 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
       (error: any) => {
         // Log the error for debugging
         this.loggerSvc.error('Failed to get server date:', error)
-        
+
         // Fallback to client's time on error
         const clientTime = new Date().getTime()
         this.tocSvc.changeServerDate(clientTime)
         this.serverDate = clientTime
       }
     )
-    
+
     // Subscribe to server date changes from service
     this.serverDateSubscription = this.tocSvc.serverDate
       .pipe(takeUntil(this.destroySubject$)) // Ensure subscription is cleaned up
@@ -2857,16 +2969,16 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
   }
 
   get isMultilingual() {
-    if(this.baseContentReadData  && this.baseContentReadData.languageMapV1){
+    if (this.baseContentReadData && this.baseContentReadData.languageMapV1) {
       return this.languageList.length > 1
     }
     return false
   }
 
-  handleEnrollment(event:any) {
-    
-    if(this.isMultilingual) {
-        this.openLangDialog(event)
+  handleEnrollment(event: any) {
+
+    if (this.isMultilingual) {
+      this.openLangDialog(event)
     } else {
       this.handleAutoBatchAssign()
     }
@@ -2876,23 +2988,23 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
     const dialogRef = this.dialog.open(EnrollLanguageDialogueComponent, {
       width: '500px',
       height: 'auto',
-      autoFocus: false, 
+      autoFocus: false,
       restoreFocus: false,
       data: {
         preSelect: this.selectedLanguage,
         languageList: this.languageList,
       }
-    });
+    })
     dialogRef.afterClosed().subscribe((selectedLang) => {
       if (selectedLang) {
         this.selectedLanguage = selectedLang
-        console.log('this.selectedLanguage',this.selectedLanguage)
+        console.log('this.selectedLanguage', this.selectedLanguage)
         this.handleAutoBatchAssign()
       }
     })
   }
 
-  getResumeUrl(resourceData: any, batchId?:any, primaryCategory?:any) {
+  getResumeUrl(resourceData: any, batchId?: any, primaryCategory?: any) {
     let MLId = this.selectedLanguage?.identifier || ''
     let ML = this.selectedLanguage?.langId || ''
     let resumeDataUrl = viewerRouteGenerator(
@@ -2911,10 +3023,10 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
   }
 
   get contentCompletionPercent() {
-    if(this.batchData?.enrolled) {
-      if(this.contentReadData && this.contentReadData.primaryCategory === 'Course' && this.isMultilingual) {
-        if(this.languageMapProgress && this.selectedLanguage?.langId && this.languageMapProgress[this.selectedLanguage?.langId]) {
-            return this.languageMapProgress[this.selectedLanguage?.langId]
+    if (this.batchData?.enrolled) {
+      if (this.contentReadData && this.contentReadData.primaryCategory === 'Course' && this.isMultilingual) {
+        if (this.languageMapProgress && this.selectedLanguage?.langId && this.languageMapProgress[this.selectedLanguage?.langId]) {
+          return this.languageMapProgress[this.selectedLanguage?.langId]
         } else {
           return 0
         }
@@ -2922,5 +3034,78 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
         return this.content?.completionPercentage || 0
       }
     }
+  }
+
+  checkForCompletionSurveyTrigger() {
+    if (this.content && this.contentReadData) {
+      console.log('checkForSurveyTrigger this.content', this.contentReadData)
+      // check if completion survey is enabled and user has completed the course before 23rd DEC 2023 (release date of completion survey)
+      if (this.configSvc.instanceConfig && this.configSvc.instanceConfig.completionSurvey.enabled &&
+        this.enrolledCourseData && this.enrolledCourseData && this.enrolledCourseData.completedOn >= this.configSvc.instanceConfig.completionSurvey.startDate) {
+        if ((this.content.completionStatus === 2 || this.content.completionPercentage === 100) && this.contentReadData.completionSurveyLink) {
+          const sID = this.contentReadData.completionSurveyLink.split('surveys/')
+          const surveyId = sID[1]
+          const courseId = this.contentReadData.identifier
+          // Call API to see if survey is submitted or not
+          this.tocSvc.getApllicationsById(surveyId, courseId).subscribe((res) => {
+            console.log('response of getApllicationsById', res)
+            if (res.result.response && Object.keys(res.result.response).length > 0) {
+              this.lockCertificate = false
+            } else {
+              this.lockCertificate = true
+              this.openCompletionSurveyFormPopup()
+            }
+          })
+        }
+      }
+    }
+  }
+
+  // Clear existing survey data from local storage before opening popup
+  clearExistingPublicSurveyData(surveyId: string, courseId: string) {
+    const storageKey = `survey_${surveyId}_${courseId}`
+    if (localStorage.getItem(storageKey)) {
+      localStorage.removeItem(storageKey)
+    }
+  }
+
+  openPublicSurveyPopup(navigationUrl?: string, queryParams?: any) {
+    // Get survey ID and course ID from environment and content data
+    const surveyId = this.environment.publicContentSurveyId || ''
+    const courseId = this.contentReadData?.identifier || ''
+    const courseName = this.contentReadData?.name || ''
+    const contextOrgId = this.contentReadData?.createdFor && this.contentReadData?.createdFor.length > 0 ?
+      this.contentReadData?.createdFor[0] : ''
+
+    this.clearExistingPublicSurveyData(surveyId, courseId)
+
+    const data = {
+      surveyId: surveyId,
+      courseId: courseId,
+      courseName: courseName,
+      contextOrgId: contextOrgId
+    }
+    const dialogRef = this.dialog.open(PublicSurveyFormComponent, {
+      // disableClose: true,
+      width: '750px',
+      maxWidth: '90vw',
+      height: '80vh',
+      data: data,
+      autoFocus: false,
+    })
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        // Navigate to the intended URL only when survey is submitted successfully
+        if (navigationUrl) {
+          this.router.navigate([navigationUrl], { queryParams: queryParams })
+        }
+      }
+    })
+  }
+
+  resumeContentData() {
+    const navigationUrl = (this.resumeData && !this.certData) ? this.resumeDataLink?.url : this.firstResourceLink?.url
+    const queryParams = (this.resumeData && !this.certData) ? this.generateQuery('RESUME') : this.generateQuery('START')
+    this.router.navigate([navigationUrl], { queryParams: queryParams })
   }
 }
