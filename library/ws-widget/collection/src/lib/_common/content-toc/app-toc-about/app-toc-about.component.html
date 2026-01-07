@@ -154,6 +154,25 @@
             matTooltip="{{ 'apptocsinglepage.competenciesTooltip' | translate }}">info_outline</mat-icon>
     </div>
 </ng-template>
+<div class="flex flex-col mt-4" [ngClass]="isMobile ? 'mx-4' : ''"
+    *ngIf="contentReadData?.retirementDate && contentReadData?.lastEnrollmentDate">
+    <ng-container *ngIf="!skeletonLoader">
+        <div class="flex items-center content-retire-container">
+            <mat-icon class="material-icons retire-info-icon">warning</mat-icon>
+            <div class="body-1">This course is scheduled for retirement. The last date to enroll is
+                {{contentReadData?.lastEnrollmentDate | date: 'MMMM d, y'}}, and
+                the course will be retired on {{contentReadData?.retirementDate | date: 'MMMM d, y'}}.
+            </div>
+        </div>
+    </ng-container>
+</div>
+<div class="flex flex-col mt-4 mx-4 block" *ngIf="isMobile && contentReadData?.contentVersionInfo?.identifier">
+    <div class="flex flex-col gap-1  cursor-pointer switch-version" (click)="navigateToNewVersion()"
+        (keydown)="navigateToNewVersion()">
+        <span class="btn-switch">{{ 'apptoc.switchToNewVersion' | translate }}</span>
+    </div>
+</div>
+
 
 <div class="flex flex-col my-4 px-4" [class.mt60]="sticky" [ngClass]="isMobile ? '' : 'gap-10'">
     <ng-container
