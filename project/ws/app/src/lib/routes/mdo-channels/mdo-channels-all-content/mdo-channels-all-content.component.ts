@@ -10,9 +10,10 @@ import { TranslateService } from '@ngx-translate/core'
 import { FormExtService } from 'src/app/services/form-ext.service'
 
 @Component({
-  selector: 'ws-app-mdo-channels-all-content',
-  templateUrl: './mdo-channels-all-content.component.html',
-  styleUrls: ['./mdo-channels-all-content.component.scss'],
+    selector: 'ws-app-mdo-channels-all-content',
+    templateUrl: './mdo-channels-all-content.component.html',
+    styleUrls: ['./mdo-channels-all-content.component.scss'],
+    standalone: false
 })
 export class MdoChannelsAllContentComponent implements OnInit {
 

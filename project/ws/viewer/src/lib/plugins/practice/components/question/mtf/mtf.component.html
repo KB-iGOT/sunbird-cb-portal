@@ -5,10 +5,10 @@
         <div *ngFor="let option of question.options; let i = index">
           <div style="display: flex;justify-content: space-around;flex-wrap: wrap;  height:auto;">
             <div [class]="'question' + question.questionId + ' question'" [id]="'c1' + question.questionId + (i + 1)">
-              <span class="mat-body-2 html-option" [innerHtml]="getSanitizeString(option?.text)"></span>
+              <span class="mat-subtitle-2 html-option" [innerHtml]="getSanitizeString(option?.text)"></span>
             </div>
             <div [class]="'answer' + question.questionId + ' answer'" [id]="'c2' + question.questionId + (i + 1)">
-              <span class="mat-body-2 html-option" [innerHtml]="getSanitizeString(option.matchForView)"></span>
+              <span class="mat-subtitle-2 html-option" [innerHtml]="getSanitizeString(option.matchForView)"></span>
             </div>
           </div>
           <br />

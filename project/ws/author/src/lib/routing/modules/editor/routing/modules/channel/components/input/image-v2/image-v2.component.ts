@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core'
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { IWidgetElementHtml } from '@sunbird-cb/collection'
 import {
   AUTHORING_CONTENT_BASE,
@@ -19,6 +19,7 @@ import { TEMPLATE_TYPES } from './image-v2.constant'
   selector: 'ws-auth-image-v2',
   templateUrl: './image-v2.component.html',
   styleUrls: ['./image-v2.component.scss'],
+  standalone: false
 })
 export class ImageV2Component implements OnChanges {
   @Output() data = new EventEmitter<{ content: IWidgetElementHtml; isValid: boolean }>()

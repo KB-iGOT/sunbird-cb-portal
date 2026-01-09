@@ -1,9 +1,9 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core'
 // import { NSDiscussData } from '../../../discuss/models/discuss.model'
 import { ActivatedRoute, Router } from '@angular/router'
-// import { MatSnackBar } from '@angular/material/legacy-snack-bar'
+// import { MatSnackBar } from '@angular/material/snack-bar'
 import { MatSnackBar } from '@angular/material/snack-bar'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 // import { DiscussService } from '../../../discuss/services/discuss.service'
 /* tslint:disable */
 import _, { isString } from 'lodash'
@@ -28,6 +28,7 @@ import { of } from 'rxjs'
   selector: 'ws-app-event-detail',
   templateUrl: './event-detail.component.html',
   styleUrls: ['./event-detail.component.scss'],
+  standalone: false
 })
 export class EventDetailComponent implements OnInit {
   @ViewChild('toastSuccess', { static: true }) toastSuccess!: ElementRef<any>

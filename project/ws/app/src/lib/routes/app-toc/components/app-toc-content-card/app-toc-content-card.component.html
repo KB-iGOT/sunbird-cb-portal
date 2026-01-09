@@ -7,7 +7,7 @@
         <div class="flex flex-col flex-wrap flex-between width-expand pr-0 w-100 sm:pr-4 sm:w-auto">
           <div class="text-truncate" [ngClass]="{'cursor-pointer': !isEnabled}" (click)="viewChildren = !viewChildren">
             <div class="flex flex-col sm:flex-row flex-wrap">
-              <p class="margin-remove text-truncate mat-subheading-1 flex-auto">
+              <p class="margin-remove text-truncate mat-subtitle-2 flex-auto">
                 {{ content?.name }} 
               </p>
               <ng-container *ngIf="content.issuedCertificatesSVG">
@@ -204,7 +204,7 @@
         [queryParams]="(isAllowed && !forPreview && !isEnabled)  ? resourceLink.queryParams : null">
         <div class="text-truncate " [ngClass]="{'cursor-pointer': !isEnabled}" (click)="viewChildren = !viewChildren; raiseTelemetry()">
           <div class="flex flex-col sm:flex-row flex-wrap">
-            <p class="margin-remove text-truncate mat-subheading-1 flex-auto">
+            <p class="margin-remove text-truncate mat-subtitle-2 flex-auto">
               <!-- <mat-icon class="margin-right-xs radiobtn time-icon">radio_button_unchecked </mat-icon> -->
               {{ content?.name }}
             </p>

@@ -28,7 +28,7 @@
                         <p class="title">{{resourceData?.name}}</p>
                         <div class="instruction-container mb-4">
                           <p class="description" [ngClass]="{'truncate-text': !isInstructionsExpanded}" [innerHTML]="resourceData?.instructions | replaceNbspText"></p>
-                          <button *ngIf="hasLongInstructions" class="view-toggle-btn mat-body-2" (click)="toggleInstructions()">
+                          <button *ngIf="hasLongInstructions" class="view-toggle-btn mat-subtitle-2" (click)="toggleInstructions()">
                             {{ isInstructionsExpanded ? 'View less' : 'View more' }}
                           </button>
                         </div>
@@ -111,7 +111,7 @@
         </div>
         <ng-container *ngIf="resourceData?.sectorDetails_v1?.length">
             <div class="flex flex-col">
-                <div class="mat-subheading-1 nodtranslate">{{ 'gyaanKarmayogi.sectors' | translate }}</div>
+                <div class="mat-subtitle-2 nodtranslate">{{ 'gyaanKarmayogi.sectors' | translate }}</div>
                 <ng-container *ngIf="resourceData?.sectorDetails_v1?.length > 0">
                     <div class="flex flex-col gap-3">
                         <div class="flex flex-row gap-3 sm:gap-4 mb-3 flex-wrap">

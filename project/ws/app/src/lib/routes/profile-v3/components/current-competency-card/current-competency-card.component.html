@@ -6,7 +6,7 @@
             <div class="card_inner_title_box flex-col">
                 <div class="cursor-pointer flex-col">
                     <h4 class="mat-h4">{{ competency?.name}}</h4>
-                    <p class="mat-body-2 ws-mat-black60-text">{{ competency?.competencyType}}</p>
+                    <p class="mat-subtitle-2 ws-mat-black60-text">{{ competency?.competencyType}}</p>
                 </div>
                 <!-- <div class="flex-col text_icon_box">
                             <mat-icon class="mat-icon1 mat-icon notranslate material-icons mat-icon-no-color" role="img"
@@ -17,13 +17,13 @@
                         </div> -->
             </div>
             <div class="flex-1 card_right_txtbox flex-col padding-left-m">
-                <p class="cursor-pointer mat-body-1 ws-mat-black60-text">
+                <p class="cursor-pointer mat-subtitle-2 ws-mat-black60-text">
                     {{ competency?.description}}
                 </p>
             </div>
         </div>
         <div class="flex flex-col level_box" *ngIf="competency?.children && competency?.children.length > 0">
-            <p class="mat-body-2 ws-mat-black60-text">{{"currentcompetencycard.selectLevel" | translate}}</p>
+            <p class="mat-subtitle-2 ws-mat-black60-text">{{"currentcompetencycard.selectLevel" | translate}}</p>
 
             <div class="flex flex-row level_list_box flex-wrap">
                 <!-- <ws-app-level-card [competencyLevelData]="complevel" [competency]="competency" *ngFor="let complevel of competency?.children" (selectedCompetency)="selectLevel(complevel, competency)"></ws-app-level-card> -->

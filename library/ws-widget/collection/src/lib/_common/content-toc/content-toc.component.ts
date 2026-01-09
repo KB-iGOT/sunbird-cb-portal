@@ -4,10 +4,10 @@ import { ConfigurationsService, EventService, NsContent, UtilityService, WsEvent
 import { Subscription } from 'rxjs'
 
 import { LoadCheckService } from '@ws/app/src/lib/routes/app-toc/services/load-check.service'
-import { MatLegacyTabGroup as MatTabGroup, MatLegacyTabChangeEvent as MatTabChangeEvent } from '@angular/material/legacy-tabs'
+import { MatTabGroup, MatTabChangeEvent } from '@angular/material/tabs'
 import { NsDiscussionV2 } from '@sunbird-cb/discussion-v2'
 import { AiTutorConfirmPopupComponent } from './ai-tutor-confirm-popup/ai-tutor-confirm-popup.component'
-import { MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig } from '@angular/material/legacy-dialog'
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog'
 import { viewerRouteGenerator } from '@sunbird-cb/collection'
 import { AppTocService } from '@ws/app/src/lib/routes/app-toc/services/app-toc.service'
 import { ActionService } from '@ws/app/src/lib/routes/app-toc/services/action.service'
@@ -22,6 +22,7 @@ import * as _ from 'lodash'
   selector: 'ws-widget-content-toc',
   templateUrl: './content-toc.component.html',
   styleUrls: ['./content-toc.component.scss'],
+  standalone: false
 })
 
 export class ContentTocComponent implements OnInit, AfterViewInit, OnChanges {

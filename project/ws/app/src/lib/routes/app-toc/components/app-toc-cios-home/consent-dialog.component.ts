@@ -4,8 +4,8 @@ import { DomSanitizer, SafeHtml } from '@angular/platform-browser'
 import { HttpClient } from '@angular/common/http'
 
 @Component({
-  selector: 'ws-app-consent-dialog',
-  template: `
+    selector: 'ws-app-consent-dialog',
+    template: `
     <div class="consent-dialog-wrapper">
       <div *ngIf="loading" class="loading-container">
         <p>Loading content...</p>
@@ -17,7 +17,7 @@ import { HttpClient } from '@angular/common/http'
       </div>
     </div>
   `,
-  styles: [`
+    styles: [`
     .consent-dialog-wrapper {
       width: 100%;
       height: 100%;
@@ -87,7 +87,8 @@ import { HttpClient } from '@angular/common/http'
     .btn-agree:hover {
       background: #1B4CA1;
     }
-  `]
+  `],
+    standalone: false
 })
 export class ConsentDialogComponent implements OnInit {
   htmlContent: SafeHtml = 'Loading...'

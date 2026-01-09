@@ -6,7 +6,7 @@ describe('AppTocHomeService', () => {
   beforeEach(() => TestBed.configureTestingModule({}))
 
   it('should be created', () => {
-    const service: AppTocHomeService = TestBed.get(AppTocHomeService)
+    const service: AppTocHomeService = TestBed.inject(AppTocHomeService)
     expect(service).toBeTruthy()
   })
 })

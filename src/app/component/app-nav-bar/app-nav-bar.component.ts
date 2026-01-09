@@ -14,9 +14,10 @@ import { LibNotificationsService } from '@sunbird-cb/notification'
 import { Subscription } from 'rxjs'
 
 @Component({
-  selector: 'ws-app-nav-bar',
-  templateUrl: './app-nav-bar.component.html',
-  styleUrls: ['./app-nav-bar.component.scss'],
+    selector: 'ws-app-nav-bar',
+    templateUrl: './app-nav-bar.component.html',
+    styleUrls: ['./app-nav-bar.component.scss'],
+    standalone: false
 })
 export class AppNavBarComponent implements OnInit, OnChanges, OnDestroy {
   @Input() mode: 'top' | 'bottom' = 'top'

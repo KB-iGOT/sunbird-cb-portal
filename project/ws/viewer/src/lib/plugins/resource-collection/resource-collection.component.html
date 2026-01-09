@@ -4,13 +4,13 @@
     <mat-tab-group #tabGroup [(selectedIndex)]="currentTabIndex" dynamicHeight>
       <mat-tab>
         <ng-template mat-tab-label>
-          <span class="mat-body-2" >Submit as Text</span>
+          <span class="mat-subtitle-2" >Submit as Text</span>
         </ng-template>
         <ng-container *ngTemplateOutlet="submitAsTextView"></ng-container>
       </mat-tab>
       <mat-tab>
         <ng-template mat-tab-label>
-          <span class="mat-body-2">Submit as File Upload </span>
+          <span class="mat-subtitle-2">Submit as File Upload </span>
         </ng-template>
         <ng-container *ngTemplateOutlet="submitAsFileUpload"></ng-container>
       </mat-tab>
@@ -139,7 +139,7 @@
       </mat-paginator>
     </ng-container>
     <div *ngIf="!submissionData.length && fetchingStatus === 'fetched'">
-      <span class="mat-body-2" >No submission to show</span>
+      <span class="mat-subtitle-2" >No submission to show</span>
     </div>
   </mat-card-content>
 </mat-card>

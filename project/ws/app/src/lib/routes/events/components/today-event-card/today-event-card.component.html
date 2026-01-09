@@ -5,16 +5,16 @@
     <div class="databox margin-left-m">
         <mat-card-header>
             <mat-card-subtitle class="margin-bottom-xs">
-                <div class="event-type mat-body-2">
+                <div class="event-type mat-subtitle-2">
                     <mat-icon>event</mat-icon> {{translateLabels(eventData?.event?.resourceType, 'event')}}
                 </div>
             </mat-card-subtitle>
             <mat-card-title class="margin-bottom-xs textoverflow-title">
                 <span role="link" i18n-aria-label tabindex="0"
-                    class="cursor-pointer mat-subheading-1">{{eventData?.eventName}}</span>
+                    class="cursor-pointer mat-subtitle-2">{{eventData?.eventName}}</span>
             </mat-card-title>
             <mat-card-subtitle class="responsive  margin-bottom-xs">
-                <span class="mat-body-2">{{eventData?.eventStartTime}} - {{eventData?.eventEndTime}}</span>
+                <span class="mat-subtitle-2">{{eventData?.eventStartTime}} - {{eventData?.eventEndTime}}</span>
             </mat-card-subtitle>
         </mat-card-header>
         <mat-card-content *ngIf="isLive && !isRecording">

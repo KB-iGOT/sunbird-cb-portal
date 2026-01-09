@@ -40,7 +40,7 @@
                             </div>
                             <div class="mt-6 pt-6">
                                 <h1  class=" txt-ellipsis-2 break-words">{{data.title || channnelName}}</h1>
-                                <p class="mat-body-1">
+                                <p class="mat-subtitle-2">
                                     {{data?.description | slice:0:descriptionMaxLength}}
                                     <span *ngIf="data?.description?.length > descriptionMaxLength">...</span>
                                 </p>
@@ -71,7 +71,7 @@
             </div>
             <div class="w-full md:w-9/12 flex-1 flex flex-col">
                 <h1 class=" txt-ellipsis-2 break-words">{{data?.title || channnelName}}</h1>
-                <p class="mat-body-2">
+                <p class="mat-subtitle-2">
                     {{data?.description | slice:0:descriptionMaxLength}}
                     <span *ngIf="data?.description?.length > descriptionMaxLength">...</span>
                 </p>
@@ -233,7 +233,7 @@
 <ng-template #competency let-competency="competency">
     <div class="padding-top-l padding-bottom-l relative"  [style.background]="competency?.background" *ngIf="!hideCompetencyBlock;else noData">
         <div class="w-full container-balanced">
-            <p class="mat-body-1">This section shows the list of top competencies users in this MDO are learning, based on the courses they've completed and enrolled in.</p>
+            <p class="mat-subtitle-2">This section shows the list of top competencies users in this MDO are learning, based on the courses they've completed and enrolled in.</p>
             <div class="pl-4 pr-4 md:pl-0 md:pr-0">
                 <sb-uic-competency-passbook-mdo
                     [dynamicColor]="'#999999'"

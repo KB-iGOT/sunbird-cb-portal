@@ -46,26 +46,26 @@ import { ViewerSecondaryTopBarModule } from './components/viewer-secondary-top-b
 
 import { PdfScormDataService } from './pdf-scorm-data-service'
 import { SkeletonLoaderModule } from '@sunbird-cb/collection/src/lib/_common/skeleton-loader/skeleton-loader.module'
-import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button'
-import { MatLegacyCardModule as MatCardModule } from '@angular/material/legacy-card'
+import { MatButtonModule } from '@angular/material/button'
+import { MatCardModule } from '@angular/material/card'
 import { MatDividerModule } from '@angular/material/divider'
 import { MatIconModule } from '@angular/material/icon'
-import { MatLegacyListModule as MatListModule } from '@angular/material/legacy-list'
-import { MatLegacyProgressBarModule as MatProgressBarModule } from '@angular/material/legacy-progress-bar'
-import { MatLegacyProgressSpinnerModule as MatProgressSpinnerModule } from '@angular/material/legacy-progress-spinner'
+import { MatListModule } from '@angular/material/list'
+import { MatProgressBarModule } from '@angular/material/progress-bar'
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'
 import { MatSidenavModule } from '@angular/material/sidenav'
-import { MatLegacySlideToggleModule as MatSlideToggleModule } from '@angular/material/legacy-slide-toggle'
-import { MatLegacySnackBarModule as MatSnackBarModule } from '@angular/material/legacy-snack-bar'
-import { MatLegacyTabsModule as MatTabsModule } from '@angular/material/legacy-tabs'
+import { MatSlideToggleModule } from '@angular/material/slide-toggle'
+import { MatSnackBarModule } from '@angular/material/snack-bar'
+import { MatTabsModule } from '@angular/material/tabs'
 import { MatToolbarModule } from '@angular/material/toolbar'
 import { MatTreeModule } from '@angular/material/tree'
 
-import { ContentTocModule } from '@sunbird-cb/collection/src/lib/_common/content-toc/content-toc.module';
+import { ContentTocModule } from '@sunbird-cb/collection/src/lib/_common/content-toc/content-toc.module'
 // import { AiTutorComponent } from './components/ai-tutor/ai-tutor.component'
 import { FormsModule } from '@angular/forms'
-import {MatSelectModule} from '@angular/material/select';
-import {MatFormFieldModule} from '@angular/material/form-field';
-import { MarkdownModule } from 'ngx-markdown';
+import { MatSelectModule } from '@angular/material/select'
+import { MatFormFieldModule } from '@angular/material/form-field'
+import { MarkdownModule } from 'ngx-markdown'
 
 @NgModule({
   declarations: [ViewerComponent, ViewerTocComponent],

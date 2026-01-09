@@ -13,7 +13,7 @@
       </ws-widget-avatar-photo>
       <mat-card-title class="text-capitalize text-box">
         <a href="javascript:void(0)" role="link" i18n-aria-label>
-          <span class="mat-subheading-2 user-name"> {{
+          <span class="mat-subtitle-1 user-name"> {{
              { firstName: user.personalDetails.firstname, email: user.personalDetails.primaryEmail} | pipeNameTransform }}
           </span>
           <!-- <ws-widget-connection-name [hoverUser]="usr"></ws-widget-connection-name> -->
@@ -22,7 +22,7 @@
 
       </mat-card-title>
       <mat-card-subtitle class="mar-16" class="netword_card_subtitle">
-        <span class="text-capitalize mat-body-2">{{ user.employmentDetails.departmentName || 'iGOT' }}</span>
+        <span class="text-capitalize mat-subtitle-2">{{ user.employmentDetails.departmentName || 'iGOT' }}</span>
       </mat-card-subtitle>
     </mat-card-header>
     <mat-card-content class="content">

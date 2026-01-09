@@ -11,7 +11,7 @@ import {
   Output,
   ViewChild,
 } from '@angular/core'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import {
   AUTHORING_CONTENT_BASE,
   CONTENT_BASE_STATIC,
@@ -39,6 +39,7 @@ declare const CKEDITOR: any
   selector: 'ws-auth-plain-ckeditor',
   templateUrl: './plain-ckeditor.component.html',
   styleUrls: ['./plain-ckeditor.component.scss'],
+  standalone: false
 })
 export class PlainCKEditorComponent implements AfterViewInit, OnInit, OnDestroy {
   downloadRegex = new RegExp(`(https://.*?/content-store/.*?)(\\\)?\\\\?['"])`, 'gm')
@@ -87,7 +88,7 @@ export class PlainCKEditorComponent implements AfterViewInit, OnInit, OnDestroy 
     private accessControlSvc: AccessControlService,
     private loaderService: LoaderService,
     private cdr: ChangeDetectorRef,
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.initiateConfig()

@@ -3,14 +3,14 @@
     <div class="flex flex-row justify-between margin-bottom-xs">
         <h4 class="mast-h4 main_title_text margin-bottom-xs">{{'currentcompetencies.header' | translate}}</h4>
         <div>
-        <button [disabled]="infoIcon"  mat-icon-button class="mat-subheading-2 hint_span margin-remove-bottom" (click)="openActivityDialog()">
+        <button [disabled]="infoIcon"  mat-icon-button class="mat-subtitle-1 hint_span margin-remove-bottom" (click)="openActivityDialog()">
             <mat-icon class="mat-icon margin-right-xs">info_outlined</mat-icon>
         </button>
         {{'currentcompetencies.whatAreCompetencies' | translate }}
     </div>
     </div>
 
-    <p class="mat-body-2 ws-mat-black60-text margin-bottom-l">{{'currentcompetencies.description' | translate }}</p>
+    <p class="mat-subtitle-2 ws-mat-black60-text margin-bottom-l">{{'currentcompetencies.description' | translate }}</p>
     <!-- <ws-app-competency-card [competenciesData]="allCompetencies"
         (selectedCompetency)="updateSelectedCompetency($event)"></ws-app-competency-card> -->
     <div class="flex flex-1">

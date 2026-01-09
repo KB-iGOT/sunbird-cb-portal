@@ -30,6 +30,7 @@ $text-primary: #1B4CA1;
 }
 
 $title-line-count: 2;
+
 .text-ellipsis {
     white-space: initial;
     position: relative;
@@ -42,8 +43,12 @@ $title-line-count: 2;
 
 .competency-name {
     @extend .text-ellipsis;
-    @extend .mat-subheading-1;
+
     min-height: $title-line-count * 24px;
+}
+
+.mat-subheading-1-1 {
+    font-size: 20px;
 }
 
 @media screen and (max-width: 768px) {
@@ -77,7 +82,7 @@ hr {
     border-radius: 12px;
     border: 1px solid rgba($color: #000000, $alpha: 0.16);
 
-    .mat-subheading-1 {
+    .mat-subtitle-2 {
         margin-bottom: 0px;
     }
 
@@ -163,6 +168,7 @@ hr {
         }
     }
 }
+
 /************ Left Container CSS ***************/
 
 
@@ -230,6 +236,7 @@ hr {
 ::ng-deep .mat-tab-body-content {
     overflow: hidden !important;
 }
+
 /************ Right Container CSS ***************/
 
 @media screen and (max-width: 768px) {
@@ -254,7 +261,9 @@ hr {
 }
 
 @media screen and (min-width: 992px) {
-    .competency-passbook-theme, .detail {
+
+    .competency-passbook-theme,
+    .detail {
         min-width: 384px;
     }
 }
@@ -263,7 +272,7 @@ hr {
     color: rgba(255, 255, 255, 0.95);
 }
 
-.secondary-title{
+.secondary-title {
     font-size: 14px;
     color: rgba(255, 255, 255, 0.7);
 }

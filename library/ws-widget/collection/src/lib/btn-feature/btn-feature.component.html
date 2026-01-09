@@ -60,8 +60,8 @@
           icon: actionBtn.icon,
           scale: 2
         }"></ng-container>
-      <h2 class="mat-subheading-2 mt-3">{{ actionBtn?.name }}</h2>
-      <div class="mat-subheading-1 margin-remove-bottom">{{ actionBtn?.description }}</div>
+      <h2 class="mat-subtitle-1 mt-3">{{ actionBtn?.name }}</h2>
+      <div class="mat-subtitle-2 margin-remove-bottom">{{ actionBtn?.description }}</div>
     </a>
     <button *ngIf="isPinFeatureAvailable" class="pin" mat-icon-button (click)="togglePin(actionBtn?.id, $event)">
       <mat-icon color="accent" *ngIf="!isPinned">bookmark_border</mat-icon>

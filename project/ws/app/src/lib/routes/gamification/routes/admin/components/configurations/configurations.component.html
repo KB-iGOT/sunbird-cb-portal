@@ -51,7 +51,7 @@
   </mat-sidenav>
   <mat-sidenav-content class="sidenav-content">
     <div class="flex flex-between">
-      <div class="headings margin-top-l mat-headline ws-mat-primary-text mb-10 " color="primary" >
+      <div class="headings margin-top-l mat-headline-5 ws-mat-primary-text mb-10 " color="primary" >
         Configuration For {{roleName}} - {{sprint}}</div>
       <div class="dimensions">
         <h4 class="ws-mat-primary-text font-size-m font-weight-bold">
@@ -74,7 +74,7 @@
           <section class="item-container flex">
             <section class="width flex flex-column flex-center">
               <div class="flex flex-column flex-between">
-                <div class="mat-body-2">{{ key }}</div>
+                <div class="mat-subtitle-2">{{ key }}</div>
               </div>
             </section>
             <section class="flex flex-column flex-center">
@@ -87,12 +87,12 @@
         </section>
         <section *ngIf="col2">
           <section class="p-4 align" *ngFor="let item of objectKeys(col2); let i=index">
-            <div class="headings mat-headline ws-mat-primary-text mb-10 " color="primary" >
+            <div class="headings mat-headline-5 ws-mat-primary-text mb-10 " color="primary" >
               {{item}}</div>
             <section class="p-4 item-container flex" *ngFor="let key of objectKeys(col2[item]); let i=index">
               <section class="width flex flex-column flex-center">
                 <div class="flex flex-column flex-between">
-                  <div class="mat-body-2">{{ key }}</div>
+                  <div class="mat-subtitle-2">{{ key }}</div>
                 </div>
               </section>
               <section class="width-1-10 flex flex-column flex-center">

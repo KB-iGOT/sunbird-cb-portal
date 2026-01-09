@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, EventEmitter, Output } from '@angular/core'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 import { NSCompetencie } from '../../models/competencies.model'
 import { CompetenceViewComponent } from '../competencies-view/competencies-view.component'
 // import { Router } from '@angular/router'
@@ -9,8 +9,7 @@ import { CompetenceViewComponent } from '../competencies-view/competencies-view.
   styleUrls: ['./competencies-proficency-card.component.scss'],
   /* tslint:disable */
   host: { class: 'flex flex-1 margin-right-xs margin-top-xs margin-bottom-s' },
-  /* tslint:enable */
-
+  standalone: false
 })
 
 export class CompetenceProficiencyCardComponent implements OnInit {

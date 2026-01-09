@@ -23,12 +23,13 @@ import { NotificationService } from '@ws/author/src/lib/services/notification.se
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper'
 
 @Component({
-  selector: 'ws-auth-upload',
-  templateUrl: './upload.component.html',
-  styleUrls: ['./upload.component.scss'],
-  providers: [{
-    provide: STEPPER_GLOBAL_OPTIONS, useValue: { displayDefaultIndicatorType: false },
-  }],
+    selector: 'ws-auth-upload',
+    templateUrl: './upload.component.html',
+    styleUrls: ['./upload.component.scss'],
+    providers: [{
+            provide: STEPPER_GLOBAL_OPTIONS, useValue: { displayDefaultIndicatorType: false },
+        }],
+    standalone: false
 })
 export class UploadComponent implements OnInit, OnDestroy {
   contents: NSContent.IContentMeta[] = []

@@ -10,11 +10,12 @@ import 'rxjs/add/operator/toPromise'
 import _ from 'lodash'
 import { environment } from 'src/environments/environment'
 @Component({
-  selector: 'ws-app-footer',
-  templateUrl: './app-footer.component.html',
-  styleUrls: ['./app-footer.component.scss'],
-  // tslint:disable-next-line
-  encapsulation: ViewEncapsulation.None
+    selector: 'ws-app-footer',
+    templateUrl: './app-footer.component.html',
+    styleUrls: ['./app-footer.component.scss'],
+    // tslint:disable-next-line
+    encapsulation: ViewEncapsulation.None,
+    standalone: false
 })
 export class AppFooterComponent implements OnInit {
   @Input() headerFooterConfigData: any

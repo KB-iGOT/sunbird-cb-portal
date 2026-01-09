@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 import { SocialForum } from '../../../models/SocialForumposts.model'
 import { DialogBoxModeratorComponent } from '../../Dialog-Box/dialog-box-moderator/dialog-box-moderator.component'
 import { BtnModeratorService } from './btn-moderator.service'
@@ -13,6 +13,7 @@ import { BtnModeratorService } from './btn-moderator.service'
   selector: 'ws-app-btn-moderator',
   templateUrl: './btn-moderator.component.html',
   styleUrls: ['./btn-moderator.component.scss'],
+  standalone: false
 })
 export class BtnModeratorComponent implements OnInit {
   @Input()
@@ -30,7 +31,7 @@ export class BtnModeratorComponent implements OnInit {
     private moderatorBtnSvc: BtnModeratorService,
 
     public dialog: MatDialog,
-  ) {}
+  ) { }
   moderatorRequest: SocialForum.IModeratorBtnRequest = {
     postId: '',
     action: SocialForum.EModeratorAction.ACCEPT,

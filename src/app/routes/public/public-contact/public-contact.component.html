@@ -31,7 +31,7 @@
           <div class="faq_right_panel flex-3">
             <div class="contact-info margin-top-m ws-mat-primary-lite-background"
               *ngIf="contactPage.title || contactPage.description">
-              <h2 class="flex mat-display-1 main_title_text margin-bottom-xl" *ngIf="contactPage.title">
+              <h2 class="flex mat-headline-4 main_title_text margin-bottom-xl" *ngIf="contactPage.title">
                 <!-- <mat-icon>contact_support</mat-icon> -->
 
                   {{translateLabels(contactPage.title, 'faq')}}
@@ -57,7 +57,7 @@
                 <div [attr.id]="chelp.fragment" class="info-section margin-bottom-xl" [ngClass]="{ 'width-1-1': true}">
                   <h3 class="flex flex-middle margin-remove">
                     <!-- <mat-icon *ngIf="chelp.icon">{{ chelp.icon}}</mat-icon> -->
-                    <span class="mat-title">{{translateLabels(chelp.title, 'faq')}}
+                    <span class="mat-headline-6">{{translateLabels(chelp.title, 'faq')}}
                     </span>
                   </h3>
                   <mat-accordion>
@@ -70,7 +70,7 @@
                       </mat-expansion-panel-header>
                       <p class="margin-remove">
                         <ng-container>
-                         <p class="mat-body-2" [innerHTML]="translateLabels(helpContent.value, 'faq') | pipeSafeSanitizer: 'html'"> </p>
+                         <p class="mat-subtitle-2" [innerHTML]="translateLabels(helpContent.value, 'faq') | pipeSafeSanitizer: 'html'"> </p>
                         </ng-container>
                       </p>
                     </mat-expansion-panel>

@@ -3,9 +3,10 @@ import { ActivatedRoute, NavigationEnd, Router, Event, NavigationError } from '@
 import { NsWidgetResolver } from 'library/ws-widget/resolver/src/public-api'
 
 @Component({
-  selector: 'ws-app-events-home',
-  templateUrl: './events-home.component.html',
-  styleUrls: ['./events-home.component.scss'],
+    selector: 'ws-app-events-home',
+    templateUrl: './events-home.component.html',
+    styleUrls: ['./events-home.component.scss'],
+    standalone: false
 })
 export class EventsHomeComponent implements OnInit, OnDestroy {
   titles = [{ title: 'EVENTS', url: '/app/event-hub/home', icon: 'event' }]

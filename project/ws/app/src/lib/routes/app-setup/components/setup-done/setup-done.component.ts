@@ -4,7 +4,7 @@ import {
   ConfigurationsService,
   NsPage,
 } from '@sunbird-cb/utils-v2'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 import { AppTourDialogComponent } from '@sunbird-cb/collection'
 import { Router, ActivatedRoute } from '@angular/router'
 import { Globals } from '../../globals'
@@ -13,6 +13,7 @@ import { Globals } from '../../globals'
   selector: 'ws-app-setup-done',
   templateUrl: './setup-done.component.html',
   styleUrls: ['./setup-done.component.scss'],
+  standalone: false
 })
 export class SetupDoneComponent implements OnInit {
   appIcon: SafeUrl | null = null

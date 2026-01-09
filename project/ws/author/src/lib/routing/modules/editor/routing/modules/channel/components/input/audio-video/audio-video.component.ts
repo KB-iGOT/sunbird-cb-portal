@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { IWidgetsPlayerMediaData, NsContent } from '@sunbird-cb/collection'
 import {
   AUTHORING_CONTENT_BASE,
@@ -22,6 +22,7 @@ interface ISubtitle {
   selector: 'ws-auth-audio-video',
   templateUrl: './audio-video.component.html',
   styleUrls: ['./audio-video.component.scss'],
+  standalone: false
 })
 export class AudioVideoComponent implements OnChanges, OnInit {
   @Input() isSubmitPressed = false
@@ -49,9 +50,9 @@ export class AudioVideoComponent implements OnChanges, OnInit {
     private uploadService: UploadService,
     private authInitService: AuthInitService,
     private loader: LoaderService,
-  ) {}
+  ) { }
 
-  ngOnInit() {}
+  ngOnInit() { }
 
   ngOnChanges() {
     this.initData()

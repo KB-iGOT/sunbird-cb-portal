@@ -3,7 +3,7 @@
     <mat-card-content>
       <div class="flex flex-row flex-1 justify-between mobile-margin items-center">
         <div class="flex">
-          <span class="mat-subheading-1 flex-4 nextline-history" role="link">
+          <span class="mat-subtitle-2 flex-4 nextline-history" role="link">
             {{translateName(widgetData.name)}}
           </span>
           </div>
@@ -30,12 +30,12 @@
       <ng-container *ngFor="let karmapoints of widgetData.data">
         <mat-card class="no-shadow mt-2 mat-list-item" role="link" tabindex="0">
           <div class="flex flex-1 mobile-margin">
-            <div class="flex-1 mat-subheading-1">
+            <div class="flex-1 mat-subtitle-2">
               <div class="margin-bottom-xs">{{getTitle(karmapoints)}}</div>
               <div class="courseName margin-bottom-xs">{{getName(karmapoints)}}</div>
               <div class="date-of-completed margin-bottom-xs">{{karmapoints.credit_date | date: 'd MMM yyyy'}}</div>
             </div>
-            <div class="mat-subheading-2">
+            <div class="mat-subtitle-1">
               <img class="karmapoints-icon" alt="karma points" src="/assets/icons/home/karma-badge.svg">
               <span class="bonus-points">+ {{karmapoints.points}}</span>
               <div *ngIf="getAdditonInfo(karmapoints)"><span class="bonus-badge">{{ 'profileKarmapoints.bonus' | translate}}</span></div>

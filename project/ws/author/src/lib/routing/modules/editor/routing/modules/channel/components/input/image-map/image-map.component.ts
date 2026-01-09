@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, QueryList, ViewChild, ViewChildren } from '@angular/core'
 import { AbstractControl, UntypedFormArray, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { IWidgetImageMap, IWidgetMapMeta } from '@sunbird-cb/collection/src/lib/image-map-responsive/image-map-responsive.model'
 import { AUTHORING_CONTENT_BASE, CONTENT_BASE_WEBHOST_ASSETS } from '@ws/author/src/lib/constants/apiEndpoints'
 import { NOTIFICATION_TIME } from '@ws/author/src/lib/constants/constant'
@@ -15,6 +15,7 @@ import { FILE_MAX_SIZE } from './../../../../../../../../../constants/upload'
   selector: 'ws-auth-image-map',
   templateUrl: './image-map.component.html',
   styleUrls: ['./image-map.component.scss'],
+  standalone: false
 })
 export class ImageMapComponent implements OnInit, AfterViewInit {
   @ViewChild('canvas') canvas!: ElementRef
@@ -260,7 +261,7 @@ export class ImageMapComponent implements OnInit, AfterViewInit {
           duration: NOTIFICATION_TIME * 1000,
         })
       }
-    },         100)
+    }, 100)
   }
 
   mouseDownEvent(event: any) {
@@ -320,7 +321,7 @@ export class ImageMapComponent implements OnInit, AfterViewInit {
       setTimeout(() => {
         const focusTitle = this.title.filter((_, index: number) => index === this.selectedRadio)
         focusTitle[0].nativeElement.focus()
-      },         400)
+      }, 400)
       this.addCoordsToForm(event.clientX - canvasLeft, event.clientY - canvasTop, x, y)
       // } else {
       //   this.handleMouseUp(event)

@@ -22,7 +22,7 @@
   </nav>
   <mat-sidenav-container class="sidenav-container" autosize>
     <mat-sidenav [mode]="sidenavMode" class="sidenav" #sidenav [opened]="sidenavOpenDefault">
-      <h2 class="mat-title margin-top-s text-center" >Questions</h2>
+      <h2 class="mat-headline-6 margin-top-s text-center" >Questions</h2>
       <div class="flex flex-wrapped margin-right-s margin-left-s">
         <div class="col" *ngFor="let question of quizJson?.questions; let i = index">
           <div (click)="scroll(i + 1)" [ngClass]="{
@@ -62,11 +62,11 @@
               <mat-spinner></mat-spinner>
             </div>
           </div>
-          <h2 class="mat-title" *ngIf="fetchingResultsStatus === 'error'">
+          <h2 class="mat-headline-6" *ngIf="fetchingResultsStatus === 'error'">
             Unable to Submit
           </h2>
           <ng-container *ngIf="fetchingResultsStatus === 'done'">
-            <h2 *ngIf="!quizJson.isAssessment" class="mat-title" i18n="quiz end message">
+            <h2 *ngIf="!quizJson.isAssessment" class="mat-headline-6" i18n="quiz end message">
               Thank you for your attempt.
             </h2>
             <!-- <h2 *ngIf="quizJson.isAssessment" class="mat-title">
@@ -76,28 +76,28 @@
             </h2> -->
             <div class="flex flex-wrapped flex-center text-center">
               <div class="card-section">
-                <h2 class="mat-title">{{ numCorrectAnswers }}</h2>
-                <h2 class="mat-title" i18n="label number of correct answers">
+                <h2 class="mat-headline-6">{{ numCorrectAnswers }}</h2>
+                <h2 class="mat-headline-6" i18n="label number of correct answers">
                   Correct
                 </h2>
               </div>
               <div class="card-section">
-                <h2 class="mat-title">{{ numIncorrectAnswers }}</h2>
-                <h2 class="mat-title" i18n="label number of incorrect answers">
+                <h2 class="mat-headline-6">{{ numIncorrectAnswers }}</h2>
+                <h2 class="mat-headline-6" i18n="label number of incorrect answers">
                   Incorrect
                 </h2>
               </div>
               <div class="card-section">
-                <h2 class="mat-title">{{ numUnanswered }}</h2>
-                <h2 class="mat-title" i18n="label of unanswered questions">
+                <h2 class="mat-headline-6">{{ numUnanswered }}</h2>
+                <h2 class="mat-headline-6" i18n="label of unanswered questions">
                   Unanswered
                 </h2>
               </div>
               <div class="card-section">
-                <h2 class="mat-title">
+                <h2 class="mat-headline-6">
                   {{ result | number: '1.0-0' }}
                 </h2>
-                <h2 class="mat-title" i18n="label quiz percentage">
+                <h2 class="mat-headline-6" i18n="label quiz percentage">
                   Percentage
                 </h2>
               </div>

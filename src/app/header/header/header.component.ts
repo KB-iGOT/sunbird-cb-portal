@@ -6,9 +6,10 @@ import {
   ValueService,
 } from '@sunbird-cb/utils-v2'
 @Component({
-  selector: 'ws-header',
-  templateUrl: './header.component.html',
-  styleUrls: ['./header.component.scss'],
+    selector: 'ws-header',
+    templateUrl: './header.component.html',
+    styleUrls: ['./header.component.scss'],
+    standalone: false
 })
 export class HeaderComponent implements OnInit {
   isXSmall$ = this.valueSvc.isXSmall$

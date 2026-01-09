@@ -24,13 +24,14 @@ import {
   PLAYLIST_TITLE_MAX_LENGTH,
   PLAYLIST_TITLE_MIN_LENGTH,
 } from '../../constants/playlist.constant'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatDialog } from '@angular/material/dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
 
 @Component({
   selector: 'ws-app-playlist-detail',
   templateUrl: './playlist-detail.component.html',
   styleUrls: ['./playlist-detail.component.scss'],
+  standalone: false
 })
 export class PlaylistDetailComponent implements OnInit, OnDestroy {
   @ViewChild('playlistDeleteFailed', { static: true }) playlistDeleteFailedMessage!: ElementRef<any>
@@ -244,10 +245,10 @@ export class PlaylistDetailComponent implements OnInit, OnDestroy {
             )
 
             /* tslint:disable-next-line */
-            console.log(this.playlistPlayLink,'=====> playlist  firstPlayableContent url link <========')
+            console.log(this.playlistPlayLink, '=====> playlist  firstPlayableContent url link <========')
           }
         })
-      },                                                         _err => {
+      }, _err => {
         this.contentSvc.fetchContent(playlist.contents[0].identifier).subscribe(response => {
           if (response) {
             const firstPlayableContent = this.contentSvc.getFirstChildInHierarchy(response)
@@ -261,7 +262,7 @@ export class PlaylistDetailComponent implements OnInit, OnDestroy {
             )
 
             /* tslint:disable-next-line */
-            console.log(this.playlistPlayLink,'=====> playlist  firstPlayableContent url 252 link <========')
+            console.log(this.playlistPlayLink, '=====> playlist  firstPlayableContent url 252 link <========')
           }
         })
       })

@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
 
 import { BtnPlaylistService, NsPlaylist } from '@sunbird-cb/collection'
 import { TFetchStatus, ConfigurationsService, NsPage } from '@sunbird-cb/utils-v2'
@@ -9,6 +9,7 @@ import { TFetchStatus, ConfigurationsService, NsPage } from '@sunbird-cb/utils-v
   selector: 'ws-app-playlist-notification',
   templateUrl: './playlist-notification.component.html',
   styleUrls: ['./playlist-notification.component.scss'],
+  standalone: false
 })
 export class PlaylistNotificationComponent implements OnInit {
   @ViewChild('errorAccept', { static: true }) errorAcceptMessage!: ElementRef<any>

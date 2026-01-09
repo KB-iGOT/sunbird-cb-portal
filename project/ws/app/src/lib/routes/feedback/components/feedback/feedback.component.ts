@@ -1,6 +1,6 @@
 import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core'
 import { NgForm } from '@angular/forms'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { ActivatedRoute, Router } from '@angular/router'
 import { NsFeedback, BtnContentFeedbackService } from '@sunbird-cb/collection'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
@@ -11,6 +11,7 @@ import { IFeedbackRequest } from '../../models/feedback.model'
   selector: 'ws-app-feedback',
   templateUrl: './feedback.component.html',
   styleUrls: ['./feedback.component.scss'],
+  standalone: false
 })
 export class FeedbackComponent implements OnInit, OnDestroy {
   @Input() widgetType!: string

@@ -8,9 +8,10 @@ import { ViewerDataService } from '@ws/viewer/src/public-api'
 import _ from 'lodash'
 
 @Component({
-  selector: 'ws-app-gyaan-player',
-  templateUrl: './gyaan-player.component.html',
-  styleUrls: ['./gyaan-player.component.scss'],
+    selector: 'ws-app-gyaan-player',
+    templateUrl: './gyaan-player.component.html',
+    styleUrls: ['./gyaan-player.component.scss'],
+    standalone: false
 })
 export class GyaanPlayerComponent implements OnInit {
   resourceData: any

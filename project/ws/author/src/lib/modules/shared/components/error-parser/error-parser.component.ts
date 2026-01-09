@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit } from '@angular/core'
-import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog'
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 import { NSContent } from '@ws/author/src/lib/interface/content'
 
 interface IMessage {
@@ -27,6 +27,7 @@ interface IProcessedMultiError {
   selector: 'ws-auth-error-parser',
   templateUrl: './error-parser.component.html',
   styleUrls: ['./error-parser.component.scss'],
+  standalone: false
 })
 export class ErrorParserComponent implements OnInit {
   processErrorData: IProcessedMultiError[] | null = null
@@ -34,7 +35,7 @@ export class ErrorParserComponent implements OnInit {
   constructor(
     public dialogRef: MatDialogRef<ErrorParserComponent>,
     @Inject(MAT_DIALOG_DATA) public data: IErrorParser,
-  ) {}
+  ) { }
 
   ngOnInit() {
     if (

@@ -1,7 +1,7 @@
 import { Router } from '@angular/router'
 import { DashBoardService } from './dashboard.service'
 import { Component, OnInit } from '@angular/core'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { Observable } from 'rxjs'
 import { UntypedFormControl } from '@angular/forms'
 import { map, startWith } from 'rxjs/operators'
@@ -22,6 +22,7 @@ import { NOTIFICATION_TIME } from '@ws/author/src/lib/constants/constant'
   selector: 'ws-auth-root-dashboard',
   templateUrl: './dashboard.component.html',
   styleUrls: ['./dashboard.component.scss'],
+  standalone: false
 })
 export class DashboardComponent implements OnInit {
   public options = [

@@ -275,7 +275,7 @@
               </div>
             </ng-container>
             <div class="flex flex-1 flex-column mb-2 mt-4">
-              <span class="f-medium mat-title">{{ 'event.eventDescription' | translate }} </span>
+              <span class="f-medium mat-headline-6">{{ 'event.eventDescription' | translate }} </span>
             </div>
             <div class="flex flex-wrap">
               <ng-container>
@@ -285,7 +285,7 @@
               </ng-container>
             </div>
             <div class="flex flex-1 flex-column mb-2" *ngIf="eventData?.creatorDetails">
-              <span class="f-medium mat-title margin-bottom-xs">{{ 'event.eventPresenters' | translate }}</span>
+              <span class="f-medium mat-headline-6 margin-bottom-xs">{{ 'event.eventPresenters' | translate }}</span>
             </div>
             <ng-container *ngIf="eventData?.[compentencyKey.vKey] && skeletonLoader">
               <div class="flex flex-col gap-3">
@@ -342,7 +342,7 @@
               </ng-container>
             </div>
             <div class="flex flex-1 flex-column margin-top-l margin-bottom-s" *ngIf="eventData?.learningObjective">
-              <span class="f-medium mat-title">{{ 'event.eventAgenda' | translate }}</span>
+              <span class="f-medium mat-headline-6">{{ 'event.eventAgenda' | translate }}</span>
             </div>
             <div class="flex flex-wrap margin-bottom-xl" *ngIf="eventData?.learningObjective">
               <ng-container>
@@ -458,7 +458,7 @@
             </ng-container> -->
             <ng-container *ngIf="eventData?.meetingSummary">
               <div class="flex flex-1 flex-column mb-2 mt-4">
-                <span class="f-medium mat-title">{{ 'events.keyTakeaways' | translate }} </span>
+                <span class="f-medium mat-headline-6">{{ 'events.keyTakeaways' | translate }} </span>
               </div>
               <div class="flex flex-wrap">
                 <ng-container>
@@ -502,7 +502,7 @@
 </ng-template>
 
 <ng-template #competencyLabel>
-  <div class="pt-mweb-4 mat-subheading-1 flex items-center gap-2">
+  <div class="pt-mweb-4 mat-subtitle-2 flex items-center gap-2">
     {{ 'apptocsinglepage.competencies' | translate }}
     <mat-icon class="cursor-pointer ws-mat-black60-text info-icon mat-icon notranslate material-icons mat-icon-no-color"
       [matTooltipPosition]="'below'" #tooltip="matTooltip" (click)="tooltip.toggle()"

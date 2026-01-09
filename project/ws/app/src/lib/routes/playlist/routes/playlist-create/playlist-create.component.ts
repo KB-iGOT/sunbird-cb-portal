@@ -1,7 +1,7 @@
 import { Component, ViewChild, ElementRef, OnInit } from '@angular/core'
 import { UntypedFormGroup, UntypedFormBuilder, Validators } from '@angular/forms'
 import { Router } from '@angular/router'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
 
 import { TFetchStatus, NsPage, ConfigurationsService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
 import { NsPlaylist, IPickerContentData, BtnPlaylistService, NsContent, NsAutoComplete } from '@sunbird-cb/collection'
@@ -13,6 +13,7 @@ import {
   selector: 'ws-app-playlist-create',
   templateUrl: './playlist-create.component.html',
   styleUrls: ['./playlist-create.component.scss'],
+  standalone: false
 })
 export class PlaylistCreateComponent implements OnInit {
 

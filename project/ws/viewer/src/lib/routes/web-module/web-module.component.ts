@@ -8,9 +8,10 @@ import { EventService, WsEvents } from '@sunbird-cb/utils-v2'
 import { ViewerUtilService } from '../../viewer-util.service'
 
 @Component({
-  selector: 'viewer-web-module',
-  templateUrl: './web-module.component.html',
-  styleUrls: ['./web-module.component.scss'],
+    selector: 'viewer-web-module',
+    templateUrl: './web-module.component.html',
+    styleUrls: ['./web-module.component.scss'],
+    standalone: false
 })
 export class WebModuleComponent implements OnInit, OnDestroy {
   private dataSubscription: Subscription | null = null

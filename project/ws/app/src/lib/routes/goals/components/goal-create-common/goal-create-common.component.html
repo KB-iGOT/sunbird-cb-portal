@@ -6,7 +6,7 @@
           {{ isExpanded[group?.id] ? 'expand_more' : 'chevron_right' }}
         </mat-icon>
       </button>
-      <h2 class="mat-title margin-remove-bottom">{{ group?.name }}</h2>
+      <h2 class="mat-headline-6 margin-remove-bottom">{{ group?.name }}</h2>
     </section>
     <section class="ml-10 mt-2" *ngIf="isExpanded[group?.id]">
       <ng-container *ngIf="groupFetchStatus[group?.id] !== 'fetching'; else goalGroupLoading"></ng-container>

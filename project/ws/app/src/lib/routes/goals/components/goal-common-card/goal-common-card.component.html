@@ -1,5 +1,5 @@
 <mat-card class="border-radius-0 z-10 cursor-pointer" (click)="isExpanded = !isExpanded">
-  <h3 class="mat-subheading-2 margin-remove-bottom">{{ goal?.name }}</h3>
+  <h3 class="mat-subtitle-1 margin-remove-bottom">{{ goal?.name }}</h3>
   <span class="mat-body flex items-center">
     <div class="flex-1 min-w-0 flex items-center">
       <mat-icon class="mr-2">access_time</mat-icon>
@@ -30,7 +30,7 @@
       <ng-container >day(s)</ng-container>
     </div>
     <ng-container *ngIf="isShareEnabled">
-      <h3 class="mat-subheading-2 margin-bottom-xs" >This Goal is for</h3>
+      <h3 class="mat-subtitle-1 margin-bottom-xs" >This Goal is for</h3>
       <p class="margin-bottom-xl">
         <mat-radio-group aria-label="Select an option" [value]="type" (change)="type = $event.value">
           <mat-radio-button [disabled]="goal?.createdForSelf" [value]="EGoalTypes.USER_COMMON" i18n

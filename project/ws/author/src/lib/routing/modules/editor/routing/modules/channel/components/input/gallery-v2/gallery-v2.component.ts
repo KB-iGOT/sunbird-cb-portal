@@ -1,5 +1,5 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { NsGalleryView } from '@sunbird-cb/collection'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import {
@@ -18,6 +18,7 @@ import { FILE_MAX_SIZE } from './../../../../../../../../../constants/upload'
   selector: 'ws-auth-gallery-v2',
   templateUrl: './gallery-v2.component.html',
   styleUrls: ['./gallery-v2.component.scss'],
+  standalone: false
 })
 export class GalleryV2Component implements OnInit {
   @Output() data = new EventEmitter<{
@@ -38,7 +39,7 @@ export class GalleryV2Component implements OnInit {
     private uploadService: UploadService,
     private loader: LoaderService,
     private snackBar: MatSnackBar,
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.currentStrip = this.content.cardMenu[this.index]

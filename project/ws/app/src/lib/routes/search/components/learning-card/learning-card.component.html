@@ -27,7 +27,7 @@
               check_circle</mat-icon>
             <a (click)="raiseTelemetry()" [routerLink]="(content | pipeContentRoute).url"
               [queryParams]="{primaryCategory: content?.primaryCategory}"
-              class="margin-remove-bottom text-truncate mat-title">{{ content.name }}</a>
+              class="margin-remove-bottom text-truncate mat-headline-6">{{ content.name }}</a>
           </h1>
           <div>
             <ws-widget-display-content-type *ngIf="content?.displayContentType" class="ws-mat-primary-text font-normal"
@@ -49,7 +49,7 @@
             <!-- commented earlier -->
             <!-- <span *ngIf="content.me_totalSessionsCount > 1"> | {{ content.me_totalSessionsCount | countTransform }} views</span> -->
           </div>
-          <div *ngIf="content.trainingLHubCount" class="mat-body-2">
+          <div *ngIf="content.trainingLHubCount" class="mat-subtitle-2">
             <span>{{ content.trainingLHubCount }}</span>
             <span>
               <ng-container *ngIf="content?.trainingLHubCount > 1" >

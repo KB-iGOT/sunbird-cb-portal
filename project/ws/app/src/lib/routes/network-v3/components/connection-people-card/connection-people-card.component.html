@@ -10,13 +10,13 @@
                 <div class="name">
                   <sb-uic-connection-name [hoverUser]="user" [showBadge]="showBadge" [showMentor]="showMentor"></sb-uic-connection-name>
                 </div>
-                <div class="designation ws-mat-black60-text mat-body-2" *ngIf="user?.designation">
+                <div class="designation ws-mat-black60-text mat-subtitle-2" *ngIf="user?.designation">
                     {{user?.designation}}
                 </div>
-                <div class="designation ws-mat-black60-text mat-body-2" *ngIf="user?.employmentDetails">
+                <div class="designation ws-mat-black60-text mat-subtitle-2" *ngIf="user?.employmentDetails">
                     {{user?.employmentDetails?.departmentName}}
                 </div>
-                <div class="designation ws-mat-black60-text mat-body-2">
+                <div class="designation ws-mat-black60-text mat-subtitle-2">
                     {{user?.personalDetails?.batch}}
                 </div>
             </div>

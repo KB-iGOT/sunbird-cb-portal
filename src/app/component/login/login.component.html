@@ -11,7 +11,7 @@
 
   <div class="login-section ws-mat-primary-text text-center">
     <h1 *ngIf="title.length"
-      class="zero-margin-bottom font-bold title-text py-2 ws-mat-primary-text text-center mat-display-1">
+      class="zero-margin-bottom font-bold title-text py-2 ws-mat-primary-text text-center mat-headline-4">
       {{ title }}
     </h1>
 
@@ -24,13 +24,13 @@
         <button name="login_btn_{{ (loginConfig?.loginButtons)[key] }}"
           *ngFor="let key of objectKeys(loginConfig?.loginButtons)" color="primary" mat-raised-button
           (click)="login((loginConfig?.loginButtons)[key])" class="log-btn">
-          <span class="mat-title">{{ key }}</span>
+          <span class="mat-headline-6">{{ key }}</span>
         </button>
       </div>
 
       <button *ngIf="isClientLogin" name="login_client_button" color="primary" mat-raised-button i18n="login: client"
         (click)="login('S')" class="log-btn">
-        <span class="mat-title">Login</span>
+        <span class="mat-headline-6">Login</span>
       </button>
     </div>
     <div class="buttons-public ws-mat-primary-text">

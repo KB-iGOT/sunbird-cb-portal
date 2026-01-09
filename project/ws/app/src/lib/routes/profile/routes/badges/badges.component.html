@@ -29,7 +29,7 @@
             {{ badge.last_received_date | date }}
           </div>
           <h2 class="mat-h2">{{ badge.badge_name }}</h2>
-          <div class="mat-body-1 margin-remove">"{{ badge.message }}"</div>
+          <div class="mat-subtitle-2 margin-remove">"{{ badge.message }}"</div>
         </div>
       </div>
     </ng-container>
@@ -47,7 +47,7 @@
 
 <ng-container *ngIf="status === 'done'">
   <div class="margin-top-l">
-    <span class="headings mat-headline ws-mat-primary-text mb-10 " color="primary" *ngIf="badges?.earned?.length"
+    <span class="headings mat-headline-5 ws-mat-primary-text mb-10 " color="primary" *ngIf="badges?.earned?.length"
      >Your Achievements</span>
     <div *ngIf="badges?.earned?.length" class="card-container margin-top-m">
       <ws-utils-horizontal-scroller>
@@ -63,7 +63,7 @@
 
 <ng-container *ngIf="status === 'done'">
   <div class="margin-top-xl">
-    <span class="headings mat-headline ws-mat-primary-text margin-top-xl" color="primary"
+    <span class="headings mat-headline-5 ws-mat-primary-text margin-top-xl" color="primary"
       *ngIf="badges?.closeToEarning?.length" >Closer to Earn</span>
     <div *ngIf="badges?.closeToEarning?.length" class="card-container-not-earned op-80">
       <div *ngIf="badges?.closeToEarning?.length" class="card-holder-not-earned" #cardContents>
@@ -77,7 +77,7 @@
 
 <ng-container *ngIf="status === 'done'">
   <div class="margin-top-xl">
-    <span class="headings mat-headline ws-mat-primary-text margin-top-xl" color="primary"
+    <span class="headings mat-headline-5 ws-mat-primary-text margin-top-xl" color="primary"
       *ngIf="badges?.canEarn?.length" >Your next target</span>
     <div *ngIf="badges?.canEarn?.length" class="card-container-not-earned op-80 margin-top-l">
       <div *ngIf="badges?.canEarn?.length" class="card-holder-not-earned" #cardContents>

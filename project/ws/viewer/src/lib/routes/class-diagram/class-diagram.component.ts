@@ -7,9 +7,10 @@ import { ActivatedRoute } from '@angular/router'
 import { ViewerUtilService } from '../../viewer-util.service'
 
 @Component({
-  selector: 'viewer-class-diagram',
-  templateUrl: './class-diagram.component.html',
-  styleUrls: ['./class-diagram.component.scss'],
+    selector: 'viewer-class-diagram',
+    templateUrl: './class-diagram.component.html',
+    styleUrls: ['./class-diagram.component.scss'],
+    standalone: false
 })
 export class ClassDiagramComponent implements OnInit, OnDestroy {
   private routeDataSubscription: Subscription | null = null

@@ -40,9 +40,10 @@ interface IStripUnitContentData {
   stripLogo: any
 }
 @Component({
-  selector: 'ws-widget-discuss-strip-multiple',
-  templateUrl: './discuss-strip-multiple.component.html',
-  styleUrls: ['./discuss-strip-multiple.component.scss'],
+    selector: 'ws-widget-discuss-strip-multiple',
+    templateUrl: './discuss-strip-multiple.component.html',
+    styleUrls: ['./discuss-strip-multiple.component.scss'],
+    standalone: false
 })
 export class DiscussStripMultipleComponent extends WidgetBaseComponent
   implements

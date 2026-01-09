@@ -22,7 +22,7 @@
 <section class="mx-auto mt-4 my-1 px-4 width-9-10">
 
   <div *ngIf="fetchDetailStatus === 'done'">
-    <h2 class="mat-subheading-2">
+    <h2 class="mat-subtitle-1">
       View recent 10 assignments:
     </h2>
     <mat-table [dataSource]=" dataSource" multiTemplateDataRows class="mat-elevation-z8 margin-bottom-l">
@@ -67,7 +67,7 @@
   <div *ngIf="fetchDetailStatus==='none'">
     <div class="create-goal-fab width-expand text-center width-1-1">
       <div class="page-container mx-2 md:mx-4">
-        <h2 class="mat-subheading-2 mx-2 md:mx-4">You have created no assignments yet!</h2>
+        <h2 class="mat-subtitle-1 mx-2 md:mx-4">You have created no assignments yet!</h2>
       </div>
     </div>
   </div>

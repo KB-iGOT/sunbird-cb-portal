@@ -3,9 +3,10 @@ import { WidgetContentService, NsContent } from '@sunbird-cb/collection'
 import { IFilterUnitContent } from '../../../search/models/search.model'
 
 @Component({
-  selector: 'ws-app-channels-home',
-  templateUrl: './channels-home.component.html',
-  styleUrls: ['./channels-home.component.scss'],
+    selector: 'ws-app-channels-home',
+    templateUrl: './channels-home.component.html',
+    styleUrls: ['./channels-home.component.scss'],
+    standalone: false
 })
 export class ChannelsHomeComponent implements OnInit {
   labelFilters: IFilterUnitContent[] = []

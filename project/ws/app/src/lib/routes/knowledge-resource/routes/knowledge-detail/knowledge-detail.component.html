@@ -14,7 +14,7 @@
             <mat-card  class="padding-m mat-card  margin-bottom-s w-full" role="contentinfo" tabindex="0">
                 <div class="flex flex-row">
                     <div class="flex flex-1">
-                        <p class="mat-body-2 ws-mat-black60-text">
+                        <p class="mat-subtitle-2 ws-mat-black60-text">
                             <span class="mdo_name margin-right-s" >{{ resource?.source}}</span>
                             <!-- <span class="post_timing" *ngIf="resource.createdDate">{{ getFormathours(resource.createdDate) }}</span> -->
                         </p>
@@ -37,10 +37,10 @@
                 </mat-card-title>
 
                 <mat-card-subtitle>
-                    <p class="mat-body-2 ws-mat-black60-text margin-bottom-s" >{{ resource?.id }}</p>
+                    <p class="mat-subtitle-2 ws-mat-black60-text margin-bottom-s" >{{ resource?.id }}</p>
                 </mat-card-subtitle>
 
-                <p class="mat-body-2 ws-mat-black60-text margin-bottom-s whitespace-pre-line" >
+                <p class="mat-subtitle-2 ws-mat-black60-text margin-bottom-s whitespace-pre-line" >
                     {{ resource?.description }}
                 </p>
                 <!-- <span class="attach_links margin-right-s" *ngIf="resource?.additionalProperties?.krFiles?.length > 0">
@@ -52,14 +52,14 @@
                 {{ resource.additionalProperties.totalFiles.images }} //
                 {{ resource.additionalProperties.totalFiles.pdf }} // -->
                 <span class="attach_links margin-right-m" *ngIf="resource.additionalProperties.totalFiles.pdf || resource.additionalProperties.totalFiles.pdf > 0">
-                    <p class="mat-body-2" >
+                    <p class="mat-subtitle-2" >
                         <img src="assets/icons/pdf.svg" class="pdfIcon margin-right-xs">
                         {{ resource?.additionalProperties?.totalFiles?.pdf }}
                     </p>
                 </span>
 
                 <span class="attach_links margin-right-s" *ngIf="resource.additionalProperties.krFiles && resource.additionalProperties.krFiles.length > 0">
-                    <p class="mat-body-2">
+                    <p class="mat-subtitle-2">
                         <span *ngFor="let item of resource.additionalProperties.krFiles; index as i">
                             <div class="flex justify-start">
                                 <mat-icon class="material-icons-outlined align-bottom ws-mat-default-text margin-right-xs">link</mat-icon>
@@ -70,14 +70,14 @@
                 </span>
 
                 <span class="attach_links margin-right-m" *ngIf="resource.additionalProperties.totalFiles.images || resource.additionalProperties.totalFiles.images>0" >
-                    <p class="mat-body-2" >
+                    <p class="mat-subtitle-2" >
                         <mat-icon class="material-icons-outlined align-bottom ws-mat-default-text margin-right-xs">image</mat-icon>
                         {{ resource?.additionalProperties?.totalFiles?.images }}
                     </p>
                 </span>
 
                 <span class="attach_links margin-right-m" *ngIf="resource.additionalProperties.totalFiles.doc || resource.additionalProperties.totalFiles.doc>0">
-                    <p class="mat-body-2" >
+                    <p class="mat-subtitle-2" >
                         <mat-icon class="material-icons-outlined align-bottom ws-mat-default-text margin-right-xs">description</mat-icon>
                         {{ resource?.additionalProperties?.totalFiles?.doc }}
                     </p>

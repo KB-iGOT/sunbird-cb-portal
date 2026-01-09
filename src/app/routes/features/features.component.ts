@@ -8,7 +8,7 @@ import {
   LogoutComponent, SubapplicationRespondService, ValueService,
 } from '@sunbird-cb/utils-v2'
 
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 import { AccessControlService } from '../../../../project/ws/author/src/public-api'
 import { CustomTourService, ROOT_WIDGET_CONFIG } from '@sunbird-cb/collection/src/public-api'
 /* tslint:disable*/
@@ -21,6 +21,7 @@ interface IGroupWithFeatureWidgets extends NsAppsConfig.IGroup {
   selector: 'ws-app-root-features',
   templateUrl: './features.component.html',
   styleUrls: ['./features.component.scss'],
+  standalone: false
 })
 export class FeaturesComponent implements OnInit, OnDestroy {
   queryControl = new UntypedFormControl(this.activateRoute.snapshot.queryParamMap.get('q'))

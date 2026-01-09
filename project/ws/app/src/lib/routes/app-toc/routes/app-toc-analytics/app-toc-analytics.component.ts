@@ -8,9 +8,10 @@ import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { NsAnalytics, NsCourseAnalytics } from '../../models/app-toc-analytics.model'
 
 @Component({
-  selector: 'ws-app-app-toc-analytics',
-  templateUrl: './app-toc-analytics.component.html',
-  styleUrls: ['./app-toc-analytics.component.scss'],
+    selector: 'ws-app-app-toc-analytics',
+    templateUrl: './app-toc-analytics.component.html',
+    styleUrls: ['./app-toc-analytics.component.scss'],
+    standalone: false
 })
 export class AppTocAnalyticsComponent implements OnInit, OnDestroy {
   content: NsContent.IContent | null = null

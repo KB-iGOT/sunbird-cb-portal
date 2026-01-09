@@ -14,7 +14,7 @@
               <span *ngIf="title.title && title.url && title.url === 'none'" i18n-aria-label i18n-aria-title
                 i18n="page title: {{title.title}}" class="flex m-auto">
                 <mat-icon class="icon-margin m-t-b ws-mat-black60-text" *ngIf="title.icon">{{ title.icon }}</mat-icon>
-                <span class="m-t-b mat-body-2 font-bold-imp ws-mat-black60-text">{{ title.title }}</span>
+                <span class="m-t-b mat-subtitle-2 font-bold-imp ws-mat-black60-text">{{ title.title }}</span>
               </span>
 
               <a class="flex m-auto ws-mat-default-text" i18n-aria-label *ngIf="title.url && title.url !== 'none'"
@@ -52,7 +52,7 @@
                   <mat-icon class=" m-auto mat-icon notranslate material-icons mat-icon-no-color" role="img" aria-hidden="true">menu_book</mat-icon>
                 </div>
                 <div class="width-expand padding-left-xs cursor-pointer">
-                  <div class="margin-0 mat-subheading-2">{{ 'btnpageback.knowledgeResources' | translate }}</div>
+                  <div class="margin-0 mat-subtitle-1">{{ 'btnpageback.knowledgeResources' | translate }}</div>
                   <div class="mat-caption cohorts-desc ws-mat-black60-text">{{ 'btnpageback.knowledgeResourcesSubtitle' | translate }}</div>
                 </div>
               </a>
@@ -62,7 +62,7 @@
                   <mat-icon aria-hidden="false" class="mat-icon notranslate material-icons mat-icon-no-color" role="img" aria-label="bar_chart" aria-labelledby="bar_chart"> bar_chart </mat-icon>
                 </div>
                 <div class="width-expand padding-left-xs cursor-pointer">
-                  <div class="margin-0 mat-subheading-2"> {{ 'btnpageback.dashboard' | translate }} </div>
+                  <div class="margin-0 mat-subtitle-1"> {{ 'btnpageback.dashboard' | translate }} </div>
                   <div class="mat-caption cohorts-desc ws-mat-black60-text">{{ 'btnpageback.dashboardSubtitle' | translate }}</div>
                 </div>
               </a>
@@ -72,7 +72,7 @@
                   <mat-icon class=" m-auto mat-icon notranslate material-icons mat-icon-no-color" role="img" aria-hidden="true">settings</mat-icon>
                 </div>
                 <div class="width-expand padding-left-xs cursor-pointer">
-                  <div class="margin-0 mat-subheading-2"> {{ 'btnpageback.settings' | translate }} </div>
+                  <div class="margin-0 mat-subtitle-1"> {{ 'btnpageback.settings' | translate }} </div>
                   <div class="mat-caption cohorts-desc ws-mat-black60-text">{{ 'btnpageback.settingSubtitle' | translate }}</div>
                 </div>
               </a>
@@ -82,7 +82,7 @@
                     aria-hidden="true">thumb_up</mat-icon>
                 </div>
                 <div class="width-expand padding-left-xs cursor-pointer">
-                  <div class="margin-0 mat-subheading-2"> {{ 'btnpageback.interests' | translate }} </div>
+                  <div class="margin-0 mat-subtitle-1"> {{ 'btnpageback.interests' | translate }} </div>
                   <div class="mat-caption cohorts-desc ws-mat-black60-text">{{ 'btnpageback.interestsSubtitle' | translate }}</div>
                 </div>
               </a>
@@ -101,7 +101,7 @@
                       <mat-icon class="m-auto mat-icon notranslate material-icons mat-icon-no-color" role="img" aria-hidden="true">{{ portal.icon || 'info' }}</mat-icon>
                     </div>
                     <div class="width-expand padding-left-xs cursor-pointer">
-                      <div class="margin-0 mat-subheading-2"> {{portal.name}} </div>
+                      <div class="margin-0 mat-subtitle-1"> {{portal.name}} </div>
                       <div class="mat-caption cohorts-desc ws-mat-black60-text">{{portal.desc}}</div>
                     </div>
                   </a>
@@ -123,7 +123,7 @@
         <mat-icon class="mat-icon1">{{hubs.icon}}</mat-icon>
       </div>
       <div [ngClass]="{'cursor-pointer': enablePeopleSearch}" class="width-expand padding-left-xs">
-        <div class="margin-0 mat-subheading-2">
+        <div class="margin-0 mat-subtitle-1">
           {{ translateLabels(hubs.hubname, 'common') }}
         </div>
         <div class="mat-caption cohorts-desc ws-mat-black60-text">{{hubs.desc}}</div>
@@ -137,7 +137,7 @@
         <mat-icon class="mat-icon1">{{hubs.icon}}</mat-icon>
       </div>
       <div [ngClass]="{'cursor-pointer': enablePeopleSearch}" class="width-expand padding-left-xs">
-        <div class="margin-0 mat-subheading-2">
+        <div class="margin-0 mat-subtitle-1">
           {{ translateLabels(hubs.hubname, 'common') }}
         </div>
         <div class="mat-caption cohorts-desc ws-mat-black60-text">{{hubs.desc}}</div>

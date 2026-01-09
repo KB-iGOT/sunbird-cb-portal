@@ -1,8 +1,8 @@
 <ng-container *ngIf="shareGoalStatus !== 'fetching'; else fetchingSection">
-  <h2 class="mat-title margin-bottom-xs" *ngIf="goal?.goalFor === 'others'">Share this goal with</h2>
+  <h2 class="mat-headline-6 margin-bottom-xs" *ngIf="goal?.goalFor === 'others'">Share this goal with</h2>
   <div mat-dialog-content *ngIf="goal?.goalFor === 'others'">
     <ws-widget-user-autocomplete (usersList)="updateUsers($event)"></ws-widget-user-autocomplete>
-    <h2 class="mat-title margin-bottom-xs" >Give them a message</h2>
+    <h2 class="mat-headline-6 margin-bottom-xs" >Give them a message</h2>
     <p>
       <mat-form-field appearance="fill" class="w-full" floatLabel="never">
         <textarea name="share-message-input-goal-share-dialog" rows="3" matInput [(ngModel)]="message"
@@ -52,7 +52,7 @@
 <ng-template #fetchingSection>
   <div class="flex items-center">
     <mat-spinner [diameter]="30"></mat-spinner>
-    <h3 class="mat-subheading-2 margin-left-m margin-remove-bottom" >Sharing</h3>
+    <h3 class="mat-subtitle-1 margin-left-m margin-remove-bottom" >Sharing</h3>
   </div>
 </ng-template>
 

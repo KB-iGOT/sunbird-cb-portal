@@ -5,9 +5,10 @@ import { AccessControlService } from '@ws/author/src/lib/modules/shared/services
 // import { REVIEW_ROLE, PUBLISH_ROLE, CREATE_ROLE } from '@ws/author/src/lib/constants/content-role'
 
 @Component({
-  selector: 'ws-auth-root-home',
-  templateUrl: './home.component.html',
-  styleUrls: ['./home.component.scss'],
+    selector: 'ws-auth-root-home',
+    templateUrl: './home.component.html',
+    styleUrls: ['./home.component.scss'],
+    standalone: false
 })
 export class AuthHomeComponent implements OnInit, OnDestroy {
   sideNavBarOpened = true

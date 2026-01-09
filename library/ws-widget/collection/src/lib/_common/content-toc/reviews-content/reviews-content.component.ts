@@ -1,7 +1,7 @@
 import { Component, OnInit, AfterViewInit, ViewChild, Inject, ElementRef, Output, EventEmitter } from '@angular/core'
 import { fromEvent } from 'rxjs'
 import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators'
-import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog'
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 // tslint:disable-next-line
 import _ from 'lodash'
 
@@ -11,6 +11,7 @@ import { ReviewComponentDataService } from '../content-services/review-component
   selector: 'ws-widget-reviews-content',
   templateUrl: './reviews-content.component.html',
   styleUrls: ['./reviews-content.component.scss'],
+  standalone: false
 })
 
 export class ReviewsContentComponent implements OnInit, AfterViewInit {
@@ -43,7 +44,7 @@ export class ReviewsContentComponent implements OnInit, AfterViewInit {
 
   ngAfterViewInit(): void {
     fromEvent(this.searchInput.nativeElement, 'keyup')
-    .pipe(
+      .pipe(
         // get value
         map((event: any) => {
           return event.target.value.trim()
@@ -60,7 +61,7 @@ export class ReviewsContentComponent implements OnInit, AfterViewInit {
         if (text) {
           this.reviews = Object.values(this.reviews).filter((_obj: any) => {
             return _obj.review && _obj.review.toLowerCase().includes(text.toLowerCase())
-            || _obj.firstName && _obj.firstName.toLowerCase().includes(text.toLowerCase())
+              || _obj.firstName && _obj.firstName.toLowerCase().includes(text.toLowerCase())
           })
         } else {
           this.reviews = Object.values(this.data.reviews)

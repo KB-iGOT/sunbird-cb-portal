@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core'
 import { UntypedFormGroup, UntypedFormControl } from '@angular/forms'
 import { ActivatedRoute, Router } from '@angular/router'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 import { noop, Subscription } from 'rxjs'
 
 import {
@@ -21,6 +21,7 @@ import { FeedbackFilterDialogComponent } from '../feedback-filter-dialog/feedbac
   selector: 'ws-app-feedback-list',
   templateUrl: './feedback-list.component.html',
   styleUrls: ['./feedback-list.component.scss'],
+  standalone: false
 })
 export class FeedbackListComponent implements OnInit, OnDestroy {
   feedbackData!: IFeedbackSearchResult
@@ -135,6 +136,6 @@ export class FeedbackListComponent implements OnInit, OnDestroy {
           this.filterObj = filterObj
           this.fetchFeedbacks()
         }
-      },         noop)
+      }, noop)
   }
 }

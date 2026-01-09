@@ -8,10 +8,11 @@ import moment from 'moment'
 import { UserProfileService } from '@ws/app/src/lib/routes/user-profile/services/user-profile.service'
 
 @Component({
-  selector: 'ws-widget-user-leaderboard',
-  templateUrl: './user-leaderboard.component.html',
-  styleUrls: ['./user-leaderboard.component.scss'],
-  providers: [PipeDurationTransformPipe, PipeOrdinalPipe],
+    selector: 'ws-widget-user-leaderboard',
+    templateUrl: './user-leaderboard.component.html',
+    styleUrls: ['./user-leaderboard.component.scss'],
+    providers: [PipeDurationTransformPipe, PipeOrdinalPipe],
+    standalone: false
 })
 export class UserLeaderboardComponent implements OnInit {
 

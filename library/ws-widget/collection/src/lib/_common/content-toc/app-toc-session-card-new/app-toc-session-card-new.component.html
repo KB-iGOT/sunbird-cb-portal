@@ -16,7 +16,7 @@
             <div class="text-truncate1 " [ngClass]="{'cursor-pointer': !isEnabled}"
                (click)="viewChildren = !viewChildren; raiseTelemetry();">
                <div class="flex flex-col sm:flex-row flex-wrap">
-                  <p class="margin-remove text-truncate1 mat-body-2 flex-auto font-bold"
+                  <p class="margin-remove text-truncate1 mat-subtitle-2 flex-auto font-bold"
                      [ngClass]="{'text-active': pathSet?.has(content?.identifier)}">
                      {{ content?.name }} <span class="margin-left-s"
                         [ngClass]="{'offline': session[content?.identifier]?.sessionType.toLowerCase() === 'offline','online':session[content?.identifier]?.sessionType.toLowerCase() !== 'offline'}">
@@ -25,7 +25,7 @@
                   <span class="content-type optional-span" *ngIf="content?.optionalReading">optional </span>
 
                </div>
-               <div class="mat-body-2 ws-mat-black60-text mt-2">
+               <div class="mat-subtitle-2 ws-mat-black60-text mt-2">
                   <div class="flex flex-1 flex-row">
                      <!-- <div class="flex margin-right-s capitalize">{{session[content?.identifier]?.sessionType || ''}}</div> -->
                      <div class="flex margin-right-s">{{session[content?.identifier]?.startDate | date: 'MMM d, y' }}
@@ -98,7 +98,7 @@
 
                      </div>
                      <div class="flex flex-col sm:flex-row flex-wrap mt-2">
-                        <p class="margin-remove text-truncate1 mat-body-1 flex-auto font-bold">
+                        <p class="margin-remove text-truncate1 mat-subtitle-2 flex-auto font-bold">
                            {{ content?.name }}
                         </p>
                      </div>
@@ -118,7 +118,7 @@
       </ng-container>
       <ng-container *ngIf="batchData?.enrolled">
          <div *ngIf="content?.sessionHandouts?.length > 0">
-            <p class=" font-bold mat-body-1 margin-bottom-xs  ws-mat-black60-text">
+            <p class=" font-bold mat-subtitle-2 margin-bottom-xs  ws-mat-black60-text">
                {{'apptocsessionscards.sessionHandouts' | translate }}</p>
             <div class="flex flex-col flex-wrapped margin-bottom-s width-expand pr-0 w-100 sm:pr-4 sm:w-auto mb-4">
                <ng-container *ngFor="let handout of content?.sessionHandouts">

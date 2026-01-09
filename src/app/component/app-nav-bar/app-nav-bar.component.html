@@ -12,7 +12,7 @@
           <ng-container *ngIf="jan26Data && jan26Data.isEnabled; else normalLogo">
             <div *ngIf="janDataEnable; else janDataDisabled" class="logo-box flex items-center">
               <img [src]="jan26Data.desktop.logoUrl" alt="Application Logo" class="app-logo-new" />
-              <span class="mat-subheading-2 ws-mat-default-text logo-text margin-left-xs" [innerHTML]="jan26Data?.desktop?.logoText">
+              <span class="mat-subtitle-1 ws-mat-default-text logo-text margin-left-xs" [innerHTML]="jan26Data?.desktop?.logoText">
               </span>
             </div>
             <ng-template #janDataDisabled>

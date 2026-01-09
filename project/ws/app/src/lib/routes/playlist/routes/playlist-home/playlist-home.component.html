@@ -8,7 +8,7 @@
   <div class="banner-container">
     <div class="banner-overlay ws-primary-tinted-50">
       <div class="page-container mt-8">
-        <h1 *ngIf="userName" class="mat-display-1 margin-bottom-l">Hey {{ userName }}!</h1>
+        <h1 *ngIf="userName" class="mat-headline-4 margin-bottom-l">Hey {{ userName }}!</h1>
         <mat-button-toggle-group class="no-border" value="me" (change)="goalPlayList($event?.value)"
           [value]="playListFor">
           <mat-button-toggle value="me" >My Playlist</mat-button-toggle>
@@ -92,7 +92,7 @@
             <span class="create-icon-text">+</span>
           </div>
         </div>
-        <h3 class="mat-subheading-2 font-weight-500 margin-top-xxs margin-bottom-m" >
+        <h3 class="mat-subtitle-1 font-weight-500 margin-top-xxs margin-bottom-m" >
           Create New
         </h3>
       </a>

@@ -18,7 +18,7 @@
             !isContentUnlocked">
                 <div class="content-locking flex w-full flex-middle mb-2 gap-3">
                     <mat-icon class="lock-icon">lock</mat-icon>
-                    <span class="lock-message mat-body-2">
+                    <span class="lock-message mat-subtitle-2">
                         The content is locked. Complete program or all courses to view this module
                     </span>
                 </div>
@@ -27,7 +27,7 @@
             isContentUnlocked">
                 <div class="content-locking flex w-full flex-middle mb-2 gap-3">
                     <mat-icon class="unlock-icon">lock_open_right</mat-icon>
-                    <span class="unlock-message mat-body-2">
+                    <span class="unlock-message mat-subtitle-2">
                         This content is unlocked.
                     </span>
                 </div>
@@ -88,7 +88,7 @@
                 <div class="text-truncate " [ngClass]="{'cursor-pointer': !isEnabled && isEnrolled}"
                     (click)="content.viewChildren = !content.viewChildren; raiseTelemetry(); changeResource()">
                     <div class="flex flex-col sm:flex-row flex-wrap">
-                        <p class="margin-remove text-truncate mat-body-2 flex-auto font-bold nodtranslate"
+                        <p class="margin-remove text-truncate mat-subtitle-2 flex-auto font-bold nodtranslate"
                             [ngClass]="{'text-active': pathSet?.has(content?.identifier) && isEnrolled}">
                             <!-- <mat-icon class="margin-right-xs radiobtn time-icon">radio_button_unchecked </mat-icon> -->
                             {{ content?.name | truncate:50 }}
@@ -191,7 +191,7 @@
 
                     <!-- Download button for pdf resources -->
                     <ng-container *ngIf="shouldShowDownloadButton(content)">
-                        <div class="download-btn mat-body-2 mt-2 sm:mt-1" (click)="downloadContent(content, $event)"
+                        <div class="download-btn mat-subtitle-2 mt-2 sm:mt-1" (click)="downloadContent(content, $event)"
                             [ngClass]="{'active': pathSet?.has(content?.identifier)}">
                             <a class="download-link flex items-center">
                                 <span class="">Download</span>
@@ -268,7 +268,7 @@
                             <div
                                 [ngClass]="{'collection-active-class': pathSet?.has(content?.identifier) && isEnrolled}">
                             </div>
-                            <p class="margin-remove text-truncate mat-subheading-1 flex-auto font-bold nodtranslate"
+                            <p class="margin-remove text-truncate mat-subtitle-2 flex-auto font-bold nodtranslate"
                                 [ngClass]="{'text-active': pathSet?.has(content.identifier) && isEnrolled}">
                                 {{index}}. {{ content?.name | truncate:50 }}
                             </p>
@@ -320,7 +320,7 @@
                                 <div class="flex flex-1">
                                     <div class="mt-2 mr-4  flex flex-1 flex-col  progress-container">
                                         <div class="flex flex-row justify-end w-full ">
-                                            <span class="mat-body-2 nodtranslate ">
+                                            <span class="mat-subtitle-2 nodtranslate ">
                                                 {{getCompletionPercentage(content?.identifier)}}%</span>
                                         </div>
 
@@ -360,7 +360,7 @@
                                 <div class="flex flex-1">
                                     <div class="mt-2 mr-4  flex flex-1 flex-col  progress-container">
                                         <div class="flex flex-row justify-end w-full ws-mat-black-text">
-                                            <span class="mat-body-2  ws-mat-black-text nodtranslate">
+                                            <span class="mat-subtitle-2  ws-mat-black-text nodtranslate">
                                                 {{getCompletionPercentage(content?.identifier)}}%</span>
                                         </div>
 
@@ -475,7 +475,7 @@
                             [ngClass]="{'text-active': pathSet?.has(content.identifier)}">
                             {{index}}. {{ content?.name | truncate:50 }}
                         </p> -->
-                        <a class="margin-remove text-truncate mat-subheading-1 flex-auto font-bold nodtranslate"
+                        <a class="margin-remove text-truncate mat-subtitle-2 flex-auto font-bold nodtranslate"
                             [class.disabled]="null" [ngClass]="{'ml-3': isEnrolled}"
                             [routerLink]="(isAllowed && !forPreview && isEnabled) ? resourceLink.url : null"
                             [queryParams]="computedQueryParams">
@@ -484,7 +484,7 @@
                             <div class="text-truncate " [ngClass]="{'cursor-pointer': !isEnabled}"
                                 (click)="raiseTelemetry(); changeResource()">
                                 <div class="flex flex-col sm:flex-row flex-wrap">
-                                    <p class="margin-remove text-truncate mat-body-2 flex-auto font-bold nodtranslate"
+                                    <p class="margin-remove text-truncate mat-subtitle-2 flex-auto font-bold nodtranslate"
                                         [ngClass]="{'text-active': pathSet?.has(content?.identifier)}">
                                         <!-- <mat-icon class="margin-right-xs radiobtn time-icon">radio_button_unchecked </mat-icon> -->
                                         {{index}}. {{ content?.name | truncate:50 }}
@@ -622,7 +622,7 @@
                             <div class="flex flex-1">
                                 <div class="mt-2 mr-4  flex flex-1 flex-col  progress-container">
                                     <div class="flex flex-row justify-end w-full ">
-                                        <span class="mat-body-2 nodtranslate ">
+                                        <span class="mat-subtitle-2 nodtranslate ">
                                             {{getCompletionPercentage(content?.identifier)}}%</span>
                                     </div>
 
@@ -662,7 +662,7 @@
                             <div class="flex flex-1">
                                 <div class="mt-2 mr-4  flex flex-1 flex-col  progress-container">
                                     <div class="flex flex-row justify-end w-full ws-mat-black-text">
-                                        <span class="mat-body-2  ws-mat-black-text nodtranslate">
+                                        <span class="mat-subtitle-2  ws-mat-black-text nodtranslate">
                                             {{getCompletionPercentage(content?.identifier)}}%</span>
                                     </div>
 

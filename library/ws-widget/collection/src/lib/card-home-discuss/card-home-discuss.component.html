@@ -8,12 +8,12 @@
 		
 		<mat-card-title class="mat-card-header-margin mat-card-title-height">
 				<a href="javascript:void(0)" role="link" i18n-aria-label>
-				<span class="ws-mat-black60-text mat-body-2"> Asked by
+				<span class="ws-mat-black60-text mat-subtitle-2"> Asked by
 					{{discuss?.user?.displayname != null ? discuss?.user?.displayname : discuss?.user?.username }}
 					
 				</span></a>
-				<span class="dot mat-body-2" *ngIf="!(discuss?.user?.username)">{{'Asked by Anonymous'}}</span>
-				<span class="dot ws-mat-black60-text mat-body-2 ng-star-inserted  mar-16" >{{discuss?.timeinfo | pipeRelativeTime}}</span>
+				<span class="dot mat-subtitle-2" *ngIf="!(discuss?.user?.username)">{{'Asked by Anonymous'}}</span>
+				<span class="dot ws-mat-black60-text mat-subtitle-2 ng-star-inserted  mar-16" >{{discuss?.timeinfo | pipeRelativeTime}}</span>
 			</mat-card-title>
 		</mat-card-header>	
 
@@ -48,7 +48,7 @@
 
 			<p class="responsive card-main-text">
 				<a href="javascript:void(0)">
-					<span class="cursor-pointer mat-subheading-1" [innerHTML]="discuss?.title"></span>
+					<span class="cursor-pointer mat-subtitle-2" [innerHTML]="discuss?.title"></span>
 				</a>
 			</p>
 		<!-- <mat-card-title class="responsive title-margin">
@@ -62,7 +62,7 @@
 		<!-- <mat-card-subtitle class="responsive mat-card-sub-title-marign"> -->
 		
 		<!----<span class="flex ws-mat-default-text mat-body-2">  -->
-			<span class="flex ws-mat-default-text mat-body-2 category-text">
+			<span class="flex ws-mat-default-text mat-subtitle-2 category-text">
 				<mat-icon svgIcon="category_xs"></mat-icon>&nbsp;{{discuss.category.name}}
 			</span>
 
@@ -91,15 +91,15 @@
 		<div class="flex flex-1 flex-row margin-left-l ws-mat-black60-text">
 			<span class="flex margin-right-l mobile">
 				<mat-icon class="cursor-pointer">import_export</mat-icon>
-				<span class="pad-4 mat-subheading-2">{{(discuss.upvotes + discuss.downvotes) || 0 }}&nbsp;votes</span>
+				<span class="pad-4 mat-subtitle-1">{{(discuss.upvotes + discuss.downvotes) || 0 }}&nbsp;votes</span>
 			</span>
 			<span class="flex mobile">
 				<mat-icon>trending_up</mat-icon>
-				<span class="pad-4 mat-subheading-2">{{discuss.count || 0}}&nbsp;views</span>
+				<span class="pad-4 mat-subtitle-1">{{discuss.count || 0}}&nbsp;views</span>
 			</span>
 		</div>
 		<div class="flex flex-1" class="cursor-pointer text-right mobile2 margin-right-s ws-mat-black60-text">
-			<span class="mat-subheading-2">{{((discuss.postcount || 1) -1) }}
+			<span class="mat-subtitle-1">{{((discuss.postcount || 1) -1) }}
 				comments</span>
 		</div>
 	</mat-card-footer>

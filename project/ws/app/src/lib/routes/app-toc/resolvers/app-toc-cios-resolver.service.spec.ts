@@ -6,7 +6,7 @@ describe('AppTocCiosResolverService', () => {
   beforeEach(() => TestBed.configureTestingModule({}))
 
   it('should be created', () => {
-    const service: AppTocCiosResolverService = TestBed.get(AppTocCiosResolverService)
+    const service: AppTocCiosResolverService = TestBed.inject(AppTocCiosResolverService)
     expect(service).toBeTruthy()
   })
 })

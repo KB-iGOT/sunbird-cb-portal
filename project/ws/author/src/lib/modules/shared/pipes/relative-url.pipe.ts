@@ -2,7 +2,8 @@ import { AUTHORING_CONTENT_BASE } from '@ws/author/src/lib/constants/apiEndpoint
 import { Pipe, PipeTransform } from '@angular/core'
 
 @Pipe({
-  name: 'relativeUrl',
+    name: 'relativeUrl',
+    standalone: false
 })
 export class RelativeUrlPipe implements PipeTransform {
 

@@ -9,7 +9,7 @@
       </div>
 
       <div class="text-hover">
-        <span class="mat-title" >for recently earning</span>
+        <span class="mat-headline-6" >for recently earning</span>
       </div>
     </div>
     <ng-container>
@@ -23,7 +23,7 @@
             {{ badgesWon[0].DateOfwinning | date }}
           </div>
           <h2 class="mat-h2">{{ badgesWon[0].BadgeName }}</h2>
-          <div class="mat-body-1 margin-remove">"{{ badgesWon[0].AfterCompletionCriteria }}"</div>
+          <div class="mat-subtitle-2 margin-remove">"{{ badgesWon[0].AfterCompletionCriteria }}"</div>
         </div>
       </div>
     </ng-container>
@@ -31,7 +31,7 @@
 </mat-card>
 <ng-container *ngIf="badgesWon && badgesWon.length >0">
   <div class="margin-top-l">
-    <span class="headings mat-headline ws-mat-primary-text mb-10 " color="primary"
+    <span class="headings mat-headline-5 ws-mat-primary-text mb-10 " color="primary"
       *ngIf="badgesWon && badgesWon.length >0" >Your
       Achievements</span>
     <div *ngIf="badgesWon && badgesWon.length >0" class="card-container margin-top-m">
@@ -49,10 +49,10 @@
 
 <ng-container *ngIf="badgesYetToWin!=undefined">
   <div class="margin-top-xl">
-    <span class="headings mat-headline ws-mat-primary-text margin-top-xl" color="primary" >Your Next Target</span>
+    <span class="headings mat-headline-5 ws-mat-primary-text margin-top-xl" color="primary" >Your Next Target</span>
     <div class="card-container-not-earned op-80 margin-top-l" *ngFor="let key of objectKeys(badgesYetToWin)">
       <div class="text-hover">
-        <span class="mat-title" color="primary">
+        <span class="mat-headline-6" color="primary">
           {{key}}
         </span>
       </div>

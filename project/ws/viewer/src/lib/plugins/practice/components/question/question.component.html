@@ -164,10 +164,10 @@
             <ng-container *ngIf="question.questionType !== 'ftb'">
               <h2 [innerHTML]="question?.question | nbpsPipe | QuestionSafeUrl " class="m-auto quiz-question mat-h2 ques-padding-top">
               </h2>
-              <span *ngIf="question?.instructions" class="mat-subheading-2" >
+              <span *ngIf="question?.instructions" class="mat-subtitle-1" >
                 {{ question?.instructions}}
               </span>
-              <span class="mat-subheading-2" >
+              <span class="mat-subtitle-1" >
                 Drag and drop numbers on the left to the corresponding
                 circles on the right
               </span>
@@ -316,10 +316,10 @@
             <ng-container *ngIf="question.questionType !== 'ftb'">
               <h2 [innerHTML]="question?.question | nbpsPipe | QuestionSafeUrl" class="m-auto quiz-question mat-h2 ques-padding-top">
               </h2>
-              <span *ngIf="question?.instructions" class="mat-subheading-2" >
+              <span *ngIf="question?.instructions" class="mat-subtitle-1" >
                 {{ question?.instructions}}
               </span>
-              <span class="mat-subheading-2" >
+              <span class="mat-subtitle-1" >
                 Drag and drop numbers on the left to the corresponding
                 circles on the right
               </span>

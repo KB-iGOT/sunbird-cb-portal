@@ -1,5 +1,5 @@
 import { Component, ElementRef, HostBinding, Input, OnInit, ViewChild } from '@angular/core'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
 import { ConfigurationsService, TFetchStatus } from '@sunbird-cb/utils-v2'
 import { EditorQuillComponent } from '../../editor-quill/editor-quill.component'
@@ -10,6 +10,7 @@ import { WsDiscussionForumService } from '../../ws-discussion-forum.services'
   selector: 'ws-widget-discussion-forum',
   templateUrl: './discussion-forum.component.html',
   styleUrls: ['./discussion-forum.component.scss'],
+  standalone: false
 })
 export class DiscussionForumComponent extends WidgetBaseComponent
   implements OnInit, NsWidgetResolver.IWidgetData<NsDiscussionForum.IDiscussionForumInput> {

@@ -1,10 +1,10 @@
 <section class="mb-2" *ngIf="threadHead.feedbackType === feedbackTypes.Content">
   <div>
     <a [routerLink]="['/app/toc', threadHead.contentId]">
-      <h2 class="mat-title content-name">{{ threadHead.contentTitle }}</h2>
+      <h2 class="mat-headline-6 content-name">{{ threadHead.contentTitle }}</h2>
     </a>
   </div>
-  <div class="mat-body-2 uppercase my-auto">
+  <div class="mat-subtitle-2 uppercase my-auto">
     <ng-container [ngSwitch]="threadHead.contentType">
       <ng-container *ngSwitchCase="contentTypes.PROGRAM" >Program</ng-container>
       <ng-container *ngSwitchCase="contentTypes.COURSE" >Course</ng-container>

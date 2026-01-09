@@ -1,5 +1,5 @@
 import { Component, HostBinding, Input, OnInit } from '@angular/core'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
 import { NsContent } from '../_services/widget-content.model'
 import { BtnGoalsDialogComponent } from './btn-goals-dialog/btn-goals-dialog.component'
@@ -18,6 +18,7 @@ const VALID_CONTENT_TYPES: NsContent.EContentTypes[] = [
   selector: 'ws-widget-btn-goals',
   templateUrl: './btn-goals.component.html',
   styleUrls: ['./btn-goals.component.scss'],
+  standalone: false
 })
 export class BtnGoalsComponent extends WidgetBaseComponent
   implements OnInit, NsWidgetResolver.IWidgetData<NsGoal.IBtnGoal> {

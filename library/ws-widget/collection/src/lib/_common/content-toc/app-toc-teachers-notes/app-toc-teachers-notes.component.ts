@@ -5,9 +5,10 @@ import { EventService, NsContent, WsEvents } from '@sunbird-cb/utils-v2'
 import * as fileSaver from 'file-saver'
 
 @Component({
-  selector: 'ws-widget-app-toc-teachers-notes',
-  templateUrl: './app-toc-teachers-notes.component.html',
-  styleUrls: ['./app-toc-teachers-notes.component.scss'],
+    selector: 'ws-widget-app-toc-teachers-notes',
+    templateUrl: './app-toc-teachers-notes.component.html',
+    styleUrls: ['./app-toc-teachers-notes.component.scss'],
+    standalone: false
 })
 
 export class AppTocTeachersNotesComponent implements OnInit {

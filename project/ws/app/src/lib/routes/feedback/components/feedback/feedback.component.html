@@ -8,7 +8,7 @@
   >
     <mat-tab>
       <ng-template mat-tab-label>
-        <span class="mat-body-2">Rate Platform</span>
+        <span class="mat-subtitle-2">Rate Platform</span>
       </ng-template>
       <ng-container
         *ngTemplateOutlet="feedbackHolder; context: { $implicit: feedbackRequest.application }"
@@ -17,7 +17,7 @@
     </mat-tab>
     <mat-tab>
       <ng-template mat-tab-label>
-        <span class="mat-body-2">Rate Content</span>
+        <span class="mat-subtitle-2">Rate Content</span>
       </ng-template>
       <ng-container
         *ngTemplateOutlet="
@@ -29,7 +29,7 @@
     </mat-tab>
     <mat-tab>
       <ng-template mat-tab-label>
-        <span class="mat-body-2">Report an issue</span>
+        <span class="mat-subtitle-2">Report an issue</span>
       </ng-template>
       <div class="text-center">
         <img alt [src]="feedbackBugImg" />

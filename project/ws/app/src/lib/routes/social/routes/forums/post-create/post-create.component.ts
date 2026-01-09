@@ -8,13 +8,14 @@ import { Observable } from 'rxjs'
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators'
 import { WsSocialService } from '../../../services/ws-social.service'
 import { SocialForum } from '../models/SocialForumposts.model'
-import { MatLegacyAutocomplete as MatAutocomplete, MatLegacyAutocompleteSelectedEvent as MatAutocompleteSelectedEvent } from '@angular/material/legacy-autocomplete'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatAutocomplete, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete'
+import { MatSnackBar } from '@angular/material/snack-bar'
 
 @Component({
   selector: 'ws-app-post-create',
   templateUrl: './post-create.component.html',
   styleUrls: ['./post-create.component.scss'],
+  standalone: false
 })
 export class PostCreateComponent implements OnInit {
   isCreatingPost = false

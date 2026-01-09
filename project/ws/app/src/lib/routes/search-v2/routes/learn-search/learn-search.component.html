@@ -2,15 +2,15 @@
     <ng-container *ngIf="!filtersPanel || filtersPanel !=='hide'">
         <div class="topsection margin-bottom-m">
             <div class="display-inline-block">
-                <p class="mat-body-2 font-bold-imp margin-bottom-m" *ngIf="totalResults > 1">{{totalResults}}
+                <p class="mat-subtitle-2 font-bold-imp margin-bottom-m" *ngIf="totalResults > 1">{{totalResults}}
                     {{'learnsearch.searchResults' | translate}}
                     <span *ngIf="param">{{'learnsearch.for' | translate}} '{{param}}'</span>
                 </p>
-                <p class="mat-body-2 font-bold-imp margin-bottom-m" *ngIf="totalResults === 1">{{totalResults}}
+                <p class="mat-subtitle-2 font-bold-imp margin-bottom-m" *ngIf="totalResults === 1">{{totalResults}}
                     {{'learnsearch.searchResult' | translate}}
                     <span *ngIf="param">{{'learnsearch.for' | translate}} '{{param}}'</span>
                 </p>
-                <p *ngIf="myFilters && myFilters.length > 0" class="mat-body-2 ws-mat-black60-text filternames">
+                <p *ngIf="myFilters && myFilters.length > 0" class="mat-subtitle-2 ws-mat-black60-text filternames">
                     <span *ngFor="let mf of myFilters"
                         class="text-capitalize display-inline-block myfilter-custom margin-right-s ng-star-inserted padding-right-s padding-left-s padding-top-xs padding-bottom-xs">
 
@@ -137,20 +137,20 @@
                         </p>
 
                         <!-- <p class="mat-subheading-1 margin-bottom-xs font-bold-imp cursor-pointer content-title" (click)="navigateToToc(param, content?.identifier, content?.primaryCategory)"> -->
-                        <p class="mat-subheading-1 margin-bottom-xs font-bold-imp cursor-pointer content-title">
+                        <p class="mat-subtitle-2 margin-bottom-xs font-bold-imp cursor-pointer content-title">
                             <a (click)="getRedirectUrlData(content)" [matTooltip]="content?.name">{{content?.name}}</a>
                         </p>
                         <!-- <p class="mat-body-2 margin-bottom-s"></p> -->
                         <div class="bottomsection">
-                            <p class="mat-body-2 margin-bottom-xxs" *ngIf="content?.creator">{{'learnsearch.by' |
+                            <p class="mat-subtitle-2 margin-bottom-xxs" *ngIf="content?.creator">{{'learnsearch.by' |
                                 translate}} {{content?.creator}}</p>
-                            <p class="mat-body-2 margin-bottom-xxs" *ngIf="content?.organisation?.length">
+                            <p class="mat-subtitle-2 margin-bottom-xxs" *ngIf="content?.organisation?.length">
                                 {{'learnsearch.by' | translate}} {{content?.organisation[0]}}</p>
-                            <p class="mat-body-2 margin-bottom-xxs" *ngIf="content?.contentPartner?.contentPartnerName">
+                            <p class="mat-subtitle-2 margin-bottom-xxs" *ngIf="content?.contentPartner?.contentPartnerName">
                                 {{'learnsearch.by' | translate}} {{content?.contentPartner?.contentPartnerName}}</p>
                             <div class="contentdata margin-bottom-xm">
                                 <ul
-                                    class="mat-body-2 margin-remove-top margin-bottom-xs padding-remove ws-mat-black60-text">
+                                    class="mat-subtitle-2 margin-remove-top margin-bottom-xs padding-remove ws-mat-black60-text">
                                     <!-- <li>Health social science</li> -->
                                     <li *ngIf="content?.lastUpdatedOn">
                                         <!-- <img src="/assets/icons/content/separator.svg">   -->

@@ -13,7 +13,7 @@
                         " class="unit-meta-item">
                             <h2 class="section-heading">{{ translateLabels(tocConfig?.overview?.description?.displayName, 'apptocsinglepage') }}</h2>
                             <mat-card-content>
-                                <div class="section-content mat-body-1" [innerHTML]="sanitize(content?.description)">
+                                <div class="section-content mat-subtitle-2" [innerHTML]="sanitize(content?.description)">
                                 </div>
                             </mat-card-content>
                         </mat-card>
@@ -23,7 +23,7 @@
                             <h2 class="section-heading">{{ translateLabels(tocConfig?.overview?.body?.displayName, 'apptocsinglepage') }}
                             </h2>
                             <mat-card-content>
-                                <div class="section-content mat-body-1" [innerHTML]="sanitize(content?.instructions)">
+                                <div class="section-content mat-subtitle-2" [innerHTML]="sanitize(content?.instructions)">
                                 </div>
                             </mat-card-content>
                         </mat-card>
@@ -278,7 +278,7 @@
                                 </ws-widget-avatar-photo>
                                 <div class="margin-left-xl">
                                     <div class="user-name">{{ author.name }}</div>
-                                    <p class="mat-body-2  mb-0  ws-mat-black60-text">{{'apptocsinglepage.author' | translate}}</p>
+                                    <p class="mat-subtitle-2  mb-0  ws-mat-black60-text">{{'apptocsinglepage.author' | translate}}</p>
                                 </div>
                             </div>
                             <!-- curators -->
@@ -292,7 +292,7 @@
                             </ws-widget-avatar-photo>
                             <div class="">
                                 <div class="user-name">{{ author.name }}</div>
-                                <p class="mat-body-2 mb-0 ws-mat-black60-text">{{'apptocsinglepage.curator' | translate}}</p>
+                                <p class="mat-subtitle-2 mb-0 ws-mat-black60-text">{{'apptocsinglepage.curator' | translate}}</p>
                             </div>
                         </div>
                             <!-- <div *ngIf="cohortResults[cohortTypesEnum.AUTHORS]">
@@ -327,7 +327,7 @@
                                         </ws-widget-avatar-photo>
                                         <div class="margin-left-xl">
                                             <div class="user-name">{{ facilitator.name }}</div>
-                                            <p class="mat-body-2  mb-0  ws-mat-black60-text">{{'apptocsinglepage.facilitator' | translate}}</p>
+                                            <p class="mat-subtitle-2  mb-0  ws-mat-black60-text">{{'apptocsinglepage.facilitator' | translate}}</p>
                                         </div>
                                     </div>
                                 </ng-container>
@@ -345,14 +345,14 @@
                     <div>
                         <table class="compt-table width-1-1 text-left">
                             <tr>
-                                <th class="padding-xs ws-mat-black60-text mat-body-1">{{'apptocsinglepage.subTheme' | translate}}</th>
-                                <th class="padding-xs ws-mat-black60-text mat-body-1">{{'apptocsinglepage.theme' | translate}} </th>
-                                <th class="padding-xs ws-mat-black60-text mat-body-1">{{'apptocsinglepage.area' | translate}}</th>
+                                <th class="padding-xs ws-mat-black60-text mat-subtitle-2">{{'apptocsinglepage.subTheme' | translate}}</th>
+                                <th class="padding-xs ws-mat-black60-text mat-subtitle-2">{{'apptocsinglepage.theme' | translate}} </th>
+                                <th class="padding-xs ws-mat-black60-text mat-subtitle-2">{{'apptocsinglepage.area' | translate}}</th>
                             </tr>
                             <tr *ngFor="let comp of competencies">
-                                <td class="padding-xs mat-body-1">{{comp.competencySubTheme}}</td>
-                                <td class="padding-xs mat-body-1">{{comp.competencyTheme}}</td>
-                                <td class="padding-xs mat-body-1">{{comp.competencyArea}}</td>
+                                <td class="padding-xs mat-subtitle-2">{{comp.competencySubTheme}}</td>
+                                <td class="padding-xs mat-subtitle-2">{{comp.competencyTheme}}</td>
+                                <td class="padding-xs mat-subtitle-2">{{comp.competencyArea}}</td>
                             </tr>
                         </table>
                     </div>
@@ -515,13 +515,13 @@
         <div class="margin-left-l">
             <div (click)="goToUserProfile(user)" [ngClass]="{'cursor-pointer': enablePeopleSearch}"
                 class="width-expand padding-left-xs">
-                <div class="mat-body-1 cohorts-name">
+                <div class="mat-subtitle-2 cohorts-name">
                     {{
                     { firstName: user.first_name, email: user.email }
                     | pipeNameTransform
                     }}
                 </div>
-                <p class="mat-body-2 ws-mat-black60-text">{{'apptocsinglepage.curator' | translate}}</p>
+                <p class="mat-subtitle-2 ws-mat-black60-text">{{'apptocsinglepage.curator' | translate}}</p>
             </div>
         </div>
     </div>
@@ -546,7 +546,7 @@
                     [hoverUser]="{firstName: user.first_name, id:user.uid,designation: user.designation,department:user.department}">
                 </ws-widget-connection-name>
                 <!-- {{user | json}} -->
-                <p class="mat-body-2 ws-mat-black60-text">{{user.designation}}</p>
+                <p class="mat-subtitle-2 ws-mat-black60-text">{{user.designation}}</p>
                 <!-- <div class="mat-caption cohorts-desc">{{ user.desc }}</div>
             </div>
             <div class="width-auto user-action-container">

@@ -6,9 +6,10 @@ import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { environment } from 'src/environments/environment'
 
 @Component({
-  selector: 'ws-app-global-search',
-  templateUrl: './global-search.component.html',
-  styleUrls: ['./global-search.component.scss'],
+    selector: 'ws-app-global-search',
+    templateUrl: './global-search.component.html',
+    styleUrls: ['./global-search.component.scss'],
+    standalone: false
 })
 export class GlobalSearchComponent implements OnInit {
   searchParam = ''

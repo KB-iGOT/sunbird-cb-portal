@@ -3,13 +3,14 @@ import { NsPlaylist } from '@sunbird-cb/collection'
 import { Subscription } from 'rxjs'
 import { ConfigurationsService, TFetchStatus } from '@sunbird-cb/utils-v2'
 import { PersonProfileService } from '../../services/person-profile.service'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatDialog } from '@angular/material/dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
 
 @Component({
   selector: 'ws-app-user-playlist',
   templateUrl: './user-playlist.component.html',
   styleUrls: ['./user-playlist.component.scss'],
+  standalone: false
 })
 export class UserPlaylistComponent implements OnInit, OnChanges {
   @Input() wid = ''

@@ -1,10 +1,10 @@
 import { DeleteDialogComponent } from '@ws/author/src/lib/modules/shared/components/delete-dialog/delete-dialog.component'
 import { Component, OnInit, ChangeDetectorRef, OnDestroy } from '@angular/core'
-import { MatLegacySnackBar as MatSnackBar, MatLegacySnackBarRef as MatSnackBarRef } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar, MatSnackBarRef } from '@angular/material/snack-bar'
 import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/layout'
 import { map, mergeMap, tap, catchError } from 'rxjs/operators'
 import { forkJoin, of, Observable, Subscription } from 'rxjs'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 import { ActivatedRoute, Router } from '@angular/router'
 
 import { NotificationComponent } from '@ws/author/src/lib/modules/shared/components/notification/notification.component'
@@ -49,6 +49,7 @@ import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper'
   providers: [QuizResolverService, {
     provide: STEPPER_GLOBAL_OPTIONS, useValue: { displayDefaultIndicatorType: false },
   }],
+  standalone: false
 })
 export class QuizComponent implements OnInit, OnDestroy {
 

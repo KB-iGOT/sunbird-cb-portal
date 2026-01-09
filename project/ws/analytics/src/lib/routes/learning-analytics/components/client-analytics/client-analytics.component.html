@@ -44,7 +44,7 @@
       <!-- <button type="button" mat-icon-button (click)="sideNavBarOpened = !sideNavBarOpened">
         <mat-icon>menu</mat-icon>
       </button> -->
-      <h2 class="mat-subheading-2 margin-remove padding-left-xs" [ngSwitch]="currentTab">
+      <h2 class="mat-subtitle-1 margin-remove padding-left-xs" [ngSwitch]="currentTab">
         <span *ngSwitchCase="'home'" accesskey="1">
           <mat-icon>home</mat-icon>
           <span class="margin-left-xs" >{{ analytics?.tabs?.home?.displayName }}</span>
@@ -69,7 +69,7 @@
         <ws-analytics-quarter-filters (filterEvent)="callFilteredGet($event)"></ws-analytics-quarter-filters>
       </ng-container>
       <ng-container *ngIf="contentData?.last_updated_on">
-        <div class="mat-body-1 flex flex-middle remove-margin-top margin-m">
+        <div class="mat-subtitle-2 flex flex-middle remove-margin-top margin-m">
           <span >Last Updated on :</span>
           <span>{{ contentData?.last_updated_on | date: 'EEEE, MMMM d, y' }}</span>
         </div>

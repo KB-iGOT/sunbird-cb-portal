@@ -9,7 +9,7 @@
       " class="unit-meta-item">
       <h2>{{ tocConfig?.overview?.description?.displayName }}</h2>
       <mat-card-content>
-        <div class="mat-subheading-1" [innerHTML]="content?.description"></div>
+        <div class="mat-subtitle-2" [innerHTML]="content?.description"></div>
       </mat-card-content>
     </mat-card>
     <!-- Content Body -->
@@ -24,7 +24,7 @@
       class="unit-meta-item">
       <h2>{{ tocConfig?.overview?.learningObjective?.displayName }}</h2>
       <mat-card-content>
-        <p class="mat-subheading-1" [innerHTML]="content?.learningObjective"></p>
+        <p class="mat-subtitle-2" [innerHTML]="content?.learningObjective"></p>
       </mat-card-content>
     </mat-card>
 
@@ -35,7 +35,7 @@
       " class="unit-meta-item">
       <h2>{{ tocConfig?.overview?.registrationInstructions?.displayName }}</h2>
       <mat-card-content>
-        <div class="mat-subheading-1 break-words" [innerHTML]="content?.registrationInstructions"></div>
+        <div class="mat-subtitle-2 break-words" [innerHTML]="content?.registrationInstructions"></div>
       </mat-card-content>
     </mat-card>
     <mat-card *ngIf="tocConfig?.overview?.preContents?.enabled && content?.preContents?.length" class="unit-meta-item">
@@ -46,7 +46,7 @@
             <mat-icon class="align-bottom">web_asset</mat-icon>
           </span>
           <a class="ws-mat-primary-text" [routerLink]="'/app/toc/' + preContent.identifier">
-            <p class="margin-remove-bottom mat-subheading-1">{{ preContent.name }}</p>
+            <p class="margin-remove-bottom mat-subtitle-2">{{ preContent.name }}</p>
           </a>
         </div>
       </mat-card-content>
@@ -60,7 +60,7 @@
             <mat-icon class="align-bottom">web_asset</mat-icon>
           </span>
           <a class="ws-mat-primary-text" [routerLink]="'/app/toc/' + postContent.identifier">
-            <p class="margin-remove-bottom mat-subheading-1">{{ postContent.name }}</p>
+            <p class="margin-remove-bottom mat-subtitle-2">{{ postContent.name }}</p>
           </a>
         </div>
       </mat-card-content>
@@ -74,7 +74,7 @@
             <mat-icon class="align-bottom">web_asset</mat-icon>
           </span>
           <a class="ws-mat-primary-text" [routerLink]="'/app/toc/' + certification.identifier">
-            <p class="margin-remove-bottom mat-subheading-1">{{ certification.name }}</p>
+            <p class="margin-remove-bottom mat-subtitle-2">{{ certification.name }}</p>
           </a>
         </div>
       </mat-card-content>
@@ -88,7 +88,7 @@
             <mat-icon class="align-bottom">web_asset</mat-icon>
           </span>
           <a class="ws-mat-primary-text" [routerLink]="'/app/toc/' + studyitem.identifier">
-            <p class="margin-remove-bottom mat-subheading-1">{{ studyitem.name }}</p>
+            <p class="margin-remove-bottom mat-subtitle-2">{{ studyitem.name }}</p>
           </a>
         </div>
       </mat-card-content>
@@ -103,7 +103,7 @@
             <mat-icon class="align-bottom">web_asset</mat-icon>
           </span>
           <a class="ws-mat-primary-text" [routerLink]="'/app/toc/' + playgroundResource.identifier">
-            <p class="margin-remove-bottom mat-subheading-1">{{ playgroundResource.name }}</p>
+            <p class="margin-remove-bottom mat-subtitle-2">{{ playgroundResource.name }}</p>
           </a>
         </div>
       </mat-card-content>
@@ -116,7 +116,7 @@
             <mat-icon class="align-bottom">web_asset</mat-icon>
           </span>
           <a class="ws-mat-primary-text" [routerLink]="'/app/toc/' + kArtifact.identifier">
-            <p class="margin-remove-bottom mat-subheading-1">{{ kArtifact.name }}</p>
+            <p class="margin-remove-bottom mat-subtitle-2">{{ kArtifact.name }}</p>
           </a>
         </div>
       </mat-card-content>
@@ -132,7 +132,7 @@
             <mat-icon class="align-bottom">web_asset</mat-icon>
           </span>
           <a class="ws-mat-primary-text" [routerLink]="'/app/toc/' + equivalentCertification.identifier">
-            <p class="margin-remove-bottom mat-subheading-1">{{ equivalentCertification.name }}</p>
+            <p class="margin-remove-bottom mat-subtitle-2">{{ equivalentCertification.name }}</p>
           </a>
         </div>
       </mat-card-content>
@@ -147,7 +147,7 @@
             <mat-icon class="align-bottom">web_asset</mat-icon>
           </span>
           <a class="ws-mat-primary-text" [href]="softwareRequirement.url" target="blank">
-            <p class="margin-remove-bottom mat-subheading-1">{{ softwareRequirement.title }}</p>
+            <p class="margin-remove-bottom mat-subtitle-2">{{ softwareRequirement.title }}</p>
           </a>
         </div>
       </mat-card-content>
@@ -164,7 +164,7 @@
     <mat-card *ngIf="tocConfig?.overview?.preRequisites?.enabled && content?.preRequisites" class="unit-meta-item">
       <h2>{{ tocConfig?.overview?.preRequisites?.displayName }}</h2>
       <mat-card-content>
-        <div class="mat-subheading-1" [innerHTML]="content?.preRequisites"></div>
+        <div class="mat-subtitle-2" [innerHTML]="content?.preRequisites"></div>
         <div class="margin-top-s" *ngIf="content?.softwareRequirements?.length">
           <h3 class="mat-h3 margin-bottom-xs" >Software Requirements</h3>
           <ng-container *ngFor="let requirement of content?.softwareRequirements">
@@ -248,7 +248,7 @@
                     ? '/author' + '/toc/' + content.identifier
                     : '/app' + '/toc/' + content.identifier
                 ">
-                <p class="margin-remove-bottom mat-subheading-1">{{ content.name }}</p>
+                <p class="margin-remove-bottom mat-subtitle-2">{{ content.name }}</p>
               </a>
             </div>
           </mat-expansion-panel>

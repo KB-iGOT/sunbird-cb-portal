@@ -52,7 +52,7 @@
       <mat-tab label="{{'events.eventInfo' | translate}}">
         <ng-template matTabContent>
           <div class="flex flex-1 flex-column mb-2">
-            <span class="f-medium mat-title">{{ 'event.eventDescription' | translate }}</span>
+            <span class="f-medium mat-headline-6">{{ 'event.eventDescription' | translate }}</span>
           </div>
           <div class="flex flex-wrap">
             <ng-container>
@@ -62,7 +62,7 @@
             </ng-container>
           </div>
           <div class="flex flex-1 flex-column mb-2" *ngIf="eventData?.creatorDetails">
-            <span class="f-medium mat-title margin-bottom-xs">{{ 'event.eventPresenters' | translate }}</span>
+            <span class="f-medium mat-headline-6 margin-bottom-xs">{{ 'event.eventPresenters' | translate }}</span>
           </div>
           <div class="flex flex-wrap margn-bottom-l" *ngIf="eventData?.creatorDetails">
             <ng-container>
@@ -73,7 +73,7 @@
             </ng-container>
           </div>
           <div class="flex flex-1 flex-column margin-top-l margin-bottom-s" *ngIf="eventData?.learningObjective">
-            <span class="f-medium mat-title">{{ 'event.eventAgenda' | translate }}</span>
+            <span class="f-medium mat-headline-6">{{ 'event.eventAgenda' | translate }}</span>
           </div>
           <div class="flex flex-wrap margin-bottom-xl" *ngIf="eventData?.learningObjective">
             <ng-container>

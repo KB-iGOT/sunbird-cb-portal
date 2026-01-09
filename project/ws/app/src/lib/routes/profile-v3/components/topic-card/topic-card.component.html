@@ -10,7 +10,7 @@
         <ng-container *ngFor="let subTopic of topic.children | slice:0:show">
           <a *ngIf="subTopic" (click)="clicked(subTopic)"
             [ngClass]="{'ws-mat-accent-background ws-mat-primary-default-text': isSelected(subTopic), 'ws-mat-accent-border' : !isSelected(subTopic)}"
-            class="topic_tag_link mat-body-2 flex items-center margin-right-xs  margin-bottom-xs">
+            class="topic_tag_link mat-subtitle-2 flex items-center margin-right-xs  margin-bottom-xs">
             {{ subTopic.name || subTopic}}
           </a>
         </ng-container>

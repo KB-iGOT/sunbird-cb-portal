@@ -2,13 +2,14 @@ import { Component, OnInit } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
 import { TFetchStatus, ConfigurationsService, NsPage } from '@sunbird-cb/utils-v2'
 import { DialogSocialDeletePostComponent, NsDiscussionForum, WsDiscussionForumService } from '@sunbird-cb/collection'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatDialog } from '@angular/material/dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
 
 @Component({
   selector: 'ws-app-post-view',
   templateUrl: './post-view.component.html',
   styleUrls: ['./post-view.component.scss'],
+  standalone: false
 })
 export class PostViewComponent implements OnInit {
   conversation: NsDiscussionForum.IPostResult | null = null

@@ -154,7 +154,7 @@
           </div>
         </div> -->
       <div class="timediv">
-        <span class="mat-subheading-2" role="link" tabindex="0">{{eventData?.startDate | date }}</span>
+        <span class="mat-subtitle-1" role="link" tabindex="0">{{eventData?.startDate | date }}</span>
         <div class="flex flex-wrap" role="link" tabindex="0">
           <span class="flex-wrap ws-mat-accent-text" role="link" tabindex="0">
             {{startTime}} - {{endTime}}
@@ -178,10 +178,10 @@
 
       <ng-container *ngIf="eventData?.typeofEvent?.toLowerCase() === 'live' && eventData?.meetingAgenda">
         <div class="margin-top-m">
-          <span class="mat-subheading-2 ws-mat-accent-text" role="link" tabindex="0">{{ 'eventDetailsRightCard.agenda'
+          <span class="mat-subtitle-1 ws-mat-accent-text" role="link" tabindex="0">{{ 'eventDetailsRightCard.agenda'
             | translate }}</span>
           <div class="flex flex-wrap" role="link" tabindex="0">
-            <span class="flex-wrap mat-body-2 no-space-text-overflow" role="link" tabindex="0">
+            <span class="flex-wrap mat-subtitle-2 no-space-text-overflow" role="link" tabindex="0">
               {{eventData?.meetingAgenda}}
             </span>
           </div>
@@ -189,19 +189,19 @@
       </ng-container>
 
       <div class="margin-top-m">
-        <span class="mat-subheading-2 ws-mat-accent-text" role="link" tabindex="0">{{ 'eventDetailsRightCard.eventType'
+        <span class="mat-subtitle-1 ws-mat-accent-text" role="link" tabindex="0">{{ 'eventDetailsRightCard.eventType'
           | translate }}</span>
         <div class="flex flex-wrap" role="link" tabindex="0">
-          <span class="flex-wrap mat-body-2" role="link" tabindex="0">
+          <span class="flex-wrap mat-subtitle-2" role="link" tabindex="0">
             {{eventData?.resourceType}}
           </span>
         </div>
       </div>
       <div class="margin-top-m">
-        <span class="mat-subheading-2 ws-mat-accent-text" role="link" tabindex="0">{{ 'eventDetailsRightCard.hostedBy' |
+        <span class="mat-subtitle-1 ws-mat-accent-text" role="link" tabindex="0">{{ 'eventDetailsRightCard.hostedBy' |
           translate }}</span>
         <div class="flex flex-wrap" role="link" tabindex="0">
-          <span class="flex-wrap mat-body-2" role="link" tabindex="0">
+          <span class="flex-wrap mat-subtitle-2" role="link" tabindex="0">
             {{eventData?.owner}}
           </span>
         </div>
@@ -209,7 +209,7 @@
 
       <ng-container *ngIf="handleParseJsonData(eventData?.speakerDetails)?.length">
         <div class="flex flex-col gap-3 margin-top-m">
-          <span class="mat-subheading-2 ws-mat-accent-text margin-remove" role="link" tabindex="0">{{
+          <span class="mat-subtitle-1 ws-mat-accent-text margin-remove" role="link" tabindex="0">{{
             'eventDetailsRightCard.speakers' |
             translate }}</span>
           <div class="flex flex-row gap-4 items-center"

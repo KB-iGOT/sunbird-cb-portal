@@ -81,7 +81,7 @@
 
 <div class="w-full margin-top-l padding-top-xs event_card_main_box">
     <div class="flex flex-1 flex-column margin-fix mb-2">
-        <span class="f-medium mat-title">
+        <span class="f-medium mat-headline-6">
             {{ translateLabels('labelAllEvents', 'event') }}
         </span>
     </div>
@@ -91,7 +91,7 @@
     <button mat-button (click)="seeAll('featuredEvents')">Featured</button>
     <div class="flex flex-1 flex-column margin-fix search">
         <form>
-            <mat-form-field appearance="outline" class="autocomplete-form mat-body-2" color="primary"
+            <mat-form-field appearance="outline" class="autocomplete-form mat-subtitle-2" color="primary"
                 [floatLabel]="'never'">
                 <mat-icon matPrefix class="py-5 flex items-center justify-center">search</mat-icon>
                 <input (onChange)="updateQuery(queryControl.value)" type="search" #searchInput class="ml-2"

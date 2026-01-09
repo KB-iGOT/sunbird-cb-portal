@@ -18,12 +18,12 @@
       <button (click)="deleteBlog(blog.id, deleteMsg.value)" mat-menu-item >Delete Blog</button>
     </ng-template>
   </mat-menu>
-  <div *ngIf="blog?.postContent?.abstract" class="mat-subheading-2 margin-remove text-truncate">
+  <div *ngIf="blog?.postContent?.abstract" class="mat-subtitle-1 margin-remove text-truncate">
     {{ blog.postContent.abstract }}
   </div>
   <div
     *ngIf="!blog?.postContent?.abstract"
-    class="mat-subheading-2 margin-remove text-truncate"
+    class="mat-subtitle-1 margin-remove text-truncate"
     [innerHTML]="blog.postContent.body | pipeSafeSanitizer: 'html' | slice: 0:100"
   ></div>
   <div class="margin-bottom-s" *ngIf="blogMode === 'edit'">

@@ -8,7 +8,7 @@
     <div class="flex-3">
       <div class="w-full" role="link" tabindex="0">
         <div class="flex flex-1 flex-column margin-fix mb-2" role="link" tabindex="0">
-          <span class="mat-subheading-1">
+          <span class="mat-subtitle-2">
             {{ 'competencies.labelYourCompetencies' | translate }}
           </span>
         </div>
@@ -26,7 +26,7 @@
 
 
                   <p class="mat-h3 margin-remove">{{ myCompetencies.length }}</p>
-                  <p class="mat-body-2">{{ 'competencies.labelYourCompetencies' | translate }}</p>
+                  <p class="mat-subtitle-2">{{ 'competencies.labelYourCompetencies' | translate }}</p>
                 </div>
 
                 <div class="progress_data_box">
@@ -37,7 +37,7 @@
                   </mat-progress-bar>
                   <p class="mat-h3 margin-remove">{{ ((filteredCompetencies) ? filteredCompetencies.length : 0 ) +
                     ((watCompetencies) ? watCompetencies.length : 0 )}}</p>
-                  <p class="mat-body-2 margin-remove">{{ 'competencies.labelRecommendCompetencies' | translate }}</p>
+                  <p class="mat-subtitle-2 margin-remove">{{ 'competencies.labelRecommendCompetencies' | translate }}</p>
                 </div>
               </div>
             </div>
@@ -68,7 +68,7 @@
             </mat-form-field>
           </form>
           <div class="flex justify-center" *ngIf="myCompetencies && myCompetencies.length > 0 && currentFilter && currentFilter === 'acquired_by_you'">
-            <a class="add_competency_btn text-white flex items-center justify-center cursor-pointer mat-subheading-2"
+            <a class="add_competency_btn text-white flex items-center justify-center cursor-pointer mat-subtitle-1"
               routerLink="/app/competencies/all">{{ 'competencies.addCompetency' | translate }}</a>
           </div>
         </div>
@@ -95,7 +95,7 @@
                       <div class="card_inner_content flex flex-col md:flex-row justify-between">
                         <div class="card_inner_title_box flex-col">
                           <h4 class="mat-h4">{{comp.name}}</h4>
-                          <p class="mat-body-2 ws-mat-black60-text">{{comp.competencyType}}</p>
+                          <p class="mat-subtitle-2 ws-mat-black60-text">{{comp.competencyType}}</p>
                         </div>
                         <div class="proficiency_text_box">
                           <!-- <div class="flex flex-row justify-between">
@@ -241,14 +241,14 @@
                           </div>
                         </div>
                         <div class="flex proficient_level_box">
-                          <p class="matbold mat-body-2" *ngIf="comp.competencySelfAttestedLevel && !comp.competencyCBPCompletionLevel">{{comp.competencySelfAttestedLevelValue}}</p>
-                          <p class="matbold mat-body-2" *ngIf="!comp.competencySelfAttestedLevel && comp.competencyCBPCompletionLevel">{{comp.competencyCBPCompletionLevelValue}}</p>
-                          <p class="matbold mat-body-2" *ngIf="comp.competencySelfAttestedLevel && comp.competencyCBPCompletionLevelName">
+                          <p class="matbold mat-subtitle-2" *ngIf="comp.competencySelfAttestedLevel && !comp.competencyCBPCompletionLevel">{{comp.competencySelfAttestedLevelValue}}</p>
+                          <p class="matbold mat-subtitle-2" *ngIf="!comp.competencySelfAttestedLevel && comp.competencyCBPCompletionLevel">{{comp.competencyCBPCompletionLevelValue}}</p>
+                          <p class="matbold mat-subtitle-2" *ngIf="comp.competencySelfAttestedLevel && comp.competencyCBPCompletionLevelName">
                             <span *ngIf="comp.competencyCBPCompletionLevel < comp.competencySelfAttestedLevel">{{comp.competencyCBPCompletionLevelValue}}</span>
                             <span *ngIf="comp.competencySelfAttestedLevel < comp.competencyCBPCompletionLevel">{{comp.competencySelfAttestedLevelValue}}</span>
                             <span *ngIf="comp.competencySelfAttestedLevel === comp.competencyCBPCompletionLevel">{{comp.competencySelfAttestedLevelValue}} <mat-icon class="completedicon">check_circle</mat-icon></span>
                           </p>
-                          <p class="deactivate_text mat-body-2" *ngIf="!comp.competencySelfAttestedLevel && !comp.competencyCBPCompletionLevel">{{ 'msg.notEnoughData' | translate }}</p>
+                          <p class="deactivate_text mat-subtitle-2" *ngIf="!comp.competencySelfAttestedLevel && !comp.competencyCBPCompletionLevel">{{ 'msg.notEnoughData' | translate }}</p>
                         </div>
                       </div>
                     </mat-card-content>
@@ -280,7 +280,7 @@
                       <div class="card_inner_content flex flex-row">
                         <div class="card_inner_title_box flex-col desired-card">
                           <h4 class="mat-h4">{{comp.name}}</h4>
-                          <p class="mat-body-2 ws-mat-black60-text">{{comp.competencyType}}</p>
+                          <p class="mat-subtitle-2 ws-mat-black60-text">{{comp.competencyType}}</p>
                         </div>
                         <!-- <div class="flex-col proficiency_text_box">
                           <div class="flex flex-row justify-between prof_txt_data">
@@ -334,8 +334,8 @@
                           </div>
                         </div> -->
                         <div class="flex proficient_level_box">
-                          <p class="matbold mat-body-2" *ngIf="comp.competencySelfAttestedLevel">{{comp.competencySelfAttestedLevelValue}}</p>
-                          <p class="deactivate_text mat-body-2" *ngIf="!comp.competencySelfAttestedLevel">{{ 'msg.notEnoughData' | translate }}</p>
+                          <p class="matbold mat-subtitle-2" *ngIf="comp.competencySelfAttestedLevel">{{comp.competencySelfAttestedLevelValue}}</p>
+                          <p class="deactivate_text mat-subtitle-2" *ngIf="!comp.competencySelfAttestedLevel">{{ 'msg.notEnoughData' | translate }}</p>
                         </div>
                       </div>
                     </mat-card-content>
@@ -377,13 +377,13 @@
                       <div class="card_inner_content flex flex-row justify-between">
                         <div class="card_inner_title_box flex-col">
                           <h4 class="mat-h4">{{comp.name}}</h4>
-                          <p class="mat-body-2 ws-mat-black60-text">{{comp?.additionalProperties?.competencyType ||
+                          <p class="mat-subtitle-2 ws-mat-black60-text">{{comp?.additionalProperties?.competencyType ||
                             comp?.competencyType}}</p>
                         </div>
 
 
                         <div class="flex proficient_level_box">
-                          <p class="deactivate_text mat-body-2">{{ 'msg.notEnoughData' | translate }}</p>
+                          <p class="deactivate_text mat-subtitle-2">{{ 'msg.notEnoughData' | translate }}</p>
                         </div>
                       </div>
                     </mat-card-content>
@@ -425,13 +425,13 @@
                     <div class="card_inner_content flex flex-row justify-between">
                       <div class="card_inner_title_box flex-col">
                         <h4 class="mat-h4">{{comp.name}}</h4>
-                        <p class="mat-body-2 ws-mat-black60-text">{{comp?.additionalProperties?.competencyType ||
+                        <p class="mat-subtitle-2 ws-mat-black60-text">{{comp?.additionalProperties?.competencyType ||
                           comp?.competencyType}}</p>
                       </div>
 
 
                       <div class="flex proficient_level_box">
-                        <p class="deactivate_text mat-body-2">{{ 'msg.notEnoughData' | translate }}</p>
+                        <p class="deactivate_text mat-subtitle-2">{{ 'msg.notEnoughData' | translate }}</p>
                       </div>
                     </div>
                   </mat-card-content>

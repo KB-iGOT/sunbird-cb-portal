@@ -4,10 +4,10 @@ import { WidgetBaseComponent } from '@sunbird-cb/resolver'
 import { Router } from '@angular/router'
 
 @Component({
-  selector: 'ws-widget-card-carrier-home',
-  templateUrl: './card-carrier-home.component.html',
-  styleUrls: ['./card-carrier-home.component.scss'],
-
+    selector: 'ws-widget-card-carrier-home',
+    templateUrl: './card-carrier-home.component.html',
+    styleUrls: ['./card-carrier-home.component.scss'],
+    standalone: false
 })
 
 export class CardCarrierHomeComponent extends WidgetBaseComponent implements OnInit {

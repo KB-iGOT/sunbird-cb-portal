@@ -6,12 +6,12 @@
   </section>
   <ng-container *ngIf="inProgress !== 'fetching'">
     <ng-container *ngIf="fetchKbs === 'done' && !knowledgeBoards?.length">
-      <h2 class="mat-title" >You don't have any Knowledge Boards</h2>
+      <h2 class="mat-headline-6" >You don't have any Knowledge Boards</h2>
       <a (click)="redirectToCreateKb()" mat-button color="primary" >Create New</a>
     </ng-container>
-    <div class="ws-mat-primary-default-text mat-subheading-2 text-truncate">{{contentName}}</div>
+    <div class="ws-mat-primary-default-text mat-subtitle-1 text-truncate">{{contentName}}</div>
     <mat-divider></mat-divider>
-    <h2 *ngIf="knowledgeBoards?.length" class="mat-subheading-2 margin-remove-bottom" >
+    <h2 *ngIf="knowledgeBoards?.length" class="mat-subtitle-1 margin-remove-bottom" >
       Select a Knowledge Board
     </h2>
     <div class="p-8 text-center" *ngIf="fetchKbs === 'fetching'">
@@ -55,7 +55,7 @@
           </div>
         </ng-container>
       </mat-selection-list>
-      <h2 class="mat-subheading-2" >This helps in...</h2>
+      <h2 class="mat-subtitle-1" >This helps in...</h2>
       <p>
         <mat-form-field appearance="fill" floatLabel="never" class="w-full">
           <textarea matInput i18n-placeholder placeholder="Reason to add this goes here" [(ngModel)]="reason"

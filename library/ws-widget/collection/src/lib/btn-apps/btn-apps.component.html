@@ -10,7 +10,7 @@
 <mat-menu #appsMenu="matMenu" xPosition="before" yPosition="above">
   <section *ngIf="pinnedApps?.length && isPinFeatureAvailable" class="p-4 md:p-4 sm:p-2">
     <div class="flex justify-between">
-      <h2 class="mat-title margin-bottom-xs" >Pinned</h2>
+      <h2 class="mat-headline-6 margin-bottom-xs" >Pinned</h2>
       <a mat-button [routerLink]="widgetData?.allListingUrl" *ngIf="widgetData?.allListingUrl">
         <span class="flex items-center">
           <span >All</span>&nbsp;
@@ -24,7 +24,7 @@
   </section>
   <section *ngIf="featuredApps && featuredApps.length>0" class="p-4 md:p-4 sm:p-2">
     <div class="flex justify-between">
-      <h2 class="mat-title margin-bottom-xs" >Featured</h2>
+      <h2 class="mat-headline-6 margin-bottom-xs" >Featured</h2>
       <a mat-button [routerLink]="widgetData?.allListingUrl" *ngIf="widgetData?.allListingUrl">
         <span class="flex items-center">
           <span >All</span>&nbsp;

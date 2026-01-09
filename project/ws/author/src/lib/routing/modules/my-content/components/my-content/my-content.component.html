@@ -38,19 +38,19 @@
   </mat-sidenav>
   <mat-sidenav-content class="sidenav-content">
     <nav class="flex flex-middle flex-wrap p-4 ws-mat-primary-text">
-      <div class="mat-subheading-2 margin-remove-bottom">
+      <div class="mat-subtitle-1 margin-remove-bottom">
         <a >
           My Contents
         </a>
       </div>
       <mat-icon class="px-1">chevron_right</mat-icon>
-      <div class="mat-subheading-2 margin-remove-bottom">
+      <div class="mat-subtitle-1 margin-remove-bottom">
         <a routerLink="/author/my-content" [queryParams]="{ status: 'all' }" >
           All
         </a>
       </div>
       <mat-icon class="px-1" *ngIf="status !== 'all'">chevron_right</mat-icon>
-      <div class="mat-subheading-2 margin-remove-bottom">
+      <div class="mat-subtitle-1 margin-remove-bottom">
         <a routerLink="/author/my-content" *ngIf="status === 'draft'" [queryParams]="{ status: 'draft' }" >Draft</a>
         <a routerLink="/author/my-content" *ngIf="status === 'inreview'" [queryParams]="{ status: 'inreview' }"
          >Sent for review</a>

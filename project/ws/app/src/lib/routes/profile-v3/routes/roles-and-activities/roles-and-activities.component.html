@@ -10,11 +10,11 @@
 
     <div class="flex flex-col flex-wrap w-100 flex-1 margin-top-l">
         <div class="flex margin-bottom-s top_chip_box">
-            <p class="mat-body-2 margin-remove-bottom">
+            <p class="mat-subtitle-2 margin-remove-bottom">
                 <mat-icon class="mat-icon margin-right-xs">info</mat-icon>  {{'rolesandactivities.roleHeader' | translate }}
             </p>
         </div>
-        <p class="mat-body-2 ws-mat-black60-text"> {{'rolesandactivities.rolesDescription' | translate }}
+        <p class="mat-subtitle-2 ws-mat-black60-text"> {{'rolesandactivities.rolesDescription' | translate }}
         </p>
     </div>
 
@@ -23,18 +23,18 @@
             <form #roleForm [formGroup]="createRole" class="flex flex-1 flex-column margin-top-m">
                 <div id="maindiv" class="input-wrapper margin-top-s flex flex-col flex-1 margin-bottom-xl">
                     <div class="flex flex-row justify-between">
-                        <label for="roleName" class="margin-remove-bottom form-label required flex mat-subheading-2"
+                        <label for="roleName" class="margin-remove-bottom form-label required flex mat-subtitle-1"
                             i18n="Role Name label|Label which explains the user to enter Role Name" i18n-aria-label *ngIf="!editData"
                             aria-label="Role Name label">
                             {{'rolesandactivities.addRole' | translate }}
                         </label>
-                        <label for="roleName" class=" margin-remove-bottom form-label required flex mat-subheading-2"
+                        <label for="roleName" class=" margin-remove-bottom form-label required flex mat-subtitle-1"
                             i18n="Role Name label|Label which explains the user to enter Role Name" i18n-aria-label *ngIf="editData"
                             aria-label="Role Name label">
                             {{'rolesandactivities.editRole' | translate }}
                         </label>
                         <div>
-                        <button [disabled]="infoIcon" mat-icon-button class="mat-subheading-2 hint_span margin-remove-bottom" (click)="openInfoDialog()">
+                        <button [disabled]="infoIcon" mat-icon-button class="mat-subtitle-1 hint_span margin-remove-bottom" (click)="openInfoDialog()">
                             <mat-icon class="mat-icon margin-right-xs">info_outlined</mat-icon>
                         </button>
                         {{'rolesandactivities.whatIsRole' | translate }}
@@ -51,18 +51,18 @@
                             {{'rolesandactivities.roleIsMandatory' | translate }}
                         </mat-error>
                     </mat-form-field>
-                    <mat-hint class="text-right text_hint mat-body-2"> {{'rolesandactivities.typeRoleName' | translate }}</mat-hint>
+                    <mat-hint class="text-right text_hint mat-subtitle-2"> {{'rolesandactivities.typeRoleName' | translate }}</mat-hint>
 
                 </div>
                 <div class="input-wrapper margin-top-xl flex flex-col">
                     <div class="flex flex-row justify-between">
-                        <label for="roleName" class="margin-remove-bottom form-label required flex mat-subheading-2"
+                        <label for="roleName" class="margin-remove-bottom form-label required flex mat-subtitle-1"
                             i18n="activity label|Label which explains the user to enter activity" i18n-aria-label
                             aria-label="activity label">
                             {{'rolesandactivities.addActivitiesForRole' | translate }}
                         </label>
                         <div>
-                        <button [disabled]="infoIcon" mat-icon-button class="mat-subheading-2 hint_span margin-remove-bottom" (click)="openActivityDialog()">
+                        <button [disabled]="infoIcon" mat-icon-button class="mat-subtitle-1 hint_span margin-remove-bottom" (click)="openActivityDialog()">
                             <mat-icon class="mat-icon margin-right-xs">info_outlined</mat-icon>
                         </button>
                         {{'rolesandactivities.whatIsActivity' | translate }}
@@ -102,7 +102,7 @@
 
 
                     <div class="flex flex-row justify-between margin-top-s">
-                        <mat-hint class="text-left text_hint mat-body-2"> {{'rolesandactivities.startAddingActivities' | translate }}</mat-hint>
+                        <mat-hint class="text-left text_hint mat-subtitle-2"> {{'rolesandactivities.startAddingActivities' | translate }}</mat-hint>
                         <!-- <mat-hint class="text-right text_hint mat-body-2">Type the activites and click on ‘Enter’ to add
                         </mat-hint> -->
                     </div>
@@ -143,7 +143,7 @@
                     <mat-card class="flex flex-1 flex-column margin-bottom-s" id="{{i + 1}}" *ngIf="role && role.name">
                         <div class="flex flex-row">
                             <div class="flex flex-1">
-                                <p class="mat-subheading-1 margin-bottom-m">{{role.name}} </p>
+                                <p class="mat-subtitle-2 margin-bottom-m">{{role.name}} </p>
                             </div>
                             <div class="flex flex-row justify-between">
                                 <a class="cursor-pointer flex margin-right-xs" (click)="edit(role, i)">

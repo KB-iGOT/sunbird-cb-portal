@@ -110,7 +110,7 @@
               <div *ngIf="questionTYP.PRACTICE_RESOURCE === quizCategory">
                 <div class="flex flex-col justify-center align-center success-message-result">
                     <div><img src="assets/icons/final-assessment/practice-assessment-badge.svg"></div>
-                    <div class="mat-subheading-2">{{'quizresult.passMdg4' | translate}}</div>
+                    <div class="mat-subtitle-1">{{'quizresult.passMdg4' | translate}}</div>
                 </div>
               </div>
               <div *ngIf="questionTYP.FINAL_ASSESSMENT === quizCategory && quizResponse" class="flex flex-col justify-center align-center success-message-result">
@@ -126,7 +126,7 @@
                       <div class="percentage">{{(percentage || 0) | number: '1.2-2'}}%</div>
                       <div class="level-text">{{levelText || 'Passed'}}</div>
                   </div>
-                  <div class="mat-subheading-2 message">{{'quizresult.passMsg1' | translate}}</div>
+                  <div class="mat-subtitle-1 message">{{'quizresult.passMsg1' | translate}}</div>
                 </ng-container>
                 <ng-container *ngIf="isPassed && percentage < 100">
                   <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="37 -5 120 100" width="108">
@@ -140,7 +140,7 @@
                       <div class="percentage">{{(percentage || 0) | number: '1.2-2'}}%</div>
                       <div class="level-text">{{levelText || ('playerbrief.passed' | translate)}}</div>
                   </div>
-                  <div class="mat-subheading-2 message">{{'quizresult.passMsg2' | translate}}</div>
+                  <div class="mat-subtitle-1 message">{{'quizresult.passMsg2' | translate}}</div>
                 </ng-container>
                 <ng-container *ngIf="!isPassed  && quizResponse">
                   <svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="37 -5 120 100" width="108">
@@ -159,10 +159,10 @@
                       <div class="percentage">{{(percentage || 0) | number: '1.2-2'}}%</div>
                       <div class="level-text">{{levelText || ('playerbrief.failed' | translate)}}</div>
                   </div>
-                  <div class="mat-subheading-2 message"  *ngIf="questionTYP?.FINAL_ASSESSMENT !== quizCategory || (canAttempt?.attemptsAllowed - canAttempt?.attemptsMade) - 1 === 0">
+                  <div class="mat-subtitle-1 message"  *ngIf="questionTYP?.FINAL_ASSESSMENT !== quizCategory || (canAttempt?.attemptsAllowed - canAttempt?.attemptsMade) - 1 === 0">
                     <span>{{'playerbrief.tryAgainMessage' | translate}}</span>
                   </div>
-                  <div class="mat-subheading-2 message" *ngIf="questionTYP?.FINAL_ASSESSMENT === quizCategory &&( (canAttempt?.attemptsAllowed - canAttempt?.attemptsMade) - 1 !== 0)">
+                  <div class="mat-subtitle-1 message" *ngIf="questionTYP?.FINAL_ASSESSMENT === quizCategory &&( (canAttempt?.attemptsAllowed - canAttempt?.attemptsMade) - 1 !== 0)">
                     <span>{{'playerbrief.tryAgainMessage1' | translate}} </span>
                     <span>{{ (canAttempt?.attemptsAllowed - canAttempt?.attemptsMade) - 1}} </span>
                     <span>{{'playerbrief.tryAgainMessage2' | translate}}</span>
@@ -185,8 +185,8 @@
               <ng-container *ngFor="let _parts of quizResponse?.children; let i = index">
                 <mat-card *ngIf="_parts" class="result_box">
                   <mat-card-title class="section-title">
-                    <span class="mat-subheading-1" *ngIf="!isOnlySection">{{'Section ' + (i+1)}}</span>
-                    <span class="mat-subheading-2" *ngIf="isOnlySection">{{'playerbrief.performanceSummary' | translate}}</span>
+                    <span class="mat-subtitle-2" *ngIf="!isOnlySection">{{'Section ' + (i+1)}}</span>
+                    <span class="mat-subtitle-1" *ngIf="isOnlySection">{{'playerbrief.performanceSummary' | translate}}</span>
                   </mat-card-title>
                   <mat-card-content class="flex flex-1 flex-column">
                     <ng-container *ngFor="let _result of ['correct','inCorrect','incorrect','blank']">
@@ -577,7 +577,7 @@
   <mat-card [ngClass]="{'highlight': selectedQuestionData?.sectionType === data.sectionType}" class="flex customcard flex-jc-space-between cursor-pointer margin-top-xs bg-gray" (click)="getQuestionCount(data,'wrong')">
     <div class="flex">
       <img src="assets/icons/final-assessment/{{data.imgIcon}}.svg">
-      <span class="mat-body-2 margin-left-xs" [innerHtml]="data.text"></span>
+      <span class="mat-subtitle-2 margin-left-xs" [innerHtml]="data.text"></span>
     </div>
     <mat-icon *ngIf="selectedQuestionData?.sectionType !== data.sectionType">add</mat-icon>
     <mat-icon *ngIf="selectedQuestionData?.sectionType === data.sectionType">remove</mat-icon>
@@ -589,7 +589,7 @@
   <mat-card [ngClass]="{'highlight': selectedQuestionData?.sectionType === data.sectionType}" class="flex customcard flex-jc-space-between cursor-pointer margin-top-xs bg-gray" (click)="getQuestionCount(data,'blank')">
     <div class="flex">
       <img src="assets/icons/final-assessment/{{data.imgIcon}}.svg">
-      <span class="mat-body-2 margin-left-xs" [innerHtml]="data.text"></span>
+      <span class="mat-subtitle-2 margin-left-xs" [innerHtml]="data.text"></span>
     </div>
     <mat-icon *ngIf="selectedQuestionData?.sectionType !== data.sectionType">add</mat-icon>
     <mat-icon *ngIf="selectedQuestionData?.sectionType === data.sectionType">remove</mat-icon>
@@ -600,7 +600,7 @@
   <mat-card class="flex customcard flex-jc-space-between cursor-pointer margin-top-xs bg-gray" [ngClass]="{'highlight': selectedQuestionData?.sectionType === data.sectionType}" (click)="getQuestionCount(data,'answer')">
     <div class="flex">
       <img src="assets/icons/final-assessment/{{data.imgIcon}}.svg">
-      <span class="mat-body-2 margin-left-xs" [innerHtml]="data.text"></span>
+      <span class="mat-subtitle-2 margin-left-xs" [innerHtml]="data.text"></span>
     </div>
     <mat-icon *ngIf="selectedQuestionData?.sectionType !== data.sectionType">add</mat-icon>
     <mat-icon *ngIf="selectedQuestionData?.sectionType === data.sectionType">remove</mat-icon>

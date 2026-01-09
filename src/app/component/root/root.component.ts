@@ -45,10 +45,11 @@ import { environment } from '../../../environments/environment'
 import { concat, interval,  of } from 'rxjs'
 import { iGOTAIService } from './../../services/igot-ai.service'
 @Component({
-  selector: 'ws-root',
-  templateUrl: './root.component.html',
-  styleUrls: ['./root.component.scss'],
-  providers: [SwUpdate],
+    selector: 'ws-root',
+    templateUrl: './root.component.html',
+    styleUrls: ['./root.component.scss'],
+    providers: [SwUpdate],
+    standalone: false
 })
 export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
 

@@ -1,9 +1,10 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core'
 
 @Component({
-  selector: 'ws-app-app-toc-analytics-tiles',
-  templateUrl: './app-toc-analytics-tiles.component.html',
-  styleUrls: ['./app-toc-analytics-tiles.component.scss'],
+    selector: 'ws-app-app-toc-analytics-tiles',
+    templateUrl: './app-toc-analytics-tiles.component.html',
+    styleUrls: ['./app-toc-analytics-tiles.component.scss'],
+    standalone: false
 })
 export class AppTocAnalyticsTilesComponent implements OnInit {
   @Input() uniqueUsers!: number

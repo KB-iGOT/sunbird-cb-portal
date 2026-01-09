@@ -12,7 +12,7 @@
             <div class="mat-h4 fixed-title" role="heading">{{ resource?.name }}</div>
         </mat-card-title>
 
-        <p class="mat-body-2 ws-mat-black60-text margin-bottom-s whitespace-pre-line description" >
+        <p class="mat-subtitle-2 ws-mat-black60-text margin-bottom-s whitespace-pre-line description" >
             {{ resource?.description }}
         </p>
 
@@ -24,7 +24,7 @@
 
 
         <span class="attach_links" *ngIf="resource?.additionalProperties?.krFiles?.length">
-            <p class="mat-body-2">
+            <p class="mat-subtitle-2">
                 <span *ngFor="let item of resource?.additionalProperties?.krFiles | slice:0:1; index as i">
                     <div class="flex justify-start">
                         <mat-icon class="material-icons-outlined align-bottom ws-mat-default-text margin-right-xs">link</mat-icon>
@@ -34,7 +34,7 @@
             </p>
         </span>
         <span class="attach_links" *ngIf="!resource?.additionalProperties?.krFiles?.length && resource?.additionalProperties?.URL?.length">
-            <p class="mat-body-2">
+            <p class="mat-subtitle-2">
                 <span *ngFor="let item of resource?.additionalProperties?.URL | slice:0:1; index as i">
                     <div class="flex justify-start">
                         <mat-icon class="material-icons-outlined align-bottom ws-mat-default-text margin-right-xs">link</mat-icon>

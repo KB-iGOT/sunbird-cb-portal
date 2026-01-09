@@ -98,7 +98,7 @@
           <button [disabled]="!consentGiven ? 'disabled': null" *ngIf="canAttempt?.attemptsMade < canAttempt?.attemptsAllowed || forPreview || questionTYP.PRACTICE_RESOURCE == primaryCategory" [class.spinner]="loading" (click)="overviewed('start')" [ngClass]="consentGiven ? 'bg-blue-800 text-white' : 'secondary-standalone text-standalone-black'" class=" text-sm font-semibold  py-3 px-5 rounded-full border-none cursor-pointer tracking-wide">
             <span class="padding-xs" >{{'playerbrief.startAssessment' | translate}}</span>
           </button>
-          <mat-hint class="mat-title" *ngIf="canAttempt?.attemptsMade >= canAttempt?.attemptsAllowed && !forPreview && questionTYP.FINAL_ASSESSMENT === primaryCategory">{{'playerbrief.maxAllowedRetake' | translate}}</mat-hint>
+          <mat-hint class="mat-headline-6" *ngIf="canAttempt?.attemptsMade >= canAttempt?.attemptsAllowed && !forPreview && questionTYP.FINAL_ASSESSMENT === primaryCategory">{{'playerbrief.maxAllowedRetake' | translate}}</mat-hint>
         </div>
       </div>
       </div>
@@ -106,13 +106,13 @@
         <button [disabled]="!consentGiven ? 'disabled': null" *ngIf="canAttempt?.attemptsMade < canAttempt?.attemptsAllowed || forPreview || questionTYP.PRACTICE_RESOURCE == primaryCategory" [class.spinner]="loading" (click)="overviewed('start')" [ngClass]="consentGiven ? 'bg-blue-800 text-white' : 'secondary-standalone text-standalone-black'" class="text-sm font-semibold py-3 px-5 rounded-full border-none cursor-pointer tracking-wide">
           <span class="padding-xs" >{{'playerbrief.startAssessment' | translate}}</span>
         </button>
-        <mat-hint class="mat-title" *ngIf="canAttempt?.attemptsMade >= canAttempt?.attemptsAllowed && !forPreview && questionTYP.FINAL_ASSESSMENT === primaryCategory">{{'playerbrief.maxAllowedRetake' | translate}}</mat-hint>
+        <mat-hint class="mat-headline-6" *ngIf="canAttempt?.attemptsMade >= canAttempt?.attemptsAllowed && !forPreview && questionTYP.FINAL_ASSESSMENT === primaryCategory">{{'playerbrief.maxAllowedRetake' | translate}}</mat-hint>
       </div>
       <div class="start-assessment-cta hidden md:block" *ngIf="selectedAssessmentCompatibilityLevel < 7">
         <button *ngIf="canAttempt?.attemptsMade < canAttempt?.attemptsAllowed || forPreview || questionTYP.PRACTICE_RESOURCE == primaryCategory" [class.spinner]="loading" [disabled]="loading" (click)="overviewed('start')" class="bg-blue-800 text-white text-sm font-semibold py-3 px-5 rounded-full border-none cursor-pointer tracking-wide">
           <span class="padding-xs" >{{'playerbrief.startAssessment' | translate}}</span>
         </button>
-        <mat-hint class="mat-title" *ngIf="canAttempt?.attemptsMade >= canAttempt?.attemptsAllowed && !forPreview && questionTYP.FINAL_ASSESSMENT === primaryCategory">{{'playerbrief.maxAllowedRetake' | translate}}</mat-hint>
+        <mat-hint class="mat-headline-6" *ngIf="canAttempt?.attemptsMade >= canAttempt?.attemptsAllowed && !forPreview && questionTYP.FINAL_ASSESSMENT === primaryCategory">{{'playerbrief.maxAllowedRetake' | translate}}</mat-hint>
       </div>
     
     </div>
@@ -177,13 +177,13 @@
   <button *ngIf="canAttempt?.attemptsMade < canAttempt?.attemptsAllowed || questionTYP.PRACTICE_RESOURCE == primaryCategory" [class.spinner]="loading" [disabled]="loading" (click)="overviewed('start')" class="bg-blue-800 text-sm font-semibold text-white py-3 px-5 rounded-full border-none cursor-pointer tracking-wide">
     <span class="padding-xs" >{{'playerbrief.startAssessment' | translate}}</span>
   </button>
-  <mat-hint class="mat-title" *ngIf="canAttempt?.attemptsMade >= canAttempt?.attemptsAllowed && questionTYP.FINAL_ASSESSMENT === primaryCategory">{{'playerbrief.maxAllowedRetake' | translate}}</mat-hint>
+  <mat-hint class="mat-headline-6" *ngIf="canAttempt?.attemptsMade >= canAttempt?.attemptsAllowed && questionTYP.FINAL_ASSESSMENT === primaryCategory">{{'playerbrief.maxAllowedRetake' | translate}}</mat-hint>
 </div>
 
 <ng-template #detail let-icon="icon" let-text="text">
   <mat-card class="flex max-card-w customcard margin-top-xs ws-mat-primary-tags">
     <mat-icon>{{icon}}</mat-icon>
-    <span class="mat-body-2 margin-left-xs">{{ translateLabels(text, 'practiceoverview')}}</span>
+    <span class="mat-subtitle-2 margin-left-xs">{{ translateLabels(text, 'practiceoverview')}}</span>
   </mat-card>
 </ng-template>
 
@@ -191,6 +191,6 @@
   <mat-card class="flex max-card-w customcard margin-top-xs ws-mat-primary-tags">
     <mat-icon color="accent" *ngIf="!isSVG">{{icon}}</mat-icon>
     <img *ngIf="isSVG" [src]="icon" alt="Assessment" class="margin-right-xs">
-    <span class="mat-body-2 margin-left-xs">{{text}}</span>
+    <span class="mat-subtitle-2 margin-left-xs">{{text}}</span>
   </mat-card>
 </ng-template>

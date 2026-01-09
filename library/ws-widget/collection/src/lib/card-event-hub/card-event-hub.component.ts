@@ -1,5 +1,5 @@
 import { Component, HostBinding, Input, OnDestroy, OnInit } from '@angular/core'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
 import { ConfigurationsService, EventService, UtilityService } from '@sunbird-cb/utils-v2'
 import { NsCardContent } from '../card-content-v2/card-content-v2.model'
@@ -11,7 +11,8 @@ import moment from 'moment'
 @Component({
   selector: 'ws-widget-card-event-hub',
   templateUrl: './card-event-hub.component.html',
-  styleUrls: ['./card-event-hub.component.scss']
+  styleUrls: ['./card-event-hub.component.scss'],
+  standalone: false
 })
 export class CardEventHubComponent extends WidgetBaseComponent
   implements OnInit, OnDestroy, NsWidgetResolver.IWidgetData<NsCardContent.ICard> {
@@ -44,8 +45,8 @@ export class CardEventHubComponent extends WidgetBaseComponent
     if (instanceConfig) {
       this.defaultThumbnail = instanceConfig.logos.defaultContent || ''
     }
-    if (this.widgetData && this.widgetData.context && (this.widgetData.context.pageSection === 'todaysevents' 
-      || this.widgetData.context.pageSection === 'liveEvents' || this.widgetData.context.pageSection === 'keySpeakersEvents') ) {
+    if (this.widgetData && this.widgetData.context && (this.widgetData.context.pageSection === 'todaysevents'
+      || this.widgetData.context.pageSection === 'liveEvents' || this.widgetData.context.pageSection === 'keySpeakersEvents')) {
       if (this.widgetData.content) {
         const eventDate = this.events.customDateFormat(this.widgetData.content.event.startDate, this.widgetData.content.event.startTime)
         const eventendDate = this.events.customDateFormat(this.widgetData.content.event.endDate, this.widgetData.content.event.endTime)

@@ -8,7 +8,7 @@
         <a href="javascript:void(0)" class="" i18n-aria-label role="link"
           aria-label="career post title, click to goto details page">
           <mat-card-subtitle class="title">
-            <span class="mat-subheading-2">{{discussion?.title}}</span>
+            <span class="mat-subtitle-1">{{discussion?.title}}</span>
           </mat-card-subtitle>
         </a>
         <!-- </mat-card-header> -->
@@ -16,7 +16,7 @@
           <div class="flex items-center justify-start">
             <!-- <div class="mr-2 truncate category-name ws-mat-default-text" [innerHTML]="discussion.category.name"></div>
               <div class="mr-2 separator-dot"> </div> -->
-            <div class=" truncate time mat-body-2">{{ discussion?.timestamp | pipeRelativeTime}}</div>
+            <div class=" truncate time mat-subtitle-2">{{ discussion?.timestamp | pipeRelativeTime}}</div>
           </div>
         </mat-card-content>
       </mat-card>

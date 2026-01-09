@@ -5,9 +5,10 @@ import { NsContent } from '@sunbird-cb/utils-v2'
 import * as fileSaver from 'file-saver'
 
 @Component({
-  selector: 'ws-widget-app-toc-reference-notes',
-  templateUrl: './app-toc-reference-notes.component.html',
-  styleUrls: ['./app-toc-reference-notes.component.scss'],
+    selector: 'ws-widget-app-toc-reference-notes',
+    templateUrl: './app-toc-reference-notes.component.html',
+    styleUrls: ['./app-toc-reference-notes.component.scss'],
+    standalone: false
 })
 
 export class AppTocReferenceNotesComponent implements OnInit {

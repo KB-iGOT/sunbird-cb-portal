@@ -18,7 +18,7 @@
     <div *ngIf="objKey(widgetData?.sortableFields || {}).length" class="flex justify-end margin-bottom-m">
       <button mat-stroked-button [matMenuTriggerFor]="sortMenu">Sort <mat-icon>arrow_drop_down</mat-icon></button>
     </div>
-    <h2 *ngIf="fetchStatus === 'done' && !searchResults?.result.length" class="mat-title" >
+    <h2 *ngIf="fetchStatus === 'done' && !searchResults?.result.length" class="mat-headline-6" >
       No results
     </h2>
     <div class="flex flex-wrap">
@@ -43,7 +43,7 @@
           <div class="flex-1 min-w-0">
             <div class="flex">
               <h3
-                class="flex-1 min-w-0 mat-subheading-2 margin-remove-bottom margin-left-xs margin-right-xs truncate leading-none pb-1">
+                class="flex-1 min-w-0 mat-subtitle-1 margin-remove-bottom margin-left-xs margin-right-xs truncate leading-none pb-1">
                 {{ content?.name }}
               </h3>
             </div>

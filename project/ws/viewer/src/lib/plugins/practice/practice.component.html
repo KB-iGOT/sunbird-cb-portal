@@ -126,7 +126,7 @@
             <div class="flex flex-row justify-between ques_stats_container_box">
               <div class="flex flex-row">
                 <div>
-                  <p class="mat-subheading-1">
+                  <p class="mat-subtitle-2">
                     {{ 'playerbrief.questions' | translate | titlecase}}
                   </p>
                 </div>
@@ -362,11 +362,11 @@
                   [attr.disabled]="fetchingQuestionsStatus === 'fetching' && section.identifier === selectedSection.identifier"
                   (click)="startSection(section)">
                   <div class="flex flex-1 flex-column">
-                    <span class="flex mat-subheading-1 text-truncate ">{{section.name || 'Section'}}</span>
-                    <span class="flex mat-body-2">Percentage to pass - <ng-container>
+                    <span class="flex mat-subtitle-2 text-truncate ">{{section.name || 'Section'}}</span>
+                    <span class="flex mat-subtitle-2">Percentage to pass - <ng-container>
                         {{section.minimumPassPercentage}}%
                       </ng-container></span>
-                    <span class="flex mat-body-2">Total questions - <ng-container>{{section?.maxQuestions ||
+                    <span class="flex mat-subtitle-2">Total questions - <ng-container>{{section?.maxQuestions ||
                         '0'}}
                       </ng-container></span>
                     <span [innerHtml]="formate(section.additionalInstructions)"></span>
@@ -735,11 +735,11 @@
                   [attr.disabled]="fetchingQuestionsStatus === 'fetching' && section.identifier === selectedSection.identifier"
                   (click)="startSection(section)">
                   <div class="flex flex-1 flex-column">
-                    <span class="flex mat-subheading-1 text-truncate ">{{section.name || 'Section'}}</span>
-                    <span class="flex mat-body-2">{{ 'practiceoverview.percentageToPass' | translate }} - <ng-container>
+                    <span class="flex mat-subtitle-2 text-truncate ">{{section.name || 'Section'}}</span>
+                    <span class="flex mat-subtitle-2">{{ 'practiceoverview.percentageToPass' | translate }} - <ng-container>
                         {{section.minimumPassPercentage}}%
                       </ng-container></span>
-                    <span class="flex mat-body-2">{{ 'practiceoverview.totalQuestions' | translate }} -
+                    <span class="flex mat-subtitle-2">{{ 'practiceoverview.totalQuestions' | translate }} -
                       <ng-container>{{section?.maxQuestions ||
                         '0'}}
                       </ng-container></span>
@@ -839,7 +839,7 @@
       <div class="question-list">
         <div class="ques_stats_container">
           <div class="flex flex-row justify-around ques_stats_container_box">
-            <h3 class="mat-subheading-2">
+            <h3 class="mat-subtitle-1">
               <p> <ws-widget-skeleton-loader [width]="'85px'" [height]="'24px'"
                   [bindingClass]="'flex h-16'"></ws-widget-skeleton-loader></p>
             </h3>
@@ -1040,7 +1040,7 @@
                     </div>
                     <div *ngIf="!(!isQuestionMarked(question?.questionId) &&
                         isQuestionAttempted(question?.questionId)) && (!isQuestionMarked(question?.questionId))"
-                      class="ovel question-number"><span class="mat-body-2">
+                      class="ovel question-number"><span class="mat-subtitle-2">
                         {{ i + 1 }}</span>
                     </div>
                   </div>
@@ -1252,7 +1252,7 @@
               <div class="flex flex-row justify-between ques_stats_container_box">
                 <div class="flex flex-row">
                   <div>
-                    <p class="mat-subheading-1 questions">
+                    <p class="mat-subtitle-2 questions">
                       {{ 'playerbrief.questions' | translate | titlecase}}
                     </p>
                   </div>
@@ -1457,11 +1457,11 @@
                   [attr.disabled]="fetchingQuestionsStatus === 'fetching' && section.identifier === selectedSection.identifier"
                   (click)="startSection(section)">
                   <div class="flex flex-1 flex-column">
-                    <span class="flex mat-subheading-1 text-truncate ">{{section.name || 'Section'}}</span>
-                    <span class="flex mat-body-2">Percentage to pass - <ng-container>
+                    <span class="flex mat-subtitle-2 text-truncate ">{{section.name || 'Section'}}</span>
+                    <span class="flex mat-subtitle-2">Percentage to pass - <ng-container>
                         {{section.minimumPassPercentage}}%
                       </ng-container></span>
-                    <span class="flex mat-body-2">Total questions - <ng-container>{{section?.maxQuestions ||
+                    <span class="flex mat-subtitle-2">Total questions - <ng-container>{{section?.maxQuestions ||
                         '0'}}
                       </ng-container></span>
                     <span [innerHtml]="formate(section.additionalInstructions)"></span>
@@ -1603,7 +1603,7 @@
         <div class="question-list">
           <div class="ques_stats_container">
             <div class="flex flex-row justify-between ques_stats_container_box">
-              <h3 class="mat-subheading-2">
+              <h3 class="mat-subtitle-1">
                 <p> <ws-widget-skeleton-loader [width]="'85px'" [height]="'24px'"
                     [bindingClass]="'flex h-16'"></ws-widget-skeleton-loader></p>
               </h3>
@@ -1803,7 +1803,7 @@
               <div class="flex flex-row justify-between">
                 <div class="flex flex-row">
                   <div>
-                    <p class="mat-subheading-1 questions">
+                    <p class="mat-subtitle-2 questions">
                       {{ 'playerbrief.questions' | translate | titlecase}}
                     </p>
                   </div>
@@ -2058,11 +2058,11 @@
                   [attr.disabled]="fetchingQuestionsStatus === 'fetching' && section.identifier === selectedSection.identifier"
                   (click)="startSection(section)">
                   <div class="flex flex-1 flex-column">
-                    <span class="flex mat-subheading-1 text-truncate ">{{section.name || 'Section'}}</span>
-                    <span class="flex mat-body-2">{{ 'practiceoverview.percentageToPass' | translate }} - <ng-container>
+                    <span class="flex mat-subtitle-2 text-truncate ">{{section.name || 'Section'}}</span>
+                    <span class="flex mat-subtitle-2">{{ 'practiceoverview.percentageToPass' | translate }} - <ng-container>
                         {{section.minimumPassPercentage}}%
                       </ng-container></span>
-                    <span class="flex mat-body-2">{{ 'practiceoverview.totalQuestions' | translate }} -
+                    <span class="flex mat-subtitle-2">{{ 'practiceoverview.totalQuestions' | translate }} -
                       <ng-container>{{section?.maxQuestions ||
                         '0'}}
                       </ng-container></span>
@@ -2172,7 +2172,7 @@
                     </div>
                     <div *ngIf="!(!isQuestionMarked(question?.questionId) &&
                         isQuestionAttempted(question?.questionId)) && (!isQuestionMarked(question?.questionId))"
-                      class="ovel-standalone question-number"><span class="mat-body-2">
+                      class="ovel-standalone question-number"><span class="mat-subtitle-2">
                         {{ i + 1 }}</span>
                     </div>
                   </div>

@@ -7,9 +7,10 @@ import { TranslateService } from '@ngx-translate/core'
 // import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 @Component({
-  selector: 'ws-app-app-toc-home-root',
-  templateUrl: './app-toc-home.component.html',
-  styleUrls: ['./app-toc-home.component.scss'],
+    selector: 'ws-app-app-toc-home-root',
+    templateUrl: './app-toc-home.component.html',
+    styleUrls: ['./app-toc-home.component.scss'],
+    standalone: false
 })
 export class AppTocHomeComponent implements OnInit {
   @ViewChild(AppTocHomeDirective, { static: true }) wsAppAppTocHome!: AppTocHomeDirective

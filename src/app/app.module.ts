@@ -1,6 +1,6 @@
 import { FullscreenOverlayContainer, OverlayContainer } from '@angular/cdk/overlay'
 import { APP_BASE_HREF, PlatformLocation } from '@angular/common'
-import { HttpClient, HttpClientJsonpModule, HttpClientModule, HTTP_INTERCEPTORS } from '@angular/common/http'
+import { HttpClient, HTTP_INTERCEPTORS, provideHttpClient, withInterceptorsFromDi, withJsonpSupport } from '@angular/common/http'
 // Injectable
 import { APP_INITIALIZER, NgModule, ErrorHandler, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core'
 // HAMMER_GESTURE_CONFIG
@@ -140,28 +140,28 @@ import {
 } from '@sunbird-cb/consumption'
 import { PrivacyPolicyComponent } from './component/privacy-policy/privacy-policy.component'
 import { LearnerAdvisoryComponent } from './learner-advisory/learner-advisory.component'
-import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/legacy-button'
-import { MatLegacyCardModule as MatCardModule } from '@angular/material/legacy-card'
-import { MatLegacyCheckboxModule as MatCheckboxModule } from '@angular/material/legacy-checkbox'
+import { MatButtonModule } from '@angular/material/button'
+import { MatCardModule } from '@angular/material/card'
+import { MatCheckboxModule } from '@angular/material/checkbox'
 import { PublicExtTocModule } from './routes/public/public-ext-toc/public-ext-toc.module'
 import { MatRippleModule } from '@angular/material/core'
 import { MatDialogModule } from '@angular/material/dialog'
 import { MatDividerModule } from '@angular/material/divider'
 import { MatExpansionModule } from '@angular/material/expansion'
-import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field'
+import { MatFormFieldModule } from '@angular/material/form-field'
 import { MatIconModule } from '@angular/material/icon'
-import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input'
-import { MatLegacyMenuModule as MatMenuModule } from '@angular/material/legacy-menu'
-import { MatLegacyProgressBarModule as MatProgressBarModule } from '@angular/material/legacy-progress-bar'
-import { MatLegacyProgressSpinnerModule as MatProgressSpinnerModule, MAT_LEGACY_PROGRESS_SPINNER_DEFAULT_OPTIONS as MAT_PROGRESS_SPINNER_DEFAULT_OPTIONS } from '@angular/material/legacy-progress-spinner'
-import { MatLegacySelectModule as MatSelectModule } from '@angular/material/legacy-select'
+import { MatInputModule } from '@angular/material/input'
+import { MatMenuModule } from '@angular/material/menu'
+import { MatProgressBarModule } from '@angular/material/progress-bar'
+import { MatProgressSpinnerModule, MAT_PROGRESS_SPINNER_DEFAULT_OPTIONS as MAT_PROGRESS_SPINNER_DEFAULT_OPTIONS } from '@angular/material/progress-spinner'
+import { MatSelectModule } from '@angular/material/select'
 import { MatSidenavModule } from '@angular/material/sidenav'
-import { MatLegacySliderModule as MatSliderModule } from '@angular/material/legacy-slider'
-import { MAT_LEGACY_SNACK_BAR_DEFAULT_OPTIONS as MAT_SNACK_BAR_DEFAULT_OPTIONS } from '@angular/material/legacy-snack-bar'
-import { MatLegacyTableModule as MatTableModule } from '@angular/material/legacy-table'
-import { MatLegacyTabsModule as MatTabsModule } from '@angular/material/legacy-tabs'
+import { MatSliderModule } from '@angular/material/slider'
+import { MAT_SNACK_BAR_DEFAULT_OPTIONS as MAT_SNACK_BAR_DEFAULT_OPTIONS } from '@angular/material/snack-bar'
+import { MatTableModule } from '@angular/material/table'
+import { MatTabsModule } from '@angular/material/tabs'
 import { MatToolbarModule } from '@angular/material/toolbar'
-import { MatLegacyTooltipModule as MatTooltipModule } from '@angular/material/legacy-tooltip'
+import { MatTooltipModule } from '@angular/material/tooltip'
 import { PickerModule } from '@ctrl/ngx-emoji-mart'
 import { CKEditorModule } from '@ckeditor/ckeditor5-angular'
 import { AppPreAssessmentContentResolverService } from './services/app-pre-assessment-content-read-resolver.service'
@@ -223,14 +223,17 @@ export function HttpLoaderFactory(http: HttpClient) {
     LearnerAdvisoryComponent,
     ProfileVerificationDialogComponent
   ],
-  imports: [
-    FormsModule,
+  exports: [
+    TncComponent,
+    HeaderModule,
+    TranslateModule,
+  ],
+  bootstrap: [RootComponent],
+  schemas: [CUSTOM_ELEMENTS_SCHEMA], imports: [FormsModule,
     MatCheckboxModule,
     QuickTourModule,
     ReactiveFormsModule,
     BrowserModule,
-    HttpClientModule,
-    HttpClientJsonpModule,
     BrowserModule,
     BrowserAnimationsModule,
     AppRoutingModule,
@@ -348,65 +351,57 @@ export function HttpLoaderFactory(http: HttpClient) {
     ProfileV3Module,
     MatSidenavModule,
     PickerModule,
-    CKEditorModule
-  ],
-  exports: [
-    TncComponent,
-    HeaderModule,
-    TranslateModule,
-  ],
-  bootstrap: [RootComponent],
-  providers: [
-    {
-      deps: [InitService, LoggerService],
-      multi: true,
-      provide: APP_INITIALIZER,
-      useFactory: appInitializer,
-    },
-    {
-      provide: MAT_SNACK_BAR_DEFAULT_OPTIONS,
-      useValue: { duration: 5000 },
-    },
-    {
-      provide: MAT_PROGRESS_SPINNER_DEFAULT_OPTIONS,
-      useValue: {
-        diameter: 55,
-        strokeWidth: 4,
+    CKEditorModule], providers: [
+      {
+        deps: [InitService, LoggerService],
+        multi: true,
+        provide: APP_INITIALIZER,
+        useFactory: appInitializer,
       },
-    },
-    { provide: HTTP_INTERCEPTORS, useClass: AppInterceptorService, multi: true },
-    { provide: HTTP_INTERCEPTORS, useClass: AppRetryInterceptorService, multi: true },
-    TncAppResolverService,
-    TncPublicResolverService,
-    WelcomeUserResolverService,
-    ConfigurationsService,
-    PipeContentRoutePipe,
-    AppTocResolverService,
-    AppHierarchyResolverService,
-    AppContentResolverService,
-    AppEnrollmentResolverService,
-    NPSGridService,
-    AppPreAssessmentContentResolverService,
-    HttpClient,
-    CommonDataService,
-    DomainConfService,
-    {
-      provide: APP_BASE_HREF,
-      useFactory: getBaseHref,
-      deps: [PlatformLocation],
-    },
-    {
-      provide: TranslateLoader,
-      useFactory: HttpLoaderFactory,
-      deps: [HttpClient],
-    },
-    { provide: OverlayContainer, useClass: FullscreenOverlayContainer },
-    // { provide: HAMMER_GESTURE_CONFIG, useClass: HammerConfig },
-    { provide: ErrorHandler, useClass: GlobalErrorHandlingService },
-    { provide: 'environment', useValue: environment },
-    GuidedTourService,
-    ResourceDownloadHelperService,
-  ],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA],
+      {
+        provide: MAT_SNACK_BAR_DEFAULT_OPTIONS,
+        useValue: { duration: 5000 },
+      },
+      {
+        provide: MAT_PROGRESS_SPINNER_DEFAULT_OPTIONS,
+        useValue: {
+          diameter: 55,
+          strokeWidth: 4,
+        },
+      },
+      { provide: HTTP_INTERCEPTORS, useClass: AppInterceptorService, multi: true },
+      { provide: HTTP_INTERCEPTORS, useClass: AppRetryInterceptorService, multi: true },
+      TncAppResolverService,
+      TncPublicResolverService,
+      WelcomeUserResolverService,
+      ConfigurationsService,
+      PipeContentRoutePipe,
+      AppTocResolverService,
+      AppHierarchyResolverService,
+      AppContentResolverService,
+      AppEnrollmentResolverService,
+      NPSGridService,
+      AppPreAssessmentContentResolverService,
+      HttpClient,
+      CommonDataService,
+      DomainConfService,
+      {
+        provide: APP_BASE_HREF,
+        useFactory: getBaseHref,
+        deps: [PlatformLocation],
+      },
+      {
+        provide: TranslateLoader,
+        useFactory: HttpLoaderFactory,
+        deps: [HttpClient],
+      },
+      { provide: OverlayContainer, useClass: FullscreenOverlayContainer },
+      // { provide: HAMMER_GESTURE_CONFIG, useClass: HammerConfig },
+      { provide: ErrorHandler, useClass: GlobalErrorHandlingService },
+      { provide: 'environment', useValue: environment },
+      GuidedTourService,
+      ResourceDownloadHelperService,
+      provideHttpClient(withInterceptorsFromDi(), withJsonpSupport()),
+    ]
 })
 export class AppModule { }

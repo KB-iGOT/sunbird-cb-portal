@@ -9,9 +9,10 @@ import { NsAppToc } from '../../models/app-toc.model'
 import { AppTocService } from '../../services/app-toc.service'
 
 @Component({
-  selector: 'ws-app-app-toc-overview',
-  templateUrl: './app-toc-overview.component.html',
-  styleUrls: ['./app-toc-overview.component.scss'],
+    selector: 'ws-app-app-toc-overview',
+    templateUrl: './app-toc-overview.component.html',
+    styleUrls: ['./app-toc-overview.component.scss'],
+    standalone: false
 })
 export class AppTocOverviewComponent implements OnInit, OnDestroy {
   content: NsContent.IContent | null = null

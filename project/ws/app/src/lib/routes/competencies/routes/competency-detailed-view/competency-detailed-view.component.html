@@ -4,18 +4,18 @@
             <div class="left_content_box">
                 <h2 class="mat-h2  inline-block "> {{competencyData?.name }}</h2>
                 <div>
-                    <p class="mat-body-1 ws-mat-black60-text">{{competencyData?.description}}</p>
+                    <p class="mat-subtitle-2 ws-mat-black60-text">{{competencyData?.description}}</p>
 
 
-                    <p class="mat-body-1 ws-mat-black60-text highlight_point_text">
+                    <p class="mat-subtitle-2 ws-mat-black60-text highlight_point_text">
                         {{'competencyDetailedView.type' | translate }}
                         <span
-                            class="mat-primary mat-subheading-1">{{competencyData?.additionalProperties?.competencyType}}</span>
+                            class="mat-primary mat-subtitle-2">{{competencyData?.additionalProperties?.competencyType}}</span>
                     </p>
-                    <p class="mat-body-1 ws-mat-black60-text highlight_point_text">
+                    <p class="mat-subtitle-2 ws-mat-black60-text highlight_point_text">
                         {{'competencyDetailedView.area' | translate }}
                         <span
-                            class="mat-primary mat-subheading-1">{{competencyData?.additionalProperties?.competencyArea}}</span>
+                            class="mat-primary mat-subtitle-2">{{competencyData?.additionalProperties?.competencyArea}}</span>
                     </p>
 
                 </div>
@@ -45,10 +45,10 @@
         <div class="flex flex-column flex-wrap margin-fix margin-top-56">
             <div class="card_title_box flex flex-row justify-start margin-bottom-s">
                 <div class="left_title_div">
-                    <p class="margin-remove ws-mat-black60-text mat-subheading-2">{{'competencyDetailedView.level' | translate }}</p>
+                    <p class="margin-remove ws-mat-black60-text mat-subtitle-1">{{'competencyDetailedView.level' | translate }}</p>
                 </div>
                 <div class="right_title_div">
-                    <p class="margin-remove ws-mat-black60-text mat-subheading-2">{{'competencyDetailedView.description' | translate }}</p>
+                    <p class="margin-remove ws-mat-black60-text mat-subtitle-1">{{'competencyDetailedView.description' | translate }}</p>
                 </div>
             </div>
             <ng-container *ngIf="competencyData && competencyData?.children && competencyData?.children.length > 0">

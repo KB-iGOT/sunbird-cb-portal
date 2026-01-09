@@ -1,5 +1,5 @@
 import { Component, HostBinding, Input, OnInit } from '@angular/core'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { NsContent } from '../_services/widget-content.model'
 import { BtnKbDialogComponent } from './btn-kb-dialog/btn-kb-dialog.component'
@@ -8,6 +8,7 @@ import { BtnKbDialogComponent } from './btn-kb-dialog/btn-kb-dialog.component'
   selector: 'ws-widget-btn-kb',
   templateUrl: './btn-kb.component.html',
   styleUrls: ['./btn-kb.component.scss'],
+  standalone: false
 })
 export class BtnKbComponent implements OnInit {
   @Input() status!: string

@@ -3,7 +3,7 @@ import { LoaderService } from '@ws/author/src/lib/services/loader.service'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { Component, OnInit, ViewEncapsulation, ChangeDetectorRef, HostListener, OnDestroy } from '@angular/core'
 import { SafeUrl, DomSanitizer } from '@angular/platform-browser'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { Notify } from '@ws/author/src/lib/constants/notificationMessage'
 import { NotificationComponent } from '@ws/author/src/lib/modules/shared/components/notification/notification.component'
 import { NOTIFICATION_TIME } from '@ws/author/src/lib/constants/constant'
@@ -14,6 +14,7 @@ import { NOTIFICATION_TIME } from '@ws/author/src/lib/constants/constant'
   styleUrls: ['./root.component.scss'],
   // tslint:disable-next-line:use-component-view-encapsulation
   encapsulation: ViewEncapsulation.None,
+  standalone: false
 })
 export class AuthRootComponent implements OnInit, OnDestroy {
   appIcon: SafeUrl | null = null

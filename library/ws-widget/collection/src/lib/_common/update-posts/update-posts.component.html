@@ -1,5 +1,5 @@
 <div class="flex h-full flex-col gap-4">
-    <div class="flex flex-row gap-3 items-center mat-subheading-1 mb-0">
+    <div class="flex flex-row gap-3 items-center mat-subtitle-2 mb-0">
         <div class="flex flex-grow">{{ 'updateposts.discussUpdateOnPost' | translate }}</div>
         <div class="text-2xl ws-mat-default-text">
             <ng-container *ngIf="isMobile">
@@ -53,13 +53,13 @@
     <ng-container *ngIf="updatesPosts.error">
         <div class="flex flex-col items-center gap-3 p-4">
             <mat-icon class="no-data-found">report_off</mat-icon>
-            <div class="mat-subheading-1">{{ 'updateposts.noDataFound' | translate }}</div>
+            <div class="mat-subtitle-2">{{ 'updateposts.noDataFound' | translate }}</div>
             <div class="text-center">{{ 'updateposts.unableToFetch' | translate }}</div>
         </div>
     </ng-container>
     <ng-container *ngIf="!isMobile && updatesPosts?.data?.length > 3">
         <div class="flex flex-row gap-2 justify-center" *ngIf="!updatesPosts.loadSkeleton && !updatesPosts.error">
-            <div class="flex ws-mat-default-text items-center justify-center mat-body-1 cursor-pointer"
+            <div class="flex ws-mat-default-text items-center justify-center mat-subtitle-2 cursor-pointer"
                 [routerLink]="['/app/discussion-forum']" [queryParams]="{page: 'home'}">
                 <div>{{ 'updateposts.showAll' | translate }}</div>
                 <mat-icon>

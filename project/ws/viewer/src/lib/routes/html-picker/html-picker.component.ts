@@ -7,9 +7,10 @@ import { EventService, WsEvents } from '@sunbird-cb/utils-v2'
 import { ViewerUtilService } from '../../viewer-util.service'
 
 @Component({
-  selector: 'viewer-html-picker',
-  templateUrl: './html-picker.component.html',
-  styleUrls: ['./html-picker.component.scss'],
+    selector: 'viewer-html-picker',
+    templateUrl: './html-picker.component.html',
+    styleUrls: ['./html-picker.component.scss'],
+    standalone: false
 })
 export class HtmlPickerComponent implements OnInit, OnDestroy {
   private routeDataSubscription: Subscription | null = null

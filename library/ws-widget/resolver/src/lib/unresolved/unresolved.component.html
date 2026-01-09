@@ -16,13 +16,13 @@
     <div class="flex flex-wrap flex-between">
       <div>
         <div class="margin-top-s">
-          <span class="mat-body-2 font-bold" >
+          <span class="mat-subtitle-2 font-bold" >
             Widget Type :
           </span>
           {{ widgetType }}
         </div>
         <div class="margin-top-s">
-          <span class="mat-body-2 font-bold" >
+          <span class="mat-subtitle-2 font-bold" >
             Widget Sub Type :
           </span>
           {{ widgetSubType }}
@@ -42,7 +42,7 @@
       </div>
     </div>
     <ng-container *ngIf="widgetData">
-      <pre *ngIf="showData" class="margin-top-s"><span class="mat-body-2 font-bold">Widget Data :</span>
+      <pre *ngIf="showData" class="margin-top-s"><span class="mat-subtitle-2 font-bold">Widget Data :</span>
 {{ widgetData | json }}
     </pre>
     </ng-container>

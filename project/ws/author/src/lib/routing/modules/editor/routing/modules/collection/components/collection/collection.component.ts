@@ -38,10 +38,11 @@ import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/l
  */
 
 @Component({
-  selector: 'ws-auth-collection',
-  templateUrl: './collection.component.html',
-  styleUrls: ['./collection.component.scss'],
-  providers: [CollectionStoreService, CollectionResolverService],
+    selector: 'ws-auth-collection',
+    templateUrl: './collection.component.html',
+    styleUrls: ['./collection.component.scss'],
+    providers: [CollectionStoreService, CollectionResolverService],
+    standalone: false
 })
 export class CollectionComponent implements OnInit, OnDestroy {
   contents: NSContent.IContentMeta[] = []

@@ -1,7 +1,7 @@
 
 import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angular/core'
 import { NSDiscussData } from '../../models/discuss.model'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 import { DiscussStartComponent } from '../../components/discuss-start/discuss-start.component'
 import { ActivatedRoute, Router } from '@angular/router'
 import { DiscussService } from '../../services/discuss.service'
@@ -15,7 +15,7 @@ import _ from 'lodash'
   styleUrls: ['./discuss-all.component.scss'],
   /* tslint:disable */
   host: { class: 'flex flex-1 margin-top-l' },
-  /* tslint:enable */
+  standalone: false
 })
 export class DiscussAllComponent implements OnInit, AfterViewInit {
   @ViewChild('stickyMenu', { static: true }) menuElement!: ElementRef

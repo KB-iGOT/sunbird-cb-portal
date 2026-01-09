@@ -9,9 +9,10 @@ import { WsEvents, EventService, ConfigurationsService } from '@sunbird-cb/utils
 import { ViewerUtilService } from '../../viewer-util.service'
 
 @Component({
-  selector: 'viewer-offline-session',
-  templateUrl: './offline-session.component.html',
-  styleUrls: ['./offline-session.component.scss'],
+    selector: 'viewer-offline-session',
+    templateUrl: './offline-session.component.html',
+    styleUrls: ['./offline-session.component.scss'],
+    standalone: false
 })
 export class OfflineSessionComponent implements OnInit, OnDestroy {
   private dataSubscription: Subscription | null = null

@@ -1,5 +1,5 @@
 <main class="my-4">
-  <h3 *ngIf="!trackGoal?.pending?.length" class="text-center mat-title" >No Pending items</h3>
+  <h3 *ngIf="!trackGoal?.pending?.length" class="text-center mat-headline-6" >No Pending items</h3>
   <div *ngIf="trackGoal?.pending?.length" class="mb-4">
     <table mat-table [dataSource]="dataSourcePending" class="mat-elevation-z2 w-full" *ngIf="dataSourcePending">
       <!-- Checkbox Column -->

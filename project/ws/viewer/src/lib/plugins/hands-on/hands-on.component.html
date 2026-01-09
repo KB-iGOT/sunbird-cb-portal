@@ -1,6 +1,6 @@
 <mat-card class="margin-m">
   <div class="flex">
-    <h3 class="mat-title">{{ exerciseData?.title }}</h3>
+    <h3 class="mat-headline-6">{{ exerciseData?.title }}</h3>
     <span class="spacer"></span>
     <h3 class="mat-h3" *ngIf="resourceType === 'Exercise'">
       {{ exerciseTimeRemaining / 1000 | pipeDurationTransform: 'hms' }}
@@ -118,7 +118,7 @@
   </mat-card> -->
 
   <ng-container *ngIf="isPostActionSectionShown && postActionSectionContent === 'execute'">
-    <h2 class="mat-title" i18n="execution dialog heading">
+    <h2 class="mat-headline-6" i18n="execution dialog heading">
       Execution Result
     </h2>
     <div class="text-center" *ngIf="!exerciseResult && executionInProgress">
@@ -144,7 +144,7 @@
 
   <mat-card *ngIf="isPostActionSectionShown && postActionSectionContent === 'verify'">
     <mat-card-header>
-      <h2 class="mat-title" i18n="Verification dialog heading">
+      <h2 class="mat-headline-6" i18n="Verification dialog heading">
         Verification Result
       </h2>
     </mat-card-header>
@@ -168,7 +168,7 @@
                     <div class="flex flex-middle flex-center width-1-1">
                       <ws-widget-completion-spinner [completed]="verifyResult?.NumericalStatistics?.TotalCasesPassed" [outOf]="verifyResult?.NumericalStatistics?.TotalTestCases"></ws-widget-completion-spinner>
                     </div>
-                    <h2 class="mat-title" i18n="label number of correct answers">
+                    <h2 class="mat-headline-6" i18n="label number of correct answers">
                       Total
                     </h2>
                   </div>
@@ -177,7 +177,7 @@
                       <ws-widget-completion-spinner [completed]="verifyResult?.NumericalStatistics?.StructuralTestCasesPassed" [outOf]="verifyResult?.NumericalStatistics?.TotalStructuralTestCases">
                       </ws-widget-completion-spinner>
                     </div>
-                    <h2 class="mat-title" i18n="label number of incorrect answers">
+                    <h2 class="mat-headline-6" i18n="label number of incorrect answers">
                       Structural
                     </h2>
                   </div>
@@ -186,7 +186,7 @@
                       <ws-widget-completion-spinner [completed]="verifyResult?.NumericalStatistics?.LogicalTestCasesPassed" [outOf]="verifyResult?.NumericalStatistics?.TotalLogicalTestCases">
                       </ws-widget-completion-spinner>
                     </div>
-                    <h2 class="mat-title" i18n="label of unanswered questions">
+                    <h2 class="mat-headline-6" i18n="label of unanswered questions">
                       Logical
                     </h2>
                   </div>
@@ -328,7 +328,7 @@
                         1 * verifyResult?.verifySummary?.SampleTCFailed
                         "></ws-widget-completion-spinner>
                     </div>
-                    <h2 class="mat-title" i18n="label number of correct answers">
+                    <h2 class="mat-headline-6" i18n="label number of correct answers">
                       Total
                     </h2>
                   </div>
@@ -339,7 +339,7 @@
                           1 * verifyResult?.verifySummary?.SampleTCFailed
                         "></ws-widget-completion-spinner>
                     </div>
-                    <h2 class="mat-title" i18n="label number of incorrect answers">
+                    <h2 class="mat-headline-6" i18n="label number of incorrect answers">
                       Sample
                     </h2>
                   </div>
@@ -350,7 +350,7 @@
                           1 * verifyResult?.verifySummary?.HiddenTCFailed
                         "></ws-widget-completion-spinner>
                     </div>
-                    <h2 class="mat-title" i18n="label of unanswered questions">
+                    <h2 class="mat-headline-6" i18n="label of unanswered questions">
                       Actual
                     </h2>
                   </div>
@@ -466,7 +466,7 @@
                               1 * verifyJavaResult?.resultSummary?.failedProceduralActualTC
                               "></ws-widget-completion-spinner>
                     </div>
-                    <h2 class="mat-title" i18n="label number of correct answers">
+                    <h2 class="mat-headline-6" i18n="label number of correct answers">
                       Total
                     </h2>
                   </div>
@@ -477,7 +477,7 @@
                                 1 * verifyJavaResult?.resultSummary?.passedStructuralTC
                               "></ws-widget-completion-spinner>
                     </div>
-                    <h2 class="mat-title" i18n="label number of incorrect answers">
+                    <h2 class="mat-headline-6" i18n="label number of incorrect answers">
                       Structural
                     </h2>
                   </div>
@@ -488,7 +488,7 @@
                                 1 * verifyJavaResult?.resultSummary?.failedProceduralSampleTC
                               "></ws-widget-completion-spinner>
                     </div>
-                    <h2 class="mat-title" i18n="label of unanswered questions">
+                    <h2 class="mat-headline-6" i18n="label of unanswered questions">
                       Sample
                     </h2>
                   </div>
@@ -499,7 +499,7 @@
                                                   1 * verifyJavaResult?.resultSummary?.failedProceduralActualTC
                                                 "></ws-widget-completion-spinner>
                     </div>
-                    <h2 class="mat-title" i18n="label of unanswered questions">
+                    <h2 class="mat-headline-6" i18n="label of unanswered questions">
                       Actual
                     </h2>
                   </div>
@@ -700,7 +700,7 @@
 
   <mat-card *ngIf="isPostActionSectionShown && postActionSectionContent === 'submit'">
     <mat-card-header>
-      <h2 class="mat-title" i18n="Submission dialog heading">
+      <h2 class="mat-headline-6" i18n="Submission dialog heading">
         Submission Result
       </h2>
     </mat-card-header>

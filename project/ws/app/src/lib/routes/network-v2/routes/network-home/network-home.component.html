@@ -1,10 +1,10 @@
 <div class="flex width-expand flex-column" id="people_connection_request">
   <div class="flex flex-1 mb-4 search">
-    <mat-form-field appearance="outline" class="autocomplete-form mat-body-2" color="primary" [floatLabel]="'never'">
+    <mat-form-field appearance="outline" class="autocomplete-form mat-subtitle-2" color="primary" [floatLabel]="'never'">
       <mat-icon matPrefix class="ml-5 flex items-center justify-center">search</mat-icon>
       <!-- <mat-placeholder>Search user</mat-placeholder> -->
       <!-- <input [(ngModel)]="nameFilter" (ngModelChange)="searchUser()" matInput type="search"> -->
-      <mat-label class="mat-body-2">{{ 'network.searchBynameDept' | translate }}</mat-label>
+      <mat-label class="mat-subtitle-2">{{ 'network.searchBynameDept' | translate }}</mat-label>
 
       <input type="search" #searchInput class="ml-2" [(ngModel)]="nameFilter" (ngModelChange)="searchUser()" matInput
         type="search" [placeholder]="'Search user'" maxlength="50" />
@@ -71,8 +71,8 @@
       <mat-card-header class="flex items-baseline margin-fix">
         <mat-card-title class="margin-l-0 f-medium  flex-1">
           <span class="width-expand">
-            <span class="mat-subheading-1" *ngIf="connectionRequests && connectionRequests.length > 1 ">{{ 'network.cRequests'| translate }}</span>
-            <span class="mat-subheading-1" *ngIf="connectionRequests && connectionRequests.length === 1 ">{{ 'network.cRequest'| translate }}</span>
+            <span class="mat-subtitle-2" *ngIf="connectionRequests && connectionRequests.length > 1 ">{{ 'network.cRequests'| translate }}</span>
+            <span class="mat-subtitle-2" *ngIf="connectionRequests && connectionRequests.length === 1 ">{{ 'network.cRequest'| translate }}</span>
           </span>
         </mat-card-title>
         <span class="spacer"></span>
@@ -108,7 +108,7 @@
       <mat-card-header class="flex items-baseline margin-fix">
         <mat-card-title class="margin-l-0 f-medium  flex-1">
           <span class="width-expand">
-            <span class="mat-subheading-1">{{ 'msg.peopleYouMayKnow' | translate }}</span>
+            <span class="mat-subtitle-2">{{ 'msg.peopleYouMayKnow' | translate }}</span>
           </span>
         </mat-card-title>
         <span class="spacer"></span>

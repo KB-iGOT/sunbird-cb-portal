@@ -1,7 +1,7 @@
-import { Injectable, Inject } from '@angular/core'
+import { Injectable, Inject, DOCUMENT } from '@angular/core'
 import { Observable, of, throwError } from 'rxjs'
 import { WINDOW } from './window.service'
-import { DOCUMENT } from '@angular/common'
+
 
 @Injectable()
 export class FileDownloadService {

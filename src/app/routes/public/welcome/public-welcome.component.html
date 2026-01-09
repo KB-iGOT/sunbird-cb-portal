@@ -241,7 +241,7 @@
                                         <!-- //NOSONAR --> <mat-icon matPrefix class="flex items-right justify-right cursor-pointer close-rounded"
                                             (click)="editOrg()">close</mat-icon>
                                     </div>
-                                    <div class="flex flex-1 items-center flex-wrap text-left mat-body-2">
+                                    <div class="flex flex-1 items-center flex-wrap text-left mat-subtitle-2">
                                         <span *ngIf="heirarchyObject?.l1OrgName">Under &nbsp;</span>
                                         <span *ngIf="heirarchyObject?.l1OrgName">{{heirarchyObject?.l1OrgName}}</span>
                                         <span *ngIf="heirarchyObject?.l2OrgName"> <mat-icon matPrefix
@@ -265,7 +265,7 @@
                                             {{organisation?.orgName}}
                                         </h3>
                                     </div>
-                                    <div class="flex flex-1 items-center flex-wrap text-left mat-body-2">
+                                    <div class="flex flex-1 items-center flex-wrap text-left mat-subtitle-2">
                                         <span *ngIf="organisation?.l1OrgName">Under &nbsp;</span>
                                         <span *ngIf="organisation?.l1OrgName">{{organisation?.l1OrgName}}</span>
                                         <span *ngIf="organisation?.l2OrgName"> <mat-icon matPrefix
@@ -276,8 +276,8 @@
                             </ng-template>
                             <ng-template #noResult let-type="type">
                                 <div class="flex-col text-center items-center justify-center px-6 py-3">
-                                    <div class="mat-body-2 px-6">We couldn't find any matches for your search. </div>
-                                    <div class="mat-body-2 padding-top-xs">
+                                    <div class="mat-subtitle-2 px-6">We couldn't find any matches for your search. </div>
+                                    <div class="mat-subtitle-2 padding-top-xs">
                                         <a class="flex-1 ws-mat-accent-text cursor-pointer font-bold" (click)="navigateTo(type)"> Request for
                                             help</a>
                                     </div>
@@ -285,7 +285,7 @@
                             </ng-template>
                             <ng-template #onlynoResult let-type="type">
                                 <div class="flex-col text-center items-center justify-center px-6 py-3">
-                                    <div class="mat-body-2 px-6">We couldn't find any matches for your search.</div>
+                                    <div class="mat-subtitle-2 px-6">We couldn't find any matches for your search.</div>
                                 </div>
                             </ng-template>
                         </div>
@@ -297,7 +297,7 @@
                                     i18n-aria-label
                                     aria-label="I confirm that the above provided information are accurate. checkbox"
                                     required>
-                                    <label for="confirm" class="margin-remove-bottom mat-body-2 ws-mat-black60-text"
+                                    <label for="confirm" class="margin-remove-bottom mat-subtitle-2 ws-mat-black60-text"
                                         i18n-aria-label
                                         aria-label="I confirm that the above provided information are accurate. checkbox label">
                                         I confirm that the above provided information is accurate.

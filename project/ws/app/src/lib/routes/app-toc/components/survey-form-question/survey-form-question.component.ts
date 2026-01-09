@@ -1,30 +1,28 @@
-import { CommonModule } from '@angular/common';
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core';
-import { FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { MatDatepickerModule } from '@angular/material/datepicker';
-import { MatIconModule } from '@angular/material/icon';
-import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input';
-import { MatLegacyCheckboxModule } from '@angular/material/legacy-checkbox';
-import { MatLegacyInputModule } from '@angular/material/legacy-input';
-import { MatLegacyRadioModule } from '@angular/material/legacy-radio';
-import { MatLegacySelectModule } from '@angular/material/legacy-select';
-import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field'
-import { TranslateModule } from '@ngx-translate/core';
+import { CommonModule } from '@angular/common'
+import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core'
+import { FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms'
+import { MatDatepickerModule } from '@angular/material/datepicker'
+import { MatIconModule } from '@angular/material/icon'
+import { MatInputModule } from '@angular/material/input'
+import { MatCheckboxModule } from '@angular/material/checkbox'
+import { MatRadioModule } from '@angular/material/radio'
+import { MatSelectModule } from '@angular/material/select'
+import { MatFormFieldModule } from '@angular/material/form-field'
+import { TranslateModule } from '@ngx-translate/core'
 
 @Component({
   selector: 'ws-app-survey-form-question',
-  standalone: true,
   imports: [
     CommonModule,
     MatInputModule,
-    MatLegacyRadioModule,
-    MatLegacySelectModule,
-    MatLegacyCheckboxModule,
-    MatLegacyInputModule,
+    MatRadioModule,
+    MatSelectModule,
+    MatCheckboxModule,
+    MatInputModule,
     MatDatepickerModule,
     MatIconModule,
-    MatLegacySelectModule,
-    ReactiveFormsModule, 
+    MatSelectModule,
+    ReactiveFormsModule,
     FormsModule,
     MatFormFieldModule,
     TranslateModule
@@ -33,7 +31,7 @@ import { TranslateModule } from '@ngx-translate/core';
   styleUrls: ['./survey-form-question.component.scss']
 })
 export class SurveyFormQuestionComponent implements OnInit {
-  @Input() questionForm!: FormGroup;
+  @Input() questionForm!: FormGroup
   @Input() fieldDetails: any
 
   @Output() questionValues = new EventEmitter()
@@ -45,14 +43,14 @@ export class SurveyFormQuestionComponent implements OnInit {
   ngOnInit(): void {
     if (this.questionForm) {
       this.answerControl.valueChanges.subscribe((value: any) => {
-        if(value !==  this.previesAnswer && value !== null) {
-          if(this.fieldDetails['fieldType'] === 'numeric') {
-            let modifiedValue = value.replace(/[^0-9.]/g, ''); // Remove all non-numeric and non-decimal characters
-            const decimalCount = (modifiedValue.match(/\./g) || []).length;
+        if (value !== this.previesAnswer && value !== null) {
+          if (this.fieldDetails['fieldType'] === 'numeric') {
+            let modifiedValue = value.replace(/[^0-9.]/g, '') // Remove all non-numeric and non-decimal characters
+            const decimalCount = (modifiedValue.match(/\./g) || []).length
             if (decimalCount > 1) {
-              modifiedValue = modifiedValue.replace(/\.$/, ''); // Remove the last decimal point
+              modifiedValue = modifiedValue.replace(/\.$/, '') // Remove the last decimal point
             }
-            if(value !== modifiedValue) {
+            if (value !== modifiedValue) {
               this.answerControl.patchValue(modifiedValue)
             }
           }
@@ -75,7 +73,7 @@ export class SurveyFormQuestionComponent implements OnInit {
   }
 
   sectionChange() {
-    if(this.questionForm.controls.isNA.value) {
+    if (this.questionForm.controls.isNA.value) {
       this.answerControl.reset()
       this.answerControl.clearValidators()
       const validatorsArray = this.fieldDetails['validatorsArray'] ? this.fieldDetails['validatorsArray'].filter((validator: any) => validator !== Validators.required) : []
@@ -87,7 +85,7 @@ export class SurveyFormQuestionComponent implements OnInit {
   }
 
   resetCheckboxes() {
-    if(this.fieldDetails && this.fieldDetails.values) {
+    if (this.fieldDetails && this.fieldDetails.values) {
       this.fieldDetails.values.forEach((e: any) => {
         e['checked'] = false
       })
@@ -95,7 +93,7 @@ export class SurveyFormQuestionComponent implements OnInit {
   }
 
   setRating(rating: number) {
-    if(this.answerControl) {
+    if (this.answerControl) {
       this.answerControl.patchValue(rating)
       this.emitAnswer()
     }
@@ -103,12 +101,12 @@ export class SurveyFormQuestionComponent implements OnInit {
 
   checkboxClicked(event: any, index: number) {
     let checkedList = this.answerControl.value ? this.answerControl.value : []
-    if(event.checked) {
+    if (event.checked) {
       checkedList.push(event.source.value)
     } else {
       checkedList = checkedList.filter((e: any) => e !== event.source.value)
     }
-    if(this.fieldDetails.values && this.fieldDetails.values[index]) {
+    if (this.fieldDetails.values && this.fieldDetails.values[index]) {
       this.fieldDetails.values[index]['checked'] = event.checked
     }
     this.answerControl.patchValue(checkedList)

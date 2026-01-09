@@ -9,43 +9,44 @@ import { AppTocService } from '../../services/app-toc.service'
 import {
   UserAutocompleteService,
 } from '@sunbird-cb/collection'
-import { MatLegacyAutocomplete as MatAutocomplete, MatLegacyAutocompleteSelectedEvent as MatAutocompleteSelectedEvent } from '@angular/material/legacy-autocomplete'
-import { MatLegacyChipInputEvent as MatChipInputEvent } from '@angular/material/legacy-chips'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatAutocomplete, MatAutocompleteSelectedEvent } from '@angular/material/autocomplete'
+import { MatChipInputEvent } from '@angular/material/chips'
+import { MatSnackBar } from '@angular/material/snack-bar'
 @Component({
   selector: 'ws-app-share-toc',
   templateUrl: './share-toc.component.html',
   styleUrls: ['./share-toc.component.scss'],
+  standalone: false
 })
 export class ShareTocComponent implements OnInit {
-   shareForm: UntypedFormGroup | undefined
-   selectable = true
-   removable = true
-   addOnBlur = true
-   separatorKeysCodes: number[] = [ENTER]
-   userCtrl = new UntypedFormControl('')
-   filteredUsers: any []| undefined
-   users: any[] = []
-   allUsers: any[] = []
-   apiResponse: any
-   courseDetails: any
-   userProfile: any
-   maxEmailsLimit = 30
-   showLoader = false
-   @Input() rootOrgId: any
-   @Input() content: any
-   @Input() contentLink: any = ''
-   @ViewChild('userInput') userInput: ElementRef<HTMLInputElement> | undefined
-   @ViewChild('auto') matAutocomplete: MatAutocomplete | undefined
-   @Output() resetEnableShare: any = new EventEmitter()
-   @Input() baseContentReadData: any 
+  shareForm: UntypedFormGroup | undefined
+  selectable = true
+  removable = true
+  addOnBlur = true
+  separatorKeysCodes: number[] = [ENTER]
+  userCtrl = new UntypedFormControl('')
+  filteredUsers: any[] | undefined
+  users: any[] = []
+  allUsers: any[] = []
+  apiResponse: any
+  courseDetails: any
+  userProfile: any
+  maxEmailsLimit = 30
+  showLoader = false
+  @Input() rootOrgId: any
+  @Input() content: any
+  @Input() contentLink: any = ''
+  @ViewChild('userInput') userInput: ElementRef<HTMLInputElement> | undefined
+  @ViewChild('auto') matAutocomplete: MatAutocomplete | undefined
+  @Output() resetEnableShare: any = new EventEmitter()
+  @Input() baseContentReadData: any
   constructor(private userAutoComplete: UserAutocompleteService,
-              private langtranslations: MultilingualTranslationsService,
-              private translate: TranslateService,
-              private snackBar: MatSnackBar,
-              public configSvc: ConfigurationsService,
-              private tocSvc: AppTocService,
-              private events: EventService) {
+    private langtranslations: MultilingualTranslationsService,
+    private translate: TranslateService,
+    private snackBar: MatSnackBar,
+    public configSvc: ConfigurationsService,
+    private tocSvc: AppTocService,
+    private events: EventService) {
     this.langtranslations.languageSelectedObservable.subscribe(() => {
       if (localStorage.getItem('websiteLanguage')) {
         this.translate.setDefaultLang('en')
@@ -135,7 +136,7 @@ export class ShareTocComponent implements OnInit {
         if (el != null) {
           setTimeout(() => {
             el[0].scrollTop = el[0].scrollHeight
-          },         200)
+          }, 200)
         }
       } else {
         this.openSnackbar(this.translateLabels('invalidEmail', 'contentSharing', ''))
@@ -170,7 +171,7 @@ export class ShareTocComponent implements OnInit {
     if (el != null) {
       setTimeout(() => {
         el[0].scrollTop = el[0].scrollHeight
-      },         200)
+      }, 200)
     }
   }
 
@@ -190,13 +191,13 @@ export class ShareTocComponent implements OnInit {
     let primaryCategory = ''
     let courseLink = ''
     if (this.content) {
-        courseProvider = this.content.organisation && this.content.organisation[0]
+      courseProvider = this.content.organisation && this.content.organisation[0]
         || this.content.contentPartner && this.content.contentPartner.partnerCode
         || this.content.source
-        courseId = this.baseContentReadData ? this.baseContentReadData.identifier : this.content.identifier || this.content.contentId,
+      courseId = this.baseContentReadData ? this.baseContentReadData.identifier : this.content.identifier || this.content.contentId,
         courseName = this.content.name,
         coursePosterImageUrl = this.content.posterImage ||
-         this.content.appIcon ||  'assets/instances/eagle/app_logos/KarmayogiBharat_Logo.svg',
+        this.content.appIcon || 'assets/instances/eagle/app_logos/KarmayogiBharat_Logo.svg',
         primaryCategory = this.content.primaryCategory || this.content.contentId ? 'External Course' : '',
         courseLink = this.contentLink || ''
     }
@@ -214,7 +215,7 @@ export class ShareTocComponent implements OnInit {
         primaryCategory,
         courseLink,
         recipients: '',
-        ...(language && { language } ),
+        ...(language && { language }),
       },
     }
     const recipients: any = []
@@ -242,7 +243,7 @@ export class ShareTocComponent implements OnInit {
       }, error => {
         // tslint:disable
         console.log(error)
-        this.openSnackbar(this.translateLabels('error','contentSharing',''))
+        this.openSnackbar(this.translateLabels('error', 'contentSharing', ''))
       })
     }
   }
@@ -263,7 +264,7 @@ export class ShareTocComponent implements OnInit {
     textArea.select()
     document.execCommand('copy')
     document.body.removeChild(textArea)
-    this.openSnackbar(this.translateLabels('linkCopied','contentSharing',''))
+    this.openSnackbar(this.translateLabels('linkCopied', 'contentSharing', ''))
     this.raiseTelemetry('copyToClipboard')
   }
 
@@ -291,7 +292,7 @@ export class ShareTocComponent implements OnInit {
   }
 
   resetEnableShareFlag() {
-    this.resetEnableShare.emit(false);
+    this.resetEnableShare.emit(false)
   }
 }
 

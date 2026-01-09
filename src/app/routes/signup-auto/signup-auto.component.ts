@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { SignupAutoService } from './signup-auto.service'
 import { ActivatedRoute } from '@angular/router'
 
@@ -7,6 +7,7 @@ import { ActivatedRoute } from '@angular/router'
   selector: 'ws-signup-auto',
   templateUrl: './signup-auto.component.html',
   styleUrls: ['./signup-auto.component.scss'],
+  standalone: false
 })
 export class SignupAutoComponent implements OnInit {
   fetching = false

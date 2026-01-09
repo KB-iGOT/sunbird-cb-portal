@@ -1,6 +1,6 @@
 import { Component, OnInit, Inject } from '@angular/core'
-import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { AppTocService } from '../../services/app-toc.service'
 import * as _ from 'lodash'
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms'
@@ -15,6 +15,7 @@ const MOBILE_PATTERN = /^[0]?[6789]\d{9}$/
   selector: 'ws-app-enroll-questionnaire',
   templateUrl: './enroll-questionnaire.component.html',
   styleUrls: ['./enroll-questionnaire.component.scss'],
+  standalone: false
 })
 
 export class EnrollQuestionnaireComponent implements OnInit {
@@ -148,11 +149,11 @@ export class EnrollQuestionnaireComponent implements OnInit {
     if (this.surveyForm && this.surveyForm.controls.fields) {
       const questionsArray = this.questionsArray
       const childQuestionsArray = questionsArray.controls.filter((question: any) => {
-        return question.value && question.value.parentId === sectionId;
-      });
+        return question.value && question.value.parentId === sectionId
+      })
 
       if (childQuestionsArray.length > 0) {
-        return this.fb.array(childQuestionsArray);
+        return this.fb.array(childQuestionsArray)
       }
     }
     return this.fb.array([]) as FormArray

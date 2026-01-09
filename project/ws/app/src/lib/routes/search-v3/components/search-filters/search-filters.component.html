@@ -1,6 +1,6 @@
 <div class="filter-sidebar padding-m">
     <div class="flex items-center justify-between">
-        <p class="mat-subheading-1 margin-bottom-s font-bold-imp text-dark">{{'searchfilters.filterBy' | translate}}</p>
+        <p class="mat-subtitle-2 margin-bottom-s font-bold-imp text-dark">{{'searchfilters.filterBy' | translate}}</p>
         <button *ngIf="filtersAppliedCount > 0" mat-flat-button (click)="clearAllFilters()"
             class="margin-bottom-s clear-all-btn text-sm font-normal">
             {{'gyaanKarmayogi.clearAll' | translate}}</button>
@@ -17,7 +17,7 @@
         </ng-container>
     </div>
     <ng-container *ngIf="!searchCategory">
-        <p class="mat-subheading-1 mt-4 font-bold-imp text-dark">{{'searchfilters.categoryType' | translate}} </p>
+        <p class="mat-subtitle-2 mt-4 font-bold-imp text-dark">{{'searchfilters.categoryType' | translate}} </p>
 
         <div class="filter-form">
             <mat-accordion class="filter-section margin-bottom-m">
@@ -55,7 +55,7 @@
                         <!-- Nested filters -->
                         <mat-selection-list class="padding-top-0 nested-filters" *ngIf="options.filters?.length > 0">
                             <ng-container *ngFor="let subOption of options.filters">
-                            <section class="mat-body-2 text-capitalize">
+                            <section class="mat-subtitle-2 text-capitalize">
                                 <mat-checkbox
                                 [checked]="subOption?.isChecked || getSelectedFilter(subOption)"
                                 (change)="onSelectionFilter($event, subOption, options?.displayName)"
@@ -73,7 +73,7 @@
                 </mat-expansion-panel>
                 <ng-container *ngIf="category.filters.length > 0 && !searchCategory">
                     <mat-selection-list class="padding-top-0">
-                        <section class="mat-body-2 text-capitalize">
+                        <section class="mat-subtitle-2 text-capitalize">
                             <mat-checkbox
                         [checked]="category?.isChecked || getSelectedFilter(category)"
                         (change)="onSelectionFilter($event, category, category?.name);"
@@ -88,7 +88,7 @@
                 </ng-container>
                 <ng-container *ngIf="category.filters.length === 0">
                     <mat-selection-list class="padding-top-0">
-                    <section class="mat-body-2 text-capitalize">
+                    <section class="mat-subtitle-2 text-capitalize">
                         <mat-checkbox
                         [checked]="category?.isChecked || getSelectedFilter(category)"
                         [disabled]="category?.disabled"
@@ -108,7 +108,7 @@
 
     <ng-container *ngIf="searchCategory && formattedFacets && formattedFacets['courseCategory'] && formattedFacets['courseCategory'].length && searchCategory !== 'case-study'">
         <div class="languages-filter adjust">
-            <p class="mat-subheading-1 mt-4 font-bold-imp text-dark mb-2">{{'searchfilters.categoryType' | translate}}</p>
+            <p class="mat-subtitle-2 mt-4 font-bold-imp text-dark mb-2">{{'searchfilters.categoryType' | translate}}</p>
             <div class="mat-full-radius mb-2" *ngIf="formattedFacets['courseCategory'].length > 4">
                
             </div>
@@ -126,7 +126,7 @@
                     </mat-expansion-panel-header>
     
                      <mat-selection-list>
-                    <section class="mat-body-2 text-capitalize" *ngFor="let options of filteredContents">
+                    <section class="mat-subtitle-2 text-capitalize" *ngFor="let options of filteredContents">
                         <mat-checkbox [checked]="options?.isChecked || getSelectedFilter(options)"
                             (change)="onSelectionFilter($event, options, 'contentType')">
                             <span class="min-width-adjust" [matTooltip]="capitalizeFirstLetter(options?.name)" [matTooltipPosition]="'right'"> {{ options?.name ? capitalizeFirstLetter(options?.name) :
@@ -146,11 +146,11 @@
 
     <ng-container *ngIf="searchCategory && formattedFacets && formattedFacets['typeOfEvents'] && formattedFacets['typeOfEvents'].length && categoryTypeEnum.Events === searchCategory">
         <div class="rating-filter">
-          <p class="mat-subheading-1 mt-4 font-bold-imp text-dark mb-2">
+          <p class="mat-subtitle-2 mt-4 font-bold-imp text-dark mb-2">
             {{ 'searchfilters.typeOfEvents' | translate }}
           </p>
           <mat-radio-group (change)="onTypesOfEventsChange(true, $event.value, 'typeOfEvents')">
-            <section class="mat-body-2 text-capitalize" *ngFor="let options of formattedFacets['typeOfEvents']">
+            <section class="mat-subtitle-2 text-capitalize" *ngFor="let options of formattedFacets['typeOfEvents']">
                 <ng-container *ngIf="options?.count">
               <mat-radio-button [value]="options" [checked]="options?.isChecked || getSelectedFilter(options)">
                 <span class="min-width-adjust" [matTooltip]="capitalizeFirstLetter(options?.name)" [matTooltipPosition]="'right'"> {{ options?.name ? capitalizeFirstLetter(options?.name) :
@@ -166,7 +166,7 @@
     <ng-container *ngIf="formattedFacets && formattedFacets['sectorId'] && 
         formattedFacets['sectorId'].length && (searchCategory && searchCategory === 'case-study')">
         <div class="sectorNames-filter">
-            <p class="mat-subheading-1 mt-4 font-bold-imp text-dark mb-2">{{'searchfilters.sectorId' | translate}}</p>
+            <p class="mat-subtitle-2 mt-4 font-bold-imp text-dark mb-2">{{'searchfilters.sectorId' | translate}}</p>
             <div class="mat-full-radius mb-2" *ngIf="formattedFacets['sectorId'].length > 4 || filterQuerySectorNames">
                 <mat-form-field appearance="outline" class="search-input-block">
                     <input matInput class="search-filter-input" placeholder="Search"
@@ -175,7 +175,7 @@
                 </mat-form-field>
             </div>
             <mat-selection-list>
-                <section class="mat-body-2 text-capitalize" *ngFor="let options of filteredSectorId">
+                <section class="mat-subtitle-2 text-capitalize" *ngFor="let options of filteredSectorId">
                     <mat-checkbox [checked]="options?.isChecked || getSelectedFilter(options)"
                         (change)="onSelectionFilter($event, options, 'sectorId')">
                         <span class="min-width-adjust" [matTooltip]="formatSectorName(options?.name)" [matTooltipPosition]="'right'"> {{ options?.name ? formatSectorName(options?.name) :
@@ -194,7 +194,7 @@
     <ng-container *ngIf="formattedFacets && formattedFacets['subSectorId'] && 
         formattedFacets['subSectorId'].length && (searchCategory && searchCategory === 'case-study')">
         <div class="sectorNames-filter">
-            <p class="mat-subheading-1 mt-4 font-bold-imp text-dark mb-2">{{'gyaanKarmayogi.subSectors' | translate}}</p>
+            <p class="mat-subtitle-2 mt-4 font-bold-imp text-dark mb-2">{{'gyaanKarmayogi.subSectors' | translate}}</p>
             <div class="mat-full-radius mb-2" *ngIf="formattedFacets['subSectorId'].length > 4 || filterQuerySubSectorNames">
                 <mat-form-field appearance="outline" class="search-input-block">
                     <input matInput class="search-filter-input" placeholder="Search"
@@ -203,7 +203,7 @@
                 </mat-form-field>
             </div>
             <mat-selection-list>
-                <section class="mat-body-2 text-capitalize" *ngFor="let options of filteredSubSectorId">
+                <section class="mat-subtitle-2 text-capitalize" *ngFor="let options of filteredSubSectorId">
                     <mat-checkbox [checked]="options?.isChecked || getSelectedFilter(options)"
                         (change)="onSelectionFilter($event, options, 'subSectorId')">
                         <span class="min-width-adjust" [matTooltip]="formatSectorName(options?.name)" [matTooltipPosition]="'right'"> {{ options?.name ? formatSectorName(options?.name) :
@@ -221,10 +221,10 @@
 
     <ng-container *ngIf="formattedFacets && formattedFacets['resourceType'] && formattedFacets['resourceType'].length && searchCategory && searchCategory === 'events'">
         <div class="rating-filter">
-            <p class="mat-subheading-1 mt-4 font-bold-imp text-dark mb-2">{{'searchfilters.categoryType' | translate}}
+            <p class="mat-subtitle-2 mt-4 font-bold-imp text-dark mb-2">{{'searchfilters.categoryType' | translate}}
             </p>
             <mat-selection-list>
-                <section class="mat-body-2 text-capitalize" *ngFor="let options of formattedFacets['resourceType']">
+                <section class="mat-subtitle-2 text-capitalize" *ngFor="let options of formattedFacets['resourceType']">
                     <mat-checkbox [checked]="options?.isChecked || getSelectedFilter(options)"
                         (change)="onSelectionFilter($event, options, 'resourceType')">
                         <span class="min-width-adjust" [matTooltip]="capitalizeFirstLetter(options?.name)" [matTooltipPosition]="'right'"> {{ options?.name ? capitalizeFirstLetter(options?.name) :
@@ -239,7 +239,7 @@
     <!-- Resource Category  -->
     <ng-container *ngIf="searchCategory && formattedFacets && formattedFacets['resourceCategory'] && formattedFacets['resourceCategory'].length && (searchCategory !== categoryTypeEnum.Events && searchCategory !== categoryTypeEnum.CaseStudy)">
         <div class="languages-filter">
-            <p class="mat-subheading-1 mt-4 font-bold-imp text-dark mb-2">{{'searchfilters.resourceCategory' | translate}}</p>
+            <p class="mat-subtitle-2 mt-4 font-bold-imp text-dark mb-2">{{'searchfilters.resourceCategory' | translate}}</p>
             <div class="mat-full-radius mb-2" *ngIf="formattedFacets['resourceCategory'].length > 4 || filterQueryResourceCategory">
                 <mat-form-field appearance="outline" class="search-input-block">
                     <input matInput class="search-filter-input" placeholder="Search"
@@ -248,7 +248,7 @@
                 </mat-form-field>
             </div>
             <mat-selection-list>
-                <section class="mat-body-2 text-capitalize" *ngFor="let options of filteredResourceCategory">
+                <section class="mat-subtitle-2 text-capitalize" *ngFor="let options of filteredResourceCategory">
                     <mat-checkbox [checked]="options?.isChecked || getSelectedFilter(options)"
                         (change)="onSelectionFilter($event, options, 'resourceCategory')">
                         <!-- <span class="min-width-adjust" [matTooltip]="capitalizeFirstLetter(options?.name)" [matTooltipPosition]="'right'">
@@ -271,7 +271,7 @@
     <ng-container *ngIf="formattedFacets && formattedFacets['sectorDetails_v1.sectorName'] && 
         formattedFacets['sectorDetails_v1.sectorName'].length && (searchCategory && searchCategory !== 'case-study')">
         <div class="sectorNames-filter">
-            <p class="mat-subheading-1 mt-4 font-bold-imp text-dark mb-2">{{'searchfilters.sectorId' | translate}}</p>
+            <p class="mat-subtitle-2 mt-4 font-bold-imp text-dark mb-2">{{'searchfilters.sectorId' | translate}}</p>
             <div class="mat-full-radius mb-2" *ngIf="formattedFacets['sectorDetails_v1.sectorName'].length > 4 || filterQuerySectorNames">
                 <mat-form-field appearance="outline" class="search-input-block">
                     <input matInput class="search-filter-input" placeholder="Search"
@@ -280,7 +280,7 @@
                 </mat-form-field>
             </div>
             <mat-selection-list>
-                <section class="mat-body-2 text-capitalize" *ngFor="let options of filteredSectorNames">
+                <section class="mat-subtitle-2 text-capitalize" *ngFor="let options of filteredSectorNames">
                     <mat-checkbox [checked]="options?.isChecked || getSelectedFilter(options)"
                         (change)="onSelectionFilter($event, options, 'sectorDetails_v1.sectorName')">
                         <!-- <span class="min-width-adjust" [matTooltip]="capitalizeFirstLetter(options?.name)" [matTooltipPosition]="'right'">
@@ -302,7 +302,7 @@
     <ng-container *ngIf="formattedFacets && formattedFacets['sectorDetails_v1.subSectorName'] && 
         formattedFacets['sectorDetails_v1.subSectorName'].length && (searchCategory && searchCategory !== 'case-study')">
         <div class="sectorNames-filter">
-            <p class="mat-subheading-1 mt-4 font-bold-imp text-dark mb-2">{{'gyaanKarmayogi.subSectors' | translate}}</p>
+            <p class="mat-subtitle-2 mt-4 font-bold-imp text-dark mb-2">{{'gyaanKarmayogi.subSectors' | translate}}</p>
             <div class="mat-full-radius mb-2" *ngIf="formattedFacets['sectorDetails_v1.subSectorName'].length > 4 || filterQuerySubSectorNames">
                 <mat-form-field appearance="outline" class="search-input-block">
                     <input matInput class="search-filter-input" placeholder="Search"
@@ -311,7 +311,7 @@
                 </mat-form-field>
             </div>
             <mat-selection-list>
-                <section class="mat-body-2 text-capitalize" *ngFor="let options of filteredSubSectorNames">
+                <section class="mat-subtitle-2 text-capitalize" *ngFor="let options of filteredSubSectorNames">
                     <mat-checkbox [checked]="options?.isChecked || getSelectedFilter(options)"
                         (change)="onSelectionFilter($event, options, 'sectorDetails_v1.subSectorName')">
                         <!-- <span class="min-width-adjust" [matTooltip]="capitalizeFirstLetter(options?.name)" [matTooltipPosition]="'right'">
@@ -332,10 +332,10 @@
 
     <ng-container *ngIf="searchCategory && formattedFacets && formattedFacets['avgRating'] && formattedFacets['avgRating'].length">
         <div class="rating-filter">
-            <p class="mat-subheading-1 mt-4 font-bold-imp text-dark mb-2">{{'searchfilters.ratingTitle' | translate}}
+            <p class="mat-subtitle-2 mt-4 font-bold-imp text-dark mb-2">{{'searchfilters.ratingTitle' | translate}}
             </p>
             <mat-selection-list>
-                <section class="mat-body-2 text-capitalize" *ngFor="let options of formattedFacets['avgRating']">
+                <section class="mat-subtitle-2 text-capitalize" *ngFor="let options of formattedFacets['avgRating']">
                     <mat-checkbox [checked]="options?.isChecked || getSelectedFilter(options)"
                         (change)="onSelectionFilter($event, options, 'avgRating')">
                         <span class="min-width-adjust">
@@ -349,7 +349,7 @@
 
     <ng-container *ngIf="searchCategory && formattedFacets && formattedFacets['language'] && formattedFacets['language'].length && (searchCategory !== categoryTypeEnum.Events && searchCategory !== categoryTypeEnum.CaseStudy)">
         <div class="languages-filter">
-            <p class="mat-subheading-1 mt-4 font-bold-imp text-dark mb-2">{{'searchfilters.languages' | translate}}</p>
+            <p class="mat-subtitle-2 mt-4 font-bold-imp text-dark mb-2">{{'searchfilters.languages' | translate}}</p>
             <div class="mat-full-radius mb-2" *ngIf="formattedFacets['language'].length > 4 || filterQueryLanguage">
                 <mat-form-field appearance="outline" class="search-input-block">
                     <input matInput class="search-filter-input" placeholder="Search" #inputSearchLanguage
@@ -358,7 +358,7 @@
                 </mat-form-field>
             </div>
             <mat-selection-list>
-                <section class="mat-body-2 text-capitalize" *ngFor="let options of filteredLanguages">
+                <section class="mat-subtitle-2 text-capitalize" *ngFor="let options of filteredLanguages">
                     <mat-checkbox [checked]="options?.isChecked || getSelectedFilter(options)"
                         (change)="onSelectionFilter($event, options, 'language')">
                         <span class="min-width-adjust">
@@ -376,7 +376,7 @@
 
     <ng-container *ngIf="searchCategory && formattedFacets && formattedFacets['organisation'] && formattedFacets['organisation'].length">
         <div class="content-provider-filter">
-            <p class="mat-subheading-1 mt-4 font-bold-imp text-dark mb-2">{{'profileInfo.organization' |
+            <p class="mat-subtitle-2 mt-4 font-bold-imp text-dark mb-2">{{'profileInfo.organization' |
                 translate}}</p>
             <div class="mat-full-radius mb-2" *ngIf="formattedFacets['organisation'].length > 4 || filterQueryOrganisation">
                 <mat-form-field appearance="outline" class="search-input-block">
@@ -386,7 +386,7 @@
                 </mat-form-field>
             </div>
             <mat-selection-list>
-                <section class="mat-body-2 text-capitalize" *ngFor="let options of filteredOrganisations">
+                <section class="mat-subtitle-2 text-capitalize" *ngFor="let options of filteredOrganisations">
                     <mat-checkbox [checked]="options?.isChecked || getSelectedFilter(options)"
                         (change)="onSelectionFilter($event, options, 'organisation')">
                         <span class="min-width-adjust" [matTooltip]="capitalizeFirstLetter(options?.name)" [matTooltipPosition]="'right'"> {{ options?.name ? capitalizeFirstLetter(options?.name) :
@@ -404,7 +404,7 @@
 
     <ng-container *ngIf="searchCategory && formattedFacets && formattedFacets['sourceName'] && formattedFacets['sourceName'].length">
         <div class="content-provider-filter">
-            <p class="mat-subheading-1 mt-4 font-bold-imp text-dark mb-2">{{'searchfilters.contentProvider' |
+            <p class="mat-subtitle-2 mt-4 font-bold-imp text-dark mb-2">{{'searchfilters.contentProvider' |
                 translate}}</p>
             <div class="mat-full-radius mb-2" *ngIf="formattedFacets['sourceName'].length > 4 || filterQueryOrganisation">
                 <mat-form-field appearance="outline" class="search-input-block">
@@ -414,7 +414,7 @@
                 </mat-form-field>
             </div>
             <mat-selection-list>
-                <section class="mat-body-2 text-capitalize" *ngFor="let options of filteredOrganisations">
+                <section class="mat-subtitle-2 text-capitalize" *ngFor="let options of filteredOrganisations">
                     <mat-checkbox [checked]="options?.isChecked || getSelectedFilter(options)"
                         (change)="onSelectionFilter($event, options, 'sourceName')">
                         <span class="min-width-adjust" [matTooltip]="capitalizeFirstLetter(options?.name)" [matTooltipPosition]="'right'">{{ options?.name ? capitalizeFirstLetter(options?.name) :
@@ -446,10 +446,10 @@
 
     <ng-container *ngIf="searchCategory && formattedFacets && formattedFacets['competencyArea'] && formattedFacets['competencyArea'].length">
         <div class="competency-filter">
-            <p class="mat-subheading-1 mt-4 font-bold-imp text-dark mb-2">{{'searchfilters.competencyArea' | translate}}
+            <p class="mat-subtitle-2 mt-4 font-bold-imp text-dark mb-2">{{'searchfilters.competencyArea' | translate}}
             </p>
             <mat-selection-list>
-                <section class="mat-body-2 text-capitalize" *ngFor="let options of formattedFacets['competencyArea']">
+                <section class="mat-subtitle-2 text-capitalize" *ngFor="let options of formattedFacets['competencyArea']">
                     <mat-checkbox [checked]="options?.isChecked || getSelectedFilter(options)"
                         (change)="onSelectionFilter($event, options, 'competencyArea')">
                         <span class="min-width-adjust" [matTooltip]="capitalizeFirstLetter(options?.name)" [matTooltipPosition]="'right'">
@@ -463,7 +463,7 @@
 
     <ng-container *ngIf="searchCategory && formattedFacets && formattedFacets['topicName'] && formattedFacets['topicName'].length">
         <div class="competency-filter">
-            <p class="mat-subheading-1 mt-4 font-bold-imp text-dark mb-2">{{'searchfilters.topicName' |
+            <p class="mat-subtitle-2 mt-4 font-bold-imp text-dark mb-2">{{'searchfilters.topicName' |
                 translate}}
             </p>
             <div class="mat-full-radius mb-2" *ngIf="formattedFacets['topicName'].length > 4 || filterQueryTopic">
@@ -474,7 +474,7 @@
                 </mat-form-field>
             </div>
             <mat-selection-list>
-                <section class="mat-body-2 text-capitalize" *ngFor="let options of filteredTopic">
+                <section class="mat-subtitle-2 text-capitalize" *ngFor="let options of filteredTopic">
                     <mat-checkbox [checked]="options?.isChecked || getSelectedFilter(options)"
                         (change)="onSelectionFilter($event, options, 'topicName')">
                         <span class="min-width-adjust" [matTooltip]="capitalizeFirstLetter(options?.name)" [matTooltipPosition]="'right'"> {{ options?.name ? capitalizeFirstLetter(options?.name) :
@@ -492,11 +492,11 @@
 
     <ng-container *ngIf="searchCategory && formattedFacets && formattedFacets['orgName'] && formattedFacets['orgName'].length">
         <div class="competency-filter">
-            <p class="mat-subheading-1 mt-4 font-bold-imp text-dark mb-2">{{'searchfilters.contentProvider' |
+            <p class="mat-subtitle-2 mt-4 font-bold-imp text-dark mb-2">{{'searchfilters.contentProvider' |
                 translate}}
             </p>
             <mat-selection-list>
-                <section class="mat-body-2 text-capitalize"
+                <section class="mat-subtitle-2 text-capitalize"
                     *ngFor="let options of (showAllOrganisation ? formattedFacets['orgName'] : formattedFacets['orgName'].slice(0, 4))">
                     <mat-checkbox [checked]="options?.isChecked || getSelectedFilter(options)"
                         (change)="onSelectionFilter($event, options, 'orgName')">
@@ -515,7 +515,7 @@
 
     <ng-container *ngIf="searchCategory && formattedFacets && formattedFacets['profileDetails.professionalDetails.designation'] && formattedFacets['profileDetails.professionalDetails.designation'].length">
         <div class="competency-filter designation-filter">
-            <p class="mat-subheading-1 mt-4 font-bold-imp text-dark mb-2">{{'userProfile.designation' | translate}}
+            <p class="mat-subtitle-2 mt-4 font-bold-imp text-dark mb-2">{{'userProfile.designation' | translate}}
             </p>
             <div class="mat-full-radius mb-2" *ngIf="formattedFacets['profileDetails.professionalDetails.designation'].length > 4 || filterQueryDesignation">
                 <mat-form-field appearance="outline" class="search-input-block">
@@ -525,7 +525,7 @@
                 </mat-form-field>
             </div>
             <mat-selection-list>
-                <section class="mat-body-2 text-capitalize"
+                <section class="mat-subtitle-2 text-capitalize"
                     *ngFor="let options of filteredDesignations">
                     <mat-checkbox [checked]="options?.isChecked || getSelectedFilter(options)" *ngIf="options?.name"
                         (change)="onSelectionFilter($event, options, 'profileDetails.professionalDetails.designation')">
@@ -544,7 +544,7 @@
 
     <ng-container *ngIf="searchCategory && formattedFacets && formattedFacets['rootOrgName'] && formattedFacets['rootOrgName'].length">
         <div class="competency-filter root-org-name-filter">
-            <p class="mat-subheading-1 mt-4 font-bold-imp text-dark mb-2">{{'profileInfo.organization' |
+            <p class="mat-subtitle-2 mt-4 font-bold-imp text-dark mb-2">{{'profileInfo.organization' |
                 translate}}
             </p>
             <div class="mat-full-radius mb-2" *ngIf="formattedFacets['rootOrgName'].length > 4 || filterQueryRootOrgName">
@@ -555,7 +555,7 @@
                 </mat-form-field>
             </div>
             <mat-selection-list>
-                <section class="mat-body-2 text-capitalize"
+                <section class="mat-subtitle-2 text-capitalize"
                     *ngFor="let options of filteredRootOrgNames">
                     <mat-checkbox [checked]="options?.isChecked || getSelectedFilter(options)"
                         (change)="onSelectionFilter($event, options, 'rootOrgName')">
@@ -576,7 +576,7 @@
      <ng-container *ngIf="formattedFacets && formattedFacets['contentPartner.contentPartnerName'] && 
         formattedFacets['contentPartner.contentPartnerName'].length && (searchCategory && searchCategory !== 'case-study')">
         <div class="sectorNames-filter">
-            <p class="mat-subheading-1 mt-4 font-bold-imp text-dark mb-2">{{'seeAllHome.contentPatner' | translate}}</p>
+            <p class="mat-subtitle-2 mt-4 font-bold-imp text-dark mb-2">{{'seeAllHome.contentPatner' | translate}}</p>
             <div class="mat-full-radius mb-2" *ngIf="formattedFacets['contentPartner.contentPartnerName'].length > 4 || filterQueryContentPartners">
                 <mat-form-field appearance="outline" class="search-input-block">
                     <input matInput class="search-filter-input" placeholder="Search"
@@ -585,7 +585,7 @@
                 </mat-form-field>
             </div>
             <mat-selection-list>
-                <section class="mat-body-2 text-capitalize" *ngFor="let options of filteredContentPartners">
+                <section class="mat-subtitle-2 text-capitalize" *ngFor="let options of filteredContentPartners">
                     <mat-checkbox [checked]="options?.isChecked || getSelectedFilter(options)"
                         (change)="onSelectionFilter($event, options, 'contentPartner.contentPartnerName')">
                         <span class="min-width-adjust" [matTooltip]="options?.name" [matTooltipPosition]="'right'"> {{ options?.name ? capitalizeFirstLetter(options?.name) :
@@ -605,7 +605,7 @@
     <ng-container *ngIf="formattedFacets && formattedFacets['topic'] && 
         formattedFacets['topic'].length && (searchCategory && searchCategory !== 'case-study')">
         <div class="sectorNames-filter">
-            <p class="mat-subheading-1 mt-4 font-bold-imp text-dark mb-2">{{'apptocsinglepage.Topics' | translate}}</p>
+            <p class="mat-subtitle-2 mt-4 font-bold-imp text-dark mb-2">{{'apptocsinglepage.Topics' | translate}}</p>
             <div class="mat-full-radius mb-2" *ngIf="formattedFacets['topic'].length > 4 || filterQueryTopic">
                 <mat-form-field appearance="outline" class="search-input-block">
                     <input matInput class="search-filter-input" placeholder="Search"
@@ -614,7 +614,7 @@
                 </mat-form-field>
             </div>
             <mat-selection-list>
-                <section class="mat-body-2 text-capitalize" *ngFor="let options of filteredTopic">
+                <section class="mat-subtitle-2 text-capitalize" *ngFor="let options of filteredTopic">
                     <mat-checkbox [checked]="options?.isChecked || getSelectedFilter(options)"
                         (change)="onSelectionFilter($event, options, 'topic')">
                         <span class="min-width-adjust" [matTooltip]="options?.name" [matTooltipPosition]="'right'"> {{ options?.name ? capitalizeFirstLetter(options?.name) :
@@ -633,9 +633,9 @@
     <!-- Competency array section  -->
     <div class="competency-filter"
         *ngIf="searchCategory && formattedFacets && formattedFacets[competencyAreaNameKey] && formattedFacets[competencyAreaNameKey].length">
-        <p class="mat-subheading-1 mt-4 font-bold-imp text-dark mb-2">{{'searchfilters.competencyArea' | translate}}</p>
+        <p class="mat-subtitle-2 mt-4 font-bold-imp text-dark mb-2">{{'searchfilters.competencyArea' | translate}}</p>
         <mat-selection-list>
-            <section class="mat-body-2 text-capitalize" *ngFor="let options of formattedFacets[competencyAreaNameKey]">
+            <section class="mat-subtitle-2 text-capitalize" *ngFor="let options of formattedFacets[competencyAreaNameKey]">
                 <mat-checkbox [checked]="options?.isChecked || getSelectedFilter(options)"
                     (change)="onSelectionFilter($event, options, competencyAreaNameKey)">
                     <span class="min-width-adjust" [matTooltip]="capitalizeFirstLetter(options?.name)" [matTooltipPosition]="'right'"> {{ options?.name ? capitalizeFirstLetter(options?.name) :
@@ -650,7 +650,7 @@
     <ng-container *ngIf="formattedFacets && formattedFacets[competencyThemeKey] && 
         formattedFacets[competencyThemeKey].length && searchCategory">
         <div class="sectorNames-filter">
-            <p class="mat-subheading-1 mt-4 font-bold-imp text-dark mb-2">{{'widgetCbpFilters.competencyTheme' | translate}}</p>
+            <p class="mat-subtitle-2 mt-4 font-bold-imp text-dark mb-2">{{'widgetCbpFilters.competencyTheme' | translate}}</p>
             <div class="mat-full-radius mb-2" *ngIf="formattedFacets[competencyThemeKey].length > 4 || filterQueryThemes">
                 <mat-form-field appearance="outline" class="search-input-block">
                     <input matInput class="search-filter-input" placeholder="Search"
@@ -659,7 +659,7 @@
                 </mat-form-field>
             </div>
             <mat-selection-list>
-                <section class="mat-body-2 text-capitalize" *ngFor="let options of filteredCompetencyTheme">
+                <section class="mat-subtitle-2 text-capitalize" *ngFor="let options of filteredCompetencyTheme">
                     <mat-checkbox [checked]="options?.isChecked || getSelectedFilter(options)"
                         (change)="onSelectionFilter($event, options, competencyThemeKey)">
                         <!-- <span class="min-width-adjust" [matTooltip]="capitalizeFirstLetter(options?.name)" [matTooltipPosition]="'right'">
@@ -682,7 +682,7 @@
     <ng-container *ngIf="formattedFacets && formattedFacets[competencySubThemeKey] && 
         formattedFacets[competencySubThemeKey].length && searchCategory">
         <div class="sectorNames-filter">
-            <p class="mat-subheading-1 mt-4 font-bold-imp text-dark mb-2">{{'widgetCbpFilters.competencySubTheme' | translate}}</p>
+            <p class="mat-subtitle-2 mt-4 font-bold-imp text-dark mb-2">{{'widgetCbpFilters.competencySubTheme' | translate}}</p>
             <div class="mat-full-radius mb-2" *ngIf="formattedFacets[competencySubThemeKey].length > 4 || filterQuerySubThemes">
                 <mat-form-field appearance="outline" class="search-input-block">
                     <input matInput class="search-filter-input" placeholder="Search"
@@ -691,7 +691,7 @@
                 </mat-form-field>
             </div>
             <mat-selection-list>
-                <section class="mat-body-2 text-capitalize" *ngFor="let options of filteredSubCompetencyTheme">
+                <section class="mat-subtitle-2 text-capitalize" *ngFor="let options of filteredSubCompetencyTheme">
                     <mat-checkbox [checked]="options?.isChecked || getSelectedFilter(options)"
                         (change)="onSelectionFilter($event, options, competencySubThemeKey)">
                         <!-- <span class="min-width-adjust" [matTooltip]="capitalizeFirstLetter(options?.name)" [matTooltipPosition]="'right'">
@@ -714,7 +714,7 @@
     <ng-container *ngIf="formattedFacets && formattedFacets['sectorName'] && 
         formattedFacets['sectorName'].length && (searchCategory && searchCategory !== 'case-study')">
         <div class="sectorNames-filter">
-            <p class="mat-subheading-1 mt-4 font-bold-imp text-dark mb-2">{{'searchfilters.sectorId' | translate}}</p>
+            <p class="mat-subtitle-2 mt-4 font-bold-imp text-dark mb-2">{{'searchfilters.sectorId' | translate}}</p>
             <div class="mat-full-radius mb-2" *ngIf="formattedFacets['sectorName'].length > 4 || filterQuerySectorNames">
                 <mat-form-field appearance="outline" class="search-input-block">
                     <input matInput class="search-filter-input" placeholder="Search"
@@ -723,7 +723,7 @@
                 </mat-form-field>
             </div>
             <mat-selection-list>
-                <section class="mat-body-2 text-capitalize" *ngFor="let options of filteredSectorNames">
+                <section class="mat-subtitle-2 text-capitalize" *ngFor="let options of filteredSectorNames">
                     <mat-checkbox [checked]="options?.isChecked || getSelectedFilter(options)"
                         (change)="onSelectionFilter($event, options, 'sectorName')">
                         <!-- <span class="min-width-adjust" [matTooltip]="capitalizeFirstLetter(options?.name)" [matTooltipPosition]="'right'">
@@ -746,7 +746,7 @@
     <ng-container *ngIf="formattedFacets && formattedFacets['subSectorName'] && 
         formattedFacets['subSectorName'].length && (searchCategory && searchCategory !== 'case-study')">
         <div class="sectorNames-filter">
-            <p class="mat-subheading-1 mt-4 font-bold-imp text-dark mb-2">{{'gyaanKarmayogi.subSectors' | translate}}</p>
+            <p class="mat-subtitle-2 mt-4 font-bold-imp text-dark mb-2">{{'gyaanKarmayogi.subSectors' | translate}}</p>
             <div class="mat-full-radius mb-2" *ngIf="formattedFacets['subSectorName'].length > 4 || filterQuerySubSectorNames">
                 <mat-form-field appearance="outline" class="search-input-block">
                     <input matInput class="search-filter-input" placeholder="Search"
@@ -755,7 +755,7 @@
                 </mat-form-field>
             </div>
             <mat-selection-list>
-                <section class="mat-body-2 text-capitalize" *ngFor="let options of filteredSubSectorNames">
+                <section class="mat-subtitle-2 text-capitalize" *ngFor="let options of filteredSubSectorNames">
                     <mat-checkbox [checked]="options?.isChecked || getSelectedFilter(options)"
                         (change)="onSelectionFilter($event, options, 'subSectorName')">
                         <span class="min-width-adjust" [matTooltip]="capitalizeFirstLetter(options?.name)" [matTooltipPosition]="'right'"> {{ options?.name ? capitalizeFirstLetter(options?.name) :
@@ -774,9 +774,9 @@
     <!-- Resources Year  -->
     <div class="years-filter"
         *ngIf="searchCategory && formattedFacets && formattedFacets['years'] && formattedFacets['years'].length">
-        <p class="mat-subheading-1 mt-4 font-bold-imp text-dark mb-2">{{'searchfilters.years' | translate}}</p>
+        <p class="mat-subtitle-2 mt-4 font-bold-imp text-dark mb-2">{{'searchfilters.years' | translate}}</p>
         <mat-selection-list>
-            <section class="mat-body-2 text-capitalize" *ngFor="let options of formattedFacets['years']">
+            <section class="mat-subtitle-2 text-capitalize" *ngFor="let options of formattedFacets['years']">
                 <mat-checkbox [checked]="options?.isChecked || getSelectedFilter(options)"
                     (change)="onSelectionFilter($event, options, 'years')">
                     <span class="min-width-adjust" [matTooltip]="options?.name" [matTooltipPosition]="'right'">

@@ -4,11 +4,10 @@ import { SurveyFormQuestionComponent } from '../survey-form-question/survey-form
 import { CommonModule } from '@angular/common';
 
 @Component({
-  selector: 'ws-app-survey-form-section',
-  standalone: true,
-  imports: [SurveyFormQuestionComponent, CommonModule],
-  templateUrl: './survey-form-section.component.html',
-  styleUrls: ['./survey-form-section.component.scss']
+    selector: 'ws-app-survey-form-section',
+    imports: [SurveyFormQuestionComponent, CommonModule],
+    templateUrl: './survey-form-section.component.html',
+    styleUrls: ['./survey-form-section.component.scss']
 })
 export class SurveyFormSectionComponent {
 

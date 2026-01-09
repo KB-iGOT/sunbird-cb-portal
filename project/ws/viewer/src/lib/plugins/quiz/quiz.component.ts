@@ -17,7 +17,7 @@ import { QuizService } from './quiz.service'
 import { EventService, WsEvents } from '@sunbird-cb/utils-v2'
 import { ActivatedRoute } from '@angular/router'
 import { ViewerUtilService } from '../../viewer-util.service'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 import { MatSidenav } from '@angular/material/sidenav'
 export type FetchStatus = 'hasMore' | 'fetching' | 'done' | 'error' | 'none'
 
@@ -27,7 +27,7 @@ export type FetchStatus = 'hasMore' | 'fetching' | 'done' | 'error' | 'none'
   styleUrls: ['./quiz.component.scss'],
   /* tslint:disable */
   host: { class: 'h-inherit' },
-  /* tslint:enable */
+  standalone: false
 })
 export class QuizComponent implements OnInit, OnChanges, OnDestroy {
 
@@ -148,22 +148,22 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       return
     }
     const resData = this.viewerSvc.getBatchIdAndCourseId(this.activatedRoute.snapshot.queryParams.collectionId,
-                                                         this.activatedRoute.snapshot.queryParams.batchId, this.identifier)
+      this.activatedRoute.snapshot.queryParams.batchId, this.identifier)
     const collectionId = (resData && resData.courseId) ? resData.courseId : this.activatedRoute.snapshot.queryParams.collectionId ?
-    this.activatedRoute.snapshot.queryParams.collectionId : ''
+      this.activatedRoute.snapshot.queryParams.collectionId : ''
     const batchId = (resData && resData.batchId) ? resData.batchId : this.activatedRoute.snapshot.queryParams.batchId ?
-    this.activatedRoute.snapshot.queryParams.batchId : ''
+      this.activatedRoute.snapshot.queryParams.batchId : ''
 
     // const collectionId = this.activatedRoute.snapshot.queryParams.collectionId ?
     //   this.activatedRoute.snapshot.queryParams.collectionId : ''
     // const batchId = this.activatedRoute.snapshot.queryParams.batchId ?
     //   this.activatedRoute.snapshot.queryParams.batchId : ''
     const isPreAssessment = this.activatedRoute.snapshot.queryParams.preAssessment
-    if(isPreAssessment) {
+    if (isPreAssessment) {
       if (this.identifier && collectionId && batchId) {
         this.viewerSvc.realTimeProgressUpdateForPreAssessmentQuiz(this.identifier, status)
       }
-    }else if (this.identifier && collectionId && batchId) {
+    } else if (this.identifier && collectionId && batchId) {
       this.viewerSvc.realTimeProgressUpdateQuiz(this.identifier, collectionId, batchId, status)
     }
   }
@@ -243,7 +243,7 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
       }
       const dialogRef = this.dialog.open(SubmitQuizDialogComponent, {
         width: '350px',
-        data: {submissionState: this.submissionState, primaryCategory: this.quizJson.primaryCategory,},
+        data: { submissionState: this.submissionState, primaryCategory: this.quizJson.primaryCategory, },
       })
 
       dialogRef.afterClosed().subscribe(result => {

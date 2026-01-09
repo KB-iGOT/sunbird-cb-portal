@@ -5,7 +5,7 @@
     <img alt="thumbnail-image" class="image-container" [src]="forumViewData.thumbnail ? forumViewData.thumbnail : 'https://line25.com/wp-content/uploads/2016/06/2-Man-holds-the-program-code.jpg'"
     />
 
-    <div class="ws-mat-primary-text mat-headline title-text title-truncate">
+    <div class="ws-mat-primary-text mat-headline-5 title-text title-truncate">
       {{ forumViewData.name }}
     </div>
     <div class="description-text mb-4" i18n-title title="Description">
@@ -44,7 +44,7 @@
       </strong>
     </h3>
 
-    <mat-card style="margin-bottom: 1%;" class="flex flex-middle flex-center ws-mat-primary-text mat-title cursor-pointer" (click)="writePost()">
+    <mat-card style="margin-bottom: 1%;" class="flex flex-middle flex-center ws-mat-primary-text mat-headline-6 cursor-pointer" (click)="writePost()">
       Create Post
       <mat-icon>add</mat-icon>
     </mat-card>

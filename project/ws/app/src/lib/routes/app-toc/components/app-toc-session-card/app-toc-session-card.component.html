@@ -5,7 +5,7 @@
         <div class="text-truncate " [ngClass]="{'cursor-pointer': !isEnabled}"
             (click)="viewChildren = !viewChildren; raiseTelemetry()">
             <div class="flex flex-col sm:flex-row flex-wrap">
-                <p class="margin-remove text-truncate mat-subheading-1 flex-auto">
+                <p class="margin-remove text-truncate mat-subtitle-2 flex-auto">
                     <!-- <mat-icon class="margin-right-xs radiobtn time-icon">radio_button_unchecked </mat-icon> -->
                     {{ session?.title }}
                 </p>
@@ -15,7 +15,7 @@
 
 
             </div>
-            <div class="mat-body-2 ws-mat-black60-text">
+            <div class="mat-subtitle-2 ws-mat-black60-text">
                 <div class="flex flex-1 flex-row">
                     <div class="flex margin-right-s capitalize">{{session?.sessionType || ''}}</div>
                     <div class="flex margin-right-s bullet-span">{{session?.startDate | date: 'dd-MM-yyyy' }}</div>
@@ -67,7 +67,7 @@
 </div>
 <ng-container *ngIf="batchData?.enrolled">
     <div *ngIf="session?.sessionHandouts?.length > 0">
-        <p class=" font-bold mat-body-1 margin-bottom-xs  ws-mat-black60-text">{{'apptocsessionscards.sessionHandouts' | translate }}</p>
+        <p class=" font-bold mat-subtitle-2 margin-bottom-xs  ws-mat-black60-text">{{'apptocsessionscards.sessionHandouts' | translate }}</p>
         <div class="flex flex-col flex-wrapped margin-bottom-s width-expand pr-0 w-100 sm:pr-4 sm:w-auto mb-4">
             <ng-container *ngFor="let handout of session?.sessionHandouts">
                 <div class="">

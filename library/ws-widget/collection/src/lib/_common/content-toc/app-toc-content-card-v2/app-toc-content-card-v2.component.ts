@@ -3,7 +3,7 @@ import { NsContent, viewerRouteGenerator } from '@sunbird-cb/collection'
 import { NsAppToc } from '../models/app-toc.model'
 import { EventService, WsEvents } from '@sunbird-cb/utils-v2'
 import { CertificateDialogComponent } from '@sunbird-cb/collection/src/lib/_common/certificate-dialog/certificate-dialog.component'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 import { animate, style, transition, trigger } from '@angular/animations'
 /* tslint:disable*/
 import _ from 'lodash'
@@ -28,7 +28,8 @@ import { ResourceDownloadHelperService } from '../../../../../../../../src/app/s
         animate(200, style({ transform: 'translateY(-10%)', opacity: '0' }))
       ])
     ])
-  ]
+  ],
+  standalone: false
 })
 export class AppTocContentCardV2Component implements OnInit {
   @Input() content: NsContent.IContent | null = null

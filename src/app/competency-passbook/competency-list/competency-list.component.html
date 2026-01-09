@@ -40,7 +40,7 @@
     <div class="flex-1 flex-col" *ngIf="competency?.error">
         <div class="flex flex-col gap-1 error-div justify-center items-center">
             <mat-icon class="icon">report_off</mat-icon>
-            <div class="mat-subheading-1">{{'competencyList.noDataFound' | translate }}</div>
+            <div class="mat-subtitle-2">{{'competencyList.noDataFound' | translate }}</div>
             <div class="text-center">{{'competencyList.unableToFetchData' | translate }}</div>
         </div>
     </div>
@@ -277,7 +277,7 @@
                     <ng-container [ngTemplateOutlet]="competencyCard"></ng-container>
                 </ng-container>
             </div>
-            <div *ngIf="!competency.skeletonLoading" class="flex ws-mat-default-text items-center justify-center mat-body-1 cursor-pointer" (click)="handleShowAll()">Show all</div>
+            <div *ngIf="!competency.skeletonLoading" class="flex ws-mat-default-text items-center justify-center mat-subtitle-2 cursor-pointer" (click)="handleShowAll()">Show all</div>
         </div>
     </div>
 

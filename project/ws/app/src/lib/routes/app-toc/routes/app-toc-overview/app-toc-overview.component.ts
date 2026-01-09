@@ -3,9 +3,10 @@ import { AppTocOverviewDirective } from './app-toc-overview.directive'
 import { AppTocOverviewService } from './app-toc-overview.service'
 
 @Component({
-  selector: 'ws-app-app-toc-overview-root',
-  templateUrl: './app-toc-overview.component.html',
-  styleUrls: ['./app-toc-overview.component.scss'],
+    selector: 'ws-app-app-toc-overview-root',
+    templateUrl: './app-toc-overview.component.html',
+    styleUrls: ['./app-toc-overview.component.scss'],
+    standalone: false
 })
 export class AppTocOverviewComponent implements OnInit {
 

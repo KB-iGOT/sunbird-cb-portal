@@ -3,13 +3,14 @@ import { SocialForum } from '../../../models/SocialForumposts.model'
 import { DialogBoxModeratorComponent } from '../../Dialog-Box/dialog-box-moderator/dialog-box-moderator.component'
 import { BtnFlagService } from './btn-flag.service'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatDialog } from '@angular/material/dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
 
 @Component({
   selector: 'ws-app-btn-flag',
   templateUrl: './btn-flag.component.html',
   styleUrls: ['./btn-flag.component.scss'],
+  standalone: false
 })
 export class BtnFlagComponent implements OnInit {
   @Input() postId = ''
@@ -35,7 +36,7 @@ export class BtnFlagComponent implements OnInit {
 
   }
   constructor(private flagsvc: BtnFlagService, private snackBar: MatSnackBar, private configSvc: ConfigurationsService,
-              public dialog: MatDialog
+    public dialog: MatDialog
   ) {
 
     if (this.configSvc.userProfile) {
@@ -78,7 +79,7 @@ export class BtnFlagComponent implements OnInit {
       this.types = 'EMPTYFLAG'
       // console.log("THE TYPESSS HAS BEEEN CHANGED TO in UNFLAG" + this.typesss)
 
-    },                                                    () => {
+    }, () => {
     })
   }
 }

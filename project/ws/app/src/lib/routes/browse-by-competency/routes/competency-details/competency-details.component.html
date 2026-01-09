@@ -6,14 +6,14 @@
     <div class="left_content_box">
         <h2 class="mat-h2  inline-block "> {{competencyData?.name || currentComp?.name}}</h2>
         <div>
-            <p class="mat-body-1 ws-mat-black60-text">{{competencyData?.description || currentComp?.description}}</p>
-            <p class="mat-body-1 ws-mat-black60-text highlight_point_text">
+            <p class="mat-subtitle-2 ws-mat-black60-text">{{competencyData?.description || currentComp?.description}}</p>
+            <p class="mat-subtitle-2 ws-mat-black60-text highlight_point_text">
                 {{ 'competencydetails.competencyType' | translate }}
-                <span class="mat-primary mat-subheading-1">{{competencyData?.competencyType || currentComp?.competencyType}}</span>
+                <span class="mat-primary mat-subtitle-2">{{competencyData?.competencyType || currentComp?.competencyType}}</span>
             </p>
-            <p class="mat-body-1 ws-mat-black60-text highlight_point_text">
+            <p class="mat-subtitle-2 ws-mat-black60-text highlight_point_text">
                 {{ 'competencydetails.competencyArea' | translate }}
-                <span class="mat-primary mat-subheading-1">{{competencyData?.competencyArea || currentComp?.competencyArea}}</span>
+                <span class="mat-primary mat-subtitle-2">{{competencyData?.competencyArea || currentComp?.competencyArea}}</span>
             </p>
         </div>
     </div>
@@ -23,7 +23,7 @@
         <div class="left_content_box">
             <h2 class="mat-h2 margin-remove inline-block ">{{ 'competencydetails.allCbps' | translate }}</h2>
             <div>
-                <p class="mat-body-2 ws-mat-black60-text"> {{courses?.length || 0 }} {{ 'competencydetails.cbpsFor' | translate }} “{{competencyData?.name || currentComp?.description}}”</p>
+                <p class="mat-subtitle-2 ws-mat-black60-text"> {{courses?.length || 0 }} {{ 'competencydetails.cbpsFor' | translate }} “{{competencyData?.name || currentComp?.description}}”</p>
             </div>
         </div>
         <mat-sidenav-container class="custom">
@@ -55,7 +55,7 @@
             </mat-sidenav-content>
             <mat-sidenav mode="side" position="end" opened class="custom-sidenav" >
                 <form class="filter-form" [formGroup]="filterForm">
-                    <p class="mat-subheading-2 margin-bottom-m font-bold-imp">{{ 'competencydetails.filterBy' | translate }}</p>
+                    <p class="mat-subtitle-1 margin-bottom-m font-bold-imp">{{ 'competencydetails.filterBy' | translate }}</p>
                     <!-- TODO: Tags feature has to be implemented -->
                     <!-- <p class="mat-subheading-1 margin-bottom-xs font-bold-imp">Tags</p>
                 <div class="search_box">
@@ -74,11 +74,11 @@
                         <mat-expansion-panel *ngIf="fs.values.length > 0" (opened)="panelOpenState = true" (closed)="panelOpenState = false" [expanded]="true" class="accordian_panel">
                             <mat-expansion-panel-header >
                                 <mat-panel-title>
-                                    <p class="mat-subheading-2 margin-bottom-xs font-bold-imp">{{getText(fs.displayname)}}</p>
+                                    <p class="mat-subtitle-1 margin-bottom-xs font-bold-imp">{{getText(fs.displayname)}}</p>
                                 </mat-panel-title>
                             </mat-expansion-panel-header>
                             <mat-selection-list id="filters" formControlName="filters" #roles>
-                                <section class="mat-body-2 margin-bottom-xs text-capitalize"
+                                <section class="mat-subtitle-2 margin-bottom-xs text-capitalize"
                                     *ngFor="let options of fs.values">
                                     <!-- <mat-checkbox (change)="modifyUserFilters(options, fs.name)"
                                         [checked]="options.ischecked">

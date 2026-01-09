@@ -1,5 +1,5 @@
 <ng-container *ngIf="rejectGoalStatus !== 'fetching'; else fetching">
-  <h2 class="mat-title" >Why do you want to reject this goal</h2>
+  <h2 class="mat-headline-6" >Why do you want to reject this goal</h2>
   <p>
     <mat-form-field appearance="fill" floatLabel="never" class="w-full">
       <textarea  name="reject-input-goal-reject-dialog" required matInput [(ngModel)]="rejectMessage" rows="3" placeholder="For eg: I find this goal to be unattainable"

@@ -21,7 +21,7 @@
                 <ng-container>
                     <!-- <h2>{{currentCollection?.name}}</h2> -->
                    
-                    <p class="mat-body-1 ws-mat-black60-text mb-3" *ngIf="currentCollection?.description">{{currentCollection?.description}}</p>
+                    <p class="mat-subtitle-2 ws-mat-black60-text mb-3" *ngIf="currentCollection?.description">{{currentCollection?.description}}</p>
                 </ng-container>
                 <h2 *ngIf="currentCollectionHierarchy?.length>0">CBPs</h2>
                 <div *ngIf="displayLoader | async" class="mt-5 pr-4 flex items-center justify-center">

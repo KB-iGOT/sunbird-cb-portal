@@ -16,9 +16,10 @@ import { of } from 'rxjs'
 
 
 @Component({
-  selector: 'ws-app-see-all-with-pills',
-  templateUrl: './see-all-with-pills.component.html',
-  styleUrls: ['./see-all-with-pills.component.scss'],
+    selector: 'ws-app-see-all-with-pills',
+    templateUrl: './see-all-with-pills.component.html',
+    styleUrls: ['./see-all-with-pills.component.scss'],
+    standalone: false
 })
 export class SeeAllWithPillsComponent implements OnInit, OnDestroy {
 

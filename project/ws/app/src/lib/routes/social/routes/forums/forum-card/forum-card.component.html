@@ -1,7 +1,7 @@
 <mat-card class="blog-container">
   <div *ngIf="post" class="text-overwrap w-full">
     <div class="flex flex-middle flex-between">
-      <a [routerLink]="'/app/social/forums/post/' + post.id" class="ws-mat-primary-text mat-title text-overwrap pb-2">
+      <a [routerLink]="'/app/social/forums/post/' + post.id" class="ws-mat-primary-text mat-headline-6 text-overwrap pb-2">
         {{ post.postContent.title }}
       </a>
       <ws-app-btn-flag [postCreatorId]="post.postCreator?.postCreatorId" [postId]="post.id"

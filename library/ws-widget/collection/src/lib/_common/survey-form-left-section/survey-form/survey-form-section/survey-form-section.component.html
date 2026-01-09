@@ -1,7 +1,7 @@
 <div class="tips-container" *ngIf="isVisible">
     <ng-container *ngFor="let data of surveyFormData">
     <div class="card-header flex  items-start justify-between">
-        <span class="card-title flex mat-subheading-1">{{data.title}}</span>
+        <span class="card-title flex mat-subtitle-2">{{data.title}}</span>
         <a mat-icon-button class="close-button flex" (click)="closeCard()">
           <mat-icon>close</mat-icon>
         </a>

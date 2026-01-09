@@ -23,24 +23,24 @@
                         </ng-container>
                     </div>
                     <div class="flex items-center ">
-                        <span class="margin-right-xs ws-mat-orange-text mat-body-1"> {{review.rating}} </span>
+                        <span class="margin-right-xs ws-mat-orange-text mat-subtitle-2"> {{review.rating}} </span>
                         <mat-icon
                             class="comments-rating mr-1 mat-icon material-icons ws-mat-black16-text"
                             [ngClass]="{'ws-mat-orange-text': getRatingIconClass(rating, review.rating )}"
                             *ngFor="let rating of [1, 2, 3, 4, 5]">
                             {{ getRatingIcon(rating, review.rating) }}</mat-icon>
                         <!--  <span >from</span> -->
-                        <span *ngIf="review?.date" class="margin-left-s  ws-mat-black60-text mat-body-1"> {{review.date | pipeRelativeTime}}
+                        <span *ngIf="review?.date" class="margin-left-s  ws-mat-black60-text mat-subtitle-2"> {{review.date | pipeRelativeTime}}
                         </span>
-                        <span *ngIf="review?.updatedon" class="margin-left-s  ws-mat-black60-text mat-body-1"> {{review.updatedon | pipeRelativeTime}}
+                        <span *ngIf="review?.updatedon" class="margin-left-s  ws-mat-black60-text mat-subtitle-2"> {{review.updatedon | pipeRelativeTime}}
                         </span>
                     </div>
-                    <div class="margin-top-m mat-body-1 break-all">
+                    <div class="margin-top-m mat-subtitle-2 break-all">
                         {{review.review}}
                     </div>
                     <div *ngIf="review?.comment" class="margin-top-m">
                         <a class="custom-link" (click)="showAuthReply()">{{ 'cardratingcommet.viewReply' | translate }}</a>
-                        <div class="margin-top-m mat-body-1 break-all" *ngIf="showauthreply">
+                        <div class="margin-top-m mat-subtitle-2 break-all" *ngIf="showauthreply">
                             {{review?.comment}}
                         </div>
                     </div>

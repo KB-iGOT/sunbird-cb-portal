@@ -23,7 +23,7 @@
     <main>
       <section class="flex">
         <div class="flex-1 min-w-0 ">
-          <h2 *ngIf="!screenSizeIsLtMedium" class="mat-subheading-2 mx-2 md:mx-4" >Select contents to assign to
+          <h2 *ngIf="!screenSizeIsLtMedium" class="mat-subtitle-1 mx-2 md:mx-4" >Select contents to assign to
             users:</h2>
           <div class="mb-8">
             <ws-widget-picker-content [content]="'resource'" [searchableContentTypes]="['Course']" [removeSubset]="true"
@@ -63,7 +63,7 @@
     <div>
       <div class="flex">
         <div class="flex-1 min-w-0 ">
-          <h2 *ngIf="!screenSizeIsLtMedium" class="mat-subheading-2 mx-2 md:mx-4" >
+          <h2 *ngIf="!screenSizeIsLtMedium" class="mat-subtitle-1 mx-2 md:mx-4" >
             Select users to assign contents to:
           </h2>
         </div>
@@ -248,7 +248,7 @@
         <div *ngIf="fetchUserStatus==='error' || fetchUserStatus==='none' ">
           <div class="create-goal-fab width-expand text-center width-1-1">
             <div class="page-container mx-2 md:mx-4">
-              <h2 class="mat-subheading-2 mx-2 md:mx-4">No users fetched!</h2>
+              <h2 class="mat-subtitle-1 mx-2 md:mx-4">No users fetched!</h2>
             </div>
           </div>
         </div>

@@ -6,7 +6,7 @@ import {
   AbstractControl,
   ValidationErrors,
 } from '@angular/forms'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { Observable, timer, throwError, of, noop, Subscription } from 'rxjs'
 import { map, switchMap, catchError } from 'rxjs/operators'
 
@@ -27,6 +27,7 @@ import { SnackbarComponent } from '../snackbar/snackbar.component'
   selector: 'ws-app-budget-approval',
   templateUrl: './budget-approval.component.html',
   styleUrls: ['./budget-approval.component.scss'],
+  standalone: false
 })
 export class BudgetApprovalComponent implements OnInit, OnDestroy {
   content?: NsContent.IContent
@@ -201,6 +202,6 @@ export class BudgetApprovalComponent implements OnInit, OnDestroy {
             this.validateApproverEmail.bind(this),
           )
         }
-      },         noop)
+      }, noop)
   }
 }

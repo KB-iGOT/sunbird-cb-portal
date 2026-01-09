@@ -124,10 +124,10 @@
             [alt]="widgetData.content.name" [title]="widgetData.content.name" />
         </ng-container>
         <div class="card-overlay">
-          <h3 *ngIf="widgetData.content.name" class="card-title mat-subheading-1">
+          <h3 *ngIf="widgetData.content.name" class="card-title mat-subtitle-2">
             {{ widgetData.content.name }}
           </h3>
-          <div class="mat-body-2 description-text mt-2 ws-mat-primary-text text-truncate">
+          <div class="mat-subtitle-2 description-text mt-2 ws-mat-primary-text text-truncate">
             {{ widgetData.content.description | pipeHtmlTagRemoval }}
           </div>
         </div>
@@ -178,10 +178,10 @@
             [alt]="widgetData.content.name" [title]="widgetData.content.name" />
         </ng-container>
         <div class="card-overlay">
-          <h3 *ngIf="widgetData.content.name" class="card-title mat-subheading-1">
+          <h3 *ngIf="widgetData.content.name" class="card-title mat-subtitle-2">
             {{ widgetData.content.name }}
           </h3>
-          <div class="mat-body-2 description-text mt-2 ws-mat-primary-text text-truncate">
+          <div class="mat-subtitle-2 description-text mt-2 ws-mat-primary-text text-truncate">
             {{ widgetData.content.description | pipeHtmlTagRemoval }}
           </div>
         </div>
@@ -282,13 +282,13 @@
                 }}
               </span>
             </div>
-            <div class="ws-mat-primary-text mat-title text-truncate title-text" title="Title" i18n-title>
+            <div class="ws-mat-primary-text mat-headline-6 text-truncate title-text" title="Title" i18n-title>
               {{ widgetData.content.name }}
             </div>
           </a>
           <div class="mt-4 flex justify-between items-center flip-actions">
             <div>
-              <div *ngIf="widgetData.content.sourceName" class="ws-mat-primary-text mat-subheading-1 source-name"
+              <div *ngIf="widgetData.content.sourceName" class="ws-mat-primary-text mat-subtitle-2 source-name"
                 i18n-title title="Source">
                 {{ widgetData.content.sourceName }}
               </div>
@@ -322,7 +322,7 @@
           <a (click)="raiseTelemetry(); $event.stopPropagation()"
             [routerLink]="(widgetData.content | pipeContentRoute).url"
             [queryParams]="(widgetData.content | pipeContentRoute).queryParams" aria-label="Content"
-            i18n-aria-label="Content | Click to view" class="ws-mat-primary-text mat-title text-truncate title-text">
+            i18n-aria-label="Content | Click to view" class="ws-mat-primary-text mat-headline-6 text-truncate title-text">
             {{ widgetData.content.name }}
           </a>
           <div *ngIf="widgetData?.content?.description" class="mt-4 flip-desc-text ws-mat-text-block-fade-gradient">
@@ -330,7 +330,7 @@
           </div>
           <div class="mt-4 flex justify-between items-center flip-actions">
             <div>
-              <div *ngIf="widgetData.content.sourceName" class="ws-mat-primary-text mat-subheading-1 source-name"
+              <div *ngIf="widgetData.content.sourceName" class="ws-mat-primary-text mat-subtitle-2 source-name"
                 i18n-title title="Source">
                 {{ widgetData.content.sourceName }}
               </div>
@@ -405,7 +405,7 @@
               {{ widgetData.content?.subTitle }}
             </span>
           </div>
-          <div class="ws-mat-primary-text mat-title title-text title-truncate">
+          <div class="ws-mat-primary-text mat-headline-6 title-text title-truncate">
             {{ widgetData.content.name }}
           </div>
           <div class="h-5">
@@ -530,12 +530,12 @@
       </ng-container>
       <ng-container *ngIf="isCardFlipped">
         <div class="flex items-center">
-          <h2 class="mat-subheading-2 flex-1 min-w-0 margin-remove-bottom">Description</h2>
+          <h2 class="mat-subtitle-1 flex-1 min-w-0 margin-remove-bottom">Description</h2>
           <button mat-icon-button (click)="isCardFlipped = false">
             <mat-icon>close</mat-icon>
           </button>
         </div>
-        <p class="text-description-trim mat-body-1">
+        <p class="text-description-trim mat-subtitle-2">
           {{ widgetData.content.description }}
         </p>
       </ng-container>
@@ -579,7 +579,7 @@
               {{ widgetData.content.duration | pipeDurationTransform: 'hms' }}
             </div>
           </div>
-          <div class="ws-mat-primary-text mat-title title-text title-truncate">
+          <div class="ws-mat-primary-text mat-headline-6 title-text title-truncate">
             {{ widgetData.content.name }}
           </div>
           <div class="description-text ws-mat-text-block-fade-gradient mb-4" i18n-title title="Description">
@@ -625,7 +625,7 @@
             <a (click)="raiseTelemetry(); $event.stopPropagation()" [routerLink]="['/app/discuss']"
               class="flex flex-column" [queryParams]="{'disid':'abc-bcdf-mnj-llk'}" role="link" aria-label="Content"
               i18n-aria-label>
-              <h2 class="ws-mat-primary-text mat-title title-text"> {{ widgetData.content.name }}</h2>
+              <h2 class="ws-mat-primary-text mat-headline-6 title-text"> {{ widgetData.content.name }}</h2>
             </a>
           </div>
           <div class="flex flex-1">
@@ -815,7 +815,7 @@
                   </div>
                 </div>
                 <div [id]="'m-c-'+ widgetData.content?.identifier"
-                  class="mat-subheading-1 title-text ws-mat-text-block-fade-gradient">
+                  class="mat-subtitle-2 title-text ws-mat-text-block-fade-gradient">
                   {{ widgetData.content.name }}
                 </div>
                 <div class="flex w-full flex-wrap flex-middle">
@@ -850,7 +850,7 @@
                 </div>
 
 
-                <p class="text-justify mat-body-1" *ngIf="widgetData?.content?.reason">
+                <p class="text-justify mat-subtitle-2" *ngIf="widgetData?.content?.reason">
                   {{ widgetData.content.reason }}
                 </p>
               </div>
@@ -860,13 +860,13 @@
         <ng-container *ngIf="isCardFlipped">
           <mat-card-content class="min-top">
             <div class="flex items-center">
-              <h2 class="mat-subheading-2 flex-1 min-w-0 margin-remove-bottom">{{'cardcontentv2.reason' | translate}}
+              <h2 class="mat-subtitle-1 flex-1 min-w-0 margin-remove-bottom">{{'cardcontentv2.reason' | translate}}
               </h2>
               <button mat-icon-button (click)="isCardFlipped = false">
                 <mat-icon>close</mat-icon>
               </button>
             </div>
-            <p class="text-justify mat-body-1">
+            <p class="text-justify mat-subtitle-2">
               {{ widgetData.content.reason }}
             </p>
           </mat-card-content>
@@ -941,13 +941,13 @@
             </div>
 
             <div [id]="'m-c-'+ widgetData.content?.identifier"
-              class="mat-subheading-1 title-text ws-mat-text-block-fade-gradient">
+              class="mat-subtitle-2 title-text ws-mat-text-block-fade-gradient">
               {{ widgetData.content.name }}
             </div>
-            <div class="mat-body-2 ws-mat-primary-text description-text ws-mat-text-block-fade-gradient mb-10">
+            <div class="mat-subtitle-2 ws-mat-primary-text description-text ws-mat-text-block-fade-gradient mb-10">
               {{ widgetData.content.description | pipeHtmlTagRemoval }}
             </div>
-            <div class="mat-body-2 ws-mat-primary-text description-text ws-mat-text-block-fade-gradient mb-10">
+            <div class="mat-subtitle-2 ws-mat-primary-text description-text ws-mat-text-block-fade-gradient mb-10">
               End date : {{ widgetData?.batch?.end | date: "MMM yyyy" }}
             </div>
           </a>
@@ -984,12 +984,12 @@
       </ng-container>
       <ng-container *ngIf="isCardFlipped">
         <div class="flex items-center">
-          <h2 class="mat-subheading-2 flex-1 min-w-0 margin-remove-bottom">{{'cardcontentv2.reason' | translate}}</h2>
+          <h2 class="mat-subtitle-1 flex-1 min-w-0 margin-remove-bottom">{{'cardcontentv2.reason' | translate}}</h2>
           <button mat-icon-button (click)="isCardFlipped = false">
             <mat-icon>close</mat-icon>
           </button>
         </div>
-        <p class="text-justify mat-body-1">
+        <p class="text-justify mat-subtitle-2">
           {{ widgetData.content.reason }}
         </p>
       </ng-container>
@@ -1055,7 +1055,7 @@
         <!-- {{widgetData.content.primaryCategory || widgetData.content.contentType}} -->
       </p>
       <div class="flex main_title_box">
-        <p class="mat-subheading-1 margin-bottom-xs font-bold-imp cursor-pointer content-title">
+        <p class="mat-subtitle-2 margin-bottom-xs font-bold-imp cursor-pointer content-title">
           <a [routerLink]="['/app/toc/',widgetData.content.identifier,'overview']"
             [queryParams]="{primaryCategory: widgetData.content.primaryCategory}" [state]="widgetData?.stateData">
             {{widgetData.content.name}}
@@ -1064,11 +1064,11 @@
       </div>
 
       <div class="bottomsection">
-        <p class="mat-body-2 ws-mat-black-text margin-bottom-xxs" *ngIf="widgetData.content.creator">
+        <p class="mat-subtitle-2 ws-mat-black-text margin-bottom-xxs" *ngIf="widgetData.content.creator">
           {{'cardcontentv2.by' | translate}} {{widgetData.content.creator}}</p>
         <div class="contentdata margin-bottom-xm">
           <ul
-            class="mat-body-2 margin-remove-top margin-bottom-xs padding-remove ws-mat-black60-text highlighting_list">
+            class="mat-subtitle-2 margin-remove-top margin-bottom-xs padding-remove ws-mat-black60-text highlighting_list">
 
             <li *ngIf="widgetData.content.lastUpdatedOn">
 
@@ -1214,7 +1214,7 @@
       </div>
 
       <div class="flex main_title_box">
-        <p class="mat-subheading-1 title-text font-bold-imp cursor-pointer content-title">
+        <p class="mat-subtitle-2 title-text font-bold-imp cursor-pointer content-title">
           <a (click)="raiseTelemetry();getRedirectUrlData(widgetData?.content); $event.stopPropagation()">
             {{widgetData.content.name}}
           </a>
@@ -1360,7 +1360,7 @@
         </ng-container>
       </div>
       <div class="width-1-1">
-        <div [id]="'m-c-'+ widgetData.content?.identifier" class="portrait-subheading mat-subheading-2 title-text">
+        <div [id]="'m-c-'+ widgetData.content?.identifier" class="portrait-subheading mat-subtitle-1 title-text">
           {{ widgetData.content.name }}
         </div>
         <div class="flex w-full  flex-middle">
@@ -1612,13 +1612,13 @@
               </div>
 
               <div [id]="'m-c-'+ widgetData.content?.identifier"
-                class="mat-subheading-1 title-text ws-mat-text-block-fade-gradient">
+                class="mat-subtitle-2 title-text ws-mat-text-block-fade-gradient">
                 {{ widgetData.content.name }}
               </div>
-              <div class="mat-body-2 ws-mat-primary-text description-text ws-mat-text-block-fade-gradient mb-2">
+              <div class="mat-subtitle-2 ws-mat-primary-text description-text ws-mat-text-block-fade-gradient mb-2">
                 {{ widgetData.content.description | pipeHtmlTagRemoval }}
               </div>
-              <div class="mat-body-2  mb-5" *ngIf="widgetData?.content?.batch?.endDate">
+              <div class="mat-subtitle-2  mb-5" *ngIf="widgetData?.content?.batch?.endDate">
                 {{'cardcontentv2.deadline' | translate}}: {{ widgetData?.content?.batch?.endDate | date: "d MMM yyyy" }}
               </div>
             </a>
@@ -1657,12 +1657,12 @@
         </ng-container>
         <ng-container *ngIf="isCardFlipped">
           <div class="flex items-center">
-            <h2 class="mat-subheading-2 flex-1 min-w-0 margin-remove-bottom">{{'cardcontentv2.reason' | translate}}</h2>
+            <h2 class="mat-subtitle-1 flex-1 min-w-0 margin-remove-bottom">{{'cardcontentv2.reason' | translate}}</h2>
             <button mat-icon-button (click)="isCardFlipped = false">
               <mat-icon>close</mat-icon>
             </button>
           </div>
-          <p class="text-justify mat-body-1">
+          <p class="text-justify mat-subtitle-2">
             {{ widgetData.content.reason }}
           </p>
         </ng-container>
@@ -1689,7 +1689,7 @@
                   [bindingClass]="'flex rounded br-8'"></ws-widget-skeleton-loader>
               </div>
             </div>
-            <div class="mat-subheading-1 title-text ws-mat-text-block-fade-gradient">
+            <div class="mat-subtitle-2 title-text ws-mat-text-block-fade-gradient">
               <ws-widget-skeleton-loader [width]="'100%'" [height]="'16px'"
                 [bindingClass]="'flex rounded'"></ws-widget-skeleton-loader>
               <ws-widget-skeleton-loader [width]="'111px'" [height]="'16px'"
@@ -1841,7 +1841,7 @@
         </ng-container>
       </div>
       <div class="width-1-1">
-        <div [id]="'m-c-'+ widgetData.content?.identifier" class="portrait-subheading mat-body-2 title-text">
+        <div [id]="'m-c-'+ widgetData.content?.identifier" class="portrait-subheading mat-subtitle-2 title-text">
           {{ widgetData.content.name }}
         </div>
         <div class="flex w-full  flex-middle">
@@ -2044,11 +2044,11 @@
               </div> -->
                 </div>
                 <div [id]="'m-c-'+ widgetData?.content?.identifier"
-                  class="mat-subheading-1 title-text ws-mat-text-block-fade-gradient">
+                  class="mat-subtitle-2 title-text ws-mat-text-block-fade-gradient">
                   {{ widgetData?.content?.name }}
                 </div>
                 <div [id]="'m-c-'+ widgetData?.content?.identifier"
-                  class="mat-subheading-1 description-text  ws-mat-text-block-fade-gradient"
+                  class="mat-subtitle-2 description-text  ws-mat-text-block-fade-gradient"
                   [innerText]="widgetData?.content?.description"></div>
                 <div class="flex w-full flex-wrap flex-middle mt-4">
                   <div class="course_logo_box">
@@ -2065,13 +2065,13 @@
           </ng-container>
           <ng-container *ngIf="isCardFlipped">
             <div class="flex items-center">
-              <h2 class="mat-subheading-2 flex-1 min-w-0 margin-remove-bottom">{{'cardcontentv2.reason' | translate}}
+              <h2 class="mat-subtitle-1 flex-1 min-w-0 margin-remove-bottom">{{'cardcontentv2.reason' | translate}}
               </h2>
               <button mat-icon-button (click)="isCardFlipped = false">
                 <mat-icon>close</mat-icon>
               </button>
             </div>
-            <p class="text-justify mat-body-1">
+            <p class="text-justify mat-subtitle-2">
               {{ widgetData?.content?.reason }}
             </p>
           </ng-container>
@@ -2101,14 +2101,14 @@
                   [bindingClass]="'flex rounded br-8'"></ws-widget-skeleton-loader>
               </div>
             </div>
-            <div class="mat-subheading-1 title-text ws-mat-text-block-fade-gradient  mb-4">
+            <div class="mat-subtitle-2 title-text ws-mat-text-block-fade-gradient  mb-4">
               <ws-widget-skeleton-loader [width]="'100%'" [height]="'16px'"
                 [bindingClass]="'flex rounded'"></ws-widget-skeleton-loader>
               <ws-widget-skeleton-loader [width]="'111px'" [height]="'16px'"
                 [bindingClass]="'flex rounded margin-top-s'"></ws-widget-skeleton-loader>
             </div>
 
-            <div class="mat-subheading-1 title-text ws-mat-text-block-fade-gradient  mb-4">
+            <div class="mat-subtitle-2 title-text ws-mat-text-block-fade-gradient  mb-4">
               <ws-widget-skeleton-loader [width]="'100%'" [height]="'16px'"
                 [bindingClass]="'flex rounded'"></ws-widget-skeleton-loader>
               <ws-widget-skeleton-loader [width]="'111px'" [height]="'16px'"

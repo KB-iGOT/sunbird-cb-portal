@@ -3,13 +3,14 @@ import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { DialogSocialActivityUserComponent } from '../../dialog/dialog-social-activity-user/dialog-social-activity-user.component'
 import { WsDiscussionForumService } from '../../ws-discussion-forum.services'
 import { NsDiscussionForum } from '../../ws-discussion-forum.model'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatDialog } from '@angular/material/dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
 
 @Component({
   selector: 'ws-widget-btn-social-like',
   templateUrl: './btn-social-like.component.html',
   styleUrls: ['./btn-social-like.component.scss'],
+  standalone: false
 })
 export class BtnSocialLikeComponent implements OnInit {
   @Input() postId = ''

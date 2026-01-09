@@ -9,7 +9,7 @@
             <ng-container *ngIf="item?.active">
                 <!-- //NOSONAR --><div *ngIf="item?.slug === 'hub'" class="flex flex-col justify-start nav-footer-item nav"
                     (click)="onClick($event)">
-                    <h4 class="footer_heading mat-subheading-1 margin-bottom-m">
+                    <h4 class="footer_heading mat-subtitle-2 margin-bottom-m">
                         {{ translateLabels(item?.sectionHeading, 'footer') }} </h4>
                         <ul>
                     <ng-container *ngFor="let hub of (hubsList || [])">
@@ -28,7 +28,7 @@
                 </div>
                 <!-- //NOSONAR --><div *ngIf="item?.slug === 'link' && environment.portals.length > 0"
                     class="flex flex-col justify-start nav-footer-item nav" (click)="onClick($event)">
-                    <h4 class="footer_heading mat-subheading-1 margin-bottom-m">
+                    <h4 class="footer_heading mat-subtitle-2 margin-bottom-m">
                         {{
                         translateLabels(item?.sectionHeading, 'footer') }} </h4>
                     <ul>
@@ -44,7 +44,7 @@
                 </div>
                 <!-- //NOSONAR --><div *ngIf="item?.slug === 'support'" class="flex flex-col justify-start nav-footer-item nav"
                     (click)="onClick($event)">
-                    <h4 class="footer_heading mat-subheading-1 margin-bottom-m">
+                    <h4 class="footer_heading mat-subtitle-2 margin-bottom-m">
                         {{
                         translateLabels(item?.sectionHeading, 'footer') }} </h4>
                     <ul>
@@ -60,7 +60,7 @@
                 </div>
                 <!-- //NOSONAR --><div *ngIf="item?.slug === 'about'" class="flex flex-col justify-start nav-footer-item nav"
                     (click)="onClick($event)">
-                    <h4 class="footer_heading mat-subheading-1 margin-bottom-m">
+                    <h4 class="footer_heading mat-subtitle-2 margin-bottom-m">
                         {{
                         translateLabels(item?.sectionHeading, 'footer') }} </h4>
                     <ng-container>

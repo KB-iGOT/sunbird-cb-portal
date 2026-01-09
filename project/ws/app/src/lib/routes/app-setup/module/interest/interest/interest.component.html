@@ -7,7 +7,7 @@
 
   <ws-utils-horizontal-scroller class="block pt-4 mx-4" *ngIf="interestsData?.length" [loadStatus]="'done'"
     [onHover]='true'>
-    <div class="concept mat-subheading-1 padding-bottom-xs"
+    <div class="concept mat-subtitle-2 padding-bottom-xs"
       [ngClass]="{ 'ws-mat-primary-border-bottom-bolder': i === selectedContent  , 'ws-mat-primary-text':isInterestAdded(concept)}"
       (click)=" selectInterest(i)" *ngFor="let concept of interestsData ; index as i">
       <ng-container>{{ concept }}</ng-container>
@@ -35,7 +35,7 @@
             [alt]="content.name" [title]="content.name" />
         </div>
         <mat-card-content>
-          <div class="ws-mat-primary-text mat-subheading-2">
+          <div class="ws-mat-primary-text mat-subtitle-1">
             {{ content.name }}
           </div>
         </mat-card-content>
