@@ -10,6 +10,7 @@ import { NSSearch } from './widget-search.model'
 import _ from 'lodash'
 import {  viewerRouteGenerator } from './viewer-route-util'
 import moment from 'moment'
+import { ActivatedRoute } from '@angular/router'
 // tslint:enable
 
 // TODO: move this in some common place
@@ -59,6 +60,7 @@ const API_END_POINTS = {
   EXT_USER_COURSE_ENROLL : (contentId: any) => `/apis/proxies/v8/cios-enroll/v1/readby/useridcourseid/${contentId}`,
   EXT_CONTENT_EROLL: `/apis/proxies/v8/cios-enroll/v1/create`,
   EXT_PUBLIC_CONTENT: (partent: any, contentId: any) => `/apis/proxies/v8/ciosIntegration/v1/read/content/${partent}/${contentId}`,
+  ENROLL_CONTENT_DATA: (userId: string,) => `/apis/proxies/v8/learner/course/v4/user/enrollment/details/${userId}`,
 }
 
 @Injectable({
@@ -68,6 +70,7 @@ export class WidgetContentService {
   constructor(
     private http: HttpClient,
     private configSvc: ConfigurationsService,
+    private activatedRoute: ActivatedRoute,
   ) {
   }
 
@@ -78,6 +81,7 @@ export class WidgetContentService {
   currentBatchEnrollmentList!: NsContent.ICourse[]
   programChildCourseResumeData = new BehaviorSubject<any>({})
   programChildCourseResumeData$ = this.programChildCourseResumeData.asObservable()
+  languageMapProgress: any
   isResource(primaryCategory: string) {
     if (primaryCategory) {
       const isResource = (primaryCategory === NsContent.EResourcePrimaryCategories.LEARNING_RESOURCE) ||
@@ -143,11 +147,13 @@ export class WidgetContentService {
     //   return apiData.result.content
     // }
   }
-  fetchAuthoringContent(contentId: string): Observable<NsContent.IContent> {
+  fetchAuthoringContent(contentId: string, apiType?: string): Observable<NsContent.IContent> {
     const forcreator = window.location.href.includes('editMode=true')
     let url = ''
     if (forcreator) {
       url = `apis/proxies/v8/action/content/v3/hierarchy/${contentId}?mode=edit`
+    } else if(apiType && apiType === 'read') {
+      url = `/api/content/v1/read/${contentId}`
     } else {
       url = `${API_END_POINTS.AUTHORING_CONTENT}/${contentId}?hierarchyType=detail`
     }
@@ -189,8 +195,9 @@ export class WidgetContentService {
     )
   }
 
-  autoAssignBatchApi(identifier: any): Observable<NsContent.IBatchListResponse> {
-    return this.http.get<NsContent.IBatchListResponse>(`${API_END_POINTS.AUTO_ASSIGN_BATCH}${identifier}`)
+  autoAssignBatchApi(identifier: any, language?: any): Observable<NsContent.IBatchListResponse> {
+    let enrollLang: string = language?.langId || 'english'
+    return this.http.get<NsContent.IBatchListResponse>(`${API_END_POINTS.AUTO_ASSIGN_BATCH}${identifier}?language=${enrollLang}`)
       .pipe(
         retry(1),
         map(
@@ -256,14 +263,23 @@ export class WidgetContentService {
   }
 
   fetchContentHistoryV2(req: NsContent.IContinueLearningDataReq): Observable<NsContent.IContinueLearningData> {
+    const isPreAssessment = this.activatedRoute.snapshot.queryParams.preAssessment
     req.request.fields = ['progressdetails']
+    if(req.request.courseId && !isPreAssessment) {
     const data = this.http.post<NsContent.IContinueLearningData>(
       `${API_END_POINTS.CONTENT_HISTORYV2}/${req.request.courseId}`, req
+    ).pipe(
+      map((rData: any) => {
+        this.languageMapProgress = rData?.result?.languageProgress || {}
+        return rData
+      }), //  (rData.responseData || []).map((p: any) => p.name)
     )
     // data.subscribe((subscribeData: any) => {
     //       this.programChildCourseResumeData.next({ resumeData: subscribeData.result.contentList, courseId: req.request.courseId })
     //     })
     return data
+  }
+  return of()
   }
 
   setProgramChildResumeData(contentList: any, courseId: any) {
@@ -599,5 +615,82 @@ export class WidgetContentService {
             && moment(endDate).isSameOrAfter(now)
           )
     } return true
+  }
+
+  getPreAssessmentFirstChildInHierarchy(content: NsContent.IContent): NsContent.IContent {
+    if (!(content.children || []).length) {
+      return content
+    }
+    if (
+      (content.primaryCategory === NsContent.EPrimaryCategory.PROGRAM &&
+        !(content.artifactUrl && content.artifactUrl.length)) ||
+      content.primaryCategory === NsContent.EPrimaryCategory.MANDATORY_COURSE_GOAL ||
+      (content.primaryCategory === NsContent.EPrimaryCategory.BLENDED_PROGRAM &&
+        !(content.artifactUrl && content.artifactUrl.length)) ||
+      (content.primaryCategory === NsContent.EPrimaryCategory.MODULE &&
+        !(content.artifactUrl && content.artifactUrl.length))
+    ) {
+      const child = content.children[0]
+      return this.getPreAssessmentFirstChildInHierarchy(child)
+    }
+    if (
+      content.primaryCategory === NsContent.EPrimaryCategory.RESOURCE ||
+      content.primaryCategory === NsContent.EPrimaryCategory.KNOWLEDGE_ARTIFACT ||
+      content.primaryCategory === NsContent.EPrimaryCategory.PROGRAM ||
+      content.primaryCategory === NsContent.EPrimaryCategory.PRACTICE_RESOURCE ||
+      content.primaryCategory === NsContent.EPrimaryCategory.FINAL_ASSESSMENT ||
+      content.primaryCategory === NsContent.EPrimaryCategory.COMP_ASSESSMENT ||
+      content.primaryCategory === NsContent.EPrimaryCategory.BLENDED_PROGRAM ||
+      content.primaryCategory === NsContent.EPrimaryCategory.OFFLINE_SESSION
+    ) {
+      return content
+    }
+    const firstChild = content.children[0]
+    const resultContent = this.getPreAssessmentFirstChildInHierarchy(firstChild)
+    return resultContent
+  }
+
+  fetchHierarchyContent(contentId:string, hierarchyType: 'all' | 'minimal' | 'detail' = 'detail') {
+    let url = ''
+    const forPreview = window.location.href.includes('/public/') || window.location.href.includes('&preview=true')
+    if (!forPreview) {
+      url = `/apis/proxies/v8/action/content/v3/hierarchy/${contentId}?hierarchyType=${hierarchyType}`
+    } else {
+      const forcreator = window.location.href.includes('editMode=true')
+      if (forcreator) {
+        url = `apis/proxies/v8/action/content/v3/hierarchy/${contentId}?mode=edit`
+      } else {
+        url = `/api/course/v1/hierarchy/${contentId}?hierarchyType=${hierarchyType}`
+      }
+    }
+    return this.http.get<NsContent.IContent>(url).pipe(shareReplay(1))
+  }
+
+  fetchContentData(contentId: string): Observable<NsContent.IContent> {
+    let url = ''
+    const forPreview = window.location.href.includes('/public/') || window.location.href.includes('&preview=true')
+    if (!forPreview) {
+      return this.http.get<NsContent.IContent>(
+        API_END_POINTS.CONTENT_READ(contentId),
+      )
+    }
+    if (window.location.href.includes('editMode=true') && window.location.href.includes('_rc')) {
+      url = `/apis/proxies/v8/action/content/v3/read/${contentId}`
+    } else {
+        url = `/api/content/v1/read/${contentId}`
+    }
+      return this.http.get<NsContent.IContent>(url)
+  }
+
+  getUserEnrollmentData(userId: string, request: any): Observable<{ data: any; error: any }> {
+    return this.http.post(API_END_POINTS.ENROLL_CONTENT_DATA(userId), request).pipe(
+      map((rData: any) => {
+        const result = rData?.result ?? null;
+        return { data: result, error: null };
+      }),
+      catchError((error: any) => {
+        return of({ data: null, error });
+      })
+    );
   }
 }

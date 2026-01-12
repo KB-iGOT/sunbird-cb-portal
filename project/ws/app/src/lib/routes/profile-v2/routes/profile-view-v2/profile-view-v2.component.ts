@@ -16,13 +16,14 @@ import { AchievementsComponent } from '../../components/profile-revamp/achieveme
 import { forkJoin, Subject } from 'rxjs';
 import { mergeMap, takeUntil } from 'rxjs/operators';
 import { environment } from 'src/environments/environment'
-import { ConfigurationsService, EventService, PipeCertificateImageURL, WsEvents } from '@sunbird-cb/utils-v2';
+import { ConfigurationsService, EventService, MultilingualTranslationsService, PipeCertificateImageURL, WsEvents } from '@sunbird-cb/utils-v2';
 import { TransferRequestComponent } from '../../components/transfer-request/transfer-request.component';
 import { WithdrawRequestComponent } from '../../components/withdraw-request/withdraw-request.component';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { TranslateService } from '@ngx-translate/core';
 import { DatePipe } from '@angular/common';
 import { ConfirmationDialogComponent } from '@sunbird-cb/consumption'
+import { CommonDataService } from '../../../../../../../../../src/app/services/common-data.service';
 //#endregion
 
 @Component({
@@ -46,6 +47,7 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
   nameInitials: string = '';
   isIgotOrg = false
   isNotMyUser = false
+  isNotMyUserAndIgotOrg = false
   userStats: UserStats[] = [
     {
       state: 'NetworkV2Profile.myKarmaPoints',
@@ -201,6 +203,8 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
 
   connectionStatus = 'Connect'
   isMobile = false;
+  showProfileSection = true;
+  blockedMessage = '';
 
   @ViewChild('progressCanvas') progressCanvas!: ElementRef<HTMLCanvasElement>;
   //#endregion
@@ -216,7 +220,18 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
     private translateService: TranslateService,
     private datePipe: DatePipe,
     private events: EventService,
+    private langtranslations: MultilingualTranslationsService,
+    private commonSvc: CommonDataService
   ) {
+    this.langtranslations.languageSelectedObservable.subscribe(() => {
+      this.translateService.setDefaultLang('hi')
+      if (localStorage.getItem('websiteLanguage')) {
+        this.translateService.setDefaultLang('en')
+        const lang = localStorage.getItem('websiteLanguage')!
+        this.translateService.use(lang)
+      }
+    })
+    
     this.breakpointObserver.observe([Breakpoints.Handset])
       .subscribe(result => {
         this.isMobile = result.matches;
@@ -242,19 +257,19 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
         this.selectRoute(lastSectionId);
       }, 100);
     }
-    this.getRecommendedUsers()
-    this.getRecommendedCommunitesList()
     this.getSendApprovalStatus()
     this.getRejectedStatus()
     this.getGroupData()
     this.getInsightsData()
+    
   }
 
   //#region (initialization)
 
   getRecommendedUsers() {
+    const countOfRecommendations = 3
     const formBody = {
-      size: 3,
+      size: countOfRecommendations + 1,
       offset: 0,
     }
 
@@ -262,7 +277,8 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
     this.profileV2RevampSvc.getRecommendedUsers(formBody).subscribe({
       next: (response: any) => {
         this.suggestionsLoading = false;
-        this.peopleSuggestionsList = _.get(response, 'result.response', []);
+        const suggestedUser = _.get(response, 'result.response', []).filter((suggestedUser: any) => suggestedUser.id !== this.userId);
+        this.peopleSuggestionsList = suggestedUser.slice(0, countOfRecommendations);
       },
       error: () => {
         this.suggestionsLoading = false;
@@ -294,11 +310,25 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
       .pipe(takeUntil(this.destroySubject$))
       .subscribe((res: any) => {
         this.groupsList = res.result && res.result.response.filter((ele: any) => ele !== 'Others')
+        this.checkMandatory()
       }, (error: HttpErrorResponse) => {
         if (!error.ok) {
           this.openSnackbar(this.handleTranslateTo('groupDataFaile'))
         }
       })
+  }
+  checkMandatory() {
+    this.activatedRoute.fragment.subscribe(fragment => {
+      if (fragment === 'mandatorySection') {
+        
+        setTimeout(() => {
+              this.handleEditMandatoryDetails()
+          
+        }, 500)
+      } else {
+        this.commonSvc.mandatoryDetails()
+      }
+    })
   }
 
   getProfileDetailsFromRoutes() {
@@ -306,6 +336,11 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
       this.userId = _.get(data, 'profile.userId', '')
       this.isIgotOrg = _.get(this.configSvc, 'unMappedUser.profileDetails.employmentDetails.departmentName', '').toLowerCase() === 'igot' ? true : false
       this.isNotMyUser = _.get(this.configSvc, 'unMappedUser.profileDetails.profileStatus', '').toLowerCase() === 'not-my-user' ? true : false
+      this.isNotMyUserAndIgotOrg = (this.isNotMyUser && this.isIgotOrg)
+      if (!this.isNotMyUserAndIgotOrg) {
+        this.getRecommendedUsers()
+        this.getRecommendedCommunitesList()
+      }
       if (this.configSvc.userProfile && this.configSvc.userProfile.userId) {
         this.isCurrentUser = this.configSvc.userProfile.userId === this.userId
         if (!this.isCurrentUser) {
@@ -328,7 +363,31 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
   getConnectionStatus() {
     this.profileV2RevampSvc.getConnectionStatus(this.userId).subscribe((data: any) => {
       this.connectionStatus = _.get(data, 'result.response.status', 'Connect')
+      this.setProfileVisibilityStatus()
     })
+  }
+
+  setProfileVisibilityStatus() {
+    const privacyStatus = _.get(this.profesionalDetails, 'profilePreference', 0)
+    let blockedMessage = ''
+    if(this.connectionStatus === 'Blocked Incoming' || this.connectionStatus === 'Blocked Outgoing') {
+      this.showProfileSection = false;
+      blockedMessage = this.connectionStatus === 'Blocked Outgoing' ? 'youBlockedThisProfile' : 'youAreNotAuthorisedToSeeThisProfile'
+    } else {
+      if (privacyStatus === 1) {
+        this.showProfileSection = false;
+        blockedMessage = 'thisProfileIsLocked'
+      } else if (privacyStatus === 10 && this.connectionStatus !== 'Approved') {
+        this.showProfileSection = false;
+        blockedMessage = 'thisProfileIsLocked'
+      } else {
+        this.showProfileSection = true;
+      }
+    }
+
+    if(blockedMessage) {
+      this.blockedMessage = this.handleTranslateTo(blockedMessage)
+    }
   }
 
   patchProfileDetails() {
@@ -371,6 +430,7 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
       this.primaryDetails['cadreName'] = _.get(this.profesionalDetails, 'cadreDetails.cadreName', '')
       this.primaryDetails['cadreBatch'] = _.get(this.profesionalDetails, 'cadreDetails.cadreBatch', '')
       this.primaryDetails['cadreControllingAuthorityName'] = _.get(this.profesionalDetails, 'cadreDetails.cadreControllingAuthorityName', '')
+      this.primaryDetails['isOnCentralDeputation'] = _.get(this.profesionalDetails, 'cadreDetails.isOnCentralDeputation', false)
     }
     this.aboutme = _.get(this.profesionalDetails, 'employmentDetails.aboutme', '')
     this.setAboutMeButton()
@@ -619,9 +679,31 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
       }
     } else if (header === 'Primary Details') {
       dialogDetails['groupsList'] = this.groupsList
+    } else if (header === 'mandatorySection') {
+      console.log(this.groupsList,'=========> this.grouplist')
+      
+      dialogDetails['groupsList'] = this.groupsList
     }
+    
+    // For mandatorySection, wrap dialogDetails and include approval fields
+    let dialogData: any;
+    if (header === 'mandatorySection') {
+      dialogData = {
+        dialogDetails,
+        unVerifiedObj: this.unVerifiedObj,
+        rejectedFields: this.rejectedFields,
+        approvalPendingFields: this.approvalPendingFields,
+        enableWTR: this.enableWTR,
+        enableWR: this.enableWR,
+        isCurrentUser: this.isCurrentUser,
+        primaryDetails: this.primaryDetails
+      };
+    } else {
+      dialogData = dialogDetails;
+    }
+    
     const dialogRef = this.dialog.open(PrfileEditV2Component, {
-      data: dialogDetails,
+      data: dialogData,
       disableClose: true,
       panelClass: 'dialog_sidenav',
       autoFocus: false
@@ -794,6 +876,12 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
             resultPath: 'cadreControllingAuthorityName',
             formBodyPath: 'profileDetails.cadreDetails.cadreControllingAuthorityName',
             isCader: true
+          },
+          {
+            formField: 'isOnCentralDeputation',
+            resultPath: 'isOnCentralDeputation',
+            formBodyPath: 'profileDetails.cadreDetails.isOnCentralDeputation',
+            isCader: true
           }
         ]
         fieldMappings.push(...cadreDetailsFieldMappings)
@@ -805,7 +893,7 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
       fieldMappings.forEach(mapping => {
         const currentValue = _.get(result, mapping.resultPath, null);
         let formValue = this.primaryDetails[mapping.formField];
-        if (mapping.formField === 'dob' && formValue) {
+        if (mapping.formField === 'dob' && (formValue || formValue === false)) {
           formValue = this.datePipe.transform(new Date(formValue), 'dd-MM-yyyy');
         }
 
@@ -1031,7 +1119,12 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
     })
     dialogRef.afterClosed().subscribe((result: any) => {
       if (result) {
-        this.openProfileEntryEditDialog('Achievements', result)
+        if(result && result.action && result.action === 'delete') {
+          let achievement = result.achievement || {};
+          this.openProfileEntryDeleteDialog('Achievements', achievement)
+        } else {
+          this.openProfileEntryEditDialog('Achievements', result)
+        }
       }
     })
   }
@@ -1459,5 +1552,113 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
   ngOnDestroy() {
     this.destroySubject$.unsubscribe()
   }
+
+  openProfileEntryDeleteDialog(header: string, entryDetails: any) {
+   let requestData: any = {}
+   let dialogTitle:string = ''
+    switch (header) {
+      case 'Achievements':
+        requestData = this.formDeleteRequest(header, entryDetails)
+        dialogTitle = 'Are you sure you want to delete this achievement?'
+        break;
+    }
+
+    const dialogData = {
+            description: dialogTitle,
+            iconName: 'info',
+            type: 'warning',
+            buttonsPositionClass: 'justify-center items-center',
+            buttons: [
+              {
+                classes: 'btn-out-line',
+                text: 'No',
+                response: false
+              },
+              {
+                classes: 'succes-button',
+                text: 'Yes',
+                response: true
+              }
+            ]
+    }
+    const dialogRef = this.dialog.open(ConfirmationDialogComponent, {
+      data: dialogData,
+      disableClose: true,
+      width: '400px',
+      maxWidth: '90vw'
+    })
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result) {
+        this.deleteProfileEntryCall(requestData)
+      }
+    })
+    
+  }
+
+  formDeleteRequest(header: string, entryDetails: any) {
+    let requestData: any = {}
+    switch (header) {
+      case 'Achievements':
+        requestData = {
+          "request": {
+              "userId": this.userId,
+              "achievements": [{
+                  "uuid": entryDetails.uuid
+              }]
+          }
+        }
+      break;
+    }
+
+    return requestData
+    
+  }
+
+   deleteProfileEntryCall(request: any): void {
+    this.profileV2RevampSvc.deleteAchievement(request).subscribe({
+      next: (res: any) => {
+        if (res && res.result && res.result.response) {
+          this.openSnackbar('Achievement deleted successfully', 2000);
+          this.fetchProfileEntries()
+        } else {
+          this.openSnackbar('Something went wrong while deleting achievement, please try again later', 2000);
+        }
+      },
+      error: (_err: any) => {
+        this.openSnackbar('Something went wrong while deleting achievement, please try again later', 2000);
+      }
+    })
+  }
+
+
+   // Update handleEditCustomDetails to build the form and populate values
+  handleEditMandatoryDetails() {
+    console.log(this.groupsList,'=========> this.grouplist' )
+    
+     const dialogDetails: any = {
+      header: 'Mandatory Section',
+      profileDetails: this.primaryDetails,
+      groupsList: this.groupsList
+    }
+     const dialogRef = this.dialog.open(PrfileEditV2Component, {
+      data: {dialogDetails,
+        unVerifiedObj: this.unVerifiedObj,
+        rejectedFields: this.rejectedFields,
+        approvalPendingFields: this.approvalPendingFields,
+        enableWTR: this.enableWTR,
+        isCurrentUser: this.isCurrentUser,
+        primaryDetails:this.primaryDetails
+      },
+      disableClose: true,
+      panelClass: 'dialog_sidenav',
+      autoFocus: false
+    })
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result) {
+        // this.getOrgDetails()
+      }
+    })
+  }
+
 
 }

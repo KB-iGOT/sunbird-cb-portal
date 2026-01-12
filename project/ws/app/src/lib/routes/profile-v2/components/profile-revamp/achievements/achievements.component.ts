@@ -16,6 +16,7 @@ export class AchievementsComponent implements OnInit {
   @Input() achievementsList: achievement[] = [];
   @Input() isCurrentUser = false;
   @Output() openProfileEntryEditDialog = new EventEmitter();
+  @Output() openProfileEntryDeleteDialog = new EventEmitter();
 
   userId: string = '';
   isPopup: boolean = false;
@@ -45,9 +46,9 @@ export class AchievementsComponent implements OnInit {
 
   //#region (functions)
 
-  getAchievementsList(): void {
-    if (this.userId) {
-      this.profileV2RevampSvc.fetchProfileEntries(this.userId, 'achievement').subscribe({
+  getAchievementsList(userId?:any): void {
+    if (this.userId || userId) {
+      this.profileV2RevampSvc.fetchProfileEntries(this.userId || userId, 'achievement').subscribe({
         next: (res: any) => {
           if (res) {
             this.achievementsList = _.get(res, 'result.response.achievements', []);
@@ -109,5 +110,11 @@ export class AchievementsComponent implements OnInit {
     })
   }
   //#endregion (functions)
-
+  deleteAchievement(achievement: achievement): void {
+    if(this.isPopup) { 
+      this.dialogRef.close({achievement, action: 'delete'});
+    } else {
+      this.openProfileEntryDeleteDialog.emit(achievement);
+    }
+  }
 }

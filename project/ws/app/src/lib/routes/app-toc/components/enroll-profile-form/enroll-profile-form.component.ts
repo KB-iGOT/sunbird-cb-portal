@@ -1,7 +1,8 @@
+import { DatePipe } from '@angular/common'
 import { Component, OnInit, Inject, ViewChild, ElementRef, HostListener } from '@angular/core'
 import { FormControl, FormGroup, Validators } from '@angular/forms'
 import { UserProfileService } from '../../../user-profile/services/user-profile.service'
-import { takeUntil } from 'rxjs/operators'
+import { debounceTime, distinctUntilChanged, startWith, takeUntil } from 'rxjs/operators'
 import { HttpErrorResponse } from '@angular/common/http'
 import { Subject } from 'rxjs'
 import { NsUserProfileDetails } from '../../../user-profile/models/NsUserProfile'
@@ -14,7 +15,8 @@ import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack
 /* tslint:disable */
 import _ from 'lodash'
 import { TranslateService } from '@ngx-translate/core'
-import { SignupService } from 'src/app/routes/public/public-signup/signup.service'
+// import { SignupService } from 'src/app/routes/public/public-signup/signup.service'
+import { designation } from '../../../profile-v2/models/profile-revamp.model'
 
 const MOBILE_PATTERN = /^[0]?[6789]\d{9}$/
 const PIN_CODE_PATTERN = /^[1-9][0-9]{5}$/
@@ -36,7 +38,7 @@ export class EnrollProfileFormComponent implements OnInit {
   groupData: any | undefined
   private destroySubject$ = new Subject()
   designationsMeta: any = []
-  filterDesignationsMeta: any = []
+  // filterDesignationsMeta: any = []
   eUserGender = Object.keys(NsUserProfileDetails.EUserGender)
   masterLanguages: any
   masterLanguageBackup: any
@@ -130,6 +132,13 @@ export class EnrollProfileFormComponent implements OnInit {
   isLoadingMoreDesignations = false;
   designationDefaultLoadCount =  50
   desigantionFilterEnable = false
+  organisationId = ''
+  selectedOrgHasDesignations = false;
+  designationsOffset = 0;
+  designationSearchText = '';
+  designationsTotalCount = 0;
+  formId: string = '';
+  formsDetils: any;
   @ViewChild('textBox') textBox!: ElementRef
   @ViewChild('dropdown') dropdown!: ElementRef
   @ViewChild('languageTextBox') languageTextBox!: ElementRef
@@ -143,7 +152,8 @@ export class EnrollProfileFormComponent implements OnInit {
     private otpService: OtpService,
     private npsSvc: NPSGridService,
     private translateService: TranslateService,
-    private signupService: SignupService,
+    private datePipe: DatePipe,
+    // private signupService: SignupService,
     @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
 
@@ -181,6 +191,7 @@ export class EnrollProfileFormComponent implements OnInit {
     })
     this.isLoading = true
     this.userProfileObject = this.configSrc.unMappedUser
+    this.organisationId = _.get(this.userProfileObject, 'rootOrgId', _.get(this.userProfileObject, 'personalDetails.rootOrgId', ''))
 
     this.otpForm = new FormGroup({
       otp: new FormControl('', Validators.required)
@@ -286,63 +297,63 @@ export class EnrollProfileFormComponent implements OnInit {
     this.openLanguageDropdown = true
   }
 
-  filterdesignation(value: any) {
-    if (value.length) {
-      this.desigantionFilterEnable =true
-      this.filterDesignationsMeta = this.designationsMeta.filter((val: any) =>
-        val && val.name.trim().toLowerCase().includes(value.toLowerCase())
-      )
-      if (this.filterDesignationsMeta.length === 0) {
-        const usernameControl = this.userDetailsForm.get('designation')
-        if (usernameControl) {
-          usernameControl.setErrors({ required: true });
-        }
-      }
-    } else {
-      this.filterDesignationsMeta = this.designationsMeta.slice(0, this.designationDefaultLoadCount)
-      this.desigantionFilterEnable =false
+  // filterdesignation(value: any) {
+  //   if (value.length) {
+  //     this.desigantionFilterEnable =true
+  //     this.filterDesignationsMeta = this.designationsMeta.filter((val: any) =>
+  //       val && val.name.trim().toLowerCase().includes(value.toLowerCase())
+  //     )
+  //     if (this.filterDesignationsMeta.length === 0) {
+  //       const usernameControl = this.userDetailsForm.get('designation')
+  //       if (usernameControl) {
+  //         usernameControl.setErrors({ required: true });
+  //       }
+  //     }
+  //   } else {
+  //     this.filterDesignationsMeta = this.designationsMeta.slice(0, this.designationDefaultLoadCount)
+  //     this.desigantionFilterEnable =false
 
-      this.designationListLoadCount = this.designationDefaultLoadCount;
-    }
-    // this.openDesignationDropdown = true
-  }
+  //     this.designationListLoadCount = this.designationDefaultLoadCount;
+  //   }
+  //   // this.openDesignationDropdown = true
+  // }
 
-  async getMasterDesignation() {
-    this.signupService.getOrgReadData(this.userProfileObject.rootOrgId).subscribe((result: any) => {
-      if (result && result.frameworkid) {
-        this.signupService.getFrameworkInfo(result.frameworkid).subscribe((res: any) => {
-          const frameworkDetails = _.get(res, 'result.framework')
-          const categoriesOfFramework = _.get(frameworkDetails, 'categories', [])
-          const organisationsList = this.getTermsByCode(categoriesOfFramework, 'org')
-          const disOrderedList = _.get(organisationsList, '[0].children', [])
-          this.designationsMeta = _.sortBy(disOrderedList, 'name')
-          this.filterDesignationsMeta = this.designationsMeta.slice(0, this.designationDefaultLoadCount)
-          if (this.canShowDesignation) {
-            let field = this.userDetailsForm.get('designation')
-            if (field && field.value) {
-              let _value = field.value.toLowerCase()
-              if (!this.designationsMeta.find((d: any) => d.name.toLowerCase() === _value)) {
-                field.patchValue('')
-              }
-            }
-          }
-        }, (error: any) => {
-          // tslint:disable-next-line
-          console.error('Error occurred:', error)
-        })
-      }
-    }, (error: any) => {
-      // tslint:disable-next-line
-      console.error('Error occurred:', error)
-    })
-  }
+  // async getMasterDesignation() {
+  //   this.signupService.getOrgReadData(this.userProfileObject.rootOrgId).subscribe((result: any) => {
+  //     if (result && result.frameworkid) {
+  //       this.signupService.getFrameworkInfo(result.frameworkid).subscribe((res: any) => {
+  //         const frameworkDetails = _.get(res, 'result.framework')
+  //         const categoriesOfFramework = _.get(frameworkDetails, 'categories', [])
+  //         const organisationsList = this.getTermsByCode(categoriesOfFramework, 'org')
+  //         const disOrderedList = _.get(organisationsList, '[0].children', [])
+  //         this.designationsMeta = _.sortBy(disOrderedList, 'name')
+  //         this.filterDesignationsMeta = this.designationsMeta.slice(0, this.designationDefaultLoadCount)
+  //         if (this.canShowDesignation) {
+  //           let field = this.userDetailsForm.get('designation')
+  //           if (field && field.value) {
+  //             let _value = field.value.toLowerCase()
+  //             if (!this.designationsMeta.find((d: any) => d.name.toLowerCase() === _value)) {
+  //               field.patchValue('')
+  //             }
+  //           }
+  //         }
+  //       }, (error: any) => {
+  //         // tslint:disable-next-line
+  //         console.error('Error occurred:', error)
+  //       })
+  //     }
+  //   }, (error: any) => {
+  //     // tslint:disable-next-line
+  //     console.error('Error occurred:', error)
+  //   })
+  // }
 
-  private getTermsByCode(categories: any[], code: string) {
-    const selectedCategory = categories.filter(
-      (category: any) => category.code === code
-    );
-    return _.get(selectedCategory, '[0].terms', []);
-  }
+  // private getTermsByCode(categories: any[], code: string) {
+  //   const selectedCategory = categories.filter(
+  //     (category: any) => category.code === code
+  //   );
+  //   return _.get(selectedCategory, '[0].terms', []);
+  // }
 
   preventBlur(event: MouseEvent): void {
     event.preventDefault()
@@ -551,14 +562,53 @@ export class EnrollProfileFormComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.formId = _.get(this.data, 'batchData.batchAttributes.profileSurveyId')
+    this.getFormDetails()
+    this.setValueChangeFunctions()
     this.fetchCadreData()
     this.getGroupData()
     this.getPendingDetails()
     setTimeout(() => {
-      this.loadDesignations()
+      // this.loadDesignations()
+      this.checkSelectedOrgHasDesignations();
       //this.getMasterDesignation()
       this.getMasterLanguage()
     }, 500)
+  }
+
+  getFormDetails() {
+    if (this.formId) {
+      this.profileV2Svc.getFormV2ByID(this.formId).subscribe((responce: any) => {
+        if (responce) {
+          this.formsDetils = _.get(responce, 'result.response', {})
+        }
+      })
+    }
+  }
+
+  setValueChangeFunctions() {
+    const searchDesignationControl = this.userDetailsForm.get('searchDesignation')
+    if (searchDesignationControl) {
+      let settingValueChange = true
+      searchDesignationControl.valueChanges.pipe(
+        debounceTime(300),
+        distinctUntilChanged(),
+        startWith(''),
+      ).subscribe(searchText => {
+          this.designationsOffset = 0
+          if (searchText && searchText.length > 1) {
+          this.designationSearchText = searchText
+            this.getdesignationsMeta()
+          } else if (!searchText) {
+          this.designationSearchText = searchText
+            if(!settingValueChange) {
+              this.getdesignationsMeta() 
+            }
+            this.checkCurrentDesignationPresent()
+          }
+          settingValueChange = false
+        })
+    }
   }
 
   fetchCadreData() {
@@ -1137,19 +1187,132 @@ export class EnrollProfileFormComponent implements OnInit {
     return this.userProfileService.handleTranslateTo(menuName)
   }
 
-  loadDesignations() {
-    this.userProfileService.getDesignations({}).subscribe(
-      (data: any) => {
-        this.designationsMeta = data.responseData
-        if (this.showDoptChanges) {
-          this.designationsMeta.push({ name: 'Others', id: 0, description: 'Others' })
+  checkSelectedOrgHasDesignations(): void {
+    if(this.organisationId) {
+      const igotDesignationBody: any = {
+        request: {
+          filters: {
+            status: 'Live',
+            category: 'designation',
+            categories: [
+              this.organisationId + '_odcs_designation',
+            ],
+            objectType: 'Term',
+          },
+          fields: ['name'],
+          offset: 0,
+          limit: 1,
+          sort_by: {
+            lastUpdatedOn: 'desc',
+            objectType: 'Term',
+          },
+          facets: [],
+        },
+      };
+      this.userProfileService.searchIgotDesignation(igotDesignationBody).subscribe({
+        next: (res: any) => {
+          const count = _.get(res, 'result.count', 0);
+          this.selectedOrgHasDesignations = count > 0;
+          this.getdesignationsMeta();
+        },
+        error: () => {
+          this.selectedOrgHasDesignations = false;
+          this.getdesignationsMeta();
         }
-        this.filterDesignationsMeta = this.designationsMeta.slice(0, this.designationDefaultLoadCount)
-        this.checkCurrentDesignationPresent()
-      },
-      (_err: any) => {
-      })
+      });
+    } else {
+      this.selectedOrgHasDesignations = false;
+      this.getdesignationsMeta();
+    }
   }
+
+  getdesignationsMeta() {
+    this.isLoadingMoreDesignations = true;
+    if (this.selectedOrgHasDesignations) {
+      this.getIgotDesignations();
+    } else {
+      this.getDefaultDesignations();
+    }
+  }
+
+  private getIgotDesignations() {
+    const requestBody: any = {
+      request: {
+        filters: {
+          status: "Live",
+          category: "designation",
+          categories: [
+            this.organisationId + '_odcs_designation',
+          ],
+          objectType: "Term"
+        },
+        fields: [
+          "name"
+        ],
+        offset: this.designationsOffset,
+        limit: this.designationListLoadCount,
+        sort_by: {
+          lastUpdatedOn: "desc",
+          objectType: "Term"
+        },
+        facets: []
+      }
+    };
+    if(this.designationSearchText){
+      requestBody['request']['query'] = this.designationSearchText;
+    }
+    this.userProfileService.searchIgotDesignation(requestBody).subscribe({
+      next: (res: any) => {
+        this.isLoadingMoreDesignations = false;
+        if(this.designationsOffset === 0) {
+          this.designationsMeta = _.get(res, 'result.Term', []) as designation[];
+        } else {
+          this.designationsMeta = [...this.designationsMeta, ..._.get(res, 'result.Term', []) as designation[]];
+        }
+        this.designationsTotalCount = _.get(res, 'result.count', 0);
+        this.checkCurrentDesignationPresent();
+      },
+      error: () => {
+        this.isLoadingMoreDesignations = false;
+        this.openSnackbar('Something went wrong. Please refresh or try again later.');
+      }
+    });
+  }
+  
+    private getDefaultDesignations() {
+      const requestBody: any = {
+        filterCriteriaMap: {
+          status: 'Active'
+        },
+        requestedFields: [],
+        pageNumber: this.designationsOffset,
+        pageSize: this.designationListLoadCount
+      }
+      if (this.designationSearchText) {
+        requestBody['searchString'] = this.designationSearchText
+      }
+      this.userProfileService.searchDesignation(requestBody).subscribe({
+        next: (res: any) => {
+          this.isLoadingMoreDesignations = false;
+          const content = _.get(res, 'result.result.data', []) as designation[];
+          const mapped = content.map((item: any) => ({
+            name: item.designation || '',
+            status: item.status || 'Active',
+          }));
+          if (this.designationsOffset === 0) {
+            this.designationsMeta = mapped;
+          } else {
+            this.designationsMeta = [...this.designationsMeta, ...mapped];
+          }
+          this.designationsTotalCount = _.get(res, 'result.result.totalCount', 0);
+          this.checkCurrentDesignationPresent();
+        },
+        error: () => {
+          this.isLoadingMoreDesignations = false;
+          this.openSnackbar('Something went wrong. Please refresh or try again later.');
+        }
+      });
+    }
 
   getMasterLanguage(): void {
     this.userProfileService.getMasterLanguages()
@@ -1249,14 +1412,17 @@ export class EnrollProfileFormComponent implements OnInit {
 
   submitSurevy(status: any) {
     let surevyPayload = {
-      dataObject: this.genereateSurveyPayload(status),
-      formId: this.data.batchData.batchAttributes.profileSurveyId,
-      timestamp: new Date().getTime(),
+      formId: _.get(this.data, 'batchData.batchAttributes.profileSurveyId'),
+      version: 4,
+      status: 'SUBMITTED',
+      responses: this.genereateSurveyPayload(status),
+      contextId: _.get(this.data, 'batchData.courseId'),
+      contextName: _.get(this.data, 'courseName', ''),
     }
     this.addLoader = this.addLoader + 1
     this.npsSvc.submitBpFormWithProfileDetails(surevyPayload).subscribe((resp: any) => {
       this.addLoader = this.addLoader - 1
-      if (resp && resp.statusInfo && resp.statusInfo.statusCode === 200) {
+      if (_.get(resp, 'params.status') === 'success') {
         this.customForm = false
         this.snackBar.open("Form is submitted successfully")
         this.closePopup()
@@ -1348,73 +1514,123 @@ export class EnrollProfileFormComponent implements OnInit {
     return payload
   }
 
-  formatDate(_dob: string): string {
-    const [day, month, year] = _dob.split('-')
-    const date = new Date(Number(year), Number(month) - 1, Number(day))
-    const formattedDay = String(date.getDate()).padStart(2, '0')
-    const formattedMonth = String(date.getMonth() + 1).padStart(2, '0')
-    const formattedYear = date.getFullYear()
-    return `${formattedYear}-${formattedMonth}-${formattedDay}`
+  formatDate(_dob: string | Date): string {
+    let dateObj: Date | null = null;
+    if (_dob instanceof Date) {
+      dateObj = _dob;
+    } else if (typeof _dob === 'string') {
+      const parts = _dob.split('-');
+      if (parts.length === 3) {
+        const [day, month, year] = parts;
+        dateObj = new Date(Number(year), Number(month) - 1, Number(day));
+      } else {
+        const parsed = new Date(_dob);
+        if (!isNaN(parsed.getTime())) {
+          dateObj = parsed;
+        }
+      }
+    }
+    if (!dateObj || isNaN(dateObj.getTime())) {
+      return '';
+    }
+    return this.datePipe.transform(dateObj, 'yyyy-MM-dd') || '';
+  }
+
+  getQuestionId(fieldName: string): string {
+    if (!fieldName || !this.formsDetils.fields) {
+      return '';
+    }
+
+    const field = this.formsDetils.fields.find((f: any) => f.field === fieldName) || {};
+    return field.id || '';
   }
 
   genereateSurveyPayload(status: any) {
-    let dataObject: any = {}
+    let dataObject: any = []
     this.batchDetails.batchAttributes.bpEnrolMandatoryProfileFields.forEach((_field: any) => {
+      const fieldToAdd = {
+        questionId: this.getQuestionId(_field.field),
+        question: _field.displayName,
+        answer: '',
+        answerType: _field.fieldType
+      }
       if (_field.field === 'profileDetails.personalDetails.firstname') {
-        dataObject[_field.name] = this.userProfileObject.profileDetails.personalDetails.firstName || this.userProfileObject.profileDetails.personalDetails.firstname
+        fieldToAdd.answer = _.get(this.userProfileObject, 'profileDetails.personalDetails.firstName', _.get(this.userProfileObject, 'profileDetails.personalDetails.firstname', ''))
+        dataObject.push(fieldToAdd)
+        // dataObject[_field.name] = this.userProfileObject.profileDetails.personalDetails.firstName || this.userProfileObject.profileDetails.personalDetails.firstname
       }
       if (_field.field === 'profileDetails.employmentDetails.departmentName') {
-        dataObject[_field.name] = this.userProfileObject.profileDetails.employmentDetails && this.userProfileObject.profileDetails.employmentDetails.departmentName ?
-          this.userProfileObject.profileDetails.employmentDetails.departmentName : "N/A"
+        fieldToAdd.answer = _.get(this.userProfileObject, 'profileDetails.employmentDetails.departmentName', 'N/A')
+        dataObject.push(fieldToAdd)
+        // dataObject[_field.name] = this.userProfileObject.profileDetails.employmentDetails && this.userProfileObject.profileDetails.employmentDetails.departmentName ?
+        //   this.userProfileObject.profileDetails.employmentDetails.departmentName : "N/A"
       }
       if (_field.field === 'profileDetails.professionalDetails.group') {
         if (this.showGroup && status) {
-          dataObject[_field.name] = this.userDetailsForm.controls['group'].value
+          fieldToAdd.answer = this.userDetailsForm.controls['group'].value
+          // dataObject[_field.name] = this.userDetailsForm.controls['group'].value
         } else {
-          dataObject[_field.name] = this.userProfileObject.profileDetails.professionalDetails && this.userProfileObject.profileDetails.professionalDetails[0].group ?
-            this.userProfileObject.profileDetails.professionalDetails[0].group : "N/A"
+          fieldToAdd.answer = _.get(this.userProfileObject, 'profileDetails.professionalDetails[0].group', 'N/A')
+          // dataObject[_field.name] = this.userProfileObject.profileDetails.professionalDetails && this.userProfileObject.profileDetails.professionalDetails[0].group ?
+          //   this.userProfileObject.profileDetails.professionalDetails[0].group : "N/A"
         }
+        dataObject.push(fieldToAdd)
       }
       if (_field.field === 'profileDetails.professionalDetails.designation') {
         if (this.showDesignation && status) {
           if (this.showDoptChanges && this.userDetailsForm.controls['designation'] &&
             this.userDetailsForm.controls['designation'].value === 'Others' && this.userDetailsForm.controls['otherDesignation']) {
-            dataObject[_field.name] = this.userDetailsForm.controls['otherDesignation'].value
+            // dataObject[_field.name] = this.userDetailsForm.controls['otherDesignation'].value
+            fieldToAdd.answer = this.userDetailsForm.controls['otherDesignation'].value
           } else {
-            dataObject[_field.name] = this.userDetailsForm.controls['designation'].value
+            // dataObject[_field.name] = this.userDetailsForm.controls['designation'].value
+            fieldToAdd.answer = this.userDetailsForm.controls['designation'].value
           }
+          dataObject.push(fieldToAdd)
         } else {
-          dataObject[_field.name] = this.userProfileObject.profileDetails.professionalDetails && this.userProfileObject.profileDetails.professionalDetails[0].designation ?
-            this.userProfileObject.profileDetails.professionalDetails[0].designation : "N/A"
+          // dataObject[_field.name] = this.userProfileObject.profileDetails.professionalDetails && this.userProfileObject.profileDetails.professionalDetails[0].designation ?
+          //   this.userProfileObject.profileDetails.professionalDetails[0].designation : "N/A"
+            fieldToAdd.answer = _.get(this.userProfileObject, 'profileDetails.professionalDetails[0].designation', 'N/A')
+            dataObject.push(fieldToAdd)
         }
       }
 
       if (_field.field === 'profileDetails.employmentDetails.employeeCode') {
         if (this.showEmployeeCode && status) {
-          dataObject[_field.name] = this.userDetailsForm.controls['employeeCode'].value
+          // dataObject[_field.name] = this.userDetailsForm.controls['employeeCode'].value
+          fieldToAdd.answer = this.userDetailsForm.controls['employeeCode'].value
         } else {
-          dataObject[_field.name] = this.userProfileObject.profileDetails.employmentDetails && this.userProfileObject.profileDetails.employmentDetails.employeeCode ?
-            this.userProfileObject.profileDetails.employmentDetails.employeeCode : "N/A"
+          fieldToAdd.answer = _.get(this.userProfileObject, 'profileDetails.employmentDetails.employeeCode', 'N/A')
+          // dataObject[_field.name] = this.userProfileObject.profileDetails.employmentDetails && this.userProfileObject.profileDetails.employmentDetails.employeeCode ?
+          //   this.userProfileObject.profileDetails.employmentDetails.employeeCode : "N/A"
         }
+        dataObject.push(fieldToAdd)
       }
 
       if (_field.field === 'profileDetails.personalDetails.primaryEmail') {
-        dataObject[_field.name] = this.userProfileObject.profileDetails.personalDetails.primaryEmail
+        fieldToAdd.answer = this.userProfileObject.profileDetails.personalDetails.primaryEmail
+        dataObject.push(fieldToAdd)
+        // dataObject[_field.name] = this.userProfileObject.profileDetails.personalDetails.primaryEmail
       }
 
       if (_field.field === 'profileDetails.personalDetails.mobile') {
         if (this.showMobile && status) {
-          dataObject[_field.name] = this.userDetailsForm.controls['mobile'].value
+          fieldToAdd.answer = this.userDetailsForm.controls['mobile'].value
+          // dataObject[_field.name] = this.userDetailsForm.controls['mobile'].value
         } else {
-          dataObject[_field.name] = this.userProfileObject.profileDetails.personalDetails && this.userProfileObject.profileDetails.personalDetails.mobile ?
-            this.userProfileObject.profileDetails.personalDetails.mobile : "N/A"
+          fieldToAdd.answer = _.get(this.userProfileObject, 'profileDetails.personalDetails.mobile', 'N/A')
+          // dataObject[_field.name] = this.userProfileObject.profileDetails.personalDetails && this.userProfileObject.profileDetails.personalDetails.mobile ?
+          //   this.userProfileObject.profileDetails.personalDetails.mobile : "N/A"
         }
+        dataObject.push(fieldToAdd)
       }
 
       if (_field.field === 'profileDetails.personalDetails.dob') {
         if (this.showDob && status) {
           let _dob: any = this.userDetailsForm.controls['dob'].value
-          dataObject[_field.name] = this.formatDate(_dob)
+          // dataObject[_field.name] = this.formatDate(_dob)
+          fieldToAdd.answer = this.formatDate(_dob)
+          dataObject.push(fieldToAdd)
         } else {
           if (this.userProfileObject.profileDetails.personalDetails && this.userProfileObject.profileDetails.personalDetails.dob) {
             let _dob: any = this.userProfileObject.profileDetails.personalDetails.dob
@@ -1423,119 +1639,157 @@ export class EnrollProfileFormComponent implements OnInit {
             const formattedDay = String(date.getDate()).padStart(2, '0')
             const formattedMonth = String(date.getMonth() + 1).padStart(2, '0')
             const formattedYear = date.getFullYear()
-            dataObject[_field.name] = `${formattedYear}-${formattedMonth}-${formattedDay}`
+            // dataObject[_field.name] = `${formattedYear}-${formattedMonth}-${formattedDay}`
+            fieldToAdd.answer = `${formattedYear}-${formattedMonth}-${formattedDay}`
           } else {
-            dataObject[_field.name] = "1950-06-01"
+            // dataObject[_field.name] = "1950-06-01"
+            fieldToAdd.answer = "1950-06-01"
           }
+          dataObject.push(fieldToAdd)
         }
       }
 
       if (_field.field === 'profileDetails.personalDetails.gender') {
         if (this.showGender && status) {
-          dataObject[_field.name] = this.userDetailsForm.controls['gender'].value
+          fieldToAdd.answer = this.userDetailsForm.controls['gender'].value
+          // dataObject[_field.name] = this.userDetailsForm.controls['gender'].value
         } else {
-          dataObject[_field.name] = this.userProfileObject.profileDetails.personalDetails && this.userProfileObject.profileDetails.personalDetails.gender ?
-            this.userProfileObject.profileDetails.personalDetails.gender : "N/A"
+          fieldToAdd.answer = _.get(this.userProfileObject, 'profileDetails.personalDetails.gender', 'N/A')
+          // dataObject[_field.name] = this.userProfileObject.profileDetails.personalDetails && this.userProfileObject.profileDetails.personalDetails.gender ?
+          //   this.userProfileObject.profileDetails.personalDetails.gender : "N/A"
         }
+        dataObject.push(fieldToAdd)
       }
 
       if (_field.field === 'profileDetails.personalDetails.domicileMedium') {
         if (this.showDecimalMedium && status) {
-          dataObject[_field.name] = this.userDetailsForm.controls['domicileMedium'].value
+          // dataObject[_field.name] = this.userDetailsForm.controls['domicileMedium'].value
+          fieldToAdd.answer = this.userDetailsForm.controls['domicileMedium'].value
         } else {
-          dataObject[_field.name] = this.userProfileObject.profileDetails.personalDetails && this.userProfileObject.profileDetails.personalDetails.domicileMedium ?
-            this.userProfileObject.profileDetails.personalDetails.domicileMedium : "N/A"
+          fieldToAdd.answer = _.get(this.userProfileObject, 'profileDetails.personalDetails.domicileMedium', 'N/A')
+          // dataObject[_field.name] = this.userProfileObject.profileDetails.personalDetails && this.userProfileObject.profileDetails.personalDetails.domicileMedium ?
+          //   this.userProfileObject.profileDetails.personalDetails.domicileMedium : "N/A"
         }
+        dataObject.push(fieldToAdd)
       }
 
       if (_field.field === 'profileDetails.personalDetails.category') {
         if (this.showCategory && status) {
-          dataObject[_field.name] = this.userDetailsForm.controls['category'].value
+          fieldToAdd.answer = this.userDetailsForm.controls['category'].value
+          // dataObject[_field.name] = this.userDetailsForm.controls['category'].value
         } else {
-          dataObject[_field.name] = this.userProfileObject.profileDetails.personalDetails && this.userProfileObject.profileDetails.personalDetails.category ?
-            this.userProfileObject.profileDetails.personalDetails.category : "N/A"
+          fieldToAdd.answer = _.get(this.userProfileObject, 'profileDetails.personalDetails.category', 'N/A')
+          // dataObject[_field.name] = this.userProfileObject.profileDetails.personalDetails && this.userProfileObject.profileDetails.personalDetails.category ?
+          //   this.userProfileObject.profileDetails.personalDetails.category : "N/A"
         }
+        dataObject.push(fieldToAdd)
       }
 
       if (_field.field === 'profileDetails.employmentDetails.pinCode') {
         if (this.showPinCode && status) {
-          dataObject[_field.name] = this.userDetailsForm.controls['pinCode'].value
+          fieldToAdd.answer = this.userDetailsForm.controls['pinCode'].value
+          // dataObject[_field.name] = this.userDetailsForm.controls['pinCode'].value
         } else {
-          dataObject[_field.name] = this.userProfileObject.profileDetails.employmentDetails && this.userProfileObject.profileDetails.employmentDetails.pinCode ?
-            this.userProfileObject.profileDetails.employmentDetails.pinCode : "N/A"
+          fieldToAdd.answer = _.get(this.userProfileObject, 'profileDetails.employmentDetails.pinCode', 'N/A')
+          // dataObject[_field.name] = this.userProfileObject.profileDetails.employmentDetails && this.userProfileObject.profileDetails.employmentDetails.pinCode ?
+          //   this.userProfileObject.profileDetails.employmentDetails.pinCode : "N/A"
         }
+        dataObject.push(fieldToAdd)
       }
 
       if (_field.field === 'profileDetails.cadreDetails') {
         if (this.canShowshowCadreDetails && this.userDetailsForm.controls['isCadre'].value && status) {
-          dataObject[_field.name] = this.userDetailsForm.controls['isCadre'].value
+          // dataObject[_field.name] = this.userDetailsForm.controls['isCadre'].value
+          fieldToAdd.answer = this.userDetailsForm.controls['isCadre'].value
         } else {
-          dataObject[_field.name] = this.userProfileObject.profileDetails &&
-            this.userProfileObject.profileDetails.personalDetails.isCadre ? 'Yes' : 'No'
+          // dataObject[_field.name] = this.userProfileObject.profileDetails &&
+          //   this.userProfileObject.profileDetails.personalDetails.isCadre ? 'Yes' : 'No'
+          fieldToAdd.answer = _.get(this.userProfileObject, 'profileDetails.personalDetails.isCadre') ? 'Yes' : 'No'
         }
+        dataObject.push(fieldToAdd)
       }
       if (_field.field === 'profileDetails.cadreDetails.civilServiceType') {
         if (this.canShowshowCadreDetails && this.userDetailsForm.controls['isCadre'].value && status) {
-          dataObject[_field.name] = this.userDetailsForm.controls['typeOfCivilService'].value
+          // dataObject[_field.name] = this.userDetailsForm.controls['typeOfCivilService'].value
+          fieldToAdd.answer = this.userDetailsForm.controls['typeOfCivilService'].value
         } else {
-          dataObject[_field.name] = this.userProfileObject.profileDetails.cadreDetails && this.userProfileObject.profileDetails.cadreDetails.civilServiceType ?
-            this.userProfileObject.profileDetails.cadreDetails.civilServiceType : 'N/A'
+          // dataObject[_field.name] = this.userProfileObject.profileDetails.cadreDetails && this.userProfileObject.profileDetails.cadreDetails.civilServiceType ?
+          //   this.userProfileObject.profileDetails.cadreDetails.civilServiceType : 'N/A'
+          fieldToAdd.answer = _.get(this.userProfileObject, 'profileDetails.cadreDetails.civilServiceType', 'N/A')
         }
+        dataObject.push(fieldToAdd)
       }
 
       if (_field.field === 'profileDetails.cadreDetails.civilServiceName') {
         if (this.canShowshowCadreDetails && this.userDetailsForm.controls['isCadre'].value && status) {
-          dataObject[_field.name] = this.userDetailsForm.controls['serviceType'].value
+          // dataObject[_field.name] = this.userDetailsForm.controls['serviceType'].value
+          fieldToAdd.answer = this.userDetailsForm.controls['serviceType'].value
         } else {
-          dataObject[_field.name] = this.userProfileObject.profileDetails.cadreDetails && this.userProfileObject.profileDetails.cadreDetails.civilServiceName ?
-            this.userProfileObject.profileDetails.cadreDetails.civilServiceName : 'N/A'
+          // dataObject[_field.name] = this.userProfileObject.profileDetails.cadreDetails && this.userProfileObject.profileDetails.cadreDetails.civilServiceName ?
+          //   this.userProfileObject.profileDetails.cadreDetails.civilServiceName : 'N/A'
+          fieldToAdd.answer = _.get(this.userProfileObject, 'profileDetails.cadreDetails.civilServiceName', 'N/A')
         }
+        dataObject.push(fieldToAdd)
       }
 
       if (_field.field === 'profileDetails.cadreDetails.cadreName') {
         if (this.canShowshowCadreDetails && this.userDetailsForm.controls['isCadre'].value && status) {
-          dataObject[_field.name] = this.userDetailsForm.controls['cadreName'].value
+          // dataObject[_field.name] = this.userDetailsForm.controls['cadreName'].value
+          fieldToAdd.answer = this.userDetailsForm.controls['cadreName'].value
         } else {
-          dataObject[_field.name] = this.userProfileObject.profileDetails.cadreDetails && this.userProfileObject.profileDetails.cadreDetails.cadreName ?
-            this.userProfileObject.profileDetails.cadreDetails.cadreName : 'N/A'
+          fieldToAdd.answer = _.get(this.userProfileObject, 'profileDetails.cadreDetails.cadreName', 'N/A')
+          // dataObject[_field.name] = this.userProfileObject.profileDetails.cadreDetails && this.userProfileObject.profileDetails.cadreDetails.cadreName ?
+          //   this.userProfileObject.profileDetails.cadreDetails.cadreName : 'N/A'
         }
+        dataObject.push(fieldToAdd)
       }
       if (_field.field === 'profileDetails.cadreDetails.cadreBatch') {
         if (this.canShowshowCadreDetails && this.userDetailsForm.controls['isCadre'].value && status) {
-          dataObject[_field.name] = this.userDetailsForm.controls['cadreBatch'].value
+          // dataObject[_field.name] = this.userDetailsForm.controls['cadreBatch'].value
+          fieldToAdd.answer = this.userDetailsForm.controls['cadreBatch'].value
         } else {
-          dataObject[_field.name] = this.userProfileObject.profileDetails.cadreDetails && this.userProfileObject.profileDetails.cadreDetails.cadreBatch ?
-            JSON.stringify(this.userProfileObject.profileDetails.cadreDetails.cadreBatch) : 'N/A'
+          // dataObject[_field.name] = this.userProfileObject.profileDetails.cadreDetails && this.userProfileObject.profileDetails.cadreDetails.cadreBatch ?
+          //   JSON.stringify(this.userProfileObject.profileDetails.cadreDetails.cadreBatch) : 'N/A'
+          fieldToAdd.answer = _.get(this.userProfileObject, 'profileDetails.cadreDetails.cadreBatch') ? JSON.stringify(this.userProfileObject.profileDetails.cadreDetails.cadreBatch) : 'N/A'
         }
+        dataObject.push(fieldToAdd)
       }
 
       if (_field.field === 'profileDetails.cadreDetails.cadreControllingAuthorityName') {
         if (this.canShowshowCadreDetails && this.userDetailsForm.controls['isCadre'].value && status) {
-          dataObject[_field.name] = this.cadreControllingAuthority
+          // dataObject[_field.name] = this.cadreControllingAuthority
+          fieldToAdd.answer = this.cadreControllingAuthority
         } else {
-          dataObject[_field.name] = this.userProfileObject.profileDetails.cadreDetails && this.userProfileObject.profileDetails.cadreDetails.cadreControllingAuthorityName ?
-            this.userProfileObject.profileDetails.cadreDetails.cadreControllingAuthorityName : 'N/A'
+          // dataObject[_field.name] = this.userProfileObject.profileDetails.cadreDetails && this.userProfileObject.profileDetails.cadreDetails.cadreControllingAuthorityName ?
+          //   this.userProfileObject.profileDetails.cadreDetails.cadreControllingAuthorityName : 'N/A'
+          fieldToAdd.answer = _.get(this.userProfileObject, 'profileDetails.cadreDetails.cadreControllingAuthorityName', 'N/A')
         }
+        dataObject.push(fieldToAdd)
       }
 
       if (_field.field === 'profileDetails.additionalProperties.externalSystemId') {
         if (this.userProfileObject.profileDetails.additionalProperties &&
           this.userProfileObject.profileDetails.additionalProperties.externalSystemId) {
-          dataObject[_field.name] = this.userProfileObject.profileDetails.additionalProperties && this.userProfileObject.profileDetails.additionalProperties.externalSystemId
-            ? this.userProfileObject.profileDetails.additionalProperties.externalSystemId : "N/A"
+          // dataObject[_field.name] = this.userProfileObject.profileDetails.additionalProperties && this.userProfileObject.profileDetails.additionalProperties.externalSystemId
+          //   ? this.userProfileObject.profileDetails.additionalProperties.externalSystemId : "N/A"
+          fieldToAdd.answer = _.get(this.userProfileObject, 'profileDetails.additionalProperties.externalSystemId', 'N/A')
         } else {
           dataObject[_field.name] = 'N/A'
         }
+        dataObject.push(fieldToAdd)
       }
 
       if (_field.field === 'profileDetails.additionalProperties.externalSystemDor') {
         if (this.userProfileObject.profileDetails.additionalProperties &&
           this.userProfileObject.profileDetails.additionalProperties.externalSystemDor) {
-          dataObject[_field.name] = this.userProfileObject.profileDetails.additionalProperties && this.userProfileObject.profileDetails.additionalProperties.externalSystemDor
-            ? this.userProfileObject.profileDetails.additionalProperties.externalSystemDor : "N/A"
+          // dataObject[_field.name] = this.userProfileObject.profileDetails.additionalProperties && this.userProfileObject.profileDetails.additionalProperties.externalSystemDor
+          //   ? this.userProfileObject.profileDetails.additionalProperties.externalSystemDor : "N/A"
+          fieldToAdd.answer = _.get(this.userProfileObject, 'profileDetails.additionalProperties.externalSystemDor', 'N/A')
         } else {
-          dataObject[_field.name] = 'N/A'
+          // dataObject[_field.name] = 'N/A'
+          fieldToAdd.answer = 'N/A'
         }
+        dataObject.push(fieldToAdd)
       }
     })
 
@@ -1569,100 +1823,67 @@ export class EnrollProfileFormComponent implements OnInit {
         }
       })
   }
+
   setupScrollListener(opened: boolean): void {
-    if (opened) {
-      if (this.userDetailsForm.get('searchDesignation')) {
-        this.userDetailsForm.get('searchDesignation')!.setValue('');
+    const searchDesignationControl = this.userDetailsForm.get('searchDesignation');
+    if (opened && searchDesignationControl) {
+      searchDesignationControl.setValue('')
+      this.designationsOffset = 0
+      this.designationsMeta = [];
+      this.getdesignationsMeta()
+      const searchInput = document.querySelector('.search-input') as HTMLInputElement;
+      if (searchInput) {
+        searchInput.focus();
       }
-      this.desigantionFilterEnable = false
-      this.designationListLoadCount = this.designationDefaultLoadCount; // Reset the load count
-      this.filterDesignationsMeta = this.designationsMeta.slice(0, this.designationDefaultLoadCount);
-      this.checkCurrentDesignationPresent()
-      setTimeout(() => {
-        const searchInput = document.querySelector('.search-input') as HTMLInputElement;
-        if (searchInput) {
-          searchInput.focus();
-        }
-      }, 100);
-      // Wait for the panel to be rendered in the DOM
-      setTimeout(() => {
-        // Find the panel element
-        const panel = document.querySelector('.mat-select-panel');
-        if (panel) {
-          // Add scroll event listener to the panel
-          panel.addEventListener('scroll', this.onDesignationSelectScroll.bind(this));
-        }
-      
-      }, 100);
+      const panel = document.querySelector('.mat-select-panel');
+      if (panel) {
+        panel.addEventListener('scroll', this.onDesignationSelectScroll.bind(this));
+      }
     }
   }
 
   onDesignationSelectScroll(event: any): void {
     const element = event.target;
-    
-    if(!this.desigantionFilterEnable) {
-    // Check if user has scrolled to the bottom (with a small threshold)
+      // Check if user has scrolled to the bottom (with a small threshold)
       if (element.scrollTop + element.clientHeight >= element.scrollHeight - 5) {
         // Only load more if not already loading and if there are potentially more items
-        if (!this.isLoadingMoreDesignations && this.designationsMeta.length > this.filterDesignationsMeta.length) {
+        if (!this.isLoadingMoreDesignations && this.designationsMeta.length < this.designationsTotalCount) {
           this.isLoadingMoreDesignations = true;
-          
-          // Increase the load count by designationDefaultLoadCount
-          this.designationListLoadCount += this.designationDefaultLoadCount;
-          
-          // Update the filtered list with more items
-          setTimeout(() => {
-            this.filterDesignationsMeta = this.designationsMeta.slice(0, this.designationListLoadCount);
-            this.isLoadingMoreDesignations = false;
-          }, 200); // Small timeout to simulate loading and prevent multiple triggers
+          this.designationsOffset += 1;
+          this.getdesignationsMeta()
         }
       }
-    }
   }
+
   checkCurrentDesignationPresent() {
-       
     // Get the current designation value
-    const currentDesignation = this.userDetailsForm.get('designation')!.value;
+    const searchDesignationControl = this.userDetailsForm.get('designation');
+    const currentDesignation = searchDesignationControl ? searchDesignationControl.value : '';
     // Check if current designation exists in the list
     if (currentDesignation) {
-      const designationExists = this.filterDesignationsMeta.some(
+      const designationExists = this.designationsMeta.some(
         (designation: any) => designation.name.toLowerCase() === currentDesignation.toLowerCase()
       );
-      
+
       // If designation doesn't exist in the list, add it
       if (!designationExists) {
         // Create a new designation object to match the structure of other items
-        const newDesignation = { 
+        const newDesignation = {
           name: currentDesignation,
-          // Add any other required properties matching your data structure
-          id: 'custom-' + Date.now(),
           status: 'Active'
         };
-        // Make sure the custom designation appears in the filtered list
-        if (this.filterDesignationsMeta.length >= this.designationListLoadCount) {
-          // Replace the last item with the new one to maintain the same number of items
-          this.filterDesignationsMeta.pop();
-        }
-        this.filterDesignationsMeta.unshift(newDesignation);
+        this.designationsMeta.unshift(newDesignation);
       }
     }
   }
 
   onDesignationDropdownClosed(): void {
-    // Keep the designation value but clear the search input
-    const currentDesignation = this.userDetailsForm.get('designation')!.value;
-    setTimeout(() => {
-      if (this.userDetailsForm.get('searchDesignation')) {
-        this.userDetailsForm.get('searchDesignation')!.setValue('');
-      }
-      // Ensure the designation value remains selected
-      if (currentDesignation) {
-        const designationControl = this.userDetailsForm.get('designation');
-        if (designationControl) {
-          designationControl.setValue(currentDesignation);
-        }
-      }
-    }, 100);
+    const searchDesignationControl = this.userDetailsForm.get('searchDesignation');
+    if (searchDesignationControl) {
+      searchDesignationControl.setValue('')
+      this.designationSearchText = ''
+    }
+    this.checkCurrentDesignationPresent()
   }
 
 }

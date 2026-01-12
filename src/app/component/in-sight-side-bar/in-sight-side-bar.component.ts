@@ -1,5 +1,6 @@
 import { AUTO_STYLE, animate, state, transition, trigger, style } from '@angular/animations'
 import { Component, EventEmitter, OnInit, Output } from '@angular/core'
+import { HomePageService } from '../../services/home-page.service'
 import { ConfigurationsService, EventService, WsEvents, MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 import { HttpErrorResponse } from '@angular/common/http'
 import { ActivatedRoute, Router } from '@angular/router'
@@ -8,11 +9,10 @@ import { TranslateService } from '@ngx-translate/core'
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
 import moment from 'moment'
 import { SignupService } from '../../routes/public/public-signup/signup.service'
-import _ from 'lodash';
+import _ from 'lodash'
 import { ProfileV2Service } from '@ws/app/src/lib/routes/profile-v2/services/profile-v2.servive'
 import { UserProfileService } from '@ws/app/src/lib/routes/user-profile/services/user-profile.service'
 import { MatAutocompleteTrigger } from '@angular/material/autocomplete'
-import { HomePageService } from '../..//services/home-page.service'
 
 const DEFAULT_WEEKLY_DURATION = 300
 const DEFAULT_DISCUSS_DURATION = 600
@@ -32,7 +32,7 @@ const noData = {
   animations: [
     trigger('collapse', [
       state('false', style({ height: AUTO_STYLE, visibility: AUTO_STYLE })),
-      state('true', style({  height: '0', visibility: 'hidden'  })),
+      state('true', style({ height: '0', visibility: 'hidden' })),
       // tslint:disable-next-line
       transition('false => true', animate(DEFAULT_DURATION + 'ms ease-in')),
       // tslint:disable-next-line
@@ -40,7 +40,7 @@ const noData = {
     ]),
     trigger('collapseWeekly', [
       state('false', style({ height: AUTO_STYLE, visibility: AUTO_STYLE })),
-      state('true', style({  height: '0', visibility: 'hidden'  })),
+      state('true', style({ height: '0', visibility: 'hidden' })),
       // state('true', style({  position: 'absolute', width: '90%',marginRight: '16px', marginLeft:'16px',top: '-118%', zIndex: '9' })),
       // tslint:disable-next-line: prefer-template
       transition('false => true', animate(DEFAULT_WEEKLY_DURATION + 'ms ease-in')),
@@ -50,7 +50,7 @@ const noData = {
 
     trigger('collapsDiscuss', [
       state('false', style({ height: AUTO_STYLE, visibility: AUTO_STYLE })),
-      state('true', style({  height: '0', visibility: 'hidden'  })),
+      state('true', style({ height: '0', visibility: 'hidden' })),
       // tslint:disable-next-line:max-line-length
       // state('true', style({  position: 'absolute', width: '80%', transform: 'scaleY(0.7)',marginRight: '32px', marginLeft:'32px',top: '-300%', zIndex: '6' })),
       // tslint:disable-next-line: prefer-template
@@ -103,7 +103,7 @@ export class InsightSideBarComponent implements OnInit {
   filterDesigantionList: any = []
   isMatcompleteOpened = false
   @Output() telemetryRaisedLibrary = new EventEmitter()
-  
+
   constructor(
     private homePageSvc: HomePageService,
     private configSvc: ConfigurationsService,
@@ -117,20 +117,20 @@ export class InsightSideBarComponent implements OnInit {
     private profileV2Svc: ProfileV2Service,
     private userProfileService: UserProfileService,
     private langtranslations: MultilingualTranslationsService) {
+    if (localStorage.getItem('websiteLanguage')) {
+      this.translate.setDefaultLang('en')
+      const lang = localStorage.getItem('websiteLanguage')!
+      this.translate.use(lang)
+    }
+    this.langtranslations.languageSelectedObservable.subscribe(() => {
       if (localStorage.getItem('websiteLanguage')) {
         this.translate.setDefaultLang('en')
         const lang = localStorage.getItem('websiteLanguage')!
         this.translate.use(lang)
+        this.currentLang = lang
       }
-      this.langtranslations.languageSelectedObservable.subscribe(() => {
-        if (localStorage.getItem('websiteLanguage')) {
-          this.translate.setDefaultLang('en')
-          const lang = localStorage.getItem('websiteLanguage')!
-          this.translate.use(lang)
-          this.currentLang = lang
-        }
-      })
-    }
+    })
+  }
 
   ngOnInit() {
     this.userData = this.configSvc && this.configSvc.userProfile
@@ -142,16 +142,16 @@ export class InsightSideBarComponent implements OnInit {
       // Fetch National learning week configurations
       this.nwlConfiguration = this.activatedRoute.snapshot.data.pageData.data.nationalLearningWeek
       this.updateDesignationCard = this.activatedRoute.snapshot.data.pageData.data.updateDesignation
-      let slwConfigurationLocal:any = this.activatedRoute.snapshot.data.pageData.data &&
-      this.activatedRoute.snapshot.data.pageData.data.stateLearningWeek || []
+      let slwConfigurationLocal: any = this.activatedRoute.snapshot.data.pageData.data &&
+        this.activatedRoute.snapshot.data.pageData.data.stateLearningWeek || []
 
-      if(slwConfigurationLocal && slwConfigurationLocal.length) {
+      if (slwConfigurationLocal && slwConfigurationLocal.length) {
         let userData = this.configSvc.unMappedUser
-        if(userData && userData.profileDetails 
-          && userData.profileDetails.refRootOrg 
+        if (userData && userData.profileDetails
+          && userData.profileDetails.refRootOrg
           && userData.profileDetails.refRootOrg.orgId) {
-          for(let item of slwConfigurationLocal) {
-            if(item.orgId === userData.profileDetails.refRootOrg.orgId) {
+          for (let item of slwConfigurationLocal) {
+            if (item.orgId === userData.profileDetails.refRootOrg.orgId) {
               this.slwConfiguration = item
             }
           }
@@ -184,7 +184,7 @@ export class InsightSideBarComponent implements OnInit {
     this.getInsights()
     this.getPendingRequestData()
     this.noDataValue = noData
-    this.getDiscussionsData()
+    // this.getDiscussionsData()
     // this.displayRandomlearnAdvisoryData()
 
     if (this.activatedRoute.snapshot.data.pageData && this.activatedRoute.snapshot.data.pageData.data.assessmentData) {
@@ -242,7 +242,7 @@ export class InsightSideBarComponent implements OnInit {
   }
 
   getMasterDesignation() {
-    if(this.userData && this.userData.rootOrgId) {
+    if (this.userData && this.userData.rootOrgId) {
       this.signupService.getOrgReadData(this.userData.rootOrgId).subscribe((result: any) => {
         if (result && result.frameworkid) {
           this.signupService.getFrameworkInfo(result.frameworkid).subscribe((res: any) => {
@@ -266,7 +266,7 @@ export class InsightSideBarComponent implements OnInit {
                   })
                 } else {
                   if (this.configSvc.userProfile && this.configSvc.userProfile.professionalDetails &&
-                      this.configSvc.userProfile.professionalDetails[0] && this.configSvc.userProfile.professionalDetails[0].designation) {
+                    this.configSvc.userProfile.professionalDetails[0] && this.configSvc.userProfile.professionalDetails[0].designation) {
                     let designation = this.configSvc.userProfile.professionalDetails[0].designation
                     if (designation) {
                       let designationsArray = this.designationList.map((des: any) => des.name.toLowerCase())
@@ -280,37 +280,37 @@ export class InsightSideBarComponent implements OnInit {
                 }
               }
             })
-          },(_error: any) => {
+          }, (_error: any) => {
             // tslint:disable-next-line
             console.error('Error occurred:', _error)
           })
         }
-      },(error: any) => {
+      }, (error: any) => {
         // tslint:disable-next-line
         console.error('Error occurred:', error)
       })
     }
-   
+
   }
 
   private getTermsByCode(categories: any[], code: string) {
     const selectedCategory = categories.filter(
       (category: any) => category.code === code
-    );
-    return _.get(selectedCategory, '[0].terms', []);
+    )
+    return _.get(selectedCategory, '[0].terms', [])
   }
 
   getInsights() {
     this.profileDataLoading = true
     const request = {
       request: {
-          filters: {
-            primaryCategory: 'programs',
-            organisations: [
-                'across',
-                this.userData && this.userData.rootOrgId,
-            ],
-          },
+        filters: {
+          primaryCategory: 'programs',
+          organisations: [
+            'across',
+            this.userData && this.userData.rootOrgId,
+          ],
+        },
       },
     }
 
@@ -342,14 +342,14 @@ export class InsightSideBarComponent implements OnInit {
       'dot-default': 'dot-grey',
       'dot-active': 'dot-active',
     }
-    const sliderData: { title: any; icon: string; data: string; colorData: string; }[] = []
+    const sliderData: { title: any; icon: string; data: string; colorData: string }[] = []
     this.insightsData.nudges.forEach((ele: any) => {
       if (ele) {
         const data = {
           title: ele.label,
-          icon: ele.growth === 'positive' ?  'arrow_upward' : 'arrow_downward',
+          icon: ele.growth === 'positive' ? 'arrow_upward' : 'arrow_downward',
           // tslint:disable-next-line: prefer-template
-          data: `${ele.growth === 'positive' && ele.progress > 1 ?  '+' + Math.round(ele.progress) + '%' : ''}`,
+          data: `${ele.growth === 'positive' && ele.progress > 1 ? '+' + Math.round(ele.progress) + '%' : ''}`,
           colorData: ele.growth === 'positive' ? 'color-green' : 'color-red',
         }
         sliderData.push(data)
@@ -400,22 +400,23 @@ export class InsightSideBarComponent implements OnInit {
   }
 
   getPendingRequestData() {
-    this.homePageSvc.getRecentRequests().subscribe(
-      (res: any) => {
-        this.pendingRequestSkeleton = false
-        this.pendingRequestData = res.result.data && res.result.data.map((elem: any) => {
-          elem.fullName = elem.fullName.charAt(0).toUpperCase() + elem.fullName.slice(1)
-          return elem
-        })
-        // tslint:disable-next-line: align
-      }, (error: HttpErrorResponse) => {
-        // tslint:disable-next-line: align
-        if (!error.ok) {
-          // tslint:disable-next-line: align
-          this.pendingRequestSkeleton = false
-        }
-      }
-    )
+    this.pendingRequestSkeleton = false
+    // this.homePageSvc.getRecentRequests().subscribe(
+    //   (res: any) => {
+    //     this.pendingRequestSkeleton = false
+    //     this.pendingRequestData = res.result.data && res.result.data.map((elem: any) => {
+    //       elem.fullName = elem.fullName.charAt(0).toUpperCase() + elem.fullName.slice(1)
+    //       return elem
+    //     })
+    //     // tslint:disable-next-line: align
+    //   }, (error: HttpErrorResponse) => {
+    //     // tslint:disable-next-line: align
+    //     if (!error.ok) {
+    //       // tslint:disable-next-line: align
+    //       this.pendingRequestSkeleton = false
+    //     }
+    //   }
+    // )
   }
 
   navigateTo() {
@@ -546,10 +547,10 @@ export class InsightSideBarComponent implements OnInit {
         module: WsEvents.EnumTelemetrymodules.HOME,
       }
     )
-      if(this.slwConfiguration && this.slwConfiguration.orgName && this.slwConfiguration.orgId) {
-        this.router.navigateByUrl(`app/learn/mdo-channels/${this.slwConfiguration.orgName}/${this.slwConfiguration.orgId}/micro-sites`)
-      }
-    
+    if (this.slwConfiguration && this.slwConfiguration.orgName && this.slwConfiguration.orgId) {
+      this.router.navigateByUrl(`app/learn/mdo-channels/${this.slwConfiguration.orgName}/${this.slwConfiguration.orgId}/micro-sites`)
+    }
+
   }
 
   updateDesignation() {
@@ -580,7 +581,7 @@ export class InsightSideBarComponent implements OnInit {
       request: {
         userId: this.configSvc.unMappedUser.id,
         profileDetails: {
-          professionalDetails: [{designation: this.selectDesignation}]
+          professionalDetails: [{ designation: this.selectDesignation }]
         }
       }
     }
@@ -636,11 +637,11 @@ export class InsightSideBarComponent implements OnInit {
   }
 
   openAutocomplete(trigger: MatAutocompleteTrigger, inputElement: HTMLInputElement): void {
-    inputElement.focus(); // Ensure the input field is focused
-    trigger.openPanel(); // Open the autocomplete panel
+    inputElement.focus() // Ensure the input field is focused
+    trigger.openPanel() // Open the autocomplete panel
   }
 
-  renderUpdateDesignationCardHeader(){
+  renderUpdateDesignationCardHeader() {
     switch (this.currentLang) {
       case "hi":
         return this.updateDesignationCard.headerHi

@@ -28,6 +28,9 @@ const API_ENDPOINTS = {
   getPendingFields: '/apis/proxies/v8/workflow/v2/userWFApplicationFieldsSearch',
   getApprovalPendingFields: '/apis/proxies/v8/workflow/v2/userWFApplicationFieldsSearch',
   getDesignation: '/apis/proxies/v8/user/v1/positions',
+  GET_SEARCH_DESIGNATIONS: '/apis/proxies/v8/designation/search',
+  GET_SEARCH_PUBLIC_DESIGNATIONS: '/apis/public/v8/designation/search',
+  GET_SUNBIRD_IGOT_SEARCH: '/apis/proxies/v8/sunbirdigot/v4/search',
   editProfileDetails: '/apis/proxies/v8/user/v1/extPatch',
   updatePrimaryEmail: '/apis/proxies/v8/user/otp/v2/extPatch',
   updateProfilePic: '/apis/proxies/v8/storage/profilePhotoUpload/profileImage',
@@ -148,6 +151,17 @@ export class UserProfileService {
 
   getDesignations(_req: any): Observable<IProfileMetaApiData> {
     return this.http.get<IProfileMetaApiData>(API_ENDPOINTS.getDesignation)
+  }
+
+  searchDesignation(_req: any): Observable<any> {
+    return this.http.post<any>(API_ENDPOINTS.GET_SEARCH_DESIGNATIONS, _req)
+  }
+   searchPublicDesignation(_req: any): Observable<any> {
+    return this.http.post<any>(API_ENDPOINTS.GET_SEARCH_PUBLIC_DESIGNATIONS, _req)
+  }
+
+  searchIgotDesignation(_req: any): Observable<any> {
+    return this.http.post<any>(API_ENDPOINTS.GET_SUNBIRD_IGOT_SEARCH, _req)
   }
 
   getDesignationV2(_req: any): Observable<IProfileMetaApiData> {

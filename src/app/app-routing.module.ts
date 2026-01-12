@@ -28,7 +28,6 @@ import { PublicWelcomeComponent } from './routes/public/welcome/public-welcome.c
 import { PublicLoginWGComponent } from './routes/public/public-login-wg/public-login-wg.component'
 import { WelcomeUserResolverService } from './services/welcome-user-resolver.service'
 import { PublicTocComponent } from './routes/public/public-toc/public-toc.component'
-import { AppPublicTocResolverService } from './routes/public/public-toc/app-public-toc-resolver.service'
 import { environment } from 'src/environments/environment'
 import { AppPublicPositionResolverService } from './routes/public/public-signup/position-resolver.service'
 import { PublicRequestComponent } from './routes/public/public-request/public-request.component'
@@ -51,6 +50,8 @@ import { AppTocExtPublicResolverService } from '@ws/app/src/lib/routes/app-toc/r
 import { PublicCrpComponent } from './routes/public/public-crp/public-crp.component'
 import { AppPublicOrganizationResolver } from './routes/public/public-signup/organization.resolver'
 import { FormDataResolverService } from './services/form-data-resolver.service'
+import { AppPreAssessmentContentResolverService } from './services/app-pre-assessment-content-read-resolver.service'
+import { FormMicroSiteDataService } from './services/form-micro-site-data.service'
 // 💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥
 // Please declare routes in alphabetical order
 // 😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵
@@ -58,17 +59,15 @@ import { FormDataResolverService } from './services/form-data-resolver.service'
 const routes: Routes = [  
   {
     path: '',
-    redirectTo: 'page/home',
-    pathMatch: 'full',
-    // canActivate: [EmptyRouteGuard],
+    canActivate: [RedirectGuard],
+    component: RedirectGuard,
     data: {
+      dynamicRedirect: true,
+      fallbackPath: 'page/home',
       pageType: 'feature',
       pageKey: 'home',
       pageId: 'page/home',
       module: 'home',
-    },
-    resolve: {
-      pageData: PageResolve,
     },
   },
   // {
@@ -496,8 +495,20 @@ const routes: Routes = [
       pageData: PageResolve,
     },
   },
-
-  {
+    {
+    path: 'page/custom-home',
+    loadChildren: () => import('./routes/route-custom-home.module').then(m => m.RouteCustomHomeModule),
+    data: {
+      pageType: 'feature',
+      pageKey: 'custom-home',
+      pageId: 'app/custom-home',
+      module: 'CUSTOM_HOME'
+    },
+    resolve: {
+    },
+    canActivate: [GeneralGuard]
+},
+    {
     path: 'app/my-learning',
     loadChildren: () =>
       import('./routes/route-my-learning.module').then(u => u.RouteMyLearningModule),
@@ -506,8 +517,8 @@ const routes: Routes = [
       pageId: 'app/my-learning',
       module: 'Profile',
     },
-  },
-  {
+    },
+    {
     path: 'app/my-dashboard',
     loadChildren: () =>
       import('./routes/route-my-dashboard.module').then(u => u.RouteMyDashboardModule),
@@ -516,8 +527,8 @@ const routes: Routes = [
       pageId: '',
       module: 'Dashboard',
     },
-  },
-  {
+    },
+    {
     path: 'app/my-rewards',
     loadChildren: () =>
       import('./routes/route-my-rewards.module').then(u => u.RouteMyRewarddModule),
@@ -526,8 +537,8 @@ const routes: Routes = [
       pageId: 'app/my-rewards',
       module: 'Profile',
     },
-  },
-  {
+    },
+    {
     path: 'app/network-v2',
     loadChildren: () =>
       import('./routes/route-network-v3.module').then(u => u.RouteNetworkV3Module),
@@ -864,6 +875,7 @@ const routes: Routes = [
       module: 'Home',
     },
     resolve: {
+      microSiteData: FormMicroSiteDataService,
       pageData: AppHomePageResolverService,
       // module: ModuleNameResolve,
       // pageId: PageNameResolve,
@@ -1031,7 +1043,7 @@ const routes: Routes = [
     },
     resolve: {
       pageData: PageResolve,
-      content: AppPublicTocResolverService,
+      content: AppTocResolverService,
     },
   },
   {
@@ -1150,6 +1162,7 @@ const routes: Routes = [
       hierarchyData: AppHierarchyResolverService,
       enrollmentData: AppEnrollmentResolverService,
       contentRead: AppContentResolverService,
+      preAssessmentRead: AppPreAssessmentContentResolverService
     },
     loadChildren: () => import('./routes/route-viewer.module').then(u => u.RouteViewerModule),
     canActivate: [GeneralGuard],

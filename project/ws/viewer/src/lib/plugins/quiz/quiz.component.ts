@@ -158,7 +158,12 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
     //   this.activatedRoute.snapshot.queryParams.collectionId : ''
     // const batchId = this.activatedRoute.snapshot.queryParams.batchId ?
     //   this.activatedRoute.snapshot.queryParams.batchId : ''
-    if (this.identifier && collectionId && batchId) {
+    const isPreAssessment = this.activatedRoute.snapshot.queryParams.preAssessment
+    if(isPreAssessment) {
+      if (this.identifier && collectionId && batchId) {
+        this.viewerSvc.realTimeProgressUpdateForPreAssessmentQuiz(this.identifier, status)
+      }
+    }else if (this.identifier && collectionId && batchId) {
       this.viewerSvc.realTimeProgressUpdateQuiz(this.identifier, collectionId, batchId, status)
     }
   }
@@ -237,8 +242,8 @@ export class QuizComponent implements OnInit, OnChanges, OnDestroy {
         this.submissionState = 'answered'
       }
       const dialogRef = this.dialog.open(SubmitQuizDialogComponent, {
-        width: '250px',
-        data: this.submissionState,
+        width: '350px',
+        data: {submissionState: this.submissionState, primaryCategory: this.quizJson.primaryCategory,},
       })
 
       dialogRef.afterClosed().subscribe(result => {

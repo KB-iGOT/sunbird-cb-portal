@@ -4,7 +4,7 @@ module.exports = {
   setupFilesAfterEnv: ['<rootDir>/src/setup-jest.ts'],
   transformIgnorePatterns: [
     'node_modules/(?!.*\\.mjs$)'
-  ],  
+  ],
   moduleNameMapper: {
     '^@ws/(.*)$': '<rootDir>/project/ws/$1',
     '^@ws-widget/(.*)$': '<rootDir>/library/ws-widget/$1',
@@ -20,10 +20,11 @@ module.exports = {
     "^src/environments/environment$": "<rootDir>/src/environments/environment.ts",
     '@ckeditor/.*': '<rootDir>/test/mocks/mock-ckeditor.js',
     '^@sunbird-cb/discussion-v2': '<rootDir>/test/mocks/mock-ckeditor.js',
+    '^@sunbird-cb/collection/src/lib/_common/confirm-dialog/confirm-dialog.component$': '<rootDir>/__mocks__/confirm-dialog.component.js',
     "uuid": require.resolve('uuid'),
   },
   coverageReporters: ["clover", "json", "lcov", "text", "text-summary"],
   collectCoverage: true,
   testResultsProcessor: "jest-sonar-reporter",
-  setupFiles: ['zone.js', ]
-};
+  setupFiles: ['zone.js',]
+}

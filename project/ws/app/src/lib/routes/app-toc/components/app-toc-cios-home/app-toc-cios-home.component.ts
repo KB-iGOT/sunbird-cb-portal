@@ -5,10 +5,13 @@ import { CommonMethodsService } from '@sunbird-cb/consumption'
 import { ConfigurationsService, EventService, MultilingualTranslationsService, WidgetContentService, WsEvents } from '@sunbird-cb/utils-v2'
 import { LoaderService } from '@ws/author/src/public-api'
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatDialog } from '@angular/material/dialog'
 import { CertificateService } from '../../../certificate/services/certificate.service'
 import { NsDiscussionV2 } from '@sunbird-cb/discussion-v2'
 import * as _ from 'lodash'
 import { NetCoreService } from '../../../../../../../../../src/app/services/netcore.service'
+import { ConsentDialogComponent } from './consent-dialog.component'
+import { environment } from '../../../../../../../../../src/environments/environment'
 
 @Component({
   selector: 'ws-app-app-toc-cios-home',
@@ -16,12 +19,15 @@ import { NetCoreService } from '../../../../../../../../../src/app/services/netc
   styleUrls: ['./app-toc-cios-home.component.scss'],
 })
 export class AppTocCiosHomeComponent implements OnInit, AfterViewInit {
+  commentId?: string = ''
   skeletonLoader = true
   extContentReadData: any = {}
   userExtCourseEnroll: any = {}
   downloadCertificateLoading = false
   forPreview: any = window.location.href.includes('/public/') || window.location.href.includes('?editMode=true')
   extContentAvailable = true
+  canEnroll = false
+  enrollValidationLoading = true
   rcElem = {
     offSetTop: 0,
     BottomPos: 0,
@@ -57,19 +63,20 @@ export class AppTocCiosHomeComponent implements OnInit, AfterViewInit {
     }
   }
   constructor(private route: ActivatedRoute,
-              private commonSvc: CommonMethodsService,
-              private translate: TranslateService,
-              private configSvc: ConfigurationsService,
-              private events: EventService,
-              private langtranslations: MultilingualTranslationsService,
-              private contentSvc: WidgetContentService,
-              private certSvc: CertificateService,
-              public loader: LoaderService,
-
-              public snackBar: MatSnackBar,
-              public netCoreService: NetCoreService
+    private commonSvc: CommonMethodsService,
+    private translate: TranslateService,
+    private configSvc: ConfigurationsService,
+    private events: EventService,
+    private langtranslations: MultilingualTranslationsService,
+    private contentSvc: WidgetContentService,
+    private certSvc: CertificateService,
+    public loader: LoaderService,
+    private matDialog: MatDialog,
+    public snackBar: MatSnackBar,
+    public netCoreService: NetCoreService
   ) {
     this.route.data.subscribe((data: any) => {
+      this.enrollValidationLoading = false
       if (data && data.extContent && data.extContent.data && data.extContent.data.content) {
         this.extContentReadData = data.extContent.data.content
         this.extContentReadData['certificateObj'] = {
@@ -92,28 +99,35 @@ export class AppTocCiosHomeComponent implements OnInit, AfterViewInit {
           this.downloadCert()
           this.contentViewEventForNetCore('completion')
         }
+      } else {
+        this.validateEnrollmentEligibility()
       }
 
     })
 
-      if (localStorage.getItem('websiteLanguage')) {
-        this.translate.setDefaultLang('en')
-        this.currentLang = localStorage.getItem('websiteLanguage')!
-        this.translate.use(this.currentLang)
-      }
-      this.configSvc.languageTranslationFlag.subscribe((data: any) => {
-        if (data) {
-          if (localStorage.getItem('websiteLanguage')) {
-            this.currentLang = localStorage.getItem('websiteLanguage')!
-            this.translate.use(this.currentLang)
-          }
+    if (localStorage.getItem('websiteLanguage')) {
+      this.translate.setDefaultLang('en')
+      this.currentLang = localStorage.getItem('websiteLanguage')!
+      this.translate.use(this.currentLang)
+    }
+    this.configSvc.languageTranslationFlag.subscribe((data: any) => {
+      if (data) {
+        if (localStorage.getItem('websiteLanguage')) {
+          this.currentLang = localStorage.getItem('websiteLanguage')!
+          this.translate.use(this.currentLang)
         }
-      })
-
-      if (this.configSvc.userProfile) {
-        this.rootOrgId = this.configSvc.userProfile.rootOrgId
       }
-      this.contentLink = `${window.location.pathname.substring(1)}${window.location.search}`
+    })
+
+    if (this.configSvc.userProfile) {
+      this.rootOrgId = this.configSvc.userProfile.rootOrgId
+    }
+    this.contentLink = `${window.location.pathname.substring(1)}${window.location.search}`
+
+    this.commentId = this.route.snapshot.queryParams.commentId ? this.route.snapshot.queryParams.commentId : ''
+    if (this.commentId) {
+      //this.selectedTabIndex = 2
+    }
   }
 
   ngOnInit() {
@@ -127,7 +141,6 @@ export class AppTocCiosHomeComponent implements OnInit, AfterViewInit {
       this.isMobile = false
     }
     this.contentViewEventForNetCore('view')
-
   }
 
   initializeDiscussData() {
@@ -145,7 +158,7 @@ export class AppTocCiosHomeComponent implements OnInit, AfterViewInit {
       this.widgetData['height'] = 'auto'
       this.widgetData['sliderData'] = _.get(this.extContentReadData, 'contentPartner.providerTips', [])
 
-      if(Object.keys(this.userExtCourseEnroll).length) {
+      if (Object.keys(this.userExtCourseEnroll).length) {
         this.discussWidgetData.enrolledContent = true
         this.discussWidgetData.newCommentSection.commentBox.placeholder = 'Start a discussion'
       } else {
@@ -180,12 +193,66 @@ export class AppTocCiosHomeComponent implements OnInit, AfterViewInit {
   }
 
   async enRollToExtCourse(content: any) {
+    const consentUrl: string = `${environment?.missionKarmayogiPath}${this.config?.contentConsent?.consentDocUrl}` || ''
+    const assetsDocUrl: string = `${this.config?.contentConsent?.assetsDocUrl}` || ''
+    const dialogRef = this.matDialog.open(ConsentDialogComponent, {
+      width: '900px',
+      height: '70vh',
+      maxHeight: '90vh',
+      minHeight: '400px',
+      disableClose: true,
+      hasBackdrop: true,
+      panelClass: 'consent-dialog-panel',
+      data: {
+        consentUrl: consentUrl,
+        assetsDocUrl: assetsDocUrl
+      }
+    })
+
+    // Handle dialog close
+    dialogRef.afterClosed().subscribe((result) => {
+      if (result === true) {
+        // User agreed - proceed with enrollment
+        // need to call consent api
+        this.callConsentApi(content)
+      } else {
+        // User disagreed
+        this.snackBar.open('You must agree to the terms to enroll in this course.', 'X', {
+          duration: 5000,
+    })
+      }
+    })
+  }
+
+  callConsentApi(content: any) {
+    console.log(content)
+    const request = {
+      "request":{
+        "contentId": content?.contentId,
+        "consentId":this.config?.contentConsent?.consentId || '',
+        "additionalAttributes":{
+          "userRoles":["public"],
+          "versionKey": new Date().getTime(),
+          "description":"I have read and agree with the above declaration."
+          }
+        }
+      }
+
+    this.certSvc.consentSubmit(request).subscribe((_res: any) => {
+        this.proceedWithEnrollment(content)
+    }, (error: any) => {
+      this.snackBar.open(error?.error?.params?.msg || 'Unable to submit consent', 'X', {
+          duration: 5000,
+    })
+    })
+  }
+  private async proceedWithEnrollment(content: any) {
     this.loader.changeLoad.next(true)
     const reqbody = {
       courseId: content.contentId,
       partnerId: content.contentPartner.id,
     }
-    const enrollRes = await this.contentSvc.extContentEnroll(reqbody).toPromise().catch(_error => {})
+    const enrollRes = await this.contentSvc.extContentEnroll(reqbody).toPromise().catch(_error => { return _error })
     if (enrollRes && enrollRes.result && Object.keys(enrollRes.result).length > 0) {
       this.discussWidgetData.enrolledContent = true
       this.discussWidgetData.newCommentSection.commentBox.placeholder = 'Start a discussion'
@@ -193,13 +260,15 @@ export class AppTocCiosHomeComponent implements OnInit, AfterViewInit {
       this.contentViewEventForNetCore('enroll')
     } else {
       this.loader.changeLoad.next(false)
-      this.snackBar.open('Unable to enroll to the content')
+      this.snackBar.open(enrollRes?.error?.params?.msg || 'Unable to enroll to the content', 'X', {
+          duration: 10000,
+    })
     }
   }
 
   async getUserContentEnroll(contentId: any) {
-    const enrollRes = await this.contentSvc.fetchExtUserContentEnroll(contentId).toPromise().catch(_error => {})
-    if (enrollRes && enrollRes.result  && Object.keys(enrollRes.result).length > 0) {
+    const enrollRes = await this.contentSvc.fetchExtUserContentEnroll(contentId).toPromise().catch(_error => { })
+    if (enrollRes && enrollRes.result && Object.keys(enrollRes.result).length > 0) {
       this.userExtCourseEnroll = enrollRes.result
       this.loader.changeLoad.next(false)
       this.telemetryToCaptureInteract(contentId, 'enroll', 'enrol-content')
@@ -216,7 +285,7 @@ export class AppTocCiosHomeComponent implements OnInit, AfterViewInit {
     this.raiseTelemtryEndEvent()
   }
 
-  raiseTelemtryStartEvent(){
+  raiseTelemtryStartEvent() {
     const event = {
       eventType: WsEvents.WsEventType.Telemetry,
       eventLogLevel: WsEvents.WsEventLogLevel.Info,
@@ -271,7 +340,7 @@ export class AppTocCiosHomeComponent implements OnInit, AfterViewInit {
   async downloadCert() {
     this.downloadCertificateLoading = true
     const certRes: any = await
-    this.certSvc.downloadCertificate_v2(this.userExtCourseEnroll.issued_certificates[0].identifier).toPromise().catch(_error => {})
+      this.certSvc.downloadCertificate_v2(this.userExtCourseEnroll.issued_certificates[0].identifier).toPromise().catch(_error => { })
     if (certRes && Object.keys(certRes.result).length > 0) {
       this.downloadCertificateLoading = false
       if (this.userExtCourseEnroll.issued_certificates && this.userExtCourseEnroll.issued_certificates.length
@@ -288,100 +357,99 @@ export class AppTocCiosHomeComponent implements OnInit, AfterViewInit {
   }
   onClickOfShare() {
     this.enableShare = true
-    this.raiseTelemetryForShare('shareContent')
+    //this.raiseTelemetryForShare('shareContent')
   }
 
-   /* tslint:disable */
-   raiseTelemetryForShare(subType: any) {
-    console.log(this.extContentReadData, this.events, subType)
-    // this.events.raiseInteractTelemetry(
-      // {
-      //   type: 'click',
-      //   subType,
-      //   id: this.content ? this.content.identifier : '',
-      // },
-      // {
-      //   id: this.content ? this.content.identifier : '',
-      //   type: this.content ? this.content.primaryCategory : '',
-      // },
-      // {
-      //   pageIdExt: `btn-${subType}`,
-      //   module: WsEvents.EnumTelemetrymodules.CONTENT,
-      // }
-    // )
-  }
+  /* tslint:disable */
+  // raiseTelemetryForShare(subType: any) {
+  //   //console.log(this.extContentReadData, this.events, subType)
+  //   // this.events.raiseInteractTelemetry(
+  //   // {
+  //   //   type: 'click',
+  //   //   subType,
+  //   //   id: this.content ? this.content.identifier : '',
+  //   // },
+  //   // {
+  //   //   id: this.content ? this.content.identifier : '',
+  //   //   type: this.content ? this.content.primaryCategory : '',
+  //   // },
+  //   // {
+  //   //   pageIdExt: `btn-${subType}`,
+  //   //   module: WsEvents.EnumTelemetrymodules.CONTENT,
+  //   // }
+  //   // )
+  // }
 
   resetEnableShare(_eventData: any) {
-    
+
     this.enableShare = false
   }
 
-  contentViewEventForNetCore(eventType:any) {
+  contentViewEventForNetCore(eventType: any) {
     if (this.configSvc.netcoreConfig && this.configSvc.netcoreConfig.netcoreWebConfig  // NOSONAR
       && this.configSvc.netcoreConfig.netcoreWebConfig.isActive // NOSONAR
       && this.configSvc.netcoreConfig.netcoreWebConfig.events // NOSONAR
       && this.configSvc.netcoreConfig.netcoreWebConfig.events.content_view // NOSONAR
       && this.configSvc.netcoreConfig.netcoreWebConfig.events.content_view.isActive // NOSONAR
-    ) { 
+    ) {
       let payload: any = {}
       // if (this.configSvc && this.configSvc.unMappedUser && this.configSvc.unMappedUser.identifier) { // NOSONAR
       //   payload['pk^userid'] = this.configSvc.unMappedUser.identifier.trim().toLowerCase()
       // }
       // console.log('payload', payload)
-      if(this.extContentReadData && this.extContentReadData.name) {
+      if (this.extContentReadData && this.extContentReadData.name) {
         payload['content_name'] = this.extContentReadData.name
       }
       // if(this.extContentReadData && this.extContentReadData.courseCategory) {
-        payload['content_category'] = 'External Course'
+      payload['content_category'] = 'External Course'
       // }
-      if(this.extContentReadData && this.extContentReadData.externalId) {
+      if (this.extContentReadData && this.extContentReadData.externalId) {
         payload['content_id'] = this.extContentReadData.externalId
       }
       // if(this.extContentReadData && this.extContentReadData.name) {
-        payload['content_url'] = window.location.href
+      payload['content_url'] = window.location.href
       // }
-      if(this.extContentReadData && this.extContentReadData.appIcon) {
+      if (this.extContentReadData && this.extContentReadData.appIcon) {
         payload['content_image'] = this.extContentReadData.appIcon
       }
-      if(this.extContentReadData && this.extContentReadData.duration) {
+      if (this.extContentReadData && this.extContentReadData.duration) {
         payload['content_duration'] = this.extContentReadData.duration && Number(this.extContentReadData.duration) > 0 ? Number(this.extContentReadData.duration) : 0
       } else {
         payload['content_duration'] = 0
       }
-      if(this.extContentReadData && this.extContentReadData.avgRating
+      if (this.extContentReadData && this.extContentReadData.avgRating
       ) {
         payload['content_rating'] = this.extContentReadData.avgRating
         payload['content rating'] = this.extContentReadData.avgRating
       }
-      if(this.extContentReadData && this.extContentReadData.totalNoOfRating) {
+      if (this.extContentReadData && this.extContentReadData.totalNoOfRating) {
         payload['no_users_rated'] = this.extContentReadData.totalNoOfRating
       }
       // if(Object.keys(this.userExtCourseEnroll).length) {
-       payload['learning_path_content'] = Object.keys(this.userExtCourseEnroll).length ? true : false
-       payload['learning path content'] = Object.keys(this.userExtCourseEnroll).length ? true : false
+      payload['learning_path_content'] = Object.keys(this.userExtCourseEnroll).length ? true : false
+      payload['learning path content'] = Object.keys(this.userExtCourseEnroll).length ? true : false
       // }
-      if(this.extContentReadData && this.extContentReadData.source) {
+      if (this.extContentReadData && this.extContentReadData.source) {
         payload['content_provider_name'] = this.extContentReadData.source
-      } else if(this.extContentReadData && this.extContentReadData.contentPartner && 
+      } else if (this.extContentReadData && this.extContentReadData.contentPartner &&
         this.extContentReadData.contentPartner.contentPartnerName
-      ){
+      ) {
         payload['content_provider_name'] = this.extContentReadData.contentPartner.contentPartnerName
       } else {
-        payload['content_provider_name'] =  'Karmayogi Bharat'
+        payload['content_provider_name'] = 'Karmayogi Bharat'
       }
-      if(eventType === 'view') {
+      if (eventType === 'view') {
         this.netCoreService.trackEventForContentAndEvent('content_view', this.configSvc.unMappedUser.identifier.trim().toLowerCase(), payload)
       } else if (eventType === 'enroll') {
         this.netCoreService.trackEventForContentAndEvent('content_enrolment', this.configSvc.unMappedUser.identifier.trim().toLowerCase(), payload)
       } else if (eventType === 'completion') {
         this.netCoreService.trackEventForContentAndEvent('content_completion', this.configSvc.unMappedUser.identifier.trim().toLowerCase(), payload)
       }
-      
+
     }
   }
 
-  secondsToTime(d:any)
-  {
+  secondsToTime(d: any) {
     d = Number(d);
     var h = Math.floor(d / 3600);
     var m = Math.floor(d % 3600 / 60);
@@ -390,7 +458,33 @@ export class AppTocCiosHomeComponent implements OnInit, AfterViewInit {
     var hDisplay = h > 0 ? h + (h == 1 ? " hour, " : " hours, ") : "";
     var mDisplay = m > 0 ? m + (m == 1 ? " minute, " : " minutes, ") : "";
     var sDisplay = s > 0 ? s + (s == 1 ? " second" : " seconds") : "";
-    return hDisplay + mDisplay + sDisplay; 
+    return hDisplay + mDisplay + sDisplay;
+  }
+
+  clearCommentIdFromUrl(): void {
+    const currentQueryParams = { ...this.route.snapshot.queryParams }
+    delete currentQueryParams.commentId
+    this.commentId = ''
+  }
+
+  private validateEnrollmentEligibility(): void {
+    // Only validate if user is not already enrolled and content is available
+    if (Object.keys(this.userExtCourseEnroll).length === 0 && this.extContentReadData && this.extContentReadData.contentId && this.extContentReadData.contentPartner && this.extContentReadData.contentPartner.id) {
+      this.enrollValidationLoading = true
+      this.certSvc.validateEnrollmentEligibility(this.extContentReadData.contentId, this.extContentReadData.contentPartner.id).subscribe(
+        (_response: any) => {
+          this.enrollValidationLoading = false
+          this.canEnroll = true
+        },
+        (error: any) => {
+        this.snackBar.open(error?.error?.params?.msg || 'Unable to validate enrollment eligibility', 'X', {
+          duration: 10000,
+    })
+          this.enrollValidationLoading = false
+          this.canEnroll = false
+        }
+      )
+    }
   }
 
 }

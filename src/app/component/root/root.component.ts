@@ -89,8 +89,12 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
 
     this.getHeaderFooterConfiguration().subscribe((sectionData: any) => {
       // console.log('headerFooterConfigData',sectionData)
-      this.headerFooterConfigData = sectionData.data
-      this.showFooter = true
+      if (sectionData && sectionData.data) {
+        this.headerFooterConfigData = sectionData.data
+        this.showFooter = true
+        // Manually trigger change detection to ensure footer updates
+        this.changeDetector.detectChanges()
+      }
     })
     if (window.location.pathname.includes('/public/home')
       || window.location.pathname.includes('/public/toc/')
@@ -209,7 +213,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
   showTour = false
   currentRouteData: any = []
   loggedinUser = !!(this.configSvc.userProfile && this.configSvc.userProfile.userId)
-  headerFooterConfigData: any = {}
+  headerFooterConfigData: any = null
   mobileTopHeaderVisibilityStatus = true
   activeMenu: any = ''
   backGroundTheme: any
@@ -275,6 +279,13 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
       } else {
         this.isHomePage = false
         this.mobileAppsSvc.clearGlobalSearchForHomePage.next(false)
+      }
+      if(event && event.url) {
+        if(event.url.includes('/app/network-v2') && window.innerWidth <= 768) {
+          this.showNavbar = false
+        } else if (event.url.includes('/page/home') && window.innerWidth <= 768) {
+          this.showNavbar = true
+        }
       }
     })
 
@@ -406,6 +417,9 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
         this.openIntro()
 
       }
+      if(event && event.url && event.url.includes('/app/network-v2') && window.innerWidth <= 768) {
+        this.showNavbar = false
+      }
     })
     this.rootSvc.showNavbarDisplay$.pipe(delay(500)).subscribe((display: any) => {
       this.showNavbar = display
@@ -413,7 +427,6 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
 
     let isNotMyUser = false
     let isIgotOrg = false
-    console.log('this.configSvc.unMappedUser--', this.configSvc.unMappedUser)
     if(this.configSvc && this.configSvc.unMappedUser && this.configSvc.unMappedUser.rootOrgId) {
       this.iGOTAIConfig()
     }
@@ -453,6 +466,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
     // console.log('publicConfig', publicConfig)
     if(publicConfig && publicConfig && publicConfig.web) {
       this.configSvc.iGOTAIConfig = publicConfig.web
+    //  console.log('this.configSvc', this.configSvc)      
     }
     
     // this.configSvc.iGOTAIConfig = {

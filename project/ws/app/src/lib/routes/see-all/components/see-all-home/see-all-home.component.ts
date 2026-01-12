@@ -12,9 +12,10 @@ import * as _ from 'lodash'
 import { ConfigurationsService, EventService, MultilingualTranslationsService, WsEvents, NsContent } from '@sunbird-cb/utils-v2'
 import { SeeAllService } from '../../services/see-all.service'
 // import { WidgetUserService } from '@sunbird-cb/collection/src/lib/_services/widget-user.service'
-import { MatLegacyTabChangeEvent as MatTabChangeEvent } from '@angular/material/legacy-tabs'
+
 import { NsContentStripWithTabs } from '@sunbird-cb/collection/src/lib/content-strip-with-tabs/content-strip-with-tabs.model'
 import { WidgetContentLibService, WidgetUserServiceLib } from '@sunbird-cb/consumption'
+import { environment } from 'src/environments/environment'
 
 @Component({
   selector: 'ws-app-see-all-home',
@@ -51,22 +52,41 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
+    let pageSubType = ''
+    let pageType = ''
     this.activated.queryParams.subscribe((res: any) => {
       this.keyData = (res.key) ? res.key : ''
       this.tabSelected = (res.tabSelected) ? res.tabSelected : ''
+      pageSubType = (res.pageSubType) ? res.pageSubType : ''
+      pageType = (res.pageType) ? res.pageType : ''
     })
-    const configData = await this.seeAllSvc.getSeeAllConfigJson().catch(_error => {})
-    configData.homeStrips.forEach((ele: any) => {
-      if (ele && ele.strips.length > 0) {
-        ele.strips.forEach((subEle: any) => {
-          if (subEle.key === this.keyData) {
-            this.seeAllPageConfig = subEle
+    const configData = await this.seeAllSvc.getSeeAllConfigJson(pageType, pageSubType).catch(_error => { })
+    if(configData && configData.homeStrips){
+      configData.homeStrips.forEach((ele: any) => {
+       if (ele && ele.strips.length > 0) {
+         ele.strips.forEach((subEle: any) => {
+           if (subEle.key === this.keyData) {
+             this.seeAllPageConfig = subEle
+           }
+         })
+       }
+     })
+    }
+    if (!this.seeAllPageConfig) {
+      if (configData) {
+        configData.newHomeStrip.forEach((ele: any) => {
+          if (ele && ele.strips && ele.strips.length > 0) {
+            ele.strips.forEach((subEle: any) => {
+              if (subEle.key === this.keyData) {
+                this.seeAllPageConfig = subEle
+              }
+            })
           }
         })
       }
-    })
+    }
     if (!this.seeAllPageConfig) {
-      if (configData) {
+      if (configData && configData.assessmentData) {
         configData.assessmentData.forEach((ele: any) => {
           if (ele && ele.strips && ele.strips.length > 0) {
             ele.strips.forEach((subEle: any) => {
@@ -245,11 +265,14 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
     return tabResults
   }
 
-  public tabClicked(tabEvent: MatTabChangeEvent, stripMap: any) {
+  public tabClicked(tabIndex: any, stripMap: any) {
     const data: WsEvents.ITelemetryTabData = {
-      label: `${tabEvent.tab.textLabel}`,
-      index: tabEvent.index,
+      label: `${stripMap.tabs[tabIndex].textLabel}`,
+      index: tabIndex,
     }
+    // reset pagination on tab change
+    this.page = 0
+    this.dynamicTabIndex = tabIndex
     this.eventSvc.raiseInteractTelemetry(
       {
         type: WsEvents.EnumInteractTypes.CLICK,
@@ -261,15 +284,21 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
         module: WsEvents.EnumTelemetrymodules.HOME,
       }
     )
-    const currentTabFromMap = stripMap.tabs && stripMap.tabs[tabEvent.index]
+    const currentTabFromMap = stripMap.tabs && stripMap.tabs[tabIndex]
     const currentStrip = stripMap
     if (currentStrip && currentTabFromMap && !currentTabFromMap.computeDataOnClick) {
       if (currentTabFromMap.requestRequired && currentTabFromMap.request) {
         // call API to get tab data and process
         if (currentTabFromMap.request.searchV6) {
-          this.getTabDataByNewReqSearchV6(currentStrip, tabEvent.index, currentTabFromMap, true)
+          this.getTabDataByNewReqSearchV6(currentStrip, tabIndex, currentTabFromMap, true)
         } else if (currentTabFromMap.request.trendingSearch) {
-          this.getTabDataByNewReqTrending(currentStrip, tabEvent.index, currentTabFromMap, true)
+          this.getTabDataByNewReqTrending(currentStrip, tabIndex, currentTabFromMap, true)
+        } else if (currentTabFromMap.request.playlistRead) {
+          this.getTabDataByNewReqPlaylistReadContent(currentStrip, tabIndex, currentTabFromMap, true)
+        } else if (currentTabFromMap.request.ciosContent) {
+          // this.offsetForPage = tabdata.request.searchV6.request.limit + this.offsetForPage
+          currentTabFromMap.request.ciosContent['pageNumber'] = 0
+          this.getTabDataByCiosSearch(this.seeAllPageConfig, this.dynamicTabIndex, currentTabFromMap, true, [])
         }
       }
     }
@@ -325,28 +354,191 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
     }
   }
 
-  async fetchCiosContentData(strip: any, calculateParentStatus = true) {
-    if (strip.request && strip.request.ciosContent && Object.keys(strip.request.ciosContent).length) {
-      // let originalFilters: any = [];
-      // if (strip.request &&
-      //   strip.request.ciosContent &&
-      //   strip.request.ciosContent.filterCriteriaMap) {
-      //   originalFilters = strip.request.ciosContent.filterCriteriaMap;
-      //   strip.request.ciosContent.filterCriteriaMap = this.postMethodFilters(strip.request.ciosContent.filterCriteriaMap);
-      // }
-      try {
-        const response = await this.postRequestMethod(strip, strip.request.ciosContent, strip.request.apiUrl, calculateParentStatus)
-        if (response && response.results) {
-          if (response.results.data && response.results.data.length) {
-            this.contentDataList = this.transformContentsToWidgets(response.results.data, strip)
+
+    async fetchCiosContentData(strip: any, calculateParentStatus = true) {
+      this.isCoisContent = true
+    if (strip && strip.request.ciosContent && Object.keys(strip.request.ciosContent).length) {
+      if (strip.tabs && strip.tabs.length) {
+        // TODO: Have to extract requestRequired to outer level of tabs config
+        const firstTab = strip.tabs[this.dynamicTabIndex]
+        if (firstTab.requestRequired && firstTab.value === 'extCourse') {
+          if (this.seeAllPageConfig && this.seeAllPageConfig.tabs) {
+            const allTabs = this.seeAllPageConfig.tabs
+            const currentTabFromMap = (allTabs && allTabs.length && allTabs[this.dynamicTabIndex]) as NsContentStripWithTabs.IContentStripTab
+            this.getTabDataByCiosSearch(strip, this.dynamicTabIndex, currentTabFromMap, calculateParentStatus, [])
           }
         }
-      } catch (error) {
-        // this.emptyResponse.emit(true)
-        // Handle errors
-        // console.error('Error:', error);
+        if (firstTab.requestRequired && firstTab.value === 'providers') {
+          if (this.seeAllPageConfig && this.seeAllPageConfig.tabs) {
+            const allTabs = this.seeAllPageConfig.tabs
+            const currentTabFromMap = (allTabs && allTabs.length && allTabs[this.dynamicTabIndex]) as NsContentStripWithTabs.IContentStripTab
+            this.getTabDataByNewReqPlaylistReadContent(strip, this.dynamicTabIndex, currentTabFromMap, calculateParentStatus)
+          }
+        }
       }
     }
+  }
+
+  async getTabDataByCiosSearch(
+    strip:any,
+    tabIndex: number,
+    _currentTab: NsContentStripWithTabs.IContentStripTab,
+    _calculateParentStatus: boolean,
+    existingWidgets: any[]
+  ) {
+    try {
+      const response = await this.consumWidgetSvc.postApiMethod(_currentTab.request.apiUrl, _currentTab.request.ciosContent).toPromise()
+      if(response && response.result && response.result.data && response.result.data.length){
+        strip.stripConfig.cardSubType = 'card-providers-lib'
+        let data  = response.result.data.map((item: any) => {
+          return {
+            ...item,
+            "name": item?.contentPartnerName || '',
+            "logoUrl": item?.link || '',
+            "description": item?.description || '',
+            "contentDisplayType":_currentTab?.request?.condition || 'extContent',
+            "isExternalProvider": true
+          }
+        })
+        const widgets = this.transformContentsToWidgets(data, strip)
+
+        let combinedWidgets = existingWidgets && existingWidgets.length ? [...existingWidgets, ...widgets] : [...widgets]
+        this.tabResults = []
+
+        if (this.seeAllPageConfig && this.seeAllPageConfig.tabs) {
+          const allTabs = this.seeAllPageConfig.tabs
+          if (allTabs && allTabs.length && allTabs[tabIndex]) {
+            allTabs[tabIndex] = {
+              ...allTabs[tabIndex],
+              widgets: combinedWidgets,
+              fetchTabStatus: 'done',
+            }
+            this.tabResults = allTabs
+          }
+        }
+
+        this.page = _currentTab?.request?.ciosContent?.pageNumber
+        this.totalCount = response.result.totalCount
+        this.totalPages = Math.ceil(response.result.totalCount / strip.request.ciosContent.pageSize)
+      } else {
+        let combinedWidgets = existingWidgets && existingWidgets.length ? [...existingWidgets] : []
+        this.tabResults = combinedWidgets
+        if (this.seeAllPageConfig && this.seeAllPageConfig.tabs) {
+          const allTabs = this.seeAllPageConfig.tabs
+          if (allTabs && allTabs.length && allTabs[tabIndex]) {
+            allTabs[tabIndex] = {
+              ...allTabs[tabIndex],
+              fetchTabStatus: 'done',
+            }
+            this.tabResults = allTabs
+          }
+        }
+      }
+    } catch (error) {
+      console.error('Error:', error)
+      this.tabResults = []
+      if (this.seeAllPageConfig && this.seeAllPageConfig.tabs && this.seeAllPageConfig.tabs.length) {
+        const allTabs = this.seeAllPageConfig.tabs
+        if (allTabs && allTabs.length && allTabs[tabIndex]) {
+          allTabs[tabIndex] = {
+            ...allTabs[tabIndex],
+            fetchTabStatus: 'done',
+          }
+          this.tabResults = allTabs
+        }
+      } else {
+       this.tabResults = []
+      }
+    }
+  }
+
+  async getTabDataByNewReqPlaylistReadContent(
+    strip: any,
+    tabIndex: number,
+    currentTab: any,
+    _calculateParentStatus: boolean,
+    existingwidgets?: any,
+  ) {
+    try {
+      // Ensure currentTab has proper request structure
+      if (!currentTab || !currentTab.request) {
+        throw new Error('Invalid tab configuration: missing request object')
+      }
+
+      // Prepare the API URL with dynamic values
+      if (currentTab.request.playlistRead && currentTab.request.playlistRead.type) {
+        if (!currentTab.request.apiUrl) {
+          throw new Error('Invalid request: missing apiUrl')
+        }
+        currentTab.request.apiUrl = this.getFullUrl(currentTab.request.apiUrl)
+      }
+
+      // Validate that apiUrl is set before making the request
+      if (!currentTab.request.apiUrl || typeof currentTab.request.apiUrl !== 'string') {
+        throw new Error('Invalid apiUrl: must be a valid string')
+      }
+
+      // Make the API request
+      const response: any = await this.consumWidgetSvc.getApiMethod(currentTab.request.apiUrl).toPromise()
+
+        this.tabResults = []
+        let combinedWidgets: any = []
+      // Handle successful response
+      if (response && response.result && response.result.length) {
+        const widgets = this.transformContentsToWidgets(response.result, strip)
+        combinedWidgets = existingwidgets && existingwidgets.length ? [...existingwidgets, ...widgets] : [...widgets]
+
+      } else if (response && response.results && response.results.result) {
+        // Handle alternate response format
+        const widgets = this.transformContentsToWidgets(response.results.result, strip)
+        combinedWidgets = existingwidgets && existingwidgets.length ? [...existingwidgets, ...widgets] : [...widgets]
+
+
+      }  else if (response.result.content) {
+            let featuredProvider = JSON.parse(response.result.content.featuredProviders || '[]')
+            combinedWidgets = this.transformContentsToWidgets(featuredProvider, strip)
+
+      } else {
+        // Handle no data response
+        this.tabResults = []
+        combinedWidgets = existingwidgets && existingwidgets.length ? [...existingwidgets] : []
+      }
+
+        if (this.seeAllPageConfig && this.seeAllPageConfig.tabs) {
+          const allTabs = this.seeAllPageConfig.tabs
+          if (allTabs && allTabs.length && allTabs[tabIndex]) {
+            allTabs[tabIndex] = {
+              ...allTabs[tabIndex],
+              widgets: combinedWidgets,
+              fetchTabStatus: 'done',
+            }
+            this.tabResults = allTabs
+          }
+        }
+    } catch (error) {
+      console.error('Error fetching playlist content:', error)
+      this.tabResults = []
+      if (this.seeAllPageConfig && this.seeAllPageConfig.tabs && this.seeAllPageConfig.tabs.length) {
+        const allTabs = this.seeAllPageConfig.tabs
+        if (allTabs && allTabs.length && allTabs[tabIndex]) {
+          allTabs[tabIndex] = {
+            ...allTabs[tabIndex],
+            fetchTabStatus: 'done',
+            widgets: [],
+          }
+          this.tabResults = allTabs
+        }
+      } else {
+        this.tabResults = []
+      }
+    }
+  }
+  getFullUrl(apiUrl: any) {
+    let formedUrl: string = apiUrl
+    if (apiUrl.indexOf('<doId>') >= 0) {
+      formedUrl = apiUrl.replace('<doId>', environment.providerDataKey)
+    }
+    return formedUrl
   }
 
   async fetchFromSearchV6(strip: any, calculateParentStatus = true) {
@@ -497,6 +689,12 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
             userRootOrgId = this.configSvc.userProfile.rootOrgId
           }
           request.trendingSearch.request.filters.organisation = userRootOrgId
+        } else if (request.trendingSearch.request.filters.createdFor && request.trendingSearch.request.filters.createdFor.indexOf('<orgID>') >= 0) {
+          let userRootOrgId
+          if (this.configSvc.userProfile) {
+            userRootOrgId = this.configSvc.userProfile.rootOrgId
+          }
+          request.trendingSearch.request.filters.createdFor = userRootOrgId
         }
         request.trendingSearch['request']['limit'] = 50
         this.seeAllSvc.trendingContentSearch(request.trendingSearch).subscribe(results => {
@@ -540,26 +738,31 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
   }
 
   async getTabDataByNewReqSearchV6(
-    strip: NsContentStripWithTabs.IContentStripUnit,
+    strip: any,
     tabIndex: number,
     currentTab: NsContentStripWithTabs.IContentStripTab,
-    calculateParentStatus: boolean
+    calculateParentStatus: boolean,
+    existingwidgets?: any,
   ) {
     try {
       const response = await this.searchV6Request(strip, currentTab.request, calculateParentStatus)
       if (response && response.results) {
         const widgets = this.transformContentsToWidgets(response.results.result.content, strip)
         this.tabResults = []
+        let combinedWidgets = []
+        combinedWidgets = existingwidgets && existingwidgets.length ? [...existingwidgets, ...widgets] : [...widgets]
         if (this.seeAllPageConfig.tabs) {
           const allTabs = this.seeAllPageConfig.tabs
           if (allTabs && allTabs.length && allTabs[tabIndex]) {
             allTabs[tabIndex] = {
               ...allTabs[tabIndex],
-              widgets,
+              widgets: combinedWidgets,
             }
             this.tabResults = allTabs
           }
         }
+        this.totalCount = response.results.result.count
+        this.totalPages = Math.ceil(response.results.result.count / strip.request.searchV6.request.limit)
       } else {
       }
     } catch (error) {
@@ -596,12 +799,35 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
   onScrollEnd() {
     this.page += 1
     if (this.page <= this.totalPages) {
+      // Prevent scroll to top by using setTimeout to allow DOM updates
+      const currentScrollPosition = window.scrollY
+
+      // without tabs
       if (this.contentDataList[0].widgetData.content) {
         if (this.seeAllPageConfig.request.searchV6) {
           this.offsetForPage = this.seeAllPageConfig.request.searchV6.request.limit + this.offsetForPage
           this.fetchFromSearchV6(this.seeAllPageConfig)
         }
       }
+      // with tabs
+      else if(this.seeAllPageConfig.tabs && this.seeAllPageConfig.tabs.length){
+        let tabdata = this.seeAllPageConfig.tabs[this.dynamicTabIndex]
+        let existingWidgets = tabdata.widgets || []
+        if(tabdata && tabdata.request && tabdata.request.searchV6){
+          tabdata.request.searchV6.request['offset'] = this.page
+          this.getTabDataByNewReqSearchV6(this.seeAllPageConfig, this.dynamicTabIndex, tabdata, true, existingWidgets)
+        } else if(tabdata && tabdata.request && tabdata.request.ciosContent){
+          tabdata.request.ciosContent['pageNumber'] = this.page
+          this.getTabDataByCiosSearch(this.seeAllPageConfig, this.dynamicTabIndex, tabdata, true, existingWidgets)
+        } else if(tabdata && tabdata.request && tabdata.request.playlistRead){
+          this.getTabDataByNewReqPlaylistReadContent(this.seeAllPageConfig, this.dynamicTabIndex, tabdata, true, existingWidgets)
+        }
+      }
+
+      // Restore scroll position after DOM updates
+      setTimeout(() => {
+        window.scrollTo(0, currentScrollPosition)
+      }, 100)
     }
   }
 
@@ -617,7 +843,7 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
   ): Promise<any> {
     return new Promise<any>((resolve, reject) => {
       if (request && request) {
-        this.consumWidgetSvc.postApiMethod(apiUrl, request).subscribe(results => {
+        this.consumWidgetSvc.postApiMethod(apiUrl, request).subscribe((results: any) => {
           if (results && results.data) {
             const showViewMore = Boolean(
               results.data && results.data.length > 5 && strip.stripConfig && strip.stripConfig.postCardForSearch,
@@ -632,6 +858,10 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
             }
               : null
             resolve({ results, viewMoreUrl })
+          } else  if (results && results.results&& results.results.data) {
+            resolve({ results })
+          } else {
+            resolve({ results })
           }
         },                                                            (error: any) => {
           // this.processStrip(strip, [], 'error', calculateParentStatus, null);

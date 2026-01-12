@@ -1,4 +1,4 @@
-<div class="flex flex-row gap-5 mb-4">
+<div class="flex flex-row gap-5 mb-4 justify-center">
   <!-- #region (left profile )-->
   <div class="flex flex-col gap-0 md:gap-4 items-center profileLeftSection">
     <div class="profile w-full">
@@ -24,8 +24,8 @@
       <!-- #endregion (cover photo ) -->
 
       <!-- #region (profile details ) -->
-      <div class="profile-details p-4 flex flex-col gap-4 md:flex-row md:gap-0 justify-between">
-        <div class="flex gap-3 profile-info">
+      <div class="profile-details py-4 px-1 md:px-4 flex flex-col gap-4 md:flex-row md:gap-0 justify-between">
+        <div class="flex gap-1 md:gap-3 profile-info">
           <div class="progress-wrapper">
             <svg [ngClass]="{'hide-circle': !isCurrentUser}" xmlns="http://www.w3.org/2000/svg"
               xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="37 -5 110 120" width="100"
@@ -51,12 +51,39 @@
           </div>
 
           <div class="flex flex-col profile-details">
-            <div class="flex gap-2 items-start">
-              <span class="profile-name">{{primaryDetails?.firstname}} </span>
-              <ng-container *ngIf="primaryDetails?.profileStatus === 'VERIFIED'">
-                <img class="staus-icon" src="./assets/icons/Accept_icon.png" alt="status">
+            <div class="flex gap-2 justify-between">
+              <div class="flex gap-2 items-start w-full">
+                <span class="profile-name">{{primaryDetails?.firstname}} </span>
+                <ng-container *ngIf="primaryDetails?.profileStatus === 'VERIFIED'">
+                  <img class="staus-icon" src="./assets/icons/Accept_icon.png" alt="status">
+                </ng-container>
+                <span class="user-name">({{primaryDetails?.username}})</span>
+              </div>
+              <ng-container *ngIf="!isCurrentUser">
+                <mat-icon mat-icon-button i18n-aria-label aria-label="action items" class="not-my-user-menu menu"
+                  [matMenuTriggerFor]="notMyUserMenu">more_vert</mat-icon>
+                <mat-menu #notMyUserMenu="matMenu">
+                  <ng-container *ngIf="connectionStatus === 'Pending'">
+                    <button mat-menu-item (click)="openConformationDialog('Withdrawn')">
+                      <span>{{ 'NetworkV2Profile.withdrawRequest' | translate }} </span>
+                    </button>
+                  </ng-container>
+                  <ng-container
+                    *ngIf="connectionStatus !== 'Blocked Incoming' && connectionStatus !== 'Blocked Outgoing' && connectionStatus !== 'Pending'">
+                    <button mat-menu-item (click)="openConformationDialog('Blocked')">
+                      <span>{{ 'NetworkV2Profile.blockThisProfile' | translate }} </span>
+                    </button>
+                  </ng-container>
+                  <ng-container *ngIf="connectionStatus === 'Approved'">
+                    <button mat-menu-item (click)="openConformationDialog('Removed')">
+                      <span>{{ 'NetworkV2Profile.removeConnection' | translate }} </span>
+                    </button>
+                  </ng-container>
+                  <button mat-menu-item (click)="copyProfileLink()">
+                    <span>{{ 'NetworkV2Profile.copyProfileLink' | translate }} </span>
+                  </button>
+                </mat-menu>
               </ng-container>
-              <span class="user-name">({{primaryDetails?.username}})</span>
             </div>
             <div class="profile-details">
               {{primaryDetails?.designation}} | {{primaryDetails?.currentOrgName}}
@@ -101,6 +128,10 @@
                   </button>
                 </ng-container>
               </ng-template>
+              <button mat-menu-item [routerLink]="['/app/profile/settings']">
+                <span>{{ 'NetworkV2Profile.settings' | translate }}</span>
+              </button>
+
             </mat-menu>
           </div>
         </ng-container>
@@ -116,7 +147,8 @@
                   <span>{{ 'NetworkV2Profile.withdrawRequest' | translate }} </span>
                 </button>
               </ng-container>
-              <ng-container *ngIf="connectionStatus !== 'Blocked Incoming' && connectionStatus !== 'Blocked Outgoing' && connectionStatus !== 'Pending'">
+              <ng-container
+                *ngIf="connectionStatus !== 'Blocked Incoming' && connectionStatus !== 'Blocked Outgoing' && connectionStatus !== 'Pending'">
                 <button mat-menu-item (click)="openConformationDialog('Blocked')">
                   <span>{{ 'NetworkV2Profile.blockThisProfile' | translate }} </span>
                 </button>
@@ -153,14 +185,14 @@
                     {{'NetworkV2Profile.connect' | translate}}
                   </button>
                 </ng-container>
-                
+
               </ng-container>
             </ng-container>
           </div>
         </ng-template>
       </div>
       <!-- #region (not my user warning) -->
-      <ng-container *ngIf="isNotMyUser && isIgotOrg">
+      <ng-container *ngIf="isNotMyUserAndIgotOrg">
         <div class="px-5">
           <div class="not-my-user-container mt-8">
             <div class="not-my-user-content">
@@ -182,7 +214,7 @@
 
     <ng-container *ngIf="isCurrentUser && !isMobile">
       <div>
-        <ws-app-user-stats [userStats]="userStats"></ws-app-user-stats>
+        <ws-app-user-stats [userStats]="userStats" [isNotMyUserAndIgotOrg]="isNotMyUserAndIgotOrg"></ws-app-user-stats>
       </div>
     </ng-container>
 
@@ -211,9 +243,11 @@
             <ng-template #blocked>
             </ng-template>
           </mat-tab>
-          <mat-tab label="My activities" *ngIf="!(isNotMyUser && isIgotOrg)">
-            <ng-container [ngTemplateOutlet]="activitySection"></ng-container>
-          </mat-tab>
+          <ng-container *ngIf="isCurrentUser">
+            <mat-tab label="My activities" *ngIf="!isNotMyUserAndIgotOrg">
+              <ng-container [ngTemplateOutlet]="activitySection"></ng-container>
+            </mat-tab>
+          </ng-container>
         </mat-tab-group>
       </ng-container>
 
@@ -224,11 +258,11 @@
       </ng-template>
       <!-- #region (user details ) -->
       <ng-template #profileSection>
-        <ng-container *ngIf="connectionStatus !== 'Blocked Incoming' && connectionStatus !== 'Blocked Outgoing'; else blocked">
+        <ng-container *ngIf="showProfileSection; else blocked">
           <div class="flex flex-col gap-4">
             <ng-container *ngIf="isCurrentUser && isMobile">
               <div>
-                <ws-app-user-stats [userStats]="userStats" [isMobile]="isMobile"></ws-app-user-stats>
+                <ws-app-user-stats [userStats]="userStats" [isMobile]="isMobile" [isNotMyUserAndIgotOrg]="isNotMyUserAndIgotOrg"></ws-app-user-stats>
               </div>
             </ng-container>
 
@@ -336,6 +370,7 @@
                   *ngIf="achievementsDetails && achievementsDetails?.achievementsList?.length > 0; else emptyGif">
                   <ws-app-achievements [achievementsList]="achievementsDetails?.achievementsList"
                     [isCurrentUser]="isCurrentUser"
+                    (openProfileEntryDeleteDialog)="openProfileEntryDeleteDialog('Achievements',$event)"
                     (openProfileEntryEditDialog)="openProfileEntryEditDialog('Achievements', $event)"></ws-app-achievements>
                   <ng-container *ngIf="achievementsDetails?.count > 2">
                     <div class="flex flex-col justify-between items-center">
@@ -351,9 +386,15 @@
         </ng-container>
         <ng-template #blocked>
           <div class="w-full flex flex-col gap-4 justify-center items-center blockedBlock">
-            <img class="emptyPageIcon" src="./assets/icons/no-data.svg" alt="blocked gif">
+            <ng-container
+              *ngIf="connectionStatus === 'Blocked Incoming' || connectionStatus === 'Blocked Outgoing'; else lockedImg">
+              <img class="emptyPageIcon" src="./assets/icons/no-data.svg" alt="blocked gif">
+            </ng-container>
+            <ng-template #lockedImg>
+              <img class="emptyPageIcon" src="./assets/icons/locked.svg" alt="locked gif">
+            </ng-template>
             <div class="blocked-text">
-              {{ (connectionStatus === 'Blocked Outgoing' ? 'NetworkV2Profile.youBlockedThisProfile' : 'NetworkV2Profile.youAreNotAuthorisedToSeeThisProfile') | translate}}
+              {{ blockedMessage }}
             </div>
           </div>
         </ng-template>
@@ -445,50 +486,48 @@
   <!-- #endregion (left profile )-->
 
   <!-- #region (right profile connections )-->
-  <div class="hidden md:flex flex-col gap-4 profileRightSection">
-    <ng-container *ngIf="!suggestionsLoading; else suggestionsLoader">
-      <ng-container *ngIf="peopleSuggestionsList?.length > 0">
-        <div class="flex flex-col gap-3">
-          <div class="people-you-may-know">
-            {{ 'NetworkV2Profile.peopleYouMayKnow' | translate }}
-          </div>
-          <div>
-            <ws-app-people-suggestions [peopleSuggestionsList]="peopleSuggestionsList"
-              [currentUser]="profesionalDetails"></ws-app-people-suggestions>
-          </div>
-        </div>
-      </ng-container>
-    </ng-container>
-
-    <div class="flex flex-col gap-3">
-      <ng-container *ngIf="!communitySuggestionsLoading; else suggestionsLoader">
-        <ng-container *ngIf="communitySuggestionsList?.length > 0">
-          <div class="people-you-may-know">
-            {{ 'NetworkV2Profile.recommendedCommunities' | translate }}
-          </div>
-          <div>
-            <ws-app-community-suggestions
-              [communitySuggestionsList]="communitySuggestionsList"></ws-app-community-suggestions>
+  <ng-container *ngIf="!isNotMyUserAndIgotOrg">
+    <div class="hidden md:flex flex-col gap-4 profileRightSection">
+      <ng-container *ngIf="!suggestionsLoading; else suggestionsLoader">
+        <ng-container *ngIf="peopleSuggestionsList?.length > 0">
+          <div class="flex flex-col gap-3">
+            <div class="people-you-may-know">
+              {{ 'NetworkV2Profile.peopleYouMayKnow' | translate }}
+            </div>
+            <div>
+              <ws-app-people-suggestions [peopleSuggestionsList]="peopleSuggestionsList"
+                [currentUser]="profesionalDetails"></ws-app-people-suggestions>
+            </div>
           </div>
         </ng-container>
       </ng-container>
-    </div>
-    <ng-template #suggestionsLoader>
-      <ws-widget-skeleton-loader [width]="'100%'" [height]="'40px'"
-        [bindingClass]="'flex rounded margin-bottom-xs'">
-      </ws-widget-skeleton-loader>
 
-      <ws-widget-skeleton-loader [width]="'100%'" [height]="'147px'"
-                [bindingClass]="'flex rounded margin-bottom-xs'">
-      </ws-widget-skeleton-loader>
-      <ws-widget-skeleton-loader [width]="'100%'" [height]="'147px'"
-        [bindingClass]="'flex rounded margin-bottom-xs'">
-      </ws-widget-skeleton-loader>
-      <ws-widget-skeleton-loader [width]="'100%'" [height]="'147px'"
-        [bindingClass]="'flex rounded margin-bottom-xs'">
-      </ws-widget-skeleton-loader>
-    </ng-template>
-  </div>
+      <div class="flex flex-col gap-3">
+        <ng-container *ngIf="!communitySuggestionsLoading; else suggestionsLoader">
+          <ng-container *ngIf="communitySuggestionsList?.length > 0">
+            <div class="people-you-may-know">
+              {{ 'NetworkV2Profile.recommendedCommunities' | translate }}
+            </div>
+            <div>
+              <ws-app-community-suggestions
+                [communitySuggestionsList]="communitySuggestionsList"></ws-app-community-suggestions>
+            </div>
+          </ng-container>
+        </ng-container>
+      </div>
+      <ng-template #suggestionsLoader>
+        <ws-widget-skeleton-loader [width]="'100%'" [height]="'40px'" [bindingClass]="'flex rounded margin-bottom-xs'">
+        </ws-widget-skeleton-loader>
+
+        <ws-widget-skeleton-loader [width]="'100%'" [height]="'147px'" [bindingClass]="'flex rounded margin-bottom-xs'">
+        </ws-widget-skeleton-loader>
+        <ws-widget-skeleton-loader [width]="'100%'" [height]="'147px'" [bindingClass]="'flex rounded margin-bottom-xs'">
+        </ws-widget-skeleton-loader>
+        <ws-widget-skeleton-loader [width]="'100%'" [height]="'147px'" [bindingClass]="'flex rounded margin-bottom-xs'">
+        </ws-widget-skeleton-loader>
+      </ng-template>
+    </div>
+  </ng-container>
   <!-- #endregion (right profile connections )-->
 </div>
 
