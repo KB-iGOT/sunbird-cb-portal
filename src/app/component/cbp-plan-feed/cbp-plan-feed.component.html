@@ -10,7 +10,7 @@
             </div>
         </form>
         <div class=" position-relative ">
-            <mat-icon aria-hidden="true" (click)="openFilter()"
+            <mat-icon aria-hidden="true" (click)="openFilter()" (keyup)="openFilter()"
                 class="ws-mat-default-text mat-icon notranslate material-icons mat-icon-no-color filter-acbp cursor-pointer"
                 role="img"> filter_list </mat-icon>
             <ng-container *ngIf="filterApplied">
@@ -24,6 +24,7 @@
                 <div class="tag-wrap flex margin-right-xs margin-bottom-xs">
                     <p>{{'cbpPlanStats.apar' | translate}}</p>
                     <mat-icon aria-hidden="true" (click)="closeFilter(item.value,item.key)"
+                        (keyup)="closeFilter(item.value,item.key)"
                         class="ws-mat-default-text mat-icon notranslate material-icons mat-icon-no-color filter-acbp cursor-pointer"
                         role="img"> close </mat-icon>
                 </div>
@@ -35,7 +36,7 @@
                             <p>{{translateLabel(filterValuesBinding[item.key][item1], 'searchfilters')}}</p>
                         </ng-container>
                         <ng-template #allEle>
-                            <p *ngIf="(item.key !== 'competencyArea' && item.key !== 'competencyTheme' && 
+                            <p *ngIf="(item.key !== 'competencyArea' && item.key !== 'competencyTheme' &&
                             item.key !== 'competencySubTheme' && item.key !== 'providers'); else allThemeEle">
                                 {{translateLabel(item1, 'searchfilters')}}</p>
                         </ng-template>
@@ -43,6 +44,7 @@
                             <p>{{item1}}</p>
                         </ng-template>
                         <mat-icon aria-hidden="true" (click)="closeFilter(item1,item.key)"
+                            (keyup)="closeFilter(item1,item.key)"
                             class="ws-mat-default-text mat-icon notranslate material-icons mat-icon-no-color filter-acbp cursor-pointer"
                             role="img"> close </mat-icon>
                     </div>

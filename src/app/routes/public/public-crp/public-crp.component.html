@@ -2,7 +2,7 @@
     <div [ngClass]="mobileTopHeaderVisibilityStatus ? 'mobile-download-app-top-header' : 'mobile-download-app-without-top-header'"
         *ngIf="mobileTopHeaderVisibilityStatus">
         <!-- //NOSONAR -->
-        <div class="cross-mobile-download-app" (click)="hideMobileTopHeader()">
+        <div class="cross-mobile-download-app" (click)="hideMobileTopHeader()" (keyup)="hideMobileTopHeader()">
             <span>X</span>
         </div>
         <div class="kb-symbol">
@@ -12,7 +12,7 @@
             <p class="mobile-download-app-desc-heading">iGot Karmayogi</p>
             <p class="mobile-download-app-desc-sub-heading">Download the mobile app</p>
         </div>
-        <div class="flex-1 flex justify-end pr-4">            
+        <div class="flex-1 flex justify-end pr-4">
             <li class="download-app-chip-top-header" (click)="downloadApp()"><!-- //NOSONAR -->
                 <span>Download App </span>
             </li>
@@ -132,7 +132,7 @@
                                     </mat-form-field> -->
                                     <!-- <mat-form-field appearance="outline" class="margin-top-s w-full arrow-down" id="designation">
                                         <input id="designation" #designation i18n-placeholder="designation" type="text" placeholder="Type to search" aria-label="Type to search" matInput
-                                          (input)="onFilterDesignation($event.target.value)" formControlName="designation" [matAutocomplete]="auto" 
+                                          (input)="onFilterDesignation($event.target.value)" formControlName="designation" [matAutocomplete]="auto"
                                           (keydown)="onkeyDown($event)">
                                           <mat-icon class="mat-icon-arroe">keyboard_arrow_down</mat-icon>
                                         <mat-autocomplete #auto="matAutocomplete" [displayWith]="displayFn" (opened)="onAutoCompleteOpened()" (closed)="onAutoCompleteClosed()">
@@ -152,45 +152,43 @@
                                         {{ 'publicsignup.designationMandatory' | translate }}
                                     </mat-error>
                                       </mat-form-field> -->
-                                      <div class="custom-select-container">
+                                    <div class="custom-select-container">
                                         <mat-form-field appearance="outline" class="margin-top-s fixed-height-select">
-                                          <mat-select placeholder="Select Designation" formControlName="designation"   panelClass="search-panel" (closed)="onDesignationDropdownClosed()" (openedChange)="setupScrollListener($event)">
-                                            <!-- Sticky search input container -->
-                                            <div class="sticky-search-container" (click)="$event.stopPropagation()">
-                                              <div class="search-input-wrapper">
-                                                <input 
-                                                            type="text" 
-                                                            placeholder="Search designation" 
-                                                            formControlName="searchDesignation" 
-                                                            class="search-input"
+                                            <mat-select placeholder="Select Designation" formControlName="designation"
+                                                panelClass="search-panel" (closed)="onDesignationDropdownClosed()"
+                                                (openedChange)="setupScrollListener($event)">
+                                                <!-- Sticky search input container -->
+                                                <div class="sticky-search-container" (click)="$event.stopPropagation()"
+                                                    (keyup)="$event.stopPropagation()">
+                                                    <div class="search-input-wrapper">
+                                                        <input type="text" placeholder="Search designation"
+                                                            formControlName="searchDesignation" class="search-input"
                                                             (input)="onFilterDesignation($event.target.value)"
-                                                            (keydown)="$event.stopPropagation()"
-                                                            autocomplete="off">
-                                                <button 
-                                                            *ngIf="searchDesignation?.value" 
-                                                            type="button" 
-                                                            class="clear-button" 
+                                                            (keydown)="$event.stopPropagation()" autocomplete="off">
+                                                        <button *ngIf="searchDesignation?.value" type="button"
+                                                            class="clear-button"
                                                             (click)="searchDesignation?.setValue('')">
                                                             ✕
-                                                </button>
-                                              </div>
-                                            </div>
-                                            <!-- Options list -->
-                                            <mat-option *ngFor="let option of filteredDesignationsList " [value]="option?.name">
+                                                        </button>
+                                                    </div>
+                                                </div>
+                                                <!-- Options list -->
+                                                <mat-option *ngFor="let option of filteredDesignationsList "
+                                                    [value]="option?.name">
                                                     {{ option?.name }}
-                                            </mat-option>
-                                            <!-- Loading indicator -->
-                                            <div *ngIf="isLoadingMoreDesignations" class="loading-indicator">
-                                              Loading more...
-                                            </div>
-                                            <!-- No results message -->
-                                            <mat-option *ngIf="(filteredDesignationsList )?.length === 0" disabled>
+                                                </mat-option>
+                                                <!-- Loading indicator -->
+                                                <div *ngIf="isLoadingMoreDesignations" class="loading-indicator">
+                                                    Loading more...
+                                                </div>
+                                                <!-- No results message -->
+                                                <mat-option *ngIf="(filteredDesignationsList )?.length === 0" disabled>
                                                     No matches found
-                                            </mat-option>
-                                          </mat-select>
+                                                </mat-option>
+                                            </mat-select>
                                         </mat-form-field>
-                                      </div>
                                     </div>
+                                </div>
 
                             </div>
 
@@ -228,10 +226,12 @@
                                         </mat-form-field>
                                     </div>
                                     <div class="flex justify-between items-start">
-                                        <span class="pos-hint help-request ws-mat-black60-text break-word-link" id="org-field"> {{
+                                        <span class="pos-hint help-request ws-mat-black60-text break-word-link"
+                                            id="org-field"> {{
                                             'publicsignup.donotHaveGovernmentEmail' | translate }}</span>
                                         <span class="float-right ws-mat-accent-text cursor-pointer request-help-text"
-                                            (click)="navigateTo('Domain')"> {{ 'publicsignup.requestForHelp2' |
+                                            (click)="navigateTo('Domain')" (keyup)="navigateTo('Domain')"> {{
+                                            'publicsignup.requestForHelp2' |
                                             translate
                                             }}</span>
                                     </div>
@@ -289,7 +289,7 @@
                                                 <ng-container *ngIf="timeLeftforOTPEmail <= 0">
                                                     <div class="otp-resend-btn mt-2">
                                                         <span class="cursor-pointer ws-mat-default-text text-xs"
-                                                            (click)="resendOTPEmail()">
+                                                            (click)="resendOTPEmail()" (keyup)="resendOTPEmail()">
                                                             {{ 'publicsignup.resendOTP' | translate }}</span>
                                                     </div>
                                                 </ng-container>
@@ -297,7 +297,8 @@
 
 
                                             <div class="flex flex-1 margin-top-s justify-end">
-                                                <button mat-btn-button type="button" (click)="verifyOtpEmail(emailOTPComponent.finalOTPValues)"
+                                                <button mat-btn-button type="button"
+                                                    (click)="verifyOtpEmail(emailOTPComponent.finalOTPValues)"
                                                     class="mat-btn-flat margin-top-s otp"
                                                     [disabled]="registrationForm?.email?.invalid">
                                                     <span class="text-white">
@@ -339,7 +340,8 @@
                                             </mat-error>
                                         </mat-form-field>
                                     </div>
-                                    <mat-checkbox class="text-sm recieve-text" formControlName="isWhatsappConsent"> {{ 'publicsignup.receiveOnWhatsapp' |
+                                    <mat-checkbox class="text-sm recieve-text" formControlName="isWhatsappConsent"> {{
+                                        'publicsignup.receiveOnWhatsapp' |
                                         translate }}</mat-checkbox>
 
                                     <div *ngIf="!isMobileVerified" class="flex flex-1 margin-top-s justify-end">
@@ -388,9 +390,9 @@
                                                 <ng-container *ngIf="timeLeftforOTP <= 0">
                                                     <div class="otp-resend-btn mt-2">
                                                         <span class="cursor-pointer ws-mat-default-text"
-                                                        (click)="resendOTP()">{{
-                                                        'publicsignup.resendOTP' | translate
-                                                        }}</span>
+                                                            (click)="resendOTP()" (keyup)="resendOTP()">{{
+                                                            'publicsignup.resendOTP' | translate
+                                                            }}</span>
                                                     </div>
                                                 </ng-container>
                                                 <!-- <span class="text-xs text-red-600" [hidden]="false" *ngIf="otp.errors?.minlength">
@@ -398,7 +400,8 @@
                                                 </span> -->
                                             </div>
                                             <div class="flex flex-1 margin-top-s justify-end">
-                                                <button mat-flat-button type="button" (click)="verifyOtp(phoneOTPComponent.finalOTPValues)"
+                                                <button mat-flat-button type="button"
+                                                    (click)="verifyOtp(phoneOTPComponent.finalOTPValues)"
                                                     class="mat-btn-flat margin-top-s otp" [disabled]="
                                   registrationForm?.mobile?.invalid || disableVerifyBtn
                                 ">
@@ -433,25 +436,28 @@
                                     </mat-error>
                                 </mat-form-field> -->
                                 <mat-form-field appearance="outline" class="margin-top-s w-full arrow-down" id="group">
-                                    <input #group i18n-placeholder="group" type="text" placeholder="Type to search" aria-label="Type to search" matInput
-                                      (input)="onFilterGroups($event.target.value)" formControlName="group" [matAutocomplete]="autoGroups" (keydown)="onkeyDown($event)">
-                                      <mat-icon class="mat-icon-arroe">keyboard_arrow_down</mat-icon>
-                                    <mat-autocomplete #autoGroups="matAutocomplete" [displayWith]="displayFnGroups" (opened)="onAutoCompleteOpened()" (closed)="onAutoCompleteClosed()">
+                                    <input #group i18n-placeholder="group" type="text" placeholder="Type to search"
+                                        aria-label="Type to search" matInput
+                                        (input)="onFilterGroups($event.target.value)" formControlName="group"
+                                        [matAutocomplete]="autoGroups" (keydown)="onkeyDown($event)">
+                                    <mat-icon class="mat-icon-arroe">keyboard_arrow_down</mat-icon>
+                                    <mat-autocomplete #autoGroups="matAutocomplete" [displayWith]="displayFnGroups"
+                                        (opened)="onAutoCompleteOpened()" (closed)="onAutoCompleteClosed()">
                                         <ng-container *ngIf="filteredGroupsList?.length > 0; else nogroups">
                                             <ng-container *ngFor="let option of filteredGroupsList">
-                                              <mat-option  [value]="option">{{ option }}</mat-option>
+                                                <mat-option [value]="option">{{ option }}</mat-option>
                                             </ng-container>
                                         </ng-container>
                                         <ng-template #nogroups>
                                             <mat-option disabled>No Groups found</mat-option>
-                                          </ng-template>
+                                        </ng-template>
                                     </mat-autocomplete>
                                     <mat-error [hidden]="false" i18n="Group Error | Explains Group is required"
                                         *ngIf="registrationForm?.controls['group'].errors?.required" i18n-aria-label
                                         aria-label="Group/Grade is mandatory">
                                         {{ 'publicsignup.groupGradeMandatory' | translate }}
                                     </mat-error>
-                                  </mat-form-field>
+                                </mat-form-field>
                             </div>
 
                             <div class="input-wrapper margin-top-s terms-conditions-text">
@@ -482,10 +488,10 @@
                                 <div class="button_box flex flex-col items-center justify-center">
                                     <button mat-flat-button type="submit" class="submitBtn mat-btn-flat"
                                         (click)="signup()" [disabled]="
-                                            !registrationForm?.valid || 
-                                            disableBtn || 
+                                            !registrationForm?.valid ||
+                                            disableBtn ||
                                             !isMobileVerified ||
-                                            !isEmailVerified || 
+                                            !isEmailVerified ||
                                             !confirmTerms">
                                         {{ 'publicsignup.signup' | translate }}
                                     </button>
@@ -509,7 +515,9 @@
 
 <ng-template #invalidLinkTemplate let-data>
     <div class="relative">
-        <div class="close-error-modal" *ngIf="data?.type === 'expiredLink'" (click)="closedDialogandRedirect()"><mat-icon>close</mat-icon></div>
-        <div class="flex flex-col justify-center items-center h-full items-center text-center mt-6" [innerHtml]="data?.message"></div>
+        <div class="close-error-modal" *ngIf="data?.type === 'expiredLink'" (click)="closedDialogandRedirect()"
+            (keyup)="closedDialogandRedirect()"><mat-icon>close</mat-icon></div>
+        <div class="flex flex-col justify-center items-center h-full items-center text-center mt-6"
+            [innerHtml]="data?.message"></div>
     </div>
 </ng-template>

@@ -22,7 +22,7 @@
             </li>
             <li matTooltipClass="right-nav-tooltip" matTooltip="{{ 'toprightnavbar.downloadApp' | translate }}"
                 *ngIf="rnc.section === 'download' && rnc.active && item.type === 'downloadButton' && item?.forPreview"
-                class="download-app-chip" (click)="openDialog()">
+                class="download-app-chip" (click)="openDialog()" (keyup)="openDialog()">
                 <span class="mat-body-2">{{ 'toprightnavbar.downloadApp' | translate }}</span>
             </li>
             <li matTooltipClass="right-nav-tooltip" matTooltip="{{ translateLabels('font', 'toprightnavbar')}}"
@@ -56,7 +56,7 @@
 
             <!-- //NOSONAR -->
             <li matTooltipClass="right-nav-tooltip" matTooltip="{{ 'toprightnavbar.needHelp' | translate }}"
-                (click)="openSupportChatBot()" class="help-icon" id="help-icon"
+                (click)="openSupportChatBot()" (keyup)="openSupportChatBot()" class="help-icon" id="help-icon"
                 *ngIf="item.type === 'helpButton' && rnc.section === 'help' && rnc.active && item?.forPreview">
                 <img src="/assets/icons/top-nav/help_icon.svg" alt="">
             </li>
