@@ -40,6 +40,7 @@ export const environment: IEnvironment = {
   quizResultTimeout: (window as { [key: string]: any })['env']['quizResultTimeout'] || '',
   meetingLinkDetail: (window as { [key: string]: any })['env']['meetingLinkDetail'] || '',
   karmayogiBharatLink: (window as { [key: string]: any })['env']['karmayogiBharatLink'] || '',
+  missionKarmayogiPath: (window as { [key: string]: any })['env']['missionKarmayogiPath'] || '',
   helpEmail: (window as { [key: string]: any })['env']['helpEmail'] || '',
   supportEmail: (window as { [key: string]: any })['env']['supportEmail'] || '',
   spvorgID: (window as { [key: string]: any })['env']['spvorgID'] || '',
@@ -48,7 +49,8 @@ export const environment: IEnvironment = {
   providerDataKey: (window as { [key: string]: any })['env']['providerDataKey'] || '',
   compentencyVersionKey: (window as { [key: string]: any })['env']['compentencyVersionKey'] || '',
   cbcOrg: (window as { [key: string]: any })['env']['cbcOrg'] || '',
-  portalsForNotifications: (((window as { [key: string]: any })['env']['portalsForNotifications'] || {})) || {}
+  portalsForNotifications: (((window as { [key: string]: any })['env']['portalsForNotifications'] || {})) || {},
+  publicContentSurveyId: (window as { [key: string]: any })['env']['publicContentSurveyId'] || ''
 }
 interface IEnvironment {
   name: string,
@@ -92,7 +94,9 @@ interface IEnvironment {
   providerDataKey: string,
   compentencyVersionKey: string,
   cbcOrg: string
-  portalsForNotifications: any
+  portalsForNotifications: any,
+  missionKarmayogiPath:string,
+  publicContentSurveyId: string
 }
 
 // import { AnyCnameRecord } from 'dns'

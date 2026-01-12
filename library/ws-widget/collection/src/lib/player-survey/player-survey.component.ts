@@ -56,21 +56,20 @@ export class PlayerSurveyComponent extends WidgetBaseComponent
   wfClientVersion: any = '0'
 
   constructor(private activatedRoute: ActivatedRoute,
-              private eventSvc: EventService,
-              private viewerSvc: ViewerUtilService,
-              private snackBar: MatSnackBar,
-              private viewerDataSvc: ViewerDataService,
-              private configSvc: ConfigurationsService,
-              private widgetServ: WidgetContentService,
-              private fb: FormBuilder,
-    ) {
+    private eventSvc: EventService,
+    private viewerSvc: ViewerUtilService,
+    private snackBar: MatSnackBar,
+    private viewerDataSvc: ViewerDataService,
+    private configSvc: ConfigurationsService,
+    private widgetServ: WidgetContentService,
+    private fb: FormBuilder,
+  ) {
     super()
   }
 
   ngOnInit() {
     const identifier = this.activatedRoute.snapshot.queryParams.collectionId
     const batchId = this.activatedRoute.snapshot.queryParams.batchId
-    this.wfClientVersion = this.widgetData.wfClientVersion
     this.courseId = this.widgetData.collectionId
     this.courseName = this.widgetData.courseName
     this.progressStatus = this.widgetData.progressStatus
@@ -110,29 +109,37 @@ export class PlayerSurveyComponent extends WidgetBaseComponent
           userId = this.configSvc.userProfile.userId || ''
           this.userid = this.configSvc.userProfile.userId || ''
         }
-        if (this.activatedRoute.snapshot.queryParams.collectionId &&
-          this.activatedRoute.snapshot.queryParams.batchId &&
-          this.identifierId) {
-          const resData = this.viewerSvc.getBatchIdAndCourseId(this.activatedRoute.snapshot.queryParams.collectionId,
-                                                               this.activatedRoute.snapshot.queryParams.batchId, this.identifierId)
-          const req = {
-            request: {
-              userId,
-              batchId: resData.batchId || '',
-              courseId: resData.courseId || '',
-              contentIds: [],
-              fields: ['progressdetails'],
-            },
+        const isPreAssessment = this.activatedRoute.snapshot.queryParams.preAssessment
+        if (isPreAssessment) {
+          this.progressStatus = this.viewerSvc.getPreAssessmentResourceStatus(this.identifierId)
+        } else {
+
+          if (this.activatedRoute.snapshot.queryParams.collectionId &&
+            this.activatedRoute.snapshot.queryParams.batchId &&
+            this.identifierId) {
+            const resData = this.viewerSvc.getBatchIdAndCourseId(this.activatedRoute.snapshot.queryParams.collectionId,
+              this.activatedRoute.snapshot.queryParams.batchId, this.identifierId)
+            const language = this.viewerSvc.getResourceContentLanguage(this.identifierId)
+            const req = {
+              request: {
+                userId,
+                language,
+                batchId: resData.batchId || '',
+                courseId: resData.courseId || '',
+                contentIds: [],
+                fields: ['progressdetails'],
+              },
+            }
+            this.widgetServ.fetchContentHistoryV2(req).subscribe(
+              (data: any) => {
+                this.contentProgressHash = data.result.contentList.filter((i: any) => i.contentId === this.currentResourceId)
+                if (this.contentProgressHash && this.contentProgressHash.length > 0) {
+                  this.progressStatus = this.contentProgressHash[0].status
+                }
+                this.widgetServ.setProgramChildResumeData(data.result.contentList, resData.courseId)
+                // console.log(this.progressStatus)
+              })
           }
-          this.widgetServ.fetchContentHistoryV2(req).subscribe(
-            (data: any) => {
-              this.contentProgressHash = data.result.contentList.filter((i: any) => i.contentId === this.currentResourceId)
-              if (this.contentProgressHash && this.contentProgressHash.length > 0) {
-                this.progressStatus = this.contentProgressHash[0].status
-              }
-              this.widgetServ.setProgramChildResumeData(data.result.contentList, resData.courseId)
-              // console.log(this.progressStatus)
-          })
         }
       }
     })
@@ -144,11 +151,14 @@ export class PlayerSurveyComponent extends WidgetBaseComponent
     this.addLoader = this.addLoader + 1
     this.viewerSvc.getFormById(this.surveyId).subscribe((result: any) => {
       this.addLoader = this.addLoader - 1
+      this.wfClientVersion = _.get(result, 'result.response.clientVersion', 0).toString()
       this.formDetails = {
-        title: _.get(result, 'responseData.title', ''),
-        fields: _.get(result, 'responseData.fields', [])
+        title: _.get(result, 'result.response.title', ''),
+        fields: _.get(result, 'result.response.fields', [])
       }
-      this.buildForm()
+      if (this.wfClientVersion === '1.1') {
+        this.buildForm()
+      }
     }, (error: HttpErrorResponse) => {
       if (error) {
         this.addLoader = this.addLoader - 1
@@ -189,7 +199,8 @@ export class PlayerSurveyComponent extends WidgetBaseComponent
               questionIndex: [questionsArray.length],
               fieldType: [field.fieldType],
               answer: ['', validatorsArray],
-              isNA: [false]
+              isNA: [false],
+              questionId: [field.id]
             })
             field['controlIndex'] = questionsArray.length
             field['validatorsArray'] = validatorsArray
@@ -251,30 +262,18 @@ export class PlayerSurveyComponent extends WidgetBaseComponent
     if (this.surveyFormIsValid) {
       const formBody: any = {
         formId: this.surveyId,
-        formData: '',
-        timestamp: Date.now(),
         version: 4,
-        dataObject: this.dataObject,
-
-      }
-
-      if (this.childFields.length) {
-        formBody['meta'] = [
-          {
-            key: '',
-            value: ''
-          }
-        ],
-          formBody['infoObject'] = {
-            '': ''
-          }
+        status: 'SUBMITTED',
+        responses: this.dataObject,
+        contextId: this.courseId,
+        contextName: this.courseName,
       }
 
       this.addLoader = this.addLoader + 1
       this.viewerSvc.submitForm(formBody).subscribe({
         next: res => {
           this.addLoader = this.addLoader - 1
-          if (_.get(res, 'statusInfo.statusCode') === 200) {
+          if (_.get(res, 'statusInfo.statusCode') === 200 || _.get(res, 'responseCode') === 'OK') {
             this.openSnackbar('Form is submitted successfully')
             this.progressStatus = 2
             this.updateProgress(2)
@@ -293,11 +292,7 @@ export class PlayerSurveyComponent extends WidgetBaseComponent
   }
 
   get dataObject(): any {
-    const dataObject: any = {
-      // 'Course ID and Name': `${this.data.courseId},${this.data.courseName}`
-      'Course ID and Name': `do_1143060351609569281194,Mechanical Systems Design`
-    }
-
+    const dataObject: any = []
     const fields = _.get(this.surveyForm, 'value.fields', [])
     if (fields) {
       fields.forEach((field: any) => {
@@ -308,9 +303,12 @@ export class PlayerSurveyComponent extends WidgetBaseComponent
           const formattedDay = String(value.getDate()).padStart(2, '0')
           value = `${formattedYear}-${formattedMonth}-${formattedDay}`
         }
-        if(!field.isNA) {
-          dataObject[field.question] = value
-        }
+        dataObject.push({
+          questionId: field.questionId,
+          question: field.question,
+          answer: value,
+          answerType: field.fieldType
+        })
       })
     }
     return dataObject
@@ -357,14 +355,22 @@ export class PlayerSurveyComponent extends WidgetBaseComponent
 
   updateProgress(status: number) {
     const id = this.activatedRoute.snapshot.data.content ?
-    this.activatedRoute.snapshot.data.content.data.identifier : this.widgetData.identifier
+      this.activatedRoute.snapshot.data.content.data.identifier : this.widgetData.identifier
     const resData = this.viewerSvc.getBatchIdAndCourseId(this.activatedRoute.snapshot.queryParams.collectionId,
-                                                         this.activatedRoute.snapshot.queryParams.batchId, id)
+      this.activatedRoute.snapshot.queryParams.batchId, id)
     const collectionId = (resData && resData.courseId) ? resData.courseId : ''
     const batchId = (resData && resData.batchId) ? resData.batchId : ''
-    if (collectionId && batchId && id) {
-      this.viewerSvc.realTimeProgressUpdateQuiz(id, collectionId, batchId, status)
-    }
+    const isPreAssessment = this.activatedRoute.snapshot.queryParams.preAssessment
+    if (isPreAssessment) {
+      const MIME_TYPE = this.widgetData?.mimeType || "application/survey"
+      if (id && collectionId) {
+        this.viewerSvc
+          .realTimeProgressUpdateForPreAssessmentQuiz(id, status, MIME_TYPE)
+      }
+    } else
+      if (collectionId && batchId && id) {
+        this.viewerSvc.realTimeProgressUpdateQuiz(id, collectionId, batchId, status)
+      }
   }
 
   // fireRealTimeProgress(id: string) {

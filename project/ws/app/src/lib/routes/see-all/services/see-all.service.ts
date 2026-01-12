@@ -12,6 +12,8 @@ import { FormExtService } from '../../../../../../../../src/app/services/form-ex
 const API_END_POINTS = {
   SEARCH_V6: `/apis/proxies/v8/sunbirdigot/search`,
   TRENDING_CONTENT_SEARCH: `apis/proxies/v8/trending/content/search`,
+  MICRO_CREDENTIALS: `apis/proxies/v8/promotionalcontent/v1/assignedto/users`,
+  GetApplicationsById: `apis/proxies/v8/forms/v2/bulkGetApplicationsById`,
 }
 
 @Injectable({
@@ -31,6 +33,19 @@ export class SeeAllService {
 
   }
 
+  /**
+   * Fetch content using dynamic configuration
+   * @param url - The API endpoint URL
+   * @param request - Request body (for POST) or query params (for GET)
+   * @param isGetApi - Whether to use GET instead of POST
+   */
+  fetchDynamicContent(url: string, request: any, isGetApi: boolean = false): Observable<any> {
+    if (isGetApi) {
+      return this.http.get<any>(url)
+    }
+    return this.http.post<any>(url, request)
+  }
+
   fetchSearchData(request: any): Observable<any> {
     return this.http.post<any>(API_END_POINTS.SEARCH_V6, request)
   }
@@ -40,25 +55,33 @@ export class SeeAllService {
     return this.http.post<any>(API_END_POINTS.TRENDING_CONTENT_SEARCH, req)
   }
 
+  microCredentialsSearch(url: any): Observable<any> {
+    return this.http.get<any>(url || API_END_POINTS.MICRO_CREDENTIALS)
+  }
+
+  microCredentialsSearchWithoutUrl(): Observable<any> {
+    return this.http.get<any>(API_END_POINTS.MICRO_CREDENTIALS)
+  }
+
   public notifyOther(data: any) {
     if (data) {
       this.removeFilter.next(data)
     }
   }
 
-  async getSeeAllConfigJson(): Promise<any> {
+  async getSeeAllConfigJson(pageType?: string, pageSubType?: string): Promise<any> {
     if (!this.getSeeAllConfig) {
       this.getSeeAllConfig = {}
       const requestData: any = {
         'request': {
-            'type': 'page',
-            'subType': 'home',
-            'action': 'page-configuration',
-            'component': 'portal',
-            'rootOrgId': '*',
+          'type': pageType ? pageType : 'page',
+          'subType': pageSubType ? pageSubType : 'home',
+          'action': 'page-configuration',
+          'component': 'portal',
+          'rootOrgId': '*',
         },
       }
-      this.getSeeAllConfig = await  this.formSvc.homeFormReadData(requestData).toPromise()
+      this.getSeeAllConfig = await this.formSvc.homeFormReadData(requestData).toPromise()
     }
     return of(this.getSeeAllConfig).toPromise()
   }
@@ -75,7 +98,7 @@ export class SeeAllService {
   fetchDesigantionsData(requestUrl: string) {
     const result: any = this.http.get(requestUrl).pipe(catchError(this.handleError), map(
       async (data: any) => {
-        if(data.result && data.result.courseList) {
+        if (data.result && data.result.courseList) {
           return data.result.courseList
         }
         return ''
@@ -89,6 +112,10 @@ export class SeeAllService {
       errorMessage = `Error: ${error.error.message}`
     }
     return throwError(errorMessage)
+  }
+
+  getApplicationsById(formBody: any) {
+    return this.http.post<any>(API_END_POINTS.GetApplicationsById, formBody)
   }
 
 }

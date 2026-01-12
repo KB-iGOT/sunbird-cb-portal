@@ -14,9 +14,11 @@ export class TocKpiValuesComponent implements OnInit {
   @Input() contentReadData: NsContent.IContent | null = null
   @Input() isMobile = false
   @Input() showInstructorLedMsg = false
+  @Input() baseContentReadData: NsContent.IContent | null = null
+  @Input() languageList: any
   constructor() { }
 
   ngOnInit() {
   }
-
+  
 }

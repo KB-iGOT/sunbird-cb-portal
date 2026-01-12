@@ -5,6 +5,7 @@ import { map, retry } from 'rxjs/operators'
 import * as _ from 'lodash'
 import { Router } from '@angular/router'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
+import moment from 'moment'
 
 const API_END_POINTS = {
   NOTIFICATIONS_COUNT: `apis/proxies/v8/v1/notifications/unread/count`,
@@ -77,6 +78,17 @@ export class NotificationsService {
     return req
   }
 
+  handleEventRedirection(notification: any, environment: any): void {
+    if (notification.sub_category === 'EVENT_PUBLISHED') {
+      this.router.navigateByUrl('/app/event-hub/home', { skipLocationChange: true }).then(() => {
+        this.router.navigate([`/app/event-hub/home/${notification.message.data.id}`])
+      })
+    } else if (notification.sub_category === 'EVENT_ENROLLED') {
+      let url = `${environment.portalsForNotifications.mdo}/app/home/events`
+      window.open(url, '_blank')
+    }
+  }
+
   handleReviewStatus(res: any, notification: any, isStandaloneResource: boolean, roles: string[], environment: any, snackBar: any): void {
     switch (res.reviewStatus) {
       case 'InReview': {
@@ -97,61 +109,8 @@ export class NotificationsService {
     }
   }
 
-  handleNetworkRedirection(notification: any, snackBar: any): void {
-    if (notification.sub_category === 'REJECTED_CONNECTION_REQUEST') {
-      snackBar.open('This request has been resolved or is no longer available.')
-    } else if (notification.sub_category === 'SEND_CONNECTION_REQUEST') {
-      this.getMyRequests().subscribe((res: any) => {
-        if (res && res.length) {
-          const connection = res.find((item: any) => item.userId === notification.message.data.id)
-          if (connection) {
-            this.router.navigate([`/app/network-v2/connections`])
-          } else {
-            snackBar.open('This request has been resolved or is no longer available.')
-          }
-        } else {
-          snackBar.open('This request has been resolved or is no longer available.')
-        }
-      })
-    } else {
-      this.router.navigate([`/app/network-v2/connections`])
-    }
-  }
-
-  handleRedirection(notification: any, environment: any, roles: any[], snackBar: any): void {
-    if (notification.category === 'LEARN') {
-      this.router.navigate([`/app/toc/${notification.message.data.id}`])
-    } else if (notification.category === 'EVENT') {
-      this.router.navigate([`/app/event-hub/home/${notification.message.data.id}`])
-    } else if (notification.category === 'DISCUSSION') {
-      this.router.navigate([`/app/discussion-forum-v2/community/${notification.message.data.communityId}/${notification.message.data.discussionId}`])
-    } else if (notification.category === 'NETWORK') {
-      this.handleNetworkRedirection(notification, snackBar)
-    } else if (notification?.category?.includes('CONTENT')) {
-      this.getContentData(notification.message.data.id).subscribe((res: any) => {
-        let isStandaloneResource = false
-        if (res.primaryCategory === 'Learning Resource' &&
-          res.resourceCategory !== 'Learning Resource') {
-          localStorage.setItem('isStandaloneResource', 'true')
-          isStandaloneResource = true
-        } else {
-          localStorage.setItem('isStandaloneResource', 'false')
-        }
-        if (res.status === 'Live') {
-          window.open(`${environment.portalsForNotifications.cbp}/author/content-detail/${notification.message.data.id}/overview-v2?isStandaloneResource=${isStandaloneResource}`, '_blank')
-        } else if (res.status === 'Draft') {
-          if (roles.includes('CONTENT_CREATOR')) {
-            window.open(`${environment.portalsForNotifications.cbp}/author/editor/${notification.message.data.id}/collectionV2?isStandaloneResource=${isStandaloneResource}`, '_blank')
-          } else {
-            snackBar.open('You are not authorized to view this content.')
-          }
-        } else if (res.status === 'Review') {
-          this.handleReviewStatus(res, notification, isStandaloneResource, roles, environment, snackBar)
-        } else if (res.status === 'Retired') {
-          snackBar.open('This content is retired.')
-        }
-      })
-    } else if (notification.category === 'PROFILE') {
+  handleProfileRedirection(notification: any, environment: any, snackBar: any) {
+    if (notification.sub_category === 'PROFILE_VERIFICATION' || notification.sub_category === 'USER_TRANSFER') {
       let payload = this.constrctPayload(notification)
       this.searchWorkflowSearch(payload).subscribe((res: any) => {
         let data = _.get(res, 'result.data', [])
@@ -170,7 +129,132 @@ export class NotificationsService {
         console.error('Error while fetching workflow search data', error)
         snackBar.open('Error while fetching approval data')
       })
+    } else if (['TRANSFER_UPDATE', 'PROFILE_UPDATE'].includes(notification.sub_category)) {
+      this.router.navigate([`/app/person-profile/me`])
+    }
+  }
 
+  handleDiscussionRedirection(notification: any, environment: any, roles: any[]): void {
+    if (notification.sub_category === 'LEARN_DISCUSSION_POST_COMMENT' || notification.sub_category === 'LEARN_DISCUSSION_POST_REPLY') {
+      if (roles.includes('CONTENT_CREATOR')) {
+        let url = `${environment.portalsForNotifications.cbp}/author/content-detail/${notification.message.data.id}/overview-v2?preview=true&editMode=true&commentId=${notification.message.data.commentId}`
+        window.open(url, '_blank')
+      } else {
+        this.router.navigate([`/app/toc/${notification.message.data.id}`],
+          {
+            queryParams: {
+              commentId: notification.message.data.commentId
+            }
+          })
+      }
+    } else if (notification.sub_category === 'PROFANITY_CHECK') {
+      this.router.navigate([
+        `/app/discussion-forum-v2/community/${notification.message.data.communityId}/${notification.message.data.discussionId}`
+      ], { queryParams: { profanity: notification.sub_category } })
+    } else {
+      this.router.navigate([`/app/discussion-forum-v2/community/${notification.message.data.communityId}/${notification.message.data.discussionId}`])
+    }
+  }
+
+  handleConetentRedirection(content: any): void {
+    this.router.navigateByUrl('/app/toc', { skipLocationChange: true }).then(() => {
+      this.router.navigate([`/app/toc/${content.identifier}`])
+    })
+  }
+
+  handleNetworkRedirection(notification: any, snackBar: any): void {
+    if (notification.sub_category === 'REJECTED_CONNECTION_REQUEST') {
+      snackBar.open('This request has been resolved or is no longer available.')
+    } else if (notification.sub_category === 'SEND_CONNECTION_REQUEST') {
+      this.getMyRequests().subscribe((res: any) => {
+        if (res && res.length) {
+          const connection = res.find((item: any) => item.userId === notification.message.data.id)
+          if (connection) {
+            this.router.navigateByUrl('/app/network-v2', { skipLocationChange: true }).then(() => {
+              this.router.navigate([`/app/network-v2/connections`])
+            })
+          } else {
+            snackBar.open('This request has been resolved or is no longer available.')
+          }
+        } else {
+          snackBar.open('This request has been resolved or is no longer available.')
+        }
+      })
+    } else {
+      this.router.navigateByUrl('/app/network-v2', { skipLocationChange: true }).then(() => {
+        this.router.navigate([`/app/network-v2/connections`])
+      })
+    }
+  }
+
+  handleTocRedirection(notification: any, snackBar: any): void {
+    if (notification.sub_category === 'CONTENT_RETIRE') {
+      if (notification.message.data.retiredDate) {
+        const retireOn = moment(notification.message.data.retiredDate).format('MMMM D, YYYY')
+        const today = moment().format('MMMM D, YYYY')
+        if (moment(retireOn).isSameOrAfter(today)) {
+          this.router.navigateByUrl('/app/toc', { skipLocationChange: true }).then(() => {
+            this.router.navigate([`/app/toc/${notification.message.data.id}`])
+          })
+        } else {
+          snackBar.open(`This content is scheduled to be retired on ${retireOn}. You can not access it now.`)
+        }
+      } else {
+        snackBar.open('Something went wrong. Please try again later.')
+      }
+    } else if (notification.sub_category === 'CONTENT_RETIRED') {
+      snackBar.open(`This content is retired. You can not access it now.`)
+    } else {
+      this.router.navigateByUrl('/app/toc', { skipLocationChange: true }).then(() => {
+        this.router.navigate([`/app/toc/${notification.message.data.id}`])
+      })
+    }
+  }
+
+  handleRedirection(notification: any, environment: any, roles: any[], snackBar: any): void {
+    if (notification.category === 'LEARN') {
+      this.handleTocRedirection(notification, snackBar)
+    } else if (notification.category === 'EVENT') {
+      this.handleEventRedirection(notification, environment)
+    } else if (notification.category === 'DISCUSSION') {
+      this.handleDiscussionRedirection(notification, environment, roles)
+    } else if (notification.category === 'NETWORK') {
+      this.handleNetworkRedirection(notification, snackBar)
+    } else if (notification?.category?.includes('CONTENT')) {
+      if (['RETIRE_SCHEDULED', 'RETIRE_APPROVED', 'RETIRE_REJECTED'].includes(notification.sub_category)) {
+        window.open(`${environment.portalsForNotifications.cbp}/author/cbp/me?status=live`, '_blank')
+      } else {
+        this.getContentData(notification.message.data.id).subscribe((res: any) => {
+          let isStandaloneResource = false
+          if (res.primaryCategory === 'Learning Resource' &&
+            res.resourceCategory !== 'Learning Resource') {
+            localStorage.setItem('isStandaloneResource', 'true')
+            isStandaloneResource = true
+          } else {
+            localStorage.setItem('isStandaloneResource', 'false')
+          }
+          if (res.status === 'Live') {
+            if (notification.sub_category === 'BP_ASSIGNMENT_SUBMIT' || notification.sub_category === 'BP_ADD_INSTRUCTOR') {
+              window.open(`${environment.portalsForNotifications.cbp}/author/content-detail/${notification.message.data.id}/batches/${notification.message.data.batchId}/assignments`, '_blank')
+            } else {
+              window.open(`${environment.portalsForNotifications.cbp}/author/content-detail/${notification.message.data.id}/overview-v2?isStandaloneResource=${isStandaloneResource}`, '_blank')
+            }
+          } else if (res.status === 'Draft') {
+            if (roles.includes('CONTENT_CREATOR')) {
+              window.open(`${environment.portalsForNotifications.cbp}/author/editor/${notification.message.data.id}/collectionV2?isStandaloneResource=${isStandaloneResource}`, '_blank')
+            } else {
+              snackBar.open('You are not authorized to view this content.')
+            }
+          } else if (res.status === 'Review') {
+            this.handleReviewStatus(res, notification, isStandaloneResource, roles, environment, snackBar)
+          } else if (res.status === 'Retired') {
+            snackBar.open('This content is retired.')
+          }
+        })
+      }
+
+    } else if (notification.category === 'PROFILE') {
+      this.handleProfileRedirection(notification, environment, snackBar)
     }
   }
 }

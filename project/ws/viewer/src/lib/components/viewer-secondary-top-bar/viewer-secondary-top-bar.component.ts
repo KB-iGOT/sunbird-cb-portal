@@ -3,7 +3,7 @@ import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser'
 import { ActivatedRoute, NavigationEnd, NavigationExtras, Router } from '@angular/router'
 import { WidgetContentService } from '@sunbird-cb/collection/src/lib/_services/widget-content.service'
-import { NsContent } from '@sunbird-cb/collection'
+import { NsContent, VIEWER_ROUTE_FROM_MIME } from '@sunbird-cb/collection'
 import { ConfigurationsService, EventService, NsPage, ValueService, WsEvents } from '@sunbird-cb/utils-v2'
 import { Subscription } from 'rxjs'
 import { ViewerDataService } from '../../viewer-data.service'
@@ -12,6 +12,8 @@ import { CourseCompletionDialogComponent } from '../course-completion-dialog/cou
 import { PdfScormDataService } from '../../pdf-scorm-data-service'
 import { AppTocService } from '@ws/app/src/lib/routes/app-toc/services/app-toc.service'
 import { WidgetContentLibService } from '@sunbird-cb/consumption'
+// import { WidgetContentService as WidgetContentServiceUtils } from '@sunbird-cb/utils-v2'
+
 @Component({
   selector: 'viewer-viewer-secondary-top-bar',
   templateUrl: './viewer-secondary-top-bar.component.html',
@@ -26,6 +28,7 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy {
   @Input() leafNodesCount: any
   @Input() contentMIMEType: any
   @Input() completedCount: any
+  @Input() baseContentReadData: any
   private viewerDataServiceSubscription: Subscription | null = null
   private paramSubscription: Subscription | null = null
   private viewerDataServiceResourceSubscription: Subscription | null = null
@@ -65,6 +68,7 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy {
   enrollmentList: any = []
   pageScrollSubscription: Subscription | null = null
   // primaryCategory = NsContent.EPrimaryCategory
+  contentPrimaryCategory: any
   constructor(
     private activatedRoute: ActivatedRoute,
     private domSanitizer: DomSanitizer,
@@ -79,7 +83,9 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy {
     private pdfScormDataService: PdfScormDataService,
     private events: EventService,
     private appTocSvc: AppTocService,
-    private widgetLibSvc: WidgetContentLibService
+    private widgetLibSvc: WidgetContentLibService,
+    // private contentSvc: WidgetContentServiceUtils
+    
   ) {
     this.valueSvc.isXSmall$.subscribe(isXSmall => {
       this.logo = !isXSmall
@@ -95,6 +101,10 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy {
     // this.getAuthDataIdentifer()
     this.enrollmentList = this.activatedRoute.snapshot.data.enrollmentData
     && this.activatedRoute.snapshot.data.enrollmentData.data || []
+    
+    this.contentPrimaryCategory = this.activatedRoute?.snapshot?.data?.contentRead && 
+      this.activatedRoute?.snapshot?.data?.contentRead?.data?.result?.content?.primaryCategory
+
     this.pageScrollSubscription = this.appTocSvc.updatePageScroll.subscribe((value: boolean) => {
       if (value) {
         setTimeout(() => {
@@ -161,47 +171,79 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy {
       }
     })
 
-    this.viewerDataServiceSubscription = this.viewerDataSvc.tocChangeSubject.subscribe(data => {
+    this.viewerDataServiceSubscription = this.viewerDataSvc.tocChangeSubject.subscribe((data:any) => {
       if (data.prevResource) {
-        this.prevResourceUrl = data.prevResource.viewerUrl
+        if(data.prevResource && !data.prevResource.viewerUrl) {
+          data.prevResource['viewerUrl'] = `${this.forPreview ? '' : ''}/viewer/${VIEWER_ROUTE_FROM_MIME(
+            data.prevResource.mimeType,
+            // )}/${content.identifier}?primaryCategory=${content.primaryCategory}
+            // &collectionId=${this.viewerDataSvc.collectionId}&collectionType=${this.collectionType}
+            // &batchId=${this.batchId}&viewMode=${this.viewMode}`,
+          )}/${data.prevResource.identifier}`
+          this.prevResourceUrl = data.prevResource.viewerUrl
+        } else {
+          this.prevResourceUrl = data.prevResource.viewerUrl
+        }
+        
         this.prevResourceUrlParams = {
           queryParams: {
             primaryCategory: data.prevResource.primaryCategory,
             collectionId: data.prevResource.collectionId,
-            collectionType: data.prevResource.collectionType,
+            collectionType: data.prevResource.collectionType || this.collectionType,
             batchId: data.prevResource.batchId,
             viewMode: data.prevResource.viewMode,
             preview: this.forPreview,
             channelId: this.channelId,
+            ...(data.queryMLParams ? data.queryMLParams : null),
             ...(window.location.href.includes('editMode=true') ? { editMode: true } : {}),
+            ...(window.location.href.includes('preAssessment=true') ? { preAssessment: true } : {}),
           },
           fragment: '',
         }
         if (data.prevResource.optionalReading && data.prevResource.primaryCategory === 'Learning Resource') {
           this.updateProgress(2, data.prevResource.identifier)
         }
+        // if(data.prevResource?.isMandatory) {
+        //   this.updateProgressForPreAssessment(data)
+        // }
       } else {
         this.prevResourceUrl = null
       }
       if (data.nextResource) {
-        this.nextResourceUrl = data.nextResource.viewerUrl
+        if(data.nextResource && !data.nextResource.viewerUrl) {
+          data.nextResource['viewerUrl'] = `${this.forPreview ? '' : ''}/viewer/${VIEWER_ROUTE_FROM_MIME(
+            data.nextResource.mimeType,
+            // )}/${content.identifier}?primaryCategory=${content.primaryCategory}
+            // &collectionId=${this.viewerDataSvc.collectionId}&collectionType=${this.collectionType}
+            // &batchId=${this.batchId}&viewMode=${this.viewMode}`,
+          )}/${data.nextResource.identifier}`
+          this.nextResourceUrl = data.nextResource.viewerUrl
+        } else {
+          this.nextResourceUrl = data.nextResource.viewerUrl
+        }
+        
         this.nextResourceUrlParams = {
           queryParams: {
             primaryCategory: data.nextResource.primaryCategory,
             collectionId: data.nextResource.collectionId,
-            collectionType: data.nextResource.collectionType,
+            collectionType: data.nextResource.collectionType || this.collectionType,
             batchId: data.nextResource.batchId,
             viewMode: data.nextResource.viewMode,
             courseName: this.courseName,
             preview: this.forPreview,
             channelId: this.channelId,
+            ...(data.queryMLParams ? data.queryMLParams : null),
             ...(window.location.href.includes('editMode=true') ? { editMode: true } : {}),
+            ...(window.location.href.includes('preAssessment=true') ? { preAssessment: true } : {}),
           },
           fragment: '',
         }
         if (data.nextResource.optionalReading && data.nextResource.primaryCategory === 'Learning Resource') {
           this.updateProgress(2, data.nextResource.identifier)
         }
+        // if(data.prevResource?.isMandatory) {
+        //   this.updateProgressForPreAssessment(data)
+        // }
       } else {
         this.nextResourceUrl = null
       }
@@ -246,6 +288,12 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy {
     // this.activatedRoute.snapshot.params.id : ''
     const batchId = this.activatedRoute.snapshot.queryParams.batchId ?
       this.activatedRoute.snapshot.queryParams.batchId : ''
+    const isPreAssessment = this.activatedRoute.snapshot.queryParams.preAssessment
+    if(isPreAssessment) {
+        return this.viewerSvc
+          .realTimeProgressUpdateForPreAssessmentQuiz(resourceId,  status)
+      
+    }
     return this.viewerSvc.realTimeProgressUpdateQuiz(resourceId, collectionId, batchId, status)
   }
 
@@ -283,31 +331,11 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy {
     }
   }
 
-  // getFetchHistory(batchId:any, identifier:any) {
-  //     if (this.configSvc.userProfile) {
-  //       this.userid = this.configSvc.userProfile.userId || ''
-  //     }
-  //   const req  = {
-  //     request: {
-  //       userId:this.userid,
-  //       batchId: batchId,
-  //       courseId: identifier || '',
-  //       contentIds: [],
-  //       fields: ['progressdetails'],
-  //     },
-  //   }
-  //   return this.widgetServ.fetchContentHistoryV2(req)
-  // }
-
-  //  getAuthDataIdentifer() {
-  //   const collectionId = this.activatedRoute.snapshot.queryParams.collectionId
-  //   this.widgetServ.fetchAuthoringContent(collectionId).subscribe((data: any) => {
-  //       this.leafNodesCount = data.result.content.leafNodesCount
-  //       console.log('this.leafNodesCount inside api call-------', this.leafNodesCount)
-  //   })
-  // }
   finishDialog() {
-    if (!this.forPreview) {
+    if(window.location.href.includes('preAssessment=true')) {
+      this.router.navigateByUrl(`app/toc/${this.collectionId}/overview`)
+    }
+    else if (!this.forPreview) {
       this.contentProgressHash = []
       this.identifier = this.activatedRoute.snapshot.queryParams.collectionId
       this.batchId = this.activatedRoute.snapshot.queryParams.batchId
@@ -318,9 +346,12 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy {
           userId = this.configSvc.userProfile.userId || ''
           this.userid = this.configSvc.userProfile.userId || ''
         }
+
+        const language = this.viewerSvc.getResourceContentLanguage(this.identifier)  
         const req = {
           request: {
             userId,
+            language,
             batchId: this.batchId,
             courseId: this.identifier || '',
             contentIds: [],
@@ -331,6 +362,11 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy {
           (data: any) => {
             this.contentProgressHash = data.result.contentList
             this.widgetServ.setProgramChildResumeData(this.contentProgressHash, this.identifier)
+
+            const lastIndexData = this.contentProgressHash?.length && this.contentProgressHash[this.contentProgressHash?.length - 1]
+            if(lastIndexData && lastIndexData?.completionPercentage === 100 && lastIndexData?.status === 2) {
+              this.generateCertificate()
+            }
             if (this.content && ![
               NsContent.ECourseCategory.MODERATED_COURSE,
               NsContent.ECourseCategory.MODERATED_ASSESSEMENT,
@@ -338,6 +374,7 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy {
               NsContent.ECourseCategory.INVITE_ONLY_PROGRAM,
             ].includes(this.content.courseCategory)) {
               if (this.completedCount === this.leafNodesCount) {
+
                 this.showCompletionPopUp()
               } else {
                 this.router.navigateByUrl(`app/toc/${this.collectionId}/overview`)
@@ -367,15 +404,21 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy {
   }
 
   showCompletionPopUp() {
+    let id = ''
+    const MLID = this.activatedRoute.snapshot.queryParams.MLId ?
+                  this.activatedRoute.snapshot.queryParams.MLId : ''
+    // check if multilingual ID is there then hit the API with MLID
+    id = MLID ? MLID : this.identifier
     const dialogRef = this.dialog.open(CourseCompletionDialogComponent, {
       autoFocus: false,
       panelClass: 'course-completion-dialog',
       data: {
         courseName: this.activatedRoute.snapshot.queryParams.courseName,
         userId: this.userid,
-        identifier: this.identifier,
+        identifier: id,
         primaryCategory: this.collectionType,
         courseCategory: this.currentDataFromEnrollList.content.courseCategory,
+        collectionId: this.identifier // In case of multilingual course, redirection should happen to base collectionID
       },
     })
     dialogRef.afterClosed().subscribe(result => {
@@ -468,5 +511,31 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy {
       }
 
     }
+  }
+
+  // updateProgressForPreAssessment(data:any) {
+  //   console.log('data--', data)
+  //   console.log('this.tocSvc.hashmap', this.appTocSvc.hashmap)
+  // }
+
+    generateCertificate() {
+      // const allowedPrimaryCategory = ALLOWED_CATEGORY_FOR_DYNAMIC_GENERATION?.map(
+      //   (cat: string) => cat?.toLowerCase()
+      // );
+
+      // if (
+      //   allowedPrimaryCategory &&
+      //   (allowedPrimaryCategory.includes(this.contentPrimaryCategory?.toLowerCase()) ||
+      //   allowedPrimaryCategory.includes(this.currentDataFromEnrollList.content.courseCategory?.toLowerCase()) )
+      // ) {
+      //   const payload = {
+      //     request: {
+      //       courseId: this.identifier,
+      //       batchId: this.batchId,
+      //       userId: this.userid,
+      //     },
+      //   };
+      //   this.contentSvc.downloadCertV2(payload).subscribe(() => {});
+      // } 
   }
 }

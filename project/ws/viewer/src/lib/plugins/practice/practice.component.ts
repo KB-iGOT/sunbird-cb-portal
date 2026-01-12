@@ -401,6 +401,35 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
           }
           this.canAttend()
       })
+    } else if(this.widgetContentService.currentMetaData && this.widgetContentService.currentMetaData?.content && 
+      this.widgetContentService.currentMetaData?.content?.data && 
+      this.widgetContentService.currentMetaData?.content?.data?.contextCategory === 'Pre Enrolment Assessment'){
+
+      const activeResource =   this.widgetContentService.currentMetaData?.content?.data
+      this.showQuestionMarks = activeResource?.showMarks ? activeResource?.showMarks : 'No'
+        // this.selectedAssessmentCompatibilityLevel = item.compatibilityLevel
+        // console.log('item.children', item.children)
+        // console.log('selectedAssessmentCompatibilityLevel', this.selectedAssessmentCompatibilityLevel)
+        // console.log('this.identifier',this.identifier, 'item.identifier', item.identifier)
+        // this.canAttend()
+        // if (this.identifier === item.identifier) {
+        //   // this.instructionAssessment = item.description
+        //   if (item.identifier) {
+        //     this.getInstructionAssessmentPagination(item.description)
+        //   }
+        //   this.totalAssessemntQuestionsCount = item.maxQuestions
+        // }
+        if (activeResource && activeResource.compatibilityLevel) {
+          this.selectedAssessmentCompatibilityLevel = activeResource.compatibilityLevel
+        }
+        if (activeResource && activeResource.maxQuestions) {
+          this.totalAssessemntQuestionsCount = activeResource.maxQuestions
+        }
+        if (activeResource &&  activeResource.description) {
+          this.instructionAssessment = activeResource.description
+          this.getInstructionAssessmentPagination(activeResource.description)
+        }
+        this.canAttend()
     }
 
     // console.log('this.widgetContentService.currentMetaData', this.widgetContentService)
@@ -1043,6 +1072,7 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
       this.startQuiz()
       // call content progress with status 1 i.e, started
       this.updateProgress(1)
+      this.updatePreEnrollmentProgress(1)
     } else if (event === 'skip') {
       // alert('skip quiz TBI')
     }
@@ -1068,7 +1098,19 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
       }
     }
   }
-
+  updatePreEnrollmentProgress(status:any){
+    const isPreAssessment = this.activatedRoute.snapshot.queryParams.preAssessment
+    if(isPreAssessment) {
+      if (this.identifier && this.widgetContentService.currentMetaData?.content?.data?.parent) {
+          const MIME_TYPE = "application/vnd.ekstep.content-collection"
+          this.viewerSvc.realTimeProgressUpdateForPreAssessmentQuiz(this.widgetContentService.currentMetaData?.content?.data?.parent, status, MIME_TYPE)
+          setTimeout(() => {
+              this.tocSvc.hashmap[this.widgetContentService.currentMetaData?.content?.data?.parent]['completionPercentage'] = 100
+              this.tocSvc.hashmap[this.widgetContentService.currentMetaData?.content?.data?.parent]['completionStatus'] = 2
+          }, 700)
+      }
+    }
+  }
   startQuiz() {
     if (this.isXsmall) {
       this.sidenavOpenDefault = true
@@ -1243,8 +1285,8 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
           this.submissionState = 'answered'
         }
         const dialogRef = this.dialog.open(SubmitQuizDialogComponent, {
-          width: '250px',
-          data: this.submissionState,
+          width: '350px',
+          data: {submissionState: this.submissionState, canAttempt: this.canAttempt, primaryCategory: this.primaryCategory},
         })
         dialogRef.afterClosed().subscribe(result => {
           if (result) {
@@ -1284,23 +1326,26 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
       this.questionAnswerHash,
       this.quizSvc.mtfSrc.getValue() as any ,
     )
+    let language:string =  this.viewerSvc.getResourceContentLanguage(this.identifier)
+    let assessmentChildren:any = _.map(this.paperSections, (ps: NSPractice.IPaperSection) => {
+      return {
+        identifier: ps.identifier,
+        objectType: ps.objectType,
+        primaryCategory: ps.primaryCategory,
+        scoreCutoffType: ps.scoreCutoffType,
+        children: this.getQuestions(ps, req),
+      } as NSPractice.ISubSec
+    })
     const request: NSPractice.IQuizSubmit = {
+      language,
       batchId: this.resBatchId,
-      identifier: this.identifier,
+      identifier: this.activatedRoute.snapshot.queryParams.preAssessment && this.widgetContentService.currentMetaData && this.widgetContentService.currentMetaData.content && this.widgetContentService.currentMetaData.content.data && this.widgetContentService.currentMetaData.content.data.identifier ? this.widgetContentService.currentMetaData?.content?.data?.identifier : this.identifier,
       primaryCategory: this.primaryCategory,
-      courseId: this.forPreview ? this.collectionId:  this.resCollectionId,
+      courseId: this.forPreview ? this.collectionId: (this.activatedRoute.snapshot.queryParams.preAssessment && this.activatedRoute.snapshot.queryParams.preAssessment && this.widgetContentService.currentMetaData && this.widgetContentService.currentMetaData.content && this.widgetContentService.currentMetaData.content.data && this.widgetContentService.currentMetaData.content.data.parent ?   this.widgetContentService.currentMetaData?.content.data.parent : this.resCollectionId),
       isAssessment: true,
       objectType: 'QuestionSet',
       timeLimit: this.quizJson.timeLimit,
-      children: _.map(this.paperSections, (ps: NSPractice.IPaperSection) => {
-        return {
-          identifier: ps.identifier,
-          objectType: ps.objectType,
-          primaryCategory: ps.primaryCategory,
-          scoreCutoffType: ps.scoreCutoffType,
-          children: this.getQuestions(ps, req),
-        } as NSPractice.ISubSec
-      }),
+      children: assessmentChildren,
     }
     // // tslint:disable-next-line
     // console.log(request)
@@ -1773,6 +1818,7 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
     if (!(this.quizJson.primaryCategory === 'Course Assessment' || this.quizJson.primaryCategory === 'Practice Question Set')) {
       this.updateProgress(2)
     }
+    this.updatePreEnrollmentProgress(2)
   }
 
   showAnswers() {
@@ -2133,6 +2179,11 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   assignQuizResult(res: NSPractice.IQuizSubmitResponseV2) {
+    const isPreAssessment = this.activatedRoute.snapshot.queryParams.preAssessment
+    if(isPreAssessment) {
+      this.updatePreEnrollmentProgress(2)
+    }
+    
     if (!(this.quizJson.primaryCategory === 'Course Assessment' || this.quizJson.primaryCategory === 'Practice Question Set')) {
       this.updateProgress(2)
      }  else {
@@ -2282,6 +2333,7 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
     let popupData:any = {
       headerText: this.resourceName,
       assessmentType: this.assessmentType,
+      primaryCategory: this.primaryCategory,
       tableDetails: {
         tableColumns,
         tableData,
@@ -2357,7 +2409,8 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
 
   }
 
-  showAssessmentPopup(popupData: any) {    
+  showAssessmentPopup(popupData: any) { 
+    popupData['canAttempt'] = this.canAttempt   
     const dialogRef =  this.dialog.open(FinalAssessmentPopupComponent, {
       data: popupData,
       width: popupData.assessmentType === 'optionalWeightage' ? '300px' : '1000px',
@@ -2452,7 +2505,7 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
     if(this.questionSectionTableData && this.questionSectionTableData.length) {      
       for(let i = 0; i<this.questionSectionTableData.length;i++) {
         if(this.questionSectionTableData[i]['identifier'] === this.selectedSectionIdentifier) {
-          const sectionChildNodes = this.getSectionTableDataCounts(this.questionSectionTableData[i]['childNodes'])
+          const sectionChildNodes: any = this.getSectionTableDataCounts(this.questionSectionTableData[i]['childNodes'])
           obj = {
             section: this.questionSectionTableData[i]['name'],
             totalCount: this.questionSectionTableData[i]['childNodes'].length,
@@ -2460,6 +2513,7 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
             notAnswered: sectionChildNodes.notAnsweredCount,
             markedForReview: sectionChildNodes.markedForReviewCount,
             notVisited: sectionChildNodes.notVisitedCount,
+            minimumPassPercentage: this.questionSectionTableData[i]['minimumPassPercentage'] || 0
           }
           break;
         }
@@ -2621,34 +2675,40 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   fetchProgressOfAssessment() {
-    let userId = ''
-    if (this.configSvc.userProfile) {
-      userId = this.configSvc.userProfile.userId || ''
-    }
-    const requestCourse = this.viewerSvc.getBatchIdAndCourseId(
-              this.activatedRoute.snapshot.queryParams.collectionId,
-              this.activatedRoute.snapshot.queryParams.batchId,
-      this.identifier)
-    const req:any = {
-      request: {
-        userId,
-        batchId: requestCourse.batchId,
-        courseId: requestCourse.courseId || '',
-        contentIds: [],
-        fields: ['progressdetails'],
-      },
-    }
-    this.widgetContentService.fetchContentHistoryV2(req).subscribe(
-      data => {
-        if (data && data.result && data.result.contentList.length) {
-          this.widgetContentService.setProgramChildResumeData(data.result.contentList, requestCourse.courseId)
-          let contentProgressData = data.result.contentList && data.result.contentList.length && data.result.contentList.filter((content: any) => {
-            return content.contentId === this.identifier})
-            if(contentProgressData && contentProgressData.length) {
-                this.viewerSvc.updateContentHashMapForAssesstent(this.identifier, contentProgressData[0])
-            }
+    const isPreAssessment = this.activatedRoute.snapshot.queryParams.preAssessment
+      if(!isPreAssessment) { 
+        let userId = ''
+        if (this.configSvc.userProfile) {
+          userId = this.configSvc.userProfile.userId || ''
         }
-      },
-    )
+        const requestCourse = this.viewerSvc.getBatchIdAndCourseId(
+                  this.activatedRoute.snapshot.queryParams.collectionId,
+                  this.activatedRoute.snapshot.queryParams.batchId,
+          this.identifier)
+            const language = this.viewerSvc.getResourceContentLanguage(this.identifier)  
+        const req:any = {
+          request: {
+            userId,
+            language,
+            batchId: requestCourse.batchId,
+            courseId: requestCourse.courseId || '',
+            contentIds: [],
+            fields: ['progressdetails'],
+          },
+        }
+        this.widgetContentService.fetchContentHistoryV2(req).subscribe(
+          data => {
+            if (data && data.result && data.result.contentList.length) {
+              this.widgetContentService.setProgramChildResumeData(data.result.contentList, requestCourse.courseId)
+              let contentProgressData = data.result.contentList && data.result.contentList.length && data.result.contentList.filter((content: any) => {
+                return content.contentId === this.identifier})
+                if(contentProgressData && contentProgressData.length) {
+                    this.viewerSvc.updateContentHashMapForAssesstent(this.identifier, contentProgressData[0])
+                }
+            }
+          },
+        )
+      } 
+    
   }
 }
