@@ -1,6 +1,6 @@
-<mat-toolbar class = "ws-mat-light-background" [ngStyle]="configSvc?.pageNavBar?.styles">
+<mat-toolbar class="ws-mat-light-background" [ngStyle]="configSvc?.pageNavBar?.styles">
   <ws-widget-btn-page-back [widgetData]="{ url: '/app/channels/leadership' }"></ws-widget-btn-page-back>
-  <span class="margin-left-s" >Leadership</span>
+  <span class="margin-left-s">Leadership</span>
 </mat-toolbar>
 
 
@@ -13,7 +13,8 @@
           <h2 class="margin-remove margin-top-xs">{{ leaderData?.profile.name }}</h2>
           <h3 class="margin-remove-bottom margin-top-xs">{{ leaderData?.profile.designation }}</h3>
           <div class="flex flex-middle flex-center icons">
-            <mat-icon class="cursor-pointer" (click)="openSendMailDialog()">email</mat-icon>
+            <mat-icon class="cursor-pointer" (click)="openSendMailDialog()"
+              (keyup)="openSendMailDialog()">email</mat-icon>
             <button *ngIf="!isFollowDisabled" type="button" mat-icon-button [disabled]="isFetchingFollow"
               class="follow-btn margin-left-xs"
               [color]="loggedUserFollowData && isFollowing(leaderUuid) ? 'primary' : null"
@@ -47,7 +48,8 @@
                 {{ leaderData?.profile.designation }}
               </h3>
               <div class="flex flex-middle icons">
-                <mat-icon class="cursor-pointer" (click)="openSendMailDialog()">email</mat-icon>
+                <mat-icon class="cursor-pointer" (click)="openSendMailDialog()"
+                  (keyup)="openSendMailDialog()">email</mat-icon>
                 <button *ngIf="!isFollowDisabled" type="button" mat-icon-button [disabled]="isFetchingFollow"
                   class="follow-btn margin-left-xs"
                   [color]="loggedUserFollowData && isFollowing(leaderUuid) ? 'primary' : null"
@@ -69,7 +71,7 @@
             <ng-template mat-tab-label>
               <span [ngClass]="{ 'mat-body-2': currentIndex === i }" accesskey="i">{{
                 tab | titlecase
-              }}</span>
+                }}</span>
             </ng-template>
           </mat-tab>
         </mat-tab-group>

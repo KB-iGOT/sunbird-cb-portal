@@ -1213,7 +1213,7 @@ export class PublicSignupComponent implements OnInit, OnDestroy {
               phone: `${this.registrationFormStepTwo.value.mobile}` || '',
               // position: this.registrationFormStepOne.value.position.name || '',
               group: this.registrationFormStepTwo.value.group || '',
-              source: `${environment.name}.${this.portalID}` || '',
+              source: `${environment.name}.${this.portalID}`,
               orgName: orgName,
               channel: channel,
               organisationType: organisationType,

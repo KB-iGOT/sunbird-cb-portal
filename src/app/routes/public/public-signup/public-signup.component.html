@@ -1,7 +1,7 @@
 <div class="main_container flex flex-row"
   style=" background: url(/assets/instances/eagle/banners/home/9/BG.png) center center fixed;">
   <div class="left_container mt-8">
-    <div class="features-image img-pointer" (click)="mdoRedirect()">
+    <div class="features-image img-pointer" (click)="mdoRedirect()" (keyup)="mdoRedirect()">
       <img src="/assets/instances/eagle/banners/home/9/Sticky Notes.png" alt="What's New @ iGOT?">
     </div>
 
@@ -48,9 +48,9 @@
           <div class="circle" [ngClass]="(currentStep === 'step2') ? 'completed':'active'">1</div>
           <span class="stepper-label active">Step - 1</span>
         </div>
-    
+
         <div class="line"></div>
-    
+
         <div class="step">
           <div class="circle" [ngClass]="(currentStep === 'step2') ? 'active':''">2</div>
           <span class="stepper-label">Step - 2</span>
@@ -61,8 +61,8 @@
         <div class="margin-top-l new-mobile">
           <div class="flex flex-wrap mobile-break">
             <div class="flex flex-col content-center flex-wrap">
-         
-             
+
+
               <div class="input-wrapper margin-top-m">
                 <label for="type" class=" margin-remove-bottom form-label required"
                   i18n="Department|Label which explains the user to enter Department" i18n-aria-label
@@ -86,10 +86,12 @@
                   <mat-form-field appearance="outline" class="margin-top-s w-full required-select">
                     <mat-select #ministry formControlName="ministry" placeholder="Select ministry"
                       (closed)="onMinistryDropdownClosed()" panelClass="search-panel-ministry"
-                      (openedChange)="setupScrollListenerForMinistry($event)" (selectionChange)="onMinistryChange($event)">
+                      (openedChange)="setupScrollListenerForMinistry($event)"
+                      (selectionChange)="onMinistryChange($event)">
 
                       <!-- Sticky search input container -->
-                      <div class="sticky-search-container" (click)="$event.stopPropagation()">
+                      <div class="sticky-search-container" (click)="$event.stopPropagation()"
+                        (keyup)="$event.stopPropagation()">
                         <div class="search-input-wrapper">
                           <input type="text" placeholder="Search ministry" formControlName="searchMinistry"
                             class="search-input-ministry" (keydown)="$event.stopPropagation()"
@@ -135,11 +137,11 @@
                   <mat-form-field appearance="outline" class="margin-top-s w-full required-select">
                     <mat-select #state formControlName="state" placeholder="Select state"
                       (closed)="onStateDropdownClosed()" panelClass="search-panel-state"
-                      (openedChange)="setupScrollListenerForState($event)"
-                      (selectionChange)="onStateChanged($event)">
+                      (openedChange)="setupScrollListenerForState($event)" (selectionChange)="onStateChanged($event)">
 
                       <!-- Sticky search input container -->
-                      <div class="sticky-search-container" (click)="$event.stopPropagation()">
+                      <div class="sticky-search-container" (click)="$event.stopPropagation()"
+                        (keyup)="$event.stopPropagation()">
                         <div class="search-input-wrapper">
                           <input type="text" placeholder="Search state" formControlName="searchState"
                             class="search-input-state" (keydown)="$event.stopPropagation()"
@@ -185,10 +187,12 @@
                   <mat-form-field appearance="outline" class="margin-top-s w-full required-select">
                     <mat-select #department formControlName="department" placeholder="Select department"
                       (closed)="onDepartmentDropdownClosed()" panelClass="search-panel-department"
-                      (openedChange)="setupScrollListenerForDepartment($event)" (selectionChange)="onDepartmentChange($event)">
+                      (openedChange)="setupScrollListenerForDepartment($event)"
+                      (selectionChange)="onDepartmentChange($event)">
 
                       <!-- Sticky search input container -->
-                      <div class="sticky-search-container" (click)="$event.stopPropagation()">
+                      <div class="sticky-search-container" (click)="$event.stopPropagation()"
+                        (keyup)="$event.stopPropagation()">
                         <div class="search-input-wrapper">
                           <input type="text" placeholder="Search department" formControlName="searchDepartment"
                             class="search-input-department" (keydown)="$event.stopPropagation()"
@@ -238,7 +242,8 @@
                       (selectionChange)="onOrganisationChanged($event)">
 
                       <!-- Sticky search input container -->
-                      <div class="sticky-search-container" (click)="$event.stopPropagation()">
+                      <div class="sticky-search-container" (click)="$event.stopPropagation()"
+                        (keyup)="$event.stopPropagation()">
                         <div class="search-input-wrapper">
                           <input type="text" placeholder="Search organisation" formControlName="searchOrganisation"
                             class="search-input-organisation" (keydown)="$event.stopPropagation()"
@@ -251,9 +256,10 @@
                         </div>
                       </div>
 
-                      
+
                       <!-- Options list -->
-                      <mat-option [value]="organisation.identifier" *ngFor="let organisation of masterData?.organisation">
+                      <mat-option [value]="organisation.identifier"
+                        *ngFor="let organisation of masterData?.organisation">
                         {{organisation?.orgName}}
                       </mat-option>
                       <!-- Loading indicator -->
@@ -285,7 +291,7 @@
                   </div>
                 </div>
               </div>
-             
+
               <!-- Designation block inserted after Organisation -->
               <div class="input-wrapper margin-top-s">
                 <div class="input-container">
@@ -296,7 +302,8 @@
                       (openedChange)="setupScrollListener($event)">
 
                       <!-- Sticky search input container -->
-                      <div class="sticky-search-container" (click)="$event.stopPropagation()">
+                      <div class="sticky-search-container" (click)="$event.stopPropagation()"
+                        (keyup)="$event.stopPropagation()">
                         <div class="search-input-wrapper">
                           <input type="text" placeholder="Search designation" formControlName="searchDesignation"
                             class="search-input" (keydown)="$event.stopPropagation()"
@@ -336,8 +343,8 @@
 
               </div>
 
-              
-                  
+
+
               <div class="input-wrapper  mobile-wrapper margin-top-l">
                 <label for="email" class=" margin-remove-bottom form-label required"
                   i18n="Email label|Label which explains the user to enter Email" i18n-aria-label
@@ -417,8 +424,9 @@
           </div>
           <div class="button-row">
             <!-- <button class="btn-outline">Previous</button> -->
-             <!-- [disabled]="registrationFormStepOne?.invalid" -->
-            <button [disabled]="registrationFormStepOne?.invalid || !isEmailVerified" class="btn-primary"  (click)="goToNextStep()">Next</button>
+            <!-- [disabled]="registrationFormStepOne?.invalid" -->
+            <button [disabled]="registrationFormStepOne?.invalid || !isEmailVerified" class="btn-primary"
+              (click)="goToNextStep()">Next</button>
           </div>
           <div class="w-full margin-top-l">
             <div class="flex items-center  mat-body-1 flex-1">
@@ -433,8 +441,8 @@
         <div class="margin-top-l new-mobile">
           <div class="flex flex-wrap mobile-break">
             <div class="flex flex-col content-center flex-wrap">
-         
-             
+
+
               <div class="input-wrapper margin-top-s">
                 <label for="firstName" class=" margin-remove-bottom form-label required"
                   i18n="First name label|Label which explains the user to enter first name" i18n-aria-label
@@ -584,14 +592,15 @@
                   </button>
                 </div>
               </div> -->
-             
+
             </div>
           </div>
-          
+
           <div class="button-row">
             <button class="btn-outline" (click)="goToPrevStep()">Previous</button>
-            <button class="btn-primary" type="submit"  (click)="signup()"
-            [disabled]="!registrationFormStepTwo?.valid || !registrationFormStepOne?.valid || !confirm || disableBtn || !isMobileVerified || !isEmailVerified || !heirarchyObject || !confirmTerms">{{ 'publicsignup.signup' | translate }}</button>
+            <button class="btn-primary" type="submit" (click)="signup()"
+              [disabled]="!registrationFormStepTwo?.valid || !registrationFormStepOne?.valid || !confirm || disableBtn || !isMobileVerified || !isEmailVerified || !heirarchyObject || !confirmTerms">{{
+              'publicsignup.signup' | translate }}</button>
           </div>
           <div class="w-full margin-top-l">
             <div class="flex items-center  mat-body-1 flex-1">

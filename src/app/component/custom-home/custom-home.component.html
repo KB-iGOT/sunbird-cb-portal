@@ -53,6 +53,7 @@
                       placeholder="{{'updteDesignation.select' | translate }}" [matAutocomplete]="designationAuto"
                       (input)="onInputChange($event.target.value)" />
                     <mat-icon class="dropdown-icon cursor-pointer"
+                      (keyup)="openAutocomplete(trigger, autocompleteInput)"
                       (click)="openAutocomplete(trigger, autocompleteInput)">arrow_drop_down</mat-icon>
                   </div>
                   <mat-autocomplete class="mat-autocomplete" (closed)="onAutoCompleteClosed()"
@@ -76,7 +77,8 @@
             <div class="hint" [innerHTML]="renderUpdateDesignationCardHint()"></div>
           </div>
           <div class="margin-top-m" *ngIf="nwlConfiguration?.enabled && canShowNlwCard">
-            <div class="nlw-container cursor-pointer" (click)="navigateToNationalLearning()">
+            <div class="nlw-container cursor-pointer" (click)="navigateToNationalLearning()"
+              (keyup)="navigateToNationalLearning()">
               <div class="flex">
                 <div class="nlw-title gap-3">
                   {{currentLang === 'hi'? nwlConfiguration?.titleHi : nwlConfiguration?.title}}
@@ -110,7 +112,8 @@
 
           <!-- STATE LEARNING WEEK -->
           <div class="margin-top-m" *ngIf="slwConfiguration?.enabled && canShowSlwCard">
-            <div class="nlw-container cursor-pointer" (click)="navigateToStatelLearning()">
+            <div class="nlw-container cursor-pointer" (click)="navigateToStatelLearning()"
+              (keyup)="navigateToStatelLearning()">
               <div class="flex justify-between">
                 <div class="nlw-title gap-3">
                   <p class="margin-remove mat-subheading-1 {{slwConfiguration?.celebrateClass}}">{{currentLang === 'hi'?
@@ -160,12 +163,12 @@
           </div>
           <div class="sm:block md:hidden">
             <sb-uic-announcements [layoutType]="'mobile'" (openDialog)="triggerOpenDialog($event)"
-             [objectData]="announcementData?.data" [fetchDataFromApi]="false" [channelId]="orgId">
-           </sb-uic-announcements>
+              [objectData]="announcementData?.data" [fetchDataFromApi]="false" [channelId]="orgId">
+            </sb-uic-announcements>
           </div>
           <div class="announcements-container" *ngIf="showModal">
             <div class="cursor-pointer close-share-dialog">
-              <mat-icon (click)="onClose()" class="close-icon">close</mat-icon>
+              <mat-icon (click)="onClose()" (keyup)="onClose()" class="close-icon">close</mat-icon>
             </div>
             <div class="share-modal px-3 pt-8">
               <sb-uic-announcements [layoutType]="'web'" (openDialog)="triggerOpenDialog($event)"
@@ -178,8 +181,7 @@
         </div>
         <!-- events calendar -->
         <div class="mt-8" *ngIf="eventsCalendarData?.enabled">
-            <ws-app-events-calendar
-                [eventCalendarDetails]="eventsCalendarData"></ws-app-events-calendar>
+          <ws-app-events-calendar [eventCalendarDetails]="eventsCalendarData"></ws-app-events-calendar>
         </div>
         <!-- <ws-in-sight-side-bar (telemetryRaisedLibrary)="raiseTelemetryInteratEvent($event)"></ws-in-sight-side-bar> -->
       </div>
