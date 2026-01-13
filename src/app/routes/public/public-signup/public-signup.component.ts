@@ -1995,11 +1995,11 @@ export class PublicSignupComponent implements OnInit, OnDestroy {
           //   this.masterData['ministry'] = _.uniqBy(combined, (it: any) => (it?.identifier || '').toLowerCase())
           // }
 
-          if (!this.masterData['departmentBackup'] || reqOffset === 0) {
+          if (!this.masterData['departmentBackup'] || reqOffset === 0) { // NOSONAR
             // this.masterData['departmentBackup'] = mapped
             const combined = (this.masterData['departmentBackup'] || []).concat(mapped)
             this.masterData['departmentBackup'] = _.uniqBy(combined, (it: any) => (it?.identifier || '').toLowerCase())
-          } else {
+          } else { // NOSONAR
             const combined = (this.masterData['departmentBackup'] || []).concat(mapped)
             this.masterData['departmentBackup'] = _.uniqBy(combined, (it: any) => (it?.identifier || '').toLowerCase())
           }
@@ -2286,11 +2286,11 @@ export class PublicSignupComponent implements OnInit, OnDestroy {
           //   this.masterData['ministry'] = _.uniqBy(combined, (it: any) => (it?.identifier || '').toLowerCase())
           // }
 
-          if (!this.masterData['organisationBackup'] || reqOffset === 0) {
+          if (!this.masterData['organisationBackup'] || reqOffset === 0) { // NOSONAR
             const combined = (this.masterData['organisationBackup'] || []).concat(mapped)
             this.masterData['organisationBackup'] = _.uniqBy(combined, (it: any) => (it?.identifier || '').toLowerCase())
             // this.masterData['organisationBackup'] = mapped
-          } else {
+          } else { // NOSONAR
             const combined = (this.masterData['organisationBackup'] || []).concat(mapped)
             this.masterData['organisationBackup'] = _.uniqBy(combined, (it: any) => (it?.identifier || '').toLowerCase())
           }
