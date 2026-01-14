@@ -187,7 +187,8 @@
               <div class="recommended-question flex-col" [ngClass]="{'ml-5': item?.message }">
                 <div class="my-5px mr-2 w-92" *ngIf="item?.contentType !== 'Resource' && !(item?.fromInternet)">
                   <ng-container>
-                    <div class="btn-default my-2" (click)="redirectToToc(item)">{{item?.title}}
+                    <div class="btn-default my-2" (click)="redirectToToc(item)" (keyup)="redirectToToc(item)">
+                      {{item?.title}}
                       <mat-icon class="vertical-middle" *ngIf="!(item?.fromInternet)">navigate_next</mat-icon>
                     </div>
                     <div class="recommended-question-desc" *ngIf="!(item?.fromInternet)">

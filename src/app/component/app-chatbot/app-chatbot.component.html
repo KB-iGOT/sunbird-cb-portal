@@ -185,7 +185,7 @@
           <div class="cat-list">
             <ng-container *ngFor="let item of sortCategory()">
               <!-- //NOSONAR -->
-              <div (click)="showCategory(item)" class="cat-item">{{item.catName}}</div>
+              <div (click)="showCategory(item)" (keyup)="showCategory(item)" class="cat-item">{{item.catName}}</div>
             </ng-container>
           </div>
         </div>
