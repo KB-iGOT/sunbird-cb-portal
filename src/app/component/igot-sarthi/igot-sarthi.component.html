@@ -295,7 +295,7 @@
 
             <!-- Row 2: Buttons -->
             <div class="flex flex-row justify-start mt-4 ml-10">
-              <div (click)="loadFailedData()">
+              <div (click)="loadFailedData()" (keyup)="loadFailedData()">
                 <button type="button" class="error-for-failed-btn px-4 cursor-pointer">
                   <mat-icon class="error-retry-icon">autorenew</mat-icon>
                   <span class="white">Retry</span>

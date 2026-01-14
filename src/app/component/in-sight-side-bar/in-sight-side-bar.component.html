@@ -32,7 +32,8 @@
                         placeholder="{{'updteDesignation.select' | translate }}" [matAutocomplete]="designationAuto"
                         (input)="onInputChange($event.target.value)" />
                     <mat-icon class="dropdown-icon cursor-pointer"
-                        (click)="openAutocomplete(trigger, autocompleteInput)">arrow_drop_down</mat-icon>
+                        (click)="openAutocomplete(trigger, autocompleteInput)"
+                        (keyup)="openAutocomplete(trigger, autocompleteInput)">arrow_drop_down</mat-icon>
                 </div>
                 <mat-autocomplete class="mat-autocomplete" (closed)="onAutoCompleteClosed()"
                     (opened)="onAutoCompleteOpened()" #designationAuto="matAutocomplete"
