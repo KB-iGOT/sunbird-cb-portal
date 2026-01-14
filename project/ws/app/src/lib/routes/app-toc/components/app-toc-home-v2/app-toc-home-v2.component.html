@@ -62,7 +62,7 @@
           </div> -->
         </ng-container>
 
-        <ng-container *ngIf=" (actionBtnStatus === 'grant' && !(isMobile && content?.isInIntranet) && 
+        <ng-container *ngIf=" (actionBtnStatus === 'grant' && !(isMobile && content?.isInIntranet) &&
                       !( contentReadData?.primaryCategory === primaryCategory.COURSE && content?.children.length === 0 && !content?.artifactUrl?.length ) &&
                       !( contentReadData?.primaryCategory === primaryCategory.COURSE && batchData?.enrolled ) &&
                       !(contentReadData?.primaryCategory === primaryCategory.RESOURCE && !content?.artifactUrl)) &&
@@ -70,7 +70,7 @@
                       !(contentReadData?.primaryCategory === primaryCategory.MANDATORY_COURSE_GOAL)">
           <ng-container *ngIf="contentReadData?.primaryCategory !== primaryCategory.RESOURCE  && !enrollBtnLoading">
             <a class="flex action-button justify-center resume" *ngIf="!forPreview || isInIFrame"
-              (click)="handleEnrollment()">
+              (click)="handleEnrollment()" [ngClass]="{'disable-start-btn': !canEnroll()}">
               <ng-container>
                 {{ 'apptochome.enroll' | translate }}
               </ng-container>
@@ -378,17 +378,65 @@
                       translateLabel(contentReadData?.primaryCategory, 'searchfilters') }}</div>
                   </ng-container>
                 </div>
+                <div class="flex flex-row tag-div rounded-2xl gap-1 items-center p-2"
+                  *ngIf="contentReadData?.additionalTags?.includes('iGOT Specialization')">
+                  <img class="approved-icon" src="./assets/icons/approved.svg" alt="approved">
+                  <div class="text-xs font-bold text-white leading-3 nodtranslate">{{
+                    'cardcontentv2.iGOTSpecializationProgram' | translate }}</div>
+                </div>
+                <!-- Knowledge level block for search box -->
+                  <!-- {{content?.difficultyLevel}} -->
+            <div *ngIf="contentReadData?.difficultyLevel" class="knowledge-level-container">
+              <span *ngIf="contentReadData?.difficultyLevel?.toLowerCase() === 'beginner'" class="level-badge beginner">
+                <!-- <span *ngIf="false" class="level-badge beginner"> -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none">
+                  <rect width="16" height="16" fill="#DBF4DC"/>
+                  <path d="M7.42267 5C7.67927 4.55555 8.32077 4.55556 8.57737 5L12.0415 11C12.2981 11.4444 11.9773 12 11.4641 12H4.53592C4.02272 12 3.70197 11.4444 3.95857 11L7.42267 5Z" fill="#49C951"/>
+                </svg>
+                {{contentReadData?.difficultyLevel}}
+              </span>
+              <span *ngIf="contentReadData?.difficultyLevel?.toLowerCase() === 'intermediate'" class="level-badge intermediate">
+                <!-- <span *ngIf="true" class="level-badge intermediate"> -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none">
+                  <rect width="16" height="16" fill="#D1DBEC"/>
+                  <path d="M7.42267 2.66666C7.67927 2.22221 8.32077 2.22221 8.57737 2.66666L12.0415 8.66666C12.2981 9.1111 11.9773 9.66666 11.4641 9.66666H4.53592C4.02272 9.66666 3.70197 9.1111 3.95857 8.66666L7.42267 2.66666Z" fill="#1B4CA1"/>
+                  <path d="M7.42267 5.66666C7.67927 5.22221 8.32077 5.22221 8.57737 5.66666L12.0415 11.6667C12.2981 12.1111 11.9773 12.6667 11.4641 12.6667H4.53592C4.02272 12.6667 3.70197 12.1111 3.95857 11.6667L7.42267 5.66666Z" fill="#1B4CA1" stroke="#D1DBEC" stroke-width="0.5"/>
+                </svg>
+                {{contentReadData?.difficultyLevel}}
+              </span>
+              <span *ngIf="contentReadData?.difficultyLevel?.toLowerCase() === 'advanced'" class="level-badge advanced">
+                <!-- <span *ngIf="false" class="level-badge advanced"> -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none">
+                  <g clip-path="url(#clip0)">
+                    <rect width="16" height="16" fill="#FFE6E1"/>
+                    <path d="M7.42264 2.33334C7.67924 1.8889 8.32074 1.8889 8.57734 2.33334L12.0414 8.33334C12.298 8.77779 11.9773 9.33334 11.4641 9.33334H4.53589C4.02269 9.33334 3.70194 8.77779 3.95854 8.33334L7.42264 2.33334Z" fill="#FF8268"/>
+                    <path d="M7.42264 5C7.67924 4.55555 8.32074 4.55556 8.57734 5L12.0414 11C12.298 11.4444 11.9773 12 11.4641 12H4.53589C4.02269 12 3.70194 11.4444 3.95854 11L7.42264 5Z" fill="#FF8268" stroke="#FFE6E1" stroke-width="0.5"/>
+                    <path d="M7.42264 7.66669C7.67924 7.22224 8.32074 7.22224 8.57734 7.66669L12.0414 13.6667C12.298 14.1111 11.9773 14.6667 11.4641 14.6667H4.53589C4.02269 14.6667 3.70194 14.1111 3.95854 13.6667L7.42264 7.66669Z" fill="#FF8268" stroke="#FFE6E1" stroke-width="0.5"/>
+                  </g>
+                  <defs>
+                    <clipPath id="clip0">
+                      <rect width="16" height="16" fill="white"/>
+                    </clipPath>
+                  </defs>
+                </svg>
+                {{contentReadData?.difficultyLevel}}
+              </span>
+            </div>
 
                 <div class="flex items-center" *ngIf="cbPlanEndDate">
                   <div class="flex items-center due-tag text-xs leading-3"
                     [ngClass]="{'due-warning': cbPlanDuration === nsCardContentData.UPCOMING, 'due-overdue': cbPlanDuration === nsCardContentData.OVERDUE, 'due-success': cbPlanDuration === nsCardContentData.SUCCESS}">
-                    {{ 'common.dueBy' | translate }} - &nbsp;<span class="font-bold">{{ cbPlanEndDate | date: 'd MMM,
-                      y'}}</span>
+                    {{ 'common.dueBy' | translate }} - &nbsp;<span class="font-bold">{{ cbPlanEndDate | date: 'd MMM,y'}}</span>
                   </div>
                 </div>
               </div>
             </ng-container>
-
+            <ng-container *ngIf="!skeletonLoader && contentReadData?.contentVersionInfo?.identifier">
+              <div class="new-version-chip rounded-2xl" (click)="navigateToNewVersion()"
+                (keydown)="navigateToNewVersion()">
+                <span class="new-version-text nodtranslate">{{ 'apptoc.newVersion' | translate }}</span>
+              </div>
+            </ng-container>
             <div class="flex items-center text-white mob-share" *ngIf="canShare">
               <mat-icon class="nodtranslate" (click)="onClickOfShare()">share</mat-icon>
             </div>
@@ -416,7 +464,7 @@
               [bindingClass]="'rounded blue-2-loader'"></ws-widget-skeleton-loader>
           </ng-container>
           <ng-container *ngIf="!skeletonLoader">
-            <div class="flex gap-4 items-center" *ngIf="content?.averageRating || content?.additionalTags?.length">
+            <div class="flex gap-4 items-center">
               <div class="flex flex-row rating-chip py-2 items-center cursor-pointer"
                 (click)="handleNavigateToReviews()" *ngIf="content?.averageRating">
                 <div class="flex flex-row gap-1 margin-left-s items-center">
@@ -433,6 +481,14 @@
                     translate }}</span>
                   <span *ngIf="content?.additionalTags?.includes('mostEnrolled')">{{ 'cardcontentv2.mostEnrolled' |
                     translate }}</span>
+                </div>
+              </div>
+              <div class="flex items-center" *ngIf="contentReadData?.retirementDate">
+                <div class="new-version-pill text-xs leading-3" *ngIf="contentReadData?.status !== 'Retired'">
+                  <span>{{ 'apptoc.pendingRetirement' | translate }}</span>
+                </div>
+                <div class="new-version-retire-pill text-xs leading-3" *ngIf="contentReadData?.status === 'Retired'">
+                  <span>{{ 'apptoc.retired' | translate }}</span>
                 </div>
               </div>
             </div>
@@ -542,8 +598,9 @@
           [changeTab]="changeTab" [hierarchyMapData]="tocSvc?.hashmap" [selectedBatchData]="selectedBatchData"
           [condition]="{isPostAssessment: isPostAssessment, content: content, isAcbpCourse: isAcbpCourse, isClaimed: isClaimed, monthlyCapExceed: monthlyCapExceed, isCompletedThisMonth: isCompletedThisMonth, showTakeAssessment: showTakeAssessment, userEnrollmentList: userEnrollmentList, resumeData: resumeData, userRating: userRating, enrollBtnLoading: enrollBtnLoading, primaryCategory: primaryCategory, currentCourseBatchId: currentCourseBatchId, isAcbpClaim: isAcbpClaim}"
           [kparray]="kparray" (playResumeForAI)="playResumeForAI()" (enrollUserToAI)="enrollUserToAI()"
-          [contentReadData]="contentReadData" [baseContentReadData]="baseContentReadData"
-          [languageList]="languageList"></ws-widget-content-toc>
+          [contentReadData]="contentReadData" [baseContentReadData]="baseContentReadData" [languageList]="languageList"
+          [lockCertificate]="lockCertificate" (trigerCompletionSurveyForm)="openSurveyFormPopup($event)"
+          (resumeContent)="resumeContentData()"></ws-widget-content-toc>
         <div class="mob-tip-for-learner">
           <div *ngIf="learnAdvisoryData && learnAdvisoryData?.length">
             <ws-widget-tips-for-learner-card [learnAdvisoryData]="learnAdvisoryData"></ws-widget-tips-for-learner-card>
@@ -600,6 +657,11 @@
 
 
           <div class="flex flex-col gap-4 p-5 border-bottom">
+            <div class="flex flex-col gap-1  cursor-pointer switch-version"
+              *ngIf="!skeletonLoader && contentReadData?.contentVersionInfo?.identifier"
+              (click)="navigateToNewVersion()" (keydown)="navigateToNewVersion()">
+              <span class="btn-switch">{{ 'apptoc.switchToNewVersion' | translate }}</span>
+            </div>
 
             <div class="flex flex-col gap-4"
               *ngIf="contentReadData && contentReadData?.primaryCategory === primaryCategory.BLENDED_PROGRAM">
@@ -907,9 +969,9 @@
 <ng-template #authView>{{'apptochome.view' | translate}}</ng-template>
 
 <ng-template #authViewBtn i18n>
-  <a (click)="raiseTelemetryForPublic()"
-    [routerLink]="(resumeData && !certData) ? resumeDataLink?.url : firstResourceLink?.url"
-    [queryParams]="(resumeData && !certData) ? generateQuery('RESUME') : generateQuery('START')"
+  <a (click)="raiseTelemetryForPublic($event)"
+    [routerLink]="shouldShowSurveyPopup() ? null : ((resumeData && !certData) ? resumeDataLink?.url : firstResourceLink?.url)"
+    [queryParams]="shouldShowSurveyPopup() ? null : ((resumeData && !certData) ? generateQuery('RESUME') : generateQuery('START'))"
     class="flex action-button justify-center">
     {{'apptochome.view' | translate}}
   </a>

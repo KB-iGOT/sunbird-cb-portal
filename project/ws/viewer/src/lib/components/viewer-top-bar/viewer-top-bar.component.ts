@@ -13,25 +13,12 @@ import { ContentRatingV2DialogComponent, RatingService } from '@sunbird-cb/colle
 import { ViewerHeaderSideBarToggleService } from './../../viewer-header-side-bar-toggle.service'
 import { ResetRatingsService } from '@ws/app/src/lib/routes/app-toc/services/reset-ratings.service'
 import { WidgetContentLibService, ContentLanguageService } from '@sunbird-cb/consumption'
-import { WidgetContentService as WidgetContentServiceUtils } from '@sunbird-cb/utils-v2'
+// import { WidgetContentService as WidgetContentServiceUtils } from '@sunbird-cb/utils-v2'
 
 /* tslint:disable*/
-import * as _ from 'lodash'
+import _ from 'lodash'
+// import { ALLOWED_CATEGORY_FOR_DYNAMIC_GENERATION } from '../../../../../author/src/lib/constants/constant'
 
-const ALLOWED_CATEGORY_FOR_DYNAMIC_GENERATION = [
-  // "Course",
-  // "Moderated Course",
-  "Invite-Only Program",
-  "Moderated Program",
-  "Blended Program",
-  "Curated Program",
-  "Standalone Assessment",
-  "Moderated Assessment",
-  "Invite-Only Assessment",
-  "Comprehensive Assessment Program",
-  "Pre Enrolment Assessment"
-  // "External Redirect",
-];
 @Component({
   selector: 'viewer-viewer-top-bar',
   templateUrl: './viewer-top-bar.component.html',
@@ -90,7 +77,7 @@ export class ViewerTopBarComponent implements OnInit, OnDestroy, OnChanges {
   assessmentStart = false;
   enrollmentList: any = []
   collectionLang: any
-  isPreAssessment:boolean = false
+  isPreAssessment: boolean = false
   redirectPath = '/page/home'
   // primaryCategory = NsContent.EPrimaryCategory
   contentPrimaryCategory: any
@@ -113,9 +100,9 @@ export class ViewerTopBarComponent implements OnInit, OnDestroy, OnChanges {
     private resetRatingsService: ResetRatingsService,
     private widgetLibSvc: WidgetContentLibService,
     private contentLangSvc: ContentLanguageService,
-    private contentSvc: WidgetContentServiceUtils,
+    // private contentSvc: WidgetContentServiceUtils,
     private domainConfSvc: DomainConfService
-    
+
   ) {
     this.valueSvc.isXSmall$.subscribe(isXSmall => {
       this.logo = !isXSmall
@@ -130,8 +117,8 @@ export class ViewerTopBarComponent implements OnInit, OnDestroy, OnChanges {
   ngOnInit() {
     this.enrollmentList = this.activatedRoute.snapshot.data.enrollmentData
       && this.activatedRoute.snapshot.data.enrollmentData.data || []
-    
-    this.contentPrimaryCategory = this.activatedRoute?.snapshot?.data?.contentRead && 
+
+    this.contentPrimaryCategory = this.activatedRoute?.snapshot?.data?.contentRead &&
       this.activatedRoute?.snapshot?.data?.contentRead?.data?.result?.content?.primaryCategory
 
     // this.getAuthDataIdentifer()
@@ -143,8 +130,8 @@ export class ViewerTopBarComponent implements OnInit, OnDestroy, OnChanges {
     if (window.location.href.includes('/channel/')) {
       this.forChannel = true
     }
-    this.isPreAssessment=this.activatedRoute.snapshot.queryParams.preAssessment ? true:false
-    this.isTypeOfCollection =  this.activatedRoute.snapshot.queryParams.collectionType ? true : false
+    this.isPreAssessment = this.activatedRoute.snapshot.queryParams.preAssessment ? true : false
+    this.isTypeOfCollection = this.activatedRoute.snapshot.queryParams.collectionType ? true : false
     this.collectionType = this.activatedRoute.snapshot.queryParams.collectionType
     this.collectionId = this.activatedRoute.snapshot.queryParams.collectionId
     this.courseName = this.activatedRoute.snapshot.queryParams.courseName
@@ -276,7 +263,7 @@ export class ViewerTopBarComponent implements OnInit, OnDestroy, OnChanges {
             this.activatedRoute.snapshot.queryParams.collectionId : ''
           const MLID = this.activatedRoute.snapshot.queryParams.MLId ?
             this.activatedRoute.snapshot.queryParams.MLId : ''
-          const id = MLID ? MLID: collectionId
+          const id = MLID ? MLID : collectionId
           this.ComputeCompletedNodesAndPercent(id)
         }
       }
@@ -373,9 +360,9 @@ export class ViewerTopBarComponent implements OnInit, OnDestroy, OnChanges {
 
             this.contentProgressHash = data.result.contentList
             this.widgetServ.setProgramChildResumeData(this.contentProgressHash, this.identifier)
-            
-            if(this.contentProgressHash?.length && this.contentProgressHash[0]?.completionPercentage === 100 && this.contentProgressHash[0]?.status === 2) {
-                this.generateCertificate()
+
+            if (this.contentProgressHash?.length && this.contentProgressHash[0]?.completionPercentage === 100 && this.contentProgressHash[0]?.status === 2) {
+              this.generateCertificate()
             }
 
             if (this.leafNodesCount === this.contentProgressHash.length) {
@@ -494,14 +481,14 @@ export class ViewerTopBarComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   checkRatingAndApply() {
-    this.checkProgressAndGenerateCertificate();
+    this.checkProgressAndGenerateCertificate()
     if (!this.userRating && this.contentCompletionPercent >= 100) {
       this.openFeedbackDialog(this.userRating)
     }
   }
 
   get isMultilingual() {
-    if(this.baseContentReadData  && this.baseContentReadData.languageMapV1){
+    if (this.baseContentReadData && this.baseContentReadData.languageMapV1) {
       let languageList = this.contentLangSvc.getAllContentLanguages(this.contentReadData)
       return languageList.length > 1
     }
@@ -509,10 +496,10 @@ export class ViewerTopBarComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   get contentCompletionPercent() {
-    if(this.contentReadData && this.contentReadData.primaryCategory === 'Course' && this.isMultilingual) {
-      if(this.widgetServ?.languageMapProgress && this.collectionLang && 
+    if (this.contentReadData && this.contentReadData.primaryCategory === 'Course' && this.isMultilingual) {
+      if (this.widgetServ?.languageMapProgress && this.collectionLang &&
         this.widgetServ?.languageMapProgress[this.collectionLang]) {
-          return this.widgetServ?.languageMapProgress[this.collectionLang]
+        return this.widgetServ?.languageMapProgress[this.collectionLang]
       } else {
         return 0
       }
@@ -523,54 +510,50 @@ export class ViewerTopBarComponent implements OnInit, OnDestroy, OnChanges {
 
   checkProgressAndGenerateCertificate() {
     this.identifier = this.activatedRoute.snapshot.queryParams.collectionId
-    this.batchId = this.activatedRoute.snapshot.queryParams.batchId
-     if (this.identifier && this.batchId && this.configSvc.userProfile) {
-        let userId
-        if (this.configSvc.userProfile) {
-          userId = this.configSvc.userProfile.userId || ''
-          this.userid = this.configSvc.userProfile.userId || ''
-        }
+    if (this.configSvc.userProfile) {
+      this.userid = this.configSvc.userProfile.userId || ''
+      let request: any = {
+        request: {
+          retiredCoursesEnabled: true,
+          courseId: [this.identifier],
+        },
+      }
 
-        const language = this.viewerSvc.getResourceContentLanguage(this.identifier)  
-        const req = {
-          request: {
-            userId,
-            language,
-            batchId: this.batchId,
-            courseId: this.identifier || '',
-            contentIds: [],
-            fields: ['progressdetails'],
-          },
-        }
-        this.widgetServ.fetchContentHistoryV2(req).subscribe(
-          (data: any) => {
-            this.contentProgressHash = data.result.contentList
-            const lastIndexData = this.contentProgressHash?.length && this.contentProgressHash[this.contentProgressHash?.length - 1]
-            if(lastIndexData && lastIndexData?.completionPercentage === 100 && lastIndexData?.status === 2) {
+      this.widgetServ.getUserEnrollmentData(this.userId, request).subscribe({
+        next: (response: any) => {
+          if (response?.data && response?.data?.courses.length) {
+            const course = response?.data?.courses[0]
+            if (
+              course?.completionPercentage >= 100 &&
+              course?.status === 2 &&
+              !course?.issuedCertificates?.length
+            ) {
               this.generateCertificate()
             }
-          })
-      }
+          }
+        },
+      })
+    }
   }
 
-   generateCertificate() {
-      const allowedPrimaryCategory = ALLOWED_CATEGORY_FOR_DYNAMIC_GENERATION?.map(
-        (cat: string) => cat?.toLowerCase()
-      );
+  generateCertificate() {
+    // const allowedPrimaryCategory = ALLOWED_CATEGORY_FOR_DYNAMIC_GENERATION?.map(
+    //   (cat: string) => cat?.toLowerCase()
+    // );
 
-      if (
-        allowedPrimaryCategory &&
-        (allowedPrimaryCategory.includes(this.contentPrimaryCategory?.toLowerCase()) ||
-        allowedPrimaryCategory.includes(this.currentDataFromEnrollList.content.courseCategory?.toLowerCase()) )
-      ) {
-        const payload = {
-          request: {
-            courseId: this.identifier,
-            batchId: this.batchId,
-            userId: this.userid,
-          },
-        };
-        this.contentSvc.downloadCertV2(payload).subscribe(() => {});
-      } 
+    // if (
+    //   allowedPrimaryCategory &&
+    //   (allowedPrimaryCategory.includes(this.contentPrimaryCategory?.toLowerCase()) ||
+    //   allowedPrimaryCategory.includes(this.currentDataFromEnrollList.content.courseCategory?.toLowerCase()) )
+    // ) {
+    //   const payload = {
+    //     request: {
+    //       courseId: this.identifier,
+    //       batchId: this.batchId,
+    //       userId: this.userid,
+    //     },
+    //   };
+    //   this.contentSvc.downloadCertV2(payload).subscribe(() => {});
+    // }
   }
 }
