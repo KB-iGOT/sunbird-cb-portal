@@ -2,8 +2,7 @@
   <!-- //NOSONAR -->
   <div class="chatbot-icon-container" [ngStyle]="(configSvc.updatePlatformRatingObservable$ | async)"
     *ngIf="showIcon && isHubEnable" (mouseover)="expanded = true" (mouseleave)="expanded = false"
-    (click)="iconClick('start')" (keyup)="iconClick('start')">
-    <!-- [ngClass]="{'chatbot-icon-expanded': expanded}" -->
+    (click)="iconClick('start')" (keyup)="iconClick('start')" (focus)="expanded = true" (blur)="expanded = false">
     <div class="chatbot-icon-ai flex" *ngIf="enableIGOTAIFlag || enableSupportAI">
       <div cdkDrag #dragItem class="draggable-icon" (cdkDragEnded)="onDragEnded($event)"
         [cdkDragFreeDragPosition]="iconPosition" (cdkDragMoved)="onDragMoved()">
@@ -116,122 +115,123 @@
                           <ng-container *ngIf="questionsAndAns[question.quesID]?.quesValue">
                             <!-- //NOSONAR -->
                             <div class="btn-default" [ngClass]="{'btn-active': question.quesID === chat.selectedValue }"
-                              (click)="selectedQuestion(question,chat)" (keyup)="selectedQuestion(question,chat)"
-                              tabindex="0">{{questionsAndAns[question.quesID]?.quesValue}}
-                            </div>
-                          </ng-container>
+                              (click)="selectedQuestion(question,chat)" (keyup)="selectedQuestion(question,chat)"></div>
+                            {{questionsAndAns[question.quesID]?.quesValue}}
                         </div>
-                        <div class="my-5px mr-2 rec-item" *ngIf="chat.recommendedQues.length > 5">
-                          <!-- //NOSONAR -->
-                          <div class="btn-show-more flex" (click)="more = !more; $event.stopPropagation();"
-                            *ngIf="!more">
-                            <!-- //NOSONAR --> <mat-icon
-                              class="showmore-icon padding-right-s">add</mat-icon>{{showMore()}}
-                          </div>
-                        </div>
-                      </div>
-                    </div>
                   </ng-container>
-                </ng-container>
-              </ng-container>
-              <ng-container *ngIf="chat.type === 'category'">
-                <div class="flex">
-                  <div class="system-icon pr-2"><img class="chat-bot-icon" alt="chatbot-icon"
-                      src="/assets/icons/chatbot-default.svg"></div>
-                  <ng-container>
-                    <div class="question-hint padding-top-xs">
-                      {{chat.title}}
-                    </div>
-                  </ng-container>
-                  <div class="recommended-question my-5px">
-                    <div class="my-5px" *ngFor="let cat of chat.recommendedQues">
-                      <!-- //NOSONAR -->
-                      <div (click)="showCategory(cat)" class="word-break cat-item">{{cat.catName}}</div>
-                    </div>
-                  </div>
-                </div>
-              </ng-container>
-              <ng-container *ngIf="chat.type === 'sendMsg'">
-                <div class="flex width-1-1 row-end padding-top-l padding-bottom-m">
-                  <div class="user-seleted-question padding-xs">
-                    {{chat.question}}
-                  </div>
-                  <div class="user-icon">
-                    <img alt="chatbot-icon" src="{{userIcon}}">
-                  </div>
-                </div>
-              </ng-container>
-            </ng-container>
-          </ng-container>
-          <ng-container *ngIf="!displayLoader && currentFilter === 'sarthi'" #scroll>
-            <ws-app-igot-sarthi [fullScreenChatFlag]="fullScreenChatFlag" [from]="'chatbot'" [chatId]="chatId"
-              [userId]="configSvc?.unMappedUser?.userId" [userJourney]="userJourney"
-              (scrollToBottomEvent)="scrollToBottomEvent($event)"></ws-app-igot-sarthi>
-          </ng-container>
-          <ng-container *ngIf="!displayLoader && currentFilter === 'support-ai'" #scroll>
-            <ws-app-support-ai [fullScreenChatFlag]="fullScreenChatFlag" [activeLaguage]="selectedLaguage"
-              [from]="'chatbot'" [chatId]="chatId" [userId]="configSvc?.unMappedUser?.userId"
-              [userJourney]="userJourney" (scrollToBottomEvent)="scrollToBottomEvent($event)"></ws-app-support-ai>
-          </ng-container>
-          <ng-container *ngIf="displayLoader">
-            <div class="loader">
-              <mat-spinner [diameter]="30"></mat-spinner>
-            </div>
-          </ng-container>
         </div>
-      </div>
-      <div class="cb-footer-wrapper" [hidden]="!maximizeChatFlag">
-        <div class="flex flex-wrap cb-topics" *ngIf="currentFilter !== 'sarthi' && currentFilter !== 'support-ai'">
-          <div class="cat-list">
-            <ng-container *ngFor="let item of sortCategory()">
-              <!-- //NOSONAR -->
-              <div (click)="showCategory(item)" class="cat-item">{{item.catName}}</div>
-            </ng-container>
-          </div>
-        </div>
-        <div class="flex flex-wrap" [ngClass]="footerClassName">
+        <div class="my-5px mr-2 rec-item" *ngIf="chat.recommendedQues.length > 5">
           <!-- //NOSONAR -->
-          <div class="info br-bl padding-top-xs" *ngIf="enableIGOTAIFlag"
-            [ngClass]="{active: currentFilter === 'sarthi'}" (click)="toggleFilter('sarthi')">
-            <div class="info-icon">
-              <img src="assets/icons/bot-chat-mini.svg" alt="bot-chat-mini">
-            </div>
-            <div class="info-text">
-              iGOT AI
-            </div>
-          </div>
-          <!-- //NOSONAR -->
-          <div class="info br-bl padding-top-xs" *ngIf="enableSupportAI"
-            [ngClass]="{active: currentFilter === 'support-ai'}" (click)="toggleFilter('support-ai')">
-            <div class="info-icon">
-              <img src="assets/icons/support-bot.svg" height="28" width="28">
-            </div>
-            <div class="info-text">
-              Support AI
-            </div>
-          </div>
-          <!-- //NOSONAR -->
-          <div *ngIf="!enableSupportAI" class="info br-bl padding-top-xs"
-            [ngClass]="{active: currentFilter === 'information'}" (click)="toggleFilter('information')">
-            <div class="info-icon">
-              <mat-icon>info</mat-icon>
-            </div>
-            <div class="info-text">
-              {{getInfoText('information')}}
-            </div>
-          </div>
-          <!-- //NOSONAR -->
-          <div *ngIf="!enableSupportAI" class="info br-br padding-top-xs"
-            [ngClass]="{active: currentFilter === 'issue'}" (click)="toggleFilter('issue')">
-            <div class="info-icon">
-              <mat-icon>warning</mat-icon>
-            </div>
-            <div class="info-text">
-              {{getInfoText('issue')}}
-            </div>
+          <div class="btn-show-more flex" (click)="more = !more; $event.stopPropagation();" *ngIf="!more">
+            <!-- //NOSONAR --> <mat-icon class="showmore-icon padding-right-s">add</mat-icon>{{showMore()}}
           </div>
         </div>
       </div>
-    </ng-container>
   </div>
+  </ng-container>
+  </ng-container>
+  </ng-container>
+  <ng-container *ngIf="chat.type === 'category'">
+    <div class="flex">
+      <div class="system-icon pr-2"><img class="chat-bot-icon" alt="chatbot-icon"
+          src="/assets/icons/chatbot-default.svg"></div>
+      <ng-container>
+        <div class="question-hint padding-top-xs">
+          {{chat.title}}
+        </div>
+      </ng-container>
+      <div class="recommended-question my-5px">
+        <div class="my-5px" *ngFor="let cat of chat.recommendedQues">
+          <!-- //NOSONAR -->
+          <div (click)="showCategory(cat)" (keyup)="showCategory(cat)" class="word-break cat-item">
+            {{cat.catName}}</div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+  <ng-container *ngIf="chat.type === 'sendMsg'">
+    <div class="flex width-1-1 row-end padding-top-l padding-bottom-m">
+      <div class="user-seleted-question padding-xs">
+        {{chat.question}}
+      </div>
+      <div class="user-icon">
+        <img alt="chatbot-icon" src="{{userIcon}}">
+      </div>
+    </div>
+  </ng-container>
+  </ng-container>
+  </ng-container>
+  <ng-container *ngIf="!displayLoader && currentFilter === 'sarthi'" #scroll>
+    <ws-app-igot-sarthi [fullScreenChatFlag]="fullScreenChatFlag" [from]="'chatbot'" [chatId]="chatId"
+      [userId]="configSvc?.unMappedUser?.userId" [userJourney]="userJourney"
+      (scrollToBottomEvent)="scrollToBottomEvent($event)"></ws-app-igot-sarthi>
+  </ng-container>
+  <ng-container *ngIf="!displayLoader && currentFilter === 'support-ai'" #scroll>
+    <ws-app-support-ai [fullScreenChatFlag]="fullScreenChatFlag" [activeLaguage]="selectedLaguage" [from]="'chatbot'"
+      [chatId]="chatId" [userId]="configSvc?.unMappedUser?.userId" [userJourney]="userJourney"
+      (scrollToBottomEvent)="scrollToBottomEvent($event)"></ws-app-support-ai>
+  </ng-container>
+  <ng-container *ngIf="displayLoader">
+    <div class="loader">
+      <mat-spinner [diameter]="30"></mat-spinner>
+    </div>
+  </ng-container>
+</div>
+</div>
+<div class="cb-footer-wrapper" [hidden]="!maximizeChatFlag">
+  <div class="flex flex-wrap cb-topics" *ngIf="currentFilter !== 'sarthi' && currentFilter !== 'support-ai'">
+    <div class="cat-list">
+      <ng-container *ngFor="let item of sortCategory()">
+        <!-- //NOSONAR -->
+        <div (click)="showCategory(item)" (keyup)="showCategory(item)" class="cat-item">
+          {{item.catName}}</div>
+      </ng-container>
+    </div>
+  </div>
+  <div class="flex flex-wrap" [ngClass]="footerClassName">
+    <!-- //NOSONAR -->
+    <div class="info br-bl padding-top-xs" *ngIf="enableIGOTAIFlag" [ngClass]="{active: currentFilter === 'sarthi'}"
+      (click)="toggleFilter('sarthi')" (keyup)="toggleFilter('sarthi')">
+      <div class="info-icon">
+        <img src="assets/icons/bot-chat-mini.svg" alt="bot-chat-mini">
+      </div>
+      <div class="info-text">
+        iGOT AI
+      </div>
+    </div>
+    <!-- //NOSONAR -->
+    <div class="info br-bl padding-top-xs" *ngIf="enableSupportAI" [ngClass]="{active: currentFilter === 'support-ai'}"
+      (click)="toggleFilter('support-ai')" (keyup)="toggleFilter('support-ai')">
+      <div class="info-icon">
+        <img src="assets/icons/support-bot.svg" height="28" width="28">
+      </div>
+      <div class="info-text">
+        Support AI
+      </div>
+    </div>
+    <!-- //NOSONAR -->
+    <div *ngIf="!enableSupportAI" class="info br-bl padding-top-xs"
+      [ngClass]="{active: currentFilter === 'information'}" (click)="toggleFilter('information')"
+      (keyup)="toggleFilter('information')">
+      <div class="info-icon">
+        <mat-icon>info</mat-icon>
+      </div>
+      <div class="info-text">
+        {{getInfoText('information')}}
+      </div>
+    </div>
+    <!-- //NOSONAR -->
+    <div *ngIf="!enableSupportAI" class="info br-br padding-top-xs" [ngClass]="{active: currentFilter === 'issue'}"
+      (click)="toggleFilter('issue')" (keyup)="toggleFilter('issue')">
+      <div class="info-icon">
+        <mat-icon>warning</mat-icon>
+      </div>
+      <div class="info-text">
+        {{getInfoText('issue')}}
+      </div>
+    </div>
+  </div>
+</div>
+</ng-container>
+</div>
 </div>
