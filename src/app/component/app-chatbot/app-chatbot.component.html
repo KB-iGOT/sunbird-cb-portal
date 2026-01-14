@@ -2,7 +2,7 @@
   <!-- //NOSONAR -->
   <div class="chatbot-icon-container" [ngStyle]="(configSvc.updatePlatformRatingObservable$ | async)"
     *ngIf="showIcon && isHubEnable" (mouseover)="expanded = true" (mouseleave)="expanded = false"
-    (click)="iconClick('start')">
+    (focus)="expanded = true" (blur)="expanded = false" (click)="iconClick('start')" (keyup)="iconClick('start')">
     <!-- [ngClass]="{'chatbot-icon-expanded': expanded}" -->
     <div class="chatbot-icon-ai flex" *ngIf="enableIGOTAIFlag || enableSupportAI">
       <div cdkDrag #dragItem class="draggable-icon" (cdkDragEnded)="onDragEnded($event)"
@@ -55,7 +55,7 @@
         <div class="user-info-controls flex flex-row">
           <div *ngIf="currentFilter === 'support-ai'">
             <div class="cursor-pointer mt-2" matTooltipClass="right-nav-tooltip" matTooltip="Need Help"
-              (click)="getZohoForm()" class="help-icon" id="help-icon">
+              (click)="getZohoForm()" (keyup)="getZohoForm()" class="help-icon" id="help-icon">
               <img class="" src="/assets/icons/top-nav/help_icon.svg" alt="">
             </div>
           </div>
@@ -115,14 +115,15 @@
                           <ng-container *ngIf="questionsAndAns[question.quesID]?.quesValue">
                             <!-- //NOSONAR -->
                             <div class="btn-default" [ngClass]="{'btn-active': question.quesID === chat.selectedValue }"
-                              (click)="selectedQuestion(question,chat)">{{questionsAndAns[question.quesID]?.quesValue}}
+                              (click)="selectedQuestion(question,chat)" (keyup)="selectedQuestion(question,chat)">
+                              {{questionsAndAns[question.quesID]?.quesValue}}
                             </div>
                           </ng-container>
                         </div>
                         <div class="my-5px mr-2 rec-item" *ngIf="chat.recommendedQues.length > 5">
                           <!-- //NOSONAR -->
                           <div class="btn-show-more flex" (click)="more = !more; $event.stopPropagation();"
-                            *ngIf="!more">
+                            (keyup)="more = !more; $event.stopPropagation();" *ngIf="!more">
                             <!-- //NOSONAR --> <mat-icon
                               class="showmore-icon padding-right-s">add</mat-icon>{{showMore()}}
                           </div>
@@ -144,7 +145,8 @@
                   <div class="recommended-question my-5px">
                     <div class="my-5px" *ngFor="let cat of chat.recommendedQues">
                       <!-- //NOSONAR -->
-                      <div (click)="showCategory(cat)" class="word-break cat-item">{{cat.catName}}</div>
+                      <div (click)="showCategory(cat)" (keyup)="showCategory(cat)" class="word-break cat-item">
+                        {{cat.catName}}</div>
                     </div>
                   </div>
                 </div>
@@ -190,7 +192,8 @@
         <div class="flex flex-wrap" [ngClass]="footerClassName">
           <!-- //NOSONAR -->
           <div class="info br-bl padding-top-xs" *ngIf="enableIGOTAIFlag"
-            [ngClass]="{active: currentFilter === 'sarthi'}" (click)="toggleFilter('sarthi')">
+            [ngClass]="{active: currentFilter === 'sarthi'}" (click)="toggleFilter('sarthi')"
+            (keyup)="toggleFilter('sarthi')">
             <div class="info-icon">
               <img src="assets/icons/bot-chat-mini.svg">
             </div>
@@ -200,9 +203,10 @@
           </div>
           <!-- //NOSONAR -->
           <div class="info br-bl padding-top-xs" *ngIf="enableSupportAI"
-            [ngClass]="{active: currentFilter === 'support-ai'}" (click)="toggleFilter('support-ai')">
+            [ngClass]="{active: currentFilter === 'support-ai'}" (click)="toggleFilter('support-ai')"
+            (keyup)="toggleFilter('support-ai')">
             <div class="info-icon">
-              <img src="assets/icons/support-bot.svg" height="28" width="28">
+              <img src="assets/icons/support-bot.svg" alit="support" height="28" width="28">
             </div>
             <div class="info-text">
               Support AI
@@ -210,7 +214,8 @@
           </div>
           <!-- //NOSONAR -->
           <div *ngIf="!enableSupportAI" class="info br-bl padding-top-xs"
-            [ngClass]="{active: currentFilter === 'information'}" (click)="toggleFilter('information')">
+            [ngClass]="{active: currentFilter === 'information'}" (click)="toggleFilter('information')"
+            (keyup)="toggleFilter('information')">
             <div class="info-icon">
               <mat-icon>info</mat-icon>
             </div>
@@ -220,7 +225,8 @@
           </div>
           <!-- //NOSONAR -->
           <div *ngIf="!enableSupportAI" class="info br-br padding-top-xs"
-            [ngClass]="{active: currentFilter === 'issue'}" (click)="toggleFilter('issue')">
+            [ngClass]="{active: currentFilter === 'issue'}" (click)="toggleFilter('issue')"
+            (keyup)="toggleFilter('issue')">
             <div class="info-icon">
               <mat-icon>warning</mat-icon>
             </div>

@@ -2,7 +2,7 @@
   style=" background: url(/assets/instances/eagle/banners/home/9/BG.png) center center fixed;">
   <div class="left_container mt-8">
     <!-- //NOSONAR -->
-    <div class="features-image img-pointer" (click)="mdoRedirect()">
+    <div class="features-image img-pointer" (click)="mdoRedirect()" (keyup)="mdoRedirect()">
       <img src="/assets/instances/eagle/banners/home/9/Sticky Notes.png" alt="What's New @ iGOT?">
     </div>
 
@@ -91,7 +91,8 @@
                       (selectionChange)="onMinistryChange($event)">
 
                       <!-- Sticky search input container -->
-                      <div class="sticky-search-container" (click)="$event.stopPropagation()">
+                      <div class="sticky-search-container" (click)="$event.stopPropagation()"
+                        (keyup)="$event.stopPropagation()">
                         <div class="search-input-wrapper">
                           <input type="text" placeholder="Search ministry" formControlName="searchMinistry"
                             class="search-input-ministry" (keydown)="$event.stopPropagation()"
@@ -140,7 +141,8 @@
                       (openedChange)="setupScrollListenerForState($event)" (selectionChange)="onStateChanged($event)">
 
                       <!-- Sticky search input container -->
-                      <div class="sticky-search-container" (click)="$event.stopPropagation()">
+                      <div class="sticky-search-container" (click)="$event.stopPropagation()"
+                        (keyup)="$event.stopPropagation()">
                         <div class="search-input-wrapper">
                           <input type="text" placeholder="Search state" formControlName="searchState"
                             class="search-input-state" (keydown)="$event.stopPropagation()"
@@ -190,7 +192,8 @@
                       (selectionChange)="onDepartmentChange($event)">
 
                       <!-- Sticky search input container -->
-                      <div class="sticky-search-container" (click)="$event.stopPropagation()">
+                      <div class="sticky-search-container" (click)="$event.stopPropagation()"
+                        (keyup)="$event.stopPropagation()">
                         <div class="search-input-wrapper">
                           <input type="text" placeholder="Search department" formControlName="searchDepartment"
                             class="search-input-department" (keydown)="$event.stopPropagation()"
@@ -240,7 +243,8 @@
                       (selectionChange)="onOrganisationChanged($event)">
 
                       <!-- Sticky search input container -->
-                      <div class="sticky-search-container" (click)="$event.stopPropagation()">
+                      <div class="sticky-search-container" (click)="$event.stopPropagation()"
+                        (keyup)="$event.stopPropagation()">
                         <div class="search-input-wrapper">
                           <input type="text" placeholder="Search organisation" formControlName="searchOrganisation"
                             class="search-input-organisation" (keydown)="$event.stopPropagation()"
@@ -299,7 +303,8 @@
                       (openedChange)="setupScrollListener($event)">
 
                       <!-- Sticky search input container -->
-                      <div class="sticky-search-container" (click)="$event.stopPropagation()">
+                      <div class="sticky-search-container" (click)="$event.stopPropagation()"
+                        (keyup)="$event.stopPropagation()">
                         <div class="search-input-wrapper">
                           <input type="text" placeholder="Search designation" formControlName="searchDesignation"
                             class="search-input" (keydown)="$event.stopPropagation()"
