@@ -16,6 +16,13 @@ import { ConfigurationsService, MultilingualTranslationsService } from '@sunbird
 
 import { WidgetUserServiceLib } from '@sunbird-cb/consumption'
 
+// Safely extend dayjs with plugins (guarded for test environments)
+if (dayjs && (dayjs as any).extend) {
+  (dayjs as any).extend(isBetween)
+    (dayjs as any).extend(isSameOrBefore)
+    (dayjs as any).extend(isSameOrAfter)
+}
+
 @Component({
   selector: 'ws-cbp-plan',
   templateUrl: './cbp-plan.component.html',

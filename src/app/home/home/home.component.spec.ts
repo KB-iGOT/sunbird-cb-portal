@@ -1,5 +1,5 @@
-import { HomeComponent } from './home.component';
-import { of, throwError } from 'rxjs';
+import { HomeComponent } from './home.component'
+import { of, throwError } from 'rxjs'
 
 // Mock helper function
 // function isStripActive(strip: any): boolean {
@@ -12,16 +12,17 @@ import { of, throwError } from 'rxjs';
 // }
 
 describe('HomeComponent', () => {
-  let component: HomeComponent;
-  let mockActivatedRoute: any;
-  let mockConfigSvc: any;
-  let mockBtnSettingsSvc: any;
-  let mockMobileAppsService: any;
-  let mockRouter: any;
-  let mockTranslate: any;
-  let mockUserProfileService: any;
-  let mockMatSnackBar: any;
-  let mockEvents: any;
+  let component: HomeComponent
+  let mockActivatedRoute: any
+  let mockConfigSvc: any
+  let mockBtnSettingsSvc: any
+  let mockMobileAppsService: any
+  let mockRouter: any
+  let mockTranslate: any
+  let mockUserProfileService: any
+  let mockMatSnackBar: any
+  let mockEvents: any
+  let mockDialog: any
 
   const mockPageData = {
     data: {
@@ -35,7 +36,7 @@ describe('HomeComponent', () => {
       enableLazyLoading: true,
       sliderData: { slides: [] }
     }
-  };
+  }
 
   const mockUnMappedUser = {
     id: 'user123',
@@ -49,7 +50,7 @@ describe('HomeComponent', () => {
         isProfileUpdatedMsgViewed: false
       }
     }
-  };
+  }
 
   beforeEach(() => {
     // Mock services
@@ -59,31 +60,31 @@ describe('HomeComponent', () => {
           pageData: mockPageData
         }
       }
-    };
+    }
 
     mockConfigSvc = {
       unMappedUser: mockUnMappedUser,
       overrideThemeChanges: { theme: 'dark' }
-    };
+    }
 
     mockBtnSettingsSvc = {
       changeFont: jest.fn()
-    };
+    }
 
     mockMobileAppsService = {
       mobileTopHeaderVisibilityStatus: of(true)
-    };
+    }
 
     mockRouter = {
       navigateByUrl: jest.fn(),
       navigate: jest.fn()
-    };
+    }
 
     mockTranslate = {
       setDefaultLang: jest.fn(),
       use: jest.fn(),
       instant: jest.fn((key: string) => key)
-    };
+    }
 
     mockUserProfileService = {
       readOrgData: jest.fn(() => of({
@@ -120,16 +121,20 @@ describe('HomeComponent', () => {
         }
       })),
       editProfileDetails: jest.fn(() => of({ success: true }))
-    };
+    }
 
     mockMatSnackBar = {
       open: jest.fn(),
       openFromComponent: jest.fn()
-    };
+    }
 
     mockEvents = {
       raiseInteractTelemetry: jest.fn()
-    };
+    }
+
+    mockDialog = {
+      open: jest.fn(),
+    }
 
     // Create component instance
     component = new HomeComponent(
@@ -141,30 +146,30 @@ describe('HomeComponent', () => {
       mockTranslate,
       mockUserProfileService,
       mockMatSnackBar,
-      mockEvents
-    );
+      mockEvents,
+      mockDialog
+    )
 
     // Mock DOM methods
-    Object.defineProperty(window, 'localStorage', {
+    Object.defineProperty(globalThis as any, 'localStorage', {
       value: {
         getItem: jest.fn(),
         setItem: jest.fn(),
         clear: jest.fn()
       },
       writable: true
-    });
+    })
 
-    Object.defineProperty(window, 'sessionStorage', {
+    Object.defineProperty(globalThis as any, 'sessionStorage', {
       value: {
         getItem: jest.fn(),
         setItem: jest.fn(),
         clear: jest.fn()
       },
       writable: true
-    });
+    })
 
-    // global.setInterval = jest.fn(() => 123);
-    // global.clearInterval = jest.fn();
+    // setInterval and clearInterval use real timers here
 
     // Mock document methods
     Object.defineProperty(document, 'getElementsByClassName', {
@@ -177,108 +182,113 @@ describe('HomeComponent', () => {
         }
       ]),
       configurable: true
-    });
+    })
 
-    Object.defineProperty(window, 'innerHeight', {
+    Object.defineProperty(globalThis as any, 'innerHeight', {
       value: 800,
       writable: true
-    });
-  });
+    })
+  })
 
   afterEach(() => {
-    jest.clearAllMocks();
-  });
+    jest.clearAllMocks()
+  })
 
   describe('Component Initialization', () => {
     it('should create component', () => {
-      expect(component).toBeTruthy();
-    });
+      expect(component).toBeTruthy()
+    })
 
     it('should initialize with default values', () => {
-      expect(component.widgetData).toEqual({});
-      expect(component.sliderData).toEqual({});
-      expect(component.contentStripData).toEqual({});
-      expect(component.sectionList).toEqual([]);
-      expect(component.enableLazyLoadingFlag).toBe(true);
-      expect(component.canShowCustomAttrOpen).toBe(false);
-    });
-  });
+      expect(component.widgetData).toEqual({})
+      expect(component.sliderData).toEqual({})
+      expect(component.contentStripData).toEqual({})
+      expect(component.sectionList).toEqual([])
+      expect(component.enableLazyLoadingFlag).toBe(true)
+      expect(component.canShowCustomAttrOpen).toBe(false)
+    })
+  })
 
   describe('ngOnInit', () => {
     it('should initialize component with valid data', () => {
-      component.ngOnInit();
+      component.ngOnInit()
 
-      expect(component.homeConfig).toEqual(mockPageData.data.homeConfig);
-      expect(component.contentStripData).toHaveLength(2);
-      expect(component.contentStripData[0].order).toBe(1);
-      expect(component.sectionList).toHaveLength(5); // 2 content strips + 3 fixed sections
-    });
+      expect(component.homeConfig).toEqual(mockPageData.data.homeConfig)
+      expect(component.contentStripData.length).toBe(2)
+      expect(component.contentStripData[0].order).toBe(1)
+      expect(component.sectionList.length).toBe(5) // 2 content strips + 3 fixed sections
+    })
 
     it('should handle not-my-user profile status with igot org', () => {
-      mockConfigSvc.unMappedUser.profileDetails.profileStatus = 'not-my-user';
-      mockConfigSvc.unMappedUser.profileDetails.employmentDetails.departmentName = 'igot';
+      mockConfigSvc.unMappedUser.profileDetails.profileStatus = 'not-my-user'
+      mockConfigSvc.unMappedUser.profileDetails.employmentDetails.departmentName = 'igot'
 
-      component.ngOnInit();
+      component.ngOnInit()
 
-      expect(component.disableMenu).toBe(true);
-      expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('app/person-profile/me#profileInfo');
-    });
+      expect(component.disableMenu).toBe(true)
+      expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('app/person-profile/me#profileInfo')
+    })
 
     it('should handle profile update message not viewed', () => {
-      component.ngOnInit();
+      component.ngOnInit()
 
-      expect(mockUserProfileService.fetchApprovedFields).toHaveBeenCalled();
-      expect(mockUserProfileService.listRejectedFields).toHaveBeenCalled();
-    });
+      expect(mockUserProfileService.fetchApprovedFields).toHaveBeenCalled()
+      expect(mockUserProfileService.listRejectedFields).toHaveBeenCalled()
+    })
 
     it('should handle profile update message already viewed', () => {
-      mockConfigSvc.unMappedUser.profileDetails.additionalProperties.isProfileUpdatedMsgViewed = true;
-      
-      component.ngOnInit();
+      mockConfigSvc.unMappedUser.profileDetails.additionalProperties.isProfileUpdatedMsgViewed = true
 
-      expect(component.isMDOMsgOpen).toBe(true);
-    });
+      component.ngOnInit()
+
+      expect(component.isMDOMsgOpen).toBe(true)
+    })
 
     it('should set up mobile header visibility subscription', () => {
-      component.ngOnInit();
+      component.ngOnInit()
 
-      expect(component.mobileTopHeaderVisibilityStatus).toBe(true);
-    });
+      expect(component.mobileTopHeaderVisibilityStatus).toBe(true)
+    })
 
     it('should set up enrollment data interval', () => {
-      component.ngOnInit();
+      const originalSetInterval = (globalThis as any).setInterval
+        ; (globalThis as any).setInterval = jest.fn()
 
-      expect(setInterval).toHaveBeenCalledWith(expect.any(Function), 1000);
-    });
+      component.ngOnInit()
+
+      expect((globalThis as any).setInterval).toHaveBeenCalledWith(jasmine.any(Function), 1000)
+
+        ; (globalThis as any).setInterval = originalSetInterval
+    })
 
     it('should handle website language from localStorage', () => {
-      (localStorage.getItem as jest.Mock).mockReturnValue('es');
+      (localStorage.getItem as jest.Mock).mockReturnValue('es')
 
-      component.ngOnInit();
+      component.ngOnInit()
 
-      expect(mockTranslate.setDefaultLang).toHaveBeenCalledWith('en');
-      expect(mockTranslate.use).toHaveBeenCalledWith('es');
-    });
+      expect(mockTranslate.setDefaultLang).toHaveBeenCalledWith('en')
+      expect(mockTranslate.use).toHaveBeenCalledWith('es')
+    })
 
     it('should call getOrgDetails', () => {
-      const spy = jest.spyOn(component, 'getOrgDetails');
-      component.ngOnInit();
+      const spy = jest.spyOn(component, 'getOrgDetails')
+      component.ngOnInit()
 
-      expect(spy).toHaveBeenCalled();
-    });
-  });
+      expect(spy).toHaveBeenCalled()
+    })
+  })
 
   describe('getOrgDetails', () => {
     it('should fetch organization details and show custom attributes popup', () => {
-      const spy = jest.spyOn(component, 'readCustomattributeDetails');
-      
-      component.getOrgDetails();
+      const spy = jest.spyOn(component, 'readCustomattributeDetails')
+
+      component.getOrgDetails()
 
       expect(mockUserProfileService.readOrgData).toHaveBeenCalledWith({
         request: { organisationId: 'org123' }
-      });
-      expect(spy).toHaveBeenCalled();
-    });
+      })
+      expect(spy).toHaveBeenCalled()
+    })
 
     it('should not show custom attributes popup when disabled', () => {
       mockUserProfileService.readOrgData.mockReturnValue(of({
@@ -291,34 +301,34 @@ describe('HomeComponent', () => {
             }
           }
         }
-      }));
+      }))
 
-      component.getOrgDetails();
+      component.getOrgDetails()
 
-      expect(component.canShowCustomAttrOpen).toBe(false);
-    });
+      expect(component.canShowCustomAttrOpen).toBe(false)
+    })
 
     it('should handle error in fetching organization details', () => {
-      mockUserProfileService.readOrgData.mockReturnValue(throwError({ error: 'test error' }));
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation();
+      mockUserProfileService.readOrgData.mockReturnValue(throwError({ error: 'test error' }))
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation()
 
-      component.getOrgDetails();
+      component.getOrgDetails()
 
-      expect(component.canShowCustomAttrOpen).toBe(false);
-      expect(consoleSpy).toHaveBeenCalled();
-    });
-  });
+      expect(component.canShowCustomAttrOpen).toBe(false)
+      expect(consoleSpy).toHaveBeenCalled()
+    })
+  })
 
   describe('readCustomattributeDetails', () => {
     it('should redirect to custom profile when no custom field values', () => {
-      const spy = jest.spyOn(component, 'redirectToCustomProfile');
+      const spy = jest.spyOn(component, 'redirectToCustomProfile')
 
-      component.readCustomattributeDetails();
+      component.readCustomattributeDetails()
 
-      expect(mockUserProfileService.readCustomattributeDetails).toHaveBeenCalledWith('user123', 'org123');
-      expect(spy).toHaveBeenCalled();
-      expect(component.canShowCustomAttrOpen).toBe(true);
-    });
+      expect(mockUserProfileService.readCustomattributeDetails).toHaveBeenCalledWith('user123', 'org123')
+      expect(spy).toHaveBeenCalled()
+      expect(component.canShowCustomAttrOpen).toBe(true)
+    })
 
     it('should not redirect when custom field values exist', () => {
       mockUserProfileService.readCustomattributeDetails.mockReturnValue(of({
@@ -327,23 +337,23 @@ describe('HomeComponent', () => {
             customFieldValues: [{ field: 'value' }]
           }
         }
-      }));
+      }))
 
-      component.readCustomattributeDetails();
+      component.readCustomattributeDetails()
 
-      expect(component.canShowCustomAttrOpen).toBe(false);
-    });
+      expect(component.canShowCustomAttrOpen).toBe(false)
+    })
 
     it('should handle error in reading custom attributes', () => {
-      mockUserProfileService.readCustomattributeDetails.mockReturnValue(throwError({ error: 'test error' }));
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation();
+      mockUserProfileService.readCustomattributeDetails.mockReturnValue(throwError({ error: 'test error' }))
+      const consoleSpy = jest.spyOn(console, 'log').mockImplementation()
 
-      component.readCustomattributeDetails();
+      component.readCustomattributeDetails()
 
-      expect(component.canShowCustomAttrOpen).toBe(false);
-      expect(consoleSpy).toHaveBeenCalled();
-    });
-  });
+      expect(component.canShowCustomAttrOpen).toBe(false)
+      expect(consoleSpy).toHaveBeenCalled()
+    })
+  })
 
   describe('ngAfterViewInit', () => {
     it('should make initial content strips visible', () => {
@@ -351,206 +361,206 @@ describe('HomeComponent', () => {
         { section: 'section_0', isVisible: false },
         { section: 'section_1', isVisible: false },
         { section: 'slider', isVisible: false }
-      ];
+      ]
 
-      component.ngAfterViewInit();
+      component.ngAfterViewInit()
 
-      expect(component.sectionList[0].isVisible).toBe(true);
-      expect(component.sectionList[1].isVisible).toBe(true);
-      expect(component.sectionList[2].isVisible).toBe(false);
-    });
-  });
+      expect(component.sectionList[0].isVisible).toBe(true)
+      expect(component.sectionList[1].isVisible).toBe(true)
+      expect(component.sectionList[2].isVisible).toBe(false)
+    })
+  })
 
   describe('getEnrollmentData', () => {
     it('should handle enrollment data and disable KP panel', () => {
       const enrollData = { enrolledCourseCount: 5 };
-      (localStorage.getItem as jest.Mock).mockReturnValue(JSON.stringify(enrollData));
+      (localStorage.getItem as jest.Mock).mockReturnValue(JSON.stringify(enrollData))
 
-      component.getEnrollmentData();
+      component.getEnrollmentData()
 
-      expect(component.enrollData).toEqual(enrollData);
-      expect(component.isKPPanelenabled).toBe(false);
-      expect(clearInterval).toHaveBeenCalled();
-    });
+      expect(component.enrollData).toEqual(enrollData)
+      expect(component.isKPPanelenabled).toBe(false)
+      expect(clearInterval).toHaveBeenCalled()
+    })
 
     it('should enable KP panel when no enrolled courses', () => {
       const enrollData = { enrolledCourseCount: 0 };
-      (localStorage.getItem as jest.Mock).mockReturnValue(JSON.stringify(enrollData));
+      (localStorage.getItem as jest.Mock).mockReturnValue(JSON.stringify(enrollData))
 
-      component.getEnrollmentData();
+      component.getEnrollmentData()
 
-      expect(component.isKPPanelenabled).toBe(true);
-    });
+      expect(component.isKPPanelenabled).toBe(true)
+    })
 
     it('should handle null enrollment data', () => {
-      (localStorage.getItem as jest.Mock).mockReturnValue(null);
+      (localStorage.getItem as jest.Mock).mockReturnValue(null)
 
-      component.getEnrollmentData();
+      component.getEnrollmentData()
 
-      expect(component.enrollData).toBeNull();
-    });
-  });
+      expect(component.enrollData).toBeNull()
+    })
+  })
 
   describe('handleButtonClick', () => {
     it('should execute without errors', () => {
-      expect(() => component.handleButtonClick()).not.toThrow();
-    });
-  });
+      expect(() => component.handleButtonClick()).not.toThrow()
+    })
+  })
 
   describe('translateHub', () => {
     it('should translate hub name', () => {
-      const result = component.translateHub('testHub');
+      const result = component.translateHub('testHub')
 
-      expect(mockTranslate.instant).toHaveBeenCalledWith('testHub');
-      expect(result).toBe('testHub');
-    });
-  });
+      expect(mockTranslate.instant).toHaveBeenCalledWith('testHub')
+      expect(result).toBe('testHub')
+    })
+  })
 
   describe('getListPendingApproval', () => {
     it('should fetch pending approval list successfully', () => {
-      const spy = jest.spyOn(component, 'handleUpdateMobileNudge');
+      const spy = jest.spyOn(component, 'handleUpdateMobileNudge')
 
-      component.getListPendingApproval();
+      component.getListPendingApproval()
 
-      expect(mockUserProfileService.listApprovalPendingFields).toHaveBeenCalled();
-      expect(spy).toHaveBeenCalled();
-    });
+      expect(mockUserProfileService.listApprovalPendingFields).toHaveBeenCalled()
+      expect(spy).toHaveBeenCalled()
+    })
 
     it('should handle error in fetching pending approval list', () => {
       mockUserProfileService.listApprovalPendingFields.mockReturnValue(
         throwError({ ok: false, error: { text: 'Error message' } })
-      );
+      )
 
-      component.getListPendingApproval();
+      component.getListPendingApproval()
 
-      expect(mockMatSnackBar.open).toHaveBeenCalledWith('Unable to fetch pending approval list');
-    });
+      expect(mockMatSnackBar.open).toHaveBeenCalledWith('Unable to fetch pending approval list')
+    })
 
     it('should not call handleUpdateMobileNudge when pending list exists', () => {
       mockUserProfileService.listApprovalPendingFields.mockReturnValue(of({
         result: { data: [{ field: 'test' }] }
-      }));
-      const spy = jest.spyOn(component, 'handleUpdateMobileNudge');
+      }))
+      const spy = jest.spyOn(component, 'handleUpdateMobileNudge')
 
-      component.getListPendingApproval();
+      component.getListPendingApproval()
 
-      expect(spy).not.toHaveBeenCalled();
-    });
-  });
+      expect(spy).not.toHaveBeenCalled()
+    })
+  })
 
   describe('handleUpdateMobileNudge', () => {
     it('should open nudge when profile not verified and popup not hidden', () => {
-      (sessionStorage.getItem as jest.Mock).mockReturnValue(null);
+      (sessionStorage.getItem as jest.Mock).mockReturnValue(null)
 
-      component.handleUpdateMobileNudge();
+      component.handleUpdateMobileNudge()
 
-      expect(component.isNudgeOpen).toBe(true);
-    });
+      expect(component.isNudgeOpen).toBe(true)
+    })
 
     it('should not open nudge when profile is verified', () => {
-      mockConfigSvc.unMappedUser.profileDetails.profileStatus = 'VERIFIED';
+      mockConfigSvc.unMappedUser.profileDetails.profileStatus = 'VERIFIED'
 
-      component.handleUpdateMobileNudge();
+      component.handleUpdateMobileNudge()
 
-      expect(component.isNudgeOpen).toBe(false);
-    });
+      expect(component.isNudgeOpen).toBe(false)
+    })
 
     it('should open nudge when no profile details', () => {
-      mockConfigSvc.unMappedUser.profileDetails = null;
+      mockConfigSvc.unMappedUser.profileDetails = null
 
-      component.handleUpdateMobileNudge();
+      component.handleUpdateMobileNudge()
 
-      expect(component.isNudgeOpen).toBe(true);
-    });
-  });
+      expect(component.isNudgeOpen).toBe(true)
+    })
+  })
 
   describe('handleDefaultFontSetting', () => {
     it('should apply font setting from localStorage', () => {
-      (localStorage.getItem as jest.Mock).mockReturnValue('large-font');
+      (localStorage.getItem as jest.Mock).mockReturnValue('large-font')
 
-      component.handleDefaultFontSetting();
+      component.handleDefaultFontSetting()
 
-      expect(mockBtnSettingsSvc.changeFont).toHaveBeenCalledWith('large-font');
-    });
-  });
+      expect(mockBtnSettingsSvc.changeFont).toHaveBeenCalledWith('large-font')
+    })
+  })
 
   describe('scrollHandler', () => {
     it('should check visibility for non-visible sections', () => {
       component.sectionList = [
         { section: 'section_0', isVisible: true },
         { section: 'section_5', isVisible: false }
-      ];
-      const spy = jest.spyOn(component, 'checkSectionVisibility');
+      ]
+      const spy = jest.spyOn(component, 'checkSectionVisibility')
 
-      component.scrollHandler();
+      component.scrollHandler()
 
-      expect(spy).toHaveBeenCalledWith('section_5');
-    });
-  });
+      expect(spy).toHaveBeenCalledWith('section_5')
+    })
+  })
 
   describe('checkSectionVisibility', () => {
     it('should skip initial visible sections', () => {
-      component.checkSectionVisibility('section_0');
+      component.checkSectionVisibility('section_0')
       // Should not throw or modify anything
-      expect(true).toBe(true);
-    });
+      expect(true).toBe(true)
+    })
 
     it('should make section visible when in viewport', () => {
       component.sectionList = [
         { section: 'section_5', isVisible: false }
-      ];
+      ]
 
-      component.checkSectionVisibility('section_5');
+      component.checkSectionVisibility('section_5')
 
-      expect(component.sectionList[0].isVisible).toBe(true);
-    });
+      expect(component.sectionList[0].isVisible).toBe(true)
+    })
 
     it('should handle non-existent sections', () => {
-      component.checkSectionVisibility('non-existent');
+      component.checkSectionVisibility('non-existent')
       // Should not throw
-      expect(true).toBe(true);
-    });
+      expect(true).toBe(true)
+    })
 
     it('should handle sections not in DOM', () => {
-      (document.getElementsByClassName as jest.Mock).mockReturnValue([]);
+      (document.getElementsByClassName as jest.Mock).mockReturnValue([])
 
-      component.checkSectionVisibility('section_5');
+      component.checkSectionVisibility('section_5')
       // Should not throw
-      expect(true).toBe(true);
-    });
-  });
+      expect(true).toBe(true)
+    })
+  })
 
   describe('handleRemindLater', () => {
     it('should hide nudge and set session storage', () => {
-      component.handleRemindLater();
+      component.handleRemindLater()
 
-      expect(sessionStorage.setItem).toHaveBeenCalledWith('hideUpdateProfilePopUp', 'true');
-      expect(component.isNudgeOpen).toBe(false);
-    });
-  });
+      expect(sessionStorage.setItem).toHaveBeenCalledWith('hideUpdateProfilePopUp', 'true')
+      expect(component.isNudgeOpen).toBe(false)
+    })
+  })
 
   describe('fetchProfile', () => {
     it('should handle MDO message status and navigate to profile', () => {
-      const spy = jest.spyOn(component, 'handleMDOMsgstatus');
+      const spy = jest.spyOn(component, 'handleMDOMsgstatus')
 
-      component.fetchProfile();
+      component.fetchProfile()
 
-      expect(spy).toHaveBeenCalled();
-      expect(mockRouter.navigate).toHaveBeenCalledWith(['/app/person-profile/me']);
-    });
-  });
+      expect(spy).toHaveBeenCalled()
+      expect(mockRouter.navigate).toHaveBeenCalledWith(['/app/person-profile/me'])
+    })
+  })
 
   describe('closeKarmaPointsPanel', () => {
     it('should disable KP panel', () => {
-      component.closeKarmaPointsPanel();
+      component.closeKarmaPointsPanel()
 
-      expect(component.isKPPanelenabled).toBe(false);
-    });
-  });
+      expect(component.isKPPanelenabled).toBe(false)
+    })
+  })
 
   describe('handleMDOMsgstatus', () => {
     it('should update profile details successfully', () => {
-      component.handleMDOMsgstatus();
+      component.handleMDOMsgstatus()
 
       expect(mockUserProfileService.editProfileDetails).toHaveBeenCalledWith({
         request: {
@@ -561,88 +571,88 @@ describe('HomeComponent', () => {
             }
           }
         }
-      });
-      expect(component.isMDOMsgOpen).toBe(true);
-    });
+      })
+      expect(component.isMDOMsgOpen).toBe(true)
+    })
 
     it('should handle error in updating profile details', () => {
       mockUserProfileService.editProfileDetails.mockReturnValue(
         throwError({ ok: false, error: { text: 'Error message' } })
-      );
+      )
 
-      component.handleMDOMsgstatus();
+      component.handleMDOMsgstatus()
 
-      expect(mockMatSnackBar.open).toHaveBeenCalledWith('Error message');
-    });
-  });
+      expect(mockMatSnackBar.open).toHaveBeenCalledWith('Error message')
+    })
+  })
 
   describe('getApprovedStatus', () => {
     it('should set approved status to true when valid fields exist', () => {
-      component.getApprovedStatus();
+      component.getApprovedStatus()
 
-      expect(component.approvedStatus).toBe(true);
-      expect(component.approvedStatusList).toEqual([{ name: 'John' }]);
-    });
+      expect(component.approvedStatus).toBe(true)
+      expect(component.approvedStatusList).toEqual([{ name: 'John' }])
+    })
 
     it('should set approved status to false when no valid fields', () => {
       mockUserProfileService.fetchApprovedFields.mockReturnValue(of({
         result: { data: [{ invalidField: 'test' }] }
-      }));
+      }))
 
-      component.getApprovedStatus();
+      component.getApprovedStatus()
 
-      expect(component.approvedStatus).toBe(false);
-    });
+      expect(component.approvedStatus).toBe(false)
+    })
 
     it('should handle empty approved status list', () => {
       mockUserProfileService.fetchApprovedFields.mockReturnValue(of({
         result: { data: [] }
-      }));
+      }))
 
-      component.getApprovedStatus();
+      component.getApprovedStatus()
 
-      expect(component.approvedStatus).toBe(false);
-    });
+      expect(component.approvedStatus).toBe(false)
+    })
 
     it('should handle error in fetching approved fields', () => {
       mockUserProfileService.fetchApprovedFields.mockReturnValue(
         throwError({ ok: false, error: { text: 'Error message' } })
-      );
+      )
 
-      component.getApprovedStatus();
+      component.getApprovedStatus()
 
-      expect(mockMatSnackBar.open).toHaveBeenCalledWith('Error message');
-    });
-  });
+      expect(mockMatSnackBar.open).toHaveBeenCalledWith('Error message')
+    })
+  })
 
   describe('getRejectedStatus', () => {
     it('should set rejected status to true when valid fields exist', () => {
-      component.getRejectedStatus();
+      component.getRejectedStatus()
 
-      expect(component.rejectedStatus).toBe(true);
-      expect(component.rejectedStatusList).toEqual([{ designation: 'Manager' }]);
-    });
+      expect(component.rejectedStatus).toBe(true)
+      expect(component.rejectedStatusList).toEqual([{ designation: 'Manager' }])
+    })
 
     it('should set rejected status to false when no valid fields', () => {
       mockUserProfileService.listRejectedFields.mockReturnValue(of({
         result: { data: [{ invalidField: 'test' }] }
-      }));
+      }))
 
-      component.getRejectedStatus();
+      component.getRejectedStatus()
 
-      expect(component.rejectedStatus).toBe(false);
-    });
+      expect(component.rejectedStatus).toBe(false)
+    })
 
     it('should handle error in fetching rejected fields', () => {
       mockUserProfileService.listRejectedFields.mockReturnValue(
         throwError({ ok: false, error: { text: 'Error message' } })
-      );
+      )
 
-      component.getRejectedStatus();
+      component.getRejectedStatus()
 
-      expect(mockMatSnackBar.open).toHaveBeenCalledWith('Error message');
-    });
-  });
+      expect(mockMatSnackBar.open).toHaveBeenCalledWith('Error message')
+    })
+  })
 
   describe('raiseTelemetryInteratEvent', () => {
     it('should raise telemetry for view more URL', () => {
@@ -650,60 +660,61 @@ describe('HomeComponent', () => {
         viewMoreUrl: { viewMoreText: 'View More' },
         stripTitle: 'Test Strip',
         typeOfTelemetry: 'test'
-      };
-      const spy = jest.spyOn(component, 'raiseTelemetry');
+      }
+      const spy = jest.spyOn(component, 'raiseTelemetry')
 
-      component.raiseTelemetryInteratEvent(event);
+      component.raiseTelemetryInteratEvent(event)
 
-      expect(spy).toHaveBeenCalledWith('Test Strip View More', 'test');
-    });
+      expect(spy).toHaveBeenCalledWith('Test Strip View More', 'test')
+    })
 
     it('should raise telemetry for external content', () => {
       const event = {
         contentId: 'ext123',
         typeOfTelemetry: 'external',
         identifier: 'ext123'
-      };
+      }
 
-      component.raiseTelemetryInteratEvent(event);
+      component.raiseTelemetryInteratEvent(event)
 
-      expect(mockEvents.raiseInteractTelemetry).toHaveBeenCalledWith(
-        {
-          type: 'click',
-          subType: 'external',
-          id: 'card-content'
-        },
-        {
-          id: 'ext123',
-          type: 'External content'
-        },
-        {
-          module: expect.any(Object)
-        }
-      );
-      expect(component.isTelemetryRaised).toBe(true);
-    });
+      const calls = mockEvents.raiseInteractTelemetry.mock.calls
+      expect(calls.length).toBeGreaterThan(0)
+      const [interaction, obj, context] = calls[calls.length - 1]
+
+      expect(interaction).toEqual({
+        type: 'click',
+        subType: 'external',
+        id: 'card-content',
+        pageid: '/page/home'
+      })
+      expect(obj).toEqual({
+        id: 'ext123',
+        type: 'External content'
+      })
+      expect(context?.module).toBeDefined()
+      expect(component.isTelemetryRaised).toBe(true)
+    })
 
     it('should raise telemetry for MDO channel', () => {
       const event = {
         typeOfTelemetry: 'mdoChannel',
         identifier: 'mdo123',
         title: 'Test Title'
-      };
+      }
 
-      component.raiseTelemetryInteratEvent(event);
+      component.raiseTelemetryInteratEvent(event)
 
-      expect(mockEvents.raiseInteractTelemetry).toHaveBeenCalledWith(
-        expect.objectContaining({
-          subType: 'mdo-channel'
-        }),
-        {
-          id: 'mdo123',
-          type: 'org/ministry'
-        },
-        expect.any(Object)
-      );
-    });
+      const calls = mockEvents.raiseInteractTelemetry.mock.calls
+      expect(calls.length).toBeGreaterThan(0)
+      const [interaction, obj, context] = calls[calls.length - 1]
+
+      expect(interaction.subType).toBe('mdo-channel')
+      expect(obj).toEqual({
+        id: 'mdo123',
+        type: 'org/ministry'
+      })
+      expect(context?.module).toBeDefined()
+    })
 
     it('should raise telemetry for CBP plan with selected tab and pill', () => {
       const event = {
@@ -713,21 +724,21 @@ describe('HomeComponent', () => {
         selectedTab: 'tab1',
         selectedPill: 'pill1',
         sakshamAIGenerated: false
-      };
+      }
 
-      component.raiseTelemetryInteratEvent(event);
+      component.raiseTelemetryInteratEvent(event)
 
-      expect(mockEvents.raiseInteractTelemetry).toHaveBeenCalledWith(
-        expect.objectContaining({
-          subType: 'tab1-pill1'
-        }),
-        {
-          id: 'cbp123',
-          type: 'Course'
-        },
-        expect.any(Object)
-      );
-    });
+      const calls = mockEvents.raiseInteractTelemetry.mock.calls
+      expect(calls.length).toBeGreaterThan(0)
+      const [interaction, obj, context] = calls[calls.length - 1]
+
+      expect(interaction.subType).toBe('tab1-pill1')
+      expect(obj).toEqual({
+        id: 'cbp123',
+        type: 'Course'
+      })
+      expect(context?.module).toBeDefined()
+    })
 
     it('should raise telemetry for AI generated CBP plan', () => {
       const event = {
@@ -735,75 +746,78 @@ describe('HomeComponent', () => {
         identifier: 'cbp123',
         primaryCategory: 'Course',
         sakshamAIGenerated: true
-      };
+      }
 
-      component.raiseTelemetryInteratEvent(event);
+      component.raiseTelemetryInteratEvent(event)
 
-      expect(mockEvents.raiseInteractTelemetry).toHaveBeenCalledWith(
-        expect.objectContaining({
-          subType: 'igot-ai'
-        }),
-        expect.any(Object),
-        expect.any(Object)
-      );
-    });
+      const calls = mockEvents.raiseInteractTelemetry.mock.calls
+      expect(calls.length).toBeGreaterThan(0)
+      const [interaction, obj, context] = calls[calls.length - 1]
+
+      expect(interaction.subType).toBe('igot-ai')
+      expect(obj).toEqual({
+        id: 'cbp123',
+        type: 'Course'
+      })
+      expect(context?.module).toBeDefined()
+    })
 
     it('should raise telemetry for providers', () => {
       const event = {
         typeOfTelemetry: 'providers',
         orgId: 'org123'
-      };
+      }
 
-      component.raiseTelemetryInteratEvent(event);
+      component.raiseTelemetryInteratEvent(event)
 
-      expect(mockEvents.raiseInteractTelemetry).toHaveBeenCalledWith(
-        expect.objectContaining({
-          subType: 'training-institutions'
-        }),
-        {
-          id: 'org123',
-          type: 'org'
-        },
-        expect.any(Object)
-      );
-    });
+      const calls = mockEvents.raiseInteractTelemetry.mock.calls
+      expect(calls.length).toBeGreaterThan(0)
+      const [interaction, obj, context] = calls[calls.length - 1]
+
+      expect(interaction.subType).toBe('training-institutions')
+      expect(obj).toEqual({
+        id: 'org123',
+        type: 'org'
+      })
+      expect(context?.module).toBeDefined()
+    })
 
     it('should not raise telemetry when already raised', () => {
-      component.isTelemetryRaised = true;
-      const event = { contentId: 'test123', typeOfTelemetry: 'test' };
+      component.isTelemetryRaised = true
+      const event = { contentId: 'test123', typeOfTelemetry: 'test' }
 
-      component.raiseTelemetryInteratEvent(event);
+      component.raiseTelemetryInteratEvent(event)
 
-      expect(mockEvents.raiseInteractTelemetry).not.toHaveBeenCalled();
-    });
-  });
+      expect(mockEvents.raiseInteractTelemetry).not.toHaveBeenCalled()
+    })
+  })
 
   describe('raiseTelemetry', () => {
     it('should raise interact telemetry with correct parameters', () => {
-      component.raiseTelemetry('Test Name', 'test-subtype');
+      component.raiseTelemetry('Test Name', 'test-subtype')
 
-      expect(mockEvents.raiseInteractTelemetry).toHaveBeenCalledWith(
-        {
-          type: 'click',
-          subType: 'test-subtype',
-          id: 'test-name'
-        },
-        {},
-        {
-          module: expect.any(Object)
-        }
-      );
-    });
-  });
+      const calls = (mockEvents.raiseInteractTelemetry as any).mock.calls
+      expect(calls.length).toBeGreaterThan(0)
+      const [interaction, obj, context] = calls[calls.length - 1]
+
+      expect(interaction).toEqual({
+        type: 'click',
+        subType: 'test-subtype',
+        id: 'test-name'
+      })
+      expect(obj).toEqual({})
+      expect(context && context.module).toBeDefined()
+    })
+  })
 
   describe('redirectToCustomProfile', () => {
     it('should navigate to custom profile', () => {
-      component.redirectToCustomProfile();
+      component.redirectToCustomProfile()
 
       expect(mockRouter.navigate).toHaveBeenCalledWith(
         ['/app/person-profile/me'],
         { fragment: 'orgDetails' }
-      );
-    });
-  });
-});
+      )
+    })
+  })
+})
