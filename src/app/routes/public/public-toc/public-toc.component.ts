@@ -589,12 +589,10 @@ export class PublicTocComponent implements OnInit, OnDestroy, AfterViewChecked, 
             // ).subscribe(data => {
             //   console.log("DATA: ", data)
             // })
-            this.isPracticeVisible = Boolean(
-                this.tocSvc.filterToc(this.content, NsContent.EFilterCategory.PRACTICE),
-            )
-            this.isAssessVisible = Boolean(
-                this.tocSvc.filterToc(this.content, NsContent.EFilterCategory.ASSESS),
-            )
+            const practiceItems = this.tocSvc.filterToc(this.content, NsContent.EFilterCategory.PRACTICE) || []
+            const assessItems = this.tocSvc.filterToc(this.content, NsContent.EFilterCategory.ASSESS) || []
+            this.isPracticeVisible = practiceItems.length > 0
+            this.isAssessVisible = assessItems.length > 0
             const firstPlayableContent = this.contentSvc.getFirstChildInHierarchy(this.content)
             this.firstResourceLink = viewerRouteGenerator(
                 firstPlayableContent.identifier,
