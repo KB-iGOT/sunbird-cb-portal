@@ -1164,17 +1164,16 @@ export class InitService {
     //   'EMAIL': this.configSvc.unMappedUser.profileDetails.personalDetails.primaryEmail.trim().toLowerCase(),
     //   'MOBILE': this.configSvc.unMappedUser.profileDetails.personalDetails.mobile.toString().trim().toLowerCase(),
     // })
-  } catch(e) {
-
+  } catch(e: any) {
+    console.error('Error in netCoreUserLoginSetup', e)
   }
 
-}
+  toTitleCase(str: string): string {
+    return str
+      .toLowerCase()
+      .split(' ')
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(' ')
+  }
 
-toTitleCase(str: string): string {
-  return str
-    .toLowerCase()
-    .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ')
-}
 }

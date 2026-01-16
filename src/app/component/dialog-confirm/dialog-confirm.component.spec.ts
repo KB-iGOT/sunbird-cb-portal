@@ -1,56 +1,71 @@
-import { DialogConfirmComponent } from './dialog-confirm.component';
-import { MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog';
+import { DialogConfirmComponent } from './dialog-confirm.component'
 
-// Mock MatLegacyDialogRef with the correct type
-const dialogRefMock: Partial<MatDialogRef<DialogConfirmComponent>> = {
+const dialogRefMock = {
   close: jest.fn(),
-};
+}
 
-// Mock TranslateService
 const translateMock = {
   setDefaultLang: jest.fn(),
   use: jest.fn(),
-};
+}
 
-// Mock MAT_DIALOG_DATA
 const matDialogDataMock = {
   title: 'Test Title',
   body: 'Test Body',
-};
+}
 
 describe('DialogConfirmComponent', () => {
-  let component: DialogConfirmComponent;
+  let component: DialogConfirmComponent
 
   beforeEach(() => {
-    // Instantiate the component with mocks
+    jest.clearAllMocks()
+    localStorage.clear()
+
     component = new DialogConfirmComponent(
-      matDialogDataMock,
-      dialogRefMock as MatDialogRef<DialogConfirmComponent>, // Type assertion to correct type
-      translateMock as any // Type assertion to mock TranslateService
-    );
-  });
+      matDialogDataMock as any,
+      dialogRefMock as any,
+      translateMock as any,
+    )
+  })
 
   it('should create the component', () => {
-    expect(component).toBeTruthy();
-  });
+    expect(component).toBeTruthy()
+    expect(component.data.title).toBe('Test Title')
+    expect(component.data.body).toBe('Test Body')
+  })
 
-  it('should set default language and use language from localStorage if available', () => {
-    // Mock the localStorage.getItem
-    // const localStorageMock = {
-    //   getItem: jest.fn().mockReturnValue('en'),
-    // };
+  it('should not set language when websiteLanguage is not in localStorage', () => {
+    ; (expect as any)(translateMock.setDefaultLang).not.toHaveBeenCalled()
+      ; (expect as any)(translateMock.use).not.toHaveBeenCalled()
+  })
 
-    //global.localStorage = localStorageMock as any; // Type assertion to override localStorage
+  it('should set default language and use websiteLanguage from localStorage when available', () => {
+    localStorage.setItem('websiteLanguage', 'hi')
 
-    // Call the component constructor
+    const compWithLang = new DialogConfirmComponent(
+      matDialogDataMock as any,
+      dialogRefMock as any,
+      translateMock as any,
+    )
 
-    // Check if translate.setDefaultLang and translate.use were called
-    expect(translateMock.setDefaultLang).toHaveBeenCalledWith('en');
-    expect(translateMock.use).toHaveBeenCalledWith('en');
-  });
+    expect(compWithLang).toBeTruthy()
+      ; (expect as any)(translateMock.setDefaultLang).toHaveBeenCalledWith('en')
+      ; (expect as any)(translateMock.use).toHaveBeenCalledWith('hi')
+  })
 
-  it('should call dialogRef.close with true when confirmed is called', () => {
-    component.confirmed();
-    expect(dialogRefMock.close).toHaveBeenCalledWith(true);
-  });
-});
+  it('should call dialogRef.close with true when confirmed is called without argument', () => {
+    component.confirmed(undefined)
+      ; (expect as any)(dialogRefMock.close).toHaveBeenCalledWith(true)
+  })
+
+  it('should call dialogRef.close with false when confirmed is called with "no"', () => {
+    component.confirmed('no')
+      ; (expect as any)(dialogRefMock.close).toHaveBeenCalledWith(false)
+  })
+
+  it('should call dialogRef.close with false when confirmed is called with "cancel"', () => {
+    component.confirmed('cancel')
+      ; (expect as any)(dialogRefMock.close).toHaveBeenCalledWith(false)
+  })
+})
+
