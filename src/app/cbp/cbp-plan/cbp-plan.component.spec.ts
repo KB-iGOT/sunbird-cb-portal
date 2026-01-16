@@ -1,29 +1,29 @@
-import { CbpPlanComponent } from './cbp-plan.component';
-import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
-import { ConfigurationsService, MultilingualTranslationsService } from '@sunbird-cb/utils-v2';
-import { WidgetUserServiceLib } from '@sunbird-cb/consumption';
-import { Subject } from 'rxjs';
+import { CbpPlanComponent } from './cbp-plan.component'
+import { ActivatedRoute } from '@angular/router'
+import { TranslateService } from '@ngx-translate/core'
+import { ConfigurationsService, MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
+import { WidgetUserServiceLib } from '@sunbird-cb/consumption'
+import { Subject } from 'rxjs'
 
 // Mock dayjs plugins
-jest.mock('dayjs/plugin/isBetween');
-jest.mock('dayjs/plugin/isSameOrBefore');
-jest.mock('dayjs/plugin/isSameOrAfter');
+jest.mock('dayjs/plugin/isBetween')
+jest.mock('dayjs/plugin/isSameOrBefore')
+jest.mock('dayjs/plugin/isSameOrAfter')
 
 // Helper function to create mock observable
 const createMockObservable = (data: any) => ({
   toPromise: jest.fn().mockResolvedValue(data),
   subscribe: jest.fn()
-});
+})
 
 describe('CbpPlanComponent', () => {
-  let component: CbpPlanComponent;
-  let mockActivatedRoute: jest.Mocked<ActivatedRoute>;
-  let mockWidgetSvc: jest.Mocked<WidgetUserServiceLib>;
-  let mockTranslateService: jest.Mocked<TranslateService>;
-  let mockConfigSvc: jest.Mocked<ConfigurationsService>;
-  let mockLangTranslations: jest.Mocked<MultilingualTranslationsService>;
-  let languageSubject: Subject<any>;
+  let component: CbpPlanComponent
+  let mockActivatedRoute: jest.Mocked<ActivatedRoute>
+  let mockWidgetSvc: jest.Mocked<WidgetUserServiceLib>
+  let mockTranslateService: jest.Mocked<TranslateService>
+  let mockConfigSvc: jest.Mocked<ConfigurationsService>
+  let mockLangTranslations: jest.Mocked<MultilingualTranslationsService>
+  let languageSubject: Subject<any>
 
   // Mock data
   const mockPageData = {
@@ -49,9 +49,9 @@ describe('CbpPlanComponent', () => {
         customeClass: 'feed-mobile-class'
       }
     }
-  };
+  }
 
-  const mockCbpData:any = [
+  const mockCbpData: any = [
     {
       id: '1',
       name: 'Test Course 1',
@@ -89,34 +89,34 @@ describe('CbpPlanComponent', () => {
       competencySubTheme: ['SubTheme1'],
       organisation: ['Org1']
     }
-  ];
+  ]
 
   beforeEach(() => {
-    languageSubject = new Subject();
+    languageSubject = new Subject()
 
     // Create mocks
     mockActivatedRoute = {
       snapshot: {
         data: { pageData: mockPageData }
       }
-    } as any;
+    } as any
 
     mockWidgetSvc = {
       fetchCbpPlanList: jest.fn().mockReturnValue(createMockObservable([]))
-    } as any;
+    } as any
 
     mockTranslateService = {
       setDefaultLang: jest.fn(),
       use: jest.fn()
-    } as any;
+    } as any
 
     mockConfigSvc = {
       userProfile: { userId: 'user123' }
-    } as any;
+    } as any
 
     mockLangTranslations = {
       languageSelectedObservable: languageSubject.asObservable()
-    } as any;
+    } as any
 
     // Mock localStorage
     Object.defineProperty(window, 'localStorage', {
@@ -126,13 +126,13 @@ describe('CbpPlanComponent', () => {
         clear: jest.fn()
       },
       writable: true
-    });
+    })
 
     // Mock screen width
     Object.defineProperty(window, 'screen', {
       value: { width: 1024 },
       writable: true
-    });
+    })
 
     // Create component instance
     component = new CbpPlanComponent(
@@ -141,137 +141,137 @@ describe('CbpPlanComponent', () => {
       mockTranslateService,
       mockConfigSvc,
       mockLangTranslations
-    );
-  });
+    )
+  })
 
   afterEach(() => {
-    jest.clearAllMocks();
-  });
+    jest.clearAllMocks()
+  })
 
   describe('Constructor', () => {
     it('should initialize with default values', () => {
-      expect(component.upcommingList).toEqual([]);
-      expect(component.overDueList).toEqual([]);
-      expect(component.completedList).toEqual([]);
-      expect(component.toggleFilter).toBe(false);
-      expect(component.cbpLoader).toBe(false);
-      expect(component.filterApplied).toBe(false);
-      expect(component.contentCompletedStatus).toBe(2);
-    });
+      expect(component.upcommingList).toEqual([])
+      expect(component.overDueList).toEqual([])
+      expect(component.completedList).toEqual([])
+      expect(component.toggleFilter).toBe(false)
+      expect(component.cbpLoader).toBe(false)
+      expect(component.filterApplied).toBe(false)
+      expect(component.contentCompletedStatus).toBe(2)
+    })
 
     it('should subscribe to language changes', () => {
-      const getItemSpy = jest.spyOn(localStorage, 'getItem').mockReturnValue('es');
-      
-      languageSubject.next({});
+      const getItemSpy = jest.spyOn(localStorage, 'getItem').mockReturnValue('es')
 
-      expect(mockTranslateService.setDefaultLang).toHaveBeenCalledWith('en');
-      expect(mockTranslateService.use).toHaveBeenCalledWith('es');
-      expect(getItemSpy).toHaveBeenCalledWith('websiteLanguage');
-    });
+      languageSubject.next({})
+
+      expect(mockTranslateService.setDefaultLang).toHaveBeenCalledWith('en')
+      expect(mockTranslateService.use).toHaveBeenCalledWith('es')
+      expect(getItemSpy).toHaveBeenCalledWith('websiteLanguage')
+    })
 
     it('should not set language if localStorage is empty', () => {
-      jest.spyOn(localStorage, 'getItem').mockReturnValue(null);
-      
-      languageSubject.next({});
+      jest.spyOn(localStorage, 'getItem').mockReturnValue(null)
 
-      expect(mockTranslateService.setDefaultLang).toHaveBeenCalledWith('en');
-      expect(mockTranslateService.use).not.toHaveBeenCalled();
-    });
-  });
+      languageSubject.next({})
+
+      expect(mockTranslateService.setDefaultLang).toHaveBeenCalledWith('en')
+      expect(mockTranslateService.use).not.toHaveBeenCalled()
+    })
+  })
 
   describe('ngOnInit', () => {
     it('should initialize component data from route snapshot', () => {
-      component.ngOnInit();
+      component.ngOnInit()
 
-      expect(component.cbpConfig).toEqual(mockPageData.data.cbpConfig);
-      expect(component.cbpAllConfig).toEqual(mockPageData.data);
-    });
+      expect(component.cbpConfig).toEqual(mockPageData.data.cbpConfig)
+      expect(component.cbpAllConfig).toEqual(mockPageData.data)
+    })
 
     it('should call getCbPlans', () => {
-      const getCbPlansSpy = jest.spyOn(component, 'getCbPlans').mockImplementation();
-      
-      component.ngOnInit();
+      const getCbPlansSpy = jest.spyOn(component, 'getCbPlans').mockImplementation()
 
-      expect(getCbPlansSpy).toHaveBeenCalled();
-    });
-  });
+      component.ngOnInit()
+
+      expect(getCbPlansSpy).toHaveBeenCalled()
+    })
+  })
 
   describe('getCbPlans', () => {
     beforeEach(() => {
-      component.cbpAllConfig = mockPageData.data;
-      component.getFeedStrip = jest.fn().mockReturnValue(mockPageData.data.cbpFeedStrip);
+      component.cbpAllConfig = mockPageData.data
+      component.getFeedStrip = jest.fn().mockReturnValue(mockPageData.data.cbpFeedStrip)
       // Ensure the mock is properly reset for each test
-      mockWidgetSvc.fetchCbpPlanList = jest.fn();
-    });
+      mockWidgetSvc.fetchCbpPlanList = jest.fn()
+    })
 
     it('should fetch and process CBP plans successfully', async () => {
-      const mockObservable = createMockObservable(mockCbpData);
-      mockWidgetSvc.fetchCbpPlanList.mockReturnValue(mockObservable);
+      const mockObservable = createMockObservable(mockCbpData)
+      mockWidgetSvc.fetchCbpPlanList.mockReturnValue(mockObservable)
 
-      await component.getCbPlans();
+      await component.getCbPlans()
 
-      expect(mockWidgetSvc.fetchCbpPlanList).toHaveBeenCalledWith('user123');
-      expect(component.cbpLoader).toBe(false);
-      expect(component.cbpOriginalData).toEqual(mockCbpData);
-      expect(component.upcommingList.length).toBeGreaterThan(0);
-      expect(component.overDueList.length).toBeGreaterThan(0);
-      expect(mockObservable.toPromise).toHaveBeenCalled();
-    });
+      expect(mockWidgetSvc.fetchCbpPlanList).toHaveBeenCalledWith('user123')
+      expect(component.cbpLoader).toBe(false)
+      expect(component.cbpOriginalData).toEqual(mockCbpData)
+      expect(component.upcommingList.length).toBeGreaterThan(0)
+      expect(component.overDueList.length).toBeGreaterThan(0)
+      expect(mockObservable.toPromise).toHaveBeenCalled()
+    })
 
     it('should handle empty response', async () => {
-      const mockObservable = createMockObservable([]);
-      mockWidgetSvc.fetchCbpPlanList.mockReturnValue(mockObservable);
+      const mockObservable = createMockObservable([])
+      mockWidgetSvc.fetchCbpPlanList.mockReturnValue(mockObservable)
 
-      await component.getCbPlans();
+      await component.getCbPlans()
 
-      expect(mockWidgetSvc.fetchCbpPlanList).toHaveBeenCalledWith('user123');
-      expect(component.upcommingList).toEqual([]);
-      expect(component.overDueList).toEqual([]);
-      expect(component.contentFeedList).toEqual([]);
-      expect(component.completedList).toEqual([]);
-      expect(mockObservable.toPromise).toHaveBeenCalled();
-    });
+      expect(mockWidgetSvc.fetchCbpPlanList).toHaveBeenCalledWith('user123')
+      expect(component.upcommingList).toEqual([])
+      expect(component.overDueList).toEqual([])
+      expect(component.contentFeedList).toEqual([])
+      expect(component.completedList).toEqual([])
+      expect(mockObservable.toPromise).toHaveBeenCalled()
+    })
 
     it('should separate upcoming and overdue items correctly', async () => {
-      const mockObservable = createMockObservable(mockCbpData);
-      mockWidgetSvc.fetchCbpPlanList.mockReturnValue(mockObservable);
+      const mockObservable = createMockObservable(mockCbpData)
+      mockWidgetSvc.fetchCbpPlanList.mockReturnValue(mockObservable)
 
-      await component.getCbPlans();
+      await component.getCbPlans()
 
-      const upcomingData = component.cbpOriginalData.filter((item: any) => item.planDuration === 'upcoming');
-      const overdueData = component.cbpOriginalData.filter((item: any) => item.planDuration === 'overdue');
+      const upcomingData = component.cbpOriginalData.filter((item: any) => item.planDuration === 'upcoming')
+      const overdueData = component.cbpOriginalData.filter((item: any) => item.planDuration === 'overdue')
 
-      expect(upcomingData.length).toBe(1);
-      expect(overdueData.length).toBe(2);
-    });
+      expect(upcomingData.length).toBe(1)
+      expect(overdueData.length).toBe(2)
+    })
 
     it('should calculate user CBP count correctly', async () => {
-      const mockObservable = createMockObservable(mockCbpData);
-      mockWidgetSvc.fetchCbpPlanList.mockReturnValue(mockObservable);
+      const mockObservable = createMockObservable(mockCbpData)
+      mockWidgetSvc.fetchCbpPlanList.mockReturnValue(mockObservable)
 
-      await component.getCbPlans();
+      await component.getCbPlans()
 
-      expect(component.usersCbpCount.completed).toBe(1); // contentStatus === 2
-      expect(component.usersCbpCount.all).toBe(3);
-    });
+      expect(component.usersCbpCount.completed).toBe(1) // contentStatus === 2
+      expect(component.usersCbpCount.all).toBe(3)
+    })
 
     it('should handle promise rejection', async () => {
       const mockObservable = {
         toPromise: jest.fn().mockRejectedValue(new Error('API Error')),
         subscribe: jest.fn()
-      };
-      mockWidgetSvc.fetchCbpPlanList.mockReturnValue(mockObservable);
+      }
+      mockWidgetSvc.fetchCbpPlanList.mockReturnValue(mockObservable)
 
       try {
-        await component.getCbPlans();
+        await component.getCbPlans()
         // If the component doesn't throw, we can check that it handled the error gracefully
-        expect(component.cbpLoader).toBe(false);
+        expect(component.cbpLoader).toBe(false)
       } catch (error) {
         // If the component throws, that's also acceptable behavior
-        expect(error).toBeDefined();
+        expect(error).toBeDefined()
       }
-    });
-  });
+    })
+  })
 
   describe('transformContentsToWidgets', () => {
     const mockStrip = {
@@ -285,12 +285,12 @@ describe('CbpPlanComponent', () => {
         deletedMode: false,
         contentTags: ['tag1']
       }
-    };
+    }
 
     it('should transform contents to widget format', () => {
-      const result = component['transformContentsToWidgets'](mockCbpData, mockStrip);
+      const result = component['transformContentsToWidgets'](mockCbpData, mockStrip)
 
-     // expect(result).toHaveLength(3);
+      // expect(result).toHaveLength(3);
       expect(result[0]).toEqual({
         widgetType: 'card',
         widgetSubType: 'cardContent',
@@ -308,21 +308,21 @@ describe('CbpPlanComponent', () => {
           deletedMode: false,
           contentTags: ['tag1']
         }
-      });
-    });
+      })
+    })
 
     it('should handle empty contents array', () => {
-      const result = component['transformContentsToWidgets']([], mockStrip);
-      expect(result).toEqual([]);
-    });
+      const result = component['transformContentsToWidgets']([], mockStrip)
+      expect(result).toEqual([])
+    })
 
     it('should handle content without batch', () => {
-      const contentWithoutBatch = [{ ...mockCbpData[0], batch: undefined }];
-      const result = component['transformContentsToWidgets'](contentWithoutBatch, mockStrip);
+      const contentWithoutBatch = [{ ...mockCbpData[0], batch: undefined }]
+      const result = component['transformContentsToWidgets'](contentWithoutBatch, mockStrip)
 
-      expect(result[0].widgetData.batch).toBeUndefined();
-    });
-  });
+      expect(result[0].widgetData.batch).toBeUndefined()
+    })
+  })
 
   describe('transformSkeletonToWidgets', () => {
     const mockStrip = {
@@ -330,12 +330,12 @@ describe('CbpPlanComponent', () => {
       viewMoreUrl: {
         loaderConfig: { cardSubType: 'card-skeleton' }
       }
-    };
+    }
 
     it('should create skeleton widgets', () => {
-      const result = component['transformSkeletonToWidgets'](mockStrip);
+      const result = component['transformSkeletonToWidgets'](mockStrip)
 
-    //  expect(result).toHaveLength(11);
+      //  expect(result).toHaveLength(11);
       expect(result[0]).toEqual({
         widgetType: 'card',
         widgetSubType: 'cardContent',
@@ -344,59 +344,59 @@ describe('CbpPlanComponent', () => {
         widgetData: {
           cardSubType: 'card-skeleton'
         }
-      });
-    });
+      })
+    })
 
     it('should use default skeleton type when loaderConfig is missing', () => {
-      const stripWithoutLoader = { customeClass: 'test' };
-      const result = component['transformSkeletonToWidgets'](stripWithoutLoader);
+      const stripWithoutLoader = { customeClass: 'test' }
+      const result = component['transformSkeletonToWidgets'](stripWithoutLoader)
 
-      expect(result[0].widgetData.cardSubType).toBe('card-portrait-skeleton');
-    });
-  });
+      expect(result[0].widgetData.cardSubType).toBe('card-portrait-skeleton')
+    })
+  })
 
   describe('getFeedStrip', () => {
     beforeEach(() => {
-      component.cbpAllConfig = mockPageData.data;
-    });
+      component.cbpAllConfig = mockPageData.data
+    })
 
     it('should return mobile strip for small screens', () => {
       Object.defineProperty(window, 'screen', {
         value: { width: 500 },
         configurable: true
-      });
+      })
 
-      const result = component.getFeedStrip();
-      expect(result).toEqual(mockPageData.data.cbpFeedMobileStrip);
-    });
+      const result = component.getFeedStrip()
+      expect(result).toEqual(mockPageData.data.cbpFeedMobileStrip)
+    })
 
     it('should return desktop strip for large screens', () => {
       Object.defineProperty(window, 'screen', {
         value: { width: 1024 },
         configurable: true
-      });
+      })
 
-      const result = component.getFeedStrip();
-      expect(result).toEqual(mockPageData.data.cbpFeedStrip);
-    });
-  });
+      const result = component.getFeedStrip()
+      expect(result).toEqual(mockPageData.data.cbpFeedStrip)
+    })
+  })
 
   describe('Filter Functions', () => {
     beforeEach(() => {
-      component.cbpOriginalData = mockCbpData;
-      component.cbpAllConfig = mockPageData.data;
-      component.getFeedStrip = jest.fn().mockReturnValue(mockPageData.data.cbpFeedStrip);
-    });
+      component.cbpOriginalData = mockCbpData
+      component.cbpAllConfig = mockPageData.data
+      component.getFeedStrip = jest.fn().mockReturnValue(mockPageData.data.cbpFeedStrip)
+    })
 
     describe('toggleFilterEvent', () => {
       it('should update toggleFilter property', () => {
-        component.toggleFilterEvent(true);
-        expect(component.toggleFilter).toBe(true);
+        component.toggleFilterEvent(true)
+        expect(component.toggleFilter).toBe(true)
 
-        component.toggleFilterEvent(false);
-        expect(component.toggleFilter).toBe(false);
-      });
-    });
+        component.toggleFilterEvent(false)
+        expect(component.toggleFilter).toBe(false)
+      })
+    })
 
     describe('applyFilter', () => {
       const mockFilterEvent = {
@@ -407,19 +407,19 @@ describe('CbpPlanComponent', () => {
         competencyTheme: [],
         competencySubTheme: [],
         providers: []
-      };
+      }
 
       it('should apply filter and close toggle', () => {
-        const filterDataSpy = jest.spyOn(component, 'filterData');
-        component.toggleFilter = true;
+        const filterDataSpy = jest.spyOn(component, 'filterData')
+        component.toggleFilter = true
 
-        component.applyFilter(mockFilterEvent);
+        component.applyFilter(mockFilterEvent)
 
-        expect(component.toggleFilter).toBe(false);
-        expect(component.filterObjData).toEqual(mockFilterEvent);
-        expect(filterDataSpy).toHaveBeenCalledWith(mockFilterEvent);
-      });
-    });
+        expect(component.toggleFilter).toBe(false)
+        expect(component.filterObjData).toEqual(mockFilterEvent)
+        expect(filterDataSpy).toHaveBeenCalledWith(mockFilterEvent)
+      })
+    })
 
     describe('filterData', () => {
       it('should filter by primary category', () => {
@@ -431,13 +431,13 @@ describe('CbpPlanComponent', () => {
           competencyTheme: [],
           competencySubTheme: [],
           providers: []
-        };
+        }
 
-        component.filterData(filterValue);
+        component.filterData(filterValue)
 
-        expect(component.filterApplied).toBe(true);
-        expect(component.contentFeedListCopy.length).toBe(2); // 2 courses in mock data
-      });
+        expect(component.filterApplied).toBe(true)
+        expect(component.contentFeedListCopy.length).toBe(2) // 2 courses in mock data
+      })
 
       it('should filter by status', () => {
         const filterValue = {
@@ -448,12 +448,12 @@ describe('CbpPlanComponent', () => {
           competencyTheme: [],
           competencySubTheme: [],
           providers: []
-        };
+        }
 
-        component.filterData(filterValue);
+        component.filterData(filterValue)
 
-        expect(component.contentFeedListCopy.length).toBe(1); // 1 completed item
-      });
+        expect(component.contentFeedListCopy.length).toBe(1) // 1 completed item
+      })
 
       it('should filter by competency area', () => {
         const filterValue = {
@@ -464,12 +464,12 @@ describe('CbpPlanComponent', () => {
           competencyTheme: [],
           competencySubTheme: [],
           providers: []
-        };
+        }
 
-        component.filterData(filterValue);
+        component.filterData(filterValue)
 
-        expect(component.contentFeedListCopy.length).toBe(2); // 2 items with Area1
-      });
+        expect(component.contentFeedListCopy.length).toBe(2) // 2 items with Area1
+      })
 
       it('should reset to original data when no filters applied', () => {
         const emptyFilter = {
@@ -480,13 +480,13 @@ describe('CbpPlanComponent', () => {
           competencyTheme: [],
           competencySubTheme: [],
           providers: []
-        };
+        }
 
-        component.filterData(emptyFilter);
+        component.filterData(emptyFilter)
 
-        expect(component.filterApplied).toBe(false);
-        expect(component.contentFeedListCopy).toEqual(mockCbpData);
-      });
+        expect(component.filterApplied).toBe(false)
+        expect(component.contentFeedListCopy).toEqual(mockCbpData)
+      })
 
       it('should handle "all" status filter', () => {
         const filterValue = {
@@ -497,19 +497,19 @@ describe('CbpPlanComponent', () => {
           competencyTheme: [],
           competencySubTheme: [],
           providers: []
-        };
+        }
 
-        component.filterData(filterValue);
+        component.filterData(filterValue)
 
-        expect(component.contentFeedListCopy.length).toBe(3); // All items
-      });
-    });
+        expect(component.contentFeedListCopy.length).toBe(3) // All items
+      })
+    })
 
     describe('searchData', () => {
       it('should filter data by search query', () => {
-        const searchEvent = { query: 'Test Course 1' };
-        
-        component.searchData(searchEvent);
+        const searchEvent = { query: 'Test Course 1' }
+
+        component.searchData(searchEvent)
 
         expect(component.filterObjData).toEqual({
           primaryCategory: [],
@@ -519,18 +519,18 @@ describe('CbpPlanComponent', () => {
           competencyTheme: [],
           competencySubTheme: [],
           providers: []
-        });
-      });
+        })
+      })
 
       it('should reset to original data when query is empty', () => {
-        const searchEvent = { query: '' };
-        
-        component.searchData(searchEvent);
+        const searchEvent = { query: '' }
+
+        component.searchData(searchEvent)
 
         // Should transform all original data
-        expect(component.contentFeedList.length).toBeGreaterThan(0);
-      });
-    });
+        expect(component.contentFeedList.length).toBeGreaterThan(0)
+      })
+    })
 
     describe('closeFilterKey', () => {
       it('should remove filter value and reapply filters', () => {
@@ -542,15 +542,15 @@ describe('CbpPlanComponent', () => {
           competencyTheme: [],
           competencySubTheme: [],
           providers: []
-        };
+        }
 
-        const applyFilterSpy = jest.spyOn(component, 'applyFilter');
-        
-        component.closeFilterKey({ key: 'primaryCategory', value: 'Course' });
+        const applyFilterSpy = jest.spyOn(component, 'applyFilter')
 
-        expect(component.filterObjData.primaryCategory).toEqual(['Resource']);
-        expect(applyFilterSpy).toHaveBeenCalledWith(component.filterObjData);
-      });
+        component.closeFilterKey({ key: 'primaryCategory', value: 'Course' })
+
+        expect(component.filterObjData.primaryCategory).toEqual(['Resource'])
+        expect(applyFilterSpy).toHaveBeenCalledWith(component.filterObjData)
+      })
 
       it('should handle non-existent filter value', () => {
         component.filterObjData = {
@@ -561,16 +561,16 @@ describe('CbpPlanComponent', () => {
           competencyTheme: [],
           competencySubTheme: [],
           providers: []
-        };
+        }
 
-        const applyFilterSpy = jest.spyOn(component, 'applyFilter');
-        
-        component.closeFilterKey({ key: 'primaryCategory', value: 'NonExistent' });
+        const applyFilterSpy = jest.spyOn(component, 'applyFilter')
 
-        expect(component.filterObjData.primaryCategory).toEqual(['Course']);
-        expect(applyFilterSpy).toHaveBeenCalled();
-      });
-    });
+        component.closeFilterKey({ key: 'primaryCategory', value: 'NonExistent' })
+
+        expect(component.filterObjData.primaryCategory).toEqual(['Course'])
+        expect(applyFilterSpy).toHaveBeenCalled()
+      })
+    })
 
     describe('filterValueEmitMethod', () => {
       it('should update filter object and apply filters', () => {
@@ -582,17 +582,17 @@ describe('CbpPlanComponent', () => {
           competencyTheme: [],
           competencySubTheme: [],
           providers: []
-        };
+        }
 
-        const applyFilterSpy = jest.spyOn(component, 'applyFilter');
-        
-        component.filterValueEmitMethod(filterEvent);
+        const applyFilterSpy = jest.spyOn(component, 'applyFilter')
 
-        expect(component.filterObjData).toEqual(filterEvent);
-        expect(applyFilterSpy).toHaveBeenCalledWith(filterEvent);
-      });
-    });
-  });
+        component.filterValueEmitMethod(filterEvent)
+
+        expect(component.filterObjData).toEqual(filterEvent)
+        expect(applyFilterSpy).toHaveBeenCalledWith(filterEvent)
+      })
+    })
+  })
 
   describe('clearFilterObj', () => {
     it('should clear filter object and apply filters', () => {
@@ -604,44 +604,44 @@ describe('CbpPlanComponent', () => {
         competencyTheme: [],
         competencySubTheme: [],
         providers: []
-      };
+      }
 
-      const filterDataSpy = jest.spyOn(component, 'filterData');
-      
-      component.clearFilterObj(filterEvent);
+      const filterDataSpy = jest.spyOn(component, 'filterData')
 
-      expect(component.filterObjData).toEqual(filterEvent);
-      expect(filterDataSpy).toHaveBeenCalledWith(filterEvent);
-    });
-  });
+      component.clearFilterObj(filterEvent)
+
+      expect(component.filterObjData).toEqual(filterEvent)
+      expect(filterDataSpy).toHaveBeenCalledWith(filterEvent)
+    })
+  })
 
   describe('Edge Cases', () => {
     it('should handle missing user profile', async () => {
-      mockConfigSvc.userProfile = null;
-      const mockObservable = createMockObservable([]);
-      mockWidgetSvc.fetchCbpPlanList.mockReturnValue(mockObservable as any);
+      mockConfigSvc.userProfile = null
+      const mockObservable = createMockObservable([])
+      mockWidgetSvc.fetchCbpPlanList.mockReturnValue(mockObservable as any)
 
-      await component.getCbPlans();
+      await component.getCbPlans()
 
       expect(mockWidgetSvc.fetchCbpPlanList).toBeUndefined()
-      expect(mockObservable.toPromise).toHaveBeenCalled();
-    });
+      expect(mockObservable.toPromise).toHaveBeenCalled()
+    })
 
     it('should handle missing page data in route', () => {
-      mockActivatedRoute.snapshot.data = {};
-      
-      component.ngOnInit();
+      mockActivatedRoute.snapshot.data = {}
 
-      expect(component.cbpConfig).toBeUndefined();
-      expect(component.cbpAllConfig).toBeUndefined();
-    });
+      component.ngOnInit()
+
+      expect(component.cbpConfig).toBeUndefined()
+      expect(component.cbpAllConfig).toBeUndefined()
+    })
 
     it('should handle missing strip configuration', () => {
-      const stripWithoutConfig = {};
-      const result = component['transformContentsToWidgets'](mockCbpData, stripWithoutConfig);
+      const stripWithoutConfig = {}
+      const result = component['transformContentsToWidgets'](mockCbpData, stripWithoutConfig)
 
-      expect(result[0].widgetData.cardSubType).toBeUndefined();
-      expect(result[0].widgetData.cardCustomeClass).toBe('');
-    });
-  });
-});
+      expect(result[0].widgetData.cardSubType).toBeUndefined()
+      expect(result[0].widgetData.cardCustomeClass).toBe('')
+    })
+  })
+})

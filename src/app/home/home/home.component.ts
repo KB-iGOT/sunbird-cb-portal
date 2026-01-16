@@ -16,7 +16,7 @@ import { MobileAppsService } from '../../services/mobile-apps.service'
 import { UserProfileService } from '@ws/app/src/lib/routes/user-profile/services/user-profile.service'
 import { BtnSettingsService } from '@sunbird-cb/collection/src/lib/btn-settings/btn-settings.service'
 // import { IUserProfileDetailsFromRegistry } from '@ws/app/src/lib/routes/user-profile/models/user-profile.model'
-import { ProfileVerificationDialogComponent } from 'src/app/profile-verification-dialog/profile-verification-dialog.component'
+import { ProfileVerificationDialogComponent } from '../../profile-verification-dialog/profile-verification-dialog.component'
 
 // import { NotificationComponent } from './notification/notification.component'
 
