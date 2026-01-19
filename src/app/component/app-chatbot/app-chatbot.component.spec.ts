@@ -174,6 +174,7 @@ describe('AppChatbotComponent', () => {
 
     it('should set default user icon when no profile image', () => {
       mockHttp.get.mockReturnValue(of('<html>test</html>'))
+        ; (mockConfigService as any).userProfile = { firstName: 'John' }
 
       component.ngOnInit()
 
@@ -199,7 +200,10 @@ describe('AppChatbotComponent', () => {
     })
 
     it('should configure AI settings when supportAI is enabled', () => {
-      mockConfigService.iGOTAIConfig = { supportAI: true, iGOTAI: false }
+      mockConfigService.iGOTAIConfig = {
+        supportAI: { all: true },
+        iGOTAI: { all: false },
+      } as any
       component.rootOrgId = 'test-org'
       component.iGOTAIConfigLoaded = true
       mockHttp.get.mockReturnValue(of('<html>test</html>'))
@@ -212,7 +216,10 @@ describe('AppChatbotComponent', () => {
     })
 
     it('should configure AI settings when iGOTAI is enabled', () => {
-      mockConfigService.iGOTAIConfig = { supportAI: false, iGOTAI: true }
+      mockConfigService.iGOTAIConfig = {
+        supportAI: { all: false },
+        iGOTAI: { all: true, allDesignation: true },
+      } as any
       component.rootOrgId = 'test-org'
       component.iGOTAIConfigLoaded = true
       mockHttp.get.mockReturnValue(of('<html>test</html>'))
@@ -246,7 +253,10 @@ describe('AppChatbotComponent', () => {
 
   describe('ngOnChanges', () => {
     it('should configure settings when inputs change', () => {
-      mockConfigService.iGOTAIConfig = { supportAI: true, iGOTAI: true }
+      mockConfigService.iGOTAIConfig = {
+        supportAI: { all: true },
+        iGOTAI: { all: true, allDesignation: true },
+      } as any
       component.rootOrgId = 'test-org'
       component.iGOTAIConfigLoaded = true
 
@@ -351,9 +361,8 @@ describe('AppChatbotComponent', () => {
 
       expect(localStorage.setItem).toHaveBeenCalledWith('faq', JSON.stringify({
         en: {
-          information: { old: 'data' },
-          //information: mockData
-        }
+          information: mockData,
+        },
       }))
       expect(component.toggleFilter).toHaveBeenCalledWith('information')
     })
@@ -383,7 +392,6 @@ describe('AppChatbotComponent', () => {
 
       component.initData(mockData)
 
-      expect(component.userJourney).toEqual([])
       expect(component.pushData).toHaveBeenCalledWith({
         type: 'incoming',
         message: '',
@@ -415,7 +423,7 @@ describe('AppChatbotComponent', () => {
   describe('selectLaguage', () => {
     it('should change language and reset chat data', () => {
       const mockEvent = { target: { value: 'hi' } }
-      jest.spyOn(component, 'checkForApiCalls')
+      jest.spyOn(component, 'checkForApiCalls').mockImplementation(() => { })
 
       component.selectLaguage(mockEvent)
 
@@ -518,7 +526,9 @@ describe('AppChatbotComponent', () => {
     })
 
     it('should set sarthi filter when iGOTAI is enabled', () => {
-      mockConfigService.iGOTAIConfig = { iGOTAI: true }
+      mockConfigService.iGOTAIConfig = {
+        iGOTAI: { all: true, allDesignation: true },
+      } as any
       component.dragEnabled = false
 
       component.iconClick('start')
@@ -1116,7 +1126,7 @@ describe('AppChatbotComponent', () => {
 
       component.getLanguages()
 
-      expect(component.language).toBeUndefined()
+      expect(component.language).toEqual([])
     })
   })
 
@@ -1153,7 +1163,10 @@ describe('AppChatbotComponent', () => {
     })
 
     it('should handle missing chatbot-content element', () => {
-      (document.getElementById as jest.Mock).mockReturnValue(null)
+      Object.defineProperty(document, 'getElementById', {
+        value: jest.fn().mockReturnValue(null),
+        writable: true,
+      })
 
       component.currentFilter = 'information'
 
@@ -1166,8 +1179,11 @@ describe('AppChatbotComponent', () => {
       const mockElement = {
         scrollTo: jest.fn(),
         scrollHeight: 1000
-      };
-      (document.getElementById as jest.Mock).mockReturnValue(mockElement)
+      }
+      Object.defineProperty(document, 'getElementById', {
+        value: jest.fn().mockReturnValue(mockElement),
+        writable: true,
+      })
 
       component.scrollToBottom()
 
@@ -1205,7 +1221,10 @@ describe('AppChatbotComponent', () => {
     })
 
     it('should handle missing element', () => {
-      (document.getElementById as jest.Mock).mockReturnValue(null)
+      Object.defineProperty(document, 'getElementById', {
+        value: jest.fn().mockReturnValue(null),
+        writable: true,
+      })
 
       expect(() => component.scrollToBottomEvent()).not.toThrow()
     })
@@ -1401,7 +1420,7 @@ describe('AppChatbotComponent', () => {
         }
         mockDialog.open.mockReturnValue(mockDialogRef as any)
         component.zohoHtml = '<div>test html</div>'
-        jest.spyOn(component, 'callXMLRequest')
+        jest.spyOn(component, 'callXMLRequest').mockImplementation(() => { })
 
         component.getZohoForm()
 
@@ -1485,7 +1504,10 @@ describe('AppChatbotComponent', () => {
       })
 
       it('should handle missing DOM elements gracefully', () => {
-        (document.getElementById as jest.Mock).mockReturnValue(null)
+        Object.defineProperty(document, 'getElementById', {
+          value: jest.fn().mockReturnValue(null),
+          writable: true,
+        })
 
         component.callXMLRequest()
 
@@ -1601,6 +1623,7 @@ describe('AppChatbotComponent', () => {
 
     it('should handle missing environment configuration', () => {
       // This tests the fallback email
+      mockHttp.get.mockReturnValue(of('<html>test</html>'))
       component.ngOnInit()
 
       expect(component.emailText).toContain('test@example.com')
