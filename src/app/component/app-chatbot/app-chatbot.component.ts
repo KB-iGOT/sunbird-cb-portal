@@ -246,15 +246,18 @@ export class AppChatbotComponent implements OnInit, AfterViewChecked, OnChanges 
   }
 
   greetings() {
-    return this.localization[this.selectedLaguage]['Hi'] || 'Hi'
+    const langConfig = this.localization[this.selectedLaguage]
+    return (langConfig && langConfig['Hi']) || 'Hi'
   }
 
   getInfoText(label: string) {
-    return this.localization[this.selectedLaguage][label] || label
+    const langConfig = this.localization[this.selectedLaguage]
+    return (langConfig && langConfig[label]) || label
   }
 
   showMore() {
-    return this.localization[this.selectedLaguage]['showmore'] || 'Show More'
+    const langConfig = this.localization[this.selectedLaguage]
+    return (langConfig && langConfig['showmore']) || 'Show More'
   }
 
   getData() {

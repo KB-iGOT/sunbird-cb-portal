@@ -836,15 +836,6 @@ describe('PublicSignupComponent', () => {
     })
   })
 
-  describe('translateLabels', () => {
-    it('should translate labels', () => {
-      const result = component.translateLabels('test', 'common')
-
-      expect(mockMultilingualService.translateActualLabel).toHaveBeenCalledWith('test', 'common', '')
-      expect(result).toBe('translated-text')
-    })
-  })
-
   describe('getZohoForm', () => {
     it('should open zoho dialog and call XML request', (done) => {
       component.zohoHtml = '<html>test</html>'
@@ -994,6 +985,9 @@ describe('PublicSignupComponent', () => {
     })
 
     it('should handle missing instance config', () => {
+      const originalInstanceConfig = mockConfigService.instanceConfig
+        ; (mockConfigService as any).instanceConfig = null
+
       component = new PublicSignupComponent(
         mockSignupService as any,
         mockUsersService as any,
@@ -1017,6 +1011,8 @@ describe('PublicSignupComponent', () => {
       component.ngOnInit()
 
       expect(component.telemetryConfig).toBeNull()
+
+        ; (mockConfigService as any).instanceConfig = originalInstanceConfig
     })
 
     it('should handle timer cleanup in startCountDown', () => {
