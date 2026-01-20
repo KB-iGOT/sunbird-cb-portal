@@ -10,9 +10,11 @@ RUN yarn && yarn add moment && yarn add vis-util && npm run build --prod --build
 RUN npm run compress:brotli
 #RUN npm run compress:gzip
 
+RUN npm install @sunbird-cb/toc@0.0.5 --legacy-peer-deps
+
 WORKDIR /app/dist
 COPY assets/iGOT/client-assets/dist www/en/assets
-RUN npm install --production 
+RUN npm install --production
 EXPOSE 3004
 
 CMD [ "npm", "run", "serve:prod" ]
