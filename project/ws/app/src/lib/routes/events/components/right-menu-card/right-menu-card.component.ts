@@ -5,19 +5,19 @@ import { environment } from 'src/environments/environment'
 import { TranslateService } from '@ngx-translate/core'
 import { ActivatedRoute, Router } from '@angular/router'
 import { EventService } from '../../services/events.service'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
+import { MatDialog } from '@angular/material/dialog'
 import { DialogConfirmComponent } from '../../../../../../../../../src/app/component/dialog-confirm/dialog-confirm.component'
 // import { ActivatedRoute } from '@angular/router'
 // import { ConfigurationsService } from '@ws-widget/utils'
 // import { NSProfileDataV2 } from '../../models/profile-v2.model'
 @Component({
-  selector: 'app-right-menu-card',
-  templateUrl: './right-menu-card.component.html',
-  styleUrls: ['./right-menu-card.component.scss'],
-  /* tslint:disable */
-  host: { class: 'flex flex-1' },
-  /* tslint:enable */
+    selector: 'app-right-menu-card',
+    templateUrl: './right-menu-card.component.html',
+    styleUrls: ['./right-menu-card.component.scss'],
+    /* tslint:disable */
+    host: { class: 'flex flex-1' },
+    standalone: false
 })
 export class RightMenuCardComponent implements OnInit, OnDestroy, OnChanges {
   @Input() eventData: any

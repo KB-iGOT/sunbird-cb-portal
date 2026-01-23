@@ -35,9 +35,10 @@ import { NOTIFICATION_TIME, WEB_MODULE_JSON_FILE_NAME } from '../../../constant/
 import { IAudioObj } from '../../../interface/page-interface'
 import { WebStoreService } from '../../../services/store.service'
 @Component({
-  selector: 'ws-auth-add-web-pages',
-  templateUrl: './add-web-pages.component.html',
-  styleUrls: ['./add-web-pages.component.scss'],
+    selector: 'ws-auth-add-web-pages',
+    templateUrl: './add-web-pages.component.html',
+    styleUrls: ['./add-web-pages.component.scss'],
+    standalone: false
 })
 export class AddWebPagesComponent implements OnInit, OnDestroy {
   @Output() data = new EventEmitter<string>()

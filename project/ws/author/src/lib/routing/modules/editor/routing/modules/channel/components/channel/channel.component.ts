@@ -27,10 +27,11 @@ import { ChannelResolverService } from './../../services/resolver.service'
 import { ChannelStoreService } from './../../services/store.service'
 
 @Component({
-  selector: 'ws-auth-channel',
-  templateUrl: './channel.component.html',
-  styleUrls: ['./channel.component.scss'],
-  providers: [ChannelStoreService],
+    selector: 'ws-auth-channel',
+    templateUrl: './channel.component.html',
+    styleUrls: ['./channel.component.scss'],
+    providers: [ChannelStoreService],
+    standalone: false
 })
 export class ChannelComponent implements OnInit, OnDestroy {
   contents: NSContent.IContentMeta[] = []

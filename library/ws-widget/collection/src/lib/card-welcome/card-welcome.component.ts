@@ -8,9 +8,10 @@ import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 // import { MatSnackBar } from '@angular/material/snack-bar'
 
 @Component({
-  selector: 'ws-widget-card-welcome',
-  templateUrl: './card-welcome.component.html',
-  styleUrls: ['./card-welcome.component.scss'],
+    selector: 'ws-widget-card-welcome',
+    templateUrl: './card-welcome.component.html',
+    styleUrls: ['./card-welcome.component.scss'],
+    standalone: false
 })
 export class CardWelcomeComponent extends WidgetBaseComponent
   implements OnInit, NsWidgetResolver.IWidgetData<any> {

@@ -25,9 +25,10 @@ import { MyContentService } from '../../services/my-content.service'
 import { map } from 'rxjs/operators'
 
 @Component({
-  selector: 'ws-auth-my-content',
-  templateUrl: './my-content.component.html',
-  styleUrls: ['./my-content.component.scss'],
+    selector: 'ws-auth-my-content',
+    templateUrl: './my-content.component.html',
+    styleUrls: ['./my-content.component.scss'],
+    standalone: false
 })
 export class MyContentComponent implements OnInit, OnDestroy {
   public sideNavBarOpened = false

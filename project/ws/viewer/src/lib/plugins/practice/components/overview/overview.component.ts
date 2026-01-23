@@ -5,12 +5,13 @@ import { ActivatedRoute } from '@angular/router'
 import { ViewerHeaderSideBarToggleService } from './../../../../viewer-header-side-bar-toggle.service'
 import { PracticeService } from '../../practice.service'
 import { FinalAssessmentPopupComponent } from './../final-assessment-popup/final-assessment-popup.component'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatDialog } from '@angular/material/dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
 @Component({
-  selector: 'viewer-overview',
-  templateUrl: './overview.component.html',
-  styleUrls: ['./overview.component.scss'],
+    selector: 'viewer-overview',
+    templateUrl: './overview.component.html',
+    styleUrls: ['./overview.component.scss'],
+    standalone: false
 })
 export class OverviewComponent implements OnInit, OnChanges, OnDestroy {
   @Input() learningObjective = ''
@@ -54,7 +55,7 @@ export class OverviewComponent implements OnInit, OnChanges, OnDestroy {
     this.dataSubscription = this.route.data.subscribe(data => {
       if (data && data.pageData) {
         if (data && data.content && data.content.data && data.content.data.identifier) {
-          const identifier =  data.content.data.identifier
+          const identifier = data.content.data.identifier
           if (identifier && !this.forPreview) {
             this.checkForAssessmentSubmitAlready(identifier)
           }
@@ -67,7 +68,7 @@ export class OverviewComponent implements OnInit, OnChanges, OnDestroy {
   ngOnChanges() {
     if (!this.forPreview) {
       if (this.canAttempt && (this.canAttempt.attemptsMade >= this.canAttempt.attemptsAllowed) &&
-          this.questionTYP.FINAL_ASSESSMENT === this.primaryCategory) {
+        this.questionTYP.FINAL_ASSESSMENT === this.primaryCategory) {
         if (!this.maxAttempPopup && this.selectedAssessmentCompatibilityLevel > 6) {
           this.showAssessmentPopup()
         }
@@ -77,7 +78,7 @@ export class OverviewComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   showAssessmentPopup() {
-    this.maxAttempPopup = true  
+    this.maxAttempPopup = true
     const popupData = {
       headerText: 'this.resourceName',
       assessmentType: 'maxAttemptReached',
@@ -92,7 +93,7 @@ export class OverviewComponent implements OnInit, OnChanges, OnDestroy {
         },
       ],
     }
-    const dialogRef =  this.dialog.open(FinalAssessmentPopupComponent, {
+    const dialogRef = this.dialog.open(FinalAssessmentPopupComponent, {
       data: popupData,
       width: '626px',
       maxWidth: '90vw',
@@ -106,8 +107,8 @@ export class OverviewComponent implements OnInit, OnChanges, OnDestroy {
         switch (result) {
           case 'yes':
             this.maxAttempPopup = false
-          // this.submitQuiz()
-          break
+            // this.submitQuiz()
+            break
         }
 
       }

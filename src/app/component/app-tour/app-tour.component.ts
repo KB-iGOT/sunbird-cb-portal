@@ -4,10 +4,11 @@ import { UtilityService, EventService, WsEvents, ConfigurationsService } from '@
 import { UserProfileService } from '@ws/app/src/lib/routes/user-profile/services/user-profile.service'
 import { TranslateService } from '@ngx-translate/core'
 @Component({
-  selector: 'app-tour',
-  templateUrl: './app-tour.component.html',
-  styleUrls: ['./app-tour.component.scss'],
-  providers: [UserProfileService],
+    selector: 'app-tour',
+    templateUrl: './app-tour.component.html',
+    styleUrls: ['./app-tour.component.scss'],
+    providers: [UserProfileService],
+    standalone: false
 })
 
 export class AppTourComponent {

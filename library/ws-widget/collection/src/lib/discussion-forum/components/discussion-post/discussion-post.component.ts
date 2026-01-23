@@ -4,13 +4,14 @@ import { TFetchStatus, ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { WsDiscussionForumService } from '../../ws-discussion-forum.services'
 import { EditorQuillComponent } from '../../editor-quill/editor-quill.component'
 import { DialogSocialDeletePostComponent } from '../../dialog/dialog-social-delete-post/dialog-social-delete-post.component'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatDialog } from '@angular/material/dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
 
 @Component({
-  selector: 'ws-widget-discussion-post',
-  templateUrl: './discussion-post.component.html',
-  styleUrls: ['./discussion-post.component.scss'],
+    selector: 'ws-widget-discussion-post',
+    templateUrl: './discussion-post.component.html',
+    styleUrls: ['./discussion-post.component.scss'],
+    standalone: false
 })
 export class DiscussionPostComponent implements OnInit {
 

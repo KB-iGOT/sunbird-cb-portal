@@ -1,19 +1,20 @@
 import { Component, OnInit, Inject } from '@angular/core'
-import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog'
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
 import { TCertificationRequestType } from '../../models/certification.model'
 
 @Component({
-  selector: 'ws-app-request-cancel-dialog',
-  templateUrl: './request-cancel-dialog.component.html',
-  styleUrls: ['./request-cancel-dialog.component.scss'],
+    selector: 'ws-app-request-cancel-dialog',
+    templateUrl: './request-cancel-dialog.component.html',
+    styleUrls: ['./request-cancel-dialog.component.scss'],
+    standalone: false
 })
 export class RequestCancelDialogComponent implements OnInit {
   constructor(
     @Inject(MAT_DIALOG_DATA) public requestType: TCertificationRequestType,
     private dialogRef: MatDialogRef<RequestCancelDialogComponent, { confirmCancel: boolean }>,
-  ) {}
+  ) { }
 
-  ngOnInit() {}
+  ngOnInit() { }
 
   cancelRequest() {
     this.dialogRef.close({

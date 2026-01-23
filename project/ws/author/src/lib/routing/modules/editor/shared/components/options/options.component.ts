@@ -5,9 +5,10 @@ import { NSContent } from '@ws/author/src/lib/interface/content'
 import { NsContent } from '@sunbird-cb/collection'
 
 @Component({
-  selector: 'ws-auth-options',
-  templateUrl: './options.component.html',
-  styleUrls: ['./options.component.scss'],
+    selector: 'ws-auth-options',
+    templateUrl: './options.component.html',
+    styleUrls: ['./options.component.scss'],
+    standalone: false
 })
 export class OptionsComponent implements OnInit, OnDestroy, AfterViewInit {
   contents: NSContent.IContentMeta[] = []

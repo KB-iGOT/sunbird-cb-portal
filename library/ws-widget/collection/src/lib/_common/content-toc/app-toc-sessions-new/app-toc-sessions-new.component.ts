@@ -1,11 +1,12 @@
 import { Component, Input, OnInit } from '@angular/core'
-import { NsContent } from '@sunbird-cb/collection'
 import moment from 'moment'
+import { NsContent } from '../../../_services/widget-content.model'
 
 @Component({
   selector: 'ws-widget-app-app-toc-sessions-new',
   templateUrl: './app-toc-sessions-new.component.html',
   styleUrls: ['./app-toc-sessions-new.component.scss'],
+  standalone: false
 })
 export class AppTocSessionsNewComponent implements OnInit {
   @Input() batchData: any

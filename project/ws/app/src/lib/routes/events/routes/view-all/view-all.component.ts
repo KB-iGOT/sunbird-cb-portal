@@ -4,7 +4,7 @@ import { ConfigurationsService, MultilingualTranslationsService, NsContent } fro
 import { EventService } from '../../services/events.service'
 import * as _ from 'lodash'
 import { DatePipe } from '@angular/common'
-//import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+//import {  MatSnackBar } from '@angular/material/snack-bar'
 import { UntypedFormControl } from '@angular/forms'
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators'
 import { MatBottomSheet } from '@angular/material/bottom-sheet'
@@ -14,10 +14,11 @@ import { TranslateService } from '@ngx-translate/core'
 import { Subject, Subscription } from 'rxjs'
 
 @Component({
-  selector: 'ws-app-view-all',
-  templateUrl: './view-all.component.html',
-  styleUrls: ['./view-all.component.scss'],
-  providers: [DatePipe]
+    selector: 'ws-app-view-all',
+    templateUrl: './view-all.component.html',
+    styleUrls: ['./view-all.component.scss'],
+    providers: [DatePipe],
+    standalone: false
 })
 export class ViewAllComponent {
 

@@ -10,8 +10,8 @@ import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { ProfileV2Service } from '../../../profile-v2/services/profile-v2.servive'
 import { OtpService } from '../../../user-profile/services/otp.services'
 import { NPSGridService } from '@sunbird-cb/collection/src/lib/grid-layout/nps-grid.service'
-import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
 /* tslint:disable */
 import _ from 'lodash'
 import { TranslateService } from '@ngx-translate/core'
@@ -25,9 +25,10 @@ const EMP_ID_PATTERN = /^[a-z0-9]+$/i
 const EMAIL_PATTERN = /^[a-zA-Z0-9]+[a-zA-Z0-9._-]*[a-zA-Z0-9]+@[a-zA-Z0-9]+([-a-zA-Z0-9]*[a-zA-Z0-9]+)?(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,4}$/
 
 @Component({
-  selector: 'ws-app-enroll-profile-form',
-  templateUrl: './enroll-profile-form.component.html',
-  styleUrls: ['./enroll-profile-form.component.scss'],
+    selector: 'ws-app-enroll-profile-form',
+    templateUrl: './enroll-profile-form.component.html',
+    styleUrls: ['./enroll-profile-form.component.scss'],
+    standalone: false
 })
 export class EnrollProfileFormComponent implements OnInit {
   public afterSubmitAction = this.checkAfterSubmit.bind(this)
@@ -130,7 +131,7 @@ export class EnrollProfileFormComponent implements OnInit {
   designationListLoadCount = 50
   addLoader = 0
   isLoadingMoreDesignations = false;
-  designationDefaultLoadCount =  50
+  designationDefaultLoadCount = 50
   desigantionFilterEnable = false
   organisationId = ''
   selectedOrgHasDesignations = false;
@@ -138,7 +139,7 @@ export class EnrollProfileFormComponent implements OnInit {
   designationSearchText = '';
   designationsTotalCount = 0;
   formId: string = '';
-  formsDetils: any;
+  formsDetils: any
   @ViewChild('textBox') textBox!: ElementRef
   @ViewChild('dropdown') dropdown!: ElementRef
   @ViewChild('languageTextBox') languageTextBox!: ElementRef
@@ -248,7 +249,7 @@ export class EnrollProfileFormComponent implements OnInit {
       activeElement = container.querySelector('.item-active')
     }
     if (activeElement) {
-      activeElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+      activeElement.scrollIntoView({ behavior: 'smooth', block: 'nearest' })
     }
   }
 
@@ -290,7 +291,7 @@ export class EnrollProfileFormComponent implements OnInit {
       if (this.masterLanguages.length === 0) {
         const usernameControl = this.userDetailsForm.get('domicileMedium')
         if (usernameControl) {
-          usernameControl.setErrors({ required: true });
+          usernameControl.setErrors({ required: true })
         }
       }
     }
@@ -367,7 +368,7 @@ export class EnrollProfileFormComponent implements OnInit {
     const fieldControl = this.userDetailsForm.get('otherDesignation')
     if (this.showDoptChanges && designation === 'Others') {
       if (fieldControl) {
-        fieldControl.setValidators([Validators.required]);
+        fieldControl.setValidators([Validators.required])
         fieldControl.updateValueAndValidity()
       }
       this.canShowOtherDesignation = true
@@ -570,7 +571,7 @@ export class EnrollProfileFormComponent implements OnInit {
     this.getPendingDetails()
     setTimeout(() => {
       // this.loadDesignations()
-      this.checkSelectedOrgHasDesignations();
+      this.checkSelectedOrgHasDesignations()
       //this.getMasterDesignation()
       this.getMasterLanguage()
     }, 500)
@@ -595,19 +596,19 @@ export class EnrollProfileFormComponent implements OnInit {
         distinctUntilChanged(),
         startWith(''),
       ).subscribe(searchText => {
-          this.designationsOffset = 0
-          if (searchText && searchText.length > 1) {
+        this.designationsOffset = 0
+        if (searchText && searchText.length > 1) {
           this.designationSearchText = searchText
+          this.getdesignationsMeta()
+        } else if (!searchText) {
+          this.designationSearchText = searchText
+          if (!settingValueChange) {
             this.getdesignationsMeta()
-          } else if (!searchText) {
-          this.designationSearchText = searchText
-            if(!settingValueChange) {
-              this.getdesignationsMeta() 
-            }
-            this.checkCurrentDesignationPresent()
           }
-          settingValueChange = false
-        })
+          this.checkCurrentDesignationPresent()
+        }
+        settingValueChange = false
+      })
     }
   }
 
@@ -640,49 +641,49 @@ export class EnrollProfileFormComponent implements OnInit {
   }
 
   getAllErrors(): string[] {
-    const errorMessages: string[] = [];
+    const errorMessages: string[] = []
     Object.keys(this.userDetailsForm.controls).forEach((key) => {
-      const controlErrors = this.userDetailsForm.controls[key].errors;
+      const controlErrors = this.userDetailsForm.controls[key].errors
       if (controlErrors) {
         Object.keys(controlErrors).forEach((errorKey) => {
           switch (errorKey) {
             case 'required':
-              errorMessages.push(`${key} is required.`);
-              break;
+              errorMessages.push(`${key} is required.`)
+              break
             case 'minlength':
-              const requiredLength = controlErrors['minlength'].requiredLength;
-              errorMessages.push(`${key} must be at least ${requiredLength} characters long.`);
-              break;
+              const requiredLength = controlErrors['minlength'].requiredLength
+              errorMessages.push(`${key} must be at least ${requiredLength} characters long.`)
+              break
             case 'email':
-              errorMessages.push(`Please enter a valid email address.`);
-              break;
+              errorMessages.push(`Please enter a valid email address.`)
+              break
             // Add more cases for other validators as needed
           }
-        });
+        })
       }
-    });
-    return errorMessages;
+    })
+    return errorMessages
   }
 
   addValidators() {
     const fieldControl0 = this.userDetailsForm.get('isCadre')
     if (fieldControl0) {
-      fieldControl0.setValidators([Validators.required]);
+      fieldControl0.setValidators([Validators.required])
       fieldControl0.updateValueAndValidity()
     }
     const fieldControl = this.userDetailsForm.get('typeOfCivilService')
     if (fieldControl) {
-      fieldControl.setValidators([Validators.required]);
+      fieldControl.setValidators([Validators.required])
       fieldControl.updateValueAndValidity()
     }
     const fieldControl1 = this.userDetailsForm.get('serviceType')
     if (fieldControl1) {
-      fieldControl1.setValidators([Validators.required]);
+      fieldControl1.setValidators([Validators.required])
       fieldControl1.updateValueAndValidity()
     }
     const fieldControl3 = this.userDetailsForm.get('cadreBatch')
     if (fieldControl3) {
-      fieldControl3.setValidators([Validators.required]);
+      fieldControl3.setValidators([Validators.required])
       fieldControl3.updateValueAndValidity()
     }
   }
@@ -942,7 +943,7 @@ export class EnrollProfileFormComponent implements OnInit {
             this.canShowEmployeeCode = false
           } else {
             this.showEmployeeCode = true
-            contrl.setValidators([Validators.required, Validators.pattern(EMP_ID_PATTERN)]);
+            contrl.setValidators([Validators.required, Validators.pattern(EMP_ID_PATTERN)])
             contrl.updateValueAndValidity()
           }
         }
@@ -955,14 +956,14 @@ export class EnrollProfileFormComponent implements OnInit {
           if (this.userProfileObject.profileDetails.personalDetails.mobile && this.userProfileObject.profileDetails.personalDetails.phoneVerified) {
             contrl.setValue(this.userProfileObject.profileDetails.personalDetails.mobile)
             this.mVerified = true
-            contrl.setValidators([Validators.minLength(10), Validators.maxLength(10), Validators.pattern(MOBILE_PATTERN)]);
+            contrl.setValidators([Validators.minLength(10), Validators.maxLength(10), Validators.pattern(MOBILE_PATTERN)])
             contrl.updateValueAndValidity()
           } else if (this.profileFormType === 'Available user filled iGOT profile') {
             this.canshowMobile = false
             this.mVerified = true
           } else {
             this.showMobile = true
-            contrl.setValidators([Validators.minLength(10), Validators.maxLength(10), Validators.pattern(MOBILE_PATTERN)]);
+            contrl.setValidators([Validators.minLength(10), Validators.maxLength(10), Validators.pattern(MOBILE_PATTERN)])
             contrl.updateValueAndValidity()
           }
         }
@@ -1188,7 +1189,7 @@ export class EnrollProfileFormComponent implements OnInit {
   }
 
   checkSelectedOrgHasDesignations(): void {
-    if(this.organisationId) {
+    if (this.organisationId) {
       const igotDesignationBody: any = {
         request: {
           filters: {
@@ -1208,30 +1209,30 @@ export class EnrollProfileFormComponent implements OnInit {
           },
           facets: [],
         },
-      };
+      }
       this.userProfileService.searchIgotDesignation(igotDesignationBody).subscribe({
         next: (res: any) => {
-          const count = _.get(res, 'result.count', 0);
-          this.selectedOrgHasDesignations = count > 0;
-          this.getdesignationsMeta();
+          const count = _.get(res, 'result.count', 0)
+          this.selectedOrgHasDesignations = count > 0
+          this.getdesignationsMeta()
         },
         error: () => {
-          this.selectedOrgHasDesignations = false;
-          this.getdesignationsMeta();
+          this.selectedOrgHasDesignations = false
+          this.getdesignationsMeta()
         }
-      });
+      })
     } else {
-      this.selectedOrgHasDesignations = false;
-      this.getdesignationsMeta();
+      this.selectedOrgHasDesignations = false
+      this.getdesignationsMeta()
     }
   }
 
   getdesignationsMeta() {
-    this.isLoadingMoreDesignations = true;
+    this.isLoadingMoreDesignations = true
     if (this.selectedOrgHasDesignations) {
-      this.getIgotDesignations();
+      this.getIgotDesignations()
     } else {
-      this.getDefaultDesignations();
+      this.getDefaultDesignations()
     }
   }
 
@@ -1257,62 +1258,62 @@ export class EnrollProfileFormComponent implements OnInit {
         },
         facets: []
       }
-    };
-    if(this.designationSearchText){
-      requestBody['request']['query'] = this.designationSearchText;
+    }
+    if (this.designationSearchText) {
+      requestBody['request']['query'] = this.designationSearchText
     }
     this.userProfileService.searchIgotDesignation(requestBody).subscribe({
       next: (res: any) => {
-        this.isLoadingMoreDesignations = false;
-        if(this.designationsOffset === 0) {
-          this.designationsMeta = _.get(res, 'result.Term', []) as designation[];
+        this.isLoadingMoreDesignations = false
+        if (this.designationsOffset === 0) {
+          this.designationsMeta = _.get(res, 'result.Term', []) as designation[]
         } else {
-          this.designationsMeta = [...this.designationsMeta, ..._.get(res, 'result.Term', []) as designation[]];
+          this.designationsMeta = [...this.designationsMeta, ..._.get(res, 'result.Term', []) as designation[]]
         }
-        this.designationsTotalCount = _.get(res, 'result.count', 0);
-        this.checkCurrentDesignationPresent();
+        this.designationsTotalCount = _.get(res, 'result.count', 0)
+        this.checkCurrentDesignationPresent()
       },
       error: () => {
-        this.isLoadingMoreDesignations = false;
-        this.openSnackbar('Something went wrong. Please refresh or try again later.');
+        this.isLoadingMoreDesignations = false
+        this.openSnackbar('Something went wrong. Please refresh or try again later.')
       }
-    });
+    })
   }
-  
-    private getDefaultDesignations() {
-      const requestBody: any = {
-        filterCriteriaMap: {
-          status: 'Active'
-        },
-        requestedFields: [],
-        pageNumber: this.designationsOffset,
-        pageSize: this.designationListLoadCount
-      }
-      if (this.designationSearchText) {
-        requestBody['searchString'] = this.designationSearchText
-      }
-      this.userProfileService.searchDesignation(requestBody).subscribe({
-        next: (res: any) => {
-          this.isLoadingMoreDesignations = false;
-          const content = _.get(res, 'result.result.data', []) as designation[];
-          const mapped = content.map((item: any) => ({
-            name: item.designation || '',
-            status: item.status || 'Active',
-          }));
-          if (this.designationsOffset === 0) {
-            this.designationsMeta = mapped;
-          } else {
-            this.designationsMeta = [...this.designationsMeta, ...mapped];
-          }
-          this.designationsTotalCount = _.get(res, 'result.result.totalCount', 0);
-          this.checkCurrentDesignationPresent();
-        },
-        error: () => {
-          this.isLoadingMoreDesignations = false;
-          this.openSnackbar('Something went wrong. Please refresh or try again later.');
-        }
-      });
+
+  private getDefaultDesignations() {
+    const requestBody: any = {
+      filterCriteriaMap: {
+        status: 'Active'
+      },
+      requestedFields: [],
+      pageNumber: this.designationsOffset,
+      pageSize: this.designationListLoadCount
     }
+    if (this.designationSearchText) {
+      requestBody['searchString'] = this.designationSearchText
+    }
+    this.userProfileService.searchDesignation(requestBody).subscribe({
+      next: (res: any) => {
+        this.isLoadingMoreDesignations = false
+        const content = _.get(res, 'result.result.data', []) as designation[]
+        const mapped = content.map((item: any) => ({
+          name: item.designation || '',
+          status: item.status || 'Active',
+        }))
+        if (this.designationsOffset === 0) {
+          this.designationsMeta = mapped
+        } else {
+          this.designationsMeta = [...this.designationsMeta, ...mapped]
+        }
+        this.designationsTotalCount = _.get(res, 'result.result.totalCount', 0)
+        this.checkCurrentDesignationPresent()
+      },
+      error: () => {
+        this.isLoadingMoreDesignations = false
+        this.openSnackbar('Something went wrong. Please refresh or try again later.')
+      }
+    })
+  }
 
   getMasterLanguage(): void {
     this.userProfileService.getMasterLanguages()
@@ -1390,7 +1391,7 @@ export class EnrollProfileFormComponent implements OnInit {
 
   submitProfile(payload: any) {
     if (payload && payload['request'] && payload['request']['profileDetails'] && payload['request']['profileDetails']['personalDetails'] && payload['request']['profileDetails']['personalDetails']['dob']) {
-      let dobFormat = payload['request']['profileDetails']['personalDetails']['dob'];
+      let dobFormat = payload['request']['profileDetails']['personalDetails']['dob']
       let dob = `${new Date(dobFormat).getDate()}-${new Date(dobFormat).getMonth() + 1}-${new Date(dobFormat).getFullYear()}`
       payload['request']['profileDetails']['personalDetails']['dob'] = dob
     }
@@ -1515,34 +1516,34 @@ export class EnrollProfileFormComponent implements OnInit {
   }
 
   formatDate(_dob: string | Date): string {
-    let dateObj: Date | null = null;
+    let dateObj: Date | null = null
     if (_dob instanceof Date) {
-      dateObj = _dob;
+      dateObj = _dob
     } else if (typeof _dob === 'string') {
-      const parts = _dob.split('-');
+      const parts = _dob.split('-')
       if (parts.length === 3) {
-        const [day, month, year] = parts;
-        dateObj = new Date(Number(year), Number(month) - 1, Number(day));
+        const [day, month, year] = parts
+        dateObj = new Date(Number(year), Number(month) - 1, Number(day))
       } else {
-        const parsed = new Date(_dob);
+        const parsed = new Date(_dob)
         if (!isNaN(parsed.getTime())) {
-          dateObj = parsed;
+          dateObj = parsed
         }
       }
     }
     if (!dateObj || isNaN(dateObj.getTime())) {
-      return '';
+      return ''
     }
-    return this.datePipe.transform(dateObj, 'yyyy-MM-dd') || '';
+    return this.datePipe.transform(dateObj, 'yyyy-MM-dd') || ''
   }
 
   getQuestionId(fieldName: string): string {
     if (!fieldName || !this.formsDetils.fields) {
-      return '';
+      return ''
     }
 
-    const field = this.formsDetils.fields.find((f: any) => f.field === fieldName) || {};
-    return field.id || '';
+    const field = this.formsDetils.fields.find((f: any) => f.field === fieldName) || {}
+    return field.id || ''
   }
 
   genereateSurveyPayload(status: any) {
@@ -1590,8 +1591,8 @@ export class EnrollProfileFormComponent implements OnInit {
         } else {
           // dataObject[_field.name] = this.userProfileObject.profileDetails.professionalDetails && this.userProfileObject.profileDetails.professionalDetails[0].designation ?
           //   this.userProfileObject.profileDetails.professionalDetails[0].designation : "N/A"
-            fieldToAdd.answer = _.get(this.userProfileObject, 'profileDetails.professionalDetails[0].designation', 'N/A')
-            dataObject.push(fieldToAdd)
+          fieldToAdd.answer = _.get(this.userProfileObject, 'profileDetails.professionalDetails[0].designation', 'N/A')
+          dataObject.push(fieldToAdd)
         }
       }
 
@@ -1825,45 +1826,45 @@ export class EnrollProfileFormComponent implements OnInit {
   }
 
   setupScrollListener(opened: boolean): void {
-    const searchDesignationControl = this.userDetailsForm.get('searchDesignation');
+    const searchDesignationControl = this.userDetailsForm.get('searchDesignation')
     if (opened && searchDesignationControl) {
       searchDesignationControl.setValue('')
       this.designationsOffset = 0
-      this.designationsMeta = [];
+      this.designationsMeta = []
       this.getdesignationsMeta()
-      const searchInput = document.querySelector('.search-input') as HTMLInputElement;
+      const searchInput = document.querySelector('.search-input') as HTMLInputElement
       if (searchInput) {
-        searchInput.focus();
+        searchInput.focus()
       }
-      const panel = document.querySelector('.mat-select-panel');
+      const panel = document.querySelector('.mat-select-panel')
       if (panel) {
-        panel.addEventListener('scroll', this.onDesignationSelectScroll.bind(this));
+        panel.addEventListener('scroll', this.onDesignationSelectScroll.bind(this))
       }
     }
   }
 
   onDesignationSelectScroll(event: any): void {
-    const element = event.target;
-      // Check if user has scrolled to the bottom (with a small threshold)
-      if (element.scrollTop + element.clientHeight >= element.scrollHeight - 5) {
-        // Only load more if not already loading and if there are potentially more items
-        if (!this.isLoadingMoreDesignations && this.designationsMeta.length < this.designationsTotalCount) {
-          this.isLoadingMoreDesignations = true;
-          this.designationsOffset += 1;
-          this.getdesignationsMeta()
-        }
+    const element = event.target
+    // Check if user has scrolled to the bottom (with a small threshold)
+    if (element.scrollTop + element.clientHeight >= element.scrollHeight - 5) {
+      // Only load more if not already loading and if there are potentially more items
+      if (!this.isLoadingMoreDesignations && this.designationsMeta.length < this.designationsTotalCount) {
+        this.isLoadingMoreDesignations = true
+        this.designationsOffset += 1
+        this.getdesignationsMeta()
       }
+    }
   }
 
   checkCurrentDesignationPresent() {
     // Get the current designation value
-    const searchDesignationControl = this.userDetailsForm.get('designation');
-    const currentDesignation = searchDesignationControl ? searchDesignationControl.value : '';
+    const searchDesignationControl = this.userDetailsForm.get('designation')
+    const currentDesignation = searchDesignationControl ? searchDesignationControl.value : ''
     // Check if current designation exists in the list
     if (currentDesignation) {
       const designationExists = this.designationsMeta.some(
         (designation: any) => designation.name.toLowerCase() === currentDesignation.toLowerCase()
-      );
+      )
 
       // If designation doesn't exist in the list, add it
       if (!designationExists) {
@@ -1871,14 +1872,14 @@ export class EnrollProfileFormComponent implements OnInit {
         const newDesignation = {
           name: currentDesignation,
           status: 'Active'
-        };
-        this.designationsMeta.unshift(newDesignation);
+        }
+        this.designationsMeta.unshift(newDesignation)
       }
     }
   }
 
   onDesignationDropdownClosed(): void {
-    const searchDesignationControl = this.userDetailsForm.get('searchDesignation');
+    const searchDesignationControl = this.userDetailsForm.get('searchDesignation')
     if (searchDesignationControl) {
       searchDesignationControl.setValue('')
       this.designationSearchText = ''

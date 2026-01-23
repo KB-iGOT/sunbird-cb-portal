@@ -1,14 +1,15 @@
 import { Component, OnInit, Inject } from '@angular/core'
-import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog'
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 import { SocialForum } from '../../../models/SocialForumposts.model'
 import { BtnFlagService } from '../../buttons/btn-flag/btn-flag.service'
 import { BtnModeratorService } from '../../buttons/btn-moderator/btn-moderator.service'
 // import { DialogData } from '../../buttons/btn-moderator/btn-moderator.component'
 
 @Component({
-  selector: 'ws-app-dialog-box-moderator',
-  templateUrl: './dialog-box-moderator.component.html',
-  styleUrls: ['./dialog-box-moderator.component.scss'],
+    selector: 'ws-app-dialog-box-moderator',
+    templateUrl: './dialog-box-moderator.component.html',
+    styleUrls: ['./dialog-box-moderator.component.scss'],
+    standalone: false
 })
 export class DialogBoxModeratorComponent implements OnInit {
   confirmButtonStatus = true
@@ -58,7 +59,7 @@ export class DialogBoxModeratorComponent implements OnInit {
     }
   }
 
-  ngOnInit() {}
+  ngOnInit() { }
 
   confirmed() {
     if (this.selectedType !== '') {

@@ -5,19 +5,21 @@ import { viewerRouteGenerator } from '../../../_services/viewer-route-util'
 import { Router } from '@angular/router'
 import moment from 'moment'
 @Component({
-  selector: 'ws-widget-app-toc-session-card-new',
-  templateUrl: './app-toc-session-card-new.component.html',
-  styleUrls: ['./app-toc-session-card-new.component.scss'],
-  animations: [
-    trigger('panelInOut', [
-        transition('void => *', [
-            style({ transform: 'translateY(-10%)', opacity: '0' }),
-            animate(250),
-        ]),
-        transition('* => void', [
-            animate(200, style({ transform: 'translateY(-10%)', opacity: '0' })),
-        ]),
-    ])],
+    selector: 'ws-widget-app-toc-session-card-new',
+    templateUrl: './app-toc-session-card-new.component.html',
+    styleUrls: ['./app-toc-session-card-new.component.scss'],
+    animations: [
+        trigger('panelInOut', [
+            transition('void => *', [
+                style({ transform: 'translateY(-10%)', opacity: '0' }),
+                animate(250),
+            ]),
+            transition('* => void', [
+                animate(200, style({ transform: 'translateY(-10%)', opacity: '0' })),
+            ]),
+        ])
+    ],
+    standalone: false
 })
 export class AppTocSessionCardNewComponent implements OnInit {
   @Input() session: any = null

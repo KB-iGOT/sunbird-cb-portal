@@ -20,17 +20,18 @@ import {
   catchError,
 } from 'rxjs/operators'
 import { of } from 'rxjs'
-import { MatLegacyAutocompleteSelectedEvent as MatAutocompleteSelectedEvent } from '@angular/material/legacy-autocomplete'
-import { MatLegacyChipInputEvent as MatChipInputEvent } from '@angular/material/legacy-chips'
-import { MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA, MatLegacyDialogRef as MatDialogRef } from '@angular/material/legacy-dialog'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete'
+import { MatChipInputEvent } from '@angular/material/chips'
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
 
 const NOTIFICATION_TIME = 5
 
 @Component({
-  selector: 'ws-auth-shared-feedback',
-  templateUrl: './feedback-form.component.html',
-  styleUrls: ['./feedback-form.component.scss'],
+    selector: 'ws-auth-shared-feedback',
+    templateUrl: './feedback-form.component.html',
+    styleUrls: ['./feedback-form.component.scss'],
+    standalone: false
 })
 export class FeedbackFormComponent implements OnInit {
   forSelf = true

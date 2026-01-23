@@ -4,9 +4,10 @@ import { ConfigurationsService, WsEvents, EventService as libEventService } from
 import * as _ from 'lodash'
 
 @Component({
-  selector: 'ws-widget-samuhik-charcha-content',
-  templateUrl: './samuhik-charcha-content.component.html',
-  styleUrls: ['./samuhik-charcha-content.component.scss']
+    selector: 'ws-widget-samuhik-charcha-content',
+    templateUrl: './samuhik-charcha-content.component.html',
+    styleUrls: ['./samuhik-charcha-content.component.scss'],
+    standalone: false
 })
 export class SamuhikCharchaContentComponent implements OnInit {
   @Input() content: any

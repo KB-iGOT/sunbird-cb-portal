@@ -9,9 +9,10 @@ import {
 import { ActivatedRoute } from '@angular/router'
 
 @Component({
-  selector: 'viewer-certification',
-  templateUrl: './certification.component.html',
-  styleUrls: ['./certification.component.scss'],
+    selector: 'viewer-certification',
+    templateUrl: './certification.component.html',
+    styleUrls: ['./certification.component.scss'],
+    standalone: false
 })
 export class CertificationComponent implements OnInit, OnDestroy {
   private routeDataSubscription: Subscription | null = null

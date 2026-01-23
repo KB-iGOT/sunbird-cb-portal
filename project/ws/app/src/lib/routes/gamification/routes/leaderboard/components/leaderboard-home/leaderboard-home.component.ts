@@ -10,9 +10,10 @@ import { UntypedFormControl } from '@angular/forms'
 import { DatePipe } from '@angular/common'
 
 @Component({
-  selector: 'ws-app-leaderboard',
-  templateUrl: './leaderboard-home.component.html',
-  styleUrls: ['./leaderboard-home.component.scss'],
+    selector: 'ws-app-leaderboard',
+    templateUrl: './leaderboard-home.component.html',
+    styleUrls: ['./leaderboard-home.component.scss'],
+    standalone: false
 })
 export class LeaderboardHomeComponent implements OnInit {
   public sideNavBarOpened = false

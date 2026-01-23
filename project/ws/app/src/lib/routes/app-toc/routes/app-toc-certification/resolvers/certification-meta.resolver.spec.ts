@@ -6,7 +6,7 @@ describe('CertificationMetaResolver', () => {
   beforeEach(() => TestBed.configureTestingModule({}))
 
   it('should be created', () => {
-    const service: CertificationMetaResolver = TestBed.get(CertificationMetaResolver)
+    const service: CertificationMetaResolver = TestBed.inject(CertificationMetaResolver)
     expect(service).toBeTruthy()
   })
 })

@@ -1,13 +1,14 @@
 import { Component, OnInit, Input } from '@angular/core'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatDialog } from '@angular/material/dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { NsDiscussionForum, DialogSocialDeletePostComponent } from '@sunbird-cb/collection'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 
 @Component({
-  selector: 'ws-app-qna-item',
-  templateUrl: './qna-item.component.html',
-  styleUrls: ['./qna-item.component.scss'],
+    selector: 'ws-app-qna-item',
+    templateUrl: './qna-item.component.html',
+    styleUrls: ['./qna-item.component.scss'],
+    standalone: false
 })
 export class QnaItemComponent implements OnInit {
 

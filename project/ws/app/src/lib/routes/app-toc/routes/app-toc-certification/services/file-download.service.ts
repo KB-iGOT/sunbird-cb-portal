@@ -1,14 +1,14 @@
-import { Injectable, Inject } from '@angular/core'
+import { Injectable, Inject, DOCUMENT } from '@angular/core'
 import { Observable, of, throwError } from 'rxjs'
 import { WINDOW } from './window.service'
-import { DOCUMENT } from '@angular/common'
+
 
 @Injectable()
 export class FileDownloadService {
   constructor(
     @Inject(WINDOW) private window: Window,
     @Inject(DOCUMENT) private document: Document,
-  ) {}
+  ) { }
 
   base64ToBlob(base64String: string): Blob | null {
     try {
@@ -20,7 +20,8 @@ export class FileDownloadService {
         int8Array[i] = byteString.charCodeAt(i)
       }
 
-      const blob = new Blob([int8Array])
+      const blob = new Blob([new Uint8Array(int8Array)])
+
 
       return blob
     } catch (e) {
@@ -31,7 +32,7 @@ export class FileDownloadService {
   saveBlobToDevice(blob: Blob, documentName: string): boolean {
     try {
       // IE Download
-      let windowNavigator:any = this.window.navigator
+      let windowNavigator: any = this.window.navigator
       if (windowNavigator && windowNavigator.msSaveOrOpenBlob) {
         windowNavigator.msSaveOrOpenBlob(blob, documentName)
         return true
@@ -43,7 +44,7 @@ export class FileDownloadService {
       const downloadLink = this.document.createElement('a')
       downloadLink.style.display = 'none'
       this.document.body.appendChild(downloadLink)
-      const  window: any = this.window
+      const window: any = this.window
       downloadLink.setAttribute('href', window.URL.createObjectURL(file))
       downloadLink.setAttribute('download', documentName)
       downloadLink.click()

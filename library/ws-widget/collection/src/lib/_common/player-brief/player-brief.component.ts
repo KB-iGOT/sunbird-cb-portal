@@ -5,9 +5,10 @@ import { Router } from '@angular/router'
 import { WidgetContentService } from '../../_services/widget-content.service'
 
 @Component({
-  selector: 'ws-widget-player-brief',
-  templateUrl: './player-brief.component.html',
-  styleUrls: ['./player-brief.component.scss'],
+    selector: 'ws-widget-player-brief',
+    templateUrl: './player-brief.component.html',
+    styleUrls: ['./player-brief.component.scss'],
+    standalone: false
 })
 export class PlayerBriefComponent implements OnInit {
   @Input()

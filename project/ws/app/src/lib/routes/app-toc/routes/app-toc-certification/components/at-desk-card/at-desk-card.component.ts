@@ -1,9 +1,10 @@
 import { Component, OnInit } from '@angular/core'
 
 @Component({
-  selector: 'ws-app-toc-certification-at-desk-card',
-  templateUrl: './at-desk-card.component.html',
-  styleUrls: ['./at-desk-card.component.scss'],
+    selector: 'ws-app-toc-certification-at-desk-card',
+    templateUrl: './at-desk-card.component.html',
+    styleUrls: ['./at-desk-card.component.scss'],
+    standalone: false
 })
 export class AtDeskCardComponent implements OnInit {
 

@@ -7,7 +7,7 @@ import {
   AbstractControl,
   ValidationErrors,
 } from '@angular/forms'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
 
 import { Observable, timer, throwError, of, Subscription } from 'rxjs'
 import { map, switchMap, catchError } from 'rxjs/operators'
@@ -26,9 +26,10 @@ import { CertificationService } from '../../services/certification.service'
 import { SnackbarComponent } from '../snackbar/snackbar.component'
 
 @Component({
-  selector: 'ws-app-result-upload',
-  templateUrl: './result-upload.component.html',
-  styleUrls: ['./result-upload.component.scss'],
+    selector: 'ws-app-result-upload',
+    templateUrl: './result-upload.component.html',
+    styleUrls: ['./result-upload.component.scss'],
+    standalone: false
 })
 export class ResultUploadComponent implements OnInit, OnDestroy {
   @Input() content!: NsContent.IContent

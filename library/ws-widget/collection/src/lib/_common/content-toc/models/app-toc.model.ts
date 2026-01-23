@@ -1,4 +1,5 @@
-import { NsContent } from '@sunbird-cb/collection'
+import { NsContent } from "../../../_services/widget-content.model"
+
 
 export namespace NsAppToc {
   export interface IWsTocResponse {

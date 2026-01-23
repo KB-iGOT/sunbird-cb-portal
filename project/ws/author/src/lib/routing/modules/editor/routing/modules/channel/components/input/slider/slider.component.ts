@@ -2,7 +2,7 @@ import { LoaderService } from '@ws/author/src/lib/services/loader.service'
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators'
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core'
 import { UntypedFormGroup, UntypedFormBuilder, Validators, UntypedFormArray, AbstractControl } from '@angular/forms'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { NotificationComponent } from '@ws/author/src/lib/modules/shared/components/notification/notification.component'
 import { Notify } from '@ws/author/src/lib/constants/notificationMessage'
 import { NOTIFICATION_TIME } from '@ws/author/src/lib/constants/constant'
@@ -12,9 +12,10 @@ import { CONTENT_BASE_WEBHOST_ASSETS, AUTHORING_CONTENT_BASE } from '@ws/author/
 import { ICarousel } from '@sunbird-cb/collection'
 
 @Component({
-  selector: 'ws-auth-slider',
-  templateUrl: './slider.component.html',
-  styleUrls: ['./slider.component.scss'],
+    selector: 'ws-auth-slider',
+    templateUrl: './slider.component.html',
+    styleUrls: ['./slider.component.scss'],
+    standalone: false
 })
 export class SliderComponent implements OnInit {
 

@@ -1,8 +1,8 @@
 import { DeleteDialogComponent } from '@ws/author/src/lib/modules/shared/components/delete-dialog/delete-dialog.component'
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 import { UploadAudioComponent } from '../upload-audio/upload-audio.component'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop'
 
 import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/layout'
@@ -43,12 +43,13 @@ import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper'
 import { WebStoreService } from '../../services/store.service'
 
 @Component({
-  selector: 'ws-auth-web-module-editor',
-  templateUrl: './web-module-editor.component.html',
-  styleUrls: ['./web-module-editor.component.scss'],
-  providers: [{
-    provide: STEPPER_GLOBAL_OPTIONS, useValue: { displayDefaultIndicatorType: false },
-  }],
+    selector: 'ws-auth-web-module-editor',
+    templateUrl: './web-module-editor.component.html',
+    styleUrls: ['./web-module-editor.component.scss'],
+    providers: [{
+            provide: STEPPER_GLOBAL_OPTIONS, useValue: { displayDefaultIndicatorType: false },
+        }],
+    standalone: false
 })
 
 export class WebModuleEditorComponent implements OnInit, OnDestroy {

@@ -7,9 +7,10 @@ import { ActivatedRoute } from '@angular/router'
 import { ViewerUtilService } from '../../viewer-util.service'
 
 @Component({
-  selector: 'viewer-hands-on',
-  templateUrl: './hands-on.component.html',
-  styleUrls: ['./hands-on.component.scss'],
+    selector: 'viewer-hands-on',
+    templateUrl: './hands-on.component.html',
+    styleUrls: ['./hands-on.component.scss'],
+    standalone: false
 })
 export class HandsOnComponent implements OnInit, OnDestroy {
   private routeDataSubscription: Subscription | null = null

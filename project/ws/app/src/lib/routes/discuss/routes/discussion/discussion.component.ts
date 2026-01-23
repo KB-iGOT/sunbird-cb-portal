@@ -6,15 +6,16 @@ import { UntypedFormGroup, UntypedFormBuilder } from '@angular/forms'
 import { CONTENT_BASE_STREAM } from '@ws/author/src/lib/constants/apiEndpoints'
 import { LoaderService } from '../../../../../../../author/src/public-api'
 import { DiscussService } from '../../services/discuss.service'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { DiscussUtilsService } from '../../services/discuss-utils.service'
 
 @Component({
-  selector: 'app-discuss-discussion',
-  templateUrl: './discussion.component.html',
-  styleUrls: ['./discussion.component.scss'],
-  // tslint:disable-next-line
-  host: { class: 'flex flex-1 margin-top-l' }
+    selector: 'app-discuss-discussion',
+    templateUrl: './discussion.component.html',
+    styleUrls: ['./discussion.component.scss'],
+    // tslint:disable-next-line
+    host: { class: 'flex flex-1 margin-top-l' },
+    standalone: false
 })
 export class DiscussionComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('toastSuccess', { static: true }) toastSuccess!: ElementRef<any>

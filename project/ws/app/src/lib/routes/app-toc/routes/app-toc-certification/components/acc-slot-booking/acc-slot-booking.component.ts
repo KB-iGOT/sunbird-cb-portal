@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core'
 import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { Observable, Subscription } from 'rxjs'
 import { finalize, startWith, map, tap, switchMap } from 'rxjs/operators'
 
@@ -19,9 +19,10 @@ import { ActivatedRoute, Router } from '@angular/router'
 import { SnackbarComponent } from '../snackbar/snackbar.component'
 
 @Component({
-  selector: 'ws-app-acc-slot-booking',
-  templateUrl: './acc-slot-booking.component.html',
-  styleUrls: ['./acc-slot-booking.component.scss'],
+    selector: 'ws-app-acc-slot-booking',
+    templateUrl: './acc-slot-booking.component.html',
+    styleUrls: ['./acc-slot-booking.component.scss'],
+    standalone: false
 })
 export class AccSlotBookingComponent implements OnInit {
   content?: NsContent.IContent
@@ -172,8 +173,7 @@ export class AccSlotBookingComponent implements OnInit {
 
             if (res.res_code === 1) {
               this.router.navigate([
-                `/app/toc/${
-                  this.content ? this.content.identifier : ''
+                `/app/toc/${this.content ? this.content.identifier : ''
                 }/certification`,
               ])
             }

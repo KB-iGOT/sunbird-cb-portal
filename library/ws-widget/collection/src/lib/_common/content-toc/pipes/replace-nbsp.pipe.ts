@@ -1,7 +1,8 @@
 import { Pipe, PipeTransform } from '@angular/core'
 
 @Pipe({
-  name: 'replaceNbsp',
+    name: 'replaceNbsp',
+    standalone: false
 })
 export class ReplaceNbspPipe implements PipeTransform {
 

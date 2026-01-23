@@ -33,7 +33,9 @@ export namespace NsWidgetResolver {
   }
 
   export interface IRegistrationConfig extends IBaseConfig {
-    component: Type<IWidgetData<any>>
+    component?: Type<IWidgetData<any>>
+    lazyComponent?: () => Promise<Type<IWidgetData<any>>>
+
   }
 
   export interface IRegistrationsPermissionConfig extends IBaseConfig {
@@ -62,5 +64,12 @@ export namespace NsWidgetResolver {
     title: string,
     url: TUrl,
     icon?: string
+  }
+
+  export interface WidgetRegistration extends Omit<IRegistrationConfig, 'component'> {
+    widgetType: string
+    widgetSubType: string
+    loadComponent: () => Promise<Type<any>>
+    component?: Type<IWidgetData<any>>
   }
 }

@@ -6,12 +6,13 @@ import { ConfigurationsService, ValueService, TFetchStatus } from '@sunbird-cb/u
 import { IFollowerId } from '../../person-profile.model'
 import { ProfileService } from '../../../profile/services/profile.service'
 import { Subscription } from 'rxjs'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
 
 @Component({
-  selector: 'ws-app-person-profile',
-  templateUrl: './person-profile.component.html',
-  styleUrls: ['./person-profile.component.scss'],
+    selector: 'ws-app-person-profile',
+    templateUrl: './person-profile.component.html',
+    styleUrls: ['./person-profile.component.scss'],
+    standalone: false
 })
 export class PersonProfileComponent implements OnInit {
 
@@ -196,10 +197,10 @@ export class PersonProfileComponent implements OnInit {
             this.followers.forEach(person => {
 
               this.route.data.subscribe(key => {
-                  if (person.identifier === key.profileData.data.userId) {
-                    this.statusFollowed = 'FOLLOWED'
-                  }
+                if (person.identifier === key.profileData.data.userId) {
+                  this.statusFollowed = 'FOLLOWED'
                 }
+              }
               )
 
             })

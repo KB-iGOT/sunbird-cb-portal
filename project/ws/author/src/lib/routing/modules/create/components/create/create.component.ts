@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatDialog } from '@angular/material/dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { Router } from '@angular/router'
 import { NOTIFICATION_TIME } from '@ws/author/src/lib/constants/constant'
 import { Notify } from '@ws/author/src/lib/constants/notificationMessage'
@@ -15,9 +15,10 @@ import { NSApiResponse } from '../../../../../interface/apiResponse'
 import { CreateService } from './create.service'
 
 @Component({
-  selector: 'ws-auth-generic',
-  templateUrl: './create.component.html',
-  styleUrls: ['./create.component.scss'],
+    selector: 'ws-auth-generic',
+    templateUrl: './create.component.html',
+    styleUrls: ['./create.component.scss'],
+    standalone: false
 })
 export class CreateComponent implements OnInit, OnDestroy {
   entity: ICreateEntity[] = []

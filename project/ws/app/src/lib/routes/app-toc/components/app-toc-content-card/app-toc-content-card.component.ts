@@ -5,12 +5,13 @@ import { EventService } from '@sunbird-cb/utils-v2'
 /* tslint:disable*/
 import _ from 'lodash'
 import { CertificateDialogComponent } from '@sunbird-cb/collection/src/lib/_common/certificate-dialog/certificate-dialog.component'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 
 @Component({
-  selector: 'ws-app-toc-content-card',
-  templateUrl: './app-toc-content-card.component.html',
-  styleUrls: ['./app-toc-content-card.component.scss'],
+    selector: 'ws-app-toc-content-card',
+    templateUrl: './app-toc-content-card.component.html',
+    styleUrls: ['./app-toc-content-card.component.scss'],
+    standalone: false
 })
 export class AppTocContentCardComponent implements OnInit, OnChanges {
   @Input() content: NsContent.IContent | null = null
@@ -54,7 +55,7 @@ export class AppTocContentCardComponent implements OnInit, OnChanges {
     //     this.defaultThumbnail = data.configData.data.logos.defaultContent
     //   }
     // )
-    
+
   }
   ngOnChanges(changes: SimpleChanges) {
     for (const property in changes) {
@@ -92,7 +93,7 @@ export class AppTocContentCardComponent implements OnInit, OnChanges {
         this.content.primaryCategory,
         this.batchId
       )
-      
+
       /* tslint:disable-next-line */
       // console.log(url,'=====> content card url link <========')
       return url
@@ -109,7 +110,7 @@ export class AppTocContentCardComponent implements OnInit, OnChanges {
     // if (this.currentProgress > 70 && this.currentProgress <= 100) {
     //   return '#1D8923'
     // }
-   
+
     return '#1D8923'
   }
 

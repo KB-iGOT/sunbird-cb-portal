@@ -9,9 +9,10 @@ import { NsAppToc } from '../../models/app-toc.model'
 import { AppTocService } from '../../services/app-toc.service'
 
 @Component({
-  selector: 'ws-app-knowledge-artifact-details',
-  templateUrl: './knowledge-artifact-details.component.html',
-  styleUrls: ['./knowledge-artifact-details.component.scss'],
+    selector: 'ws-app-knowledge-artifact-details',
+    templateUrl: './knowledge-artifact-details.component.html',
+    styleUrls: ['./knowledge-artifact-details.component.scss'],
+    standalone: false
 })
 export class KnowledgeArtifactDetailsComponent implements OnInit, OnDestroy {
   content: NsContent.IContent | null = null

@@ -7,9 +7,10 @@ import { HttpClient, HttpHeaders } from '@angular/common/http'
 import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 import { TranslateService } from '@ngx-translate/core'
 @Component({
-  selector: 'ws-widget-element-html',
-  templateUrl: './element-html.component.html',
-  styleUrls: ['./element-html.component.scss'],
+    selector: 'ws-widget-element-html',
+    templateUrl: './element-html.component.html',
+    styleUrls: ['./element-html.component.scss'],
+    standalone: false
 })
 export class ElementHtmlComponent extends WidgetBaseComponent
   implements OnInit, NsWidgetResolver.IWidgetData<IWidgetElementHtml> {

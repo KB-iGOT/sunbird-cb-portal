@@ -1,17 +1,18 @@
 import { Component, OnInit, ElementRef, ViewChild } from '@angular/core'
 import { NSDiscussData } from '../../../discuss/models/discuss.model'
 import { ActivatedRoute } from '@angular/router'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
+import { MatDialog } from '@angular/material/dialog'
 import { DiscussService } from '../../../discuss/services/discuss.service'
 /* tslint:disable */
 import _ from 'lodash'
 /* tslint:enable */
 
 @Component({
-  selector: 'ws-app-career-detail',
-  templateUrl: './career-detail.component.html',
-  styleUrls: ['./career-detail.component.scss'],
+    selector: 'ws-app-career-detail',
+    templateUrl: './career-detail.component.html',
+    styleUrls: ['./career-detail.component.scss'],
+    standalone: false
 })
 export class CareerDetailComponent implements OnInit {
   @ViewChild('toastSuccess', { static: true }) toastSuccess!: ElementRef<any>

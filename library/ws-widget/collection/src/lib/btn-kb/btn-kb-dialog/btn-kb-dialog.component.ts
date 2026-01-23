@@ -4,14 +4,15 @@ import { TFetchStatus, ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { BtnKbService } from '../btn-kb.service'
 import { Router } from '@angular/router'
 import { BtnKbConfirmComponent } from '../btn-kb-confirm/btn-kb-confirm.component'
-import { MatLegacyDialog as MatDialog, MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog'
-import { MatLegacyListOption as MatListOption } from '@angular/material/legacy-list'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
+import { MatListOption } from '@angular/material/list'
+import { MatSnackBar } from '@angular/material/snack-bar'
 
 @Component({
-  selector: 'ws-widget-btn-kb-dialog',
-  templateUrl: './btn-kb-dialog.component.html',
-  styleUrls: ['./btn-kb-dialog.component.scss'],
+    selector: 'ws-widget-btn-kb-dialog',
+    templateUrl: './btn-kb-dialog.component.html',
+    styleUrls: ['./btn-kb-dialog.component.scss'],
+    standalone: false
 })
 export class BtnKbDialogComponent implements OnInit {
   @ViewChild('contentUpdated', { static: true }) contentUpdatedMessage!: ElementRef<any>

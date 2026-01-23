@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 import { ActivatedRoute } from '@angular/router'
 import { Observable, Subscription } from 'rxjs'
 import { ConfigurationsService, TFetchStatus, ValueService } from '@sunbird-cb/utils-v2'
@@ -8,9 +8,10 @@ import { ForumHandlerService } from '../../service/EmitterService/forum-handler.
 import { ForumService } from '../../service/forum.service'
 
 @Component({
-  selector: 'ws-app-recent-forum-post',
-  templateUrl: './recent-forum-post.component.html',
-  styleUrls: ['./recent-forum-post.component.scss'],
+    selector: 'ws-app-recent-forum-post',
+    templateUrl: './recent-forum-post.component.html',
+    styleUrls: ['./recent-forum-post.component.scss'],
+    standalone: false
 })
 export class RecentForumPostComponent implements OnInit, OnDestroy {
 

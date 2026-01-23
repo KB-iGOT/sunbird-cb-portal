@@ -10,7 +10,7 @@
       "prefix": "ws",
       "architect": {
         "build": {
-          "builder": "@angular-devkit/build-angular:browser",
+          "builder": "@angular-devkit/build-angular:application",
           "i18n": {
             "sourceLocale": "en-US",
             "locales": {
@@ -18,10 +18,13 @@
             }
           },
           "options": {
-            "outputPath": "dist/www/fusion",
+            "outputPath": {
+              "base": "dist/www/fusion"
+            },
             "index": "src/index.html",
-            "main": "src/main.ts",
-            "polyfills": "src/polyfills.ts",
+            "polyfills": [
+              "src/polyfills.ts"
+            ],
             "tsConfig": "tsconfig.app.json",
             "preserveSymlinks": true,
             "assets": [
@@ -39,7 +42,8 @@
             ],
             "stylePreprocessorOptions": {
               "includePaths": [
-                "src/styles"
+                "src/styles",
+                "node_modules"
               ]
             },
             "styles": [
@@ -52,7 +56,7 @@
               "src/styles/styles.scss",
               "node_modules/shepherd.js/dist/css/shepherd.css",
               {
-                "inject":true,
+                "inject": true,
                 "input": "src/themes/theme-igot.scss",
                 "bundleName": "theme-igot"
               },
@@ -64,7 +68,7 @@
               "src/dashboard-assets/fonts/montserrat/stylesheet.css",
               "node_modules/igot-cb-tour-guide/scss/guided-tour-base-theme.scss",
               "node_modules/@ctrl/ngx-emoji-mart/picker.css",
-              "node_modules/ckeditor5/dist/ckeditor5.css"    
+              "node_modules/ckeditor5/dist/ckeditor5.css"
             ],
             "scripts": [
               "node_modules/jquery/dist/jquery.min.js",
@@ -73,15 +77,14 @@
               "src/js/smartechclient.js"
             ],
             "aot": false,
-            "vendorChunk": true,
             "extractLicenses": false,
-            "buildOptimizer": false,
             "sourceMap": true,
             "optimization": false,
             "namedChunks": true,
             "allowedCommonJsDependencies": [
               "@ckeditor/ckeditor5-editor-classic"
-            ]
+            ],
+            "browser": "src/main.ts"
           },
           "configurations": {
             "nb": {
@@ -91,7 +94,7 @@
                   "maximumWarning": "6kb"
                 }
               ]
-},
+            },
             "production": {
               "fileReplacements": [
                 {
@@ -105,21 +108,18 @@
               "namedChunks": false,
               "aot": false,
               "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": false,
               "budgets": [
                 {
                   "type": "initial",
                   "maximumWarning": "4mb",
-                  "maximumError": "25mb"
+                  "maximumError": "30mb"
                 },
                 {
                   "type": "anyComponentStyle",
                   "maximumWarning": "6kb"
                 }
               ],
-              "serviceWorker": false,
-              "ngswConfigPath": "ngsw-config.json"
+              "serviceWorker": "ngsw-config.json"
             },
             "np": {
               "fileReplacements": [
@@ -134,8 +134,6 @@
               "namedChunks": false,
               "aot": false,
               "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": false,
               "budgets": [
                 {
                   "type": "initial",
@@ -147,8 +145,7 @@
                   "maximumWarning": "6kb"
                 }
               ],
-              "serviceWorker": false,
-              "ngswConfigPath": "ngsw-config.json"
+              "serviceWorker": "ngsw-config.json"
             },
             "dev": {
               "fileReplacements": [
@@ -163,21 +160,18 @@
               "namedChunks": false,
               "aot": false,
               "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": false,
               "budgets": [
                 {
                   "type": "initial",
                   "maximumWarning": "5mb",
-                  "maximumError": "25mb"
+                  "maximumError": "30mb"
                 },
                 {
                   "type": "anyComponentStyle",
                   "maximumWarning": "6kb"
                 }
               ],
-              "serviceWorker": false,
-              "ngswConfigPath": "ngsw-config.json"
+              "serviceWorker": "ngsw-config.json"
             },
             "preprod": {
               "fileReplacements": [
@@ -192,21 +186,18 @@
               "namedChunks": false,
               "aot": false,
               "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": false,
               "budgets": [
                 {
                   "type": "initial",
                   "maximumWarning": "5mb",
-                  "maximumError": "25mb"
+                  "maximumError": "30mb"
                 },
                 {
                   "type": "anyComponentStyle",
                   "maximumWarning": "6kb"
                 }
               ],
-              "serviceWorker": false,
-              "ngswConfigPath": "ngsw-config.json"
+              "serviceWorker": "ngsw-config.json"
             },
             "benchmark": {
               "fileReplacements": [
@@ -221,21 +212,18 @@
               "namedChunks": false,
               "aot": false,
               "extractLicenses": true,
-              "vendorChunk": false,
-              "buildOptimizer": false,
               "budgets": [
                 {
                   "type": "initial",
                   "maximumWarning": "5mb",
-                  "maximumError": "25mb"
+                  "maximumError": "30mb"
                 },
                 {
                   "type": "anyComponentStyle",
                   "maximumWarning": "6kb"
                 }
               ],
-              "serviceWorker": true,
-              "ngswConfigPath": "ngsw-config.json"
+              "serviceWorker": "ngsw-config.json"
             }
           },
           "defaultConfiguration": ""
@@ -244,24 +232,24 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
             "port": 3000,
-            "browserTarget": "fusion:build"
+            "buildTarget": "fusion:build"
           },
           "configurations": {
             "production": {
-              "browserTarget": "fusion:build:production"
+              "buildTarget": "fusion:build:production"
             },
             "nb": {
-              "browserTarget": "fusion:build:nb"
+              "buildTarget": "fusion:build:nb"
             },
             "de": {
-              "browserTarget": "fusion:build:de"
+              "buildTarget": "fusion:build:de"
             }
           }
         },
         "extract-i18n": {
           "builder": "@angular-devkit/build-angular:extract-i18n",
           "options": {
-            "browserTarget": "fusion:build"
+            "buildTarget": "fusion:build"
           }
         },
         "test": {
@@ -311,13 +299,13 @@
           "options": {
             "tsConfig": "project/ws/app/tsconfig.lib.json",
             "project": "project/ws/app/ng-package.json"
-          }
-        ,          "configurations": {
+          },
+          "configurations": {
             "production": {
               "tsConfig": "project/ws/app/tsconfig.lib.prod.json"
             }
           }
-},
+        },
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
@@ -339,13 +327,13 @@
           "options": {
             "tsConfig": "project/ws/author/tsconfig.lib.json",
             "project": "project/ws/author/ng-package.json"
-          }
-        ,          "configurations": {
+          },
+          "configurations": {
             "production": {
               "tsConfig": "project/ws/author/tsconfig.lib.prod.json"
             }
           }
-},
+        },
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
@@ -367,13 +355,13 @@
           "options": {
             "tsConfig": "project/ws/analytics/tsconfig.lib.json",
             "project": "project/ws/analytics/ng-package.json"
-          }
-        ,          "configurations": {
+          },
+          "configurations": {
             "production": {
               "tsConfig": "project/ws/analytics/tsconfig.lib.prod.json"
             }
           }
-},
+        },
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
@@ -395,13 +383,13 @@
           "options": {
             "tsConfig": "project/ws/viewer/tsconfig.lib.json",
             "project": "project/ws/viewer/ng-package.json"
-          }
-        ,          "configurations": {
+          },
+          "configurations": {
             "production": {
               "tsConfig": "project/ws/viewer/tsconfig.lib.prod.json"
             }
           }
-},
+        },
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
@@ -423,13 +411,13 @@
           "options": {
             "tsConfig": "library/ws-widget/collection/tsconfig.lib.json",
             "project": "library/ws-widget/collection/ng-package.json"
-          }
-        ,          "configurations": {
+          },
+          "configurations": {
             "production": {
               "tsConfig": "library/ws-widget/collection/tsconfig.lib.prod.json"
             }
           }
-},
+        },
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
@@ -451,13 +439,13 @@
           "options": {
             "tsConfig": "library/ws-widget/resolver/tsconfig.lib.json",
             "project": "library/ws-widget/resolver/ng-package.json"
-          }
-        ,          "configurations": {
+          },
+          "configurations": {
             "production": {
               "tsConfig": "library/ws-widget/resolver/tsconfig.lib.prod.json"
             }
           }
-},
+        },
         "test": {
           "builder": "@angular-devkit/build-angular:karma",
           "options": {
@@ -471,7 +459,29 @@
   },
   "schematics": {
     "@schematics/angular:component": {
-      "style": "scss"
+      "style": "scss",
+      "type": "component"
+    },
+    "@schematics/angular:directive": {
+      "type": "directive"
+    },
+    "@schematics/angular:service": {
+      "type": "service"
+    },
+    "@schematics/angular:guard": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:interceptor": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:module": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:pipe": {
+      "typeSeparator": "."
+    },
+    "@schematics/angular:resolver": {
+      "typeSeparator": "."
     }
   },
   "cli": {
@@ -480,5 +490,4 @@
       "enabled": false
     }
   }
-  
 }

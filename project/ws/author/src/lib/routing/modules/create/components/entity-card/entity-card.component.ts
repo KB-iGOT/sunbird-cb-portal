@@ -4,9 +4,10 @@ import { ICreateEntity } from '@ws/author/src/lib/interface/create-entity'
 import { AuthInitService } from '@ws/author/src/lib/services/init.service'
 
 @Component({
-  selector: 'ws-auth-entity-card',
-  templateUrl: './entity-card.component.html',
-  styleUrls: ['./entity-card.component.scss'],
+    selector: 'ws-auth-entity-card',
+    templateUrl: './entity-card.component.html',
+    styleUrls: ['./entity-card.component.scss'],
+    standalone: false
 })
 export class EntityCardComponent implements OnInit {
   @Input() entity!: ICreateEntity

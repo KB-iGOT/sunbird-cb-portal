@@ -4,11 +4,10 @@ import { ConfigurationsService, EventService, NsContent, UtilityService, WsEvent
 import { Subscription } from 'rxjs'
 
 import { LoadCheckService } from '@ws/app/src/lib/routes/app-toc/services/load-check.service'
-import { MatLegacyTabGroup as MatTabGroup, MatLegacyTabChangeEvent as MatTabChangeEvent } from '@angular/material/legacy-tabs'
+import { MatTabGroup, MatTabChangeEvent } from '@angular/material/tabs'
 import { NsDiscussionV2 } from '@sunbird-cb/discussion-v2'
 import { AiTutorConfirmPopupComponent } from './ai-tutor-confirm-popup/ai-tutor-confirm-popup.component'
-import { MatLegacyDialog as MatDialog, MatLegacyDialogConfig as MatDialogConfig } from '@angular/material/legacy-dialog'
-import { viewerRouteGenerator } from '@sunbird-cb/collection'
+import { MatDialog, MatDialogConfig } from '@angular/material/dialog'
 import { AppTocService } from '@ws/app/src/lib/routes/app-toc/services/app-toc.service'
 import { ActionService } from '@ws/app/src/lib/routes/app-toc/services/action.service'
 import { VttFile } from '@polyflix/vtt-parser'
@@ -18,10 +17,12 @@ import { MatTab } from '@angular/material/tabs'
 import { environment } from 'src/environments/environment'
 import { SamuhikCharchaService } from '../../_services/samuhik-charcha.service'
 import * as _ from 'lodash'
+import { viewerRouteGenerator } from '../../_services/viewer-route-util'
 @Component({
   selector: 'ws-widget-content-toc',
   templateUrl: './content-toc.component.html',
   styleUrls: ['./content-toc.component.scss'],
+  standalone: false
 })
 
 export class ContentTocComponent implements OnInit, AfterViewInit, OnChanges {

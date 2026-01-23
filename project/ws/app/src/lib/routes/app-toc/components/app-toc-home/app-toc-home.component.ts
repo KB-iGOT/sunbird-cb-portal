@@ -45,8 +45,8 @@ import { ContentRatingV2DialogComponent } from '@sunbird-cb/collection/src/lib/_
 import { NsCardContent } from '@sunbird-cb/collection/src/lib/card-content-v2/card-content-v2.model'
 import { environment } from 'src/environments/environment'
 import { TimerService } from '../../services/timer.service'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatDialog } from '@angular/material/dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { MatSnackBar as MatSnackbarNew } from '@angular/material/snack-bar'
 import { NonReleventFeedbackDialogComponent } from '../../../../../../../../../library/ws-widget/collection/src/lib/_common/non-relevent-feedback-dialog/non-relevent-feedback-dialog.component'
 import { NetCoreService } from '../../../../../../../../../src/app/services/netcore.service'
@@ -70,11 +70,12 @@ const flattenItems = (items: any[], key: string | number) => {
 }
 const SNACKBAR_DURATION = 3000
 @Component({
-  selector: 'ws-app-app-toc-home',
-  templateUrl: './app-toc-home.component.html',
-  styleUrls: ['./app-toc-home.component.scss'],
-  // tslint:disable-next-line: use-component-view-encapsulation
-  encapsulation: ViewEncapsulation.None,
+    selector: 'ws-app-app-toc-home',
+    templateUrl: './app-toc-home.component.html',
+    styleUrls: ['./app-toc-home.component.scss'],
+    // tslint:disable-next-line: use-component-view-encapsulation
+    encapsulation: ViewEncapsulation.None,
+    standalone: false
 })
 
 export class AppTocHomeComponent implements OnInit, OnDestroy, AfterViewChecked, AfterViewInit {
@@ -227,7 +228,7 @@ export class AppTocHomeComponent implements OnInit, OnDestroy, AfterViewChecked,
   feedbackGiven: any
   preAssessmentCompletionStatus = false
   fromAITutor = false
-  selectedLanguage: any; // Set this to the default/initial language
+  selectedLanguage: any // Set this to the default/initial language
   languageList = [
     { name: "English", value: "English" },
     { name: "ಕನ್ನಡ (Kannada)", value: "Kannada" },
@@ -404,7 +405,7 @@ export class AppTocHomeComponent implements OnInit, OnDestroy, AfterViewChecked,
             this.tocSvc.checkModuleWiseData(this.content)
             this.skeletonLoader = false
           } else {
-            this.fetchUserEnrollmentData();
+            this.fetchUserEnrollmentData()
 
           }
           this.initialrouteData = data
@@ -1294,7 +1295,7 @@ export class AppTocHomeComponent implements OnInit, OnDestroy, AfterViewChecked,
         (_error: any) => {
           // console.log('_error', _error)
           // if(_error && _error.error && _error.error.params && _error.error.params.err && _error.error.params.err.errmsg) {
-            this.snackBar.open(_.get(_error, 'error.params.errmsg') || 'Please try again later');
+          this.snackBar.open(_.get(_error, 'error.params.errmsg') || 'Please try again later')
           // }
           this.enrollBtnLoading = false
         }
@@ -1316,7 +1317,7 @@ export class AppTocHomeComponent implements OnInit, OnDestroy, AfterViewChecked,
           }
         },
         (_error: any) => {
-          this.snackBar.open(_.get(_error, 'error.params.errmsg') || 'Please try again later');
+          this.snackBar.open(_.get(_error, 'error.params.errmsg') || 'Please try again later')
           this.enrollBtnLoading = false
         }
       )
@@ -1828,10 +1829,10 @@ export class AppTocHomeComponent implements OnInit, OnDestroy, AfterViewChecked,
     const batchId = this.route.snapshot.queryParams.batchId ?
       this.route.snapshot.queryParams.batchId : ''
     const isPreAssessment = this.route.snapshot.queryParams.preAssessment
-    if(isPreAssessment) {
-        return this.viewerSvc
-          .realTimeProgressUpdateForPreAssessmentQuiz(resourceId,  status)
-      
+    if (isPreAssessment) {
+      return this.viewerSvc
+        .realTimeProgressUpdateForPreAssessmentQuiz(resourceId, status)
+
     }
     return this.viewerSvc.realTimeProgressUpdateQuiz(resourceId, collectionId, batchId, status)
   }
@@ -2257,7 +2258,7 @@ export class AppTocHomeComponent implements OnInit, OnDestroy, AfterViewChecked,
   }
 
   handleAcceptRelevent() {
-    this.saveFeedback('', 1);
+    this.saveFeedback('', 1)
   }
 
   handleDeclineRelevent() {
@@ -2268,10 +2269,10 @@ export class AppTocHomeComponent implements OnInit, OnDestroy, AfterViewChecked,
     })
     dialogRef.afterClosed().subscribe((result: any) => {
       if (result) {
-        this.saveFeedback(result, 0);
-        dialogRef.close();
+        this.saveFeedback(result, 0)
+        dialogRef.close()
       } else {
-        dialogRef.close();
+        dialogRef.close()
       }
     })
   }
@@ -2335,15 +2336,15 @@ export class AppTocHomeComponent implements OnInit, OnDestroy, AfterViewChecked,
   }
 
   secondsToTime(d: any) {
-    d = Number(d);
-    var h = Math.floor(d / 3600);
-    var m = Math.floor(d % 3600 / 60);
-    var s = Math.floor(d % 3600 % 60);
+    d = Number(d)
+    var h = Math.floor(d / 3600)
+    var m = Math.floor(d % 3600 / 60)
+    var s = Math.floor(d % 3600 % 60)
 
-    var hDisplay = h > 0 ? h + (h == 1 ? " hour, " : " hours, ") : "";
-    var mDisplay = m > 0 ? m + (m == 1 ? " minute, " : " minutes, ") : "";
-    var sDisplay = s > 0 ? s + (s == 1 ? " second" : " seconds") : "";
-    return hDisplay + mDisplay + sDisplay;
+    var hDisplay = h > 0 ? h + (h == 1 ? " hour, " : " hours, ") : ""
+    var mDisplay = m > 0 ? m + (m == 1 ? " minute, " : " minutes, ") : ""
+    var sDisplay = s > 0 ? s + (s == 1 ? " second" : " seconds") : ""
+    return hDisplay + mDisplay + sDisplay
   }
 
 
@@ -2360,7 +2361,7 @@ export class AppTocHomeComponent implements OnInit, OnDestroy, AfterViewChecked,
       this.matSnackbarNew.open(
         'Thank you for your feedback.', 'X',
         { duration: SNACKBAR_DURATION, panelClass: ['success'] }
-      );
+      )
       // this.router.navigate([], { queryParams: { g: null }, queryParamsHandling: 'merge' });
       this.feedbackGiven = { course_id: this.courseID, rating: rating, comments: comment }
 
@@ -2368,19 +2369,19 @@ export class AppTocHomeComponent implements OnInit, OnDestroy, AfterViewChecked,
       this.matSnackbarNew.open(
         'Something is wrong. Please try again later.', 'X',
         { duration: SNACKBAR_DURATION, panelClass: ['error'] }
-      );
+      )
     }
   }
 
   playResumeForAI() {
-    if(this.content) {
-      if(this.firstResourceLink) {
-        this.router.navigate([this.firstResourceLink.url],{queryParams: this.firstResourceLink.queryParams} )
+    if (this.content) {
+      if (this.firstResourceLink) {
+        this.router.navigate([this.firstResourceLink.url], { queryParams: this.firstResourceLink.queryParams })
       }
-      
-     // this.getContinueLearningData(this.content.identifier)
+
+      // this.getContinueLearningData(this.content.identifier)
     }
-    
+
   }
 
   enrollUserToAI() {
@@ -2445,11 +2446,11 @@ export class AppTocHomeComponent implements OnInit, OnDestroy, AfterViewChecked,
   }
 
   routeToPreAssessent() {
-    if (this.contentReadData) { 
-      console.log('this.content',this.contentReadData)  
-      console.log('this.content', this.contentReadData.preEnrolmentResources) 
+    if (this.contentReadData) {
+      console.log('this.content', this.contentReadData)
+      console.log('this.content', this.contentReadData.preEnrolmentResources)
       // this.generatePreAssessmentQuery('START')
-      let firstResource  = this.contentReadData.preEnrolmentResources[0]
+      let firstResource = this.contentReadData.preEnrolmentResources[0]
 
       this.firstResourceLink = viewerRouteGenerator(
         firstResource.identifier,
@@ -2461,38 +2462,38 @@ export class AppTocHomeComponent implements OnInit, OnDestroy, AfterViewChecked,
         '',
       )
       console.log('this.firstResourceLink', this.firstResourceLink)
-      let routerLink =  this.firstResourceLink?.url  
+      let routerLink = this.firstResourceLink?.url
       let queryParams = this.generatePreAssessmentQuery('START')
-      queryParams = { ...queryParams,  preAssessment: 'true' }
+      queryParams = { ...queryParams, preAssessment: 'true' }
       this.router.navigate([`${routerLink}`], { queryParams })
     }
   }
 
   getPreAssessmentCompletionStatus() {
     this.preAssessmentCompletionStatus = false
-    let preEnrollmentResourcesArr:any = []
-    if(this.contentReadData?.preEnrolmentResources?.length) {
-      this.contentReadData?.preEnrolmentResources?.forEach((item:any)=>{
-        if(item && item?.isMandatory) {
+    let preEnrollmentResourcesArr: any = []
+    if (this.contentReadData?.preEnrolmentResources?.length) {
+      this.contentReadData?.preEnrolmentResources?.forEach((item: any) => {
+        if (item && item?.isMandatory) {
           preEnrollmentResourcesArr.push(item?.identifier)
         }
       })
     }
-    if(preEnrollmentResourcesArr && preEnrollmentResourcesArr.length) {
-      let req ={
+    if (preEnrollmentResourcesArr && preEnrollmentResourcesArr.length) {
+      let req = {
         "request": {
           "contentIds": preEnrollmentResourcesArr,
           "fields": [
-              // "lastAccessTime",
-              // "completionPercentage"
+            // "lastAccessTime",
+            // "completionPercentage"
           ]
+        }
       }
-      } 
-      this.tocSvc.readPreEnrollmentResourcesState(req).subscribe((data:any)=>{
-        if(data && data.result && data.result.contentList) {
-          for(let i=0; i<data.result.contentList.length; i++) {
-            if(Number(data.result.contentList[i]['completionPercentage']) === 100 || 
-              data.result.contentList[i]['status'] === 2 
+      this.tocSvc.readPreEnrollmentResourcesState(req).subscribe((data: any) => {
+        if (data && data.result && data.result.contentList) {
+          for (let i = 0; i < data.result.contentList.length; i++) {
+            if (Number(data.result.contentList[i]['completionPercentage']) === 100 ||
+              data.result.contentList[i]['status'] === 2
             ) {
               this.preAssessmentCompletionStatus = true
             }
@@ -2500,13 +2501,13 @@ export class AppTocHomeComponent implements OnInit, OnDestroy, AfterViewChecked,
         }
       })
     }
-    
+
   }
 
 
   onLanguageSelect(lang: any) {
-    this.selectedLanguage = lang;
-    console.log('Selected language:', lang);
+    this.selectedLanguage = lang
+    console.log('Selected language:', lang)
     // Add your language change logic here
   }
 

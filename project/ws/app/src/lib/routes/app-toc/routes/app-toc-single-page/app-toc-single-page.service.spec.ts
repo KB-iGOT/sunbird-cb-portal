@@ -6,7 +6,7 @@ describe('AppTocSinglePageService', () => {
   beforeEach(() => TestBed.configureTestingModule({}))
 
   it('should be created', () => {
-    const service: AppTocSinglePageService = TestBed.get(AppTocSinglePageService)
+    const service: AppTocSinglePageService = TestBed.inject(AppTocSinglePageService)
     expect(service).toBeTruthy()
   })
 })

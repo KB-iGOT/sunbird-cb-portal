@@ -1,13 +1,14 @@
 import { Component, Input, OnInit } from '@angular/core'
 import { Router } from '@angular/router'
-import { VIEWER_ROUTE_FROM_MIME } from '@sunbird-cb/collection/src/public-api'
 import { EventService, NsContent, WsEvents } from '@sunbird-cb/utils-v2'
 import * as fileSaver from 'file-saver'
+import { VIEWER_ROUTE_FROM_MIME } from '../../../_services/viewer-route-util'
 
 @Component({
   selector: 'ws-widget-app-toc-teachers-notes',
   templateUrl: './app-toc-teachers-notes.component.html',
   styleUrls: ['./app-toc-teachers-notes.component.scss'],
+  standalone: false
 })
 
 export class AppTocTeachersNotesComponent implements OnInit {

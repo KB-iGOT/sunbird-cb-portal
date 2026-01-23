@@ -3,8 +3,8 @@ import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop'
 import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/layout'
 import { Subscription } from 'rxjs'
 import { map } from 'rxjs/operators'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
-import { MatLegacySnackBarRef as MatSnackBarRef } from '@angular/material/legacy-snack-bar'
+import { MatDialog } from '@angular/material/dialog'
+import { MatSnackBarRef as MatSnackBarRef } from '@angular/material/snack-bar'
 import { QuizStoreService } from '../../../services/store.service'
 
 import { QUIZ_QUESTION_TYPE } from '../../../constants/quiz-constants'
@@ -14,9 +14,10 @@ import { NotificationComponent } from '@ws/author/src/lib/modules/shared/compone
 import { IQuizQuestionType } from '../../../interface/quiz-interface'
 
 @Component({
-  selector: 'ws-auth-question-editor-sidebar',
-  templateUrl: './question-editor-sidenav.component.html',
-  styleUrls: ['./question-editor-sidenav.component.scss'],
+    selector: 'ws-auth-question-editor-sidebar',
+    templateUrl: './question-editor-sidenav.component.html',
+    styleUrls: ['./question-editor-sidenav.component.scss'],
+    standalone: false
 })
 export class QuestionEditorSidenavComponent implements OnInit, OnDestroy {
 

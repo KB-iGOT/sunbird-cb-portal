@@ -11,9 +11,10 @@ import { ViewerUtilService } from '@ws/viewer/src/lib/viewer-util.service'
 import { TranslateService } from '@ngx-translate/core'
 
 @Component({
-  selector: 'ws-app-app-toc-contents',
-  templateUrl: './app-toc-contents.component.html',
-  styleUrls: ['./app-toc-contents.component.scss'],
+    selector: 'ws-app-app-toc-contents',
+    templateUrl: './app-toc-contents.component.html',
+    styleUrls: ['./app-toc-contents.component.scss'],
+    standalone: false
 })
 export class AppTocContentsComponent implements OnInit, OnDestroy {
   @Input() batchId!: string

@@ -3,13 +3,14 @@ import { DialogSocialDeletePostComponent, NsDiscussionForum, WsDiscussionForumSe
 import { ConfigurationsService, TFetchStatus } from '@sunbird-cb/utils-v2'
 import { NsSocial } from '../../../../../models/social.model'
 import { WsSocialService } from '../../../../../services/ws-social.service'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatDialog } from '@angular/material/dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
 
 @Component({
-  selector: 'ws-app-qna-reply',
-  templateUrl: './qna-reply.component.html',
-  styleUrls: ['./qna-reply.component.scss'],
+    selector: 'ws-app-qna-reply',
+    templateUrl: './qna-reply.component.html',
+    styleUrls: ['./qna-reply.component.scss'],
+    standalone: false
 })
 export class QnaReplyComponent implements OnInit {
 

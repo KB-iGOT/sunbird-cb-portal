@@ -3,9 +3,10 @@ import { NsContent } from '@sunbird-cb/collection'
 import moment from 'moment'
 
 @Component({
-  selector: 'ws-app-app-toc-sessions',
-  templateUrl: './app-toc-sessions.component.html',
-  styleUrls: ['./app-toc-sessions.component.scss'],
+    selector: 'ws-app-app-toc-sessions',
+    templateUrl: './app-toc-sessions.component.html',
+    styleUrls: ['./app-toc-sessions.component.scss'],
+    standalone: false
 })
 export class AppTocSessionsComponent implements OnInit {
   @Input() batchData: any

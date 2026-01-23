@@ -19,12 +19,13 @@ import { UntypedFormGroup, UntypedFormControl } from '@angular/forms'
 import { RatingService } from '../../../../../../../../../library/ws-widget/collection/src/lib/_services/rating.service'
 import { TranslateService } from '@ngx-translate/core'
 import { environment } from 'src/environments/environment'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
-import { MatLegacyTabChangeEvent as MatTabChangeEvent } from '@angular/material/legacy-tabs'
+import { MatDialog } from '@angular/material/dialog'
+import { MatTabChangeEvent } from '@angular/material/tabs'
 @Component({
-  selector: 'ws-app-app-toc-single-page',
-  templateUrl: './app-toc-single-page.component.html',
-  styleUrls: ['./app-toc-single-page.component.scss'],
+    selector: 'ws-app-app-toc-single-page',
+    templateUrl: './app-toc-single-page.component.html',
+    styleUrls: ['./app-toc-single-page.component.scss'],
+    standalone: false
 })
 export class AppTocSinglePageComponent implements OnInit, OnChanges, OnDestroy {
   contentTypes = NsContent.EContentTypes
@@ -540,9 +541,9 @@ export class AppTocSinglePageComponent implements OnInit, OnChanges, OnDestroy {
   getAuthorReply(identifier: string, primaryCategory: NsContent.EPrimaryCategory, userIds: any[]) {
     const request = {
       request: {
-          activityId: identifier,
-          activityType: primaryCategory,
-          userId: userIds,
+        activityId: identifier,
+        activityType: primaryCategory,
+        userId: userIds,
       },
     }
     return this.ratingSvc.getRatingReply(request).subscribe(
@@ -551,10 +552,10 @@ export class AppTocSinglePageComponent implements OnInit, OnChanges, OnDestroy {
         if (res && res.result && res.result.content) {
           const reatingAuthReplay = res.result.content
           _.forEach(reatingAuthReplay, value => {
-              if (this.authReplies[value.userId]) {
-                this.authReplies[value.userId]['comment'] = value.comment
-                this.authReplies[value.userId]['userId'] = value.userId
-              }
+            if (this.authReplies[value.userId]) {
+              this.authReplies[value.userId]['comment'] = value.comment
+              this.authReplies[value.userId]['userId'] = value.userId
+            }
           })
         }
         return this.authReplies
@@ -579,11 +580,11 @@ export class AppTocSinglePageComponent implements OnInit, OnChanges, OnDestroy {
       this.selectedBatchData.content[0].batchAttributes &&
       this.selectedBatchData.content[0].batchAttributes.sessionDetails_v2 &&
       this.selectedBatchData.content[0].batchAttributes.sessionDetails_v2.length) {
-        this.selectedBatchData.content[0].batchAttributes.sessionDetails_v2.map((sessionDetails: any) => {
-          sessionDetails.facilatorDetails.map((facilitator: any) => [
-            facilitators.push(facilitator),
-          ])
-        })
+      this.selectedBatchData.content[0].batchAttributes.sessionDetails_v2.map((sessionDetails: any) => {
+        sessionDetails.facilatorDetails.map((facilitator: any) => [
+          facilitators.push(facilitator),
+        ])
+      })
     }
     return facilitators
   }
@@ -675,7 +676,7 @@ export class AppTocSinglePageComponent implements OnInit, OnChanges, OnDestroy {
       // this.ratingReviews = JSON.parse(this.ratingSummary.latest50Reviews)
       const latest50Reviews = JSON.parse(this.ratingSummary.latest50Reviews)
       const modifiedReviews = _.map(latest50Reviews, rating => {
-        rating['userId'] =  rating.user_id
+        rating['userId'] = rating.user_id
         return rating
       })
       this.authReplies = []
@@ -699,7 +700,7 @@ export class AppTocSinglePageComponent implements OnInit, OnChanges, OnDestroy {
     if (this.ratingSummary && this.ratingSummary.total_number_of_ratings) {
       // ratingSummaryPr.avgRating = parseFloat((meanRating / this.ratingSummary.total_number_of_ratings).toFixed(1))
       ratingSummaryPr.avgRating =
-      parseFloat((this.ratingSummary.sum_of_total_ratings / this.ratingSummary.total_number_of_ratings).toFixed(1))
+        parseFloat((this.ratingSummary.sum_of_total_ratings / this.ratingSummary.total_number_of_ratings).toFixed(1))
     }
     if (this.content) {
       this.content.averageRating = ratingSummaryPr.avgRating

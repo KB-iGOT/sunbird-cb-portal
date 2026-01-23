@@ -6,7 +6,7 @@ describe('RestrictedFeaturesResolverService', () => {
   beforeEach(() => TestBed.configureTestingModule({}))
 
   it('should be created', () => {
-    const service: RestrictedFeaturesResolverService = TestBed.get(RestrictedFeaturesResolverService)
+    const service: RestrictedFeaturesResolverService = TestBed.inject(RestrictedFeaturesResolverService)
     expect(service).toBeTruthy()
   })
 })

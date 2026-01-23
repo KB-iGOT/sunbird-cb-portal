@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatDialog } from '@angular/material/dialog'
 import { ActivatedRoute } from '@angular/router'
 import { Observable } from 'rxjs'
 import {
@@ -14,9 +14,10 @@ import { ForumService } from '../../service/forum.service'
 // import { DialogBoxModeratorComponent } from '../../widgets/Dialog-Box/dialog-box-moderator/dialog-box-moderator.component'
 
 @Component({
-  selector: 'ws-app-moderator-timeline',
-  templateUrl: './moderator-timeline.component.html',
-  styleUrls: ['./moderator-timeline.component.scss'],
+    selector: 'ws-app-moderator-timeline',
+    templateUrl: './moderator-timeline.component.html',
+    styleUrls: ['./moderator-timeline.component.scss'],
+    standalone: false
 })
 export class ModeratorTimelineComponent implements OnInit {
   postAccepted = false // to be used for temporary deletion from list

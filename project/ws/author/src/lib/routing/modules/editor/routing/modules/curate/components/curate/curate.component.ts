@@ -24,12 +24,13 @@ import { VIEWER_ROUTE_FROM_MIME } from '@sunbird-cb/collection'
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper'
 
 @Component({
-  selector: 'ws-auth-curate',
-  templateUrl: './curate.component.html',
-  styleUrls: ['./curate.component.scss'],
-  providers: [{
-    provide: STEPPER_GLOBAL_OPTIONS, useValue: { displayDefaultIndicatorType: false },
-  }],
+    selector: 'ws-auth-curate',
+    templateUrl: './curate.component.html',
+    styleUrls: ['./curate.component.scss'],
+    providers: [{
+            provide: STEPPER_GLOBAL_OPTIONS, useValue: { displayDefaultIndicatorType: false },
+        }],
+    standalone: false
 })
 export class CurateComponent implements OnInit, OnDestroy {
   contents: NSContent.IContentMeta[] = []

@@ -7,9 +7,10 @@ import { Subscription } from 'rxjs'
 // import { NsAppToc } from '../models/app-toc.model'
 
 @Component({
-  selector: 'ws-widget-app-toc-content',
-  templateUrl: './app-toc-content.component.html',
-  styleUrls: ['./app-toc-content.component.scss'],
+    selector: 'ws-widget-app-toc-content',
+    templateUrl: './app-toc-content.component.html',
+    styleUrls: ['./app-toc-content.component.scss'],
+    standalone: false
 })
 
 export class AppTocContentComponent implements OnInit, OnDestroy, OnChanges {

@@ -11,9 +11,10 @@ import { switchMap, catchError, takeUntil } from 'rxjs/operators'
 import { CertificationApiService } from '../../apis/certification-api.service'
 
 @Component({
-  selector: 'ws-app-toc-certification',
-  templateUrl: './app-toc-certification.component.html',
-  styleUrls: ['./app-toc-certification.component.scss'],
+    selector: 'ws-app-toc-certification',
+    templateUrl: './app-toc-certification.component.html',
+    styleUrls: ['./app-toc-certification.component.scss'],
+    standalone: false
 })
 export class AppTocCertificationComponent implements OnInit, OnDestroy {
   content?: NsContent.IContent | null

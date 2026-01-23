@@ -5,9 +5,10 @@ import { GamificationService } from '../../../../services/gamification.service'
 import { ExcelService } from '../excel.service'
 
 @Component({
-  selector: 'ws-app-admin',
-  templateUrl: './admin.component.html',
-  styleUrls: ['./admin.component.scss'],
+    selector: 'ws-app-admin',
+    templateUrl: './admin.component.html',
+    styleUrls: ['./admin.component.scss'],
+    standalone: false
 })
 export class AdminComponent implements OnInit {
   query!: any

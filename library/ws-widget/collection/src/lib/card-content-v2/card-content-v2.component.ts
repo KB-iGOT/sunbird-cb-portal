@@ -14,14 +14,15 @@ import { TranslateService } from '@ngx-translate/core'
 import { WidgetContentLibService } from '@sunbird-cb/consumption'
 import { ActivatedRoute, Router } from '@angular/router'
 import { VIEWER_ROUTE_FROM_MIME } from '../_services/viewer-route-util'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatDialog } from '@angular/material/dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
 // import { Router } from '@angular/router'
 
 @Component({
-  selector: 'ws-widget-card-content-v2',
-  templateUrl: './card-content-v2.component.html',
-  styleUrls: ['./card-content-v2.component.scss'],
+    selector: 'ws-widget-card-content-v2',
+    templateUrl: './card-content-v2.component.html',
+    styleUrls: ['./card-content-v2.component.scss'],
+    standalone: false
 })
 export class CardContentV2Component extends WidgetBaseComponent
   implements OnInit, OnDestroy, AfterViewInit, NsWidgetResolver.IWidgetData<NsCardContent.ICard> {

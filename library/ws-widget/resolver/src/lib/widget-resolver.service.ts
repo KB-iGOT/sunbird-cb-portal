@@ -39,7 +39,7 @@ export class WidgetResolverService {
   private availableRegisteredWidgets: Map<
     string,
     NsWidgetResolver.IRegistrationConfig
-    > | null = null
+  > | null = null
   private restrictedWidgetKeys: Set<string> | null = null
   static getWidgetKey(config: NsWidgetResolver.IBaseConfig) {
     return `widget:${config.widgetType}::${config.widgetSubType}`

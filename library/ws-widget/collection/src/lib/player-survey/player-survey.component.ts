@@ -7,12 +7,12 @@ import { ROOT_WIDGET_CONFIG } from '../collection.config'
 // import { NsContent } from '../_services/widget-content.model'
 import { ActivatedRoute } from '@angular/router'
 import { ViewerUtilService } from '@ws/viewer/src/lib/viewer-util.service'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { ViewerDataService } from '@ws/viewer/src/lib/viewer-data.service'
-import { WidgetContentService } from '@sunbird-cb/collection'
 import { HttpErrorResponse } from '@angular/common/http'
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms'
 import * as _ from 'lodash'
+import { WidgetContentService } from '../_services/widget-content.service'
 
 const EMAIL_PATTERN = /^[a-zA-Z0-9]+[a-zA-Z0-9._-]*[a-zA-Z0-9]+@[a-zA-Z0-9]+([-a-zA-Z0-9]*[a-zA-Z0-9]+)?(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,4}$/
 const MOBILE_PATTERN = /^[0]?[6789]\d{9}$/
@@ -21,6 +21,7 @@ const MOBILE_PATTERN = /^[0]?[6789]\d{9}$/
   selector: 'ws-widget-player-survey',
   templateUrl: './player-survey.component.html',
   styleUrls: ['./player-survey.component.scss'],
+  standalone: false
 })
 export class PlayerSurveyComponent extends WidgetBaseComponent
   implements OnInit, NsWidgetResolver.IWidgetData<any>, OnDestroy {
@@ -33,10 +34,10 @@ export class PlayerSurveyComponent extends WidgetBaseComponent
   courseName: any
   apiData: {
     // tslint:disable-next-line:prefer-template
-    getAPI: string;
-    postAPI: string;
-    getAllApplications: string;
-    customizedHeader: {};
+    getAPI: string
+    postAPI: string
+    getAllApplications: string
+    customizedHeader: {}
   } | undefined
   public afterSubmitAction = this.checkAfterSubmit.bind(this)
   isReadOnly = false
@@ -231,11 +232,11 @@ export class PlayerSurveyComponent extends WidgetBaseComponent
     if (this.surveyForm && this.surveyForm.controls.fields) {
       const questionsArray = this.questionsArray
       const childQuestionsArray = questionsArray.controls.filter((question: any) => {
-        return question.value && question.value.parentId === sectionId;
-      });
+        return question.value && question.value.parentId === sectionId
+      })
 
       if (childQuestionsArray.length > 0) {
-        return this.fb.array(childQuestionsArray);
+        return this.fb.array(childQuestionsArray)
       }
     }
     return this.fb.array([]) as FormArray

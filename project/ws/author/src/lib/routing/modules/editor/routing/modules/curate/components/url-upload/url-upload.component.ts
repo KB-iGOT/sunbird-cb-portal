@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core'
 import { AbstractControl, UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
+import { MatDialog } from '@angular/material/dialog'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { NOTIFICATION_TIME } from '@ws/author/src/lib/constants/constant'
 import { Notify } from '@ws/author/src/lib/constants/notificationMessage'
@@ -14,9 +14,10 @@ import { AuthInitService } from './../../../../../../../../services/init.service
 import { URLCheckerClass } from './url-upload.helper'
 
 @Component({
-  selector: 'ws-auth-url-upload',
-  templateUrl: './url-upload.component.html',
-  styleUrls: ['./url-upload.component.scss'],
+    selector: 'ws-auth-url-upload',
+    templateUrl: './url-upload.component.html',
+    styleUrls: ['./url-upload.component.scss'],
+    standalone: false
 })
 export class UrlUploadComponent implements OnInit {
   urlUploadForm!: UntypedFormGroup

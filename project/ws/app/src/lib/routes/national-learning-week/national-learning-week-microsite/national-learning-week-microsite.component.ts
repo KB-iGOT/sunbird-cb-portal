@@ -3,9 +3,10 @@ import { ActivatedRoute } from '@angular/router'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 
 @Component({
-  selector: 'ws-app-national-learning-week-microsite',
-  templateUrl: './national-learning-week-microsite.component.html',
-  styleUrls: ['./national-learning-week-microsite.component.scss'],
+    selector: 'ws-app-national-learning-week-microsite',
+    templateUrl: './national-learning-week-microsite.component.html',
+    styleUrls: ['./national-learning-week-microsite.component.scss'],
+    standalone: false
 })
 export class NationalLearningWeekMicrositeComponent implements OnInit {
 

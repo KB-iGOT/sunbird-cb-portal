@@ -6,7 +6,7 @@ import {
   AbstractControl,
   ValidationErrors,
 } from '@angular/forms'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { Observable, of, timer, throwError, noop, Subscription } from 'rxjs'
 import { finalize, startWith, map, switchMap, catchError } from 'rxjs/operators'
 
@@ -28,9 +28,10 @@ import { Router, ActivatedRoute } from '@angular/router'
 import { SnackbarComponent } from '../snackbar/snackbar.component'
 
 @Component({
-  selector: 'ws-app-at-desk-slot-booking',
-  templateUrl: './at-desk-slot-booking.component.html',
-  styleUrls: ['./at-desk-slot-booking.component.scss'],
+    selector: 'ws-app-at-desk-slot-booking',
+    templateUrl: './at-desk-slot-booking.component.html',
+    styleUrls: ['./at-desk-slot-booking.component.scss'],
+    standalone: false
 })
 export class AtDeskSlotBookingComponent implements OnInit, OnDestroy {
   content!: NsContent.IContent
@@ -249,7 +250,7 @@ export class AtDeskSlotBookingComponent implements OnInit, OnDestroy {
         proctorEmail: this.userPrivileges.manager,
       })
       this.managerFetchStatus = 'done'
-    },                                                        noop)
+    }, noop)
   }
 
   private filterCountries(value: string): ICertificationCountry[] {
@@ -277,7 +278,7 @@ export class AtDeskSlotBookingComponent implements OnInit, OnDestroy {
       .getCertificationMeta(this.route.parent)
       .subscribe(certificationData => {
         this.certification = certificationData
-      },         noop)
+      }, noop)
   }
 
   private subscribeToContentResolve() {
@@ -285,6 +286,6 @@ export class AtDeskSlotBookingComponent implements OnInit, OnDestroy {
       .getContentMeta(this.route.parent)
       .subscribe(content => {
         this.content = content
-      },         noop)
+      }, noop)
   }
 }

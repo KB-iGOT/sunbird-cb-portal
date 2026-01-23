@@ -1,13 +1,14 @@
 import { Component, Inject, OnInit } from '@angular/core'
-import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog'
-import { MatLegacyTableDataSource as MatTableDataSource } from '@angular/material/legacy-table'
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
+import { MatTableDataSource } from '@angular/material/table'
 import { ITableData } from '@sunbird-cb/collection/src/public-api'
 import * as _ from 'lodash'
 
 @Component({
-  selector: 'viewer-final-assessment-popup',
-  templateUrl: './final-assessment-popup.component.html',
-  styleUrls: ['./final-assessment-popup.component.scss'],
+    selector: 'viewer-final-assessment-popup',
+    templateUrl: './final-assessment-popup.component.html',
+    styleUrls: ['./final-assessment-popup.component.scss'],
+    standalone: false
 })
 export class FinalAssessmentPopupComponent implements OnInit {
 

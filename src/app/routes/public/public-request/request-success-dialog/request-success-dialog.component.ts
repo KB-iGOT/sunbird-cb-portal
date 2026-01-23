@@ -1,11 +1,12 @@
 import { Component, OnInit, Inject } from '@angular/core'
-import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog'
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 import { Router } from '@angular/router'
 
 @Component({
-  selector: 'ws-request-success-dialog',
-  templateUrl: './request-success-dialog.component.html',
-  styleUrls: ['./request-success-dialog.component.scss'],
+    selector: 'ws-request-success-dialog',
+    templateUrl: './request-success-dialog.component.html',
+    styleUrls: ['./request-success-dialog.component.scss'],
+    standalone: false
 })
 export class RequestSuccessDialogComponent implements OnInit {
   reqType: any

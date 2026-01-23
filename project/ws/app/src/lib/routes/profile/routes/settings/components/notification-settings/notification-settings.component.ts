@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core'
 import { SettingsService } from '../../settings.service'
-//import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+//import {  MatSnackBar } from '@angular/material/snack-bar'
 import { TranslateService } from '@ngx-translate/core'
 /* tslint:disable*/
 import _ from 'lodash'
@@ -8,9 +8,10 @@ import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 import { MatSnackBar } from '@angular/material/snack-bar'
 
 @Component({
-  selector: 'ws-app-notification-settings',
-  templateUrl: './notification-settings.component.html',
-  styleUrls: ['./notification-settings.component.scss'],
+    selector: 'ws-app-notification-settings',
+    templateUrl: './notification-settings.component.html',
+    styleUrls: ['./notification-settings.component.scss'],
+    standalone: false
 })
 export class NotificationSettingsComponent implements OnInit {
   selectedLanguage = 'en'

@@ -1,3 +1,4 @@
+
 // Widget Modules
 export * from './lib/btn-apps/btn-apps.model'
 // modules
@@ -271,3 +272,6 @@ export * from './lib/_common/content-toc/app-toc-about/app-toc-about.component'
 export * from './lib/_common/content-toc/karma-points/karma-points.module'
 export * from './lib/_common/content-toc/karma-points/karma-points.component'
 export * from './lib/_services/pre-assessment-viewer-route-utils.service'
+
+export { WIDGET_REGISTRATION_CONFIG } from './lib/registration.config'
+export { WIDGET_REGISTERED_MODULES } from './lib/registration.config'

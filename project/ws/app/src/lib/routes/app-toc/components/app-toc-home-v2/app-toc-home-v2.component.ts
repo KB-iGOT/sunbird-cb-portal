@@ -45,8 +45,8 @@ import { ContentRatingV2DialogComponent } from '@sunbird-cb/collection/src/lib/_
 import { NsCardContent } from '@sunbird-cb/collection/src/lib/card-content-v2/card-content-v2.model'
 import { environment } from 'src/environments/environment'
 import { TimerService } from '../../services/timer.service'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatDialog } from '@angular/material/dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { MatSnackBar as MatSnackbarNew } from '@angular/material/snack-bar'
 import { NonReleventFeedbackDialogComponent } from '../../../../../../../../../library/ws-widget/collection/src/lib/_common/non-relevent-feedback-dialog/non-relevent-feedback-dialog.component'
 import { NetCoreService } from '../../../../../../../../../src/app/services/netcore.service'
@@ -73,11 +73,12 @@ const flattenItems = (items: any[], key: string | number) => {
 }
 const SNACKBAR_DURATION = 3000
 @Component({
-  selector: 'ws-app-app-toc-home-v2',
-  templateUrl: './app-toc-home-v2.component.html',
-  styleUrls: ['./app-toc-home-v2.component.scss'],
-  // tslint:disable-next-line: use-component-view-encapsulation
-  encapsulation: ViewEncapsulation.None,
+    selector: 'ws-app-app-toc-home-v2',
+    templateUrl: './app-toc-home-v2.component.html',
+    styleUrls: ['./app-toc-home-v2.component.scss'],
+    // tslint:disable-next-line: use-component-view-encapsulation
+    encapsulation: ViewEncapsulation.None,
+    standalone: false
 })
 export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecked, AfterViewInit {
   queryParamsData: { [key: string]: string } = {}; // Initialize queryParamsData

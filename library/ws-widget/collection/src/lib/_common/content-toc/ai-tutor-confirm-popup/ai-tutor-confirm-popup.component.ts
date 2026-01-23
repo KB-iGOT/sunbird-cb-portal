@@ -1,10 +1,11 @@
-import { Component, Inject } from '@angular/core';
-import { MatLegacyDialogRef as MatDialogRef, MAT_LEGACY_DIALOG_DATA as MAT_DIALOG_DATA } from '@angular/material/legacy-dialog'
+import { Component, Inject } from '@angular/core'
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 
 @Component({
-  selector: 'ws-widget-ai-tutor-confirm-popup',
-  templateUrl: './ai-tutor-confirm-popup.component.html',
-  styleUrls: ['./ai-tutor-confirm-popup.component.scss']
+    selector: 'ws-widget-ai-tutor-confirm-popup',
+    templateUrl: './ai-tutor-confirm-popup.component.html',
+    styleUrls: ['./ai-tutor-confirm-popup.component.scss'],
+    standalone: false
 })
 export class AiTutorConfirmPopupComponent {
   constructor(public dialogRef: MatDialogRef<AiTutorConfirmPopupComponent>, @Inject(MAT_DIALOG_DATA) public data: any,) {
@@ -16,11 +17,11 @@ export class AiTutorConfirmPopupComponent {
   }
 
   enrollNow() {
-    if(this.data.enroll) {
+    if (this.data.enroll) {
       this.dialogRef.close('enroll')
     } else {
       this.dialogRef.close('needToEnroll')
     }
-    
+
   }
 }

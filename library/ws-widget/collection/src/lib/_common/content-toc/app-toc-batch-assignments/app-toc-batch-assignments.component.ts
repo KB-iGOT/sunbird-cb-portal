@@ -1,11 +1,10 @@
 import { Component, Input, OnInit } from '@angular/core'
 import { MatDialog } from '@angular/material/dialog'
-import { MatLegacySnackBar } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { ActivatedRoute, Router } from '@angular/router'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { AppTocService } from '@ws/app/src/lib/routes/app-toc/services/app-toc.service'
 import { ConfirmationDialogComponent } from '@sunbird-cb/consumption'
-import { MatLegacyDialog } from '@angular/material/legacy-dialog'
 import * as _ from 'lodash'
 import { AssignmentViewerV2Component } from '../app-toc-assignment-viewerV2/app-toc-assignment-viewerV2.component'
 
@@ -13,6 +12,7 @@ import { AssignmentViewerV2Component } from '../app-toc-assignment-viewerV2/app-
   selector: 'ws-widget-app-batch-assignments',
   templateUrl: './app-toc-batch-assignments.component.html',
   styleUrls: ['./app-toc-batch-assignments.component.scss'],
+  standalone: false
 })
 
 export class AppTocBatchAssignmentsComponent implements OnInit {
@@ -29,11 +29,11 @@ export class AppTocBatchAssignmentsComponent implements OnInit {
 
 
   constructor(public router: Router,
-    private snackBar: MatLegacySnackBar,
+    private snackBar: MatSnackBar,
     public tocSvc: AppTocService,
     public configSvc: ConfigurationsService,
     private dialog: MatDialog,
-    private dialogLegacy: MatLegacyDialog,
+    private dialogLegacy: MatDialog,
     private route: ActivatedRoute,
   ) {
     this.batchId = this.route.snapshot.queryParams.batchId ?
@@ -146,9 +146,9 @@ export class AppTocBatchAssignmentsComponent implements OnInit {
     if (assignment.answerURL) {
       this.submitAssignment(assignment)
     } else {
-      const fileInput = document.getElementById('sResourceFile') as HTMLInputElement;
+      const fileInput = document.getElementById('sResourceFile') as HTMLInputElement
       if (fileInput) {
-        fileInput.click();
+        fileInput.click()
       }
     }
 
@@ -185,7 +185,7 @@ export class AppTocBatchAssignmentsComponent implements OnInit {
         //this.viewAssignments(assessment.answerURL)
         this.previewAssignments(assessment.answerURL)
       } else if (result === 0) {
-        const fileInput = document.getElementById('sResourceFile') as HTMLInputElement;
+        const fileInput = document.getElementById('sResourceFile') as HTMLInputElement
         if (fileInput) {
           fileInput.click()
         }

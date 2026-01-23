@@ -1,16 +1,17 @@
-import { Component } from '@angular/core';
-import { UserProfileService } from '../../../user-profile/services/user-profile.service';
-import { ConfigurationsService } from '@sunbird-cb/utils-v2';
+import { Component } from '@angular/core'
+import { UserProfileService } from '../../../user-profile/services/user-profile.service'
+import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import _ from 'lodash'
-import { MatLegacyDialog } from '@angular/material/legacy-dialog';
-import { CustomFieldsComponent } from '../custom-fields/custom-fields.component';
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
-import { ActivatedRoute } from '@angular/router';
+import { MatDialog } from '@angular/material/dialog'
+import { CustomFieldsComponent } from '../custom-fields/custom-fields.component'
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout'
+import { ActivatedRoute } from '@angular/router'
 
 @Component({
-  selector: 'ws-app-view-custom-fields',
-  templateUrl: './view-custom-fields.component.html',
-  styleUrls: ['./view-custom-fields.component.scss']
+    selector: 'ws-app-view-custom-fields',
+    templateUrl: './view-custom-fields.component.html',
+    styleUrls: ['./view-custom-fields.component.scss'],
+    standalone: false
 })
 export class ViewCustomFieldsComponent {
 
@@ -29,19 +30,19 @@ export class ViewCustomFieldsComponent {
   constructor(
     private userProfileService: UserProfileService,
     private configService: ConfigurationsService,
-    private dialog: MatLegacyDialog,
+    private dialog: MatDialog,
     private breakpointObserver: BreakpointObserver,
     private route: ActivatedRoute,
   ) {
     this.breakpointObserver.observe([Breakpoints.Handset])
       .subscribe(result => {
-        this.isMobile = result.matches;
-      });
+        this.isMobile = result.matches
+      })
 
     this.route.fragment.subscribe(fragment => {
       if (fragment === 'orgDetails') {
         setTimeout(() => {
-          const element = document.getElementById(fragment);
+          const element = document.getElementById(fragment)
           if (element) {
             element.scrollIntoView({
               behavior: 'smooth',
@@ -115,8 +116,8 @@ export class ViewCustomFieldsComponent {
   }
 
   getValue(attributeName: string) {
-    const customField = this.customFieldValues.find((item: any) => item.attributeName === attributeName);
-    return customField ? customField.value : '';
+    const customField = this.customFieldValues.find((item: any) => item.attributeName === attributeName)
+    return customField ? customField.value : ''
   }
 
   getListItemName(arryListItem: any, listItem: any) {
@@ -129,7 +130,7 @@ export class ViewCustomFieldsComponent {
   }
 
   getName(attributeName: string) {
-    return this.customAttrList.find((item: any) => item.attributeName === attributeName)?.name || attributeName;
+    return this.customAttrList.find((item: any) => item.attributeName === attributeName)?.name || attributeName
   }
 
   // Update handleEditCustomDetails to build the form and populate values

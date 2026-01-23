@@ -7,9 +7,10 @@ import { DiscussUtilsService } from '@ws/app/src/lib/routes/discuss/services/dis
 import { Router } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
 @Component({
-  selector: 'ws-discuss-hub',
-  templateUrl: './discuss-hub.component.html',
-  styleUrls: ['./discuss-hub.component.scss'],
+    selector: 'ws-discuss-hub',
+    templateUrl: './discuss-hub.component.html',
+    styleUrls: ['./discuss-hub.component.scss'],
+    standalone: false
 })
 
 export class DiscussHubComponent implements OnInit {

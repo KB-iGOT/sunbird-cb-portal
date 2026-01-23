@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, OnChanges, OnDestroy } from '@angular/core'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { QuizStoreService } from '../../services/store.service'
 import { NotificationComponent } from '@ws/author/src/lib/modules/shared/components/notification/notification.component.ts'
 import { NOTIFICATION_TIME, ASSESSMENT } from '../../constants/quiz-constants'
@@ -7,9 +7,10 @@ import { Subscription } from 'rxjs'
 import { EditorContentService } from '../../../../../services/editor-content.service'
 
 @Component({
-  selector: 'ws-auth-question-editor',
-  templateUrl: './question-editor.component.html',
-  styleUrls: ['./question-editor.component.scss'],
+    selector: 'ws-auth-question-editor',
+    templateUrl: './question-editor.component.html',
+    styleUrls: ['./question-editor.component.scss'],
+    standalone: false
 })
 export class QuestionEditorComponent implements OnInit, OnChanges, OnDestroy {
   quizIndex!: number

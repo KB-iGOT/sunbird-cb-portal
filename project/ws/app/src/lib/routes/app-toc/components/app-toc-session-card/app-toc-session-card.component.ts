@@ -1,9 +1,10 @@
 import { Component, Input, OnInit } from '@angular/core'
 
 @Component({
-  selector: 'ws-app-toc-session-card',
-  templateUrl: './app-toc-session-card.component.html',
-  styleUrls: ['./app-toc-session-card.component.scss'],
+    selector: 'ws-app-toc-session-card',
+    templateUrl: './app-toc-session-card.component.html',
+    styleUrls: ['./app-toc-session-card.component.scss'],
+    standalone: false
 })
 export class AppTocSessionCardComponent implements OnInit {
   @Input() session: any = null

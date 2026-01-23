@@ -3,9 +3,10 @@ import { AppTocSinglePageDirective } from './app-toc-single-page.directive'
 import { AppTocSinglePageService } from './app-toc-single-page.service'
 
 @Component({
-  selector: 'ws-app-app-toc-single-page-root',
-  templateUrl: './app-toc-single-page.component.html',
-  styleUrls: ['./app-toc-single-page.component.scss'],
+    selector: 'ws-app-app-toc-single-page-root',
+    templateUrl: './app-toc-single-page.component.html',
+    styleUrls: ['./app-toc-single-page.component.scss'],
+    standalone: false
 })
 export class AppTocSinglePageComponent implements OnInit {
 

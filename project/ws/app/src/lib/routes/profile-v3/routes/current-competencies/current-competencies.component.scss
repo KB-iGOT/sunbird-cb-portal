@@ -10,10 +10,12 @@
     @include breakpoint-xs {
         margin-top: 0.5rem;
     }
+
     @include breakpoint-s {
         margin-top: 0.5rem;
     }
 }
+
 .left_card_box {
     // width: 890px;
     width: 75%;
@@ -95,7 +97,7 @@
         //             // border-radius: 4px 4px;
         //             // box-sizing: border-box;
         //         }
-        //         .theme-igot.day-mode .mat-form-field-appearance-legacy .mat-form-field-underline {
+        //         .theme-igot.day-mode .mat-form-field-appearance .mat-form-field-underline {
         //             background-color:none;
         //         }
 
@@ -130,6 +132,7 @@
 
 a.hint_span {
     cursor: pointer;
+
     .mat-icon {
         vertical-align: middle;
     }
@@ -160,9 +163,10 @@ a.hint_span {
 }
 
 ::ng-deep .mat-form-field-appearance-outline .mat-form-field-prefix {
-    top: 6px!important;
+    top: 6px !important;
     margin-right: 6px;
 }
+
 ::ng-deep .mat-form-field-appearance-outline .mat-form-field-infix {
-    top: 0px!important;
+    top: 0px !important;
 }

@@ -6,9 +6,10 @@ import { DiscussUtilsService } from '@ws/app/src/lib/routes/discuss/services/dis
 import _ from 'lodash'
 /* tslint:enable */
 @Component({
-  selector: 'ws-footer-section',
-  templateUrl: './footer-section.component.html',
-  styleUrls: ['./footer-section.component.scss'],
+    selector: 'ws-footer-section',
+    templateUrl: './footer-section.component.html',
+    styleUrls: ['./footer-section.component.scss'],
+    standalone: false
 })
 export class FooterSectionComponent implements OnInit, OnChanges {
   @Input() environment: any

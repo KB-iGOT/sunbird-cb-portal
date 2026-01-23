@@ -1,7 +1,7 @@
 //#region (imports)
 import { Component, Inject, OnInit } from '@angular/core'
-import { MatLegacySnackBar } from '@angular/material/legacy-snack-bar'
-import { MAT_LEGACY_DIALOG_DATA, MatLegacyDialogRef } from '@angular/material/legacy-dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms'
 import * as _ from 'lodash'
 import { AppTocService } from '../../services/app-toc.service'
@@ -15,7 +15,8 @@ const MOBILE_PATTERN = /^[0]?[6789]\d{9}$/
 @Component({
   selector: 'ws-app-public-survey-form',
   templateUrl: './public-survey-form.component.html',
-  styleUrls: ['./public-survey-form.component.scss']
+  styleUrls: ['./public-survey-form.component.scss'],
+  standalone: false
 })
 export class PublicSurveyFormComponent implements OnInit {
 
@@ -35,9 +36,9 @@ export class PublicSurveyFormComponent implements OnInit {
 
   //#region (constructor)
   constructor(
-    private snackBar: MatLegacySnackBar,
-    public dialogRef: MatLegacyDialogRef<PublicSurveyFormComponent>,
-    @Inject(MAT_LEGACY_DIALOG_DATA) public data: any,
+    private snackBar: MatSnackBar,
+    public dialogRef: MatDialogRef<PublicSurveyFormComponent>,
+    @Inject(MAT_DIALOG_DATA) public data: any,
     private fb: FormBuilder,
     private appTocSvc: AppTocService,
     private translate: TranslateService,

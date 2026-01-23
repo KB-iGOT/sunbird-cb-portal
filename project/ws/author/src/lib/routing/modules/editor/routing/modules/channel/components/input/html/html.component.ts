@@ -6,14 +6,15 @@ import { NotificationComponent } from '@ws/author/src/lib/modules/shared/compone
 import { UploadService } from '@ws/author/src/lib/routing/modules/editor/shared/services/upload.service'
 import { NOTIFICATION_TIME } from '@ws/author/src/lib/constants/constant'
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core'
-import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { Notify } from '@ws/author/src/lib/constants/notificationMessage'
 import mustache from 'mustache'
 
 @Component({
-  selector: 'ws-auth-html',
-  templateUrl: './html.component.html',
-  styleUrls: ['./html.component.scss'],
+    selector: 'ws-auth-html',
+    templateUrl: './html.component.html',
+    styleUrls: ['./html.component.scss'],
+    standalone: false
 })
 export class HtmlComponent implements OnInit {
 
@@ -118,7 +119,7 @@ export class HtmlComponent implements OnInit {
             duration: NOTIFICATION_TIME * 1000,
           })
         },
-    )
+      )
   }
 
 }

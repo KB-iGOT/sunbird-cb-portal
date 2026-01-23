@@ -70,7 +70,7 @@ function eventDispatchHelper(
   playerState: string,
   mimeT: string,
 ) {
-  if (state === WsEvents.EnumTelemetrySubType.Loaded || WsEvents.EnumTelemetrySubType.Unloaded) {
+  if (state === WsEvents.EnumTelemetrySubType.Loaded || state === WsEvents.EnumTelemetrySubType.Unloaded) {
     const event = {
       eventType: WsEvents.WsEventType.Telemetry,
       eventLogLevel: WsEvents.WsEventLogLevel.Info,
@@ -234,7 +234,7 @@ export function videoJsInitializer(
       if (!loaded) {
         eventDispatcher(WsEvents.EnumTelemetrySubType.Loaded, widgetData, WsEvents.EnumTelemetryMediaActivity.PLAYED, mimeType)
         heartBeatSubscription = interval(2 * 60000).subscribe(_ => {
-          if(passThroughData) {
+          if (passThroughData) {
             passThroughData['lastAccessTime'] = currTime
             passThroughData['timeSpent'] = timespentTimer
           }

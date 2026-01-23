@@ -5,9 +5,10 @@ import { ActivatedRoute } from '../../../../../../../../../node_modules/@angular
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 
 @Component({
-  selector: 'ws-app-toc-discussion',
-  templateUrl: './app-toc-discussion.component.html',
-  styleUrls: ['./app-toc-discussion.component.scss'],
+    selector: 'ws-app-toc-discussion',
+    templateUrl: './app-toc-discussion.component.html',
+    styleUrls: ['./app-toc-discussion.component.scss'],
+    standalone: false
 })
 export class AppTocDiscussionComponent implements OnChanges, OnInit {
   @Input() content!: NsContent.IContent
