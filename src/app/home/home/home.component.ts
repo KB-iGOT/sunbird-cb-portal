@@ -13,10 +13,10 @@ import { takeUntil } from 'rxjs/operators'
 
 import { ConfigurationsService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
 import { MobileAppsService } from '../../services/mobile-apps.service'
-import { UserProfileService } from '@ws/app/src/lib/routes/user-profile/services/user-profile.service'
-// import { IUserProfileDetailsFromRegistry } from '@ws/app/src/lib/routes/user-profile/models/user-profile.model'
+import { UserProfileService } from '@ws/app'
 import { BtnSettingsService } from '@sunbird-cb/collection'
-import { ProfileVerificationDialogComponent } from 'src/app/profile-verification-dialog/profile-verification-dialog.component'
+import { ProfileVerificationDialogComponent } from '../../profile-verification-dialog/profile-verification-dialog.component'
+
 
 // import { NotificationComponent } from './notification/notification.component'
 
@@ -38,10 +38,10 @@ function isStripActive(strip: any): boolean {
 const INITIAL_VISIBLE_STRIPS = 5
 
 @Component({
-    selector: 'ws-home',
-    templateUrl: './home.component.html',
-    styleUrls: ['./home.component.scss'],
-    standalone: false
+  selector: 'ws-home',
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.scss'],
+  standalone: false
 })
 export class HomeComponent implements OnInit, AfterViewInit {
 

@@ -1,4 +1,4 @@
-@import 'ws-mixins';
+@use 'ws-mixins' as *;
 
 .view-more {
   display: flex;

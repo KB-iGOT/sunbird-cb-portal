@@ -43,14 +43,14 @@ const vCenter = (rect: ClientRect): number => {
 }
 
 @Directive({
-    selector: '[wsAuthSortableList]',
-    standalone: false
+  selector: '[wsAuthSortableList]',
+  standalone: false
 })
 export class SortableListDirective implements AfterContentInit, OnDestroy, AfterViewInit {
   @ContentChildren(SortableDirective) sortables!: QueryList<SortableDirective>
 
   @Output() sort = new EventEmitter<ISortEvent>()
-  newClientRect: IClientRect = this.resetIClientRect()
+  newClientRect: IClientRect | any = this.resetIClientRect()
   clientRects: ClientRect[] = []
   numberOfSortable = 0
   subscriptions: Subscription[] = []

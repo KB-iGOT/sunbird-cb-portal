@@ -8,16 +8,16 @@ import { MatSnackBarRef as MatSnackBarRef } from '@angular/material/snack-bar'
 import { QuizStoreService } from '../../../services/store.service'
 
 import { QUIZ_QUESTION_TYPE } from '../../../constants/quiz-constants'
-import { ConfirmDialogComponent } from '@ws/author/src/lib/modules/shared/components/confirm-dialog/confirm-dialog.component'
-import { NotificationComponent } from '@ws/author/src/lib/modules/shared/components/notification/notification.component.ts'
 
 import { IQuizQuestionType } from '../../../interface/quiz-interface'
+import { NotificationComponent } from '../../../../../../../../../modules/shared/components/notification/notification.component'
+import { ConfirmDialogComponent } from '../../../../../../../../../modules/shared/components/confirm-dialog/confirm-dialog.component'
 
 @Component({
-    selector: 'ws-auth-question-editor-sidebar',
-    templateUrl: './question-editor-sidenav.component.html',
-    styleUrls: ['./question-editor-sidenav.component.scss'],
-    standalone: false
+  selector: 'ws-auth-question-editor-sidebar',
+  templateUrl: './question-editor-sidenav.component.html',
+  styleUrls: ['./question-editor-sidenav.component.scss'],
+  standalone: false
 })
 export class QuestionEditorSidenavComponent implements OnInit, OnDestroy {
 

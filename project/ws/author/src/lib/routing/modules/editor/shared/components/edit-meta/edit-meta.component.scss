@@ -1,6 +1,7 @@
-@import 'ws-mixins';
-@import 'ws-vars';
-@import 'ws-common';
+@use 'ws-mixins' as *;
+@use 'ws-vars';
+@use 'ws-common';
+@use 'ws-mixins' as *;
 
 .font-weight-300 {
   font-weight: 300;
@@ -56,6 +57,7 @@ input {
     content: ' *';
   }
 }
+
 .floatright {
   float: right;
 }
@@ -257,7 +259,7 @@ ul li {
   z-index: -1;
 }
 
-.inputfile + label {
+.inputfile+label {
   font-size: 1.25em;
   color: white;
   display: inline-block;

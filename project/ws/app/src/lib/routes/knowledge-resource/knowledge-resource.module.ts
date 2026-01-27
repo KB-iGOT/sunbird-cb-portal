@@ -27,8 +27,8 @@ import { MatListModule } from '@angular/material/list'
 import { MatSidenavModule } from '@angular/material/sidenav'
 
 // tslint:disable-next-line:function-name
-export function HttpLoaderFactory(http: HttpClient) {
-  return new TranslateHttpLoader(http)
+export function HttpLoaderFactory() {
+  return new TranslateHttpLoader()
 }
 
 @NgModule({

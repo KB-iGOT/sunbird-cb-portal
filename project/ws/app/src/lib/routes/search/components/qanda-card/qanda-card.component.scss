@@ -1,5 +1,6 @@
-@import 'ws-common';
-@import 'ws-vars';
+@use 'ws-common';
+@use 'ws-vars';
+@use 'ws-mixins' as *;
 $color-accepted-answer: #5fba7d;
 
 .item-container {

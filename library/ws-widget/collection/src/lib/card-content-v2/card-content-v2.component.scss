@@ -1,7 +1,9 @@
-@use '@sunbird-cb/design-system/src/styles/ws-common';
-// @use '@sunbird-cb/design-system/src/styles/ws-vars';
-@use '@sunbird-cb/design-system/src/styles/ws-mixins' as *;
-@import 'ws-vars';
+@use 'ws-common';
+// @use 'ws-vars';
+@use 'ws-mixins' as *;
+;
+@use 'ws-vars';
+@use 'ws-mixins' as *;
 
 $secondary-color: #EF951E;
 
@@ -1338,7 +1340,7 @@ $title-line-count: 2;
       background-color: rgba(29, 137, 35, 0.16);
       border-radius: 16px;
     }
-    
+
     .video-icon {
       opacity: 1;
       color: rgba(239, 149, 30, 1);
@@ -1936,6 +1938,7 @@ $title-line-count: 2;
   font-size: 12px !important;
   color: #FFFFFFF2 !important;
 }
+
 .knowledge-level-container {
   // margin-left: auto;
   flex-shrink: 0;
@@ -1954,7 +1957,7 @@ $title-line-count: 2;
   line-height: 16px;
   white-space: nowrap;
   max-width: 100px;
-  
+
   .level-text {
     overflow: hidden;
     text-overflow: ellipsis;

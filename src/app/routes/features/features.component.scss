@@ -1,8 +1,9 @@
-@import 'ws-mixins';
-@import 'ws-common';
+@use 'ws-mixins' as *;
+@use 'ws-common';
+@use 'ws-mixins' as *;
 
 .container-balanced {
-  @extend %page-center;
+  @include page-center;
 }
 
 // .sec-nav-bar {

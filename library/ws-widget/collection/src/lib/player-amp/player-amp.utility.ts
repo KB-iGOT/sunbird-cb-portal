@@ -1,4 +1,3 @@
-/// <reference types="azuremediaplayer" />
 
 const ampDefaultConfig: amp.Player.Options = {
   techOrder: ['azureHtml5JS', 'flashSS', 'html5FairPlayHLS', 'silverlightSS', 'html5'],

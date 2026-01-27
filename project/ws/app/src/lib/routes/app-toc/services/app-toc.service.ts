@@ -42,7 +42,7 @@ const API_END_POINTS = {
   GET_FORM_BYID_PUBLIC: (formId: string) => `apis/public/v8/public/forms/v2/getFormById?formId=${formId}`,
   SUBMIT_FORM_PUBLIC: `apis/public/v8/public/forms/v2/saveFormSubmit`,
   // get answers for form
-  GET_APPLICATIONS_BY_ID: (formId: string,  contextId: string) =>`/apis/proxies/v8/forms/v2/getApplicationsById?formId=${formId}&contextId=${contextId}`,
+  GET_APPLICATIONS_BY_ID: (formId: string, contextId: string) => `/apis/proxies/v8/forms/v2/getApplicationsById?formId=${formId}&contextId=${contextId}`,
   AI_RESOURCE_VTT_FILE: `${PROXY_SLAG_V8}/chatbot/v3/transcoder/stats`,
   // GET_FORM_BYID: (formId: string) => `apis/proxies/v8/forms/getFormById?id=${formId}`,
   PRE_ENROLLMENT_STATE_READ: `/apis/proxies/v8/content/v2/state/read`,
@@ -109,7 +109,7 @@ export class AppTocService {
   }
 
   updateBatchData() {
-    this.batchReplaySubject.next()
+    this.batchReplaySubject.next({})
   }
 
   setBatchData(data: NsContent.IBatchListResponse) {
@@ -1017,7 +1017,7 @@ export class AppTocService {
 
   setTranscriptionData(data: any) {
     //  console.log('data--', data)
-    this.transriptionDataSubject.next(data);
+    this.transriptionDataSubject.next(data)
   }
 
   setActiveSubtitleLanguage(activeLang: any) {
@@ -1051,9 +1051,9 @@ export class AppTocService {
 
 
   uploadAssignmentAnswer(contentId: string, batchId: string, assignmentId: string, file: File): Observable<any> {
-    const formData = new FormData();
+    const formData = new FormData()
     formData.append('file', file, file.name)
-    return this.http.post(`${API_END_POINTS.UPLOAD_ASSIGNMENT}/${contentId}/${batchId}/${assignmentId}`, formData);
+    return this.http.post(`${API_END_POINTS.UPLOAD_ASSIGNMENT}/${contentId}/${batchId}/${assignmentId}`, formData)
   }
 
 
@@ -1130,7 +1130,7 @@ export class AppTocService {
       batchId: batchId || '',
       formId: assignmentId || '',
       fileName: fileName || ''
-    });
+    })
 
     return this.http.get(`${API_END_POINTS.READ_ASSIGNMENT}?${encodedParams.toString()}`, {
       responseType: 'blob',
@@ -1139,9 +1139,9 @@ export class AppTocService {
       }
     }).pipe(
       catchError((error: any) => {
-        return throwError(() => error);
+        return throwError(() => error)
       })
-    );
+    )
   }
 
 }

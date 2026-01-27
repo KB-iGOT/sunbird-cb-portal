@@ -1,5 +1,6 @@
-@import 'ws-vars';
-@import 'ws-common';
+@use 'ws-vars';
+@use 'ws-common';
+@use 'ws-mixins' as *;
 
 .my-blogs-container {
   max-width: 900px;

@@ -1,16 +1,15 @@
 import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core'
 import { MatDialog } from '@angular/material/dialog'
-// import { AppTocService } from '@ws/app/src/lib/routes/app-toc/services/app-toc.service'
 import { NsContent } from '../../_services/widget-content.model'
 import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog.component'
 import { IReqMarkAsComplete } from './mark-as-complete.model'
 import { WidgetContentService } from '../../_services/widget-content.service'
 
 @Component({
-    selector: 'ws-widget-mark-as-complete',
-    templateUrl: './mark-as-complete.component.html',
-    styleUrls: ['./mark-as-complete.component.scss'],
-    standalone: false
+  selector: 'ws-widget-mark-as-complete',
+  templateUrl: './mark-as-complete.component.html',
+  styleUrls: ['./mark-as-complete.component.scss'],
+  standalone: false
 })
 export class MarkAsCompleteComponent implements OnInit, OnChanges {
   @Input()

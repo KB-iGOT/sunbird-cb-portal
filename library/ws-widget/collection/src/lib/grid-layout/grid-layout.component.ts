@@ -2,7 +2,6 @@
 import { Component, OnInit, Input, OnDestroy, ViewChild, ElementRef } from '@angular/core'
 import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
 import { ConfigurationsService, EventService, WsEvents, NPSGridService } from '@sunbird-cb/utils-v2'
-// import { IUserProfileDetailsFromRegistry } from '@ws/app/src/lib/routes/user-profile/models/user-profile.model'
 import { Subscription } from 'rxjs'
 // import { map } from 'rxjs/operators'
 import { Router } from '@angular/router'
@@ -22,10 +21,10 @@ import { MatSnackBar } from '@angular/material/snack-bar'
 // }
 
 @Component({
-    selector: 'ws-widget-grid-layout',
-    templateUrl: './grid-layout.component.html',
-    styleUrls: ['./grid-layout.component.scss'],
-    standalone: false
+  selector: 'ws-widget-grid-layout',
+  templateUrl: './grid-layout.component.html',
+  styleUrls: ['./grid-layout.component.scss'],
+  standalone: false
 })
 
 export class GridLayoutComponent extends WidgetBaseComponent

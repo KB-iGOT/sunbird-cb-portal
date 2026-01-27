@@ -17,18 +17,18 @@ import { NsDiscussionV2 } from '@sunbird-cb/discussion-v2'
 //import { CertificateDialogComponent } from './../../../../../../../../../library/ws-widget/collection/src/lib/_common/certificate-dialog/certificate-dialog.component'
 import { CertificateDialogComponent } from './../../../../../../../../../library/ws-widget/collection/src/lib/_common/certificate-dialog/certificate-dialog.component'
 // import { WidgetContentLibService } from '@sunbird-cb/consumption'
-import { NsContentStripWithTabs } from '@sunbird-cb/collection/src/lib/content-strip-with-tabs/content-strip-with-tabs.model'
-import { NsContent } from '@sunbird-cb/collection/src/public-api'
+import { NsContentStripWithTabs } from '@sunbird-cb/collection'
+import { NsContent } from '@sunbird-cb/collection'
 import { NetCoreService } from '../../../../../../../../../src/app/services/netcore.service'
 import { switchMap } from 'rxjs/operators'
 import { of } from 'rxjs'
 /* tslint:enable */
 
 @Component({
-    selector: 'ws-app-event-detail',
-    templateUrl: './event-detail.component.html',
-    styleUrls: ['./event-detail.component.scss'],
-    standalone: false
+  selector: 'ws-app-event-detail',
+  templateUrl: './event-detail.component.html',
+  styleUrls: ['./event-detail.component.scss'],
+  standalone: false
 })
 export class EventDetailComponent implements OnInit {
   @ViewChild('toastSuccess', { static: true }) toastSuccess!: ElementRef<any>

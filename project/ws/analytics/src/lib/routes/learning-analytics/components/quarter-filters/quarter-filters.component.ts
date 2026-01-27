@@ -1,14 +1,15 @@
 import { Component, EventEmitter, OnInit, Output, ElementRef, ViewChild } from '@angular/core'
 import { UntypedFormControl } from '@angular/forms'
-import { MatDatepickerInputEvent, MatSnackBar } from '@angular/material'
 import { NsAnalytics } from '../../models/learning-analytics.model'
 
 import { QuarterServiceService } from '../../services/quarter-filter.service'
+import { MatDatepickerInputEvent } from '@angular/material/datepicker'
+import { MatSnackBar } from '@angular/material/snack-bar'
 @Component({
-    selector: 'ws-analytics-quarter-filters',
-    templateUrl: './quarter-filters.component.html',
-    styleUrls: ['./quarter-filters.component.scss'],
-    standalone: false
+  selector: 'ws-analytics-quarter-filters',
+  templateUrl: './quarter-filters.component.html',
+  styleUrls: ['./quarter-filters.component.scss'],
+  standalone: false
 })
 export class QuarterFiltersComponent implements OnInit {
   @Output() filterEvent = new EventEmitter<string>()
@@ -150,8 +151,8 @@ export class QuarterFiltersComponent implements OnInit {
           //   const year = this.config.years.length - 1
           //   this.config.selectedYear = this.config.years[year].value
           // } else {
-            const year = this.config.years.length - 1
-            this.config.selectedYear = this.config.years[year].value
+          const year = this.config.years.length - 1
+          this.config.selectedYear = this.config.years[year].value
           // }
         }
         if (type === 'add') {

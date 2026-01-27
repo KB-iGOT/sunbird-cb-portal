@@ -6,12 +6,12 @@ import { HomePageService } from '../../services/home-page.service'
 import { ConfigurationsService, EventService, MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 import { DomSanitizer } from '@angular/platform-browser'
 import { HttpClient } from '@angular/common/http'
-import { DialogBoxComponent as ZohoDialogComponent } from '@ws/app/src/lib/routes/profile-v3/components/dialog-box/dialog-box.component'
+import { DialogBoxComponent as ZohoDialogComponent } from '@ws/app'
 import { Router } from '@angular/router'
 import { NotificationsService } from 'src/app/services/notifications.service'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { environment } from '../../../environments/environment'
-import { ConfirmDialogComponent } from '@sunbird-cb/collection/src/lib/_common/confirm-dialog/confirm-dialog.component'
+import { ConfirmDialogComponent } from '@sunbird-cb/collection'
 import { RootService } from '../root/root.service'
 // const rightNavConfig = [
 //   {
@@ -37,10 +37,10 @@ import { RootService } from '../root/root.service'
 // ]
 
 @Component({
-    selector: 'ws-top-right-nav-bar',
-    templateUrl: './top-right-nav-bar.component.html',
-    styleUrls: ['./top-right-nav-bar.component.scss'],
-    standalone: false
+  selector: 'ws-top-right-nav-bar',
+  templateUrl: './top-right-nav-bar.component.html',
+  styleUrls: ['./top-right-nav-bar.component.scss'],
+  standalone: false
 })
 export class TopRightNavBarComponent implements OnInit, OnChanges {
   @Input() item: any

@@ -21,10 +21,10 @@ import { HttpClient } from '@angular/common/http'
 import { TranslateHttpLoader } from '@ngx-translate/http-loader'
 import { NotificationsService } from '../../../../../../../src/app/services/notifications.service'
 import { MatSnackBarModule } from '@angular/material/snack-bar'
-import { ConfirmDialogModule } from '@sunbird-cb/collection/src/lib/_common/confirm-dialog/confirm-dialog.module'
+import { ConfirmDialogModule } from '@sunbird-cb/collection'
 
-export function HttpLoaderFactory(http: HttpClient) {
-  return new TranslateHttpLoader(http)
+export function HttpLoaderFactory() {
+  return new TranslateHttpLoader()
 }
 @NgModule({
   declarations: [HomeComponent, NotificationEventComponent, MyNotificationsComponent],

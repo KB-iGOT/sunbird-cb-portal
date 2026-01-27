@@ -1,5 +1,5 @@
-@import 'ws-vars';
-@import 'ws-mixins';
+@use 'ws-vars';
+@use 'ws-mixins' as *;
 
 .tabgroupcard {
   width: 50% !important;

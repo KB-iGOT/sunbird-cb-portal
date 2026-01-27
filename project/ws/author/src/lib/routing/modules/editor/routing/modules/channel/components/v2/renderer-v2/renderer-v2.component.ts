@@ -1,14 +1,15 @@
 import { Component, Input, OnInit, OnChanges } from '@angular/core'
-import { MatDialog, MatSnackBar } from '@angular/material'
 import { responsiveSuffix, sizeSuffix } from '@sunbird-cb/collection'
-import { NOTIFICATION_TIME } from '@ws/author/src/lib/constants/constant'
-import { Notify } from '@ws/author/src/lib/constants/notificationMessage'
-import { ConfirmDialogComponent } from '@ws/author/src/lib/modules/shared/components/confirm-dialog/confirm-dialog.component'
-import { NotificationComponent } from '@ws/author/src/lib/modules/shared/components/notification/notification.component'
 import { WIDGET_LIBRARY } from '../../../constants/widet'
 import { IWidgetAuthor, tDimensions, tSize } from './../../../interface/widget'
 import { ChannelResolverService } from './../../../services/resolver.service'
 import { ChannelStoreService } from './../../../services/store.service'
+import { MatDialog } from '@angular/material/dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
+import { NotificationComponent } from '../../../../../../../../../modules/shared/components/notification/notification.component'
+import { NOTIFICATION_TIME } from '../../../../../../../../../constants/constant'
+import { Notify } from '../../../../../../../../../constants/notificationMessage'
+import { ConfirmDialogComponent } from '../../../../../../../../../modules/shared/components/confirm-dialog/confirm-dialog.component'
 
 interface IAuthorGrid {
   id: string
@@ -18,10 +19,10 @@ interface IAuthorGrid {
 }
 
 @Component({
-    selector: 'ws-auth-renderer-v2',
-    templateUrl: './renderer-v2.component.html',
-    styleUrls: ['./renderer-v2.component.scss'],
-    standalone: false
+  selector: 'ws-auth-renderer-v2',
+  templateUrl: './renderer-v2.component.html',
+  styleUrls: ['./renderer-v2.component.scss'],
+  standalone: false
 })
 export class RendererV2Component implements OnInit, OnChanges {
   @Input() id = ''

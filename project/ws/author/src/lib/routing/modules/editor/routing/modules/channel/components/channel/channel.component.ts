@@ -1,40 +1,41 @@
 import { APP_BASE_HREF } from '@angular/common'
 import { ChangeDetectorRef, Component, Inject, OnDestroy, OnInit } from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
-import { MatDialog, MatSnackBar } from '@angular/material'
 import { ActivatedRoute, Router } from '@angular/router'
-import {
-  AUTHORING_CONTENT_BASE,
-  CONTENT_BASE_WEBHOST,
-} from '@ws/author/src/lib/constants/apiEndpoints'
-import { NOTIFICATION_TIME } from '@ws/author/src/lib/constants/constant'
-import { Notify } from '@ws/author/src/lib/constants/notificationMessage'
-import { NSApiRequest } from '@ws/author/src/lib/interface/apiRequest'
-import { NSContent } from '@ws/author/src/lib/interface/content'
-import { CommentsDialogComponent } from '@ws/author/src/lib/modules/shared/components/comments-dialog/comments-dialog.component'
-import { ConfirmDialogComponent } from '@ws/author/src/lib/modules/shared/components/confirm-dialog/confirm-dialog.component'
-import { ErrorParserComponent } from '@ws/author/src/lib/modules/shared/components/error-parser/error-parser.component'
-import { NotificationComponent } from '@ws/author/src/lib/modules/shared/components/notification/notification.component'
-import { AccessControlService } from '@ws/author/src/lib/modules/shared/services/access-control.service'
-import { EditorContentService } from '@ws/author/src/lib/routing/modules/editor/services/editor-content.service'
-import { EditorService } from '@ws/author/src/lib/routing/modules/editor/services/editor.service'
-import { AuthInitService } from '@ws/author/src/lib/services/init.service'
-import { LoaderService } from '@ws/author/src/lib/services/loader.service'
+
+
+
 import { of } from 'rxjs'
 import { mergeMap, tap } from 'rxjs/operators'
 import { UploadService } from './../../../../../shared/services/upload.service'
 import { ChannelResolverService } from './../../services/resolver.service'
 import { ChannelStoreService } from './../../services/store.service'
+import { MatDialog } from '@angular/material/dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
+import { NotificationComponent } from '../../../../../../../../modules/shared/components/notification/notification.component'
+import { AccessControlService } from '../../../../../../../../../public-api'
+import { AUTHORING_CONTENT_BASE, CONTENT_BASE_WEBHOST } from '../../../../../../../../constants/apiEndpoints'
+import { NOTIFICATION_TIME } from '../../../../../../../../constants/constant'
+import { Notify } from '../../../../../../../../constants/notificationMessage'
+import { NSApiRequest } from '../../../../../../../../interface/apiRequest'
+import { NSContent } from '../../../../../../../../interface/content'
+import { CommentsDialogComponent } from '../../../../../../../../modules/shared/components/comments-dialog/comments-dialog.component'
+import { ConfirmDialogComponent } from '../../../../../../../../modules/shared/components/confirm-dialog/confirm-dialog.component'
+import { ErrorParserComponent } from '../../../../../../../../modules/shared/components/error-parser/error-parser.component'
+import { AuthInitService } from '../../../../../../../../services/init.service'
+import { LoaderService } from '../../../../../../../../services/loader.service'
+import { EditorContentService } from '../../../../../services/editor-content.service'
+import { EditorService } from '../../../../../services/editor.service'
 
 @Component({
-    selector: 'ws-auth-channel',
-    templateUrl: './channel.component.html',
-    styleUrls: ['./channel.component.scss'],
-    providers: [ChannelStoreService],
-    standalone: false
+  selector: 'ws-auth-channel',
+  templateUrl: './channel.component.html',
+  styleUrls: ['./channel.component.scss'],
+  providers: [ChannelStoreService],
+  standalone: false
 })
 export class ChannelComponent implements OnInit, OnDestroy {
-  contents: NSContent.IContentMeta[] = []
+  contents: any = []
   currentContent = ''
   mode: 'Basic' | 'Advanced' = 'Basic'
   isNew: { [key: string]: boolean } = {}
@@ -81,7 +82,7 @@ export class ChannelComponent implements OnInit, OnDestroy {
     })
     if (this.activateRoute.parent && this.activateRoute.parent.parent) {
       this.activateRoute.parent.parent.data.subscribe(data => {
-        data.contents.map((v: { content: NSContent.IContentMeta; data: any }) => {
+        data.contents.map((v: any) => {
           if (v.data) {
             this.isNew[v.content.identifier] = false
             const jsonData = JSON.parse(
@@ -153,7 +154,7 @@ export class ChannelComponent implements OnInit, OnDestroy {
         this.loaderService.changeLoad.next(false)
         if (typeof data !== 'boolean') {
           this.contents.push(data)
-          const identifier = data.identifier
+          const identifier: any = data.identifier
           this.isNew[identifier] = true
           const jsonData = {
             contentType: 'Page',
@@ -218,8 +219,8 @@ export class ChannelComponent implements OnInit, OnDestroy {
     )
   }
 
-  changeContent(content: NSContent.IContentMeta) {
-    this.contentService.currentContent = content.identifier
+  changeContent(content: any) {
+    this.contentService['currentContent'] = content.identifier
     this.contentService.changeActiveCont.next(content.identifier)
   }
 
@@ -331,15 +332,16 @@ export class ChannelComponent implements OnInit, OnDestroy {
 
   finalCall(commentsForm: UntypedFormGroup) {
     if (commentsForm) {
+      let res: any = this.contentService.originalContent[this.currentContent].status
       const body: NSApiRequest.IForwardBackwardActionGeneral = {
         comment: commentsForm.controls.comments.value,
         operation:
           commentsForm.controls.action.value === 'accept' ||
-            ['Draft', 'Live'].includes(this.contentService.originalContent[this.currentContent].status)
+            ['Draft', 'Live'].includes(res)
             ? 1
             : -1,
       }
-      const currentContentStatus = this.contentService.upDatedContent[this.currentContent].status
+      const currentContentStatus: any = this.contentService.upDatedContent[this.currentContent].status
       const needSave =
         Object.keys(this.contentService.upDatedContent[this.currentContent] || {}).length ||
         Object.keys(this.storeService.updatedContent[this.currentContent] || {}).length
@@ -568,7 +570,7 @@ export class ChannelComponent implements OnInit, OnDestroy {
           duration: NOTIFICATION_TIME * 1000,
         })
         delete this.isNew[this.currentContent]
-        this.contents = this.contents.filter(v => v.identifier !== this.currentContent)
+        this.contents = this.contents.filter((v: { identifier: string }) => v.identifier !== this.currentContent)
         if (this.contents.length) {
           this.contentService.changeActiveCont.next(this.contents[0].identifier)
         } else {

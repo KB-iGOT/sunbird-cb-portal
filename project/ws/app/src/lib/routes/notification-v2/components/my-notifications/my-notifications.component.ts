@@ -5,14 +5,14 @@ import { NotificationsService } from '../../../../../../../../../src/app/service
 import { environment } from 'src/environments/environment'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { MatDialog } from '@angular/material/dialog'
-import { ConfirmDialogComponent } from '@sunbird-cb/collection/src/lib/_common/confirm-dialog/confirm-dialog.component'
+import { ConfirmDialogComponent } from '@sunbird-cb/collection'
 import { LibNotificationsService } from '@sunbird-cb/notification'
 import { ActivatedRoute } from '@angular/router'
 @Component({
-    selector: 'ws-app-my-notifications',
-    templateUrl: './my-notifications.component.html',
-    styleUrls: ['./my-notifications.component.scss'],
-    standalone: false
+  selector: 'ws-app-my-notifications',
+  templateUrl: './my-notifications.component.html',
+  styleUrls: ['./my-notifications.component.scss'],
+  standalone: false
 })
 export class MyNotificationsComponent {
   selectedLanguage = 'en'

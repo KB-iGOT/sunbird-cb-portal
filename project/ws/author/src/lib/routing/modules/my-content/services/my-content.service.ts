@@ -2,27 +2,17 @@ import { ISearchResult } from './../../../../interface/search'
 import { HttpHeaders } from '@angular/common/http'
 import { Injectable } from '@angular/core'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
-import {
-  CONTENT_CREATE,
-  CONTENT_DELETE,
-  CONTENT_READ,
-  SEARCH,
-  STATUS_CHANGE,
-  UNPUBLISH,
-  EXPIRY_DATE_ACTION,
-  CONTENT_RESTORE,
-  SEARCH_V6_ADMIN,
-  SEARCH_V6_AUTH,
-} from '@ws/author/src/lib/constants/apiEndpoints'
-import { NSApiRequest } from '@ws/author/src/lib/interface/apiRequest'
-import { NSApiResponse } from '@ws/author/src/lib/interface/apiResponse'
-import { NSContent } from '@ws/author/src/lib/interface/content'
-import { AccessControlService } from '@ws/author/src/lib/modules/shared/services/access-control.service'
-import { ApiService } from '@ws/author/src/lib/modules/shared/services/api.service'
+
 import { Observable } from 'rxjs'
 import { map, mergeMap } from 'rxjs/operators'
 import { IFormMeta } from '../../../../interface/form'
 import { AuthInitService } from './../../../../services/init.service'
+import { SEARCH, CONTENT_DELETE, CONTENT_RESTORE, SEARCH_V6_ADMIN, SEARCH_V6_AUTH, CONTENT_READ, CONTENT_CREATE, STATUS_CHANGE, EXPIRY_DATE_ACTION, UNPUBLISH } from '../../../../constants/apiEndpoints'
+import { NSApiRequest } from '../../../../interface/apiRequest'
+import { NSApiResponse } from '../../../../interface/apiResponse'
+import { NSContent } from '../../../../interface/content'
+import { AccessControlService } from '../../../../modules/shared/services/access-control.service'
+import { ApiService } from '../../../../modules/shared/services/api.service'
 
 @Injectable()
 export class MyContentService {
@@ -75,17 +65,19 @@ export class MyContentService {
       mergeMap(content => {
         let requestObj: any = {}
         Object.keys(this.authInitService.authConfig).map(
-          v =>
+          v => {
+            const value: any = this.authInitService.authConfig[v as keyof IFormMeta];
             (requestObj[v as any] = content[v as keyof NSContent.IContentMeta]
               ? content[v as keyof NSContent.IContentMeta]
               : JSON.parse(
                 JSON.stringify(
-                  this.authInitService.authConfig[v as keyof IFormMeta].defaultValue[
+                  value.defaultValue[
                     content.contentType
                     // tslint:disable-next-line: ter-computed-property-spacing
                   ][0].value,
                 ),
-              )),
+              ))
+          }
         )
         requestObj = {
           ...requestObj,

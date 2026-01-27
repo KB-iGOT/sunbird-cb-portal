@@ -5,9 +5,9 @@ import { MatSnackBar } from '@angular/material/snack-bar'
 import { Observable } from 'rxjs'
 import { UntypedFormControl } from '@angular/forms'
 import { map, startWith } from 'rxjs/operators'
-import { Notify } from '@ws/author/src/lib/constants/notificationMessage'
-import { NotificationComponent } from '@ws/author/src/lib/modules/shared/components/notification/notification.component'
-import { NOTIFICATION_TIME } from '@ws/author/src/lib/constants/constant'
+import { NotificationComponent } from '../../../../../modules/shared/components/notification/notification.component'
+import { NOTIFICATION_TIME } from '../../../../../constants/constant'
+import { Notify } from '../../../../../constants/notificationMessage'
 // import { LoaderService } from '@ws/author/src/lib/services/loader.service'
 // import {
 //   REVIEW_ROLE,
@@ -19,10 +19,10 @@ import { NOTIFICATION_TIME } from '@ws/author/src/lib/constants/constant'
 // } from '@ws/author/src/lib/constants/content-role'
 
 @Component({
-    selector: 'ws-auth-root-dashboard',
-    templateUrl: './dashboard.component.html',
-    styleUrls: ['./dashboard.component.scss'],
-    standalone: false
+  selector: 'ws-auth-root-dashboard',
+  templateUrl: './dashboard.component.html',
+  styleUrls: ['./dashboard.component.scss'],
+  standalone: false
 })
 export class DashboardComponent implements OnInit {
   public options = [

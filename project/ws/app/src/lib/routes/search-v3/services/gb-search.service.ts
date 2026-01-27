@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http'
 import { Observable, of, Subject } from 'rxjs'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import {
-  ISearchAutoComplete,
+
   ISearchQuery,
 } from '../../search/models/search.model'
 import { SearchApiService } from '../../search/apis/search-api.service'
@@ -15,7 +15,7 @@ import {
   SearchV4Request,
   SortType,
 } from '../models/search-v3.model'
-import { SEARCH_SORT_DROPDOWN } from '@ws/author/src/lib/constants/constant'
+import { SEARCH_SORT_DROPDOWN } from '@ws/author'
 
 const API_END_POINTS = {
   SEARCH_V6: `/apis/proxies/v8/sunbirdigot/search`,
@@ -79,7 +79,7 @@ export class GbSearchService {
     }
     return of(this.searchConfig).toPromise()
   }
-  searchAutoComplete(params: ISearchQuery): Promise<ISearchAutoComplete[]> {
+  searchAutoComplete(params: ISearchQuery): Promise<any> {
     params.q = params.q.toLowerCase()
     if (params.l.split(',').length === 1 && params.l.toLowerCase() !== 'all') {
       return this.searchApi.getSearchAutoCompleteResults(params).toPromise()

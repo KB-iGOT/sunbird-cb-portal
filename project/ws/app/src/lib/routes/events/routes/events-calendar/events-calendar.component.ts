@@ -12,10 +12,10 @@ import { EventService as libEventService } from '@sunbird-cb/utils-v2'
 
 
 @Component({
-    selector: 'ws-app-events-calendar',
-    templateUrl: './events-calendar.component.html',
-    styleUrls: ['./events-calendar.component.scss'],
-    standalone: false
+  selector: 'ws-app-events-calendar',
+  templateUrl: './events-calendar.component.html',
+  styleUrls: ['./events-calendar.component.scss'],
+  standalone: false
 })
 export class EventsCalendarComponent implements OnInit {
   @Input() eventCalendarDetails: any
@@ -83,7 +83,7 @@ export class EventsCalendarComponent implements OnInit {
     this.calendarLoading = true
 
     if (_.get(this.configSvc, 'userProfile.userId')) {
-      this.eventService.getUserEnrollEvents(_.get(this.configSvc, 'userProfile.userId'), requestBody).subscribe({
+      this.eventService.getUserEnrollEvents(_.get(this.configSvc, 'userProfile.userId', ''), requestBody).subscribe({
         next: (res: any) => {
           this.userEventsList = _.get(res, 'result.events')
           this.generateCalendarDays()

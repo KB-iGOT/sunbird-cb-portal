@@ -1,36 +1,38 @@
-import { DeleteDialogComponent } from '@ws/author/src/lib/modules/shared/components/delete-dialog/delete-dialog.component'
-import { NotificationService } from '@ws/author/src/lib/services/notification.service'
+
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
-import { MatDialog, MatSnackBar } from '@angular/material'
 import { Router } from '@angular/router'
-import { NOTIFICATION_TIME } from '@ws/author/src/lib/constants/constant'
-import { Notify } from '@ws/author/src/lib/constants/notificationMessage'
-import { NSApiRequest } from '@ws/author/src/lib/interface/apiRequest'
-import { NSContent } from '@ws/author/src/lib/interface/content'
-import { CommentsDialogComponent } from '@ws/author/src/lib/modules/shared/components/comments-dialog/comments-dialog.component'
-import { ConfirmDialogComponent } from '@ws/author/src/lib/modules/shared/components/confirm-dialog/confirm-dialog.component'
-import { ErrorParserComponent } from '@ws/author/src/lib/modules/shared/components/error-parser/error-parser.component'
-import { NotificationComponent } from '@ws/author/src/lib/modules/shared/components/notification/notification.component'
-import { AccessControlService } from '@ws/author/src/lib/modules/shared/services/access-control.service'
-import { EditorContentService } from '@ws/author/src/lib/routing/modules/editor/services/editor-content.service'
-import { EditorService } from '@ws/author/src/lib/routing/modules/editor/services/editor.service'
-import { AuthInitService } from '@ws/author/src/lib/services/init.service'
-import { LoaderService } from '@ws/author/src/lib/services/loader.service'
 import { of } from 'rxjs'
 import { mergeMap, tap, catchError } from 'rxjs/operators'
 import { UrlUploadComponent } from './../url-upload/url-upload.component'
 import { VIEWER_ROUTE_FROM_MIME } from '@sunbird-cb/collection'
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper'
+import { MatDialog } from '@angular/material/dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
+import { Notify } from '../../../../../../../../constants/notificationMessage'
+import { NSApiRequest } from '../../../../../../../../interface/apiRequest'
+import { NSContent } from '../../../../../../../../interface/content'
+import { CommentsDialogComponent } from '../../../../../../../../modules/shared/components/comments-dialog/comments-dialog.component'
+import { ConfirmDialogComponent } from '../../../../../../../../modules/shared/components/confirm-dialog/confirm-dialog.component'
+import { DeleteDialogComponent } from '../../../../../../../../modules/shared/components/delete-dialog/delete-dialog.component'
+import { ErrorParserComponent } from '../../../../../../../../modules/shared/components/error-parser/error-parser.component'
+import { AuthInitService } from '../../../../../../../../services/init.service'
+import { LoaderService } from '../../../../../../../../services/loader.service'
+import { NotificationService } from '../../../../../../../../services/notification.service'
+import { EditorContentService } from '../../../../../services/editor-content.service'
+import { EditorService } from '../../../../../services/editor.service'
+import { NOTIFICATION_TIME } from '../../../web-page/constant/web-module.constants'
+import { AccessControlService } from '../../../../../../../../modules/shared/services/access-control.service'
+import { NotificationComponent } from '../../../../../../../../modules/shared/components/notification/notification.component'
 
 @Component({
-    selector: 'ws-auth-curate',
-    templateUrl: './curate.component.html',
-    styleUrls: ['./curate.component.scss'],
-    providers: [{
-            provide: STEPPER_GLOBAL_OPTIONS, useValue: { displayDefaultIndicatorType: false },
-        }],
-    standalone: false
+  selector: 'ws-auth-curate',
+  templateUrl: './curate.component.html',
+  styleUrls: ['./curate.component.scss'],
+  providers: [{
+    provide: STEPPER_GLOBAL_OPTIONS, useValue: { displayDefaultIndicatorType: false },
+  }],
+  standalone: false
 })
 export class CurateComponent implements OnInit, OnDestroy {
   contents: NSContent.IContentMeta[] = []
@@ -140,7 +142,7 @@ export class CurateComponent implements OnInit, OnDestroy {
     )
   }
 
-  changeContent(content: NSContent.IContentMeta) {
+  changeContent(content: any) {
     this.contentService.changeActiveCont.next(content.identifier)
   }
 
@@ -257,12 +259,13 @@ export class CurateComponent implements OnInit, OnDestroy {
 
   finalCall(commentsForm: UntypedFormGroup) {
     if (commentsForm) {
+      let st: any = this.contentService.originalContent[this.currentContent].status
       const body: NSApiRequest.IForwardBackwardActionGeneral = {
         comment: commentsForm.controls.comments.value,
         operation:
           commentsForm.controls.action.value === 'accept' ||
             ['Draft', 'Live'].includes(
-              this.contentService.originalContent[this.currentContent].status,
+              st,
             )
             ? ((this.accessService.authoringConfig.isMultiStepFlow && this.isDirectPublish()) ||
               !this.accessService.authoringConfig.isMultiStepFlow) &&
@@ -276,16 +279,18 @@ export class CurateComponent implements OnInit, OnDestroy {
       const updatedMeta = this.contentService.getUpdatedMeta(this.currentContent)
       const needSave = Object.keys(this.contentService.upDatedContent[this.currentContent] || {})
         .length
+      let st1: any = this.contentService.originalContent[this.currentContent].status
       const saveCall = (needSave
         ? this.triggerSave(updatedContent, this.currentContent)
         : of({} as any)
+
       ).pipe(
         mergeMap(() =>
           this.editorService
             .forwardBackward(
               body,
               this.currentContent,
-              this.contentService.originalContent[this.currentContent].status,
+              st1,
             )
             .pipe(
               mergeMap(() =>
@@ -316,7 +321,8 @@ export class CurateComponent implements OnInit, OnDestroy {
           })
           this.contents = this.contents.filter(v => v.identifier !== this.currentContent)
           if (this.contents.length) {
-            this.contentService.changeActiveCont.next(this.contents[0].identifier)
+            let st: any = this.contents[0].identifier
+            this.contentService.changeActiveCont.next(st)
           } else {
             this.router.navigateByUrl('/author/home')
           }
@@ -492,7 +498,8 @@ export class CurateComponent implements OnInit, OnDestroy {
           if (confirm) {
             this.contents = this.contents.filter(v => v.identifier !== this.currentContent)
             if (this.contents.length) {
-              this.contentService.changeActiveCont.next(this.contents[0].identifier)
+              let st: any = this.contents[0].identifier
+              this.contentService.changeActiveCont.next(st)
             } else {
               this.router.navigateByUrl('/author/home')
             }
@@ -507,8 +514,9 @@ export class CurateComponent implements OnInit, OnDestroy {
   }
 
   isDirectPublish(): boolean {
+    let st: any = this.contentService.originalContent[this.currentContent].status
     return (
-      ['Draft', 'Live'].includes(this.contentService.originalContent[this.currentContent].status) &&
+      ['Draft', 'Live'].includes(st) &&
       this.isPublisherSame()
     )
   }
@@ -525,7 +533,8 @@ export class CurateComponent implements OnInit, OnDestroy {
         })
         this.contents = this.contents.filter(v => v.identifier !== this.currentContent)
         if (this.contents.length) {
-          this.contentService.changeActiveCont.next(this.contents[0].identifier)
+          let st: any = this.contents[0].identifier
+          this.contentService.changeActiveCont.next(st)
         } else {
           this.router.navigateByUrl('/author/home')
         }
@@ -597,10 +606,11 @@ export class CurateComponent implements OnInit, OnDestroy {
   }
 
   canDelete() {
+    let st: any = this.contentService.originalContent[this.currentContent].status
     return (
       this.accessService.hasRole(['editor', 'admin']) ||
       (['Draft', 'Live'].includes(
-        this.contentService.originalContent[this.currentContent].status,
+        st,
       ) &&
         this.contentService.originalContent[this.currentContent].creatorContacts.find(
           v => v.id === this.accessService.userId,

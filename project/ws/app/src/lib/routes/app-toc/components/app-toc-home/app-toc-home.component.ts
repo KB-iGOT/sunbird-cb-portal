@@ -31,18 +31,17 @@ import {
 import { WidgetContentLibService, WidgetUserServiceLib } from '@sunbird-cb/consumption'
 import { NsAppToc } from '../../models/app-toc.model'
 import { AppTocService } from '../../services/app-toc.service'
-import { AccessControlService } from '@ws/author/src/public-api'
+import { AccessControlService } from '@ws/author'
 import { MobileAppsService } from 'src/app/services/mobile-apps.service'
-import { HandleClaimService } from '@sunbird-cb/collection/src/lib/_common/content-toc/content-services/handle-claim.service'
+import { HandleClaimService, NsCardContent, ContentRatingV2DialogComponent } from '@sunbird-cb/collection'
 import { ActionService } from '../../services/action.service'
 import { RatingService } from '../../../../../../../../../library/ws-widget/collection/src/lib/_services/rating.service'
-import { ViewerUtilService } from '@ws/viewer/src/lib/viewer-util.service'
+import { ViewerUtilService } from '@ws/viewer'
 import { LoadCheckService } from '../../services/load-check.service'
 import { ResetRatingsService } from './../../services/reset-ratings.service'
 
 import { AppTocDialogIntroVideoComponent } from '../app-toc-dialog-intro-video/app-toc-dialog-intro-video.component'
-import { ContentRatingV2DialogComponent } from '@sunbird-cb/collection/src/lib/_common/content-rating-v2-dialog/content-rating-v2-dialog.component'
-import { NsCardContent } from '@sunbird-cb/collection/src/lib/card-content-v2/card-content-v2.model'
+
 import { environment } from 'src/environments/environment'
 import { TimerService } from '../../services/timer.service'
 import { MatDialog } from '@angular/material/dialog'
@@ -70,12 +69,12 @@ const flattenItems = (items: any[], key: string | number) => {
 }
 const SNACKBAR_DURATION = 3000
 @Component({
-    selector: 'ws-app-app-toc-home',
-    templateUrl: './app-toc-home.component.html',
-    styleUrls: ['./app-toc-home.component.scss'],
-    // tslint:disable-next-line: use-component-view-encapsulation
-    encapsulation: ViewEncapsulation.None,
-    standalone: false
+  selector: 'ws-app-app-toc-home',
+  templateUrl: './app-toc-home.component.html',
+  styleUrls: ['./app-toc-home.component.scss'],
+  // tslint:disable-next-line: use-component-view-encapsulation
+  encapsulation: ViewEncapsulation.None,
+  standalone: false
 })
 
 export class AppTocHomeComponent implements OnInit, OnDestroy, AfterViewChecked, AfterViewInit {

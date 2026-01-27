@@ -7,7 +7,7 @@ import { InfiniteScrollModule } from 'ngx-infinite-scroll'
 import { NgCircleProgressModule } from 'ng-circle-progress'
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core'
 import { HttpLoaderFactory } from 'src/app/app.module'
-import { WidgetResolverModule } from '@sunbird-cb/resolver/src/public-api'
+import { WidgetResolverModule } from '@sunbird-cb/resolver'
 import {
   PipeDurationTransformModule, HorizontalScrollerV2Module,
   PipeRelativeTimeModule, PipeSafeSanitizerModule
@@ -46,7 +46,7 @@ import { AppTocReferenceNotesComponent } from './app-toc-reference-notes/app-toc
 import { AiTutorConfirmPopupComponent } from './ai-tutor-confirm-popup/ai-tutor-confirm-popup.component'
 import { HighlightPipe } from '../../_pipes/highlight.pipe'
 import { MatSelectModule } from '@angular/material/select'
-import { AiTutorComponent } from '@ws/viewer/src/lib/components/ai-tutor/ai-tutor.component'
+import { AiTutorComponent } from '@ws/viewer'
 import { MarkdownModule } from 'ngx-markdown'
 import { AppTocBatchAssignmentsComponent } from './app-toc-batch-assignments/app-toc-batch-assignments.component'
 import { AssignmentViewerComponent } from './app-toc-assignment-viewer/app-toc-assignment-viewer.component'

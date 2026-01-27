@@ -1,10 +1,11 @@
-@import 'ws-common';
-@import 'ws-vars';
+@use 'ws-common';
+@use 'ws-vars';
+@use 'ws-mixins' as *;
 
 .overview-container {
   min-height: 100%;
   box-sizing: border-box;
-  @extend %page-center;
+  // @include page-center;;
   max-height: 10000 !important;
   padding: $size-s;
 }

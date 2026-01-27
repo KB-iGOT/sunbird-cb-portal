@@ -15,7 +15,6 @@ import {
 import { Subscription } from 'rxjs'
 import { MatSnackBar } from '@angular/material/snack-bar'
 // import { filter } from 'rxjs/operators'
-// import { SearchServService } from '@ws/app/src/lib/routes/search/services/search-serv.service'
 
 interface IStripUnitContentData {
   key: string
@@ -38,10 +37,10 @@ interface IStripUnitContentData {
   } | null
 }
 @Component({
-    selector: 'ws-widget-activity-strip-multiple',
-    templateUrl: './activity-strip-multiple.component.html',
-    styleUrls: ['./activity-strip-multiple.component.scss'],
-    standalone: false
+  selector: 'ws-widget-activity-strip-multiple',
+  templateUrl: './activity-strip-multiple.component.html',
+  styleUrls: ['./activity-strip-multiple.component.scss'],
+  standalone: false
 })
 export class ActivityStripMultipleComponent extends WidgetBaseComponent
   implements

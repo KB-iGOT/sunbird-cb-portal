@@ -10,10 +10,10 @@ import { Router } from '@angular/router'
 
 
 @Component({
-    selector: 'ws-app-network',
-    templateUrl: './network.component.html',
-    styleUrls: ['./network.component.scss'],
-    standalone: false
+  selector: 'ws-app-network',
+  templateUrl: './network.component.html',
+  styleUrls: ['./network.component.scss'],
+  standalone: false
 })
 export class NetworkComponent implements OnInit {
 
@@ -122,7 +122,7 @@ export class NetworkComponent implements OnInit {
   }
 
   getProfileDetails() {
-    const userId = _.get(this.configSvc, 'userProfile.userId')
+    const userId = _.get(this.configSvc, 'userProfile.userId', '')
     if (_.get(this.configSvc, 'userProfileV2.profileBannerUrl') || _.get(this.configSvc, 'userProfileV2.profileBannerUrl') === '') {
       this.userDetails = this.configSvc.userProfileV2
     } else {

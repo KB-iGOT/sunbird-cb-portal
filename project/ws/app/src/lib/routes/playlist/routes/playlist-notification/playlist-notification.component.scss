@@ -1,6 +1,6 @@
-@import 'ws-common';
-@import 'ws-mixins';
-@import 'ws-vars';
+@use 'ws-common';
+@use 'ws-vars';
+@use 'ws-mixins' as *;
 
 .notificaton-circle {
   height: $size-l;

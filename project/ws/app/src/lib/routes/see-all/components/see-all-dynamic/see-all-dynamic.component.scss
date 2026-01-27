@@ -1,6 +1,6 @@
-@import 'ws-common';
-@import 'ws-vars';
-@import 'ws-mixins';
+@use 'ws-common';
+@use 'ws-vars';
+@use 'ws-mixins' as *;
 
 .container-balanced {
   height: auto;
@@ -99,7 +99,7 @@
 .search-content-card {
   display: flex;
   flex-wrap: wrap;
-  row-gap:16px;
+  row-gap: 16px;
   margin: 24px 0;
 }
 

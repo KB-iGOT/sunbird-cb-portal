@@ -1,6 +1,7 @@
-@use '@sunbird-cb/design-system/src/styles/ws-common';
-@use '@sunbird-cb/design-system/src/styles/ws-vars';
-@use '@sunbird-cb/design-system/src/styles/ws-mixins' as *;
+@use 'ws-common';
+@use 'ws-vars';
+@use 'ws-mixins' as *;
+;
 
 .carrier-card {
   $card-padding: $size-m;
@@ -224,6 +225,7 @@
 .mat-card-footer {
   padding-bottom: 22px;
 }
+
 .description_text {
   word-break: break-all;
   white-space: initial;

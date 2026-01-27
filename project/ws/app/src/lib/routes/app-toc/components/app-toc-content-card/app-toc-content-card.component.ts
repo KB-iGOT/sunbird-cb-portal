@@ -4,14 +4,14 @@ import { NsAppToc } from '../../models/app-toc.model'
 import { EventService } from '@sunbird-cb/utils-v2'
 /* tslint:disable*/
 import _ from 'lodash'
-import { CertificateDialogComponent } from '@sunbird-cb/collection/src/lib/_common/certificate-dialog/certificate-dialog.component'
+import { CertificateDialogComponent } from '@sunbird-cb/collection'
 import { MatDialog } from '@angular/material/dialog'
 
 @Component({
-    selector: 'ws-app-toc-content-card',
-    templateUrl: './app-toc-content-card.component.html',
-    styleUrls: ['./app-toc-content-card.component.scss'],
-    standalone: false
+  selector: 'ws-app-toc-content-card',
+  templateUrl: './app-toc-content-card.component.html',
+  styleUrls: ['./app-toc-content-card.component.scss'],
+  standalone: false
 })
 export class AppTocContentCardComponent implements OnInit, OnChanges {
   @Input() content: NsContent.IContent | null = null

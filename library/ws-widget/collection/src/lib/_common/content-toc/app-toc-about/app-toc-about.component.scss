@@ -1,5 +1,6 @@
-@import 'ws-mixins';
-@import 'ws-vars';
+@use 'ws-mixins' as *;
+@use 'ws-vars';
+@use 'ws-mixins' as *;
 
 .mt60 {
     margin-top: 60px;

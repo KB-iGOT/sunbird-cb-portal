@@ -1,5 +1,6 @@
-@import 'ws-mixins';
-@import 'ws-vars';
+@use 'ws-mixins' as *;
+@use 'ws-vars';
+@use 'ws-mixins' as *;
 
 .lh-header {
   text-align: center;
@@ -239,21 +240,26 @@ $badge-padding: 12px;
 
 .filter-select {
   width: 30%;
+
   @include breakpoint-xs {
     width: 90%;
   }
+
   @include breakpoint-s {
     width: 45%;
   }
 }
+
 .text-inside-grid {
   position: absolute;
   left: 5px;
 }
+
 .text-outside-grid {
   position: absolute;
   right: 5px;
 }
+
 .unique-users-card {
   width: 30%;
 

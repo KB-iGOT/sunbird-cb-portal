@@ -1,17 +1,17 @@
-import { Component, Inject, Input, OnInit } from '@angular/core'
-import { ConfigService, IdiscussionConfig, EventsService, NavigationServiceService, DiscussionService, BaseWrapperComponent } from '@project-sunbird/discussions-ui-v8'
+import { Component, Inject, Input } from '@angular/core'
+import { ConfigService, IdiscussionConfig, EventsService, NavigationServiceService, DiscussionService, BaseWrapperComponent } from '@sunbird-cb/discussions-ui-v8'
 // import { EventsService } from '@project-sunbird/discussions-ui-v8/lib/events.service'
 // import { NavigationServiceService } from '@project-sunbird/discussions-ui-v8/lib/navigation-service.service'
 // import { DiscussionService } from '@project-sunbird/discussions-ui-v8/lib/services/discussion.service'
 // import { BaseWrapperComponent } from '@project-sunbird/discussions-ui-v8/lib/wrapper/base-wrapper/base-wrapper.component'
-import lodash from 'lodash'
+// import lodash from 'lodash'
 // import * as CONSTANTS from '@project-sunbird/discussions-ui-v8'
 
 @Component({
-    selector: 'igot-category-widget',
-    templateUrl: './category-widget.component.html',
-    styleUrls: ['./category-widget.component.css'],
-    standalone: false
+  selector: 'igot-category-widget',
+  templateUrl: './category-widget.component.html',
+  styleUrls: ['./category-widget.component.css'],
+  standalone: false
 })
 export class CategoryWidgetComponent extends BaseWrapperComponent {
 
@@ -24,7 +24,7 @@ export class CategoryWidgetComponent extends BaseWrapperComponent {
   tid!: number
   slug!: string
   categoryId: any
-
+  state: any
   constructor(
     @Inject(ConfigService)
     configSvc: ConfigService,
@@ -42,7 +42,7 @@ export class CategoryWidgetComponent extends BaseWrapperComponent {
     this.state = this.category
   }
 
-  stateChange(event: { action: string; tid: number; title: string; }) {
+  stateChange(event: { action: string; tid: number; title: string }) {
     this.state = event.action
     if (event.action === this.detailsPage) {
       this.tid = event.tid
@@ -50,6 +50,6 @@ export class CategoryWidgetComponent extends BaseWrapperComponent {
     }
   }
 
-  protected wrapperEventListener(data: any) {
+  protected wrapperEventListener() {
   }
 }

@@ -1,8 +1,9 @@
-@import 'ws-vars';
-@import 'ws-common';
+@use 'ws-vars';
+@use 'ws-common';
+@use 'ws-mixins' as *;
 
 .mobile-app-container {
-  @extend %page-center;
+  @include page-center;
   padding-top: 0;
   padding-bottom: 8px;
   margin: 16px 0px;
@@ -14,6 +15,7 @@
 .mobile-qr-image {
   width: 180px;
   height: 180px;
+
   @include breakpoint-xs {
     width: 150px;
     height: 150px;

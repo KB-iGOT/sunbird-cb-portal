@@ -1,15 +1,15 @@
 import { Component, Inject, OnInit } from '@angular/core'
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
-import { AppTocService } from '@ws/app/src/lib/routes/app-toc/services/app-toc.service'
 import { LoggerService, MultilingualTranslationsService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
 import { TranslateService } from '@ngx-translate/core'
 
-import { RatingService } from '@sunbird-cb/collection/src/public-api'
+import { RatingService } from '@sunbird-cb/collection'
+import { AppTocService } from '../../../../../app/src/lib/routes/app-toc/services/app-toc.service'
 @Component({
-    selector: 'viewer-course-completion-dialog',
-    templateUrl: './course-completion-dialog.component.html',
-    styleUrls: ['./course-completion-dialog.component.scss'],
-    standalone: false
+  selector: 'viewer-course-completion-dialog',
+  templateUrl: './course-completion-dialog.component.html',
+  styleUrls: ['./course-completion-dialog.component.scss'],
+  standalone: false
 })
 export class CourseCompletionDialogComponent implements OnInit {
   courseName = ''

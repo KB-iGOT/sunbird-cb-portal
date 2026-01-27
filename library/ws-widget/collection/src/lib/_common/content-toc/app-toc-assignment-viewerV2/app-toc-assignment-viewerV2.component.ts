@@ -6,13 +6,13 @@ import { MatSnackBar } from '@angular/material/snack-bar'
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser'
 import { Router } from '@angular/router'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
-import { AppTocService } from '@ws/app/src/lib/routes/app-toc/services/app-toc.service'
+import { AppTocService } from '@ws/app'
 import { ConfirmationDialogComponent } from '@sunbird-cb/consumption'
 @Component({
-    selector: 'ws-widget-app-assignment-viewerV2',
-    templateUrl: './app-toc-assignment-viewerV2.component.html',
-    styleUrls: ['./app-toc-assignment-viewerV2.component.scss'],
-    standalone: false
+  selector: 'ws-widget-app-assignment-viewerV2',
+  templateUrl: './app-toc-assignment-viewerV2.component.html',
+  styleUrls: ['./app-toc-assignment-viewerV2.component.scss'],
+  standalone: false
 })
 export class AssignmentViewerV2Component implements OnInit, OnDestroy {
 

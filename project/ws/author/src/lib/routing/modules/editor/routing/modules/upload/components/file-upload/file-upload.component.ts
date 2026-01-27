@@ -1,4 +1,4 @@
-import { AccessControlService } from '@ws/author/src/lib/modules/shared/services/access-control.service'
+
 import { ValueService } from '@sunbird-cb/utils-v2'
 import {
   Component,
@@ -12,33 +12,31 @@ import {
 import { UntypedFormBuilder, UntypedFormGroup } from '@angular/forms'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { MatDialog } from '@angular/material/dialog'
-import {
-  CONTENT_BASE_STATIC,
-  CONTENT_BASE_STREAM,
-  CONTENT_BASE_WEBHOST,
-} from '@ws/author/src/lib/constants/apiEndpoints'
-import { NOTIFICATION_TIME } from '@ws/author/src/lib/constants/constant'
-import { Notify } from '@ws/author/src/lib/constants/notificationMessage'
-import { VIDEO_MAX_SIZE } from '@ws/author/src/lib/constants/upload'
-import { NSContent } from '@ws/author/src/lib/interface/content'
-import { IprDialogComponent } from '@ws/author/src/lib/modules/shared/components/ipr-dialog/ipr-dialog.component'
-import { NotificationComponent } from '@ws/author/src/lib/modules/shared/components/notification/notification.component'
-import { EditorContentService } from '@ws/author/src/lib/routing/modules/editor/services/editor-content.service'
-import { UploadService } from '@ws/author/src/lib/routing/modules/editor/shared/services/upload.service'
-import { LoaderService } from '@ws/author/src/lib/services/loader.service'
+
 import { of } from 'rxjs'
-import { ConfirmDialogComponent } from '@ws/author/src/lib/modules/shared/components/confirm-dialog/confirm-dialog.component'
 import { mergeMap, tap } from 'rxjs/operators'
 import { IFormMeta } from './../../../../../../../../interface/form'
 import { AuthInitService } from './../../../../../../../../services/init.service'
 import { ProfanityPopUpComponent } from '../profanity-popup/profanity-popup'
+import { NotificationComponent } from '../../../../../../../../modules/shared/components/notification/notification.component'
+import { AccessControlService } from '../../../../../../../../../public-api'
+import { CONTENT_BASE_STATIC, CONTENT_BASE_WEBHOST, CONTENT_BASE_STREAM } from '../../../../../../../../constants/apiEndpoints'
+import { Notify } from '../../../../../../../../constants/notificationMessage'
+import { VIDEO_MAX_SIZE } from '../../../../../../../../constants/upload'
+import { NSContent } from '../../../../../../../../interface/content'
+import { ConfirmDialogComponent } from '../../../../../../../../modules/shared/components/confirm-dialog/confirm-dialog.component'
+import { IprDialogComponent } from '../../../../../../../../modules/shared/components/ipr-dialog/ipr-dialog.component'
+import { LoaderService } from '../../../../../../../../services/loader.service'
+import { EditorContentService } from '../../../../../services/editor-content.service'
+import { UploadService } from '../../../../../shared/services/upload.service'
+import { NOTIFICATION_TIME } from '../../../web-page/constant/web-module.constants'
 // import { ProfanityService } from '../../services/profanity.service'
 
 @Component({
-    selector: 'ws-auth-file-upload',
-    templateUrl: './file-upload.component.html',
-    styleUrls: ['./file-upload.component.scss'],
-    standalone: false
+  selector: 'ws-auth-file-upload',
+  templateUrl: './file-upload.component.html',
+  styleUrls: ['./file-upload.component.scss'],
+  standalone: false
 })
 export class FileUploadComponent implements OnInit {
   @ViewChild('guideline') guideline!: TemplateRef<HTMLElement>
@@ -47,7 +45,7 @@ export class FileUploadComponent implements OnInit {
 
   fileUploadForm!: UntypedFormGroup
   iprAccepted = false
-  file!: File | null
+  file!: File | null | any
   mimeType = ''
   currentContent = ''
   enableUpload = true
@@ -401,21 +399,26 @@ export class FileUploadComponent implements OnInit {
     const originalMeta = this.contentService.getOriginalMeta(this.currentContent)
     const currentMeta = this.fileUploadForm.value
     const meta: any = {}
-    Object.keys(currentMeta).map(v => {
+    if (!this.authInitService.authConfig) {
+      return
+    }
+
+    Object.keys(currentMeta).map((v: any) => {
       if (
         JSON.stringify(currentMeta[v as keyof NSContent.IContentMeta]) !==
         JSON.stringify(originalMeta[v as keyof NSContent.IContentMeta])
       ) {
+        const value: any = this.authInitService.authConfig[v as keyof IFormMeta]
         if (
           currentMeta[v] ||
-          (this.authInitService.authConfig[v as keyof IFormMeta].type === 'boolean' &&
+          (value.type === 'boolean' &&
             currentMeta[v] === false)
         ) {
           meta[v] = currentMeta[v]
         } else {
           meta[v] = JSON.parse(
             JSON.stringify(
-              this.authInitService.authConfig[v as keyof IFormMeta].defaultValue[
+              value.defaultValue[
                 originalMeta.contentType
                 // tslint:disable-next-line: ter-computed-property-spacing
               ][0].value,
@@ -444,19 +447,19 @@ export class FileUploadComponent implements OnInit {
   extractFile() {
     this.errorFileList = []
     this.fileList = []
-    zip.useWebWorkers = false
-    zip.createReader(new zip.BlobReader(this.file as File), (reader: zip.ZipReader) => {
-      reader.getEntries((entry: zip.Entry[]) => {
-        entry.forEach(element => {
-          if (element.filename.match(/[^A-Za-z0-9_.\-\/]/g)) {
-            this.errorFileList.push(element.filename)
-          } else if (!element.directory) {
-            this.fileList.push(element.filename)
-          }
-        })
-        this.processAndShowResult()
-      })
-    })
+    // zip.useWebWorkers = false
+    // zip.createReader(new zip.BlobReader(this.file as File), (reader: zip.ZipReader) => {
+    //   reader.getEntries((entry: zip.Entry[]) => {
+    //     entry.forEach(element => {
+    //       if (element.filename.match(/[^A-Za-z0-9_.\-\/]/g)) {
+    //         this.errorFileList.push(element.filename)
+    //       } else if (!element.directory) {
+    //         this.fileList.push(element.filename)
+    //       }
+    //     })
+    //     this.processAndShowResult()
+    //   })
+    // })
   }
 
   closeDialog() {

@@ -1,11 +1,14 @@
-import { AUTHORING_CONTENT_BASE } from '@ws/author/src/lib/constants/apiEndpoints'
-import { ICON_TYPE } from '@ws/author/src/lib/constants/icons'
-import { MIME_TYPE } from '@ws/author/src/lib/constants/mimeType'
-import { ISearchContent } from '@ws/author/src/lib/interface/search'
+
+
+
 import { APP_BASE_HREF } from '@angular/common'
 import { Inject, Injectable } from '@angular/core'
 import { ConfigurationsService, NsInstanceConfig } from '@sunbird-cb/utils-v2'
-import { NSContent } from '@ws/author/src/lib/interface/content'
+import { AUTHORING_CONTENT_BASE } from '../../../constants/apiEndpoints'
+import { ISearchContent } from '../../../interface/search'
+import { NSContent } from '../../../interface/content'
+import { MIME_TYPE } from '../../../constants/mimeType'
+import { ICON_TYPE } from '../../../constants/icons'
 
 @Injectable()
 export class AccessControlService {
@@ -65,7 +68,7 @@ export class AccessControlService {
   }
 
   get defaultLogo(): string {
-    const logo = this.configService.instanceConfig ?  this.configService.instanceConfig.logos.defaultContent : ''
+    const logo = this.configService.instanceConfig ? this.configService.instanceConfig.logos.defaultContent : ''
     return logo || ''
   }
 

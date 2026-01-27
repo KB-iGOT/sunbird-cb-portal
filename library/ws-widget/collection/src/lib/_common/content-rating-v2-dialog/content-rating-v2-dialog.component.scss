@@ -1,10 +1,10 @@
-@import 'ws-vars';
-@import 'ws-mixins';
+@use 'ws-vars';
+@use 'ws-mixins' as *;
 
 .rating-icon {
     transform: scale(1.2);
 }
-  
+
 .rating-button {
     margin-right: 10px;
     line-height: 20px;
@@ -30,7 +30,7 @@
     }
 
 }
-  
+
 .orange {
     color: RGB(246, 153, 83);
     font-size: 24px;
@@ -38,7 +38,7 @@
 
 .no-padding {
     padding: 0 !important
-} 
+}
 
 .custom.mat-dialog-actions {
     min-height: auto;

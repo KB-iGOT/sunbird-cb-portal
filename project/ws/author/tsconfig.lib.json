@@ -2,23 +2,24 @@
   "extends": "../../../tsconfig.json",
   "compilerOptions": {
     "outDir": "../../../out-tsc/lib",
+    "target": "ES2022",
+    "module": "ES2022",
+    "moduleResolution": "bundler",  // Changed from "node16"
+
     "declaration": true,
-    "inlineSources": true,
+    "declarationMap": true,  // Enable this
+
+    "sourceMap": true,  // Consider enabling for debugging
+    "inlineSources": false,
+    "skipLibCheck": true,
+
     "types": [],
-    "lib": [
-      "dom",
-      "es2018"
-    ]
+    "lib": ["ES2022", "DOM"]  // Add explicit lib
   },
   "angularCompilerOptions": {
-    "skipTemplateCodegen": true,
-    "strictMetadataEmit": true,
-    "fullTemplateTypeCheck": true,
-    "strictInjectionParameters": true,
-    "enableResourceInlining": true
+    "compilationMode": "partial",
+    "enableIvy": true,
+    "strictTemplates": true  // Consider adding
   },
-  "exclude": [
-    "src/test.ts",
-    "**/*.spec.ts"
-  ]
+  "exclude": ["src/test.ts", "**/*.spec.ts", "node_modules"]
 }

@@ -1,4 +1,6 @@
-@import "ws-vars";
+@use "ws-vars";
+@use "ws-common";
+@use "ws-mixins" as *;
 
 .primary {
     text-transform: underline;

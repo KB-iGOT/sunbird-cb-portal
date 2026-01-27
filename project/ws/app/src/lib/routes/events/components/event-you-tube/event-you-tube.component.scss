@@ -1,7 +1,7 @@
-@import 'ws-common';
-@import 'ws-vars';
-@import 'ws-mixins';
+@use 'ws-common';
+@use 'ws-vars';
+@use 'ws-mixins' as *;
 
-:host.video-js-2{
-  height: 264px !important; 
+:host.video-js-2 {
+  height: 264px !important;
 }

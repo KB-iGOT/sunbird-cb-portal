@@ -1,5 +1,5 @@
-@import 'ws-vars';
-@import 'ws-mixins';
+@use 'ws-vars';
+@use 'ws-mixins' as *;
 
 $medium-badge-size: 90px;
 $small-badge-size: 50px;

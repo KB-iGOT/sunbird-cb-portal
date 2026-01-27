@@ -1,6 +1,6 @@
-@import 'ws-common';
-@import 'ws-vars';
-@import 'ws-mixins';
+@use 'ws-common';
+@use 'ws-vars';
+@use 'ws-mixins' as *;
 
 
 
@@ -8,6 +8,7 @@
     @include breakpoint-xs {
         margin-top: 1rem;
     }
+
     @include breakpoint-s {
         margin-top: 1rem;
     }

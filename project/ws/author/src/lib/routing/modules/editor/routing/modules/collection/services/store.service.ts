@@ -1,15 +1,15 @@
 import { Injectable } from '@angular/core'
 import { LoggerService } from '@sunbird-cb/utils-v2'
-import { DEPTH_RUE } from '@ws/author/src/lib/constants/depth-rule'
-import { IAllowedType } from '@ws/author/src/lib/interface/collection-child-config'
-import { NSContent } from '@ws/author/src/lib/interface/content'
-import { ICreateEntity } from '@ws/author/src/lib/interface/create-entity'
-import { EditorContentService } from '@ws/author/src/lib/routing/modules/editor/services/editor-content.service'
-import { EditorService } from '@ws/author/src/lib/routing/modules/editor/services/editor.service'
-import { AuthInitService } from '@ws/author/src/lib/services/init.service'
 import { BehaviorSubject, ReplaySubject } from 'rxjs'
 import { IContentNode, IContentTreeNode } from './../interface/icontent-tree'
 import { CollectionResolverService } from './resolver.service'
+import { ICreateEntity } from '../../../../../../../interface/create-entity'
+import { DEPTH_RUE } from '../../../../../../../constants/depth-rule'
+import { IAllowedType } from '../../../../../../../interface/collection-child-config'
+import { NSContent } from '../../../../../../../interface/content'
+import { AuthInitService } from '../../../../../../../services/init.service'
+import { EditorContentService } from '../../../../services/editor-content.service'
+import { EditorService } from '../../../../services/editor.service'
 
 interface IProcessedError {
   id: string | number
@@ -147,9 +147,9 @@ export class CollectionStoreService {
     dropLocation: 'above' | 'below' = 'below',
   ): Promise<boolean> {
     try {
-      const contents = await this.editorService.readMultipleContent(ids).toPromise()
+      const contents: any = await this.editorService.readMultipleContent(ids).toPromise()
       const contentDataMap = new Map<string, NSContent.IContentMeta>()
-      contents.map((v, index) => {
+      contents.map((v: any, index: any) => {
         this.contentService.setOriginalMeta(v)
         const treeStructure = this.resolver.buildTreeAndMap(
           v,
@@ -195,7 +195,7 @@ export class CollectionStoreService {
           ].locale || 'en',
         ...(meta.additionalMeta || {}),
       }
-      const content = await this.editorService.createAndReadContent(requestBody).toPromise()
+      const content: any = await this.editorService.createAndReadContent(requestBody).toPromise()
       this.contentService.setOriginalMeta(content)
       const contentDataMap = new Map<string, NSContent.IContentMeta>()
       const treeStructure = this.resolver.buildTreeAndMap(

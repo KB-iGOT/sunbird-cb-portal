@@ -1,18 +1,21 @@
-@import 'ws-common';
-@import 'ws-vars';
+@use 'ws-common';
+@use 'ws-vars';
+@use 'ws-mixins' as *;
 $size: 48px;
 
 .outer-container {
   margin: $size-m;
 }
+
 .notifications-container {
   min-height: calc(100vh - 144px);
+
   @include breakpoint-gt-s {
     margin: $size-xl;
   }
 
   box-sizing: border-box;
-  @extend %page-center;
+  // @include page-center;;
 }
 
 .recent-badge {

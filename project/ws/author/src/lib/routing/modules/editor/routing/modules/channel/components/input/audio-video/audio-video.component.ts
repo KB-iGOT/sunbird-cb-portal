@@ -1,17 +1,15 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { IWidgetsPlayerMediaData, NsContent } from '@sunbird-cb/collection'
-import {
-  AUTHORING_CONTENT_BASE,
-  CONTENT_BASE_WEBHOST_ASSETS,
-} from '@ws/author/src/lib/constants/apiEndpoints'
-import { NOTIFICATION_TIME } from '@ws/author/src/lib/constants/constant'
-import { Notify } from '@ws/author/src/lib/constants/notificationMessage'
-import { IMAGE_MAX_SIZE, VIDEO_MAX_SIZE } from '@ws/author/src/lib/constants/upload'
-import { NotificationComponent } from '@ws/author/src/lib/modules/shared/components/notification/notification.component'
-import { UploadService } from '@ws/author/src/lib/routing/modules/editor/shared/services/upload.service'
-import { AuthInitService } from '@ws/author/src/lib/services/init.service'
-import { LoaderService } from '@ws/author/src/lib/services/loader.service'
+import { NotificationComponent } from '../../../../../../../../../../../../../../src/app/home/home/notification/notification.component'
+import { CONTENT_BASE_WEBHOST_ASSETS, AUTHORING_CONTENT_BASE } from '../../../../../../../../../constants/apiEndpoints'
+import { NOTIFICATION_TIME } from '../../../../../../../../../constants/constant'
+import { Notify } from '../../../../../../../../../constants/notificationMessage'
+import { IMAGE_MAX_SIZE, VIDEO_MAX_SIZE } from '../../../../../../../../../constants/upload'
+import { AuthInitService } from '../../../../../../../../../services/init.service'
+import { LoaderService } from '../../../../../../../../../services/loader.service'
+import { UploadService } from '../../../../../../shared/services/upload.service'
+
 
 interface ISubtitle {
   srclang: string
@@ -19,10 +17,10 @@ interface ISubtitle {
 }
 
 @Component({
-    selector: 'ws-auth-audio-video',
-    templateUrl: './audio-video.component.html',
-    styleUrls: ['./audio-video.component.scss'],
-    standalone: false
+  selector: 'ws-auth-audio-video',
+  templateUrl: './audio-video.component.html',
+  styleUrls: ['./audio-video.component.scss'],
+  standalone: false
 })
 export class AudioVideoComponent implements OnChanges, OnInit {
   @Input() isSubmitPressed = false

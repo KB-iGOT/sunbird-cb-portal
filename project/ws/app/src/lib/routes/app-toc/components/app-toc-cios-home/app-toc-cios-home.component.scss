@@ -1,5 +1,6 @@
-@import 'ws-mixins';
-@import 'ws-vars';
+@use 'ws-mixins' as *;
+@use 'ws-vars';
+@use 'ws-mixins' as *;
 
 
 // New TOC page css...
@@ -888,6 +889,7 @@ ul {
   margin: 1rem auto;
   min-height: 500px;
 }
+
 .knowledge-level-container {
   margin-right: auto;
 }

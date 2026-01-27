@@ -1,4 +1,4 @@
-import { AccessControlService } from '@ws/author/src/lib/modules/shared/services/access-control.service'
+import { AccessControlService } from '../../../lib/modules/shared/services/access-control.service'
 import {
   Component,
   OnInit,
@@ -19,10 +19,10 @@ export interface IPreviewDevice {
 }
 
 @Component({
-    selector: 'ws-auth-viewer',
-    templateUrl: './viewer.component.html',
-    styleUrls: ['./viewer.component.scss'],
-    standalone: false
+  selector: 'ws-auth-viewer',
+  templateUrl: './viewer.component.html',
+  styleUrls: ['./viewer.component.scss'],
+  standalone: false
 })
 export class ViewerComponent implements OnInit, OnDestroy, AfterViewInit, OnChanges {
   @ViewChild('mobile', { static: true }) mobile: ElementRef<any> | null = null

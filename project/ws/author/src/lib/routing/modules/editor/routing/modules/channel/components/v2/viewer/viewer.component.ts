@@ -1,14 +1,14 @@
 import { Component, OnInit, Input } from '@angular/core'
 import { ChannelStoreService } from '../../../services/store.service'
 import { ChannelResolverService } from '../../../services/resolver.service'
-import { NsWidgetResolver } from '@sunbird-cb/resolver/src/public-api'
+import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { isNotEmptyWidget } from './viewer.function'
 
 @Component({
-    selector: 'ws-auth-viewer-v2',
-    templateUrl: './viewer.component.html',
-    styleUrls: ['./viewer.component.scss'],
-    standalone: false
+  selector: 'ws-auth-viewer-v2',
+  templateUrl: './viewer.component.html',
+  styleUrls: ['./viewer.component.scss'],
+  standalone: false
 })
 export class ViewerComponent implements OnInit {
   @Input() id = ''

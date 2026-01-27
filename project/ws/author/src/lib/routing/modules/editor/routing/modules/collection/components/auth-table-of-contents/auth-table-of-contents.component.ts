@@ -1,13 +1,7 @@
 import { FlatTreeControl } from '@angular/cdk/tree'
 import { Component, EventEmitter, OnDestroy, OnInit, Output } from '@angular/core'
-import { MatDialog, MatSnackBar } from '@angular/material'
 import { MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material/tree'
-import { NOTIFICATION_TIME } from '@ws/author/src/lib/constants/constant'
-import { Notify } from '@ws/author/src/lib/constants/notificationMessage'
-import { ConfirmDialogComponent } from '@ws/author/src/lib/modules/shared/components/confirm-dialog/confirm-dialog.component'
-import { NotificationComponent } from '@ws/author/src/lib/modules/shared/components/notification/notification.component'
-import { AuthInitService } from '@ws/author/src/lib/services/init.service'
-import { LoaderService } from '@ws/author/src/lib/services/loader.service'
+
 import { EditorContentService } from '../../../../../services/editor-content.service'
 import { IContentNode } from '../../interface/icontent-tree'
 import { AuthPickerComponent } from './../../../../../shared/components/auth-picker/auth-picker.component'
@@ -15,11 +9,19 @@ import { IContentTreeNode } from './../../interface/icontent-tree'
 import { CollectionStoreService } from './../../services/store.service'
 import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/layout'
 import { map } from 'rxjs/operators'
+import { MatDialog } from '@angular/material/dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
+import { NotificationComponent } from '../../../../../../../../modules/shared/components/notification/notification.component'
+import { Notify } from '../../../../../../../../constants/notificationMessage'
+import { ConfirmDialogComponent } from '../../../../../../../../modules/shared/components/confirm-dialog/confirm-dialog.component'
+import { AuthInitService } from '../../../../../../../../services/init.service'
+import { LoaderService } from '../../../../../../../../services/loader.service'
+import { NOTIFICATION_TIME } from '../../../web-page/constant/web-module.constants'
 @Component({
-    selector: 'ws-auth-table-of-contents',
-    templateUrl: './auth-table-of-contents.component.html',
-    styleUrls: ['./auth-table-of-contents.component.scss'],
-    standalone: false
+  selector: 'ws-auth-table-of-contents',
+  templateUrl: './auth-table-of-contents.component.html',
+  styleUrls: ['./auth-table-of-contents.component.scss'],
+  standalone: false
 })
 export class AuthTableOfContentsComponent implements OnInit, OnDestroy {
   @Output() action = new EventEmitter<{ type: string; identifier: string }>()
@@ -60,7 +62,7 @@ export class AuthTableOfContentsComponent implements OnInit, OnDestroy {
     private loaderService: LoaderService,
     private authInitService: AuthInitService,
     private breakpointObserver: BreakpointObserver,
-  ) {}
+  ) { }
 
   private _transformer = (node: IContentNode, level: number): IContentTreeNode => {
     return {
@@ -203,9 +205,9 @@ export class AuthTableOfContentsComponent implements OnInit, OnDestroy {
         this.isDropDisabled = !parentNode
           ? true
           : !this.store.allowDrop(
-              this.dragContainer as IContentTreeNode,
-              parentNode as IContentTreeNode,
-            )
+            this.dragContainer as IContentTreeNode,
+            parentNode as IContentTreeNode,
+          )
       } else {
         this.isDropDisabled = !this.store.allowDrop(
           this.dragContainer as IContentTreeNode,
@@ -297,7 +299,7 @@ export class AuthTableOfContentsComponent implements OnInit, OnDestroy {
       data: 'deleteTreeNode',
     })
     this.preserveExpandedNodes()
-    dialogRef.afterClosed().subscribe(confirm => {
+    dialogRef.afterClosed().subscribe((confirm: any) => {
       if (confirm) {
         this.parentHierarchy = []
         let currNode: IContentTreeNode | null = node

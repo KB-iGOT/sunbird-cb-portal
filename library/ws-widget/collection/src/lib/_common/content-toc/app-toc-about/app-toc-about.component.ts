@@ -16,14 +16,11 @@ import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { NsContentStripWithTabs } from '../../../content-strip-with-tabs/content-strip-with-tabs.model'
 
-import { AppTocService } from '@ws/app/src/lib/routes/app-toc/services/app-toc.service'
+import { AppTocService, TimerService, LoadCheckService, DiscussUtilsService, ResetRatingsService } from '@ws/app'
 import { LoggerService, ConfigurationsService, WidgetContentService } from '@sunbird-cb/utils-v2'
-import { TimerService } from '@ws/app/src/lib/routes/app-toc/services/timer.service'
+
 import { HandleClaimService } from '../content-services/handle-claim.service'
-import { LoadCheckService } from '@ws/app/src/lib/routes/app-toc/services/load-check.service'
 import { ReviewComponentDataService } from '../content-services/review-component-data.service'
-import { DiscussUtilsService } from '@ws/app/src/lib/routes/discuss/services/discuss-utils.service'
-import { ResetRatingsService } from '@ws/app/src/lib/routes/app-toc/services/reset-ratings.service'
 
 import { ReviewsContentComponent } from '../reviews-content/reviews-content.component'
 import { CertificateDialogComponent } from '../../certificate-dialog/certificate-dialog.component'

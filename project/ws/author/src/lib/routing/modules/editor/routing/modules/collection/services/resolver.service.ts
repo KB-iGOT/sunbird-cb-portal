@@ -1,11 +1,11 @@
 import { Injectable } from '@angular/core'
-import { ICON_TYPE } from '@ws/author/src/lib/constants/icons'
-import { MIME_TYPE } from '@ws/author/src/lib/constants/mimeType'
-import { AccessControlService } from '@ws/author/src/lib/modules/shared/services/access-control.service'
-import { EditorContentService } from '@ws/author/src/lib/routing/modules/editor/services/editor-content.service'
 import { NSContent } from '../../../../../../../interface/content'
 import { IContentNode, IContentTreeNode } from '../interface/icontent-tree'
 import { AuthInitService } from './../../../../../../../services/init.service'
+import { ICON_TYPE } from '../../../../../../../constants/icons'
+import { MIME_TYPE } from '../../../../../../../constants/mimeType'
+import { EditorContentService } from '../../../../services/editor-content.service'
+import { AccessControlService } from '../../../../../../../modules/shared/services/access-control.service'
 
 @Injectable()
 /**
@@ -52,11 +52,11 @@ export class CollectionResolverService {
      * @returns { IContentNode } the restructured hierarch data to load in tree
      */
     const recursiveFn = (
-      currContent: NSContent.IContentMeta,
+      currContent: any,
       parentId: number | undefined = undefined,
       editable = true,
     ): IContentNode => {
-      const treeStructure: IContentNode = {
+      const treeStructure: any = {
         editable,
         parentId,
         id: this.uniqueId,
@@ -79,7 +79,7 @@ export class CollectionResolverService {
       const haveAccessToChangeStructure = this.hasAccess(currContent)
       if (treeStructure.childLoaded && treeStructure.children) {
         const children: IContentNode[] = []
-        currContent.children.forEach(v =>
+        currContent.children.forEach((v: any) =>
           children.push(recursiveFn(v, treeStructure.id, haveAccessToChangeStructure)),
         )
         treeStructure.children = children
@@ -217,7 +217,7 @@ export class CollectionResolverService {
    * @param { NSContent.IContentMeta } content - The content for which we need to get category
    * @returns { boolean } The mat icon to be displayed
    */
-  hasAccess(content: NSContent.IContentMeta): boolean { // , parentMeta?: NSContent.IContentMeta
+  hasAccess(content: any): boolean { // , parentMeta?: NSContent.IContentMeta
     return this.contentService.hasAccess(content, false) &&
       content.status === 'InReview'
       ? this.authInitService.collectionConfig.enabledRole.includes('reviewer')

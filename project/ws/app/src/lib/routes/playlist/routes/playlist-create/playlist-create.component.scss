@@ -1,4 +1,5 @@
-@import 'ws-vars';
+@use 'ws-vars';
+@use 'ws-mixins' as *;
 
 .card2 {
   margin: $size-m $size-s $size-m $size-s;

@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angu
 import { MatDialog } from '@angular/material/dialog'
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser'
 import { ActivatedRoute, NavigationEnd, NavigationExtras, Router } from '@angular/router'
-import { WidgetContentService } from '@sunbird-cb/collection/src/lib/_services/widget-content.service'
+import { WidgetContentService } from '@sunbird-cb/collection'
 import { NsContent, VIEWER_ROUTE_FROM_MIME } from '@sunbird-cb/collection'
 import { ConfigurationsService, EventService, NsPage, ValueService, WsEvents } from '@sunbird-cb/utils-v2'
 import { Subscription } from 'rxjs'
@@ -10,15 +10,15 @@ import { ViewerDataService } from '../../viewer-data.service'
 import { ViewerUtilService } from '../../viewer-util.service'
 import { CourseCompletionDialogComponent } from '../course-completion-dialog/course-completion-dialog.component'
 import { PdfScormDataService } from '../../pdf-scorm-data-service'
-import { AppTocService } from '@ws/app/src/lib/routes/app-toc/services/app-toc.service'
 import { WidgetContentLibService } from '@sunbird-cb/consumption'
+import { AppTocService } from '../../../../../app/src/lib/routes/app-toc/services/app-toc.service'
 // import { WidgetContentService as WidgetContentServiceUtils } from '@sunbird-cb/utils-v2'
 
 @Component({
-    selector: 'viewer-viewer-secondary-top-bar',
-    templateUrl: './viewer-secondary-top-bar.component.html',
-    styleUrls: ['./viewer-secondary-top-bar.component.scss'],
-    standalone: false
+  selector: 'viewer-viewer-secondary-top-bar',
+  templateUrl: './viewer-secondary-top-bar.component.html',
+  styleUrls: ['./viewer-secondary-top-bar.component.scss'],
+  standalone: false
 })
 export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy {
 

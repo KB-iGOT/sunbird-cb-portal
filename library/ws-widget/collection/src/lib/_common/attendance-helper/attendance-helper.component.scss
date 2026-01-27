@@ -1,4 +1,4 @@
-@import "ws-mixins";
+@use "ws-mixins" as *;
 
 .no-shadow {
     box-shadow: none !important;

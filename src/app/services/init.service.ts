@@ -28,8 +28,8 @@ import _ from 'lodash'
 import { map } from 'rxjs/operators'
 import { v4 as uuid } from 'uuid'
 // import { Subscription } from 'rxjs'
-import { NSProfileDataV3 } from '@ws/app/src/lib/routes/profile-v3/models/profile-v3.models'
-import { NPSGridService } from '@sunbird-cb/collection/src/lib/grid-layout/nps-grid.service'
+import { NSProfileDataV3 } from '@ws/app'
+import { NPSGridService } from '@sunbird-cb/collection'
 import moment from 'moment'
 import { TranslateService } from '@ngx-translate/core'
 import { SbUiResolverService } from '@sunbird-cb/resolver-v2'
@@ -45,9 +45,9 @@ declare const smartech: any
 //   isActive: boolean
 // }
 
-interface IFeaturePermissionConfigs {
-  [id: string]: Omit<NsWidgetResolver.IPermissions, 'feature'>
-}
+// interface IFeaturePermissionConfigs {
+//   [id: string]: Omit<NsWidgetResolver.IPermissions, 'feature'>
+// }
 
 const PROXY_CREATE_V8 = '/apis/proxies/v8'
 
@@ -410,7 +410,7 @@ export class InitService {
   // }
 
   private async fetchDefaultConfig(): Promise<NsInstanceConfig.IConfig> {
-    const publicConfig: NsInstanceConfig.IConfig = await this.http
+    const publicConfig: any = await this.http
       .get<NsInstanceConfig.IConfig>(`${this.baseUrl}/host.config.json`)
       .toPromise()
     this.configSvc.instanceConfig = publicConfig
@@ -425,7 +425,7 @@ export class InitService {
   }
 
   private async profileNudgeConfig(): Promise<NsInstanceConfig.IConfig> {
-    const publicConfig: NsInstanceConfig.IConfig = await this.http
+    const publicConfig: any = await this.http
       .get<NsInstanceConfig.IConfig>(`${this.baseUrl}/profile-nudge.json`)
       .toPromise()
     this.configSvc.profileTimelyNudges = publicConfig.profileTimelyNudges
@@ -530,7 +530,7 @@ export class InitService {
   }
 
   private async themeOverrideConfig(): Promise<NsInstanceConfig.IConfig> {
-    const publicConfig: NsInstanceConfig.IConfig = await this.http
+    const publicConfig: any = await this.http
       .get<NsInstanceConfig.IConfig>(`${this.baseUrl}/theme-override-config.json`)
       .toPromise()
     this.configSvc.overrideThemeChanges = publicConfig.overrideThemeChanges
@@ -543,13 +543,13 @@ export class InitService {
       : 'en'
   }
 
-  private async fetchAppsConfig(): Promise<NsAppsConfig.IAppsConfig> {
+  private async fetchAppsConfig(): Promise<any> {
     const appsConfig = await this.http
       .get<NsAppsConfig.IAppsConfig>(`${this.baseUrl}/feature/apps.json`)
       .toPromise()
     return appsConfig
   }
-  private async fetchWelcomeConfig(): Promise<NSProfileDataV3.IProfileTab> {
+  private async fetchWelcomeConfig(): Promise<any> {
     const welcomeConfig = await this.http
       .get<NSProfileDataV3.IProfileTab>(`${this.baseUrl}/feature/profile-v3.json`)
       .toPromise()
@@ -827,7 +827,7 @@ export class InitService {
 
   private async fetchInstanceConfig(): Promise<NsInstanceConfig.IConfig> {
     // TODO: use the rootOrg and org to fetch the instance
-    const publicConfig = await this.http
+    const publicConfig: any = await this.http
       .get<NsInstanceConfig.IConfig>(`${this.configSvc.sitePath}/site.config.json`)
       .toPromise()
     if (publicConfig.npsCategory) {
@@ -879,21 +879,21 @@ export class InitService {
 
   private async fetchFeaturesStatus(): Promise<Set<string>> {
     // TODO: use the rootOrg and org to fetch the features
-    const featureConfigs = await this.http
-      .get<IFeaturePermissionConfigs>(`${this.baseUrl}/features.config.json`)
+    const featureConfigs: any = await this.http
+      .get<any>(`${this.baseUrl}/features.config.json`)
       .toPromise()
     this.configSvc.restrictedFeatures = new Set(
       Object.entries(featureConfigs)
         .filter(
-          ([_k, v]) => !hasPermissions(v, this.configSvc.userRoles, this.configSvc.userGroups),
+          ([_k, v]) => !hasPermissions(v as any | undefined, this.configSvc.userRoles, this.configSvc.userGroups),
         )
         .map(([k]) => k),
     )
     return this.configSvc.restrictedFeatures
   }
-  private async fetchWidgetStatus(): Promise<NsWidgetResolver.IRegistrationsPermissionConfig[]> {
+  private async fetchWidgetStatus(): Promise<any[]> {
     const widgetConfigs = await this.http
-      .get<NsWidgetResolver.IRegistrationsPermissionConfig[]>(`${this.baseUrl}/widgets.config.json`)
+      .get<any>(`${this.baseUrl}/widgets.config.json`)
       .toPromise()
     return widgetConfigs
   }

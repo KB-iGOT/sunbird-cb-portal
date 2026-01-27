@@ -7,14 +7,14 @@ import { NsAppToc } from '../../models/app-toc.model'
 import { AppTocService } from '../../services/app-toc.service'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
-import { ViewerUtilService } from '@ws/viewer/src/lib/viewer-util.service'
+import { ViewerUtilService } from '@ws/viewer'
 import { TranslateService } from '@ngx-translate/core'
 
 @Component({
-    selector: 'ws-app-app-toc-contents',
-    templateUrl: './app-toc-contents.component.html',
-    styleUrls: ['./app-toc-contents.component.scss'],
-    standalone: false
+  selector: 'ws-app-app-toc-contents',
+  templateUrl: './app-toc-contents.component.html',
+  styleUrls: ['./app-toc-contents.component.scss'],
+  standalone: false
 })
 export class AppTocContentsComponent implements OnInit, OnDestroy {
   @Input() batchId!: string
@@ -45,7 +45,7 @@ export class AppTocContentsComponent implements OnInit, OnDestroy {
       const lang = localStorage.getItem('websiteLanguage')!
       this.translate.use(lang)
     }
-   }
+  }
 
   ngOnInit() {
     // this.forPreview = window.location.href.includes('/author/')

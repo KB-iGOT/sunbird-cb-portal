@@ -4,7 +4,7 @@ import { GyaanKarmayogiHomeComponent } from './components/gyaan-karmayogi-home/g
 import { GyaanResolverService } from './resolver/gyaan-resolver.service'
 import { GyaanPlayerComponent } from './components/gyaan-player/gyaan-player.component'
 import { GyaanKarmayogiComponent } from './gyaan-karmayogi.component'
-import { ViewerResolve } from '@ws/viewer/src/lib/viewer.resolve'
+import { ViewerResolve } from '@ws/viewer'
 import { GyaanKarmayogiViewAllComponent } from './components/gyaan-karmayogi-view-all/gyaan-karmayogi-view-all.component'
 
 import { GyaanVideoComponent } from './components/players/gyaan-video/gyaan-video.component'
@@ -113,7 +113,7 @@ const routes: Routes = [
         },
       },
     ],
-},
+  },
 ]
 
 @NgModule({

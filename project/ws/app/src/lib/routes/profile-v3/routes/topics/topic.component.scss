@@ -1,15 +1,14 @@
-
-@import 'ws-common';
-@import 'ws-vars';
-@import 'ws-mixins';
+@use 'ws-common';
+@use 'ws-vars';
+@use 'ws-mixins' as *;
 
 
 .topicMainTitle {
     @include breakpoint-xs {
-        margin:1rem auto;
-      }
+        margin: 1rem auto;
+    }
 }
 
 .mat-button {
-    min-width: auto!important;
+    min-width: auto !important;
 }

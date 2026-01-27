@@ -4,10 +4,10 @@ import { IWidgetAuthor } from './../../../interface/widget'
 import { ChannelStoreService } from './../../../services/store.service'
 
 @Component({
-    selector: 'ws-auth-content-strip-holder',
-    templateUrl: './content-strip-holder.component.html',
-    styleUrls: ['./content-strip-holder.component.scss'],
-    standalone: false
+  selector: 'ws-auth-content-strip-holder',
+  templateUrl: './content-strip-holder.component.html',
+  styleUrls: ['./content-strip-holder.component.scss'],
+  standalone: false
 })
 export class ContentStripHolderComponent implements OnInit, OnChanges {
 
@@ -59,21 +59,21 @@ export class ContentStripHolderComponent implements OnInit, OnChanges {
     this.widget.children.map(
       v => {
         switch (this.store.getUpdatedContent(v).purpose) {
-        case 'info':
-          this.widgetMap.info = v
-          break
-        case 'noDataWidget':
-          this.widgetMap.noData = v
-          break
-        case 'errorWidget':
-          this.widgetMap.error = v
-          break
-        case 'preWidget':
-          this.widgetMap.preWidgets.push(v)
-          break
-        case 'postWidget':
-          this.widgetMap.postWidgets.push(v)
-          break
+          case 'info':
+            this.widgetMap.info = v
+            break
+          case 'noDataWidget':
+            this.widgetMap.noData = v
+            break
+          case 'errorWidget':
+            this.widgetMap.error = v
+            break
+          case 'preWidget':
+            this.widgetMap.preWidgets.push(v)
+            break
+          case 'postWidget':
+            this.widgetMap.postWidgets.push(v)
+            break
         }
       },
     )
@@ -154,7 +154,7 @@ export class ContentStripHolderComponent implements OnInit, OnChanges {
   fetchFromSearchV6() {
     if (this.widget.data.request && this.widget.data.request.searchV6 && Object.keys(this.widget.data.request.searchV6).length) {
       this.contentSvc.searchV6(this.widget.data.request.searchV6).subscribe(
-        results => {
+        (results: any) => {
           this.viewMore = Boolean(
             results.result.length && this.widget.data.stripConfig && this.widget.data.stripConfig.postCardForSearch,
           )

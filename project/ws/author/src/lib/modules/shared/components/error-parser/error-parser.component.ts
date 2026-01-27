@@ -1,6 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core'
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
-import { NSContent } from '@ws/author/src/lib/interface/content'
+import { NSContent } from '../../../../interface/content'
 
 interface IMessage {
   [key: string]: string[]
@@ -24,10 +24,10 @@ interface IProcessedMultiError {
 }
 
 @Component({
-    selector: 'ws-auth-error-parser',
-    templateUrl: './error-parser.component.html',
-    styleUrls: ['./error-parser.component.scss'],
-    standalone: false
+  selector: 'ws-auth-error-parser',
+  templateUrl: './error-parser.component.html',
+  styleUrls: ['./error-parser.component.scss'],
+  standalone: false
 })
 export class ErrorParserComponent implements OnInit {
   processErrorData: IProcessedMultiError[] | null = null

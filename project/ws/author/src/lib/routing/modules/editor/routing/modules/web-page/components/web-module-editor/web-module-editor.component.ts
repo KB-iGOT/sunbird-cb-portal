@@ -1,4 +1,4 @@
-import { DeleteDialogComponent } from '@ws/author/src/lib/modules/shared/components/delete-dialog/delete-dialog.component'
+
 import { Component, OnInit, OnDestroy, ViewChild } from '@angular/core'
 import { MatDialog } from '@angular/material/dialog'
 import { UploadAudioComponent } from '../upload-audio/upload-audio.component'
@@ -11,55 +11,52 @@ import { of, Observable, Subscription, forkJoin } from 'rxjs'
 import { ActivatedRoute, Router } from '@angular/router'
 import { UntypedFormGroup } from '@angular/forms'
 
-import { NotificationComponent } from '@ws/author/src/lib/modules/shared/components/notification/notification.component'
-import { CommentsDialogComponent } from '@ws/author/src/lib/modules/shared/components/comments-dialog/comments-dialog.component'
-import { ConfirmDialogComponent } from '@ws/author/src/lib/modules/shared/components/confirm-dialog/confirm-dialog.component'
-import { ErrorParserComponent } from '@ws/author/src/lib/modules/shared/components/error-parser/error-parser.component'
 
-import { EditorContentService } from '@ws/author/src/lib/routing/modules/editor/services/editor-content.service'
-import { LoaderService } from '@ws/author/src/lib/services/loader.service'
-import { UploadService } from '@ws/author/src/lib/routing/modules/editor/shared/services/upload.service'
-import { EditorService } from '@ws/author/src/lib/routing/modules/editor/services/editor.service'
-import { AuthInitService } from '@ws/author/src/lib/services/init.service'
-import { AccessControlService } from '@ws/author/src/lib/modules/shared/services/access-control.service'
 
 import { Page, ModuleObj, WebModuleData } from '../web-module.class'
-import { Notify } from '@ws/author/src/lib/constants/notificationMessage'
-import { NSContent } from '@ws/author/src/lib/interface/content'
-import { NSApiRequest } from '@ws/author/src/lib/interface/apiRequest'
 
-import {
-  CONTENT_BASE_WEBHOST_ASSETS,
-  CONTENT_BASE_WEBHOST,
-  STREAM_FILES,
-  // AUTHORING_CONTENT_BASE,
-} from '@ws/author/src/lib/constants/apiEndpoints'
 import { VIEWER_ROUTE_FROM_MIME } from '@sunbird-cb/collection'
 import { NOTIFICATION_TIME, WEB_MODULE_JSON_FILE_NAME } from '../../constant/web-module.constants'
 import { IAudioObj } from '../../interface/page-interface'
 import { PlainCKEditorComponent } from '../../../../../shared/components/plain-ckeditor/plain-ckeditor.component'
-import { NotificationService } from '@ws/author/src/lib/services/notification.service'
+
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper'
 import { WebStoreService } from '../../services/store.service'
+import { NotificationComponent } from '@sunbird-cb/notification'
+import { AccessControlService } from '../../../../../../../../../public-api'
+import { STREAM_FILES, CONTENT_BASE_WEBHOST_ASSETS, CONTENT_BASE_WEBHOST } from '../../../../../../../../constants/apiEndpoints'
+import { Notify } from '../../../../../../../../constants/notificationMessage'
+import { NSApiRequest } from '../../../../../../../../interface/apiRequest'
+import { NSContent } from '../../../../../../../../interface/content'
+import { CommentsDialogComponent } from '../../../../../../../../modules/shared/components/comments-dialog/comments-dialog.component'
+import { ConfirmDialogComponent } from '../../../../../../../../modules/shared/components/confirm-dialog/confirm-dialog.component'
+import { DeleteDialogComponent } from '../../../../../../../../modules/shared/components/delete-dialog/delete-dialog.component'
+import { ErrorParserComponent } from '../../../../../../../../modules/shared/components/error-parser/error-parser.component'
+import { AuthInitService } from '../../../../../../../../services/init.service'
+import { LoaderService } from '../../../../../../../../services/loader.service'
+import { NotificationService } from '../../../../../../../../services/notification.service'
+import { EditorContentService } from '../../../../../services/editor-content.service'
+import { EditorService } from '../../../../../services/editor.service'
+import { UploadService } from '../../../../../shared/services/upload.service'
 
 @Component({
-    selector: 'ws-auth-web-module-editor',
-    templateUrl: './web-module-editor.component.html',
-    styleUrls: ['./web-module-editor.component.scss'],
-    providers: [{
-            provide: STEPPER_GLOBAL_OPTIONS, useValue: { displayDefaultIndicatorType: false },
-        }],
-    standalone: false
+  selector: 'ws-auth-web-module-editor',
+  templateUrl: './web-module-editor.component.html',
+  styleUrls: ['./web-module-editor.component.scss'],
+  providers: [{
+    provide: STEPPER_GLOBAL_OPTIONS, useValue: { displayDefaultIndicatorType: false },
+  }],
+  standalone: false
 })
 
 export class WebModuleEditorComponent implements OnInit, OnDestroy {
 
   userData: { [key: string]: WebModuleData } = {}
-  currentId = ''
+  currentId: any = ''
   selectedPage = 0
   showContent = false
   sideNavBarOpened = true
-  allContents: NSContent.IContentMeta[] = []
+  allContents: any[] = []
   contentLoaded = false
   allLanguages: any[] = []
   activeContentSubscription?: Subscription
@@ -385,9 +382,9 @@ export class WebModuleEditorComponent implements OnInit, OnDestroy {
 
   triggerUpload() {
     const moduledata = JSON.parse(JSON.stringify(this.userData[this.currentId].pageJson))
-    moduledata.map((e: ModuleObj) => {
+    moduledata.map((e: any) => {
       if (e.audio && e.audio.length) {
-        e.audio.map(a => {
+        e.audio.map((a: any) => {
           a.URL = STREAM_FILES + a.title
         })
       } else {
@@ -533,20 +530,22 @@ export class WebModuleEditorComponent implements OnInit, OnDestroy {
   }
 
   isDirectPublish(): boolean {
+    let st: any = this.metaContentService.originalContent[this.currentId].status
     return (
-      ['Draft', 'Live'].includes(this.metaContentService.originalContent[this.currentId].status) &&
+      ['Draft', 'Live'].includes(st) &&
       this.isPublisherSame()
     )
   }
 
   finalCall(commentsForm: UntypedFormGroup) {
+    let st: any = this.metaContentService.originalContent[this.currentId].status
     if (commentsForm) {
       const body: NSApiRequest.IForwardBackwardActionGeneral = {
         comment: commentsForm.controls.comments.value,
         operation:
           commentsForm.controls.action.value === 'accept' ||
             ['Draft', 'Live'].includes(
-              this.metaContentService.originalContent[this.currentId].status,
+              st,
             )
             ? ((this.accessService.authoringConfig.isMultiStepFlow && this.isDirectPublish()) ||
               !this.accessService.authoringConfig.isMultiStepFlow) &&
@@ -560,6 +559,7 @@ export class WebModuleEditorComponent implements OnInit, OnDestroy {
       const updatedMeta = this.metaContentService.getUpdatedMeta(this.currentId)
       const needSave = Object.keys(this.metaContentService.upDatedContent[this.currentId] || {})
         .length
+      let st1: any = this.metaContentService.originalContent[this.currentId].status
       const saveCall = (needSave
         ? this.triggerSave(updatedContent, this.currentId)
         : of({} as any)
@@ -569,7 +569,7 @@ export class WebModuleEditorComponent implements OnInit, OnDestroy {
             .forwardBackward(
               body,
               this.currentId,
-              this.metaContentService.originalContent[this.currentId].status,
+              st1,
             )
             .pipe(
               mergeMap(() =>
@@ -764,7 +764,7 @@ export class WebModuleEditorComponent implements OnInit, OnDestroy {
     }
   }
 
-  changeContent(data: NSContent.IContentMeta) {
+  changeContent(data: any) {
     this.currentId = data.identifier
     this.metaContentService.changeActiveCont.next(data.identifier)
     this.selectedPage = 0
@@ -858,8 +858,9 @@ export class WebModuleEditorComponent implements OnInit, OnDestroy {
   }
 
   canDelete() {
+    let st: any = this.metaContentService.originalContent[this.currentId].status
     return this.accessService.hasRole(['editor', 'admin']) ||
-      (['Draft', 'Live'].includes(this.metaContentService.originalContent[this.currentId].status) &&
+      (['Draft', 'Live'].includes(st) &&
         this.metaContentService.originalContent[this.currentId].creatorContacts.find(v => v.id === this.accessService.userId)
       )
   }

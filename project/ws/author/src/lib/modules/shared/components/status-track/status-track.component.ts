@@ -1,10 +1,11 @@
-import { AuthInitService } from '@ws/author/src/lib/services/init.service'
+
 import { AccessControlService } from './../../services/access-control.service'
-import { WorkFlowService } from '@ws/author/src/lib/services/work-flow.service'
-import { ISearchContent } from '@ws/author/src/lib/interface/search'
-import { NSContent } from '@ws/author/src/lib/interface/content'
 import { Component, Input, OnInit, Inject } from '@angular/core'
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
+import { NSContent } from '../../../../interface/content'
+import { ISearchContent } from '../../../../interface/search'
+import { AuthInitService } from '../../../../services/init.service'
+import { WorkFlowService } from '../../../../services/work-flow.service'
 
 interface IWorkFlowLog {
   name: string
@@ -25,10 +26,10 @@ interface IWorkFlowStepper {
 }
 
 @Component({
-    selector: 'ws-auth-status-track',
-    templateUrl: './status-track.component.html',
-    styleUrls: ['./status-track.component.scss'],
-    standalone: false
+  selector: 'ws-auth-status-track',
+  templateUrl: './status-track.component.html',
+  styleUrls: ['./status-track.component.scss'],
+  standalone: false
 })
 export class StatusTrackComponent implements OnInit {
   @Input() content!: NSContent.IContentMeta | ISearchContent
@@ -78,11 +79,11 @@ export class StatusTrackComponent implements OnInit {
     }
     if (this.currentStage > -1) {
       systemFlow
-        .filter(v => v !== 'Processing')
-        .forEach(v => {
+        .filter((v: string) => v !== 'Processing')
+        .forEach((v: string) => {
           const index = systemFlow.indexOf(v)
           let acceptedActions: string[] = []
-          this.initService.ownerDetails.forEach(detail => {
+          this.initService.ownerDetails.forEach((detail: { status: string | any[]; relatedActions: string[] }) => {
             if (detail.status.includes(v)) {
               acceptedActions = detail.relatedActions
             }
@@ -126,7 +127,7 @@ export class StatusTrackComponent implements OnInit {
   getOwnerName(action: string): string {
     let owner = ''
     if (action) {
-      this.initService.ownerDetails.forEach(v => {
+      this.initService.ownerDetails.forEach((v: { relatedActions: string | string[]; name: string }) => {
         if (v.relatedActions.includes(action)) {
           owner = v.name
         }
@@ -147,7 +148,7 @@ export class StatusTrackComponent implements OnInit {
     let isPresent = true
     if (action) {
       isPresent = false
-      this.initService.ownerDetails.forEach(v => {
+      this.initService.ownerDetails.forEach((v: { relatedActions: string | string[] }) => {
         if (v.relatedActions.includes(action)) {
           isPresent = true
         }

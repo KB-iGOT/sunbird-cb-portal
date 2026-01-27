@@ -5,7 +5,7 @@ import {
   PipeFilterV2Module,
 } from '@sunbird-cb/utils-v2'
 
-import { CardContentV2Module } from '@sunbird-cb/collection/src/lib/card-content-v2/card-content-v2.module'
+import { CardContentV2Module } from '@sunbird-cb/collection'
 import { HttpClient } from '@angular/common/http'
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core'
 import { HttpLoaderFactory } from 'src/app/app.module'
@@ -16,7 +16,7 @@ import {
   NationalLearningModule,
   SlidersLibModule
 } from '@sunbird-cb/consumption'
-import { BtnPageBackModule } from '@sunbird-cb/collection/src/public-api'
+import { BtnPageBackModule } from '@sunbird-cb/collection'
 import { MdoChannelFormService } from '../mdo-channels/service/mdo-channel-form.service'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 import { MdoChannelDataService } from '../mdo-channels/service/mdo-channel-data.service'

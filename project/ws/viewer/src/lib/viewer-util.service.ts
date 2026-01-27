@@ -3,11 +3,11 @@ import { Injectable } from '@angular/core'
 import { HttpClient } from '@angular/common/http'
 import { noop, Observable, Subject } from 'rxjs'
 import dayjs from 'dayjs'
-import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
+import { NsContent } from '@sunbird-cb/collection'
 import { environment } from 'src/environments/environment'
-import { WidgetContentService } from '@sunbird-cb/collection/src/lib/_services/widget-content.service'
-import { AppTocService } from '@ws/app/src/lib/routes/app-toc/services/app-toc.service'
+import { WidgetContentService } from '@sunbird-cb/collection'
 import { ContentLanguageService, WidgetUserServiceLib } from '@sunbird-cb/consumption'
+import { AppTocService } from '../../../app/src/lib/routes/app-toc/services/app-toc.service'
 
 @Injectable({
   providedIn: 'root',
@@ -250,7 +250,7 @@ export class ViewerUtilService {
 
   async checkForCourseEnrollment(childList: NsContent.IContent, _resourceId: string, _enrollmentList: any, _tempData: any) {
     // tslint:disable-next-line: max-line-length
-    const courseData: any = await this.contentSvc.autoAssignBatchApi(childList.identifier).toPromise().then(async (data: NsContent.IBatchListResponse) => {
+    const courseData: any = await this.contentSvc.autoAssignBatchApi(childList.identifier).toPromise().then(async (data: any) => {
       if (data) {
         // tslint:disable-next-line: max-line-length
         const responseData = await this.userSvc.fetchEnrollmentDataByContentId(this.configservice.userProfile?.userId, childList.identifier).toPromise().then(async (res: any) => {

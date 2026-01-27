@@ -1,4 +1,4 @@
-@import 'ws-mixins';
+@use 'ws-mixins' as *;
 
 mat-card-content {
   width: -webkit-fill-available;

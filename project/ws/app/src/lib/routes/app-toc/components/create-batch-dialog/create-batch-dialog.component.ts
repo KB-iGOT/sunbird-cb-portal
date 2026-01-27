@@ -1,21 +1,21 @@
 import { Component, OnInit, Inject, forwardRef, ViewChild, ElementRef } from '@angular/core'
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms'
-import { AppDateAdapter, APP_DATE_FORMATS, startWithYearformat } from '@ws/app'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { AppTocService } from '../../services/app-toc.service'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { DateAdapter, MAT_DATE_FORMATS } from '@angular/material/core'
+import { APP_DATE_FORMATS, AppDateAdapter, startWithYearformat } from '../../../user-profile/services/format-datepicker'
 
 @Component({
-    selector: 'ws-app-create-batch-dialog',
-    templateUrl: './create-batch-dialog.component.html',
-    styleUrls: ['./create-batch-dialog.component.scss'],
-    providers: [
-        { provide: forwardRef(() => DateAdapter), useClass: forwardRef(() => AppDateAdapter) },
-        { provide: forwardRef(() => MAT_DATE_FORMATS), useValue: forwardRef(() => APP_DATE_FORMATS) },
-    ],
-    standalone: false
+  selector: 'ws-app-create-batch-dialog',
+  templateUrl: './create-batch-dialog.component.html',
+  styleUrls: ['./create-batch-dialog.component.scss'],
+  providers: [
+    { provide: forwardRef(() => DateAdapter), useClass: forwardRef(() => AppDateAdapter) },
+    { provide: forwardRef(() => MAT_DATE_FORMATS), useValue: forwardRef(() => APP_DATE_FORMATS) },
+  ],
+  standalone: false
 })
 export class CreateBatchDialogComponent implements OnInit {
   createBatchForm: UntypedFormGroup

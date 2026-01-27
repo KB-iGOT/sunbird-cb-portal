@@ -4,7 +4,7 @@ import { Subscription } from 'rxjs'
 import { ValueService } from '@sunbird-cb/utils-v2'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { RootService } from 'src/app/component/root/root.service'
-import { TStatus, ViewerDataService } from '@ws/viewer/src/lib/viewer-data.service'
+import { TStatus, ViewerDataService } from '@ws/viewer'
 import { ActivatedRoute, Router } from '@angular/router'
 
 // import { Router } from '@angular/router';
@@ -21,12 +21,12 @@ export enum ErrorType {
 }
 
 @Component({
-    selector: 'ws-app-competency-test',
-    templateUrl: './competence-test.component.html',
-    styleUrls: ['./competence-test.component.scss'],
-    // tslint:disable-next-line
-    host: { class: 'competency_main_test_wrapper' },
-    standalone: false
+  selector: 'ws-app-competency-test',
+  templateUrl: './competence-test.component.html',
+  styleUrls: ['./competence-test.component.scss'],
+  // tslint:disable-next-line
+  host: { class: 'competency_main_test_wrapper' },
+  standalone: false
 })
 export class CompetencyTestComponent implements OnInit, OnDestroy, AfterViewChecked {
   fullScreenContainer: HTMLElement | null = null

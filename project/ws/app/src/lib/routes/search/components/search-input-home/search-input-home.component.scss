@@ -1,6 +1,6 @@
-@import 'ws-vars';
-@import 'ws-mixins';
-@import 'ws-common';
+@use 'ws-vars';
+@use 'ws-common';
+@use 'ws-mixins' as *;
 
 ws-app-search-input-home .autocomplete-form {
   // width: 486px;

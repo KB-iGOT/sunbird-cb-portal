@@ -1,17 +1,17 @@
-import { Component } from '@angular/core';
-import { ActivatedRoute } from '@angular/router';
-import { TranslateService } from '@ngx-translate/core';
-import { EventService } from '../../../services/events.service';
-import { ConfigurationsService, MultilingualTranslationsService, NsContent, WsEvents } from '@sunbird-cb/utils-v2';
+import { Component } from '@angular/core'
+import { ActivatedRoute } from '@angular/router'
+import { TranslateService } from '@ngx-translate/core'
+import { EventService } from '../../../services/events.service'
+import { ConfigurationsService, MultilingualTranslationsService, NsContent, WsEvents } from '@sunbird-cb/utils-v2'
 import * as _ from 'lodash'
 import { EventService as libEventService } from '@sunbird-cb/utils-v2'
 //import { DatePipe } from '@angular/common';
 
 @Component({
-    selector: 'ws-app-my-all-events',
-    templateUrl: './my-all-events.component.html',
-    styleUrls: ['./my-all-events.component.scss'],
-    standalone: false
+  selector: 'ws-app-my-all-events',
+  templateUrl: './my-all-events.component.html',
+  styleUrls: ['./my-all-events.component.scss'],
+  standalone: false
 })
 export class MyAllEventsComponent {
   titles: any = []
@@ -70,7 +70,7 @@ export class MyAllEventsComponent {
     }
     this.isLoading = true
     if (_.get(this.configSvc, 'userProfile.userId')) {
-      this.eventSvc.myEvents(_.get(this.configSvc, 'userProfile.userId'), requestBody).subscribe((resp: any) => {
+      this.eventSvc.myEvents(_.get(this.configSvc, 'userProfile.userId', ''), requestBody).subscribe((resp: any) => {
         this.response = _.get(resp, 'result.events', [])
         this.contentDataList = this.contentDataList.slice(0, -12)
         if (this.response.length) {
@@ -128,8 +128,8 @@ export class MyAllEventsComponent {
 
   sortData(data: any) {
     return data.sort((a: any, b: any) => {
-      const dateA = new Date(`${a.event.startDate}T${a.event.startTime}`);
-      const dateB = new Date(`${b.event.startDate}T${b.event.startTime}`);
+      const dateA = new Date(`${a.event.startDate}T${a.event.startTime}`)
+      const dateB = new Date(`${b.event.startDate}T${b.event.startTime}`)
       return this.tabIndex === 2 ? dateB.getTime() - dateA.getTime() : dateA.getTime() - dateB.getTime()
     })
   }

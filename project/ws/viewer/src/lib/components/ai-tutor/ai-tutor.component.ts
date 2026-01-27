@@ -5,17 +5,17 @@ import { RootService } from 'src/app/component/root/root.service'
 import { environment } from 'src/environments/environment'
 import { WebSocketService } from './socket.service'
 import { Subscription } from 'rxjs'
-import { NonReleventFeedbackDialogComponent } from '@sunbird-cb/collection/src/lib/_common/non-relevent-feedback-dialog/non-relevent-feedback-dialog.component'
+import { NonReleventFeedbackDialogComponent } from '@sunbird-cb/collection'
 import { MatDialog } from '@angular/material/dialog'
 // import {  MatSnackBar } from '@angular/material/snack-bar'
 import cloneDeep from 'lodash/cloneDeep'
 import { MatSnackBar as MatSnackbarNew } from '@angular/material/snack-bar'
 
 @Component({
-    selector: 'viewer-ai-tutor',
-    templateUrl: './ai-tutor.component.html',
-    styleUrls: ['./ai-tutor.component.scss'],
-    standalone: false
+  selector: 'viewer-ai-tutor',
+  templateUrl: './ai-tutor.component.html',
+  styleUrls: ['./ai-tutor.component.scss'],
+  standalone: false
 })
 export class AiTutorComponent implements OnInit, AfterViewInit, AfterViewChecked, OnDestroy {
   @Input() from = ''

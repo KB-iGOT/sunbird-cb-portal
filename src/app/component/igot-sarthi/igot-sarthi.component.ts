@@ -3,17 +3,17 @@ import { Router, NavigationEnd } from '@angular/router'
 import { ConfigurationsService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
 import { RootService } from '../../component/root/root.service'
 import { environment } from '../../../environments/environment'
-import { NonReleventFeedbackDialogComponent } from '@sunbird-cb/collection/src/lib/_common/non-relevent-feedback-dialog/non-relevent-feedback-dialog.component'
+import { NonReleventFeedbackDialogComponent } from '@sunbird-cb/collection'
 import { MatDialog } from '@angular/material/dialog'
 import { MatSnackBar as MatSnackbarNew } from '@angular/material/snack-bar'
 import cloneDeep from 'lodash/cloneDeep'
 // import { timeout, catchError } from 'rxjs/operators';
 // import { throwError } from 'rxjs';
 @Component({
-    selector: 'ws-app-igot-sarthi',
-    templateUrl: './igot-sarthi.component.html',
-    styleUrls: ['./igot-sarthi.component.scss'],
-    standalone: false
+  selector: 'ws-app-igot-sarthi',
+  templateUrl: './igot-sarthi.component.html',
+  styleUrls: ['./igot-sarthi.component.scss'],
+  standalone: false
 })
 export class IGotSarthiComponent implements OnInit, AfterViewInit, AfterViewChecked, OnDestroy {
   @Input() from = ''

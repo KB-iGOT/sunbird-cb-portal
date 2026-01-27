@@ -1,23 +1,30 @@
-@import "ws-vars";
-@import "ws-common";
+@use "ws-vars";
+@use "ws-common";
+@use "ws-mixins" as *;
+
 .quiz-question {
     overflow-x: auto;
 }
+
 .amit {
     svg {
         width: 3;
         height: 3;
+
         circle {
             r: 3;
         }
+
         circle:hover {
             r: 3;
         }
-        circle:active { 
+
+        circle:active {
             r: 3;
         }
     }
 }
+
 .jtk-connector {
     path {
         stroke: green;

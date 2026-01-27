@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core'
-
+declare const xapi: any
 /****************************************************************************
 SCORM_12_APIWrapper.js
 � 2000, 2011 Advanced Distributed Learning (ADL). Some Rights Reserved.
@@ -147,7 +147,7 @@ export class SCORMAdapterV2Service {
 
         const result = api.LMSInitialize('')
         if (result.toString() !== 'true') {
-            const err = ErrorHandler()
+            const err = this.ErrorHandler()
             this.message(`LMSInitialize failed with error code: ${err.code}`)
         } else {
             this.initialized = true

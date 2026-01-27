@@ -1,10 +1,11 @@
-@use '@sunbird-cb/design-system/src/styles/ws-mixins' as *;
-@use '@sunbird-cb/design-system/src/styles/ws-common';
+@use 'ws-mixins' as *;
+;
+@use 'ws-common';
 
 
 
 .container-balanced {
-  @extend %page-center;
+  // @include page-center;
 }
 
 .view-more {
@@ -103,11 +104,13 @@
     background-size: auto;
   }
 }
-.default-icon{
+
+.default-icon {
   font-size: 22px;
   margin-top: 3px;
   margin-left: 6px;
 }
-.mat-subheading-1-1{
+
+.mat-subheading-1-1 {
   font-size: 20px;
 }

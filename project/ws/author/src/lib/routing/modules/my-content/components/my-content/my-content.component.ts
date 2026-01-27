@@ -1,39 +1,37 @@
-import { AuthExpiryDateConfirmComponent } from '@ws/author/src/lib/modules/shared/components/auth-expiry-date-confirm/auth-expiry-date-confirm.component'
+
 import { FlatTreeControl } from '@angular/cdk/tree'
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
-import { MatDialog, MatSnackBar, MatTreeFlatDataSource, MatTreeFlattener } from '@angular/material'
 import { ActivatedRoute, Router } from '@angular/router'
-import { NOTIFICATION_TIME } from '@ws/author/src/lib/constants/constant'
-import { Notify } from '@ws/author/src/lib/constants/notificationMessage'
-import { NSApiRequest } from '@ws/author/src/lib/interface/apiRequest'
-import {
-  IAuthoringPagination,
-  IFilterMenuNode,
-  IMenuFlatNode,
-} from '@ws/author/src/lib/interface/authored'
-import { NSContent } from '@ws/author/src/lib/interface/content'
-import { CommentsDialogComponent } from '@ws/author/src/lib/modules/shared/components/comments-dialog/comments-dialog.component'
-import { ConfirmDialogComponent } from '@ws/author/src/lib/modules/shared/components/confirm-dialog/confirm-dialog.component'
-import { ErrorParserComponent } from '@ws/author/src/lib/modules/shared/components/error-parser/error-parser.component'
-import { NotificationComponent } from '@ws/author/src/lib/modules/shared/components/notification/notification.component'
-import { AccessControlService } from '@ws/author/src/lib/modules/shared/services/access-control.service'
-import { AuthInitService } from '@ws/author/src/lib/services/init.service'
-import { LoaderService } from '@ws/author/src/lib/services/loader.service'
 import { Subscription } from 'rxjs'
 import { MyContentService } from '../../services/my-content.service'
 import { map } from 'rxjs/operators'
+import { MatDialog } from '@angular/material/dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
+import { MatTreeFlattener, MatTreeFlatDataSource } from '@angular/material/tree'
+import { AccessControlService } from '../../../../../../public-api'
+import { NOTIFICATION_TIME } from '../../../../../constants/constant'
+import { Notify } from '../../../../../constants/notificationMessage'
+import { NSApiRequest } from '../../../../../interface/apiRequest'
+import { NSContent } from '../../../../../interface/content'
+import { CommentsDialogComponent } from '../../../../../modules/shared/components/comments-dialog/comments-dialog.component'
+import { ConfirmDialogComponent } from '../../../../../modules/shared/components/confirm-dialog/confirm-dialog.component'
+import { ErrorParserComponent } from '../../../../../modules/shared/components/error-parser/error-parser.component'
+import { AuthInitService } from '../../../../../services/init.service'
+import { LoaderService } from '../../../../../services/loader.service'
+import { NotificationComponent } from '../../../../../modules/shared/components/notification/notification.component'
+import { AuthExpiryDateConfirmComponent } from '../../../../../modules/shared/components/auth-expiry-date-confirm/auth-expiry-date-confirm.component'
 
 @Component({
-    selector: 'ws-auth-my-content',
-    templateUrl: './my-content.component.html',
-    styleUrls: ['./my-content.component.scss'],
-    standalone: false
+  selector: 'ws-auth-my-content',
+  templateUrl: './my-content.component.html',
+  styleUrls: ['./my-content.component.scss'],
+  standalone: false
 })
 export class MyContentComponent implements OnInit, OnDestroy {
   public sideNavBarOpened = false
   newDesign = true
-  filterMenuTreeControl: FlatTreeControl<IMenuFlatNode>
+  filterMenuTreeControl: FlatTreeControl<any>
   filterMenuTreeFlattener: any
   public cardContent!: any[]
   public filters: any[] = []
@@ -45,7 +43,7 @@ export class MyContentComponent implements OnInit, OnDestroy {
   finalFilters: any = []
   allLanguages: any[] = []
   searchLanguage = ''
-  public pagination!: IAuthoringPagination
+  public pagination!: any
   userId!: string
   totalContent!: number
   showLoadMore!: boolean
@@ -61,9 +59,9 @@ export class MyContentComponent implements OnInit, OnDestroy {
   public filterMenuItems: any = []
 
   dataSource: any
-  hasChild = (_: number, node: IMenuFlatNode) => node.expandable
+  hasChild = (_: number, node: any) => node.expandable
 
-  private _transformer = (node: IFilterMenuNode, level: number) => {
+  private _transformer = (node: any, level: number) => {
     return {
       expandable: !!node.content && node.content.length > 0,
       displayName: node.displayName,
@@ -84,7 +82,7 @@ export class MyContentComponent implements OnInit, OnDestroy {
     private dialog: MatDialog,
     private authInitService: AuthInitService,
   ) {
-    this.filterMenuTreeControl = new FlatTreeControl<IMenuFlatNode>(
+    this.filterMenuTreeControl = new FlatTreeControl<any>(
       node => node.levels,
       node => node.expandable,
     )
@@ -176,7 +174,7 @@ export class MyContentComponent implements OnInit, OnDestroy {
       this.queryFilter,
       this.isAdmin,
     )
-    const requestData = {
+    const requestData: any = {
       request: {
         locale: this.searchLanguage ? [this.searchLanguage] : [],
         query: this.queryFilter,
@@ -320,7 +318,7 @@ export class MyContentComponent implements OnInit, OnDestroy {
     this.fetchContent(false, false)
   }
 
-  deleteContent(request: NSContent.IContentMeta) {
+  deleteContent(request: any) {
     this.loadService.changeLoad.next(true)
     this.myContSvc
       .deleteContent(request.identifier, request.contentType === 'Knowledge Board')
@@ -358,7 +356,7 @@ export class MyContentComponent implements OnInit, OnDestroy {
       )
   }
 
-  restoreContent(request: NSContent.IContentMeta) {
+  restoreContent(request: any) {
     this.loadService.changeLoad.next(true)
     this.myContSvc.restoreContent(request.identifier).subscribe(
       () => {
@@ -392,7 +390,7 @@ export class MyContentComponent implements OnInit, OnDestroy {
     )
   }
 
-  createContent(request: NSContent.IContentMeta) {
+  createContent(request: any) {
     this.loadService.changeLoad.next(true)
     this.myContSvc.createInAnotherLanguage(request.identifier, request.locale).subscribe(
       (id: string) => {
@@ -483,7 +481,7 @@ export class MyContentComponent implements OnInit, OnDestroy {
     })
   }
 
-  unPublishOrDraft(request: NSContent.IContentMeta) {
+  unPublishOrDraft(request: any) {
     this.loadService.changeLoad.next(true)
     this.myContSvc.upPublishOrDraft(request.identifier, request.status !== 'Unpublished').subscribe(
       () => {

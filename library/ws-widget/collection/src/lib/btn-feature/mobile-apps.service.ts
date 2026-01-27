@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core'
-import { AuthKeycloakService } from '@sunbird-cb/utils-v2'
 import { NsContent } from '../../public-api'
 // tslint:disable-next-line: max-line-length
 import {
@@ -31,9 +30,9 @@ declare var window: IWindowMobileAppModified
 })
 export class MobileAppsService {
   constructor(
-    private authSvc: AuthKeycloakService,
+    private authSvc: any,
     private navigateSvc: NavigationExternalService,
-  ) {}
+  ) { }
 
   init() {
     this.setupGlobalMethods()

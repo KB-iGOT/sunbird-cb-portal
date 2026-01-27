@@ -1,5 +1,5 @@
-@import 'ws-vars';
-@import 'ws-mixins';
+@use 'ws-vars';
+@use 'ws-mixins' as *;
 
 // $border-color: #c7c7c7;
 $border-color: #d8d8d8;

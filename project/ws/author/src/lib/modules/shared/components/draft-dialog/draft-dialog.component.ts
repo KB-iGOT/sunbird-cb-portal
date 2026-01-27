@@ -1,26 +1,29 @@
-import { NotificationService } from '@ws/author/src/lib/services/notification.service'
+
 import { ErrorParserComponent } from './../error-parser/error-parser.component'
 import { Component, OnInit, Inject } from '@angular/core'
 import { UntypedFormGroup, UntypedFormBuilder, Validators } from '@angular/forms'
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog'
-import { ISearchContent } from '@ws/author/src/lib/interface/search'
-import { AccessControlService } from '@ws/author/src/lib/modules/shared/services/access-control.service'
-import { ApiService } from '@ws/author/src/lib/modules/shared/services/api.service'
-import { UNPUBLISH, STATUS_CHANGE } from '@ws/author/src/lib/constants/apiEndpoints'
-import { NOTIFICATION_TIME } from '@ws/author/src/lib/constants/constant'
-import { NotificationComponent } from '@ws/author/src/lib/modules/shared/components/notification/notification.component'
-import { Notify } from '@ws/author/src/lib/constants/notificationMessage'
+
+
 import { ValueService } from '@sunbird-cb/utils-v2'
 import { HttpHeaders } from '@angular/common/http'
 import { mergeMap, catchError } from 'rxjs/operators'
 import { of } from 'rxjs'
 import { MatSnackBar } from '@angular/material/snack-bar'
+import { NotificationComponent } from '../../../../../../../../../src/app/home/home/notification/notification.component'
+import { NOTIFICATION_TIME } from '../../../../constants/constant'
+import { Notify } from '../../../../constants/notificationMessage'
+import { NotificationService } from '../../../../services/notification.service'
+import { AccessControlService } from '../../services/access-control.service'
+import { ISearchContent } from '../../../../interface/search'
+import { ApiService } from '../../services/api.service'
+import { STATUS_CHANGE, UNPUBLISH } from '../../../../constants/apiEndpoints'
 
 @Component({
-    selector: 'ws-auth-draft-dialog',
-    templateUrl: './draft-dialog.component.html',
-    styleUrls: ['./draft-dialog.component.scss'],
-    standalone: false
+  selector: 'ws-auth-draft-dialog',
+  templateUrl: './draft-dialog.component.html',
+  styleUrls: ['./draft-dialog.component.scss'],
+  standalone: false
 })
 export class DraftDialogComponent implements OnInit {
   commentsForm!: UntypedFormGroup

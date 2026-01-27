@@ -11,14 +11,14 @@ import _ from 'lodash'
 import { environment } from 'src/environments/environment'
 import { Subscription, timer } from 'rxjs'
 import { Storage } from './SCORMAdapter/storage'
-import { AppTocService } from '@ws/app/src/lib/routes/app-toc/services/app-toc.service'
+import { AppTocService } from '../../../../../app/src/lib/routes/app-toc/services/app-toc.service'
 /* tslint:enable */
 
 @Component({
-    selector: 'viewer-plugin-html',
-    templateUrl: './html.component.html',
-    styleUrls: ['./html.component.scss'],
-    standalone: false
+  selector: 'viewer-plugin-html',
+  templateUrl: './html.component.html',
+  styleUrls: ['./html.component.scss'],
+  standalone: false
 })
 export class HtmlComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild('mobileOpenInNewTab', { read: ElementRef }) mobileOpenInNewTab !: ElementRef<HTMLAnchorElement>

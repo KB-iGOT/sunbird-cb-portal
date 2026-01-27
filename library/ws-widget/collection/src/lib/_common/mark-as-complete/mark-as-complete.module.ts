@@ -11,7 +11,6 @@ import { MatIconModule } from '@angular/material/icon'
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'
 import { MatSnackBarModule } from '@angular/material/snack-bar'
 import { MatTooltipModule } from '@angular/material/tooltip'
-// import { AppTocService } from '@ws/app/src/lib/routes/app-toc/services/app-toc.service'
 
 @NgModule({
     declarations: [MarkAsCompleteComponent, ConfirmDialogComponent],

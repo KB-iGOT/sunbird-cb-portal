@@ -1,4 +1,5 @@
-@import 'ws-vars';
+@use 'ws-vars';
+@use 'ws-mixins' as *;
 
 .horizontal-strip {
     flex-direction: row;
@@ -32,7 +33,7 @@
     }
 }
 
-.kpi-values img{
+.kpi-values img {
     height: 24px;
     width: 24px;
 }

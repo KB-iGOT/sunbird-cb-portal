@@ -1,6 +1,7 @@
-@use '@sunbird-cb/design-system/src/styles/ws-common';
-@use '@sunbird-cb/design-system/src/styles/ws-vars';
-@use '@sunbird-cb/design-system/src/styles/ws-mixins' as *;
+@use 'ws-common';
+@use 'ws-vars';
+@use 'ws-mixins' as *;
+;
 
 .discuss-home-card {
   $card-padding: $size-m;
@@ -60,16 +61,19 @@
   }
 
   .card-main-text-box {
-    overflow: hidden!important;
+    overflow: hidden !important;
   }
-  .card-main-text,  .card-main-text span, .category-text {
+
+  .card-main-text,
+  .card-main-text span,
+  .category-text {
     word-break: break-word;
     white-space: initial;
-   }
+  }
 
-   .mat-card-header-text {
-    margin:0 0 0 16px!important;
-   }
+  .mat-card-header-text {
+    margin: 0 0 0 16px !important;
+  }
 
   .card-img {
     min-width: 269px;
@@ -141,24 +145,22 @@
     padding: 4px 12px;
     width: auto;
     justify-content: space-between;
-    background-color: rgba(0,0,0,.04);
-    border: 1px solid rgba(0,0,0,.08);
+    background-color: rgba(0, 0, 0, .04);
+    border: 1px solid rgba(0, 0, 0, .08);
     box-sizing: border-box;
-}
-
-}
-
-.title-margin
-  {
-    margin-left: -18%;
-    margin-top: -32px;
   }
 
-  .mat-card-header-margin
-  {
-    margin-left: -9%;
-    margin-top: -1%;
-  }
+}
+
+.title-margin {
+  margin-left: -18%;
+  margin-top: -32px;
+}
+
+.mat-card-header-margin {
+  margin-left: -9%;
+  margin-top: -1%;
+}
 
 .mat-card {
   display: flex;
@@ -202,12 +204,11 @@
   margin-left: -20px !important;
 }
 
-.mat-card-sub-title-marign
-{
+.mat-card-sub-title-marign {
   margin-left: -18%;
 }
 
-.mar-16{
+.mar-16 {
   margin-top: -20px;
 }
 

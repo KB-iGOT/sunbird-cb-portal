@@ -1,5 +1,6 @@
-@import 'ws-mixins';
-@import 'ws-vars';
+@use 'ws-mixins' as *;
+@use 'ws-vars';
+@use 'ws-mixins' as *;
 
 %container-padding {
   padding: $size-xl 2 * $size-xl;
@@ -319,12 +320,15 @@ mat-divider {
     text-transform: capitalize;
   }
 }
+
 .compt-table {
   border-spacing: 0px 6px !important;
+
   th {
     background: rgba(0, 0, 0, 0.04);
     font-weight: 700 !important;
   }
+
   td {
     background: #FFFFFF;
   }
@@ -342,22 +346,29 @@ mat-divider {
     border-radius: 4px;
     align-self: center;
     // .datadiv {
-      // margin-left: 60px;
+    // margin-left: 60px;
     // }
 
-    .circle-l-xs, .circle-l-s, .circle-l, .circle-xl, .circle-m, .circle-xxl {
+    .circle-l-xs,
+    .circle-l-s,
+    .circle-l,
+    .circle-xl,
+    .circle-m,
+    .circle-xxl {
       width: 56px !important;
       height: 56px !important;
     }
   }
 }
+
 ::ng-deep.custom-tabgroup .mat-tab-header {
   border: 0 !important;
 }
+
 ::ng-deep.custom-tabgroup .mat-tab-body {
-  padding: 15px 0 220px 0!important;
+  padding: 15px 0 220px 0 !important;
   box-sizing: border-box;
-  overflow-y: initial!important;
+  overflow-y: initial !important;
 
 
   // .mat-tab-body-active {
@@ -366,6 +377,7 @@ mat-divider {
   // }
 
 }
+
 ::ng-deep.custom-tabgroup .mat-tab-body.mat-tab-body-active {
 
   // @include breakpoint-s {
@@ -379,17 +391,19 @@ mat-divider {
 }
 
 ::ng-deep.custom-tabgroup .mat-tab-body-wrapper {
-    overflow: inherit!important;
+  overflow: inherit !important;
 }
 
 
 ::ng-deep.custom-tabgroup .mat-tab-label {
   border-bottom: 2px solid rgba(0, 0, 0, 0.1);
   margin-right: 3%;
+
   .mat-tab-label-content {
     text-transform: uppercase;
   }
 }
+
 ::ng-deep.custom-tabgroup .mat-tab-label-active {
   .mat-tab-label-content {
     font-weight: 700 !important;
@@ -397,7 +411,7 @@ mat-divider {
 }
 
 .rating-comments {
-  height:auto;
+  height: auto;
   max-height: 400px;
   padding: 0 15px 0 0;
   overflow-y: auto;
@@ -408,7 +422,7 @@ mat-divider {
   border: 1px solid #d3d3d3;
 }
 
-.rating-progress{
+.rating-progress {
   width: 100%;
   max-width: 298px;
 }
@@ -416,9 +430,11 @@ mat-divider {
 .bold-imp {
   font-weight: bold !important;
 }
+
 .mb-0 {
   margin-bottom: 0 !important;
 }
+
 .user-card {
   display: flex;
   align-items: center;

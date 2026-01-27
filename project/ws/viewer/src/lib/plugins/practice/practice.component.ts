@@ -33,14 +33,14 @@ import { MatDialog } from '@angular/material/dialog'
 import { MatSidenav } from '@angular/material/sidenav'
 import { MatSnackBar, MatSnackBarConfig as MatSnackBarConfig } from '@angular/material/snack-bar'
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms'
-import { AppTocService } from '@ws/app/src/lib/routes/app-toc/services/app-toc.service'
+import { AppTocService } from '../../../../../app/src/lib/routes/app-toc/services/app-toc.service'
 // import { ViewerDataService } from '../../viewer-data.service'
 export type FetchStatus = 'hasMore' | 'fetching' | 'done' | 'error' | 'none'
 @Component({
-    selector: 'viewer-plugin-practice',
-    templateUrl: './practice.component.html',
-    styleUrls: ['./practice.component.scss'],
-    standalone: false
+  selector: 'viewer-plugin-practice',
+  templateUrl: './practice.component.html',
+  styleUrls: ['./practice.component.scss'],
+  standalone: false
 })
 // ComponentCanDeactivate
 export class PracticeComponent implements OnInit, OnChanges, OnDestroy {

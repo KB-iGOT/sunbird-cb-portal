@@ -1,7 +1,6 @@
 import {
   AfterViewChecked,
   AfterViewInit,
-  ApplicationRef,
   ChangeDetectorRef,
   Component,
   ElementRef,
@@ -34,23 +33,21 @@ import {
   WsEvents,
   NsInstanceConfig,
 } from '@sunbird-cb/utils-v2'
-import { delay, first, catchError, map, filter } from 'rxjs/operators'
+import { delay, catchError, map, filter } from 'rxjs/operators'
 import { MobileAppsService } from '../../services/mobile-apps.service'
 import { RootService } from './root.service'
 import { UrlService } from 'src/app/shared/url.service'
 
 import { CsModule } from '@project-sunbird/client-services'
-import { SwUpdate } from '@angular/service-worker'
-import { environment } from '../../../environments/environment'
 // import { MatDialog } from '@angular/material/dialog'
 // import { DialogConfirmComponent } from '../dialog-confirm/dialog-confirm.component'
-import { concat, interval, of } from 'rxjs'
+import { of } from 'rxjs'
 import { iGOTAIService } from './../../services/igot-ai.service'
 @Component({
   selector: 'ws-root',
   templateUrl: './root.component.html',
   styleUrls: ['./root.component.scss'],
-  providers: [SwUpdate],
+  providers: [],
   standalone: false
 })
 export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
@@ -63,9 +60,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
   constructor(
     private router: Router,
     private route: ActivatedRoute,
-    private appRef: ApplicationRef,
     // private logger: LoggerService,
-    private swUpdate: SwUpdate,
     // private dialog: MatDialog,
     private http: HttpClient,
     // public authSvc: AuthKeycloakService,
@@ -250,7 +245,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
     })
     this.configSvc.updateTourGuideMethod(this.showTour)
     this.route.queryParams
-      .subscribe(_params => {
+      .subscribe((_params: any) => {
         // tslint:disable-next-line
         // console.log(params) // { orderby: "price" }
       }
@@ -267,7 +262,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
     this.btnBackSvc.initialize()
 
     this.router.events.pipe(
-      filter(event => event instanceof NavigationEnd)
+      filter((event: any) => event instanceof NavigationEnd)
     ).subscribe((event: any) => {
       this.prevUrl = this.currUrl
 
@@ -523,7 +518,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
   }
 
   ngAfterViewInit() {
-    this.initAppUpdateCheck()
+    // this.initAppUpdateCheck()
   }
 
   getChildRouteData(snapshot: ActivatedRouteSnapshot, firstChild: ActivatedRouteSnapshot | null) {
@@ -540,43 +535,43 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
 
   initAppUpdateCheck() {
     // this.logger.log('LOGGING IN ROOT FOR PWA INIT CHECK')
-    if (environment.production) {
-      const appIsStable$ = this.appRef.isStable.pipe(
-        first(isStable => isStable),
-      )
-      const everySixHours$ = interval(6 * 60 * 60 * 1000)
-      const everySixHoursOnceAppIsStable$ = concat(appIsStable$, everySixHours$)
-      everySixHoursOnceAppIsStable$.subscribe(() => this.swUpdate.checkForUpdate())
-      if (this.swUpdate?.isEnabled) {
-        // this.swUpdate?.available.subscribe(() => {
-        //   const dialogRef = this.dialog.open(DialogConfirmComponent, {
-        //     data: {
-        //       title: (this.appUpdateTitleRef && this.appUpdateTitleRef.nativeElement.value) || '',
-        //       body: (this.appUpdateBodyRef && this.appUpdateBodyRef.nativeElement.value) || '',
-        //     },
-        //   })
-        //   dialogRef.afterClosed().subscribe(
-        //     result => {
-        //       if (result) {
-        //         this.swUpdate.activateUpdate().then(() => {
-        //           if ('caches' in window) {
-        //             caches.keys()
-        //               .then(keyList => {
-        //                 timer(2000).subscribe(
-        //                   _ => window.location.reload(),
-        //                 )
-        //                 return Promise.all(keyList.map(key => {
-        //                   return caches.delete(key)
-        //                 }))
-        //               })
-        //           }
-        //         })
-        //       }
-        //     },
-        //   )
-        // })
-      }
-    }
+    // if (environment.production) {
+    //   const appIsStable$ = this.appRef.isStable.pipe(
+    //     first(isStable => isStable),
+    //   )
+    //   const everySixHours$ = interval(6 * 60 * 60 * 1000)
+    //   const everySixHoursOnceAppIsStable$ = concat(appIsStable$, everySixHours$)
+    //   everySixHoursOnceAppIsStable$.subscribe(() => this.swUpdate.checkForUpdate())
+    //   if (this.swUpdate?.isEnabled) {
+    //     // this.swUpdate?.available.subscribe(() => {
+    //     //   const dialogRef = this.dialog.open(DialogConfirmComponent, {
+    //     //     data: {
+    //     //       title: (this.appUpdateTitleRef && this.appUpdateTitleRef.nativeElement.value) || '',
+    //     //       body: (this.appUpdateBodyRef && this.appUpdateBodyRef.nativeElement.value) || '',
+    //     //     },
+    //     //   })
+    //     //   dialogRef.afterClosed().subscribe(
+    //     //     result => {
+    //     //       if (result) {
+    //     //         this.swUpdate.activateUpdate().then(() => {
+    //     //           if ('caches' in window) {
+    //     //             caches.keys()
+    //     //               .then(keyList => {
+    //     //                 timer(2000).subscribe(
+    //     //                   _ => window.location.reload(),
+    //     //                 )
+    //     //                 return Promise.all(keyList.map(key => {
+    //     //                   return caches.delete(key)
+    //     //                 }))
+    //     //               })
+    //     //           }
+    //     //         })
+    //     //       }
+    //     //     },
+    //     //   )
+    //     // })
+    //   }
+    // }
   }
 
   getTourGuide() {
@@ -592,8 +587,8 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
     const baseUrl = this.configSvc.sitePath
     // tslint:disable-next-line: prefer-template
     return this.http.get(baseUrl + '/page/right-nav-config.json').pipe(
-      map(data => ({ data, error: null })),
-      catchError(err => of({ data: null, error: err })),
+      map((data: any) => ({ data, error: null })),
+      catchError((err: any) => of({ data: null, error: err })),
     )
   }
 

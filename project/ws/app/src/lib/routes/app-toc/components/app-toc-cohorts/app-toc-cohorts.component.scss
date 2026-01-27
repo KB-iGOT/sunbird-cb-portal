@@ -1,4 +1,5 @@
-@import 'ws-vars';
+@use 'ws-vars';
+@use 'ws-mixins' as *;
 
 .cohorts-head {
   padding: $size-xs $size-l;

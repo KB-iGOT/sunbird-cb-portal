@@ -12,7 +12,7 @@ import {
   WidgetContentService,
 } from '@sunbird-cb/collection'
 import { TFetchStatus, UtilityService, ConfigurationsService, LoggerService, WsEvents, EventService, MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
-import { ConfirmDialogComponent } from '@sunbird-cb/collection/src/lib/_common/confirm-dialog/confirm-dialog.component'
+import { ConfirmDialogComponent } from '@sunbird-cb/collection'
 import { AccessControlService } from '@ws/author'
 import { Subscription } from 'rxjs'
 import { NsAnalytics } from '../../models/app-toc-analytics.model'
@@ -46,11 +46,11 @@ dayjs.extend(isSameOrBefore)
 dayjs.extend(isSameOrAfter)
 
 @Component({
-    selector: 'ws-app-toc-banner',
-    templateUrl: './app-toc-banner.component.html',
-    styleUrls: ['./app-toc-banner.component.scss'],
-    providers: [AccessControlService, DatePipe],
-    standalone: false
+  selector: 'ws-app-toc-banner',
+  templateUrl: './app-toc-banner.component.html',
+  styleUrls: ['./app-toc-banner.component.scss'],
+  providers: [AccessControlService, DatePipe],
+  standalone: false
 })
 
 export class AppTocBannerComponent implements OnInit, OnChanges, OnDestroy {

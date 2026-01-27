@@ -24,7 +24,6 @@ import { delay } from 'rxjs/operators'
 import { ViewerDataService } from '../../viewer-data.service'
 import { ViewerUtilService } from '../../viewer-util.service'
 import { MatTreeNestedDataSource } from '@angular/material/tree'
-// import { AppTocService } from '@ws/app/src/lib/routes/app-toc/services/app-toc.service'
 export interface IViewerTocCard {
   identifier: string
   viewerUrl: string
@@ -59,10 +58,10 @@ interface ICollectionCard {
 }
 
 @Component({
-    selector: 'viewer-viewer-toc',
-    templateUrl: './viewer-toc.component.html',
-    styleUrls: ['./viewer-toc.component.scss'],
-    standalone: false
+  selector: 'viewer-viewer-toc',
+  templateUrl: './viewer-toc.component.html',
+  styleUrls: ['./viewer-toc.component.scss'],
+  standalone: false
 })
 export class ViewerTocComponent implements OnInit, OnDestroy {
   @Output() hidenav = new EventEmitter<boolean>()
@@ -415,7 +414,7 @@ export class ViewerTocComponent implements OnInit, OnDestroy {
     _collectionType: string,
   ): Promise<IViewerTocCard | null> {
     try {
-      let content: NsContent.IContentResponse | NsContent.IContent
+      let content: any
       if (collectionId) {
         if (this.hierarchyData) {
           content = this.hierarchyData
@@ -484,7 +483,7 @@ export class ViewerTocComponent implements OnInit, OnDestroy {
     _collectionType: string,
   ): Promise<IViewerTocCard | null> {
     try {
-      const playlistFetchResponse = await this.contentSvc
+      const playlistFetchResponse: any = await this.contentSvc
         .fetchCollectionHierarchy('playlist', collectionId, 0, 1000)
         .toPromise()
 

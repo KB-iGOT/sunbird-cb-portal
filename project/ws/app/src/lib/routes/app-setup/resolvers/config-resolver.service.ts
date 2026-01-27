@@ -1,10 +1,9 @@
 import { Injectable } from '@angular/core'
 import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router'
 import { EMPTY, Observable } from 'rxjs'
-import { NsInstanceConfig } from '@sunbird-cb/utils-v2'
 
 @Injectable()
-export class ConfigurationsService111  {
+export class ConfigurationsService111 {
 
   constructor() { }
 

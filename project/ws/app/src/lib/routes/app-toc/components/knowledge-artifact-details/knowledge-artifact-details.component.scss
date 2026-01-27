@@ -1,9 +1,10 @@
-@import 'ws-vars';
-@import 'ws-mixins';
+@use 'ws-vars';
+@use 'ws-mixins' as *;
 
 
 %container-padding {
   padding: $size-xl 2 * $size-xl;
+
   @include breakpoint-xs {
     padding: $size-m $size-l;
   }
@@ -30,10 +31,11 @@
   }
 }
 
-.resDescription{
-    font-size: 16px;
-    line-height: 23px;
+.resDescription {
+  font-size: 16px;
+  line-height: 23px;
 }
+
 .topic-button {
   display: block;
   width: 32%;
@@ -44,9 +46,10 @@
   }
 }
 
-.shareBtn{
+.shareBtn {
   border-radius: 6px;
 }
+
 .info-section {
   width: 28%;
   min-width: 250px;
@@ -70,23 +73,26 @@
   }
 }
 
-@media only screen and (min-width:600px){
-  .toc-discussion-container-sm{
+@media only screen and (min-width:600px) {
+  .toc-discussion-container-sm {
     display: none;
   }
-  .info-section{
+
+  .info-section {
     padding-left: 50px;
   }
 }
 
-@media only screen and (max-width:599px){
-  .toc-discussion-container{
+@media only screen and (max-width:599px) {
+  .toc-discussion-container {
     display: none;
   }
-  .info-section{
+
+  .info-section {
     padding-top: 30px;
   }
 }
+
 .greyOut {
   filter: grayscale(1);
   opacity: 0.7;

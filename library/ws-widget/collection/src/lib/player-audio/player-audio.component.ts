@@ -21,7 +21,7 @@ import {
 import { WidgetContentService } from '../_services/widget-content.service'
 import { NsContent } from '../_services/widget-content.model'
 import { ActivatedRoute } from '@angular/router'
-import { ViewerUtilService } from '@ws/viewer/src/lib/viewer-util.service'
+import { ViewerUtilService } from '@ws/viewer'
 
 const videoJsOptions: videoJs.PlayerOptions = {
   controls: true,
@@ -43,10 +43,10 @@ const videoJsOptions: videoJs.PlayerOptions = {
 }
 
 @Component({
-    selector: 'ws-widget-player-audio',
-    templateUrl: './player-audio.component.html',
-    styleUrls: ['./player-audio.component.scss'],
-    standalone: false
+  selector: 'ws-widget-player-audio',
+  templateUrl: './player-audio.component.html',
+  styleUrls: ['./player-audio.component.scss'],
+  standalone: false
 })
 export class PlayerAudioComponent extends WidgetBaseComponent
   implements OnInit, AfterViewInit, OnDestroy, NsWidgetResolver.IWidgetData<any> {
@@ -79,7 +79,7 @@ export class PlayerAudioComponent extends WidgetBaseComponent
     if (this.widgetData.url) {
       this.initializePlayer()
     }
-    const audioTag: any =   document.getElementsByTagName('audio')[0]
+    const audioTag: any = document.getElementsByTagName('audio')[0]
     if (audioTag) {
       audioTag.onended = () => {
         this.audioEnd = true
@@ -96,23 +96,23 @@ export class PlayerAudioComponent extends WidgetBaseComponent
 
         }
         let counter = 1
-        this.timerInterval =   setInterval(() => {
-            if (counter <= 5) {
-                this.updateProgress(counter)
+        this.timerInterval = setInterval(() => {
+          if (counter <= 5) {
+            this.updateProgress(counter)
+          }
+          if (counter > 5) {
+            if (audioTag) {
+              audioTag.style.filter = 'blur(0px)'
             }
-            if (counter > 5) {
-              if (audioTag) {
-                audioTag.style.filter = 'blur(0px)'
-              }
-              if (autoPlayAudio) {
-                autoPlayAudio.style.opacity = '1'
-              }
-              counter = 0
-              this.clearTimeInterval()
-              this.viewerSvc.autoPlayNextAudio.next(true)
+            if (autoPlayAudio) {
+              autoPlayAudio.style.opacity = '1'
             }
-            counter = counter + 1
-          },                               1000)
+            counter = 0
+            this.clearTimeInterval()
+            this.viewerSvc.autoPlayNextAudio.next(true)
+          }
+          counter = counter + 1
+        }, 1000)
 
       }
     }
@@ -183,11 +183,11 @@ export class PlayerAudioComponent extends WidgetBaseComponent
     }
     const fireRProgress: fireRealTimeProgressFunction = (identifier, data) => {
       const resData = this.viewerSvc.getBatchIdAndCourseId(this.activatedRoute.snapshot.queryParams.collectionId,
-                                                           this.activatedRoute.snapshot.queryParams.batchId, identifier)
+        this.activatedRoute.snapshot.queryParams.batchId, identifier)
       const collectionId = (resData && resData.courseId) ? resData.courseId : ''
       const isPreAssessment = this.activatedRoute.snapshot.queryParams.preAssessment
       const batchId = (resData && resData.batchId) ? resData.batchId : ''
-      if(isPreAssessment) {
+      if (isPreAssessment) {
         if (this.widgetData.identifier && identifier && data && collectionId) {
           this.viewerSvc
             .realTimeProgressUpdateForPreAssessment(identifier, data)
@@ -198,7 +198,7 @@ export class PlayerAudioComponent extends WidgetBaseComponent
             .realTimeProgressUpdate(identifier, data, collectionId, batchId)
         }
       }
-      
+
     }
     let enableTelemetry = false
     if (!this.widgetData.disableTelemetry && typeof (this.widgetData.disableTelemetry) !== 'undefined') {
@@ -240,7 +240,7 @@ export class PlayerAudioComponent extends WidgetBaseComponent
     })
   }
   async fetchContent() {
-    const content = await this.contentSvc.fetchContent(this.widgetData.identifier || '', 'minimal').toPromise()
+    const content: any = await this.contentSvc.fetchContent(this.widgetData.identifier || '', 'minimal').toPromise()
     if (content.artifactUrl && content.artifactUrl.indexOf('/content-store/') > -1) {
       this.widgetData.url = content.artifactUrl
       const url = this.viewerSvc.getPublicUrl(content.posterImage || content.appIcon)

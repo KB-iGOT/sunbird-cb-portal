@@ -9,7 +9,7 @@ import { IWidgetsPlayerMediaData } from '../_models/player-media.model'
 import { fireRealTimeProgressFunction, saveContinueLearningFunction, telemetryEventDispatcherFunction, videoJsInitializer, youtubeInitializer } from '../_services/videojs-util'
 import { NsContent } from '../_services/widget-content.model'
 import { WidgetContentService } from '../_services/widget-content.service'
-import { ViewerUtilService } from '@ws/viewer/src/lib/viewer-util.service'
+import { ViewerUtilService } from '@ws/viewer'
 interface IYTOptions extends videoJs.PlayerOptions {
   youtube: {
     ytControls: 0 | 1 | 2
@@ -44,10 +44,10 @@ const videoJsOptions: IYTOptions = {
 }
 
 @Component({
-    selector: 'ws-widget-player-youtube',
-    templateUrl: './player-youtube.component.html',
-    styleUrls: ['./player-youtube.component.scss'],
-    standalone: false
+  selector: 'ws-widget-player-youtube',
+  templateUrl: './player-youtube.component.html',
+  styleUrls: ['./player-youtube.component.scss'],
+  standalone: false
 })
 export class PlayerYoutubeComponent extends WidgetBaseComponent
   implements OnInit, AfterViewInit, OnDestroy, NsWidgetResolver.IWidgetData<any> {
@@ -146,7 +146,7 @@ export class PlayerYoutubeComponent extends WidgetBaseComponent
     }
     const fireRProgress: fireRealTimeProgressFunction = (identifier, data) => {
       const isPreAssessment = this.activatedRoute.snapshot.queryParams.preAssessment
-      if(isPreAssessment) {
+      if (isPreAssessment) {
         if (this.widgetData.identifier && identifier && data) {
           this.viewerSvc
             .realTimeProgressUpdateForPreAssessment(identifier, data)
@@ -222,7 +222,7 @@ export class PlayerYoutubeComponent extends WidgetBaseComponent
     }
     const fireRProgress: fireRealTimeProgressFunction = (identifier, data) => {
       const resData = this.viewerSvc.getBatchIdAndCourseId(this.activatedRoute.snapshot.queryParams.collectionId,
-                                                           this.activatedRoute.snapshot.queryParams.batchId, identifier)
+        this.activatedRoute.snapshot.queryParams.batchId, identifier)
       const collectionId = (resData && resData.courseId) ? resData.courseId : ''
       const batchId = (resData && resData.batchId) ? resData.batchId : ''
       const isPreAssessment = this.activatedRoute.snapshot.queryParams.preAssessment
@@ -230,16 +230,16 @@ export class PlayerYoutubeComponent extends WidgetBaseComponent
       //   this.activatedRoute.snapshot.queryParams.collectionId : this.widgetData.identifier
       // const batchId = this.activatedRoute.snapshot.queryParams.batchId ?
       //   this.activatedRoute.snapshot.queryParams.batchId : this.widgetData.identifier
-      if(isPreAssessment) {
+      if (isPreAssessment) {
         if (this.widgetData.identifier && identifier && data && collectionId && batchId) {
           this.viewerSvc
             .realTimeProgressUpdateForPreAssessment(identifier, data)
         }
-      } else 
-      if (this.widgetData.identifier && identifier && data && collectionId && batchId) {
-        this.viewerSvc
-          .realTimeProgressUpdate(identifier, data, collectionId, batchId)
-      }
+      } else
+        if (this.widgetData.identifier && identifier && data && collectionId && batchId) {
+          this.viewerSvc
+            .realTimeProgressUpdate(identifier, data, collectionId, batchId)
+        }
     }
     let enableTelemetry = false
     if (!this.widgetData.disableTelemetry && typeof (this.widgetData.disableTelemetry) !== 'undefined') {

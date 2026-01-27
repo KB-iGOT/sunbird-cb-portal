@@ -1,4 +1,5 @@
-@import 'ws-vars';
+@use 'ws-vars';
+@use 'ws-mixins' as *;
 
 .negative-margin-left-xxs {
   margin-left: -4px !important;

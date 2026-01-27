@@ -1,4 +1,5 @@
-@import 'ws-vars';
+@use 'ws-vars';
+@use 'ws-mixins' as *;
 
 .customicon {
   position: absolute;
@@ -15,7 +16,7 @@ span.optional-span {
   margin-left: 8px;
   padding: 0px 6px;
   border-radius: 2px 2px;
-  display:inline-block;
+  display: inline-block;
   background-color: #0074b6;
   color: #fff;
   font-size: 12px;
@@ -42,7 +43,7 @@ span.optional-span {
 
   @media only screen and (max-width:469px) {
     flex-direction: column;
-    margin: $size-xs $size-xs $size-xs*2 $size-xs  !important;
+    margin: $size-xs $size-xs $size-xs*2 $size-xs !important;
     align-items: flex-start !important;
 
     .card-thumbnail {
@@ -88,7 +89,7 @@ span.optional-span {
 
   @media only screen and (max-width:469px) {
     flex-direction: column;
-    margin: $size-xs $size-xs $size-xs*2 $size-xs  !important;
+    margin: $size-xs $size-xs $size-xs*2 $size-xs !important;
     align-items: flex-start !important;
 
     .card-thumbnail {
@@ -301,7 +302,7 @@ span.optional-span {
 
 .download-link {
   opacity: 1;
-  color: rgba(0,116,182,1);
+  color: rgba(0, 116, 182, 1);
   font-size: 14px;
   font-weight: 700;
   font-style: normal;
@@ -309,6 +310,7 @@ span.optional-span {
   line-height: 20px;
   text-transform: uppercase;
 }
+
 // @media only screen and (max-width:469px) {
 // .children-container {
 // margin: $size-s 0 $size-m $size-s;

@@ -7,41 +7,41 @@ import {
 } from '@angular/router'
 import { Subscription } from 'rxjs'
 import { TFetchStatus, IResolveResponse } from '@sunbird-cb/utils-v2'
-import {
-  ILeaderboard,
-  IHallOfFameItem,
-  EDurationTypeRouteParam,
-  ILeaderboardPrevNext,
-} from '../../../../routes/leaderboard/models/leaderboard.model'
-import { LeaderboardService } from '../../../../routes/leaderboard/services/leaderboard.service'
+// import {
+//   ILeaderboard,
+//   IHallOfFameItem,
+//   EDurationTypeRouteParam,
+//   ILeaderboardPrevNext,
+// } from '../../../../routes/leaderboard/models/leaderboard.model'
+// import { LeaderboardService } from '../../../../routes/leaderboard/services/leaderboard.service'
 
 @Component({
-    selector: 'ws-app-leaderboard',
-    templateUrl: './leaderboard.component.html',
-    styleUrls: ['./leaderboard.component.scss'],
-    standalone: false
+  selector: 'ws-app-leaderboard',
+  templateUrl: './leaderboard.component.html',
+  styleUrls: ['./leaderboard.component.scss'],
+  standalone: false
 })
 export class LeaderboardComponent implements OnInit, OnDestroy {
   private routerSub!: Subscription
   private routeDataSub!: Subscription
   private routeUrlSub!: Subscription
-  leaderboard!: ILeaderboard
+  leaderboard!: any
   leaderboardError!: string
-  hallOfFame!: IHallOfFameItem[]
-  durationType!: EDurationTypeRouteParam
+  hallOfFame!: any[]
+  durationType!: any
   fetchStatus: TFetchStatus
 
   constructor(
     private route: ActivatedRoute,
     private router: Router,
-    private leaderboardSvc: LeaderboardService,
+    private leaderboardSvc: any,
   ) {
     this.fetchStatus = 'none'
   }
 
   ngOnInit() {
     this.routeDataSub = this.route.data.subscribe(data => {
-      const leaderboardResolve = data.leaderboardResolve as IResolveResponse<ILeaderboard>
+      const leaderboardResolve = data.leaderboardResolve as IResolveResponse<any>
 
       if (leaderboardResolve.data) {
         this.leaderboard = leaderboardResolve.data
@@ -61,7 +61,7 @@ export class LeaderboardComponent implements OnInit, OnDestroy {
     })
 
     this.routeUrlSub = this.route.url.subscribe(url => {
-      this.durationType = url[url.length - 1].path as EDurationTypeRouteParam
+      this.durationType = url[url.length - 1].path as any
     })
   }
 
@@ -79,16 +79,16 @@ export class LeaderboardComponent implements OnInit, OnDestroy {
     }
   }
 
-  fetchPrevNextLeaderboard(prevNext: ILeaderboardPrevNext) {
+  fetchPrevNextLeaderboard(prevNext: any) {
     const url = this.route.snapshot.url
-    const tab: EDurationTypeRouteParam = url[url.length - 1].path as EDurationTypeRouteParam
+    const tab: any = url[url.length - 1].path as any
     this.fetchLeaderboard(tab, prevNext)
   }
 
-  private fetchLeaderboard(tab: EDurationTypeRouteParam, prevNext?: ILeaderboardPrevNext) {
+  private fetchLeaderboard(tab: any, prevNext?: any) {
     this.fetchStatus = 'fetching'
     this.leaderboardSvc.getLeaderboard(tab, prevNext).subscribe(
-      (lb: ILeaderboard) => {
+      (lb: any) => {
         this.leaderboard = lb
         this.fetchStatus = 'done'
       },

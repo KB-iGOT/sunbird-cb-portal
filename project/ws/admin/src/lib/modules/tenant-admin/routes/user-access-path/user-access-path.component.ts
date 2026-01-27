@@ -1,10 +1,13 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core'
 import { FormControl, FormBuilder, FormGroup } from '@angular/forms'
-import { MatSnackBar, MatAutocompleteSelectedEvent, MatChipInputEvent } from '@angular/material'
+
 // import { debounceTime, filter } from 'rxjs/operators'
 import { TenantAdminService } from '../../tenant-admin.service'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { debounceTime, filter } from 'rxjs/operators'
+import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete'
+import { MatChipInputEvent } from '@angular/material/chips'
+import { MatSnackBar } from '@angular/material/snack-bar'
 
 @Component({
   selector: 'ws-admin-user-access-path',

@@ -1,4 +1,4 @@
-import { ConfirmDialogComponent } from '@ws/author/src/lib/modules/shared/components/confirm-dialog/confirm-dialog.component'
+
 import { IWidgetAuthor } from './../../../interface/widget'
 import { ChannelStoreService } from './../../../services/store.service'
 import { ChannelResolverService } from './../../../services/resolver.service'
@@ -10,16 +10,19 @@ import {
   ViewChild,
   ElementRef,
 } from '@angular/core'
-import { MatSnackBar, MatDialog } from '@angular/material'
-import { NotificationComponent } from '@ws/author/src/lib/modules/shared/components/notification/notification.component'
-import { Notify } from '@ws/author/src/lib/constants/notificationMessage'
-import { NOTIFICATION_TIME } from '@ws/author/src/lib/constants/constant'
+
+import { MatDialog } from '@angular/material/dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
+import { NOTIFICATION_TIME } from '../../../../../../../../../constants/constant'
+import { Notify } from '../../../../../../../../../constants/notificationMessage'
+import { ConfirmDialogComponent } from '../../../../../../../../../modules/shared/components/confirm-dialog/confirm-dialog.component'
+import { NotificationComponent } from '../../../../../../../../../modules/shared/components/notification/notification.component'
 
 @Component({
-    selector: 'ws-auth-renderer',
-    templateUrl: './renderer.component.html',
-    styleUrls: ['./renderer.component.scss'],
-    standalone: false
+  selector: 'ws-auth-renderer',
+  templateUrl: './renderer.component.html',
+  styleUrls: ['./renderer.component.scss'],
+  standalone: false
 })
 export class RendererComponent implements OnInit, OnChanges {
 
@@ -84,18 +87,18 @@ export class RendererComponent implements OnInit, OnChanges {
       this.widgetData.children.map(
         v => {
           switch (this.store.getUpdatedContent(v).purpose) {
-          case 'noDataWidget':
-            this.widgetMap.noData = v
-            break
-          case 'info':
-            this.widgetMap.info = v
-            break
-          case 'errorWidget':
-            this.widgetMap.error = v
-            break
-          default:
-            this.widgetMap.widgets.push(v)
-            break
+            case 'noDataWidget':
+              this.widgetMap.noData = v
+              break
+            case 'info':
+              this.widgetMap.info = v
+              break
+            case 'errorWidget':
+              this.widgetMap.error = v
+              break
+            default:
+              this.widgetMap.widgets.push(v)
+              break
           }
         },
       )

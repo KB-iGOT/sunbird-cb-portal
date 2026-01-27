@@ -1,14 +1,14 @@
 import { Component, OnInit, Output, EventEmitter } from '@angular/core'
 import { TFetchStatus, ConfigurationsService } from '@sunbird-cb/utils-v2'
-import { MatSelectChange } from '@angular/material'
+import { MatSelectChange } from '@angular/material/select'
 import { GamificationService } from '../../../../services/gamification.service'
 import { ExcelService } from '../excel.service'
 
 @Component({
-    selector: 'ws-app-admin',
-    templateUrl: './admin.component.html',
-    styleUrls: ['./admin.component.scss'],
-    standalone: false
+  selector: 'ws-app-admin',
+  templateUrl: './admin.component.html',
+  styleUrls: ['./admin.component.scss'],
+  standalone: false
 })
 export class AdminComponent implements OnInit {
   query!: any

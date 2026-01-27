@@ -1,25 +1,25 @@
-import { AuthInitService } from '@ws/author/src/lib/services/init.service'
+
 import { Component, OnDestroy, OnInit } from '@angular/core'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { ActivatedRoute, NavigationStart, Router } from '@angular/router'
-import { NOTIFICATION_TIME } from '@ws/author/src/lib/constants/constant'
-import { Notify } from '@ws/author/src/lib/constants/notificationMessage'
-import { NSContent } from '@ws/author/src/lib/interface/content'
-import { NotificationComponent } from '@ws/author/src/lib/modules/shared/components/notification/notification.component'
-import { EditorContentV2Service } from '@ws/author/src/lib/routing/modules/editor/services/editor-content-v2.service'
-import { EditorContentService } from '@ws/author/src/lib/routing/modules/editor/services/editor-content.service'
+import { NOTIFICATION_TIME } from '../../../../../../lib/constants/constant'
+import { Notify } from '../../../../../../lib/constants/notificationMessage'
+import { NotificationComponent } from '../../../../../../lib/modules/shared/components/notification/notification.component'
+import { EditorContentV2Service } from '../../../../../../lib/routing/modules/editor/services/editor-content-v2.service'
+import { EditorContentService } from '../../../../../../lib/routing/modules/editor/services/editor-content.service'
 import { Subscription } from 'rxjs'
 import { filter } from 'rxjs/operators'
 import { MatDialog } from '@angular/material/dialog'
 import { ValueService } from '@sunbird-cb/utils-v2'
 import { StatusTrackComponent } from '../../../../../modules/shared/components/status-track/status-track.component'
+import { AuthInitService } from '../../../../../services/init.service'
 
 @Component({
-    selector: 'ws-auth-root-editor',
-    templateUrl: './editor.component.html',
-    styleUrls: ['./editor.component.scss'],
-    providers: [EditorContentService, EditorContentV2Service],
-    standalone: false
+  selector: 'ws-auth-root-editor',
+  templateUrl: './editor.component.html',
+  styleUrls: ['./editor.component.scss'],
+  providers: [EditorContentService, EditorContentV2Service],
+  standalone: false
 })
 export class EditorComponent implements OnInit, OnDestroy {
   routerSubscription!: Subscription
@@ -65,7 +65,7 @@ export class EditorComponent implements OnInit, OnDestroy {
     // let hasAccess = false
     this.routerSubscription = await this.router.data.subscribe(data => {
       if (data.contents && data.contents.result && Object.keys(data.contents.result).length > 0) {
-        const contents: { content: NSContent.IContentMeta; data: any }[] = [data.contents.result]
+        const contents: any[] = [data.contents.result]
         // hasAccess = this.contentService.hasAccess(contents[0].content)
         if (
           ['Deleted', 'Unpublished', 'Expired', 'MarkedForDeletion'].includes(
@@ -91,7 +91,7 @@ export class EditorComponent implements OnInit, OnDestroy {
         //   this.route.navigateByUrl('/author/home')
         //   return
         // }
-        contents.map(v => {
+        contents.map((v: any) => {
           if (
             this.contentService.hasAccess(v.content) &&
             !['Deleted', 'Unpublished', 'Expired'].includes(v.content.status) // && !v.content.isMetaEditingDisabled

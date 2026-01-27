@@ -1,9 +1,9 @@
-@import 'ws-common';
-@import 'ws-vars';
-@import 'ws-mixins';
+@use 'ws-common';
+@use 'ws-vars';
+@use 'ws-mixins' as *;
 
 .container-balanced {
-  @extend %page-center;
+  // @include page-center;;
   height: auto;
   min-height: 400px;
 }
@@ -35,10 +35,7 @@
 
 @media screen and (min-width: 820px) and (max-width: 1232px) {
   .container-balanced {
-    @extend %page-center;
-    height: auto;
-    min-height: 400px;
+    @include ws-common.page-center;
     max-width: calc(100vw - 100px) !important;
   }
 }
-

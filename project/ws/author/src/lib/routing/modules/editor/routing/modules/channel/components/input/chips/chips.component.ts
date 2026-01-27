@@ -13,17 +13,17 @@ import {
 } from '@angular/core'
 import { MatChipInputEvent } from '@angular/material/chips'
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop'
-import { NotificationComponent } from '@ws/author/src/lib/modules/shared/components/notification/notification.component'
-import { NOTIFICATION_TIME } from '@ws/author/src/lib/constants/constant'
 import { MatSnackBar } from '@angular/material/snack-bar'
-import { Notify } from '@ws/author/src/lib/constants/notificationMessage'
-import { ISortEvent } from '../../../../../../../../../directives/draggable/sortable-list.directive'
+import { ISortEvent } from '../../../../../../../../../modules/shared/directives/draggable/sortable-list.directive'
+import { NotificationComponent } from '../../../../../../../../../modules/shared/components/notification/notification.component'
+import { NOTIFICATION_TIME } from '../../../../../../../../../constants/constant'
+import { Notify } from '../../../../../../../../../constants/notificationMessage'
 
 @Component({
-    selector: 'ws-auth-chips',
-    templateUrl: './chips.component.html',
-    styleUrls: ['./chips.component.scss'],
-    standalone: false
+  selector: 'ws-auth-chips',
+  templateUrl: './chips.component.html',
+  styleUrls: ['./chips.component.scss'],
+  standalone: false
 })
 export class ChipsComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('copyText', { static: true }) copyText!: ElementRef<any>

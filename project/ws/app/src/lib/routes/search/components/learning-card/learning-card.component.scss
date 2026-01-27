@@ -1,5 +1,6 @@
-@import 'ws-common';
-@import 'ws-vars';
+@use 'ws-common';
+@use 'ws-vars';
+@use 'ws-mixins' as *;
 
 .app-icon-holder {
   width: 150px;

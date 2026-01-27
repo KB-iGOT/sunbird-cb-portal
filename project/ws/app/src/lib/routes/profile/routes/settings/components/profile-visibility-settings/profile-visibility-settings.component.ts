@@ -7,10 +7,10 @@ import { TranslateService } from '@ngx-translate/core'
 import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 
 @Component({
-    selector: 'ws-app-profile-visibility-settings',
-    templateUrl: './profile-visibility-settings.component.html',
-    styleUrls: ['./profile-visibility-settings.component.scss'],
-    standalone: false
+  selector: 'ws-app-profile-visibility-settings',
+  templateUrl: './profile-visibility-settings.component.html',
+  styleUrls: ['./profile-visibility-settings.component.scss'],
+  standalone: false
 })
 export class ProfileVisibilitySettingsComponent implements OnInit {
   // Holds the selected visibility value
@@ -45,7 +45,7 @@ export class ProfileVisibilitySettingsComponent implements OnInit {
   }
 
   getUserDetails() {
-    const userId = _.get(this.configSvc, 'userProfileV2.userId')
+    const userId = _.get(this.configSvc, 'userProfileV2.userId', '')
     this.settingsService.fetchProfile(userId).subscribe({
       next: (response) => {
         const visibilityStatus = _.get(response, 'result.response.profileDetails.profilePreference', 0)

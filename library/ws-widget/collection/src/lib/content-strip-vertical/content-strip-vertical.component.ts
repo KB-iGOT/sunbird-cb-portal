@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, OnDestroy } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { ContentStripVerticalService } from './content-strip-vertical.service'
 import { WidgetContentService } from '../_services/widget-content.service'
 import { NsContent } from '../_services/widget-content.model'
@@ -12,7 +12,7 @@ import {
 } from '@sunbird-cb/utils-v2'
 import { Subscription } from 'rxjs'
 import { filter } from 'rxjs/operators'
-import { SearchServService } from '@ws/app/src/lib/routes/search/services/search-serv.service'
+import { SearchServService } from '@ws/app'
 import { NsContentStripVertical } from './content-strip-vertical.model'
 
 interface IStripUnitContentData {
@@ -36,10 +36,10 @@ interface IStripUnitContentData {
   } | null
 }
 @Component({
-    selector: 'ws-widget-content-strip-vertical',
-    templateUrl: './content-strip-vertical.component.html',
-    styleUrls: ['./content-strip-vertical.component.scss'],
-    standalone: false
+  selector: 'ws-widget-content-strip-vertical',
+  templateUrl: './content-strip-vertical.component.html',
+  styleUrls: ['./content-strip-vertical.component.scss'],
+  standalone: false
 })
 export class ContentStripVerticalComponent extends WidgetBaseComponent
   implements

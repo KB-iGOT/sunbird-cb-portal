@@ -178,7 +178,10 @@ export * from './lib/selector-responsive/selector-responsive.model'
 export * from './lib/selector-responsive/selector-responsive.module'
 export * from './lib/sliders-mob/sliders-mob.module'
 export * from './lib/sliders/sliders.model'
-export * from './lib/sliders/sliders.module'
+// public-api.ts
+export { SlidersModule, MyHammerConfig }
+  from './lib/sliders/sliders.module'
+
 export * from './lib/tree-catalog/tree-catalog.module'
 export * from './lib/tree-catalog/tree-catalog.service'
 export * from './lib/tree/tree.model'
@@ -273,5 +276,48 @@ export * from './lib/_common/content-toc/karma-points/karma-points.module'
 export * from './lib/_common/content-toc/karma-points/karma-points.component'
 export * from './lib/_services/pre-assessment-viewer-route-utils.service'
 
-export { WIDGET_REGISTRATION_CONFIG } from './lib/registration.config'
-export { WIDGET_REGISTERED_MODULES } from './lib/registration.config'
+
+export * from './lib/_common/skeleton-loader/skeleton-loader.module'
+export * from './lib/_common/confirm-dialog/confirm-dialog.module'
+
+export * from './lib/grid-layout/nps-grid.service'
+
+export * from './lib/_common/confirm-dialog/confirm-dialog.component'
+export * from './lib/intranet-selector/intranet-selector.model'
+
+export * from './lib/_common/weekly-claps/weekly-claps.module'
+export * from './lib/_common/update-posts/update-posts.module'
+export * from './lib/_common/recent-requests/recent-requests.module'
+export * from './lib/_common/pending-request/pending-request.module'
+export * from './lib/_common/profile-card-stats/profile-card-stats.module'
+export * from './lib/_common/user-leaderboard/user-leaderboard.module'
+export * from './lib/_common/discussions/discussions.module'
+export * from './lib/_common/certificate-dialog/certificate-dialog.component'
+export * from './lib/_common/content-toc/content-services/handle-claim.service'
+
+export * from './lib/card-content-v2/card-content-v2.model'
+
+export * from './lib/_common/connection-hover-card/connection-hover.servive'
+
+export * from './lib/_common/content-toc/toc-kpi-values/toc-kpi-values.module'
+export * from './lib/card-content-v2/card-content-v2.module'
+export * from './lib/_common/certificate-dialog/certificate-dialog.module'
+
+export * from './lib/content-assign/content-assign.model'
+
+export * from './lib/content-strip-with-tabs/content-strip-with-tabs.model'
+
+export * from './lib/event-card-v2/event-card-v2.module'
+
+export * from './lib/sliders-dynamic/sliders-dynamic.module'
+
+export * from './lib/_common/pagination/pagination.module'
+
+export * from './lib/_common/non-relevent-feedback-dialog/non-relevent-feedback-dialog.module'
+export * from './lib/_common/non-relevent-feedback-dialog/non-relevent-feedback-dialog.component'
+
+export * from './lib/_common/cbp-filters/cbp-filters.module'
+
+export * from './lib/_common/survey-form-left-section/survey-form/survey-form.module'
+
+export * from './lib/_common/ck-editor/constants/constant'

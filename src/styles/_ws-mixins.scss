@@ -1,6 +1,9 @@
+// @use 'ws-vars';
+// @use 'ws-mixins' as *;
 @import 'ws-vars';
 
 @mixin retina {
+
   //stylelint-disable
   @media only screen and (-webkit-min-device-pixel-ratio: 2),
   only screen and (min--moz-device-pixel-ratio: 2),

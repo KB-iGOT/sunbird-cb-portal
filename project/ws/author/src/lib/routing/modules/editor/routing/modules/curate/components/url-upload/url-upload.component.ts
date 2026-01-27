@@ -3,21 +3,22 @@ import { AbstractControl, UntypedFormBuilder, UntypedFormGroup, Validators } fro
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { MatDialog } from '@angular/material/dialog'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
-import { NOTIFICATION_TIME } from '@ws/author/src/lib/constants/constant'
-import { Notify } from '@ws/author/src/lib/constants/notificationMessage'
-import { NSContent } from '@ws/author/src/lib/interface/content'
-import { IprDialogComponent } from '@ws/author/src/lib/modules/shared/components/ipr-dialog/ipr-dialog.component'
-import { NotificationComponent } from '@ws/author/src/lib/modules/shared/components/notification/notification.component'
-import { EditorContentService } from '@ws/author/src/lib/routing/modules/editor/services/editor-content.service'
+
 import { IFormMeta } from './../../../../../../../../interface/form'
 import { AuthInitService } from './../../../../../../../../services/init.service'
 import { URLCheckerClass } from './url-upload.helper'
+import { NotificationComponent } from '../../../../../../../../modules/shared/components/notification/notification.component'
+import { Notify } from '../../../../../../../../constants/notificationMessage'
+import { NSContent } from '../../../../../../../../interface/content'
+import { IprDialogComponent } from '../../../../../../../../modules/shared/components/ipr-dialog/ipr-dialog.component'
+import { EditorContentService } from '../../../../../services/editor-content.service'
+import { NOTIFICATION_TIME } from '../../../web-page/constant/web-module.constants'
 
 @Component({
-    selector: 'ws-auth-url-upload',
-    templateUrl: './url-upload.component.html',
-    styleUrls: ['./url-upload.component.scss'],
-    standalone: false
+  selector: 'ws-auth-url-upload',
+  templateUrl: './url-upload.component.html',
+  styleUrls: ['./url-upload.component.scss'],
+  standalone: false
 })
 export class UrlUploadComponent implements OnInit {
   urlUploadForm!: UntypedFormGroup
@@ -143,9 +144,10 @@ export class UrlUploadComponent implements OnInit {
         JSON.stringify(currentMeta[v as keyof NSContent.IContentMeta]) !==
         JSON.stringify(originalMeta[v as keyof NSContent.IContentMeta])
       ) {
+        let value: any = this.initService.authConfig[v as keyof IFormMeta]
         if (
           currentMeta[v] ||
-          (this.initService.authConfig[v as keyof IFormMeta].type === 'boolean' &&
+          (value.type === 'boolean' &&
             meta[v] === false)
         ) {
           meta[v] = currentMeta[v]
@@ -153,7 +155,7 @@ export class UrlUploadComponent implements OnInit {
         } else {
           meta[v] = JSON.parse(
             JSON.stringify(
-              this.initService.authConfig[v as keyof IFormMeta].defaultValue[
+              value.defaultValue[
                 originalMeta.contentType
                 // tslint:disable-next-line: ter-computed-property-spacing
               ][0].value,

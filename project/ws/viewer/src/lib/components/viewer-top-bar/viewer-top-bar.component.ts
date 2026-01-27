@@ -2,28 +2,28 @@ import { Component, EventEmitter, Input, OnChanges, OnDestroy, OnInit, Output, S
 import { MatDialog } from '@angular/material/dialog'
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser'
 import { ActivatedRoute, NavigationEnd, NavigationExtras, Router } from '@angular/router'
-import { WidgetContentService } from '@sunbird-cb/collection/src/lib/_services/widget-content.service'
+import { WidgetContentService } from '@sunbird-cb/collection'
 import { NsContent } from '@sunbird-cb/collection'
 import { ConfigurationsService, LoggerService, NsPage, ValueService, EventService, WsEvents, DomainConfService } from '@sunbird-cb/utils-v2'
 import { Subscription } from 'rxjs'
 import { ViewerDataService } from '../../viewer-data.service'
 import { ViewerUtilService } from '../../viewer-util.service'
 import { CourseCompletionDialogComponent } from '../course-completion-dialog/course-completion-dialog.component'
-import { ContentRatingV2DialogComponent, RatingService } from '@sunbird-cb/collection/src/public-api'
+import { ContentRatingV2DialogComponent, RatingService } from '@sunbird-cb/collection'
 import { ViewerHeaderSideBarToggleService } from './../../viewer-header-side-bar-toggle.service'
-import { ResetRatingsService } from '@ws/app/src/lib/routes/app-toc/services/reset-ratings.service'
 import { WidgetContentLibService, ContentLanguageService } from '@sunbird-cb/consumption'
 // import { WidgetContentService as WidgetContentServiceUtils } from '@sunbird-cb/utils-v2'
 
 /* tslint:disable*/
 import _ from 'lodash'
+import { ResetRatingsService } from '../../../../../app/src/lib/routes/app-toc/services/reset-ratings.service'
 // import { ALLOWED_CATEGORY_FOR_DYNAMIC_GENERATION } from '../../../../../author/src/lib/constants/constant'
 
 @Component({
-    selector: 'viewer-viewer-top-bar',
-    templateUrl: './viewer-top-bar.component.html',
-    styleUrls: ['./viewer-top-bar.component.scss'],
-    standalone: false
+  selector: 'viewer-viewer-top-bar',
+  templateUrl: './viewer-top-bar.component.html',
+  styleUrls: ['./viewer-top-bar.component.scss'],
+  standalone: false
 })
 export class ViewerTopBarComponent implements OnInit, OnDestroy, OnChanges {
   @Input() frameReference: any

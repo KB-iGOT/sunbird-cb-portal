@@ -1,7 +1,8 @@
-@import 'ws-common';
+@use 'ws-common';
+@use 'ws-mixins' as *;
 
 .container {
-  @extend %page-center;
+  // @include page-center;;
 }
 
 .width-balancer-1-2 {

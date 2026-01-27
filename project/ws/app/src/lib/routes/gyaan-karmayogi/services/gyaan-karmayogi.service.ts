@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core'
 import { HttpClient } from '@angular/common/http'
 import { Observable, of, Subject } from 'rxjs'
-import { NSSearch } from '@sunbird-cb/collection/src/lib/_services/widget-search.model'
+import { NSSearch } from '@sunbird-cb/collection'
 
 // tslint:disable
 import _ from 'lodash'
@@ -51,13 +51,13 @@ export class GyaanKarmayogiService {
       this.getSeeAllConfig = {}
       const requestData: any = {
         'request': {
-            'type': 'page',
-            'subType': 'home',
-            'action': 'page-configuration',
-            'component': 'portal',
-            'rootOrgId': '*',
+          'type': 'page',
+          'subType': 'home',
+          'action': 'page-configuration',
+          'component': 'portal',
+          'rootOrgId': '*',
         },
-     }
+      }
       this.getSeeAllConfig = await this.formSvc.homeFormReadData(requestData).toPromise()
     }
     return of(this.getSeeAllConfig).toPromise()

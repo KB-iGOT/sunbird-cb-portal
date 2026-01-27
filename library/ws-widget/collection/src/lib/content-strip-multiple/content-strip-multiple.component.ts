@@ -1228,7 +1228,7 @@ export class ContentStripMultipleComponent extends WidgetBaseComponent
     return this.contentSvc
       .fetchContentLikes(contentIds)
       .then(likeHash => {
-        const likes = likeHash
+        const likes: any = likeHash
         results.forEach(result => {
           result.widgetData.likes = likes[result.widgetData.content.identifier] || 0
         })

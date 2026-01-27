@@ -1,5 +1,6 @@
-@use '@sunbird-cb/design-system/src/styles/ws-vars';
-@use '@sunbird-cb/design-system/src/styles/ws-mixins' as *;
+@use 'ws-vars';
+@use 'ws-mixins' as *;
+;
 
 .user-image {
   $icon-size: 36px;

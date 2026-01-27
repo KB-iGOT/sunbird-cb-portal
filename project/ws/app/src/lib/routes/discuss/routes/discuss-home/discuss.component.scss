@@ -1,15 +1,15 @@
-@import 'ws-common';
-@import 'ws-vars';
-@import 'ws-mixins';
+@use 'ws-common';
+@use 'ws-vars';
+@use 'ws-mixins' as *;
 
 .container-balanced {
-  @extend %page-center;
+  // @include page-center;;
   height: auto;
   min-height: 400px;
 }
 
 .container-balanced-banner {
-  @extend %page-center;
+  // @include page-center;;
   height: auto;
 }
 

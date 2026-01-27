@@ -1,6 +1,7 @@
-@import 'ws-mixins';
-@import 'ws-vars';
-@import 'ws-common';
+@use 'ws-mixins' as *;
+@use 'ws-vars';
+@use 'ws-common';
+@use 'ws-mixins' as *;
 
 .cursor-disable {
   cursor: not-allowed;

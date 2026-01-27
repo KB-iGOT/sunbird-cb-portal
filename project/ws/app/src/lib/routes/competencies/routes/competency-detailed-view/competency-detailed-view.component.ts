@@ -12,10 +12,10 @@ import { ConfigurationsService, MultilingualTranslationsService } from '@sunbird
 import { TranslateService } from '@ngx-translate/core'
 
 @Component({
-    selector: 'ws-app-competency-detailed-view',
-    templateUrl: './competency-detailed-view.component.html',
-    styleUrls: ['./competency-detailed-view.component.scss'],
-    standalone: false
+  selector: 'ws-app-competency-detailed-view',
+  templateUrl: './competency-detailed-view.component.html',
+  styleUrls: ['./competency-detailed-view.component.scss'],
+  standalone: false
 })
 export class CompetencyDetailedViewComponent implements OnInit, OnDestroy {
   @ViewChild('successMsg', { static: true }) successMsg!: ElementRef
@@ -175,7 +175,7 @@ export class CompetencyDetailedViewComponent implements OnInit, OnDestroy {
 
   removeFromProfile(item: NSCompetencie.ICompetencie) {
     if (item) {
-      const currentCompetencies = _.get(this, 'currentProfile.competencies')
+      const currentCompetencies: any = _.get(this, 'currentProfile.competencies')
       // const updatedProfile = { ...this.currentProfile };
       let updatedProfile = this.currentProfile.competencies
       _.remove(currentCompetencies, (itm) => _.get(itm, 'id') === item.id)

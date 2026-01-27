@@ -1,7 +1,8 @@
 import { Component, OnInit, Inject, ViewChild, ElementRef } from '@angular/core'
-import { MAT_DIALOG_DATA, MatDialogRef, MatSnackBar } from '@angular/material'
 import { FormGroup, Validators, FormControl } from '@angular/forms'
 import { TenantAdminService } from '../../../../tenant-admin.service'
+import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
 
 @Component({
   selector: 'ws-admin-edit-department-dialog',

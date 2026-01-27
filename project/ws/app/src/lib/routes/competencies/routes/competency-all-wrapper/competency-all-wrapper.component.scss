@@ -1,28 +1,29 @@
-@import 'ws-common';
-@import 'ws-vars';
-@import 'ws-mixins';
+@use 'ws-common';
+@use 'ws-vars';
+@use 'ws-mixins' as *;
 
 .container-balanced {
-  @extend %page-center;
+  // @include page-center;;
   height: auto;
   min-height: 400px;
 
   @media (max-width:1024px) {
     max-width: 100%;
-    margin:0px 8px!important
+    margin: 0px 8px !important
   }
 }
 
 .competency_main_wrapper {
   width: 100%;
-  border:2px solid green;
+  border: 2px solid green;
+
   @media (max-width:1024px) {
     width: 100%;
   }
 }
 
 .container-balanced-banner {
-  @extend %page-center;
+  // @include page-center;;
   height: auto;
 }
 

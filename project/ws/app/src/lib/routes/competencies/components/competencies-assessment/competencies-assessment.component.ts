@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core'
 import { NsContent } from '@sunbird-cb/utils-v2'
-import { NSQuiz } from '@ws/viewer/src/lib/plugins/quiz/quiz.model'
+import { NSQuiz } from '@ws/viewer'
 // import { NSQuiz } from '@ws/viewer/src/lib/plugins/quiz/quiz.model'
 import { NSCompetencie } from '../../models/competencies.model'
 

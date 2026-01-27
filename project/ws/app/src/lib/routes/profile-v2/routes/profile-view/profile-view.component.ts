@@ -14,11 +14,11 @@ import { Subject } from 'rxjs'
 import { debounceTime, distinctUntilChanged, startWith, takeUntil } from 'rxjs/operators'
 
 import { ImageCropComponent, ConfigurationsService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
-import { LoaderService } from '@ws/author/src/public-api'
+import { LoaderService } from '@ws/author'
 import { PipeCertificateImageURL } from '@sunbird-cb/utils-v2'
-import { IMAGE_MAX_SIZE, PROFILE_IMAGE_SUPPORT_TYPES } from '@ws/author/src/lib/constants/upload'
-import { Notify } from '@ws/author/src/lib/constants/notificationMessage'
-import { NOTIFICATION_TIME } from '@ws/author/src/lib/constants/constant'
+import { IMAGE_MAX_SIZE, PROFILE_IMAGE_SUPPORT_TYPES } from '@ws/author'
+import { Notify } from '@ws/author'
+import { NOTIFICATION_TIME } from '@ws/author'
 import { UserProfileService } from '../../../user-profile/services/user-profile.service'
 import { OtpService } from '../../../user-profile/services/otp.services'
 
@@ -27,11 +27,11 @@ import { NsUserProfileDetails } from '../../../user-profile/models/NsUserProfile
 import { VerifyOtpComponent } from '../../components/verify-otp/verify-otp.component'
 import { TransferRequestComponent } from '../../components/transfer-request/transfer-request.component'
 import { WithdrawRequestComponent } from '../../components/withdraw-request/withdraw-request.component'
-import { NotificationComponent } from '@ws/author/src/lib/modules/shared/components/notification/notification.component'
+import { NotificationComponent } from '@ws/author'
 import { DesignationRequestComponent } from '../../components/designation-request/designation-request.component'
 import { HomePageService } from 'src/app/services/home-page.service'
 import { RejectionReasonPopupComponent } from '../../components/rejection-reason-popup/rejection-reason-popup.component'
-import { ConfirmDialogComponent } from '@sunbird-cb/collection/src/lib/_common/confirm-dialog/confirm-dialog.component'
+import { ConfirmDialogComponent } from '@sunbird-cb/collection'
 import { ProfileV2Service } from '../../services/profile-v2.servive'
 import { environment } from 'src/environments/environment'
 import { NetCoreService } from '../../../../../../../../../src/app/services/netcore.service'
@@ -56,17 +56,17 @@ const PIN_CODE_PATTERN = /^[1-9][0-9]{5}$/
 const EMP_ID_PATTERN = /^[a-z0-9]+$/i
 
 @Component({
-    selector: 'app-profile-view',
-    templateUrl: './profile-view.component.html',
-    styleUrls: ['./profile-view.component.scss'],
-    /* tslint:disable */
-    host: { class: 'flex margin-bottom-l' },
-    /* tslint:enable */
-    providers: [
-        { provide: DateAdapter, useClass: MomentDateAdapter, deps: [MAT_DATE_LOCALE] },
-        { provide: MAT_DATE_FORMATS, useValue: MY_FORMATS },
-    ],
-    standalone: false
+  selector: 'app-profile-view',
+  templateUrl: './profile-view.component.html',
+  styleUrls: ['./profile-view.component.scss'],
+  /* tslint:disable */
+  host: { class: 'flex margin-bottom-l' },
+  /* tslint:enable */
+  providers: [
+    { provide: DateAdapter, useClass: MomentDateAdapter, deps: [MAT_DATE_LOCALE] },
+    { provide: MAT_DATE_FORMATS, useValue: MY_FORMATS },
+  ],
+  standalone: false
 })
 
 export class ProfileViewComponent implements OnInit, AfterViewInit, OnDestroy {

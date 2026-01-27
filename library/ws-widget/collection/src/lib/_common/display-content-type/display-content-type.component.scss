@@ -1,10 +1,11 @@
-@use '@sunbird-cb/design-system/src/styles/ws-vars';
-@use '@sunbird-cb/design-system/src/styles/ws-mixins' as *;
+@use 'ws-vars';
+@use 'ws-mixins' as *;
+;
 
 $user-size: 100%;
 
 .content-type-class {
-    color: rgba(0,0,0,0.87);
+    color: rgba(0, 0, 0, 0.87);
     word-break: break-all;
     white-space: initial;
     position: relative;

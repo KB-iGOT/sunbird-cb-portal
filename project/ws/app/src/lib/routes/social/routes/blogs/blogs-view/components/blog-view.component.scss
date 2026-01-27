@@ -1,5 +1,5 @@
-@import 'ws-vars';
-@import 'ws-mixins';
+@use 'ws-vars';
+@use 'ws-mixins' as *;
 
 .blog-container {
   max-width: 700px;
@@ -7,8 +7,8 @@
   padding: $size-m;
 
   .icon-section {
-      width: 10%;
-      text-align: center;
+    width: 10%;
+    text-align: center;
 
     @include breakpoint-xs {
       width: 15%;

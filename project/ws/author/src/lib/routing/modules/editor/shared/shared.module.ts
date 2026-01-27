@@ -2,7 +2,6 @@ import { CommonModule } from '@angular/common'
 import { NgModule } from '@angular/core'
 import { DisplayContentTypeModule } from '@sunbird-cb/collection'
 import { DefaultThumbnailModule, PipeDurationTransformModule } from '@sunbird-cb/utils-v2'
-import { SharedModule } from '@ws/author/src/lib/modules/shared/shared.module'
 // import { AceEditorModule } from 'ng2-ace-editor'
 // import { CKEditorModule } from 'ng2-ckeditor'
 import { CatalogSelectModule } from '../shared/components/catalog-select/catalog-select.module'
@@ -25,6 +24,7 @@ import { CompetencyAddPopUpComponent } from './components/competency-add-popup/c
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core'
 import { HttpLoaderFactory } from 'src/app/app.module'
 import { HttpClient } from '@angular/common/http'
+import { SharedModule } from '../../../../modules/shared/shared.module'
 
 @NgModule({
     declarations: [

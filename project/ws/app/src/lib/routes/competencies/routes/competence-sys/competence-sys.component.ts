@@ -13,12 +13,12 @@ import { TranslateService } from '@ngx-translate/core'
 /* tslint:enable */
 
 @Component({
-    selector: 'app-competence-sys',
-    templateUrl: './competence-sys.component.html',
-    styleUrls: ['./competence-sys.component.scss'],
-    /* tslint:disable */
-    host: { class: 'flex flex-1 margin-top-l' },
-    standalone: false
+  selector: 'app-competence-sys',
+  templateUrl: './competence-sys.component.html',
+  styleUrls: ['./competence-sys.component.scss'],
+  /* tslint:disable */
+  host: { class: 'flex flex-1 margin-top-l' },
+  standalone: false
 })
 export class CompetenceSysComponent implements OnInit {
   @ViewChild('stickyMenu', { static: true }) menuElement!: ElementRef
@@ -202,7 +202,7 @@ export class CompetenceSysComponent implements OnInit {
   }
   removeFromProfile(item: NSCompetencie.ICompetencie) {
     if (item) {
-      const currentCompetencies = _.get(this, 'currentProfile.competencies')
+      const currentCompetencies: any = _.get(this, 'currentProfile.competencies')
       const updatedProfile = { ...this.currentProfile }
       _.remove(currentCompetencies, (itm) => _.get(itm, 'id') === item.id)
       if (updatedProfile) {

@@ -1,25 +1,27 @@
-import { NotificationService } from '@ws/author/src/lib/services/notification.service'
+
 import { ErrorParserComponent } from './../error-parser/error-parser.component'
 import { Component, OnInit, Inject } from '@angular/core'
 import { UntypedFormGroup, UntypedFormBuilder, Validators } from '@angular/forms'
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog'
-import { ISearchContent } from '@ws/author/src/lib/interface/search'
-import { AccessControlService } from '@ws/author/src/lib/modules/shared/services/access-control.service'
-import { ApiService } from '@ws/author/src/lib/modules/shared/services/api.service'
 import { EXPIRY_DATE_ACTION } from '../../../../constants/apiEndpoints'
-import { NOTIFICATION_TIME } from '@ws/author/src/lib/constants/constant'
-import { NotificationComponent } from '@ws/author/src/lib/modules/shared/components/notification/notification.component'
-import { Notify } from '@ws/author/src/lib/constants/notificationMessage'
 import { ValueService } from '@sunbird-cb/utils-v2'
 import { mergeMap, catchError } from 'rxjs/operators'
 import { of } from 'rxjs'
 import { MatSnackBar } from '@angular/material/snack-bar'
+import { NOTIFICATION_TIME } from '../../../../constants/constant'
+import { Notify } from '../../../../constants/notificationMessage'
+import { ISearchContent } from '../../../../interface/search'
+import { NotificationService } from '../../../../services/notification.service'
+import { AccessControlService } from '../../services/access-control.service'
+import { ApiService } from '../../services/api.service'
+import { NotificationComponent } from '../../../../../../../../../src/app/home/home/notification/notification.component'
+
 
 @Component({
-    selector: 'ws-auth-expiry-date-confirm',
-    templateUrl: './auth-expiry-date-confirm.component.html',
-    styleUrls: ['./auth-expiry-date-confirm.component.scss'],
-    standalone: false
+  selector: 'ws-auth-expiry-date-confirm',
+  templateUrl: './auth-expiry-date-confirm.component.html',
+  styleUrls: ['./auth-expiry-date-confirm.component.scss'],
+  standalone: false
 })
 export class AuthExpiryDateConfirmComponent implements OnInit {
   userActionForm!: UntypedFormGroup

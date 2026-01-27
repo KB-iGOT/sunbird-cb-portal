@@ -6,27 +6,23 @@ import { GyaanKarmayogiHomeComponent } from './components/gyaan-karmayogi-home/g
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core'
 import { HttpClient } from '@angular/common/http'
 import { TranslateHttpLoader } from '@ngx-translate/http-loader'
-import { BtnPageBackModule, ContentStripWithTabsModule, SlidersModule } from '@sunbird-cb/collection/src/public-api'
-import { PdfModule } from '@ws/viewer/src/lib/routes/pdf/pdf.module'
+import { BtnPageBackModule, ContentStripWithTabsModule, SlidersModule } from '@sunbird-cb/collection'
+import { PdfModule, PdfScormDataService, VideoModule, AudioModule, YoutubeModule } from '@ws/viewer'
 import { GyaanPlayerComponent } from './components/gyaan-player/gyaan-player.component'
 import { GyaanKarmayogiComponent } from './gyaan-karmayogi.component'
-import { ViewerResolve } from '@ws/viewer/src/lib/viewer.resolve'
-import { PdfScormDataService } from '@ws/viewer/src/lib/pdf-scorm-data-service'
+import { ViewerResolve } from '@ws/viewer'
 import { GyaanKarmayogiViewAllComponent } from './components/gyaan-karmayogi-view-all/gyaan-karmayogi-view-all.component'
 import { DefaultThumbnailModule, PipePublicURLModule } from '@sunbird-cb/utils-v2'
-import { CardContentV2Module } from '@sunbird-cb/collection/src/lib/card-content-v2/card-content-v2.module'
+import { CardContentV2Module } from '@sunbird-cb/collection'
 import { GyaanKarmayogiService } from './services/gyaan-karmayogi.service'
 import { PdfComponent } from './components/players/pdf/pdf.component'
 import { GyaanVideoComponent } from './components/players/gyaan-video/gyaan-video.component'
-import { VideoModule } from '@ws/viewer/src/lib/routes/video/video.module'
-import { ViewerDataService } from '@ws/viewer/src/public-api'
+import { ViewerDataService } from '@ws/viewer'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
-import { SkeletonLoaderModule } from '@sunbird-cb/collection/src/lib/_common/skeleton-loader/skeleton-loader.module'
+import { SkeletonLoaderModule } from '@sunbird-cb/collection'
 import { ShareTocModule } from '../app-toc/share-toc/share-toc.module'
 import { GyaanFilterComponent } from './components/gyaan-filter/gyaan-filter.component'
 import { GyaanAudioComponent } from './components/players/gyaan-audio/gyaan-audio.component'
-import { AudioModule } from '@ws/viewer/src/lib/routes/audio/audio.module'
-import { YoutubeModule } from '@ws/viewer/src/lib/routes/youtube/youtube.module'
 import { GyaanYoutubeComponent } from './components/players/gyaan-youtube/gyaan-youtube.component'
 import { InfiniteScrollModule } from 'ngx-infinite-scroll'
 import { ReplaceNbspTextPipe } from './pipes/replace-nbsp-text.pipe'
@@ -43,11 +39,11 @@ import { MatTabsModule } from '@angular/material/tabs'
 
 import { NgxSliderModule } from '@angular-slider/ngx-slider'
 import { HorizontalScrollerV2Module } from '@sunbird-cb/consumption'
-import { WidgetResolverModule } from '@sunbird-cb/resolver/src/public-api'
+import { WidgetResolverModule } from '@sunbird-cb/resolver'
 
 // tslint:disable-next-line:function-name
-export function HttpLoaderFactory(http: HttpClient) {
-  return new TranslateHttpLoader(http)
+export function HttpLoaderFactory() {
+  return new TranslateHttpLoader()
 }
 
 @NgModule({

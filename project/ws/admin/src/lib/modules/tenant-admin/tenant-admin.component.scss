@@ -1,9 +1,9 @@
-@import 'ws-common';
-@import 'ws-vars';
-@import 'ws-mixins';
+@use 'ws-common';
+@use 'ws-vars';
+@use 'ws-mixins' as *;
 
 .container-balanced {
-  @extend %page-center;
+  @include page-center;
 }
 
 .sidenav-content-min-height {

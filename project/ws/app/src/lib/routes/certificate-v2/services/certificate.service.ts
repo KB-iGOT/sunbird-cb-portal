@@ -2,8 +2,9 @@ import { Injectable } from '@angular/core'
 import { Observable } from 'rxjs'
 import * as _ from 'lodash'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
-import { ServerResponse } from 'http'
-import { ApiService } from '@ws/author/src/lib/modules/shared/services/api.service'
+import { HttpResponse } from '@angular/common/http'
+
+import { ApiService } from '@ws/author'
 // /lib/modules/shared/services/api.service.ts'
 
 const urls = {
@@ -23,7 +24,7 @@ export class CertificateService {
 
   constructor(public apiService: ApiService, public configService: ConfigurationsService) { }
 
-  validateCertificate(data: any): Observable<ServerResponse> {
+  validateCertificate(data: any): Observable<HttpResponse<any>> {
     const option = {
       data,
       // url: `${urls.PROXIES_PREFIX}learner/${urls.VALIDATE_CERTIFICATE}`,
@@ -32,7 +33,7 @@ export class CertificateService {
     return this.apiService.post(option.url, option.data)
   }
 
-  downloadCertificate(id: string): Observable<ServerResponse> {
+  downloadCertificate(id: string): Observable<HttpResponse<any>> {
     const option = {
       url: `${urls.LEARNER_PREFIX}${urls.DOWNLOAD_CERTIFICATE(id)}`,
     }
@@ -41,7 +42,7 @@ export class CertificateService {
     //  {"id":"api.certs.registry.download","ver":"v2","ts":"1615529580406","params":null,"responseCode":"OK",
     // "result":{"printUri":"data:image/svg+xml
   }
-  downloadCertificate_v2(id: string): Observable<ServerResponse> {
+  downloadCertificate_v2(id: string): Observable<HttpResponse<any>> {
     const option = {
       url: `${urls.DOWNLOAD_CERTIFICATE_v2(id)}`,
     }
@@ -50,7 +51,7 @@ export class CertificateService {
     //  {"id":"api.certs.registry.download","ver":"v2","ts":"1615529580406","params":null,"responseCode":"OK",
     // "result":{"printUri":"data:image/svg+xml
   }
-  searchCertificate(recipientId: string): Observable<ServerResponse> {
+  searchCertificate(recipientId: string): Observable<HttpResponse<any>> {
     const option = {
       url: `${urls.LEARNER_PREFIX}${urls.SEARCH_CERTIFICATE}`,
       data: {

@@ -32,8 +32,8 @@ import { MatTooltipModule } from '@angular/material/tooltip'
 import { HorizontalScrollerV2Module } from '@sunbird-cb/consumption'
 
 // tslint:disable-next-line:function-name
-export function HttpLoaderFactory(http: HttpClient) {
-    return new TranslateHttpLoader(http)
+export function HttpLoaderFactory() {
+    return new TranslateHttpLoader()
 }
 
 @NgModule({

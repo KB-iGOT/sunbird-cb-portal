@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
 import { CommonMethodsService } from '@sunbird-cb/consumption'
 import { ConfigurationsService, EventService, MultilingualTranslationsService, WidgetContentService, WsEvents } from '@sunbird-cb/utils-v2'
-import { LoaderService } from '@ws/author/src/public-api'
+import { LoaderService } from '@ws/author'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { MatDialog } from '@angular/material/dialog'
 import { CertificateService } from '../../../certificate/services/certificate.service'
@@ -14,10 +14,10 @@ import { ConsentDialogComponent } from './consent-dialog.component'
 import { environment } from '../../../../../../../../../src/environments/environment'
 
 @Component({
-    selector: 'ws-app-app-toc-cios-home',
-    templateUrl: './app-toc-cios-home.component.html',
-    styleUrls: ['./app-toc-cios-home.component.scss'],
-    standalone: false
+  selector: 'ws-app-app-toc-cios-home',
+  templateUrl: './app-toc-cios-home.component.html',
+  styleUrls: ['./app-toc-cios-home.component.scss'],
+  standalone: false
 })
 export class AppTocCiosHomeComponent implements OnInit, AfterViewInit {
   commentId?: string = ''

@@ -1,9 +1,10 @@
-@use '@sunbird-cb/design-system/src/styles/ws-common';
-@use '@sunbird-cb/design-system/src/styles/ws-vars';
-@use '@sunbird-cb/design-system/src/styles/ws-mixins' as *;
+@use 'ws-common';
+@use 'ws-vars';
+@use 'ws-mixins' as *;
+;
 
 .container-balanced {
-  @extend %page-center;
+  // @include page-center;
   height: auto;
   // min-height: 400px;
   background: transparent;

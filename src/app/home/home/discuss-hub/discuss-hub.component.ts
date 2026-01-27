@@ -1,16 +1,16 @@
 
 import { Component, OnInit, Input } from '@angular/core'
 import { HttpErrorResponse } from '@angular/common/http'
-import { ConfigurationsService, EventService, WsEvents  } from '@sunbird-cb/utils-v2'
+import { ConfigurationsService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
 import { HomePageService } from 'src/app/services/home-page.service'
-import { DiscussUtilsService } from '@ws/app/src/lib/routes/discuss/services/discuss-utils.service'
+import { DiscussUtilsService } from '@ws/app'
 import { Router } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
 @Component({
-    selector: 'ws-discuss-hub',
-    templateUrl: './discuss-hub.component.html',
-    styleUrls: ['./discuss-hub.component.scss'],
-    standalone: false
+  selector: 'ws-discuss-hub',
+  templateUrl: './discuss-hub.component.html',
+  styleUrls: ['./discuss-hub.component.scss'],
+  standalone: false
 })
 
 export class DiscussHubComponent implements OnInit {
@@ -95,7 +95,7 @@ export class DiscussHubComponent implements OnInit {
           this.updatesPosts.loadSkeleton = false
           this.updatesPosts.error = true
         }
-    })
+      })
   }
 
   navigate() {

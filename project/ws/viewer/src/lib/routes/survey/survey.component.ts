@@ -10,10 +10,10 @@ import * as _ from 'lodash'
 // import { environment } from 'src/environments/environment'
 
 @Component({
-    selector: 'viewer-survey',
-    templateUrl: './survey.component.html',
-    styleUrls: ['./survey.component.scss'],
-    standalone: false
+  selector: 'viewer-survey',
+  templateUrl: './survey.component.html',
+  styleUrls: ['./survey.component.scss'],
+  standalone: false
 })
 export class SurveyComponent implements OnInit, OnDestroy {
   private dataSubscription: Subscription | null = null
@@ -90,10 +90,10 @@ export class SurveyComponent implements OnInit, OnDestroy {
             }
           }
           this.widgetResolverSurveyData.widgetData.surveyUrl = this.surveyData
-          ? this.forPreview
-            ? this.viewerSvc.getAuthoringUrl(this.surveyData.artifactUrl)
-            : this.surveyData.artifactUrl
-          : ''
+            ? this.forPreview
+              ? this.viewerSvc.getAuthoringUrl(this.surveyData.artifactUrl)
+              : this.surveyData.artifactUrl
+            : ''
           this.widgetResolverSurveyData.widgetData.disableTelemetry = true
           this.isFetchingDataComplete = true
           this.widgetResolverSurveyData.widgetData.wfClientVersion = _.get(this.surveyData, 'wfClientVersion', '')
@@ -161,7 +161,7 @@ export class SurveyComponent implements OnInit, OnDestroy {
   }
 
   async fetchContent() {
-    const content = await this.contentSvc
+    const content: any = await this.contentSvc
       .fetchContent(this.widgetResolverSurveyData.widgetData.collectionId || '', 'minimal')
       .toPromise()
     this.widgetResolverSurveyData.widgetData.courseName = content.result.content.name
@@ -246,7 +246,7 @@ export class SurveyComponent implements OnInit, OnDestroy {
           this.activatedRoute.snapshot.queryParams.collectionId,
           this.activatedRoute.snapshot.queryParams.batchId,
           surveyId)
-        const language = this.viewerSvc.getResourceContentLanguage(surveyId) 
+        const language = this.viewerSvc.getResourceContentLanguage(surveyId)
         const req: NsContent.IContinueLearningDataReq = {
           request: {
             userId,

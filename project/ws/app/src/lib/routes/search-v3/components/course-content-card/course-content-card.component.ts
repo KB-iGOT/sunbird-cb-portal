@@ -7,7 +7,7 @@ import {
   Output,
   SimpleChanges,
 } from '@angular/core'
-import { NsContent } from '@sunbird-cb/collection/src/public-api'
+import { NsContent } from '@sunbird-cb/collection'
 import { environment } from 'src/environments/environment'
 import {
   ConfigurationsService,
@@ -15,7 +15,7 @@ import {
   WsEvents,
 } from '@sunbird-cb/utils-v2'
 import { MatDialog } from '@angular/material/dialog'
-import { CertificateDialogComponent } from '@sunbird-cb/collection/src/lib/_common/certificate-dialog/certificate-dialog.component'
+import { CertificateDialogComponent } from '@sunbird-cb/collection'
 import { CertificateService } from '../../../certificate/services/certificate.service'
 import { Router } from '@angular/router'
 import { WidgetContentLibService } from '@sunbird-cb/consumption'
@@ -24,10 +24,10 @@ import * as _ from 'lodash'
 const MILLISECONDS_IN_A_DAY = 1000 * 60 * 60 * 24
 const NEW_CONTENT_THRESHOLD_DAYS = 14
 @Component({
-    selector: 'ws-app-course-content-card',
-    templateUrl: './course-content-card.component.html',
-    styleUrls: ['./course-content-card.component.scss'],
-    standalone: false
+  selector: 'ws-app-course-content-card',
+  templateUrl: './course-content-card.component.html',
+  styleUrls: ['./course-content-card.component.scss'],
+  standalone: false
 })
 export class CourseContentCardComponent implements OnInit, OnChanges {
   @Input() content: any

@@ -19,7 +19,7 @@ import { ROOT_WIDGET_CONFIG } from '../collection.config'
 import { NsContent } from '../_services/widget-content.model'
 import { WidgetContentService } from '../_services/widget-content.service'
 import { IWidgetsPlayerPdfData } from './player-pdf.model'
-import { ViewerUtilService } from '@ws/viewer/src/lib/viewer-util.service'
+import { ViewerUtilService } from '@ws/viewer'
 
 let pdfjsViewer: any
 
@@ -349,7 +349,7 @@ export class PlayerPdfComponent extends WidgetBaseComponent
   }
 
   refresh() {
-    this.renderSubject.next()
+    this.renderSubject.next({})
   }
 
   private async loadDocument(url: string) {
@@ -368,7 +368,7 @@ export class PlayerPdfComponent extends WidgetBaseComponent
         : 1,
     )
 
-    this.renderSubject.next()
+    this.renderSubject.next({})
     this.activityStartedAt = new Date()
 
     if (!this.widgetData.disableTelemetry) {

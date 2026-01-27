@@ -50,7 +50,7 @@ export class ViewerDataService {
     this.status = status
     this.primaryCategory = primaryCategory || ''
     this.collectionId = collectionId || '',
-    this.changedSubject.next()
+      this.changedSubject.next({})
     this.optionalReading = false
   }
   updateResource(resource: NsContent.IContent | null = null, error: any | null = null) {
@@ -69,7 +69,7 @@ export class ViewerDataService {
       this.error = error
       this.status = 'error'
     }
-    this.changedSubject.next()
+    this.changedSubject.next({})
   }
   updateNextPrevResource(isValid = true, prev: IViewerTocCard | null = null, next: IViewerTocCard | null = null, queryMLParams: any) {
     this.tocChangeSubject.next(

@@ -9,7 +9,7 @@ import { NsUserProfileDetails } from '../../../user-profile/models/NsUserProfile
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { ProfileV2Service } from '../../../profile-v2/services/profile-v2.servive'
 import { OtpService } from '../../../user-profile/services/otp.services'
-import { NPSGridService } from '@sunbird-cb/collection/src/lib/grid-layout/nps-grid.service'
+import { NPSGridService } from '@sunbird-cb/collection'
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
 /* tslint:disable */
@@ -25,10 +25,10 @@ const EMP_ID_PATTERN = /^[a-z0-9]+$/i
 const EMAIL_PATTERN = /^[a-zA-Z0-9]+[a-zA-Z0-9._-]*[a-zA-Z0-9]+@[a-zA-Z0-9]+([-a-zA-Z0-9]*[a-zA-Z0-9]+)?(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,4}$/
 
 @Component({
-    selector: 'ws-app-enroll-profile-form',
-    templateUrl: './enroll-profile-form.component.html',
-    styleUrls: ['./enroll-profile-form.component.scss'],
-    standalone: false
+  selector: 'ws-app-enroll-profile-form',
+  templateUrl: './enroll-profile-form.component.html',
+  styleUrls: ['./enroll-profile-form.component.scss'],
+  standalone: false
 })
 export class EnrollProfileFormComponent implements OnInit {
   public afterSubmitAction = this.checkAfterSubmit.bind(this)

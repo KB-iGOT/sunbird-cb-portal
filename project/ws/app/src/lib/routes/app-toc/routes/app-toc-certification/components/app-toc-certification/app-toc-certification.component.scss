@@ -1,7 +1,8 @@
-@import 'ws-common';
+@use 'ws-common';
+@use 'ws-mixins' as *;
 
 .container-balanced {
-  @extend %page-center;
+  // @include page-center;;
 }
 
 .text-italic {

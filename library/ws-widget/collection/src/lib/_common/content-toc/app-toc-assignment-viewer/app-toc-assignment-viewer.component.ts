@@ -6,13 +6,13 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser'
 import { Router } from '@angular/router'
 import { ConfirmationDialogComponent } from '@sunbird-cb/consumption'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
-import { AppTocService } from '@ws/app/src/lib/routes/app-toc/services/app-toc.service'
+import { AppTocService } from '@ws/app'
 
 @Component({
-    selector: 'ws-widget-app-assignment-viewer',
-    templateUrl: './app-toc-assignment-viewer.component.html',
-    styleUrls: ['./app-toc-assignment-viewer.component.scss'],
-    standalone: false
+  selector: 'ws-widget-app-assignment-viewer',
+  templateUrl: './app-toc-assignment-viewer.component.html',
+  styleUrls: ['./app-toc-assignment-viewer.component.scss'],
+  standalone: false
 })
 
 export class AssignmentViewerComponent implements OnInit {

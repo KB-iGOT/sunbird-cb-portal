@@ -2,10 +2,12 @@ import { Component, OnInit, ViewChild, ElementRef, AfterViewInit } from '@angula
 import { FormBuilder, Validators, FormControl } from '@angular/forms'
 import { FileService } from '../../upload.service'
 import { Observable } from 'rxjs'
-import { MatSnackBar, MatSort } from '@angular/material'
+
 import { TenantAdminService } from '../../tenant-admin.service'
 import { MatPaginator } from '@angular/material/paginator'
 import { MatTableDataSource } from '@angular/material/table'
+import { MatSnackBar } from '@angular/material/snack-bar'
+import { MatSort } from '@angular/material/sort'
 @Component({
   selector: 'ws-admin-user-bulk-upload',
   templateUrl: './user-bulk-upload.component.html',
@@ -58,7 +60,7 @@ export class UserBulkUploadComponent implements OnInit, AfterViewInit {
   }
 
   ngAfterViewInit() {
-      this.dataSource.paginator = this.paginator
+    this.dataSource.paginator = this.paginator
   }
   getBulkUploadData() {
     this.fetching = true
@@ -76,7 +78,7 @@ export class UserBulkUploadComponent implements OnInit, AfterViewInit {
 
   public onFileChange(event: any) {
     this.showFileError = false
-    const reader = new FileReader()
+    const reader: any = new FileReader()
     if (event.target.files && event.target.files.length) {
       this.fileName = event.target.files[0].name
       const [file] = event.target.files
@@ -94,8 +96,10 @@ export class UserBulkUploadComponent implements OnInit, AfterViewInit {
     // Validate File type before uploading
     if (this.fileService.validateFile(this.fileName)) {
       if (this.formGroup && this.formGroup.get('file') && this.formGroup.get('department')) {
+        let file: any = this.formGroup!.get('file')!.value
+        let department: any = this.formGroup!.get('department')!.value
         // tslint:disable-next-line: no-non-null-assertion
-        this.fileService.upload(this.fileName, this.formGroup!.get('file')!.value, this.formGroup!.get('department')!.value)
+        this.fileService.upload(this.fileName, file, department)
           .subscribe(res => {
             // this.uplaodSuccessMsg = res
             this.openSnackbar(res)
@@ -130,7 +134,7 @@ export class UserBulkUploadComponent implements OnInit, AfterViewInit {
       this.departments = res
     })
       .catch(() => {
-       })
+      })
       .finally(() => {
       })
   }

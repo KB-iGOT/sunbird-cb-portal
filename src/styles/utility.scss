@@ -1,6 +1,6 @@
-@import "ws-mixins";
-@import "ws-vars";
-@import "ws-common";
+@use "ws-vars";
+@use "ws-common";
+@use 'ws-mixins' as *;
 
 .visible-inline-s {
   display: inline;
@@ -166,9 +166,11 @@
 .display-block {
   display: block !important;
 }
+
 .display-none {
   display: none !important;
 }
+
 // flex handlers
 .flex {
   display: flex !important;
@@ -193,6 +195,7 @@
 .flex-align-start {
   align-items: flex-start;
 }
+
 .flex-align-end {
   align-items: flex-end;
 }
@@ -523,7 +526,7 @@
 .page-container {
   padding-left: $size-m;
   padding-right: $size-m;
-  @extend %page-center;
+  // @include page-center;
 }
 
 // z-index

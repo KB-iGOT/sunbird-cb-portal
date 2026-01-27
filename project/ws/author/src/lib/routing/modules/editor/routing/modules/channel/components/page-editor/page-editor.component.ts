@@ -1,13 +1,13 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core'
 import { EditorContentService } from './../../../../../services/editor-content.service'
 import { ChannelStoreService } from './../../services/store.service'
-import { MatDrawer } from '@angular/material'
+import { MatDrawer } from '@angular/material/sidenav'
 
 @Component({
-    selector: 'ws-auth-page-editor',
-    templateUrl: './page-editor.component.html',
-    styleUrls: ['./page-editor.component.scss'],
-    standalone: false
+  selector: 'ws-auth-page-editor',
+  templateUrl: './page-editor.component.html',
+  styleUrls: ['./page-editor.component.scss'],
+  standalone: false
 })
 export class PageEditorComponent implements OnInit {
   @Input() isSubmitPressed = false

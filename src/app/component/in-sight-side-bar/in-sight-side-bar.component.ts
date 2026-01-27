@@ -4,14 +4,14 @@ import { HomePageService } from '../../services/home-page.service'
 import { ConfigurationsService, EventService, WsEvents, MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 import { HttpErrorResponse } from '@angular/common/http'
 import { ActivatedRoute, Router } from '@angular/router'
-import { DiscussUtilsService } from '@ws/app/src/lib/routes/discuss/services/discuss-utils.service'
+import { DiscussUtilsService } from '@ws/app'
 import { TranslateService } from '@ngx-translate/core'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import moment from 'moment'
 import { SignupService } from '../../routes/public/public-signup/signup.service'
 import _ from 'lodash'
-import { ProfileV2Service } from '@ws/app/src/lib/routes/profile-v2/services/profile-v2.servive'
-import { UserProfileService } from '@ws/app/src/lib/routes/user-profile/services/user-profile.service'
+import { ProfileV2Service } from '@ws/app'
+import { UserProfileService } from '@ws/app'
 import { MatAutocompleteTrigger } from '@angular/material/autocomplete'
 
 const DEFAULT_WEEKLY_DURATION = 300
@@ -26,39 +26,39 @@ const noData = {
 }
 
 @Component({
-    selector: 'ws-in-sight-side-bar',
-    templateUrl: './in-sight-side-bar.component.html',
-    styleUrls: ['./in-sight-side-bar.component.scss'],
-    animations: [
-        trigger('collapse', [
-            state('false', style({ height: AUTO_STYLE, visibility: AUTO_STYLE })),
-            state('true', style({ height: '0', visibility: 'hidden' })),
-            // tslint:disable-next-line
-            transition('false => true', animate(DEFAULT_DURATION + 'ms ease-in')),
-            // tslint:disable-next-line
-            transition('true => false', animate(DEFAULT_DURATION + 'ms ease-out')),
-        ]),
-        trigger('collapseWeekly', [
-            state('false', style({ height: AUTO_STYLE, visibility: AUTO_STYLE })),
-            state('true', style({ height: '0', visibility: 'hidden' })),
-            // state('true', style({  position: 'absolute', width: '90%',marginRight: '16px', marginLeft:'16px',top: '-118%', zIndex: '9' })),
-            // tslint:disable-next-line: prefer-template
-            transition('false => true', animate(DEFAULT_WEEKLY_DURATION + 'ms ease-in')),
-            // tslint:disable-next-line: prefer-template
-            transition('true => false', animate(DEFAULT_WEEKLY_DURATION + 'ms ease-out')),
-        ]),
-        trigger('collapsDiscuss', [
-            state('false', style({ height: AUTO_STYLE, visibility: AUTO_STYLE })),
-            state('true', style({ height: '0', visibility: 'hidden' })),
-            // tslint:disable-next-line:max-line-length
-            // state('true', style({  position: 'absolute', width: '80%', transform: 'scaleY(0.7)',marginRight: '32px', marginLeft:'32px',top: '-300%', zIndex: '6' })),
-            // tslint:disable-next-line: prefer-template
-            transition('false => true', animate(DEFAULT_DISCUSS_DURATION + 'ms ease-in')),
-            // tslint:disable-next-line: prefer-template
-            transition('true => false', animate(DEFAULT_DISCUSS_DURATION + 'ms ease-out')),
-        ]),
-    ],
-    standalone: false
+  selector: 'ws-in-sight-side-bar',
+  templateUrl: './in-sight-side-bar.component.html',
+  styleUrls: ['./in-sight-side-bar.component.scss'],
+  animations: [
+    trigger('collapse', [
+      state('false', style({ height: AUTO_STYLE, visibility: AUTO_STYLE })),
+      state('true', style({ height: '0', visibility: 'hidden' })),
+      // tslint:disable-next-line
+      transition('false => true', animate(DEFAULT_DURATION + 'ms ease-in')),
+      // tslint:disable-next-line
+      transition('true => false', animate(DEFAULT_DURATION + 'ms ease-out')),
+    ]),
+    trigger('collapseWeekly', [
+      state('false', style({ height: AUTO_STYLE, visibility: AUTO_STYLE })),
+      state('true', style({ height: '0', visibility: 'hidden' })),
+      // state('true', style({  position: 'absolute', width: '90%',marginRight: '16px', marginLeft:'16px',top: '-118%', zIndex: '9' })),
+      // tslint:disable-next-line: prefer-template
+      transition('false => true', animate(DEFAULT_WEEKLY_DURATION + 'ms ease-in')),
+      // tslint:disable-next-line: prefer-template
+      transition('true => false', animate(DEFAULT_WEEKLY_DURATION + 'ms ease-out')),
+    ]),
+    trigger('collapsDiscuss', [
+      state('false', style({ height: AUTO_STYLE, visibility: AUTO_STYLE })),
+      state('true', style({ height: '0', visibility: 'hidden' })),
+      // tslint:disable-next-line:max-line-length
+      // state('true', style({  position: 'absolute', width: '80%', transform: 'scaleY(0.7)',marginRight: '32px', marginLeft:'32px',top: '-300%', zIndex: '6' })),
+      // tslint:disable-next-line: prefer-template
+      transition('false => true', animate(DEFAULT_DISCUSS_DURATION + 'ms ease-in')),
+      // tslint:disable-next-line: prefer-template
+      transition('true => false', animate(DEFAULT_DISCUSS_DURATION + 'ms ease-out')),
+    ]),
+  ],
+  standalone: false
 })
 
 export class InsightSideBarComponent implements OnInit {

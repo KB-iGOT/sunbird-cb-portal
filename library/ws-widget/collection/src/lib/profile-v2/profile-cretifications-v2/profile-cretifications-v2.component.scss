@@ -1,6 +1,7 @@
-@use '@sunbird-cb/design-system/src/styles/ws-common';
-@use '@sunbird-cb/design-system/src/styles/ws-vars';
-@use '@sunbird-cb/design-system/src/styles/ws-mixins' as *;
+@use 'ws-common';
+@use 'ws-vars';
+@use 'ws-mixins' as *;
+;
 
 .comment-card {
   // width: 40%;
@@ -85,11 +86,11 @@ mat-card-actions {
   box-shadow: none !important;
 }
 
-.subheading{
+.subheading {
   font: 600 16px/24px Montserrat;
 }
 
-.img-size{
+.img-size {
   height: 100px;
   width: 100px;
   padding-right: 24px;
@@ -99,7 +100,8 @@ mat-card-actions {
   .detais-view {
     width: calc(100vw - 220px);
   }
-  .detais-view > div{
+
+  .detais-view>div {
     word-break: break-word;
   }
 }

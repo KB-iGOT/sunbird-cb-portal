@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core'
 import { Routes, RouterModule } from '@angular/router'
-import { ViewerResolve } from '@ws/viewer/src/lib/viewer.resolve'
+import { ViewerResolve } from '@ws/viewer'
 // import { EventsHomeComponent } from './routes/events-home/events-home.component'
 // import { EventsComponent } from './routes/events/events.component'
 import { EventDetailComponent } from './routes/event-detail/event-detail.component'

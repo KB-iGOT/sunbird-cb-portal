@@ -1,20 +1,22 @@
-import { LoaderService } from '@ws/author/src/lib/services/loader.service'
+
 import { IWidgetElementHtml } from '@sunbird-cb/collection'
-import { FILE_MAX_SIZE } from '@ws/author/src/lib/constants/upload'
-import { CONTENT_BASE_WEBHOST_ASSETS, AUTHORING_CONTENT_BASE } from '@ws/author/src/lib/constants/apiEndpoints'
-import { NotificationComponent } from '@ws/author/src/lib/modules/shared/components/notification/notification.component'
-import { UploadService } from '@ws/author/src/lib/routing/modules/editor/shared/services/upload.service'
-import { NOTIFICATION_TIME } from '@ws/author/src/lib/constants/constant'
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core'
 import { MatSnackBar } from '@angular/material/snack-bar'
-import { Notify } from '@ws/author/src/lib/constants/notificationMessage'
 import mustache from 'mustache'
 
+import { CONTENT_BASE_WEBHOST_ASSETS, AUTHORING_CONTENT_BASE } from '../../../../../../../../../constants/apiEndpoints'
+import { NOTIFICATION_TIME } from '../../../../../../../../../constants/constant'
+import { Notify } from '../../../../../../../../../constants/notificationMessage'
+import { LoaderService } from '../../../../../../../../../services/loader.service'
+import { UploadService } from '../../../../../../shared/services/upload.service'
+import { NotificationComponent } from '../../../../../../../../../../../../../../src/app/home/home/notification/notification.component'
+import { FILE_MAX_SIZE } from '../../../../../../../../../constants/upload'
+
 @Component({
-    selector: 'ws-auth-html',
-    templateUrl: './html.component.html',
-    styleUrls: ['./html.component.scss'],
-    standalone: false
+  selector: 'ws-auth-html',
+  templateUrl: './html.component.html',
+  styleUrls: ['./html.component.scss'],
+  standalone: false
 })
 export class HtmlComponent implements OnInit {
 

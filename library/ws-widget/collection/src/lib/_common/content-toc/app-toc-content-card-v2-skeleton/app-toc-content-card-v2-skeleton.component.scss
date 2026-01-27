@@ -1,4 +1,5 @@
-@import 'ws-vars';
+@use 'ws-vars';
+@use 'ws-mixins' as *;
 
 .resource {
     padding: 16px;
@@ -47,8 +48,8 @@
 
 .w-100 {
     width: 100%;
-  }
-  
-  .w-auto {
+}
+
+.w-auto {
     width: auto;
-  }
+}

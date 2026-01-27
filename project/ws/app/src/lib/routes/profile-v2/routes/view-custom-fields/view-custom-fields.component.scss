@@ -1,6 +1,6 @@
-@import 'ws-common';
-@import 'ws-vars';
-@import 'ws-mixins';
+@use 'ws-common';
+@use 'ws-vars';
+@use 'ws-mixins' as *;
 $border-color: rgba(0, 0, 0, 0.0784313725);
 
 @mixin custom-mat-icon($font-size: 20px, $width: 20px, $height: 20px) {

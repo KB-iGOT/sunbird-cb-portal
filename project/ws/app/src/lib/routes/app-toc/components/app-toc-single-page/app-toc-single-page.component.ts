@@ -8,10 +8,9 @@ import { share, debounceTime, switchMap, takeUntil } from 'rxjs/operators'
 import { NsAppToc, NsCohorts } from '../../models/app-toc.model'
 import { AppTocService } from '../../services/app-toc.service'
 import { CreateBatchDialogComponent } from '../create-batch-dialog/create-batch-dialog.component'
-import { TitleTagService } from '@ws/app/src/lib/routes/app-toc/services/title-tag.service'
 import { MobileAppsService } from 'src/app/services/mobile-apps.service'
-import { ConnectionHoverService } from '@sunbird-cb/collection/src/lib/_common/connection-hover-card/connection-hover.servive'
-import { NsContent, NsAutoComplete } from '@sunbird-cb/collection/src/public-api'
+import { ConnectionHoverService } from '@sunbird-cb/collection'
+import { NsContent, NsAutoComplete } from '@sunbird-cb/collection'
 // import { IdiscussionConfig } from '@project-sunbird/discussions-ui-v8'
 // tslint:disable-next-line
 import _ from 'lodash'
@@ -21,11 +20,12 @@ import { TranslateService } from '@ngx-translate/core'
 import { environment } from 'src/environments/environment'
 import { MatDialog } from '@angular/material/dialog'
 import { MatTabChangeEvent } from '@angular/material/tabs'
+import { TitleTagService } from '../../services/title-tag.service'
 @Component({
-    selector: 'ws-app-app-toc-single-page',
-    templateUrl: './app-toc-single-page.component.html',
-    styleUrls: ['./app-toc-single-page.component.scss'],
-    standalone: false
+  selector: 'ws-app-app-toc-single-page',
+  templateUrl: './app-toc-single-page.component.html',
+  styleUrls: ['./app-toc-single-page.component.scss'],
+  standalone: false
 })
 export class AppTocSinglePageComponent implements OnInit, OnChanges, OnDestroy {
   contentTypes = NsContent.EContentTypes

@@ -1,21 +1,21 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, QueryList, ViewChild, ViewChildren } from '@angular/core'
 import { AbstractControl, UntypedFormArray, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms'
 import { MatSnackBar } from '@angular/material/snack-bar'
-import { IWidgetImageMap, IWidgetMapMeta } from '@sunbird-cb/collection/src/lib/image-map-responsive/image-map-responsive.model'
-import { AUTHORING_CONTENT_BASE, CONTENT_BASE_WEBHOST_ASSETS } from '@ws/author/src/lib/constants/apiEndpoints'
-import { NOTIFICATION_TIME } from '@ws/author/src/lib/constants/constant'
-import { Notify } from '@ws/author/src/lib/constants/notificationMessage'
-import { NotificationComponent } from '@ws/author/src/lib/modules/shared/components/notification/notification.component'
-import { UploadService } from '@ws/author/src/lib/routing/modules/editor/shared/services/upload.service'
-import { LoaderService } from '@ws/author/src/lib/services/loader.service'
+import { IWidgetImageMap, IWidgetMapMeta } from '@sunbird-cb/collection'
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators'
 import { FILE_MAX_SIZE } from './../../../../../../../../../constants/upload'
+import { NotificationComponent } from '../../../../../../../../../modules/shared/components/notification/notification.component'
+import { CONTENT_BASE_WEBHOST_ASSETS, AUTHORING_CONTENT_BASE } from '../../../../../../../../../constants/apiEndpoints'
+import { NOTIFICATION_TIME } from '../../../../../../../../../constants/constant'
+import { Notify } from '../../../../../../../../../constants/notificationMessage'
+import { LoaderService } from '../../../../../../../../../services/loader.service'
+import { UploadService } from '../../../../../../shared/services/upload.service'
 
 @Component({
-    selector: 'ws-auth-image-map',
-    templateUrl: './image-map.component.html',
-    styleUrls: ['./image-map.component.scss'],
-    standalone: false
+  selector: 'ws-auth-image-map',
+  templateUrl: './image-map.component.html',
+  styleUrls: ['./image-map.component.scss'],
+  standalone: false
 })
 export class ImageMapComponent implements OnInit, AfterViewInit {
   @ViewChild('canvas') canvas!: ElementRef

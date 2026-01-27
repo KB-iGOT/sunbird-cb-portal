@@ -1,5 +1,5 @@
-@import 'ws-vars';
-@import 'ws-mixins';
+@use 'ws-vars';
+@use 'ws-mixins' as *;
 
 .teachers-note-header {
   /* stylelint-disable */
@@ -38,7 +38,7 @@
   }
 
   .note-title {
-     /* stylelint-disable */
+    /* stylelint-disable */
     font-family: Lato;
     /* stylelint-enable */
     font-size: 16px;
@@ -74,10 +74,11 @@
   }
 }
 
-.download-btn, .download-link {
+.download-btn,
+.download-link {
   cursor: pointer;
   transition: opacity 0.2s ease;
-  
+
   &:disabled {
     opacity: 0.6;
     cursor: not-allowed;

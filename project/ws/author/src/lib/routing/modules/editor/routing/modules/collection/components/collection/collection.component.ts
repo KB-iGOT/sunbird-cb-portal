@@ -1,31 +1,33 @@
-import { DeleteDialogComponent } from '@ws/author/src/lib/modules/shared/components/delete-dialog/delete-dialog.component'
+
 import { Component, OnDestroy, OnInit } from '@angular/core'
 import { UntypedFormGroup } from '@angular/forms'
-import { MatDialog, MatSnackBar } from '@angular/material'
 import { ActivatedRoute, Router } from '@angular/router'
-import { NOTIFICATION_TIME } from '@ws/author/src/lib/constants/constant'
-import { Notify } from '@ws/author/src/lib/constants/notificationMessage'
-import { IActionButton, IActionButtonConfig } from '@ws/author/src/lib/interface/action-button'
-import { NSApiRequest } from '@ws/author/src/lib/interface/apiRequest'
-import { IAuthSteps } from '@ws/author/src/lib/interface/auth-stepper'
-import { NSContent } from '@ws/author/src/lib/interface/content'
-import { CommentsDialogComponent } from '@ws/author/src/lib/modules/shared/components/comments-dialog/comments-dialog.component'
-import { ConfirmDialogComponent } from '@ws/author/src/lib/modules/shared/components/confirm-dialog/confirm-dialog.component'
-import { ErrorParserComponent } from '@ws/author/src/lib/modules/shared/components/error-parser/error-parser.component'
-import { NotificationComponent } from '@ws/author/src/lib/modules/shared/components/notification/notification.component'
-import { EditorContentService } from '@ws/author/src/lib/routing/modules/editor/services/editor-content.service'
-import { EditorService } from '@ws/author/src/lib/routing/modules/editor/services/editor.service'
-import { AuthInitService } from '@ws/author/src/lib/services/init.service'
-import { LoaderService } from '@ws/author/src/lib/services/loader.service'
 import { of, Subscription } from 'rxjs'
 import { map, mergeMap, tap, catchError } from 'rxjs/operators'
 import { IContentNode } from '../../interface/icontent-tree'
 import { CollectionResolverService } from './../../services/resolver.service'
 import { CollectionStoreService } from './../../services/store.service'
 import { VIEWER_ROUTE_FROM_MIME } from '@sunbird-cb/collection'
-import { NotificationService } from '@ws/author/src/lib/services/notification.service'
-import { AccessControlService } from '@ws/author/src/lib/modules/shared/services/access-control.service'
 import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/layout'
+import { MatDialog } from '@angular/material/dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
+import { NotificationComponent } from '@sunbird-cb/notification'
+import { AccessControlService } from '../../../../../../../../../public-api'
+import { Notify } from '../../../../../../../../constants/notificationMessage'
+import { IActionButtonConfig, IActionButton } from '../../../../../../../../interface/action-button'
+import { NSApiRequest } from '../../../../../../../../interface/apiRequest'
+import { IAuthSteps } from '../../../../../../../../interface/auth-stepper'
+import { NSContent } from '../../../../../../../../interface/content'
+import { CommentsDialogComponent } from '../../../../../../../../modules/shared/components/comments-dialog/comments-dialog.component'
+import { ConfirmDialogComponent } from '../../../../../../../../modules/shared/components/confirm-dialog/confirm-dialog.component'
+import { DeleteDialogComponent } from '../../../../../../../../modules/shared/components/delete-dialog/delete-dialog.component'
+import { ErrorParserComponent } from '../../../../../../../../modules/shared/components/error-parser/error-parser.component'
+import { AuthInitService } from '../../../../../../../../services/init.service'
+import { LoaderService } from '../../../../../../../../services/loader.service'
+import { NotificationService } from '../../../../../../../../services/notification.service'
+import { EditorContentService } from '../../../../../services/editor-content.service'
+import { EditorService } from '../../../../../services/editor.service'
+import { NOTIFICATION_TIME } from '../../../web-page/constant/web-module.constants'
 
 /**
  * @description
@@ -38,11 +40,11 @@ import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/l
  */
 
 @Component({
-    selector: 'ws-auth-collection',
-    templateUrl: './collection.component.html',
-    styleUrls: ['./collection.component.scss'],
-    providers: [CollectionStoreService, CollectionResolverService],
-    standalone: false
+  selector: 'ws-auth-collection',
+  templateUrl: './collection.component.html',
+  styleUrls: ['./collection.component.scss'],
+  providers: [CollectionStoreService, CollectionResolverService],
+  standalone: false
 })
 export class CollectionComponent implements OnInit, OnDestroy {
   contents: NSContent.IContentMeta[] = []
@@ -98,7 +100,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
     if (this.activateRoute.parent && this.activateRoute.parent.parent) {
       this.routerSubscription = this.activateRoute.parent.parent.data.subscribe(data => {
         const contentDataMap = new Map<string, NSContent.IContentMeta>()
-        data.contents.map((v: { content: NSContent.IContentMeta; data: any }) => {
+        data.contents.map((v: any) => {
           this.storeService.parentNode.push(v.content.identifier)
           this.resolverService.buildTreeAndMap(
             v.content,
@@ -190,7 +192,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
                 dataMapping: errorMap,
               },
             })
-            dialog.afterClosed().subscribe(v => {
+            dialog.afterClosed().subscribe((v: string | number | null) => {
               if (v) {
                 if (typeof v === 'string') {
                   this.storeService.selectedNodeChange.next(
@@ -240,7 +242,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
           processErrorData: returnValue,
         },
       })
-      dialog.afterClosed().subscribe(v => {
+      dialog.afterClosed().subscribe((v: string | number | null) => {
         if (v) {
           if (typeof v === 'string') {
             this.storeService.selectedNodeChange.next(
@@ -287,12 +289,13 @@ export class CollectionComponent implements OnInit, OnDestroy {
 
   finalCall(commentsForm: UntypedFormGroup) {
     if (commentsForm) {
+      let res: any = this.contentService.originalContent[this.currentParentId].status
       const body: NSApiRequest.IForwardBackwardActionGeneral = {
         comment: commentsForm.controls.comments.value,
         operation:
           commentsForm.controls.action.value === 'accept' ||
             ['Draft', 'Live'].includes(
-              this.contentService.originalContent[this.currentParentId].status,
+              res,
             )
             ? 1
             : 0,
@@ -307,7 +310,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
             .forwardBackward(
               body,
               this.currentParentId,
-              this.contentService.originalContent[this.currentParentId].status,
+              res,
             )
             .pipe(
               mergeMap(() =>
@@ -338,7 +341,8 @@ export class CollectionComponent implements OnInit, OnDestroy {
           })
           this.contents = this.contents.filter(v => v.identifier !== this.currentParentId)
           if (this.contents.length) {
-            this.contentService.changeActiveCont.next(this.contents[0].identifier)
+            let st: any = this.contents[0].identifier
+            this.contentService.changeActiveCont.next(st)
           } else {
             this.router.navigateByUrl('/author/home')
           }
@@ -357,7 +361,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
                 dataMapping: errorMap,
               },
             })
-            dialog.afterClosed().subscribe(v => {
+            dialog.afterClosed().subscribe((v: string | number | null) => {
               if (v) {
                 if (typeof v === 'string') {
                   this.storeService.selectedNodeChange.next(
@@ -414,7 +418,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
               dataMapping: errorMap,
             },
           })
-          dialog.afterClosed().subscribe(v => {
+          dialog.afterClosed().subscribe((v: string | number | null) => {
             if (v) {
               if (typeof v === 'string') {
                 this.storeService.selectedNodeChange.next(
@@ -557,7 +561,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
             width: '70%',
             data: 'publishMessage',
           })
-          dialogRefForPublish.afterClosed().subscribe(result => {
+          dialogRefForPublish.afterClosed().subscribe((result: any) => {
             if (result) {
               this.takeAction()
             }
@@ -573,11 +577,12 @@ export class CollectionComponent implements OnInit, OnDestroy {
           height: 'auto',
           data: this.contentService.getUpdatedMeta(this.currentParentId),
         })
-        dialog.afterClosed().subscribe(confirm => {
+        dialog.afterClosed().subscribe((confirm: any) => {
           if (confirm) {
             this.contents = this.contents.filter(v => v.identifier !== this.currentParentId)
             if (this.contents.length) {
-              this.contentService.changeActiveCont.next(this.contents[0].identifier)
+              let st: any = this.contents[0].identifier
+              this.contentService.changeActiveCont.next(st)
             } else {
               this.router.navigateByUrl('/author/home')
             }
@@ -609,7 +614,8 @@ export class CollectionComponent implements OnInit, OnDestroy {
         })
         this.contents = this.contents.filter(v => v.identifier !== this.currentParentId)
         if (this.contents.length) {
-          this.contentService.changeActiveCont.next(this.contents[0].identifier)
+          let st: any = this.contents[0].identifier
+          this.contentService.changeActiveCont.next(st)
         } else {
           this.router.navigateByUrl('/author/home')
         }
@@ -628,7 +634,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
               dataMapping: errorMap,
             },
           })
-          dialog.afterClosed().subscribe(v => {
+          dialog.afterClosed().subscribe((v: string | number | null) => {
             if (v) {
               if (typeof v === 'string') {
                 this.storeService.selectedNodeChange.next(
@@ -691,10 +697,11 @@ export class CollectionComponent implements OnInit, OnDestroy {
   }
 
   canDelete() {
+    let st: any = this.contentService.originalContent[this.currentParentId].status
     return (
       this.accessControlSvc.hasRole(['editor', 'admin']) ||
       (['Draft', 'Live'].includes(
-        this.contentService.originalContent[this.currentParentId].status,
+        st,
       ) &&
         this.contentService.originalContent[this.currentParentId].creatorContacts.find(
           v => v.id === this.accessControlSvc.userId,

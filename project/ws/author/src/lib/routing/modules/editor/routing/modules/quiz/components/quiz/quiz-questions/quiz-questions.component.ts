@@ -1,4 +1,4 @@
-import { DeleteDialogComponent } from '@ws/author/src/lib/modules/shared/components/delete-dialog/delete-dialog.component'
+
 import { Component, OnInit, ChangeDetectorRef, OnDestroy, EventEmitter, Output, Input } from '@angular/core'
 import { MatSnackBar, MatSnackBarRef as MatSnackBarRef } from '@angular/material/snack-bar'
 import { BreakpointObserver, Breakpoints, BreakpointState } from '@angular/cdk/layout'
@@ -7,55 +7,48 @@ import { forkJoin, of, Observable, Subscription } from 'rxjs'
 import { MatDialog } from '@angular/material/dialog'
 import { ActivatedRoute, Router } from '@angular/router'
 
-import { NotificationComponent } from '@ws/author/src/lib/modules/shared/components/notification/notification.component'
-import { CommentsDialogComponent } from '@ws/author/src/lib/modules/shared/components/comments-dialog/comments-dialog.component'
-import { ConfirmDialogComponent } from '@ws/author/src/lib/modules/shared/components/confirm-dialog/confirm-dialog.component'
-import { ErrorParserComponent } from '@ws/author/src/lib/modules/shared/components/error-parser/error-parser.component'
-
-import { EditorContentService } from '@ws/author/src/lib/routing/modules/editor/services/editor-content.service'
 import { QuizStoreService } from '../../../services/store.service'
-import { LoaderService } from '@ws/author/src/lib/services/loader.service'
-import { UploadService } from '@ws/author/src/lib/routing/modules/editor/shared/services/upload.service'
-import { EditorService } from '@ws/author/src/lib/routing/modules/editor/services/editor.service'
 import { QuizResolverService } from '../../../services/resolver.service'
-import { AuthInitService } from '@ws/author/src/lib/services/init.service'
-import { NotificationService } from '@ws/author/src/lib/services/notification.service'
-// import {
-//   FillUps,
-//   MatchQuiz,
-//   McqQuiz,
-// } from '@ws/author/src/lib/routing/modules/editor/routing/modules/quiz/components/quiz-class'
-import {
-  NOTIFICATION_TIME,
-  ASSESSMENT_JSON_WITH_KEY,
-  ASSESSMENT_JSON_WITHOUT_KEY,
-  ASSESSMENT,
-  QUIZ_JSON,
-} from '@ws/author/src/lib/routing/modules/editor/routing/modules/quiz/constants/quiz-constants'
-import { Notify } from '@ws/author/src/lib/constants/notificationMessage'
-import { NSContent } from '@ws/author/src/lib/interface/content'
-import { NSApiRequest } from '@ws/author/src/lib/interface/apiRequest'
 
-import { CONTENT_BASE_WEBHOST } from '@ws/author/src/lib/constants/apiEndpoints'
+
+
+
 import { VIEWER_ROUTE_FROM_MIME } from '@sunbird-cb/collection'
 import { UntypedFormGroup } from '@angular/forms'
-import { AccessControlService } from '@ws/author/src/lib/modules/shared/services/access-control.service'
+
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper'
+import { CONTENT_BASE_WEBHOST } from '../../../../../../../../../constants/apiEndpoints'
+import { Notify } from '../../../../../../../../../constants/notificationMessage'
+import { NSApiRequest } from '../../../../../../../../../interface/apiRequest'
+import { NSContent } from '../../../../../../../../../interface/content'
+import { CommentsDialogComponent } from '../../../../../../../../../modules/shared/components/comments-dialog/comments-dialog.component'
+import { ConfirmDialogComponent } from '../../../../../../../../../modules/shared/components/confirm-dialog/confirm-dialog.component'
+import { DeleteDialogComponent } from '../../../../../../../../../modules/shared/components/delete-dialog/delete-dialog.component'
+import { ErrorParserComponent } from '../../../../../../../../../modules/shared/components/error-parser/error-parser.component'
+import { AuthInitService } from '../../../../../../../../../services/init.service'
+import { LoaderService } from '../../../../../../../../../services/loader.service'
+import { NotificationService } from '../../../../../../../../../services/notification.service'
+import { EditorContentService } from '../../../../../../services/editor-content.service'
+import { EditorService } from '../../../../../../services/editor.service'
+import { UploadService } from '../../../../../../shared/services/upload.service'
+import { NOTIFICATION_TIME, ASSESSMENT, ASSESSMENT_JSON_WITHOUT_KEY, QUIZ_JSON, ASSESSMENT_JSON_WITH_KEY } from '../../../constants/quiz-constants'
+import { NotificationComponent } from '../../../../../../../../../modules/shared/components/notification/notification.component'
+import { AccessControlService } from '../../../../../../../../../modules/shared/services/access-control.service'
 
 @Component({
-    selector: 'ws-auth-quiz-questions',
-    templateUrl: './quiz-questions.component.html',
-    styleUrls: ['./quiz-questions.component.scss'],
-    providers: [QuizResolverService, {
-            provide: STEPPER_GLOBAL_OPTIONS, useValue: { displayDefaultIndicatorType: false },
-        }],
-    standalone: false
+  selector: 'ws-auth-quiz-questions',
+  templateUrl: './quiz-questions.component.html',
+  styleUrls: ['./quiz-questions.component.scss'],
+  providers: [QuizResolverService, {
+    provide: STEPPER_GLOBAL_OPTIONS, useValue: { displayDefaultIndicatorType: false },
+  }],
+  standalone: false
 })
 export class QuizQusetionsComponent implements OnInit, OnDestroy {
   @Output() data = new EventEmitter<string>()
   @Input() isSubmitPressed = false
   selectedQuizIndex!: number
-  allContents: NSContent.IContentMeta[] = []
+  allContents: any[] = []
   contentLoaded = false
   allLanguages: any = []
   showContent = true
@@ -178,7 +171,7 @@ export class QuizQusetionsComponent implements OnInit, OnDestroy {
     }
   }
 
-  changeContent(data: NSContent.IContentMeta) {
+  changeContent(data: any) {
     this.currentId = data.identifier
     this.metaContentService.changeActiveCont.next(data.identifier)
   }
@@ -618,20 +611,22 @@ export class QuizQusetionsComponent implements OnInit, OnDestroy {
   }
 
   isDirectPublish(): boolean {
+    let st: any = this.metaContentService.originalContent[this.currentId].status
     return (
-      ['Draft', 'Live'].includes(this.metaContentService.originalContent[this.currentId].status) &&
+      ['Draft', 'Live'].includes(st) &&
       this.isPublisherSame()
     )
   }
 
   finalCall(commentsForm: UntypedFormGroup) {
+    let st: any = this.metaContentService.originalContent[this.currentId].status
     if (commentsForm) {
       const body: NSApiRequest.IForwardBackwardActionGeneral = {
         comment: commentsForm.controls.comments.value,
         operation:
           commentsForm.controls.action.value === 'accept' ||
             ['Draft', 'Live'].includes(
-              this.metaContentService.originalContent[this.currentId].status,
+              st,
             )
             ? ((this.accessControl.authoringConfig.isMultiStepFlow && this.isDirectPublish()) ||
               !this.accessControl.authoringConfig.isMultiStepFlow) &&
@@ -645,6 +640,7 @@ export class QuizQusetionsComponent implements OnInit, OnDestroy {
       const updatedMeta = this.metaContentService.getUpdatedMeta(this.currentId)
       const needSave = Object.keys(this.metaContentService.upDatedContent[this.currentId] || {})
         .length
+      let st1: any = this.metaContentService.originalContent[this.currentId].status
       const saveCall = (needSave
         ? this.triggerSave(updatedContent, this.currentId)
         : of({} as any)
@@ -654,7 +650,7 @@ export class QuizQusetionsComponent implements OnInit, OnDestroy {
             .forwardBackward(
               body,
               this.currentId,
-              this.metaContentService.originalContent[this.currentId].status,
+              st1,
             )
             .pipe(
               mergeMap(() =>
@@ -778,8 +774,9 @@ export class QuizQusetionsComponent implements OnInit, OnDestroy {
   }
 
   canDelete() {
+    let st: any = this.metaContentService.originalContent[this.currentId].status
     return this.accessControl.hasRole(['editor', 'admin']) ||
-      (['Draft', 'Live'].includes(this.metaContentService.originalContent[this.currentId].status) &&
+      (['Draft', 'Live'].includes(st) &&
         this.metaContentService.originalContent[this.currentId].creatorContacts.find(v => v.id === this.accessControl.userId)
       )
   }

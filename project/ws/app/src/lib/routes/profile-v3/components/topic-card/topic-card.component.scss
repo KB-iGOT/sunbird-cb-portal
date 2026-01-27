@@ -1,6 +1,6 @@
-@import 'ws-common';
-@import 'ws-vars';
-@import 'ws-mixins';
+@use 'ws-common';
+@use 'ws-vars';
+@use 'ws-mixins' as *;
 @import 'profile-form';
 
 .topic_tag_link {
@@ -12,9 +12,10 @@
     cursor: pointer;
 }
 
-a{
+a {
     user-select: none;
 }
+
 // .topic_tag_link.tag_link_active {
 //     background-color: #0074b6!important;
 //     border:1px solid #0074b6!important;

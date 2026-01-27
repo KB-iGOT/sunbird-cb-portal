@@ -1,5 +1,5 @@
-@import 'ws-vars';
-@import 'ws-mixins';
+@use 'ws-vars';
+@use 'ws-mixins' as *;
 
 %background-image-center {
   background-repeat: no-repeat;
@@ -7,7 +7,7 @@
   background-position: center;
 }
 
-%page-center {
+@mixin page-center {
   max-width: $max-screen;
   margin-left: auto !important;
   margin-right: auto !important;

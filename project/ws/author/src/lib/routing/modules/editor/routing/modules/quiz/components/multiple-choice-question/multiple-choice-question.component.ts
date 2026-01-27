@@ -17,17 +17,17 @@ import { BreakpointObserver, BreakpointState } from '@angular/cdk/layout'
 import { NOTIFICATION_TIME } from '../../constants/quiz-constants'
 import { QuizStoreService } from '../../services/store.service'
 
-import { ConfirmDialogComponent } from '@ws/author/src/lib/modules/shared/components/confirm-dialog/confirm-dialog.component'
-import { NotificationComponent } from '@ws/author/src/lib/modules/shared/components/notification/notification.component.ts'
 import { McqQuiz, Option } from '../quiz-class'
-import { Notify } from '@ws/author/src/lib/constants/notificationMessage'
 import { OpenPlainCkEditorComponent } from '../../shared/components/open-plain-ck-editor/open-plain-ck-editor.component'
+import { NotificationComponent } from '../../../../../../../../modules/shared/components/notification/notification.component'
+import { Notify } from '../../../../../../../../constants/notificationMessage'
+import { ConfirmDialogComponent } from '../../../../../../../../modules/shared/components/confirm-dialog/confirm-dialog.component'
 
 @Component({
-    selector: 'ws-auth-multiple-choice-question',
-    templateUrl: './multiple-choice-question.component.html',
-    styleUrls: ['./multiple-choice-question.component.scss'],
-    standalone: false
+  selector: 'ws-auth-multiple-choice-question',
+  templateUrl: './multiple-choice-question.component.html',
+  styleUrls: ['./multiple-choice-question.component.scss'],
+  standalone: false
 })
 export class MultipleChoiceQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Output() value = new EventEmitter<any>()

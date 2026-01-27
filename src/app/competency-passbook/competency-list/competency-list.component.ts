@@ -9,17 +9,17 @@ import { takeUntil } from 'rxjs/operators'
 // Project files and components
 import { ConfigurationsService, MultilingualTranslationsService, WidgetEnrollService } from '@sunbird-cb/utils-v2'
 
-import { NsContent } from '@sunbird-cb/collection/src/public-api'
+import { NsContent } from '@sunbird-cb/collection'
 import { TranslateService } from '@ngx-translate/core'
 import { environment } from 'src/environments/environment'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { MatTabChangeEvent } from '@angular/material/tabs'
 
 @Component({
-    selector: 'ws-competency-list',
-    templateUrl: './competency-list.component.html',
-    styleUrls: ['./competency-list.component.scss'],
-    standalone: false
+  selector: 'ws-competency-list',
+  templateUrl: './competency-list.component.html',
+  styleUrls: ['./competency-list.component.scss'],
+  standalone: false
 })
 
 export class CompetencyListComponent implements OnInit, OnDestroy {

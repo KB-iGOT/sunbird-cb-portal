@@ -1,4 +1,4 @@
-@import 'ws-mixins';
+@use 'ws-mixins' as *;
 
 .playlist-card {
   //width: 185px;

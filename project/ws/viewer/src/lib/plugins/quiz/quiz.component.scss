@@ -1,11 +1,12 @@
-@import 'ws-vars';
-@import 'ws-common';
+@use 'ws-vars';
+@use 'ws-common';
+@use 'ws-mixins' as *;
 
 $nav-height: 40px;
 
 .h-inherit {
   height: inherit !important;
-} 
+}
 
 .quiz-container {
   height: 100%;

@@ -1,6 +1,7 @@
-@use '@sunbird-cb/design-system/src/styles/ws-common';
-@use '@sunbird-cb/design-system/src/styles/ws-vars';
-@use '@sunbird-cb/design-system/src/styles/ws-mixins' as *;
+@use 'ws-common';
+@use 'ws-vars';
+@use 'ws-mixins' as *;
+;
 
 
 .min-wid {
@@ -11,8 +12,9 @@
 .outline-1 {
   outline: unset !important;
 }
-.faq_left_inner{
-  width:100%;
+
+.faq_left_inner {
+  width: 100%;
 }
 
 .pad-l-4r {

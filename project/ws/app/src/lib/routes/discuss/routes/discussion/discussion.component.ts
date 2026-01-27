@@ -3,19 +3,19 @@ import { Component, OnInit, OnDestroy, ChangeDetectorRef, AfterViewInit, ViewChi
 import { ActivatedRoute, Router } from '@angular/router'
 import { NSDiscussData } from '../../models/discuss.model'
 import { UntypedFormGroup, UntypedFormBuilder } from '@angular/forms'
-import { CONTENT_BASE_STREAM } from '@ws/author/src/lib/constants/apiEndpoints'
-import { LoaderService } from '../../../../../../../author/src/public-api'
+import { CONTENT_BASE_STREAM } from '@ws/author'
+import { LoaderService } from '@ws/author'
 import { DiscussService } from '../../services/discuss.service'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { DiscussUtilsService } from '../../services/discuss-utils.service'
 
 @Component({
-    selector: 'app-discuss-discussion',
-    templateUrl: './discussion.component.html',
-    styleUrls: ['./discussion.component.scss'],
-    // tslint:disable-next-line
-    host: { class: 'flex flex-1 margin-top-l' },
-    standalone: false
+  selector: 'app-discuss-discussion',
+  templateUrl: './discussion.component.html',
+  styleUrls: ['./discussion.component.scss'],
+  // tslint:disable-next-line
+  host: { class: 'flex flex-1 margin-top-l' },
+  standalone: false
 })
 export class DiscussionComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('toastSuccess', { static: true }) toastSuccess!: ElementRef<any>

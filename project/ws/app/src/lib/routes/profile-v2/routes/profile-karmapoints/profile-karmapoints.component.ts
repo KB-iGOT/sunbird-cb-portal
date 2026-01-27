@@ -1,17 +1,17 @@
 import { Component, OnInit } from '@angular/core'
 import { Router } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
-import { WidgetContentService } from '@sunbird-cb/collection/src/lib/_services/widget-content.service'
+import { WidgetContentService } from '@sunbird-cb/collection'
 import { ConfigurationsService, MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 import moment from 'moment'
 
 @Component({
-    selector: 'app-profile-karmapoints',
-    templateUrl: './profile-karmapoints.component.html',
-    styleUrls: ['./profile-karmapoints.component.scss'],
-    /* tslint:disable */
-    host: { class: 'flex flex-1 margin-top-l' },
-    standalone: false
+  selector: 'app-profile-karmapoints',
+  templateUrl: './profile-karmapoints.component.html',
+  styleUrls: ['./profile-karmapoints.component.scss'],
+  /* tslint:disable */
+  host: { class: 'flex flex-1 margin-top-l' },
+  standalone: false
 })
 export class ProfileKarmapointsComponent implements OnInit {
   currentUser: any
@@ -73,7 +73,7 @@ export class ProfileKarmapointsComponent implements OnInit {
     if (row && row.addinfo && row.context_type === 'Course') {
       const info = JSON.parse(row.addinfo)
       return info.COURSENAME ? info.COURSENAME : 'No course'
-    }  if (row && row.addinfo && row.context_type.toLowerCase() === 'event') {
+    } if (row && row.addinfo && row.context_type.toLowerCase() === 'event') {
       const info = JSON.parse(row.addinfo)
       return info.EVENTNAME ? info.EVENTNAME : 'No event'
     }
@@ -83,7 +83,7 @@ export class ProfileKarmapointsComponent implements OnInit {
   getAdditonInfo(row: any) {
     if (row && row.addinfo) {
       const info = JSON.parse(row.addinfo)
-    return info.ACBP
+      return info.ACBP
     }
     return false
   }

@@ -6,10 +6,10 @@ import { NetworkingService } from '../../services/networking.service'
 import { ActivatedRoute } from '@angular/router'
 
 @Component({
-    selector: 'ws-app-connections',
-    templateUrl: './connections.component.html',
-    styleUrls: ['./connections.component.scss'],
-    standalone: false
+  selector: 'ws-app-connections',
+  templateUrl: './connections.component.html',
+  styleUrls: ['./connections.component.scss'],
+  standalone: false
 })
 export class ConnectionsComponent implements OnInit {
 
@@ -78,7 +78,7 @@ export class ConnectionsComponent implements OnInit {
             } else if (tab.key === 'Blocked') {
               keyToSet = 'Blocked Outgoing'
             }
-            let statusList = _.get(formBody, 'request.filter.status', [])
+            let statusList: any = _.get(formBody, 'request.filter.status', [])
             if (statusList.includes('Pending')) {
               statusList = statusList.filter((s: string) => s !== 'Pending').concat(['Requested', 'Received'])
             }

@@ -6,8 +6,7 @@ import { WidgetContentService } from '@sunbird-cb/collection'
 import { IResolveResponse } from '@sunbird-cb/utils-v2'
 
 @Injectable()
-export class ChannelsLabelsResolve
-   {
+export class ChannelsLabelsResolve {
   constructor(private contentSvc: WidgetContentService) { }
 
   resolve(
@@ -19,8 +18,8 @@ export class ChannelsLabelsResolve
       pageNo: 0,
       pageSize: 0,
     }).pipe(
-      map(data => {
-        const labels = data.notToBeShownFilters.find(unit => unit.type === 'labels')
+      map((data: any) => {
+        const labels = data.notToBeShownFilters.find((unit: any) => unit.type === 'labels')
         if (labels) {
           return labels.content
         }

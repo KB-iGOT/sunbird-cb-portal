@@ -3,7 +3,7 @@ import { Injectable } from '@angular/core'
 import { ConfigurationsService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
 import { Observable, of } from 'rxjs'
 import { SearchApiService } from '../apis/search-api.service'
-import { IFilterUnitItem, IFilterUnitResponse, ISearchAutoComplete, ISearchQuery, ISearchRequestV2, ISearchSocialSearchPartialRequest, ISocialSearchRequest } from '../models/search.model'
+import { IFilterUnitItem, IFilterUnitResponse, ISearchQuery, ISearchRequestV2, ISearchSocialSearchPartialRequest, ISocialSearchRequest } from '../models/search.model'
 import { NSSearch } from '@sunbird-cb/collection'
 
 const API_END_POINTS = {
@@ -49,7 +49,7 @@ export class SearchServService {
     return false
   }
 
-  searchAutoComplete(params: ISearchQuery): Promise<ISearchAutoComplete[]> {
+  searchAutoComplete(params: ISearchQuery): Promise<any> {
     params.q = params.q.toLowerCase()
     if (params.l.split(',').length === 1 && params.l.toLowerCase() !== 'all') {
       return this.searchApi.getSearchAutoCompleteResults(params).toPromise()
@@ -92,7 +92,7 @@ export class SearchServService {
   }
   fetchSearchDataProjects(_request: any): Observable<any> {
     // return this.khubApiSvc.fetchSearchDataProject(request)
-    return  '' as any
+    return '' as any
   }
 
   updateSelectedFiltersSet(filters: { [key: string]: string[] }) {

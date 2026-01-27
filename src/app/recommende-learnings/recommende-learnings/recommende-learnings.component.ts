@@ -5,14 +5,14 @@ import _ from 'lodash'
 /* tslint:enable */
 import { TranslateService } from '@ngx-translate/core'
 import { MultilingualTranslationsService, NsContent, WidgetEnrollService } from '@sunbird-cb/utils-v2'
-import { SeeAllService } from '@ws/app/src/lib/routes/see-all/services/see-all.service'
+import { SeeAllService } from '@ws/app'
 import { WidgetUserServiceLib } from '@sunbird-cb/consumption'
 
 @Component({
-    selector: 'ws-recommende-learnings',
-    templateUrl: './recommende-learnings.component.html',
-    styleUrls: ['./recommende-learnings.component.scss'],
-    standalone: false
+  selector: 'ws-recommende-learnings',
+  templateUrl: './recommende-learnings.component.html',
+  styleUrls: ['./recommende-learnings.component.scss'],
+  standalone: false
 })
 export class RecommendeLearningsComponent implements OnInit {
   recommendedConfig: any
@@ -22,7 +22,7 @@ export class RecommendeLearningsComponent implements OnInit {
   completed: any = []
   results: any = []
   content: any = []
-  
+
   constructor(
     private activatedRoute: ActivatedRoute,
     private widgetSvc: WidgetUserServiceLib,
@@ -32,15 +32,15 @@ export class RecommendeLearningsComponent implements OnInit {
     private seeAllSvc: SeeAllService,
     private enrollSvc: WidgetEnrollService
 
-    ) {
-      this.langtranslations.languageSelectedObservable.subscribe(() => {
-        if (localStorage.getItem('websiteLanguage')) {
-          this.translate.setDefaultLang('en')
-          const lang = localStorage.getItem('websiteLanguage')!
-          this.translate.use(lang)
-        }
-      })
-    }
+  ) {
+    this.langtranslations.languageSelectedObservable.subscribe(() => {
+      if (localStorage.getItem('websiteLanguage')) {
+        this.translate.setDefaultLang('en')
+        const lang = localStorage.getItem('websiteLanguage')!
+        this.translate.use(lang)
+      }
+    })
+  }
 
   ngOnInit() {
     this.activatedRoute.queryParams.subscribe((res: any) => {
@@ -60,13 +60,13 @@ export class RecommendeLearningsComponent implements OnInit {
 
   async getRecommendeLeanings() {
     let response = await this.seeAllSvc.fetchDesigantionsData(this.recommendedConfig.strip.request.designationsList.path).toPromise()
-    if(response) {
+    if (response) {
       let request = {
         "request": {
-            "courseId": response
+          "courseId": response
         }
       }
-      let enollData =  await this.enrollSvc.fetchEnrollContentData(request).toPromise().then(async (res: any) => {
+      let enollData = await this.enrollSvc.fetchEnrollContentData(request).toPromise().then(async (res: any) => {
         if (res && res.result && res.result.courses && res.result.courses.length) {
           return res.result.courses
         } else {
@@ -83,7 +83,7 @@ export class RecommendeLearningsComponent implements OnInit {
           "offset": 0,
           "query": "",
           "sort_by": {
-              "lastUpdatedOn": "desc"
+            "lastUpdatedOn": "desc"
           },
         }
       }
@@ -96,7 +96,7 @@ export class RecommendeLearningsComponent implements OnInit {
     }
   }
 
-  getPilldata(courses: any, enollData: any, coursesArray: any){
+  getPilldata(courses: any, enollData: any, coursesArray: any) {
     let avaialable: any[] = []
     let inprogress: any[] = []
     let completed: any[] = []
@@ -129,13 +129,19 @@ export class RecommendeLearningsComponent implements OnInit {
         }
       }
     })
-    this.results.push({name: 'ravailable', courses: this.transformContentsToWidgets(
-      avaialable, this.recommendedConfig.strip)}
+    this.results.push({
+      name: 'ravailable', courses: this.transformContentsToWidgets(
+        avaialable, this.recommendedConfig.strip)
+    }
     )
-    this.results.push({name: 'rinprogress', courses: this.transformContentsToWidgets(
-      inprogress, this.recommendedConfig.strip)})
-    this.results.push({name: 'rcompleted',  courses: this.transformContentsToWidgets(
-      completed, this.recommendedConfig.strip)}
+    this.results.push({
+      name: 'rinprogress', courses: this.transformContentsToWidgets(
+        inprogress, this.recommendedConfig.strip)
+    })
+    this.results.push({
+      name: 'rcompleted', courses: this.transformContentsToWidgets(
+        completed, this.recommendedConfig.strip)
+    }
     )
     const _courses = this.results.find((key: any) => key.name === this.slectedPill)
     this.content = _courses ? _courses.courses : []
@@ -154,8 +160,8 @@ export class RecommendeLearningsComponent implements OnInit {
         ...(content.batch && {
           batch: content.batch,
         }),
-        cardSubType: strip.viewMoreUrl &&  strip.viewMoreUrl.stripConfig
-        && strip.viewMoreUrl.stripConfig.cardSubType,
+        cardSubType: strip.viewMoreUrl && strip.viewMoreUrl.stripConfig
+          && strip.viewMoreUrl.stripConfig.cardSubType,
         context: {
           pageSection: strip.key,
           position: idx,
@@ -169,5 +175,5 @@ export class RecommendeLearningsComponent implements OnInit {
   translateLabels(label: string, type: any) {
     return this.langtranslations.translateLabel(label.toLowerCase(), type, '')
   }
-  
+
 }

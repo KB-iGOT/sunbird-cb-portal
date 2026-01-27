@@ -1,6 +1,6 @@
-@import 'ws-vars';
-@import 'ws-mixins';
-@import 'ws-common';
+@use 'ws-vars';
+@use 'ws-common';
+@use 'ws-mixins' as *;
 
 mat-drawer {
   padding: 10px;

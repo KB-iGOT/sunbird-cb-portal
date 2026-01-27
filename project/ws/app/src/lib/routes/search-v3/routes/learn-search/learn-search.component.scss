@@ -1,6 +1,6 @@
-@import 'ws-common';
-@import 'ws-vars';
-@import 'ws-mixins';
+@use 'ws-common';
+@use 'ws-vars';
+@use 'ws-mixins' as *;
 
 .custom-sidenav {
   width: 22.5%;
@@ -31,18 +31,22 @@
 .custom-sidecontent {
   //   width: 73%;
   min-height: 94vh;
+
   &.full {
     width: 100%;
   }
+
   .learn-card {
     border-radius: 10px;
     background: #ffffff;
     height: 170px;
     min-height: 170px;
     box-shadow: none !important;
+
     .imageholder {
       width: 34%;
       height: 170px;
+
       img {
         width: 100%;
         display: block;
@@ -51,16 +55,19 @@
         border-radius: 10px 0 0 10px;
       }
     }
+
     .content-title {
       text-overflow: ellipsis;
       overflow: hidden;
       white-space: nowrap;
     }
+
     .mat-card-content {
       margin-left: 36%;
       padding: 8px;
       position: relative;
       height: 152px;
+
       .mat-caption {
         .mat-icon {
           vertical-align: middle;
@@ -121,9 +128,11 @@
     width: auto !important;
     margin-top: 40px;
   }
+
   .custom-sidecontent {
     width: 100%;
   }
+
   .learnsearch {
     margin-left: 8px;
     margin-right: 8px;
@@ -190,6 +199,7 @@
   margin-top: 126px;
   /* height: calc(100vh - 10px); */
   margin-bottom: 10px;
+
   @media (max-width: 768px) {
     width: 61.5% !important;
   }
@@ -204,6 +214,7 @@
     padding: 2px 2px 2px 12px;
     border-radius: 18px;
     background-color: $lightGrayshade;
+
     span {
       /* stylelint-disable */
       font-family: Lato;
@@ -215,9 +226,11 @@
       text-overflow: ellipsis;
       white-space: nowrap;
     }
+
     mat-icon {
       font-size: 16px;
     }
+
     .mat-icon-button {
       width: 28px;
       height: 28px;
@@ -226,7 +239,9 @@
   }
 }
 
-.explore-all-content span, .contents-title-top, .contents-title-top span {
+.explore-all-content span,
+.contents-title-top,
+.contents-title-top span {
   /* stylelint-disable */
   font-family: Montserrat;
   /* stylelint-enable */
