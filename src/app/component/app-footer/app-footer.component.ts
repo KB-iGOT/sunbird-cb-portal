@@ -4,7 +4,6 @@ import { Component, Input, OnInit, ViewEncapsulation } from '@angular/core'
 import { NavigationEnd, Router } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
 import { ConfigurationsService, DomainConfService, NsInstanceConfig, ValueService } from '@sunbird-cb/utils-v2'
-import 'rxjs/add/operator/toPromise'
 
 // tslint:disable-next-line
 import _ from 'lodash'
