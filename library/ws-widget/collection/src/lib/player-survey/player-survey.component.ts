@@ -1,18 +1,18 @@
 import { Component, OnInit, Input, OnDestroy } from '@angular/core'
 import { IWidgetsPlayerSurveyData } from './player-survey.model'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { interval, Subscription } from 'rxjs'
 import { ConfigurationsService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
 import { ROOT_WIDGET_CONFIG } from '../collection.config'
 // import { NsContent } from '../_services/widget-content.model'
 import { ActivatedRoute } from '@angular/router'
-import { ViewerUtilService } from '@ws/viewer'
 import { MatSnackBar } from '@angular/material/snack-bar'
-import { ViewerDataService } from '@ws/viewer'
 import { HttpErrorResponse } from '@angular/common/http'
 import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms'
 import * as _ from 'lodash'
 import { WidgetContentService } from '../_services/widget-content.service'
+import { ViewerDataService } from '../viewer-data.service'
+import { ViewerUtilService } from '../viewer-util.service'
 
 const EMAIL_PATTERN = /^[a-zA-Z0-9]+[a-zA-Z0-9._-]*[a-zA-Z0-9]+@[a-zA-Z0-9]+([-a-zA-Z0-9]*[a-zA-Z0-9]+)?(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,4}$/
 const MOBILE_PATTERN = /^[0]?[6789]\d{9}$/

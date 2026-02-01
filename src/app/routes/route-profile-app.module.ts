@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { ProfileModule } from '@ws/app'
+import { ProfileModule } from '@sunbird-cb/collection'
 
 @NgModule({
   declarations: [],

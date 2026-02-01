@@ -1,14 +1,14 @@
 import { Component, HostBinding, Input, OnInit } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { ICarousel } from './sliders.model'
 import { Subscription, interval } from 'rxjs'
 import { EventService, WsEvents } from '@sunbird-cb/utils-v2'
 
 @Component({
-    selector: 'ws-widget-sliders',
-    templateUrl: './sliders.component.html',
-    styleUrls: ['./sliders.component.scss'],
-    standalone: false
+  selector: 'ws-widget-sliders',
+  templateUrl: './sliders.component.html',
+  styleUrls: ['./sliders.component.scss'],
+  standalone: false
 })
 export class SlidersComponent extends WidgetBaseComponent
   implements OnInit, NsWidgetResolver.IWidgetData<ICarousel[]> {
@@ -84,6 +84,6 @@ export class SlidersComponent extends WidgetBaseComponent
       {
         pageIdExt: 'banner',
         module: WsEvents.EnumTelemetrymodules.CONTENT,
-    })
+      })
   }
 }

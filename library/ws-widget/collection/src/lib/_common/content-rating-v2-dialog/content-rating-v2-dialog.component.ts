@@ -1,13 +1,14 @@
 import { Component, OnInit, Inject, Input } from '@angular/core'
-import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms'
+import { FormGroup, FormControl, Validators } from '@angular/forms'
 import { EventService, WsEvents, LoggerService, NsContent } from '@sunbird-cb/utils-v2'
 import { switchMap, takeUntil } from 'rxjs/operators'
 import { Subject } from 'rxjs'
-import { NsAppRating } from '@ws/app'
+
 import { Router } from '@angular/router'
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { RatingService } from '../../_services/rating.service'
+import { NsAppRating } from '../../app-toc/models/rating.model'
 
 @Component({
   selector: 'ws-widget-content-rating-v2-dialog',
@@ -24,7 +25,7 @@ export class ContentRatingV2DialogComponent implements OnInit {
   @Input() collectionId = ''
   content: NsContent.IContent | null = null
   userRating = 0
-  feedbackForm: UntypedFormGroup
+  feedbackForm: FormGroup
   showSuccessScreen = false
   formDisabled = true
   isEdited = false
@@ -39,10 +40,10 @@ export class ContentRatingV2DialogComponent implements OnInit {
     private snackBar: MatSnackBar,
     private router: Router,
   ) {
-    this.feedbackForm = new UntypedFormGroup({
-      review: new UntypedFormControl(null, [Validators.minLength(1), Validators.maxLength(2000)]),
-      rating: new UntypedFormControl(0, []),
-      recommend: new UntypedFormControl(false),
+    this.feedbackForm = new FormGroup({
+      review: new FormControl(null, [Validators.minLength(1), Validators.maxLength(2000)]),
+      rating: new FormControl(0, []),
+      recommend: new FormControl(false),
     })
   }
 

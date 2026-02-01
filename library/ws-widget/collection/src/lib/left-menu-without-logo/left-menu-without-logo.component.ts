@@ -1,16 +1,16 @@
 import { Component, OnInit, OnDestroy, Input } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { ILeftMenuWithoutLogo } from './left-menu-without-logo.model'
 
 @Component({
-    selector: 'ws-widget-left-menu-without-logo',
-    templateUrl: './left-menu-without-logo.component.html',
-    styleUrls: ['./left-menu-without-logo.component.scss'],
-    standalone: false
+  selector: 'ws-widget-left-menu-without-logo',
+  templateUrl: './left-menu-without-logo.component.html',
+  styleUrls: ['./left-menu-without-logo.component.scss'],
+  standalone: false
 })
 export class LeftMenuWithoutLogoComponent extends WidgetBaseComponent
-  implements OnInit, OnDestroy, NsWidgetResolver.IWidgetData<ILeftMenuWithoutLogo[]>  {
+  implements OnInit, OnDestroy, NsWidgetResolver.IWidgetData<ILeftMenuWithoutLogo[]> {
   @Input() widgetData!: ILeftMenuWithoutLogo[]
   param: any
   constructor(private activatedRoute: ActivatedRoute) {

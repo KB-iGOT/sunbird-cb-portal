@@ -1,15 +1,15 @@
 import { Component, Input, OnInit } from '@angular/core'
 import { MatDialog } from '@angular/material/dialog'
 import { Router } from '@angular/router'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { BtnPageBackNavService } from './btn-page-back-nav.service'
 import { ConfirmDialogComponent } from '../_common/confirm-dialog/confirm-dialog.component'
 type TUrl = undefined | 'none' | 'back' | string
 @Component({
-    selector: 'ws-widget-btn-page-back-nav',
-    templateUrl: './btn-page-back-nav.component.html',
-    styleUrls: ['./btn-page-back-nav.component.scss'],
-    standalone: false
+  selector: 'ws-widget-btn-page-back-nav',
+  templateUrl: './btn-page-back-nav.component.html',
+  styleUrls: ['./btn-page-back-nav.component.scss'],
+  standalone: false
 })
 export class BtnPageBackNavComponent extends WidgetBaseComponent
   implements OnInit, NsWidgetResolver.IWidgetData<{ url: TUrl }> {

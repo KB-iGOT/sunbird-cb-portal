@@ -2,10 +2,10 @@
 import { Component, OnInit, Input } from '@angular/core'
 import { HttpErrorResponse } from '@angular/common/http'
 import { ConfigurationsService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
-import { HomePageService } from 'src/app/services/home-page.service'
-import { DiscussUtilsService } from '@ws/app'
+import { DiscussUtilsService } from '@sunbird-cb/collection'
 import { Router } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
+import { HomePageService } from '../../../services/home-page.service'
 @Component({
   selector: 'ws-discuss-hub',
   templateUrl: './discuss-hub.component.html',
@@ -17,13 +17,13 @@ export class DiscussHubComponent implements OnInit {
   // tslint:disable-next-line:no-input-rename
   @Input('discussConfig') discussConfig: any
   userData: any
-  discussion = {
+  discussion: any = {
     data: undefined,
     error: false,
     loadSkeleton: false,
   }
 
-  updatesPosts = {
+  updatesPosts: any = {
     data: undefined,
     error: false,
     loadSkeleton: false,

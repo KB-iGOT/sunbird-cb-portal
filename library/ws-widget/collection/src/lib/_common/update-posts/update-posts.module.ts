@@ -6,8 +6,8 @@ import { SkeletonLoaderModule } from './../skeleton-loader/skeleton-loader.modul
 
 import { UpdatePostsComponent } from './update-posts.component'
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core'
-import { HttpLoaderFactory } from 'src/app/app.module'
 import { HttpClient } from '@angular/common/http'
+import { HttpLoaderFactory } from './../../_services/http-loader.factory'
 
 @NgModule({
     declarations: [UpdatePostsComponent],

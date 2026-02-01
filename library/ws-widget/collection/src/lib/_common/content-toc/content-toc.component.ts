@@ -1,23 +1,24 @@
-import { AfterViewInit, Component, EventEmitter, HostListener, Input, OnChanges, OnInit, Output, QueryList, SimpleChanges, ViewChild, ViewChildren } from '@angular/core'
+import { AfterViewInit, Component, EventEmitter, HostListener, Inject, Input, OnChanges, OnInit, Output, QueryList, SimpleChanges, ViewChild, ViewChildren } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
 import { ConfigurationsService, EventService, NsContent, UtilityService, WsEvents } from '@sunbird-cb/utils-v2'
 import { Subscription } from 'rxjs'
 
-import { LoadCheckService } from '@ws/app'
+
 import { MatTabGroup, MatTabChangeEvent } from '@angular/material/tabs'
 import { NsDiscussionV2 } from '@sunbird-cb/discussion-v2'
 import { AiTutorConfirmPopupComponent } from './ai-tutor-confirm-popup/ai-tutor-confirm-popup.component'
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog'
-import { AppTocService } from '@ws/app'
-import { ActionService } from '@ws/app'
 import { VttFile } from '@polyflix/vtt-parser'
 import { tap } from 'rxjs/operators'
-import { ViewerDataService } from '@ws/viewer'
 import { MatTab } from '@angular/material/tabs'
-import { environment } from 'src/environments/environment'
+
 import { SamuhikCharchaService } from '../../_services/samuhik-charcha.service'
 import * as _ from 'lodash'
 import { viewerRouteGenerator } from '../../_services/viewer-route-util'
+import { ActionService } from '../../app-toc/services/action.service'
+import { AppTocService } from '../../app-toc/services/app-toc.service'
+import { LoadCheckService } from '../../app-toc/services/load-check.service'
+import { ViewerDataService } from '../../viewer-data.service'
 @Component({
   selector: 'ws-widget-content-toc',
   templateUrl: './content-toc.component.html',
@@ -95,6 +96,7 @@ export class ContentTocComponent implements OnInit, AfterViewInit, OnChanges {
   enableSamuhikCharchaTab = false
   samuhikConfig: any
   constructor(
+    @Inject('environment') private environment: any,
     private route: ActivatedRoute,
     private utilityService: UtilityService,
     private loadCheckService: LoadCheckService,
@@ -348,7 +350,7 @@ export class ContentTocComponent implements OnInit, AfterViewInit, OnChanges {
 
         // Check local storage for survey response only if URL contains 'public' or 'preview=true'
         if (!hasEducatorRole && this.forPreview) {
-          const surveyId = environment.publicContentSurveyId || ''
+          const surveyId = this.environment.publicContentSurveyId || ''
           const courseId = this.contentReadData?.identifier || ''
           const storageKey = `survey_${surveyId}_${courseId}`
           const storedData = localStorage.getItem(storageKey)

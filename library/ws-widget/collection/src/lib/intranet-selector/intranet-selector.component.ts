@@ -1,13 +1,13 @@
 import { Component, OnInit, Input } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { IIntranetSelector } from './intranet-selector.model'
 import { IntranetSelectorService } from './intranet-selector.service'
 
 @Component({
-    selector: 'ws-widget-intranet-selector',
-    templateUrl: './intranet-selector.component.html',
-    styleUrls: ['./intranet-selector.component.scss'],
-    standalone: false
+  selector: 'ws-widget-intranet-selector',
+  templateUrl: './intranet-selector.component.html',
+  styleUrls: ['./intranet-selector.component.scss'],
+  standalone: false
 })
 export class IntranetSelectorComponent extends WidgetBaseComponent
   implements OnInit, NsWidgetResolver.IWidgetData<IIntranetSelector | null> {

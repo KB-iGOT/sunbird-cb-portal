@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { CareerHubModule } from '@ws/app'
+import { CareerHubModule } from '@sunbird-cb/collection'
 
 @NgModule({
   imports: [CommonModule, CareerHubModule],

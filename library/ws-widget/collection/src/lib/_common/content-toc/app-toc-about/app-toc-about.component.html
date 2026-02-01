@@ -491,7 +491,7 @@
                     <div *ngIf="item?.key === competencySelected">
                         <ws-utils-horizontal-scroller-v2 [loadStatus]="'done'" [stripConfig]="strip.stripConfig">
                             <ng-container *ngFor="let widget of strip?.loaderWidgets; trackBy: tracker">
-                                <ng-container [wsResolverWidget]="widget"></ng-container>
+                                <ng-container [sbUiResolverWidget]="widget"></ng-container>
                             </ng-container>
                         </ws-utils-horizontal-scroller-v2>
                     </div>
@@ -540,7 +540,7 @@
                         <div>
                             <ws-utils-horizontal-scroller-v2 [loadStatus]="'done'" [stripConfig]="strip.stripConfig">
                                 <ng-container *ngFor="let widget of strip?.sectorWidgets; trackBy: tracker">
-                                    <ng-container [wsResolverWidget]="widget"></ng-container>
+                                    <ng-container [sbUiResolverWidget]="widget"></ng-container>
                                 </ng-container>
                             </ws-utils-horizontal-scroller-v2>
                         </div>

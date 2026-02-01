@@ -5,7 +5,7 @@ import _ from 'lodash'
 /* tslint:enable */
 import { TranslateService } from '@ngx-translate/core'
 import { MultilingualTranslationsService, NsContent, WidgetEnrollService } from '@sunbird-cb/utils-v2'
-import { SeeAllService } from '@ws/app'
+import { SeeAllService } from '@sunbird-cb/collection'
 import { WidgetUserServiceLib } from '@sunbird-cb/consumption'
 
 @Component({

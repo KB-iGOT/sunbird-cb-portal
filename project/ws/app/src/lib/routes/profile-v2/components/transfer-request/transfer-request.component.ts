@@ -1,6 +1,6 @@
 import { Component, OnInit, Inject, OnDestroy, Output, EventEmitter } from '@angular/core'
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
-import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms'
+import { FormControl, FormGroup, Validators } from '@angular/forms'
 import { HttpErrorResponse } from '@angular/common/http'
 import { MatSnackBar } from '@angular/material/snack-bar'
 
@@ -14,21 +14,21 @@ import { ProfileV2RevampService } from '../../services/profile-v2-revamp.service
 import * as _ from 'lodash'
 
 @Component({
-    selector: 'ws-transfer-request',
-    templateUrl: './transfer-request.component.html',
-    styleUrls: ['./transfer-request.component.scss'],
-    standalone: false
+  selector: 'ws-transfer-request',
+  templateUrl: './transfer-request.component.html',
+  styleUrls: ['./transfer-request.component.scss'],
+  standalone: false
 })
 
 export class TransferRequestComponent implements OnInit, OnDestroy {
 
   @Output() enableWithdraw = new EventEmitter<boolean>()
-  transferRequestForm = new UntypedFormGroup({
-    organization: new UntypedFormControl('', [Validators.required]),
-    searchOrganization: new UntypedFormControl(''),
-    group: new UntypedFormControl('', [Validators.required]),
-    designation: new UntypedFormControl('', [Validators.required]),
-    searchDesignation: new UntypedFormControl(''),
+  transferRequestForm = new FormGroup({
+    organization: new FormControl('', [Validators.required]),
+    searchOrganization: new FormControl(''),
+    group: new FormControl('', [Validators.required]),
+    designation: new FormControl('', [Validators.required]),
+    searchDesignation: new FormControl(''),
   })
   organizationData: any[] = []
   otherDetails = false

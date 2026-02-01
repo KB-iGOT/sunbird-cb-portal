@@ -1,19 +1,19 @@
 import { Component, HostBinding, Input, OnInit } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { ICarousel } from './sliders-dynamic.model'
 import { Subscription, interval } from 'rxjs'
 import { TranslateService } from '@ngx-translate/core'
-import { MultilingualTranslationsService, EventService, WsEvents  } from '@sunbird-cb/utils-v2'
+import { MultilingualTranslationsService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
 
 @Component({
-    selector: 'ws-widget-sliders-dynamic',
-    templateUrl: './sliders-dynamic.component.html',
-    styleUrls: ['./sliders-dynamic.component.scss'],
-    standalone: false
+  selector: 'ws-widget-sliders-dynamic',
+  templateUrl: './sliders-dynamic.component.html',
+  styleUrls: ['./sliders-dynamic.component.scss'],
+  standalone: false
 })
 export class SlidersDynamicComponent extends WidgetBaseComponent
   implements OnInit, NsWidgetResolver.IWidgetData<ICarousel> {
-  @Input() widgetData!: ICarousel
+  @Input() widgetData!: ICarousel | any
   @HostBinding('id')
   public id = `banner_${Math.random()}`
   currentIndex = 0
@@ -68,7 +68,7 @@ export class SlidersDynamicComponent extends WidgetBaseComponent
   get isOpenInNewTab() {
     const currentData = this.widgetData.sliderData[this.currentIndex]
     if (currentData.redirectUrl && currentData.redirectUrl.includes('mailto') ||
-     this.widgetData.sliderData[this.currentIndex].openInNewTab) {
+      this.widgetData.sliderData[this.currentIndex].openInNewTab) {
       return true
     } return false
   }
@@ -76,7 +76,7 @@ export class SlidersDynamicComponent extends WidgetBaseComponent
   openInNewTab() {
     const currentData = this.widgetData.sliderData[this.currentIndex]
     if (currentData.redirectUrl && currentData.redirectUrl.includes('mailto') ||
-     this.widgetData.sliderData[this.currentIndex].openInNewTab) {
+      this.widgetData.sliderData[this.currentIndex].openInNewTab) {
       window.open(currentData.redirectUrl)
     }
   }
@@ -98,7 +98,7 @@ export class SlidersDynamicComponent extends WidgetBaseComponent
       {
         pageIdExt: 'banner',
         module: WsEvents.EnumTelemetrymodules.CONTENT,
-    })
+      })
   }
 
   translateLabels(label: string, type: any) {

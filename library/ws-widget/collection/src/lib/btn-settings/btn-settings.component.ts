@@ -1,29 +1,30 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core'
-import { UntypedFormControl } from '@angular/forms'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { FormControl } from '@angular/forms'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { ConfigurationsService, NsInstanceConfig } from '@sunbird-cb/utils-v2'
 import { Subscription } from 'rxjs'
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators'
 import { BtnSettingsService } from './btn-settings.service'
 
 @Component({
-    selector: 'ws-widget-btn-settings',
-    templateUrl: './btn-settings.component.html',
-    styleUrls: ['./btn-settings.component.scss'],
-    standalone: false
+  selector: 'ws-widget-btn-settings',
+  templateUrl: './btn-settings.component.html',
+  styleUrls: ['./btn-settings.component.scss'],
+  standalone: false
 })
 export class BtnSettingsComponent extends WidgetBaseComponent
   implements OnInit, OnDestroy, NsWidgetResolver.IWidgetData<any> {
   constructor(private configSvc: ConfigurationsService, private settingsSvc: BtnSettingsService) {
     super()
+    this.isRTLForm = new FormControl(this.configSvc.isRTL)
   }
   @Input() widgetData!: any
   themes: NsInstanceConfig.ITheme[] = []
   fonts: NsInstanceConfig.IFontSize[] = []
   allowedLangCode: { [langCode: string]: NsInstanceConfig.ILocalsConfig } = {}
 
-  darkModeForm = new UntypedFormControl(false)
-  isRTLForm = new UntypedFormControl(this.configSvc.isRTL)
+  darkModeForm = new FormControl(false)
+  isRTLForm: any
   activeThemeClass = ''
   activeFontClass = ''
   // Subscriptions
@@ -32,6 +33,7 @@ export class BtnSettingsComponent extends WidgetBaseComponent
   prefChangeSubs: Subscription | null = null
 
   isLanguageEnabled = true
+
 
   ngOnInit() {
     const instanceConfig = this.configSvc.instanceConfig
@@ -56,7 +58,7 @@ export class BtnSettingsComponent extends WidgetBaseComponent
           distinctUntilChanged(),
           debounceTime(150),
         )
-        .subscribe((isDark: boolean) => {
+        .subscribe((isDark: any) => {
           this.settingsSvc.applyThemeMode(isDark)
         })
 

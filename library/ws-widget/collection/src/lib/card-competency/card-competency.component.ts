@@ -1,7 +1,7 @@
 import { Component, OnInit, Input } from '@angular/core'
 import { trigger, state, style, animate, transition } from '@angular/animations'
 import { NsCardContent } from '../card-content-v2/card-content-v2.model'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 
 @Component({
   selector: 'ws-widget-card-competency',

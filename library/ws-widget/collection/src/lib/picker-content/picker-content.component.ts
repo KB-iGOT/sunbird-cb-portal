@@ -10,7 +10,7 @@ import {
   ViewChild,
 } from '@angular/core'
 import { MatSnackBar } from '@angular/material/snack-bar'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { ConfigurationsService, TFetchStatus } from '@sunbird-cb/utils-v2'
 import { BehaviorSubject, EMPTY, Subscription, timer } from 'rxjs'
 import { debounce, mergeMap } from 'rxjs/operators'
@@ -49,7 +49,7 @@ export class PickerContentComponent extends WidgetBaseComponent
   @Input() showFilter = true
   @Input() customSearchFilters!: any
   query = ''
-  language = (this.configSvc.activeLocale && this.configSvc.activeLocale.locals[0]) || 'en'
+  language: any
   availableLanguages: string[] = []
   @Input() selectedContentTypes = NsContent.PLAYLIST_SUPPORTED_CONTENT_TYPES
 
@@ -73,6 +73,7 @@ export class PickerContentComponent extends WidgetBaseComponent
     private searchServSvc: SearchServService,
   ) {
     super()
+    this.language = (this.configSvc.activeLocale && this.configSvc.activeLocale.locals[0]) || 'en'
     const instanceConfig = this.configSvc.instanceConfig
     if (instanceConfig) {
       this.defaultThumbnail = instanceConfig.logos.defaultContent || ''

@@ -1,11 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { IReleaseNotes } from './release-notes.model'
 @Component({
-    selector: 'ws-widget-release-notes',
-    templateUrl: './release-notes.component.html',
-    styleUrls: ['./release-notes.component.scss'],
-    standalone: false
+  selector: 'ws-widget-release-notes',
+  templateUrl: './release-notes.component.html',
+  styleUrls: ['./release-notes.component.scss'],
+  standalone: false
 })
 export class ReleaseNotesComponent extends WidgetBaseComponent implements OnInit, NsWidgetResolver.IWidgetData<IReleaseNotes> {
   @Input() widgetData!: IReleaseNotes

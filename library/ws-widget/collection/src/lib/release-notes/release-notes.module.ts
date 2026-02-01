@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common'
-import { NgModule } from '@angular/core'
+import { NgModule, NO_ERRORS_SCHEMA } from '@angular/core'
 
 import { BtnPageBackModule } from '../../lib/btn-page-back/btn-page-back.module'
 import { ReleaseNotesComponent } from './release-notes.component'
@@ -29,6 +29,7 @@ import { MatTooltipModule } from '@angular/material/tooltip'
         MatProgressSpinnerModule,
         MatExpansionModule,
         BtnPageBackModule,
-    ]
+    ],
+    schemas: [NO_ERRORS_SCHEMA]
 })
 export class ReleaseNotesModule { }

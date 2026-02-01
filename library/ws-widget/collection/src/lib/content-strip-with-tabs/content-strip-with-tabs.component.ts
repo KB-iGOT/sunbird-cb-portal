@@ -1,5 +1,5 @@
-import { Component, OnInit, Input, OnDestroy, HostBinding, EventEmitter, Output } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { Component, OnInit, Input, OnDestroy, HostBinding, EventEmitter, Output, Inject } from '@angular/core'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { NsContentStripWithTabs } from './content-strip-with-tabs.model'
 // import { HttpClient } from '@angular/common/http'
 import { WidgetContentService } from '../_services/widget-content.service'
@@ -16,13 +16,12 @@ import {
 import { Subscription } from 'rxjs'
 import { filter } from 'rxjs/operators'
 import { WidgetUserServiceLib } from '@sunbird-cb/consumption'
-import { environment } from 'src/environments/environment'
 // tslint:disable-next-line
 import * as _ from 'lodash'
 import { MatTabChangeEvent } from '@angular/material/tabs'
 import { NsCardContent } from '../card-content-v2/card-content-v2.model'
-import { ITodayEvents } from '@ws/app'
 import { TranslateService } from '@ngx-translate/core'
+import { ITodayEvents } from '../events/models/event'
 
 interface IStripUnitContentData {
   key: string
@@ -73,7 +72,7 @@ export class ContentStripWithTabsComponent extends WidgetBaseComponent
   @Output() emptyResponse = new EventEmitter<any>()
   @HostBinding('id')
   public id = `ws-strip-miltiple_${Math.random()}`
-  stripsResultDataMap!: { [key: string]: IStripUnitContentData }
+  stripsResultDataMap!: { [key: string]: any }
   stripsKeyOrder: string[] = []
   showAccordionData = true
   showParentLoader = false
@@ -83,9 +82,8 @@ export class ContentStripWithTabsComponent extends WidgetBaseComponent
   noDataCount = 0
   successDataCount = 0
   contentAvailable = true
-  baseUrl = this.configSvc.sitePath || ''
+  baseUrl: any
   veifiedKarmayogi = false
-  environment!: any
   changeEventSubscription: Subscription | null = null
   defaultMaxWidgets = 12
   enrollInterval: any
@@ -93,6 +91,7 @@ export class ContentStripWithTabsComponent extends WidgetBaseComponent
   activeTabData: any
 
   constructor(
+    @Inject('environment') private environment: any,
     // private contentStripSvc: ContentStripNewMultipleService,
     private contentSvc: WidgetContentService,
     private loggerSvc: LoggerService,
@@ -106,6 +105,7 @@ export class ContentStripWithTabsComponent extends WidgetBaseComponent
     private langtranslations: MultilingualTranslationsService
   ) {
     super()
+    this.baseUrl = this.configSvc.sitePath || ''
     if (localStorage.getItem('websiteLanguage')) {
       this.translate.setDefaultLang('en')
       let lang = JSON.stringify(localStorage.getItem('websiteLanguage'))
@@ -115,7 +115,7 @@ export class ContentStripWithTabsComponent extends WidgetBaseComponent
   }
 
   ngOnInit() {
-    this.environment = environment
+    this.environment = this.environment
     // const url = window.location.href
     this.initData()
   }

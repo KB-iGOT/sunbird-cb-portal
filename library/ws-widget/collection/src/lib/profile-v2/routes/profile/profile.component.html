@@ -1,0 +1,9 @@
+<ws-widget-btn-page-back [widgetData]="{ url: 'home', titles: titles }"></ws-widget-btn-page-back>
+
+<div *ngIf="currentRoute === 'home'" class="container-balanced-banner margin-top-s">
+  <ng-container [sbUiResolverWidget]="banner"></ng-container>
+</div>
+
+<div class="container-balanced">
+  <router-outlet></router-outlet>
+</div>

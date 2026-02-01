@@ -1,5 +1,5 @@
-import { Component, Input, OnInit, OnDestroy, HostBinding } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { Component, Input, OnInit, OnDestroy, HostBinding, Inject } from '@angular/core'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { ConfigurationsService, LogoutComponent, NsPage, NsAppsConfig, EventService, WsEvents, DomainConfService } from '@sunbird-cb/utils-v2'
 import { IBtnAppsConfig } from '../btn-apps/btn-apps.model'
 import { MatDialog } from '@angular/material/dialog'
@@ -7,11 +7,10 @@ import { Subscription } from 'rxjs'
 import { ROOT_WIDGET_CONFIG } from '../collection.config'
 /* tslint:disable*/
 import _ from 'lodash'
-import { AccessControlService } from '@ws/author'
 import { ActivatedRoute, Router } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
 import { LibNotificationsService } from '@sunbird-cb/notification'
-import { environment } from 'src/environments/environment'
+import { AccessControlService } from '../modules/shared/services/access-control.service'
 /* tslint:enable*/
 interface IGroupWithFeatureWidgets extends NsAppsConfig.IGroup {
   featureWidgets: NsWidgetResolver.IRenderConfigWithTypedData<NsPage.INavLink>[]
@@ -54,6 +53,7 @@ export class BtnProfileComponent extends WidgetBaseComponent
   hideMenu = false
   isKbPortal: boolean = true
   constructor(
+    @Inject('environment') private environment: any,
     private configSvc: ConfigurationsService,
     private dialog: MatDialog,
     private accessService: AccessControlService,
@@ -274,7 +274,7 @@ export class BtnProfileComponent extends WidgetBaseComponent
   //   )
   // }
   redirectToKBPortal() {
-    const kbUrl: any = (environment && environment.missionKarmayogiPath) && environment?.missionKarmayogiPath
+    const kbUrl: any = (this.environment && this.environment.missionKarmayogiPath) && this.environment?.missionKarmayogiPath
     window.open(kbUrl, '_blank')
   }
 }

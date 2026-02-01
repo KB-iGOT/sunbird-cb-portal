@@ -6,16 +6,16 @@ import {
   OnDestroy,
   OnInit,
 } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { Subscription } from 'rxjs'
 import { IWidgetsPlayerOfflineSessionData } from './player-offline-session.model'
 import { WidgetContentService } from '../_services/widget-content.service'
 
 @Component({
-    selector: 'ws-widget-player-offline-session',
-    templateUrl: './player-offline-session.component.html',
-    styleUrls: ['./player-offline-session.component.scss'],
-    standalone: false
+  selector: 'ws-widget-player-offline-session',
+  templateUrl: './player-offline-session.component.html',
+  styleUrls: ['./player-offline-session.component.scss'],
+  standalone: false
 })
 export class PlayerOfflineSessionComponent extends WidgetBaseComponent
   implements OnInit, AfterViewInit, OnDestroy, OnChanges, NsWidgetResolver.IWidgetData<any> {
@@ -35,7 +35,7 @@ export class PlayerOfflineSessionComponent extends WidgetBaseComponent
 
   ngOnInit() {
     this.tocConfigSubscription = this.widgetContentSvc.tocConfigData.subscribe((data: any) => {
-        this.tocConfig = data
+      this.tocConfig = data
     })
     // TODO:When player is fully implemented put initial functions here
   }

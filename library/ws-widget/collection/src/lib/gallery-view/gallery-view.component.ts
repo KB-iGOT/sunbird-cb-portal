@@ -1,13 +1,13 @@
 import { Component, OnInit, Input } from '@angular/core'
-import { WidgetBaseComponent, NsWidgetResolver } from '@sunbird-cb/resolver'
+import { WidgetBaseComponent, NsWidgetResolver } from '@sunbird-cb/resolver-v2'
 import { NsGalleryView } from './gallery-view.model'
 import { Subscription } from 'rxjs'
 
 @Component({
-    selector: 'ws-widget-gallery-view',
-    templateUrl: './gallery-view.component.html',
-    styleUrls: ['./gallery-view.component.scss'],
-    standalone: false
+  selector: 'ws-widget-gallery-view',
+  templateUrl: './gallery-view.component.html',
+  styleUrls: ['./gallery-view.component.scss'],
+  standalone: false
 })
 export class GalleryViewComponent extends WidgetBaseComponent
   implements OnInit, NsWidgetResolver.IWidgetData<NsGalleryView.IWidgetGalleryView> {

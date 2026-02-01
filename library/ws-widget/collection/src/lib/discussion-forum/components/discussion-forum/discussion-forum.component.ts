@@ -1,16 +1,16 @@
 import { Component, ElementRef, HostBinding, Input, OnInit, ViewChild } from '@angular/core'
 import { MatSnackBar } from '@angular/material/snack-bar'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { ConfigurationsService, TFetchStatus } from '@sunbird-cb/utils-v2'
 import { EditorQuillComponent } from '../../editor-quill/editor-quill.component'
 import { NsDiscussionForum } from '../../ws-discussion-forum.model'
 import { WsDiscussionForumService } from '../../ws-discussion-forum.services'
 
 @Component({
-    selector: 'ws-widget-discussion-forum',
-    templateUrl: './discussion-forum.component.html',
-    styleUrls: ['./discussion-forum.component.scss'],
-    standalone: false
+  selector: 'ws-widget-discussion-forum',
+  templateUrl: './discussion-forum.component.html',
+  styleUrls: ['./discussion-forum.component.scss'],
+  standalone: false
 })
 export class DiscussionForumComponent extends WidgetBaseComponent
   implements OnInit, NsWidgetResolver.IWidgetData<NsDiscussionForum.IDiscussionForumInput> {

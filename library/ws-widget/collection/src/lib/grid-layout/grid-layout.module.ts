@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { GridLayoutComponent } from './grid-layout.component'
-import { WidgetResolverModule } from '@sunbird-cb/resolver'
+import { SbUiResolverModule } from '@sunbird-cb/resolver-v2'
 import { FormsModule } from '@angular/forms'
 import { NPSGridService } from './nps-grid.service'
 import { TranslateModule } from '@ngx-translate/core'
@@ -12,7 +12,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar'
 
 @NgModule({
     declarations: [GridLayoutComponent],
-    imports: [CommonModule, WidgetResolverModule, MatFormFieldModule,
+    imports: [CommonModule, SbUiResolverModule, MatFormFieldModule,
         MatButtonModule, MatIconModule, FormsModule, TranslateModule, MatSnackBarModule],
     exports: [GridLayoutComponent],
     providers: [

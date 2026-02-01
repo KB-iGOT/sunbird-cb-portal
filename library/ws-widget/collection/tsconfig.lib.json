@@ -1,18 +1,60 @@
 {
-  "extends": "../../../tsconfig.json",
+  "compileOnSave": false,
   "compilerOptions": {
+    "baseUrl": "./",
     "outDir": "../../../out-tsc/lib",
-    "target": "es2022",
-    "module": "es2022",
+    "sourceMap": true,
     "declaration": true,
     "declarationMap": true,
-    "sourceMap": true,          // <-- ADD THIS
     "inlineSources": true,
-    "types": []
+    "experimentalDecorators": true,
+    "moduleResolution": "node",
+    "importHelpers": true,
+    "target": "ES2022",
+    "module": "ES2022",
+    "lib": ["ES2022", "dom"],
+    "skipLibCheck": true,
+    "skipDefaultLibCheck": true,
+    "strict": false,
+    "noImplicitAny": false,
+    "strictNullChecks": false,
+    "strictFunctionTypes": false,
+    "strictBindCallApply": false,
+    "strictPropertyInitialization": false,
+    "noImplicitReturns": false,
+    "noImplicitThis": false,
+    "alwaysStrict": false,
+    "noUnusedLocals": false,
+    "noUnusedParameters": false,
+    "noFallthroughCasesInSwitch": false
   },
   "angularCompilerOptions": {
-    "compilationMode": "full",
-    "enableIvy": true
+    "enableIvy": true,
+    "compilationMode": "partial",
+    "generateDeepReexports": false,
+    "skipTemplateCodegen": true,
+    "strictMetadataEmit": false,
+    "strictTemplates": false,
+    "strictInjectionParameters": false,
+    "strictInputAccessModifiers": false,
+    "strictInputTypes": false,
+    "strictAttributeTypes": false,
+    "strictSafeNavigationTypes": false,
+    "strictDomLocalRefTypes": false,
+    "strictOutputEventTypes": false,
+    "strictDomEventTypes": false,
+    "strictContextGenerics": false,
+    "strictLiteralTypes": false,
+    "fullTemplateTypeCheck": false,
+    "enableResourceInlining": false,
+    "disableTypeScriptVersionCheck": true
   },
-  "exclude": ["src/test.ts", "**/*.spec.ts"]
+  "files": [
+    "src/public-api.ts"
+  ],
+  "exclude": [
+    "src/test.ts",
+    "src/**/*.spec.ts",
+    "**/*.spec.ts"
+  ]
 }

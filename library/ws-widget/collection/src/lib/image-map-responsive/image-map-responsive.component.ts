@@ -2,14 +2,14 @@ import { Component, OnInit, AfterViewInit, OnDestroy, Input, ViewChild, ElementR
 import { fromEvent, Subscription } from 'rxjs'
 import { SafeHtml, DomSanitizer } from '@angular/platform-browser'
 import { debounceTime } from 'rxjs/operators'
-import { WidgetBaseComponent, NsWidgetResolver } from '@sunbird-cb/resolver'
+import { WidgetBaseComponent, NsWidgetResolver } from '@sunbird-cb/resolver-v2'
 import { IWidgetImageMap, IWidgetMapMeta, IWidgetScale, IWidgetMapCoords } from './image-map-responsive.model'
 
 @Component({
-    selector: 'ws-widget-image-map-responsive',
-    templateUrl: './image-map-responsive.component.html',
-    styleUrls: ['./image-map-responsive.component.scss'],
-    standalone: false
+  selector: 'ws-widget-image-map-responsive',
+  templateUrl: './image-map-responsive.component.html',
+  styleUrls: ['./image-map-responsive.component.scss'],
+  standalone: false
 })
 export class ImageMapResponsiveComponent extends WidgetBaseComponent
   implements OnInit, AfterViewInit, OnDestroy, NsWidgetResolver.IWidgetData<IWidgetImageMap> {

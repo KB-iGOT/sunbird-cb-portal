@@ -1,5 +1,5 @@
-import { Component, OnInit, Input, OnDestroy, HostBinding } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { Component, OnInit, Input, OnDestroy, HostBinding, Inject } from '@angular/core'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { NsContentStripMultiple } from './content-strip-multiple.model'
 import { ContentStripMultipleService } from './content-strip-multiple.service'
 import { WidgetContentService } from '../_services/widget-content.service'
@@ -20,7 +20,6 @@ import { WidgetUserServiceLib } from '@sunbird-cb/consumption'
 // tslint:disable-next-line
 import _ from 'lodash'
 import { HttpClient } from '@angular/common/http'
-import { environment } from 'src/environments/environment'
 import { SearchApiService } from '../_services/search-api.service'
 import { NSSearch } from '../_services/widget-search.model'
 
@@ -70,14 +69,14 @@ export class ContentStripMultipleComponent extends WidgetBaseComponent
   searchArray = ['preview', 'channel', 'author']
   contentAvailable = true
   isFromAuthoring = false
-  baseUrl = this.configSvc.sitePath || ''
+  baseUrl: any
   veifiedKarmayogi = false
   profileStatus = false
 
   changeEventSubscription: Subscription | null = null
-  environment!: any
 
   constructor(
+    @Inject('environment') public environment: any,
     private contentStripSvc: ContentStripMultipleService,
     private contentSvc: WidgetContentService,
     private loggerSvc: LoggerService,
@@ -91,10 +90,10 @@ export class ContentStripMultipleComponent extends WidgetBaseComponent
     private enrollSvc: WidgetEnrollService
   ) {
     super()
+    this.baseUrl = this.configSvc.sitePath || ''
   }
 
   ngOnInit() {
-    this.environment = environment
     const url = window.location.href
     this.isFromAuthoring = this.searchArray.some((word: string) => {
       return url.indexOf(word) > -1

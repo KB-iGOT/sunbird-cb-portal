@@ -1,16 +1,16 @@
 import { Component, Input } from '@angular/core'
 import { NsContent } from '../_services/widget-content.model'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 
 interface IButtonChannelAnalytics {
   identifier: string
   contentType: NsContent.EContentTypes
 }
 @Component({
-    selector: 'ws-widget-btn-channel-analytics',
-    templateUrl: './btn-channel-analytics.component.html',
-    styleUrls: ['./btn-channel-analytics.component.scss'],
-    standalone: false
+  selector: 'ws-widget-btn-channel-analytics',
+  templateUrl: './btn-channel-analytics.component.html',
+  styleUrls: ['./btn-channel-analytics.component.scss'],
+  standalone: false
 })
 export class BtnChannelAnalyticsComponent extends WidgetBaseComponent
   implements NsWidgetResolver.IWidgetData<IButtonChannelAnalytics> {

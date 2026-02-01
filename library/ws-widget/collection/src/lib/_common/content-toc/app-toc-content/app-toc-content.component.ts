@@ -1,9 +1,9 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core'
 import { ActivatedRoute, Data } from '@angular/router'
-import { NsWidgetResolver } from '@sunbird-cb/resolver'
+import { NsWidgetResolver } from '@sunbird-cb/resolver-v2'
 import { ConfigurationsService, NsContent } from '@sunbird-cb/utils-v2'
-import { AppTocService } from '@ws/app'
 import { Subscription } from 'rxjs'
+import { AppTocService } from '../../../app-toc/services/app-toc.service'
 // import { NsAppToc } from '../models/app-toc.model'
 
 @Component({

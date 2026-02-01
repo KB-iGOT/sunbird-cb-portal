@@ -7,8 +7,8 @@ import {
   DOCUMENT
 } from '@angular/core'
 import {
-  UntypedFormControl,
-  UntypedFormGroup,
+  FormControl,
+  FormGroup,
   Validators,
 } from '@angular/forms'
 import {
@@ -34,12 +34,12 @@ import { DomSanitizer } from '@angular/platform-browser'
 import { map, pairwise, startWith } from 'rxjs/operators'
 import { SignupSuccessDialogueComponent } from '../public-signup/signup-success-dialogue/signup-success-dialogue/signup-success-dialogue.component'
 import { TermsAndConditionComponent } from '../public-signup/terms-and-condition/terms-and-condition.component'
-import { DialogBoxComponent as ZohoDialogComponent } from '@ws/app'
+import { DialogBoxComponent as ZohoDialogComponent } from '@sunbird-cb/collection'
 // tslint:disable-next-line: import-name
 import _ from 'lodash'
 import { IOrganizationDetails } from './models/public-crp-model'
 import { MobileAppsService } from '../../../services/mobile-apps.service'
-import { AppOtpReaderComponent } from 'src/app/component/app-otp-reader/app-otp-reader.component'
+import { AppOtpReaderComponent } from '../../../component/app-otp-reader/app-otp-reader.component'
 
 @Component({
   selector: 'ws-public-crp',
@@ -48,7 +48,7 @@ import { AppOtpReaderComponent } from 'src/app/component/app-otp-reader/app-otp-
   standalone: false
 })
 export class PublicCrpComponent {
-  registrationForm!: UntypedFormGroup
+  registrationForm!: FormGroup
   // namePatern = /^[a-zA-Z0-9\s']+$/;
   namePatern = /^[a-zA-Z\s.]+$/;
   customCharsPattern = `^[a-zA-Z0-9 \\w\-\&\(\)]*$`;
@@ -155,25 +155,25 @@ export class PublicCrpComponent {
       })
     this.isMobileVerified = (userData && userData.isMobileVerified) || false
     this.isEmailVerified = (userData && userData.isEmailVerified) || false
-    this.registrationForm = new UntypedFormGroup({
-      firstname: new UntypedFormControl(
+    this.registrationForm = new FormGroup({
+      firstname: new FormControl(
         (userData && userData.firstname) || '',
         [Validators.required, Validators.pattern(this.namePatern)]
       ),
-      group: new UntypedFormControl('', [Validators.required]),
-      email: new UntypedFormControl((userData && userData.email) || '', [
+      group: new FormControl('', [Validators.required]),
+      email: new FormControl((userData && userData.email) || '', [
         Validators.required,
         Validators.pattern(this.emailPattern),
       ]),
-      mobile: new UntypedFormControl((userData && userData.mobile) || '', [
+      mobile: new FormControl((userData && userData.mobile) || '', [
         Validators.required,
         Validators.pattern(this.phoneNumberPattern),
         Validators.maxLength(12),
       ]),
-      confirmTermsBox: new UntypedFormControl(false, [Validators.required]),
-      designation: new UntypedFormControl('', [Validators.required]),
-      isWhatsappConsent: new UntypedFormControl(false),
-      searchDesignation: new UntypedFormControl('')
+      confirmTermsBox: new FormControl(false, [Validators.required]),
+      designation: new FormControl('', [Validators.required]),
+      isWhatsappConsent: new FormControl(false),
+      searchDesignation: new FormControl('')
     })
     if (
       this.configSvc.instanceConfig &&

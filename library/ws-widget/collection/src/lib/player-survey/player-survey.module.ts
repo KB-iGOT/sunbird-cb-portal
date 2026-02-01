@@ -12,12 +12,12 @@ import { MatInputModule } from '@angular/material/input'
 import { MatMenuModule } from '@angular/material/menu'
 import { MatSliderModule } from '@angular/material/slider'
 import { MatToolbarModule } from '@angular/material/toolbar'
-import { SurveyFormQuestionComponent } from '@ws/app'
 import { MatRadioModule } from '@angular/material/radio'
 import { MatSelectModule } from '@angular/material/select'
 import { MatCheckboxModule } from '@angular/material/checkbox'
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'
-import { SurveyFormSectionComponent } from '@ws/app'
+import { SurveyFormQuestionComponent } from '../app-toc/components/survey-form-question/survey-form-question.component'
+import { SurveyFormSectionComponent } from '../app-toc/components/survey-form-section/survey-form-section.component'
 
 
 

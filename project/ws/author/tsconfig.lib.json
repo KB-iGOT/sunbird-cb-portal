@@ -17,7 +17,7 @@
     "lib": ["ES2022", "DOM"]  // Add explicit lib
   },
   "angularCompilerOptions": {
-    "compilationMode": "partial",
+    "compilationMode": "full",
     "enableIvy": true,
     "strictTemplates": true  // Consider adding
   },

@@ -1,13 +1,13 @@
 import { Component, OnInit, Input } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { Router } from '@angular/router'
 
 @Component({
-    selector: 'ws-widget-card-notify',
-    templateUrl: './card-notify.component.html',
-    styleUrls: ['./card-notify.component.scss'],
-    standalone: false
+  selector: 'ws-widget-card-notify',
+  templateUrl: './card-notify.component.html',
+  styleUrls: ['./card-notify.component.scss'],
+  standalone: false
 })
 export class CardNotifyComponent extends WidgetBaseComponent
   implements OnInit, NsWidgetResolver.IWidgetData<any> {

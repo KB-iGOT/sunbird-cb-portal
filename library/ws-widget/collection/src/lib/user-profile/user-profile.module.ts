@@ -1,0 +1,85 @@
+import { NgModule } from '@angular/core'
+import { CommonModule } from '@angular/common'
+
+import { UserProfileRoutingModule } from './user-profile-routing.module'
+import { UserProfileComponent } from './components/user-profile/user-profile.component'
+import { TabDirective } from './components/user-profile/tab.directive'
+import { ReactiveFormsModule, FormsModule } from '@angular/forms'
+import { UserProfileService } from './services/user-profile.service'
+import { PipeDurationTransformModule } from '@sunbird-cb/utils-v2'
+import { OtpService } from './services/otp.services'
+import { RequestDialogComponent } from './components/request-dialog/request-dialog.component'
+import { EhrmsComponent } from './components/user-profile/e-hrms/ehrms/ehrms.component'
+import { MatAutocompleteModule } from '@angular/material/autocomplete'
+import { MatButtonModule } from '@angular/material/button'
+import { MatButtonToggleModule } from '@angular/material/button-toggle'
+import { MatCardModule } from '@angular/material/card'
+import { MatCheckboxModule } from '@angular/material/checkbox'
+import { MatChipsModule } from '@angular/material/chips'
+import { MatNativeDateModule } from '@angular/material/core'
+import { MatDatepickerModule } from '@angular/material/datepicker'
+import { MatDialogModule } from '@angular/material/dialog'
+import { MatExpansionModule } from '@angular/material/expansion'
+import { MatFormFieldModule } from '@angular/material/form-field'
+import { MatIconModule } from '@angular/material/icon'
+import { MatInputModule } from '@angular/material/input'
+import { MatListModule } from '@angular/material/list'
+import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'
+import { MatRadioModule } from '@angular/material/radio'
+import { MatSelectModule } from '@angular/material/select'
+import { MatSidenavModule } from '@angular/material/sidenav'
+import { MatSnackBarModule } from '@angular/material/snack-bar'
+import { MatTableModule } from '@angular/material/table'
+import { MatTabsModule } from '@angular/material/tabs'
+import { MatToolbarModule } from '@angular/material/toolbar'
+import { MatTooltipModule } from '@angular/material/tooltip'
+import { SharedModule } from '../modules/shared/shared.module'
+import { LoaderService } from '../services/loader.service'
+import { BtnPageBackModule } from '../btn-page-back/btn-page-back.module'
+import { SkeletonLoaderModule } from '../_common/skeleton-loader/skeleton-loader.module'
+
+@NgModule({
+    declarations: [
+        UserProfileComponent,
+        TabDirective,
+        RequestDialogComponent,
+        EhrmsComponent,
+    ],
+    imports: [
+        BtnPageBackModule,
+        CommonModule,
+        ReactiveFormsModule,
+        FormsModule,
+        UserProfileRoutingModule,
+        SharedModule,
+        MatButtonModule,
+        MatTooltipModule,
+        MatIconModule,
+        MatListModule,
+        MatSidenavModule,
+        MatToolbarModule,
+        MatCardModule,
+        MatExpansionModule,
+        MatRadioModule,
+        MatChipsModule,
+        MatInputModule,
+        MatFormFieldModule,
+        MatDialogModule,
+        MatListModule,
+        MatInputModule,
+        MatSnackBarModule,
+        MatSelectModule,
+        MatDatepickerModule,
+        MatNativeDateModule,
+        MatTableModule,
+        MatCheckboxModule,
+        MatProgressSpinnerModule,
+        MatButtonToggleModule,
+        MatTabsModule,
+        MatAutocompleteModule,
+        PipeDurationTransformModule,
+        SkeletonLoaderModule,
+    ],
+    providers: [UserProfileService, LoaderService, OtpService]
+})
+export class UserProfileModule { }

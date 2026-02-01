@@ -1,16 +1,14 @@
 import { animate, style, transition, trigger } from '@angular/animations'
-import { Component, HostBinding, Input, OnInit } from '@angular/core'
+import { Component, HostBinding, Inject, Input, OnInit } from '@angular/core'
 import { Router } from '@angular/router'
-// import { environment } from './../../../environments/environment'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { ConfigurationsService, MultilingualTranslationsService, NsInstanceConfig } from '@sunbird-cb/utils-v2'
 
 import { BtnPageBackService } from './btn-page-back.service'
-import { DiscussUtilsService } from '@ws/app'
-import { environment } from 'src/environments/environment'
 // tslint:disable
 import _ from 'lodash'
 import { TranslateService } from '@ngx-translate/core'
+import { DiscussUtilsService } from '../discuss/services/discuss-utils.service'
 // tslint:enable
 
 type TUrl = undefined | 'none' | 'back' | string
@@ -32,18 +30,19 @@ type TUrl = undefined | 'none' | 'back' | string
   ],
   standalone: false
 })
+
 export class BtnPageBackComponent extends WidgetBaseComponent
   implements OnInit, NsWidgetResolver.IWidgetData<{ url: TUrl }> {
-  @Input() widgetData: { url: TUrl, titles?: NsWidgetResolver.ITitle[], textClass?: string } = { url: 'none', titles: [] }
+  @Input() widgetData: any
   presentUrl = ''
   @HostBinding('id')
   public id = 'nav-back'
   visible = false
   enablePeopleSearch = true
-  environment!: any
-  loggedinUser = !!(this.configSvc.userProfile && this.configSvc.userProfile.userId)
+  loggedinUser: any
   hubsList!: NsInstanceConfig.IHubs[]
   constructor(
+    @Inject('environment') private environment: any,
     private btnBackSvc: BtnPageBackService,
     public router: Router,
     private configSvc: ConfigurationsService,
@@ -52,6 +51,7 @@ export class BtnPageBackComponent extends WidgetBaseComponent
     private langtranslations: MultilingualTranslationsService
   ) {
     super()
+    this.loggedinUser = !!(this.configSvc.userProfile && this.configSvc.userProfile.userId)
     if (localStorage.getItem('websiteLanguage')) {
       this.translate.setDefaultLang('en')
       const lang = localStorage.getItem('websiteLanguage')!
@@ -60,7 +60,6 @@ export class BtnPageBackComponent extends WidgetBaseComponent
   }
 
   ngOnInit() {
-    this.environment = environment
     const instanceConfig = this.configSvc.instanceConfig
     if (instanceConfig) {
       this.hubsList = (instanceConfig.hubs || []).filter(i => i.active)
@@ -175,7 +174,7 @@ export class BtnPageBackComponent extends WidgetBaseComponent
   }
 
   isAllowed(portalName: string) {
-    const roles = _.get(_.first(_.filter(environment.portals, { id: portalName })), 'roles') || []
+    const roles = _.get(_.first(_.filter(this.environment.portals, { id: portalName })), 'roles') || []
     if (!(roles && roles.length)) {
       return true
     }

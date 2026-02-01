@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { DiscussV2Module } from '@ws/app'
+import { DiscussV2Module } from '@sunbird-cb/collection'
 
 
 

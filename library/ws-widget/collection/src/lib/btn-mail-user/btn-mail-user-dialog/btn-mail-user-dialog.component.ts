@@ -1,15 +1,23 @@
 import { Component, OnInit, Inject } from '@angular/core'
 import { WidgetContentShareService } from '../../_services/widget-content-share.service'
-import { IBtnMailUser } from '../btn-mail-user.component'
+
 import { EventService, WsEvents } from '@sunbird-cb/utils-v2'
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
+import { NsContent } from '../../_services/widget-content.model'
+
+export interface IBtnMailUser {
+  content: NsContent.IContent
+  emails: string[]
+  user: any
+  labelled?: boolean
+}
 
 @Component({
-    selector: 'ws-widget-btn-mail-user-dialog',
-    templateUrl: './btn-mail-user-dialog.component.html',
-    styleUrls: ['./btn-mail-user-dialog.component.scss'],
-    standalone: false
+  selector: 'ws-widget-btn-mail-user-dialog',
+  templateUrl: './btn-mail-user-dialog.component.html',
+  styleUrls: ['./btn-mail-user-dialog.component.scss'],
+  standalone: false
 })
 export class BtnMailUserDialogComponent implements OnInit {
 

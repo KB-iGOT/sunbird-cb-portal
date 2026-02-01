@@ -2,9 +2,7 @@ import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { PublicExtTocComponent } from './public-ext-toc.component'
 import { RouterModule } from '@angular/router'
-import { AppTocService } from '@ws/app'
-import { AppTocModule } from '@ws/app'
-import { BtnPageBackNavModule } from '@sunbird-cb/collection'
+import { AppTocService, BtnPageBackNavModule, AppTocModule } from '@sunbird-cb/collection'
 
 @NgModule({
     declarations: [PublicExtTocComponent],

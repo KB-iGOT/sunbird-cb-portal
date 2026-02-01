@@ -87,7 +87,7 @@
 }
 
 .container-balanced {
-  @include page-center;
+  // @include page-center;
 }
 
 ::ng-deep .theme-igot.day-mode .mat-option.mat-selected:not(.mat-option-multiple) {

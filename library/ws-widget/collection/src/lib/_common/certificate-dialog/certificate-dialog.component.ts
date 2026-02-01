@@ -2,20 +2,20 @@ import { Component, Inject, OnInit } from '@angular/core'
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 import { EventService, WsEvents } from '@sunbird-cb/utils-v2'
 import { jsPDF } from 'jspdf'
-import { environment } from 'src/environments/environment'
 
 @Component({
-    selector: 'ws-widget-certificate-dialog',
-    templateUrl: './certificate-dialog.component.html',
-    styleUrls: ['./certificate-dialog.component.scss'],
-    /* tslint:disable */
-    host: { class: 'certificate-inner-dialog-panel' },
-    standalone: false
+  selector: 'ws-widget-certificate-dialog',
+  templateUrl: './certificate-dialog.component.html',
+  styleUrls: ['./certificate-dialog.component.scss'],
+  /* tslint:disable */
+  host: { class: 'certificate-inner-dialog-panel' },
+  standalone: false
 })
 export class CertificateDialogComponent implements OnInit {
   url!: string
   navUrl = ''
   constructor(
+    @Inject('environment') private environment: any,
     private events: EventService,
     public dialogRef: MatDialogRef<CertificateDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any
@@ -26,7 +26,7 @@ export class CertificateDialogComponent implements OnInit {
   ngOnInit() {
     this.url = this.data.cet
     // tslint:disable-next-line:max-line-length
-    this.navUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${environment.contentHost}/apis/public/v8/cert/download/${this.data.certId}`
+    this.navUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${this.environment.contentHost}/apis/public/v8/cert/download/${this.data.certId}`
   }
 
   downloadCert() {

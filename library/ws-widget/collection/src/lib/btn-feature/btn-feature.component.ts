@@ -1,6 +1,6 @@
 import { Component, HostBinding, Input, OnDestroy, OnInit } from '@angular/core'
 import { Event, NavigationEnd, Router } from '@angular/router'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { ConfigurationsService, EventService, NsPage, WsEvents } from '@sunbird-cb/utils-v2'
 import { Subscription } from 'rxjs'
 import { take } from 'rxjs/operators'

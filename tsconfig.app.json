@@ -7,8 +7,9 @@
     "esModuleInterop": true,
     "allowJs": true,
   },
-  "angularCompilerOptions": {
-    "enableIvy": false
+   "angularCompilerOptions": {
+    "strictTemplates": false,
+    "fullTemplateTypeCheck": false
   },
   "files": [
     "src/main.ts",

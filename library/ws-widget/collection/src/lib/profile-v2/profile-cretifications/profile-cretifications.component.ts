@@ -1,14 +1,14 @@
 import { Component, HostBinding, Input, OnInit } from '@angular/core'
-import { WidgetBaseComponent, NsWidgetResolver } from '@sunbird-cb/resolver'
+import { WidgetBaseComponent, NsWidgetResolver } from '@sunbird-cb/resolver-v2'
 import { IProCert } from './profile-cretifications.model'
 
 @Component({
-    selector: 'ws-widget-profile-v2-cretifications',
-    templateUrl: './profile-cretifications.component.html',
-    styleUrls: ['./profile-cretifications.component.scss'],
-    /* tslint:disable */
-    host: { class: 'flex flex-1' },
-    standalone: false
+  selector: 'ws-widget-profile-v2-cretifications',
+  templateUrl: './profile-cretifications.component.html',
+  styleUrls: ['./profile-cretifications.component.scss'],
+  /* tslint:disable */
+  host: { class: 'flex flex-1' },
+  standalone: false
 })
 
 // developing for old skill+certifications

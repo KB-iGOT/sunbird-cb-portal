@@ -3,10 +3,10 @@ import { MatDialog } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { ActivatedRoute, Router } from '@angular/router'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
-import { AppTocService } from '@ws/app'
 import { ConfirmationDialogComponent } from '@sunbird-cb/consumption'
 import * as _ from 'lodash'
 import { AssignmentViewerV2Component } from '../app-toc-assignment-viewerV2/app-toc-assignment-viewerV2.component'
+import { AppTocService } from '../../../app-toc/services/app-toc.service'
 
 @Component({
   selector: 'ws-widget-app-batch-assignments',

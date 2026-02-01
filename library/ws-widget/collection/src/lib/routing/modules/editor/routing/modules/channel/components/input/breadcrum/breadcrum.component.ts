@@ -1,0 +1,57 @@
+
+import { distinctUntilChanged, debounceTime } from 'rxjs/operators'
+import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core'
+import { FormGroup, UntypedFormBuilder, UntypedFormArray, Validators } from '@angular/forms'
+import { IWidgetCardBreadcrumb } from '../../../../../../../../../card-breadcrumb/card-breadcrumb.model'
+
+@Component({
+  selector: 'ws-auth-breadcrum',
+  templateUrl: './breadcrum.component.html',
+  styleUrls: ['./breadcrum.component.scss'],
+  standalone: false
+})
+export class BreadcrumComponent implements OnInit {
+
+  form!: FormGroup
+  @Input() isSubmitPressed = false
+  @Input() content!: IWidgetCardBreadcrumb
+  @Output() data = new EventEmitter<{ content: IWidgetCardBreadcrumb, isValid: boolean }>()
+
+  constructor(private fb: UntypedFormBuilder) { }
+
+  ngOnInit() {
+    this.form = this.fb.group({
+      path: this.fb.array([]),
+    })
+    if (this.content && this.content.path && this.content.path.length) {
+      this.content.path.map(path => {
+        this.addPath(path.text, path.clickUrl)
+      })
+    } else {
+      this.addPath('', '')
+    }
+    this.data.emit({ content: this.form.value, isValid: this.form.valid })
+    this.form.valueChanges.pipe(
+      debounceTime(1000),
+      distinctUntilChanged(),
+    ).subscribe(() => {
+      this.data.emit({ content: this.form.value, isValid: this.form.valid })
+    })
+  }
+
+  get path(): UntypedFormArray {
+    return this.form.get('path') as UntypedFormArray
+  }
+
+  addPath(text: string, url: string) {
+    this.path.push(this.fb.group({
+      text: [text, Validators.required],
+      clickUrl: [url],
+    }))
+  }
+
+  remove(i: number) {
+    this.path.removeAt(i)
+  }
+
+}

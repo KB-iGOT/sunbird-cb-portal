@@ -6,18 +6,19 @@ import { TranslateService } from '@ngx-translate/core'
 import { IBtnAppsConfig, CustomTourService, WidgetUserService } from '@sunbird-cb/collection'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { ConfigurationsService, DomainConfService, EventService, MultilingualTranslationsService, NsInstanceConfig, NsPage, WsEvents } from '@sunbird-cb/utils-v2'
-import { NotificationsService } from 'src/app/services/notifications.service'
+import { NotificationsService } from '@sunbird-cb/collection'
 
-import { UrlService } from 'src/app/shared/url.service'
+
 import * as _ from 'lodash'
 import { LibNotificationsService } from '@sunbird-cb/notification'
 import { Subscription } from 'rxjs'
+import { UrlService } from '../../shared/url.service'
 
 @Component({
-    selector: 'ws-app-nav-bar',
-    templateUrl: './app-nav-bar.component.html',
-    styleUrls: ['./app-nav-bar.component.scss'],
-    standalone: false
+  selector: 'ws-app-nav-bar',
+  templateUrl: './app-nav-bar.component.html',
+  styleUrls: ['./app-nav-bar.component.scss'],
+  standalone: false
 })
 export class AppNavBarComponent implements OnInit, OnChanges, OnDestroy {
   @Input() mode: 'top' | 'bottom' = 'top'
@@ -158,7 +159,7 @@ export class AppNavBarComponent implements OnInit, OnChanges, OnDestroy {
         this.domainConfSvc.getDomainAppLogo()
       )
       this.redirectPath = this.domainConfSvc.getDomainRedirectPath()
-        
+
 
       this.appIconSecondary = this.domSanitizer.bypassSecurityTrustResourceUrl(
         this.configSvc.instanceConfig.logos.appSecondary,

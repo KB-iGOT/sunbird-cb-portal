@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, HostBinding, Input, OnDestroy, OnInit } from '@angular/core'
 import { MatSnackBar } from '@angular/material/snack-bar'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { ConfigurationsService, EventService, UtilityService, NsInstanceConfig } from '@sunbird-cb/utils-v2'
 import { Subscription } from 'rxjs'
 import { NsGoal } from '../btn-goals/btn-goals.model'
@@ -12,10 +12,10 @@ import _ from 'lodash'
 // import { Router } from '@angular/router'
 
 @Component({
-    selector: 'ws-widget-card-content',
-    templateUrl: './card-content.component.html',
-    styleUrls: ['./card-content.component.scss'],
-    standalone: false
+  selector: 'ws-widget-card-content',
+  templateUrl: './card-content.component.html',
+  styleUrls: ['./card-content.component.scss'],
+  standalone: false
 })
 export class CardContentComponent extends WidgetBaseComponent
   implements OnInit, OnDestroy, AfterViewInit, NsWidgetResolver.IWidgetData<NsCardContent.ICard> {

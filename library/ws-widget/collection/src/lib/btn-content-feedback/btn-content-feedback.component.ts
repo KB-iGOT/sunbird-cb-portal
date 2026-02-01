@@ -1,5 +1,5 @@
 import { Component, HostBinding, Input, OnInit } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { MatDialog } from '@angular/material/dialog'
 import { BtnContentFeedbackDialogComponent } from './btn-content-feedback-dialog/btn-content-feedback-dialog.component'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
@@ -10,10 +10,10 @@ interface IWidgetBtnContentFeedback {
 }
 
 @Component({
-    selector: 'ws-widget-btn-content-feedback',
-    templateUrl: './btn-content-feedback.component.html',
-    styleUrls: ['./btn-content-feedback.component.scss'],
-    standalone: false
+  selector: 'ws-widget-btn-content-feedback',
+  templateUrl: './btn-content-feedback.component.html',
+  styleUrls: ['./btn-content-feedback.component.scss'],
+  standalone: false
 })
 export class BtnContentFeedbackComponent extends WidgetBaseComponent
   implements OnInit, NsWidgetResolver.IWidgetData<IWidgetBtnContentFeedback> {

@@ -9,18 +9,20 @@ import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { IWidgetErrorFeatureDisabled } from './error-feature-disabled.model'
 
 @Component({
-    selector: 'ws-widget-error-feature-disabled',
-    templateUrl: './error-feature-disabled.component.html',
-    styleUrls: ['./error-feature-disabled.component.scss'],
-    standalone: false
+  selector: 'ws-widget-error-feature-disabled',
+  templateUrl: './error-feature-disabled.component.html',
+  styleUrls: ['./error-feature-disabled.component.scss'],
+  standalone: false
 })
 export class ErrorFeatureDisabledComponent implements OnInit, OnDestroy {
   @Input() errorData: null | IWidgetErrorFeatureDisabled = null
-  isDarkMode: boolean = this.configurationsSvc.isDarkMode
+  isDarkMode: boolean
 
   private routeChangeSubs: Subscription | null = null
   private prefChangeSubs: Subscription | null = null
-  constructor(private route: ActivatedRoute, private configurationsSvc: ConfigurationsService) {}
+  constructor(private route: ActivatedRoute, private configurationsSvc: ConfigurationsService) {
+    this.isDarkMode = this.configurationsSvc.isDarkMode
+  }
 
   ngOnInit() {
     if (!this.errorData) {

@@ -1,9 +1,9 @@
 import { Component, HostBinding, Input, OnInit } from '@angular/core'
 import { Router } from '@angular/router'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
-import { DiscussUtilsService } from '@ws/app'
 import { ConnectionHoverService } from '../_common/connection-hover-card/connection-hover.servive'
+import { DiscussUtilsService } from '../discuss/services/discuss-utils.service'
 
 @Component({
   selector: 'ws-widget-card-home-network',

@@ -1,19 +1,19 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core'
-import { UntypedFormControl } from '@angular/forms'
+import { FormControl } from '@angular/forms'
 import { ActivatedRoute } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
 import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 import { distinctUntilChanged } from 'rxjs/operators'
 
 @Component({
-    selector: 'ws-cbp-plan-feed',
-    templateUrl: './cbp-plan-feed.component.html',
-    styleUrls: ['./cbp-plan-feed.component.scss'],
-    standalone: false
+  selector: 'ws-cbp-plan-feed',
+  templateUrl: './cbp-plan-feed.component.html',
+  styleUrls: ['./cbp-plan-feed.component.scss'],
+  standalone: false
 })
 export class CbpPlanFeedComponent implements OnInit {
 
-  searchControl = new UntypedFormControl('')
+  searchControl = new FormControl('')
   toggleFilter = false
   contentDataList: any = []
   cbpConfig: any
@@ -49,14 +49,14 @@ export class CbpPlanFeedComponent implements OnInit {
     private activatedRoute: ActivatedRoute,
     private translate: TranslateService,
     private langtranslations: MultilingualTranslationsService) {
-      this.langtranslations.languageSelectedObservable.subscribe(() => {
-        if (localStorage.getItem('websiteLanguage')) {
-          this.translate.setDefaultLang('en')
-          const lang = localStorage.getItem('websiteLanguage')!
-          this.translate.use(lang)
-        }
-      })
-    }
+    this.langtranslations.languageSelectedObservable.subscribe(() => {
+      if (localStorage.getItem('websiteLanguage')) {
+        this.translate.setDefaultLang('en')
+        const lang = localStorage.getItem('websiteLanguage')!
+        this.translate.use(lang)
+      }
+    })
+  }
 
   ngOnInit() {
     if (this.activatedRoute.snapshot.data.pageData) {
@@ -74,8 +74,8 @@ export class CbpPlanFeedComponent implements OnInit {
     // tslint:disable-next-line: whitespace
   }
   openFilter() {
-      this.toggleFilter = true
-      this.toggleFilterEvent.emit(this.toggleFilter)
+    this.toggleFilter = true
+    this.toggleFilterEvent.emit(this.toggleFilter)
   }
   // tslint: disable-next-line
   closeFilter(value: any, key: any) {

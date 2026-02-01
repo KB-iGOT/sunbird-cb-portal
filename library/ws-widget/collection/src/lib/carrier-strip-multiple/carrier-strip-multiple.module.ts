@@ -1,9 +1,9 @@
-import { NgModule } from '@angular/core'
+import { NgModule, NO_ERRORS_SCHEMA } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { RouterModule } from '@angular/router'
 import { CarrierStripMultipleComponent } from './carrier-strip-multiple.component'
 import { HorizontalScrollerModule } from '@sunbird-cb/utils-v2'
-import { WidgetResolverModule } from '@sunbird-cb/resolver'
+import { SbUiResolverModule } from '@sunbird-cb/resolver-v2'
 import { MatButtonModule } from '@angular/material/button'
 import { MatCardModule } from '@angular/material/card'
 import { MatChipsModule } from '@angular/material/chips'
@@ -17,13 +17,14 @@ import { MatTooltipModule } from '@angular/material/tooltip'
         CommonModule,
         RouterModule,
         HorizontalScrollerModule,
-        WidgetResolverModule,
+        SbUiResolverModule,
         MatButtonModule,
         MatIconModule,
         MatTooltipModule,
         MatProgressSpinnerModule,
         MatChipsModule,
         MatCardModule,
-    ]
+    ],
+    schemas: [NO_ERRORS_SCHEMA]
 })
 export class CarrierStripMultipleModule { }

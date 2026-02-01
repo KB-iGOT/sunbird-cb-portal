@@ -3,13 +3,12 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 import { Router } from '@angular/router'
 import { EventService, WsEvents } from '@sunbird-cb/utils-v2'
 import { jsPDF } from 'jspdf'
-import { environment } from 'src/environments/environment'
 
 @Component({
-    selector: 'ws-widget-app-profile-certificate-dialog',
-    templateUrl: './profile-certificate-dialog.component.html',
-    styleUrls: ['./profile-certificate-dialog.component.scss'],
-    standalone: false
+  selector: 'ws-widget-app-profile-certificate-dialog',
+  templateUrl: './profile-certificate-dialog.component.html',
+  styleUrls: ['./profile-certificate-dialog.component.scss'],
+  standalone: false
 })
 export class ProfileCertificateDialogComponent implements OnInit {
 
@@ -24,12 +23,12 @@ export class ProfileCertificateDialogComponent implements OnInit {
   author!: string
   userID: any
   courseData: any
-  environment!: any
 
   navUrl: any = ''
   shareUrl = 'https://medium.com/@garfunkel61/angular-simplest-solution-for-social-sharing-feature-6f00d5d99c5e'
 
   constructor(
+    @Inject('environment') private environment: any,
     private router: Router,
     private events: EventService,
     // private sanitizer: DomSanitizer,
@@ -46,7 +45,7 @@ export class ProfileCertificateDialogComponent implements OnInit {
     this.userID = this.data.value.userId
     this.courseData = this.data.courseData.content
     this.createNavigationUrl()
-    this.environment = environment
+    // this.environment = environment
 
     // this.downloadCertInLocal(this.url)
   }
@@ -66,7 +65,7 @@ export class ProfileCertificateDialogComponent implements OnInit {
     // searchParams.set('url', a);
     // console.log(a);
     // tslint:disable-next-line: max-line-length
-    this.navUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${environment.contentHost}/apis/public/v8/cert/download/${this.data.certId}`
+    this.navUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${this.environment.contentHost}/apis/public/v8/cert/download/${this.data.certId}`
     // this.navUrl =  url
     // console.log("navurl", this.navUrl)
   }

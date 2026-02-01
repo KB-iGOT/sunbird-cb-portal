@@ -1,13 +1,13 @@
 import { Component, HostBinding, Input, OnInit } from '@angular/core'
-import { WidgetBaseComponent, NsWidgetResolver } from '@sunbird-cb/resolver'
+import { WidgetBaseComponent, NsWidgetResolver } from '@sunbird-cb/resolver-v2'
 
 @Component({
-    selector: 'ws-widget-profile-v2-competencies',
-    templateUrl: './profile-competencies.component.html',
-    styleUrls: ['./profile-competencies.component.scss'],
-    /* tslint:disable */
-    host: { class: 'flex flex-1' },
-    standalone: false
+  selector: 'ws-widget-profile-v2-competencies',
+  templateUrl: './profile-competencies.component.html',
+  styleUrls: ['./profile-competencies.component.scss'],
+  /* tslint:disable */
+  host: { class: 'flex flex-1' },
+  standalone: false
 })
 export class ProfileCompetenciesComponent extends WidgetBaseComponent implements OnInit, NsWidgetResolver.IWidgetData<any> {
   @Input() widgetData: any

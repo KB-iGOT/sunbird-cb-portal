@@ -1,8 +1,8 @@
 import { Component, HostListener } from '@angular/core'
 import { ProgressIndicatorLocation, GuidedTour, Orientation, GuidedTourService } from 'igot-cb-tour-guide'
 import { UtilityService, EventService, WsEvents, ConfigurationsService } from '@sunbird-cb/utils-v2'
-import { UserProfileService } from '@ws/app'
 import { TranslateService } from '@ngx-translate/core'
+import { UserProfileService } from '@sunbird-cb/collection'
 @Component({
   selector: 'app-tour',
   templateUrl: './app-tour.component.html',

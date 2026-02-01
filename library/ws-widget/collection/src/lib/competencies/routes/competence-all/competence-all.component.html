@@ -1,0 +1,500 @@
+<div class="flex flex-4 flex-column margin-bottom-xl competency_inner">
+  <div class="flex flex-1 custom">
+    <!-- <div class="flex-1" style="position: relative;">
+      <div #stickyMenu [class.sticky]="sticky">
+        <app-competence-left-menu [tabsData]="tabsData" class="flex flex-1"></app-competence-left-menu>
+      </div>
+    </div> -->
+    <div class="flex-3">
+      <div class="w-full" role="link" tabindex="0">
+        <div class="flex flex-1 flex-column margin-fix mb-2" role="link" tabindex="0">
+          <span class="mat-subheading-1">
+            {{ 'competencies.labelYourCompetencies' | translate }}
+          </span>
+        </div>
+        <mat-card class="no-competency-card margin-right-s">
+          <!-- *ngIf="myCompetencies && myCompetencies.length === 0" -->
+          <mat-card-content class="flex flex-1 flex-col">
+            <div class="flex flex-col items-center main_progress_box">
+              <div class="flex flex-row inner_progress_box justify-between">
+                <div class="progress_data_box">
+                  <!-- <mat-progress-bar class="green-progress" [color]="color"
+                  mode="determinate"
+                  [value]="value"></mat-progress-bar> -->
+                  <mat-progress-bar class="green-progress" mode="determinate" [value]="value" bufferValue="0">
+                  </mat-progress-bar>
+
+
+                  <p class="mat-h3 margin-remove">{{ myCompetencies.length }}</p>
+                  <p class="mat-body-2">{{ 'competencies.labelYourCompetencies' | translate }}</p>
+                </div>
+
+                <div class="progress_data_box">
+                  <!-- <mat-progress-bar class="green-progress" [color]="color"
+                  mode="determinate"
+                  [value]="value"></mat-progress-bar> -->
+                  <mat-progress-bar class="green-progress" mode="determinate" [value]="value" bufferValue="0">
+                  </mat-progress-bar>
+                  <p class="mat-h3 margin-remove">{{ ((filteredCompetencies) ? filteredCompetencies.length : 0 ) +
+                    ((watCompetencies) ? watCompetencies.length : 0 )}}</p>
+                  <p class="mat-body-2 margin-remove">{{ 'competencies.labelRecommendCompetencies' | translate }}</p>
+                </div>
+              </div>
+            </div>
+          </mat-card-content>
+        </mat-card>
+      </div>
+      <div class="w-full pt-5">
+        <div class="flex flex-1 flex-column margin-fix mt-5 filter_outer_box">
+          <div class="flex flex-1 filter">
+            <a href="javascript:void(0)" role="button" class="filter-option"
+              [ngClass]="{'ws-mat-accent-border-active' : currentFilter === 'acquired_by_you', 'ws-mat-accent-border':currentFilter !== 'acquired_by_you'}"
+              (click)="filter('acquired_by_you'); tabTelemetry('Added by you', 2)">
+              {{ 'competencies.acquiredByYou' | translate }} </a>
+            <a href="javascript:void(0)" role="button" class="filter-option"
+              [ngClass]="{'ws-mat-accent-border-active' : currentFilter === 'desired_competencies', 'ws-mat-accent-border':currentFilter !== 'desired_competencies'}"
+              (click)="filter('desired_competencies'); tabTelemetry('Added by you', 2)">
+              {{ 'competencies.desired' | translate }}</a>
+            <a href="javascript:void(0)" role="button" class="filter-option"
+              [ngClass]="{'ws-mat-accent-border-active' : currentFilter === 'recommended', 'ws-mat-accent-border':currentFilter !== 'recommended'}"
+              (click)="filter('recommended'); tabTelemetry('Recommended from FRAC', 0)">
+              {{ 'competencies.fromFRAC' | translate }}</a>
+          </div>
+        </div>
+
+        <div class="flex flex-col md:flex-row margin-fix search">
+          <form (submit)="updateQuery(queryControl.value)" class="flex-1 search_form">
+            <mat-form-field appearance="outline" class="autocomplete-form comp-search" color="primary"
+              [floatLabel]="'never'">
+              <mat-icon matPrefix class="flex items-center justify-center">search</mat-icon>
+              <input type="search" #searchInput i18n-placeholder="search content"
+                [placeholder]="'common.search' | translate" i18-aria-label aria-label="Query" matInput
+                [formControl]="queryControl" accesskey="F" maxlength="50" />
+            </mat-form-field>
+          </form>
+          <div class="flex justify-center"
+            *ngIf="myCompetencies && myCompetencies.length > 0 && currentFilter && currentFilter === 'acquired_by_you'">
+            <a class="add_competency_btn text-white flex items-center justify-center cursor-pointer mat-subheading-2"
+              routerLink="/app/competencies/all">{{ 'competencies.addCompetency' | translate }}</a>
+          </div>
+        </div>
+
+        <div *ngIf="currentFilter && currentFilter === 'acquired_by_you'">
+          <div *ngIf="myCompetencies && myCompetencies.length == 0">
+            <div class="flex flex-col items-center justify-center post_image_box">
+              <img src="/assets/images/banners/competencies.svg">
+              <p class="mat-h4 ws-mat-black60-text">{{ 'msg.noCompetenciesFound' | translate }}</p>
+              <p class="mat-body ws-mat-black60-text">{{ 'msg.findCompetenciesToAddFrom' | translate }}</p>
+              <p class="mat-body ws-mat-default-text"><a class="work_order_link" routerLink="/app/competencies/all">{{
+                  'msg.allCompetencies' | translate }}</a></p>
+              <br />
+            </div>
+          </div>
+
+          <!-- New -->
+          <div class="flex flex-column flex-wrap margin-fix">
+            <ng-container *ngIf="myCompetencies && myCompetencies.length > 0">
+              <ng-container *ngFor="let comp of myCompetencies | pipeFilterV2:'name': searchInput.value">
+                <!--  | pipeFilterV2:'name': searchInput.value   -->
+                <mat-card class="cursor-pointer margin-bottom-m position-relative mat-card"
+                  [ngClass]="{'mat-copmetence': isSelected}" (click)=view(comp)>
+                  <a role="button">
+                    <mat-card-content>
+                      <div class="card_inner_content flex flex-col md:flex-row justify-between">
+                        <div class="card_inner_title_box flex-col">
+                          <h4 class="mat-h4">{{comp.name}}</h4>
+                          <p class="mat-body-2 ws-mat-black60-text">{{comp.competencyType}}</p>
+                        </div>
+                        <div class="proficiency_text_box">
+                          <!-- <div class="flex flex-row justify-between">
+                                  <div>
+                                      <p>WPCAS:</p>
+                                  </div>
+                                  <div class="proficiency_graph_box">
+                                    <ul class="tagIconList">
+                                      <li><a href="#" class="activeLevelIcon"></a> </li>
+                                      <li><a href="#" class="activeLevelIcon"></a> </li>
+                                      <li><a href="#" class="disableTagIcon"></a> </li>
+                                      <li><a href="#" class="disableTagIcon"></a> </li>
+                                      <li><a href="#" class="disableTagIcon"></a> </li>
+                                    </ul>
+                                  </div>
+                                </div>
+
+                                <div class="flex flex-row justify-between">
+                                  <div>
+                                    <p>PIAA</p>
+                                  </div>
+                                  <div class="proficiency_graph_box">
+                                    <ul class="tagIconList">
+                                      <li><a href="#" class="activeLevelIcon"></a> </li>
+                                      <li><a href="#" class="activeLevelIcon"></a> </li>
+                                      <li><a href="#" class="activeLevelIcon"></a> </li>
+                                      <li><a href="#" class="disableTagIcon"></a> </li>
+                                      <li><a href="#" class="disableTagIcon"></a> </li>
+                                    </ul>
+                                  </div>
+                                </div> -->
+                          <div class="flex md:flex-row justify-between">
+                            <div>
+                              <p>{{ 'competencies.cbpCourse' | translate }}</p>
+                            </div>
+                            <div class="proficiency_graph_box">
+                              <ul class="tagIconList nolevel"
+                                *ngIf="!comp.competencyCBPCompletionLevel || comp.competencyCBPCompletionLevel === '' || !comp.children">
+                                <li><span class="disableTagIcon"></span> </li>
+                                <li><span class="disableTagIcon"></span> </li>
+                                <li><span class="disableTagIcon"></span> </li>
+                                <li><span class="disableTagIcon"></span> </li>
+                                <li><span class="disableTagIcon"></span> </li>
+                              </ul>
+                              <ul class="tagIconList"
+                                *ngIf="comp.competencyCBPCompletionLevel && comp.competencyCBPCompletionLevel !== '' && comp.children">
+                                <ng-container
+                                  *ngIf="comp.competencyCBPCompletionLevel && ((comp.children[0] && comp.children[0].id === comp.competencyCBPCompletionLevel) || comp.competencyCBPCompletionLevel === 1 || comp.competencyCBPCompletionLevel === '1')">
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="disableTagIcon"></span> </li>
+                                  <li><span class="disableTagIcon"></span> </li>
+                                  <li><span class="disableTagIcon"></span> </li>
+                                  <li><span class="disableTagIcon"></span> </li>
+                                </ng-container>
+                                <ng-container
+                                  *ngIf="comp.competencyCBPCompletionLevel && ((comp.children[1] && comp.children[1].id === comp.competencyCBPCompletionLevel) || comp.competencyCBPCompletionLevel === 2 || comp.competencyCBPCompletionLevel === '2')">
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="disableTagIcon"></span> </li>
+                                  <li><span class="disableTagIcon"></span> </li>
+                                  <li><span class="disableTagIcon"></span> </li>
+                                </ng-container>
+                                <ng-container
+                                  *ngIf="comp.competencyCBPCompletionLevel && ((comp.children[2] && comp.children[2].id === comp.competencyCBPCompletionLevel) || comp.competencyCBPCompletionLevel === 3 || comp.competencyCBPCompletionLevel === '3')">
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="disableTagIcon"></span> </li>
+                                  <li><span class="disableTagIcon"></span> </li>
+                                </ng-container>
+                                <ng-container
+                                  *ngIf="comp.competencyCBPCompletionLevel && ((comp.children[3] && comp.children[3].id === comp.competencyCBPCompletionLevel) || comp.competencyCBPCompletionLevel === 4 || comp.competencyCBPCompletionLevel === '4')">
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="disableTagIcon"></span> </li>
+                                </ng-container>
+                                <ng-container
+                                  *ngIf="comp.competencyCBPCompletionLevel && ((comp.children[4] && comp.children[4].id === comp.competencyCBPCompletionLevel) || comp.competencyCBPCompletionLevel === 5 || comp.competencyCBPCompletionLevel === '5')">
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                </ng-container>
+                              </ul>
+                            </div>
+                          </div>
+                          <div class="flex flex-row justify-between prof_txt_data">
+                            <div>
+                              <p>{{ 'competencies.selfAttestation' | translate }}</p>
+                            </div>
+                            <div class="proficiency_graph_box">
+                              <ul class="tagIconList nolevel"
+                                *ngIf="!comp.competencySelfAttestedLevel || comp.competencySelfAttestedLevel === '' || !comp.children">
+                                <li><span class="disableTagIcon"></span> </li>
+                                <li><span class="disableTagIcon"></span> </li>
+                                <li><span class="disableTagIcon"></span> </li>
+                                <li><span class="disableTagIcon"></span> </li>
+                                <li><span class="disableTagIcon"></span> </li>
+                              </ul>
+                              <ul class="tagIconList"
+                                *ngIf="comp.competencySelfAttestedLevel && comp.competencySelfAttestedLevel !== '' && comp.children">
+                                <ng-container
+                                  *ngIf="comp.competencySelfAttestedLevel && ((comp.children[0] && comp.children[0].id === comp.competencySelfAttestedLevel) || comp.competencySelfAttestedLevel === 1 || comp.competencySelfAttestedLevel === '1')">
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="disableTagIcon"></span> </li>
+                                  <li><span class="disableTagIcon"></span> </li>
+                                  <li><span class="disableTagIcon"></span> </li>
+                                  <li><span class="disableTagIcon"></span> </li>
+                                </ng-container>
+                                <ng-container
+                                  *ngIf="comp.competencySelfAttestedLevel && ((comp.children[1] && comp.children[1].id === comp.competencySelfAttestedLevel) || comp.competencySelfAttestedLevel === 2 || comp.competencySelfAttestedLevel === '2')">
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="disableTagIcon"></span> </li>
+                                  <li><span class="disableTagIcon"></span> </li>
+                                  <li><span class="disableTagIcon"></span> </li>
+                                </ng-container>
+                                <ng-container
+                                  *ngIf="comp.competencySelfAttestedLevel && ((comp.children[2] && comp.children[2].id === comp.competencySelfAttestedLevel) || comp.competencySelfAttestedLevel === 3 || comp.competencySelfAttestedLevel === '3')">
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="disableTagIcon"></span> </li>
+                                  <li><span class="disableTagIcon"></span> </li>
+                                </ng-container>
+                                <ng-container
+                                  *ngIf="comp.competencySelfAttestedLevel && ((comp.children[3] && comp.children[3].id === comp.competencySelfAttestedLevel) || comp.competencySelfAttestedLevel === 4 || comp.competencySelfAttestedLevel === '4')">
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="disableTagIcon"></span> </li>
+                                </ng-container>
+                                <ng-container
+                                  *ngIf="comp.competencySelfAttestedLevel && ((comp.children[4] && comp.children[4].id === comp.competencySelfAttestedLevel) || comp.competencySelfAttestedLevel === 5 || comp.competencySelfAttestedLevel === '5')">
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                </ng-container>
+                              </ul>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="flex proficient_level_box">
+                          <p class="matbold mat-body-2"
+                            *ngIf="comp.competencySelfAttestedLevel && !comp.competencyCBPCompletionLevel">
+                            {{comp.competencySelfAttestedLevelValue}}</p>
+                          <p class="matbold mat-body-2"
+                            *ngIf="!comp.competencySelfAttestedLevel && comp.competencyCBPCompletionLevel">
+                            {{comp.competencyCBPCompletionLevelValue}}</p>
+                          <p class="matbold mat-body-2"
+                            *ngIf="comp.competencySelfAttestedLevel && comp.competencyCBPCompletionLevelName">
+                            <span
+                              *ngIf="comp.competencyCBPCompletionLevel < comp.competencySelfAttestedLevel">{{comp.competencyCBPCompletionLevelValue}}</span>
+                            <span
+                              *ngIf="comp.competencySelfAttestedLevel < comp.competencyCBPCompletionLevel">{{comp.competencySelfAttestedLevelValue}}</span>
+                            <span
+                              *ngIf="comp.competencySelfAttestedLevel === comp.competencyCBPCompletionLevel">{{comp.competencySelfAttestedLevelValue}}
+                              <mat-icon class="completedicon">check_circle</mat-icon></span>
+                          </p>
+                          <p class="deactivate_text mat-body-2"
+                            *ngIf="!comp.competencySelfAttestedLevel && !comp.competencyCBPCompletionLevel">{{
+                            'msg.notEnoughData' | translate }}</p>
+                        </div>
+                      </div>
+                    </mat-card-content>
+                  </a>
+                </mat-card>
+              </ng-container>
+            </ng-container>
+          </div>
+        </div>
+
+        <div *ngIf="currentFilter && currentFilter === 'desired_competencies'">
+          <div *ngIf="desiredCompetencies && desiredCompetencies.length == 0">
+            <div class="flex flex-col items-center justify-center post_image_box">
+              <img src="/assets/images/banners/competencies.svg">
+              <p class="mat-h4 ws-mat-black60-text">{{ 'msg.noCompetenciesFound' | translate }}</p>
+              <p class="mat-body ws-mat-black60-text">{{ 'msg.findCompetenciesToAddFrom' | translate }}</p>
+              <p class="mat-body ws-mat-default-text"><a class="work_order_link" routerLink="/app/competencies/all">{{
+                  'msg.allCompetencies' | translate }}</a></p>
+              <br />
+            </div>
+          </div>
+
+          <div class="flex flex-column flex-wrap margin-fix">
+            <ng-container *ngIf="desiredCompetencies && desiredCompetencies.length > 0">
+              <ng-container *ngFor="let comp of desiredCompetencies | pipeFilterV2:'name': searchInput.value">
+                <!--  | pipeFilterV2:'name': searchInput.value   -->
+                <mat-card class="cursor-pointer margin-bottom-m position-relative mat-card"
+                  [ngClass]="{'mat-copmetence': isSelected}">
+                  <a role="button">
+                    <mat-card-content>
+                      <div class="card_inner_content flex flex-row">
+                        <div class="card_inner_title_box flex-col desired-card">
+                          <h4 class="mat-h4">{{comp.name}}</h4>
+                          <p class="mat-body-2 ws-mat-black60-text">{{comp.competencyType}}</p>
+                        </div>
+                        <!-- <div class="flex-col proficiency_text_box">
+                          <div class="flex flex-row justify-between prof_txt_data">
+                            <div>
+                              <p>Self attestation</p>
+                            </div>
+                            <div class="proficiency_graph_box">
+                              <ul class="tagIconList">
+                                <ng-container
+                                  *ngIf="comp.competencySelfAttestedLevel && (comp.competencySelfAttestedLevel === 1 || comp.competencySelfAttestedLevel === '1')">
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="disableTagIcon"></span> </li>
+                                  <li><span class="disableTagIcon"></span> </li>
+                                  <li><span class="disableTagIcon"></span> </li>
+                                  <li><span class="disableTagIcon"></span> </li>
+                                </ng-container>
+                                <ng-container
+                                  *ngIf="comp.competencySelfAttestedLevel && (comp.competencySelfAttestedLevel === 2 || comp.competencySelfAttestedLevel === '2')">
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="disableTagIcon"></span> </li>
+                                  <li><span class="disableTagIcon"></span> </li>
+                                  <li><span class="disableTagIcon"></span> </li>
+                                </ng-container>
+                                <ng-container
+                                  *ngIf="comp.competencySelfAttestedLevel && (comp.competencySelfAttestedLevel === 3 || comp.competencySelfAttestedLevel === '3')">
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="disableTagIcon"></span> </li>
+                                  <li><span class="disableTagIcon"></span> </li>
+                                </ng-container>
+                                <ng-container
+                                  *ngIf="comp.competencySelfAttestedLevel && (comp.competencySelfAttestedLevel === 4 || comp.competencySelfAttestedLevel === '4')">
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="disableTagIcon"></span> </li>
+                                </ng-container>
+                                <ng-container
+                                  *ngIf="comp.competencySelfAttestedLevel && (comp.competencySelfAttestedLevel === 5 || comp.competencySelfAttestedLevel === '5')">
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                  <li><span class="activeLevelIcon"></span> </li>
+                                </ng-container>
+                              </ul>
+                            </div>
+                          </div>
+                        </div> -->
+                        <div class="flex proficient_level_box">
+                          <p class="matbold mat-body-2" *ngIf="comp.competencySelfAttestedLevel">
+                            {{comp.competencySelfAttestedLevelValue}}</p>
+                          <p class="deactivate_text mat-body-2" *ngIf="!comp.competencySelfAttestedLevel">{{
+                            'msg.notEnoughData' | translate }}</p>
+                        </div>
+                      </div>
+                    </mat-card-content>
+                  </a>
+                </mat-card>
+              </ng-container>
+            </ng-container>
+          </div>
+        </div>
+
+        <div *ngIf="currentFilter && currentFilter === 'recommended_from_wat'">
+          <div class="recommendation_box flex flex-col justify-start margin-bottom-l margin-top-l">
+            <p class="mat-body margin-remove">
+              <mat-icon class="info_icon mat-icon ws-mat-black60-text">info</mat-icon>
+              Recommendations are based on your position and are coming from your Work Allocation Order. These are the
+              competencies you need to acquire as part of your position
+            </p>
+          </div>
+          <div *ngIf="watCompetencies && watCompetencies.length == 0">
+            <div class="flex flex-col items-center justify-center post_image_box">
+              <img src="/assets/images/banners/competencies.svg">
+              <p class="mat-h4 ws-mat-black60-text">{{ 'competencies.fromWAT' | translate }}</p>
+              <!-- <p class="mat-body ws-mat-black60-text">Find competencies to add from.</p>
+              <p class="mat-body"><a class="work_order_link" routerLink="/app/competencies/all">All Competencies</a></p> -->
+              <br />
+            </div>
+          </div>
+
+          <!-- New -->
+
+          <div class="flex flex-column flex-wrap margin-fix">
+            <ng-container *ngIf="watCompetencies && watCompetencies.length > 0">
+              <ng-container *ngFor="let comp of watCompetencies | pipeFilterV2:'name': searchInput.value">
+                <!--  | pipeFilterV2:'name': searchInput.value   -->
+                <mat-card class="cursor-pointer margin-bottom-m position-relative mat-card"
+                  [ngClass]="{'mat-copmetence': isSelected}"
+                  [routerLink]="['/app/competencies/all', comp?.id, comp?.name, 'WAT']">
+                  <a role="button">
+                    <mat-card-content>
+                      <div class="card_inner_content flex flex-row justify-between">
+                        <div class="card_inner_title_box flex-col">
+                          <h4 class="mat-h4">{{comp.name}}</h4>
+                          <p class="mat-body-2 ws-mat-black60-text">{{comp?.additionalProperties?.competencyType ||
+                            comp?.competencyType}}</p>
+                        </div>
+
+
+                        <div class="flex proficient_level_box">
+                          <p class="deactivate_text mat-body-2">{{ 'msg.notEnoughData' | translate }}</p>
+                        </div>
+                      </div>
+                    </mat-card-content>
+                  </a>
+                </mat-card>
+              </ng-container>
+              <ng-container *ngIf="watCompetencies && watCompetencies.length === 0">
+                <p>{{ 'msg.notFound' | translate }}</p>
+              </ng-container>
+            </ng-container>
+          </div>
+        </div>
+
+        <div class="flex flex-column flex-wrap margin-fix" *ngIf="currentFilter && currentFilter === 'recommended'">
+
+          <div>
+            <div class="recommendation_box flex flex-col justify-start margin-bottom-l margin-top-l">
+              <p class="mat-body margin-remove">
+                <mat-icon class="info_icon mat-icon ws-mat-black60-text">info</mat-icon>
+                Recommendations are based on your position and are coming from FRAC dictionary allocated to your
+                position. Please go to your
+                <a class="work_order_link" routerLink="/app/person-profile/me" fragment="profileInfo">Profile</a> page
+                to update your position
+              </p>
+            </div>
+            <div class="flex flex-col items-center justify-center post_image_box" *ngIf="userPosition == null">
+              <img src="/assets/images/banners/competencies.svg">
+              <p class="mat-h4 ws-mat-black60-text">{{ 'msg.noCompetenciesFound' | translate }}</p>
+              <p class="mat-body ws-mat-black60-text">{{ 'competencies.recommendedBasedOnPosition' | translate }}</p>
+              <br />
+            </div>
+          </div>
+          <ng-container *ngIf="filteredCompetencies && filteredCompetencies.length > 0">
+            <ng-container *ngFor="let comp of filteredCompetencies | pipeFilterV2:'name': searchInput.value">
+              <mat-card class="cursor-pointer margin-bottom-m position-relative mat-card"
+                [ngClass]="{'mat-copmetence': isSelected}"
+                [routerLink]="['/app/competencies/all', comp?.id, comp?.name, 'FRAC']">
+                <a role="button">
+                  <mat-card-content>
+                    <div class="card_inner_content flex flex-row justify-between">
+                      <div class="card_inner_title_box flex-col">
+                        <h4 class="mat-h4">{{comp.name}}</h4>
+                        <p class="mat-body-2 ws-mat-black60-text">{{comp?.additionalProperties?.competencyType ||
+                          comp?.competencyType}}</p>
+                      </div>
+
+
+                      <div class="flex proficient_level_box">
+                        <p class="deactivate_text mat-body-2">{{ 'msg.notEnoughData' | translate }}</p>
+                      </div>
+                    </div>
+                  </mat-card-content>
+                </a>
+              </mat-card>
+              <!-- <app-competencies-proficency-card [data]="comp" [isSelected]="comp.id === selectedId"
+                (setSelected)="setSelectedCompetency($event)" (addComp)="addCompetency($event)"
+                (delComp)="deleteCompetency($event)">
+              </app-competencies-proficency-card> -->
+            </ng-container>
+            <!-- <ng-container *ngIf="filteredCompetencies && filteredCompetencies.length === 0">
+              <p>Not found</p>
+            </ng-container> -->
+          </ng-container>
+        </div>
+        <div class="flex flex-1 flex-column margin-fix pagination-container">
+          <!-- <ws-app-careers-pagination [pager]="pager" (changePage)="navigateWithPage($event)">
+          </ws-app-careers-pagination> -->
+        </div>
+      </div>
+    </div>
+    <div class="flex flex-1 custom">
+      <!-- <div class="flex-1" style="position: relative;">
+        <div #stickyMenu [class.sticky]="sticky">
+          <app-competence-right-menu class="flex flex-1"></app-competence-right-menu>
+        </div>
+      </div> -->
+    </div>
+  </div>
+</div>
+
+<!-- grid layout - update mobile number & nps panel -->
+<ng-container [sbUiResolverWidget]="pageLayout"></ng-container>
+
+<input type="hidden" i8n-value value="Something went wrong! Please try again later." #failMsg />
+<input type="hidden" i8n-value value="Competency added successfully!!" #successMsg />
+<input type="hidden" i8n-value value="Competency removed successfully!!" #successRemoveMsg />

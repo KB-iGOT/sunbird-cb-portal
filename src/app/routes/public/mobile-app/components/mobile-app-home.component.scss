@@ -3,7 +3,7 @@
 @use 'ws-mixins' as *;
 
 .mobile-app-container {
-  @include page-center;
+  // @include page-center;
   padding-top: 0;
   padding-bottom: 8px;
   margin: 16px 0px;

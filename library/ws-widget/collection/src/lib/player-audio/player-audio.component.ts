@@ -1,4 +1,4 @@
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import {
   Component,
   OnInit,
@@ -21,7 +21,7 @@ import {
 import { WidgetContentService } from '../_services/widget-content.service'
 import { NsContent } from '../_services/widget-content.model'
 import { ActivatedRoute } from '@angular/router'
-import { ViewerUtilService } from '@ws/viewer'
+import { ViewerUtilService } from '../viewer-util.service'
 
 const videoJsOptions: videoJs.PlayerOptions = {
   controls: true,

@@ -1,6 +1,6 @@
 // import { HttpClient } from '@angular/common/http'
 import { Component, OnInit, Input, OnDestroy, ViewChild, ElementRef } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { ConfigurationsService, EventService, WsEvents, NPSGridService } from '@sunbird-cb/utils-v2'
 import { Subscription } from 'rxjs'
 // import { map } from 'rxjs/operators'

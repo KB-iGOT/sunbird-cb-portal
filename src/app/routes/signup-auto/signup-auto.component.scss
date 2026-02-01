@@ -4,7 +4,7 @@
 .signup-container {
     box-sizing: border-box;
     padding: $size-m;
-    @include page-center;
+    // @include page-center;
     @extend %height-mat-toolbar-sibling;
 
     .msg {

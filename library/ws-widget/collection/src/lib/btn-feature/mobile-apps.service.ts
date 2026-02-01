@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core'
-import { NsContent } from '../../public-api'
 // tslint:disable-next-line: max-line-length
 import {
   CHAT_BOT_VISIBILITY,
@@ -14,6 +13,7 @@ import {
   TOKEN_OUTGOING,
 } from './models/mobile-events.model'
 import { NavigationExternalService } from './navigation-external.service'
+import { NsContent } from '../_services/widget-content.model'
 interface IWindowMobileAppModified extends Window {
   appRef?: any
   webkit?: any

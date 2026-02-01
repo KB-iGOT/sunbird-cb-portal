@@ -4,9 +4,9 @@ import {
   ConfigurationsService, MultilingualTranslationsService, PipeDurationTransformPipe
   , PipeOrdinalPipe,
 } from '@sunbird-cb/utils-v2'
-import { HomePageService } from 'src/app/services/home-page.service'
 import moment from 'moment'
-import { UserProfileService } from '@ws/app'
+import { UserProfileService } from '../../user-profile/services/user-profile.service'
+import { HomePageService } from '../../_services/home-page.service'
 
 @Component({
   selector: 'ws-widget-user-leaderboard',

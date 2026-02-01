@@ -9,6 +9,7 @@ import { MatIconModule } from '@angular/material/icon'
 import { MatMenuModule } from '@angular/material/menu'
 import { MatSnackBarModule } from '@angular/material/snack-bar'
 import { MatTooltipModule } from '@angular/material/tooltip'
+import { TranslateModule } from '@ngx-translate/core'
 
 @NgModule({
     declarations: [ProfileCertificateDialogComponent],
@@ -24,6 +25,7 @@ import { MatTooltipModule } from '@angular/material/tooltip'
         MatSnackBarModule,
         PipeSafeSanitizerModule,
         PipePublicURLModule,
+        TranslateModule.forChild(),
     ],
     exports: [
         ProfileCertificateDialogComponent,

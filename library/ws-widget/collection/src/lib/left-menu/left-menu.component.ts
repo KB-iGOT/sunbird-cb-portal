@@ -1,19 +1,19 @@
 import { Component, OnInit, OnDestroy, Input } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { ILeftMenu, IMenu } from './left-menu.model'
 import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 import { TranslateService } from '@ngx-translate/core'
 // tslint:disable-next-line: import-spacing
 // import  defaultImg  from './base64.json'
 @Component({
-    selector: 'ws-widget-left-menu',
-    templateUrl: './left-menu.component.html',
-    styleUrls: ['./left-menu.component.scss'],
-    standalone: false
+  selector: 'ws-widget-left-menu',
+  templateUrl: './left-menu.component.html',
+  styleUrls: ['./left-menu.component.scss'],
+  standalone: false
 })
 export class LeftMenuComponent extends WidgetBaseComponent
-  implements OnInit, OnDestroy, NsWidgetResolver.IWidgetData<ILeftMenu>  {
+  implements OnInit, OnDestroy, NsWidgetResolver.IWidgetData<ILeftMenu> {
   @Input() widgetData!: ILeftMenu
   currentFragment = ''
   defaultImg = '/assets/instances/eagle/app_logos/default.png'

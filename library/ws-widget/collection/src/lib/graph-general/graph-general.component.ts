@@ -8,29 +8,29 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core'
-import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { UntypedFormBuilder, FormGroup, Validators } from '@angular/forms'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 // import { Chart, ChartOptions } from 'chart.js'
 import { IWidgetGraphData, TChartJsGraphType, TChartJsColorPalette } from './graph-general.model'
 import { COLOR_PALETTE, GRAPH_TYPES } from './graph-general-color-palette'
 // import { GraphGeneralService } from './graph-general.service'
 @Component({
-    selector: 'ws-widget-graph-general',
-    templateUrl: './graph-general.component.html',
-    styleUrls: ['./graph-general.component.scss'],
-    standalone: false
+  selector: 'ws-widget-graph-general',
+  templateUrl: './graph-general.component.html',
+  styleUrls: ['./graph-general.component.scss'],
+  standalone: false
 })
 export class GraphGeneralComponent extends WidgetBaseComponent
   implements
-    OnInit,
-    OnDestroy,
-    AfterViewInit,
-    OnChanges,
-    NsWidgetResolver.IWidgetData<IWidgetGraphData> {
+  OnInit,
+  OnDestroy,
+  AfterViewInit,
+  OnChanges,
+  NsWidgetResolver.IWidgetData<IWidgetGraphData> {
   @Input() widgetData!: IWidgetGraphData
   @ViewChild('chartContainer', { static: true }) chartContainer!: ElementRef<HTMLDivElement>
   // generalChart: Chart | null = null
-  customizeForm: UntypedFormGroup
+  customizeForm: FormGroup
   graphPalettes = COLOR_PALETTE
   itemObj: any
   graphTypes = GRAPH_TYPES

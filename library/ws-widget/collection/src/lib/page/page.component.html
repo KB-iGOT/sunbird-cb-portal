@@ -1,4 +1,5 @@
-<mat-toolbar class="page" role="navigation" *ngIf="pageData?.navigationBar && !error && isXSmall" [ngStyle]="navBackground?.styles">
+<mat-toolbar class="page" role="navigation" *ngIf="pageData?.navigationBar && !error && isXSmall"
+  [ngStyle]="navBackground?.styles">
   <!-- [ngClass]="{
   navbar: !isXSmall && !pageData.navigationBar.pageBackLink && !pageData.navigationBar.pageTitle
   }" [color]="navBackground?.color" -->
@@ -14,11 +15,11 @@
   </ng-container>
   <span class="spacer"></span>
   <ng-container *ngIf="!isXSmall">
-    <ng-container *ngFor="let link of links" [wsResolverWidget]="link"></ng-container>
+    <ng-container *ngFor="let link of links" [sbUiResolverWidget]="link"></ng-container>
   </ng-container>
   <ng-container *ngIf="isXSmall">
     <ng-container *ngIf="pageData?.navigationBar?.xsmallNonMenuLinks">
-      <ng-container *ngFor="let link of pageData?.navigationBar?.xsmallNonMenuLinks" [wsResolverWidget]="link">
+      <ng-container *ngFor="let link of pageData?.navigationBar?.xsmallNonMenuLinks" [sbUiResolverWidget]="link">
       </ng-container>
     </ng-container>
     <button mat-icon-button class="tourGuideBtn" *ngIf="isTourGuideAvailable" (click)="startTour()">
@@ -32,18 +33,18 @@
     </button> -->
   </ng-container>
 </mat-toolbar>
-<ng-container *ngIf="!error" [wsResolverWidget]="pageData?.pageLayout"></ng-container>
+<ng-container *ngIf="!error" [sbUiResolverWidget]="pageData?.pageLayout"></ng-container>
 <h2 *ngIf="error" class="mat-error margin-top-m text-center">
-  <ng-container *ngIf="error === 'NoContent'" >
+  <ng-container *ngIf="error === 'NoContent'">
     Page not found. Check the url.
   </ng-container>
-  <ng-container *ngIf="error !== 'NoContent'" >
+  <ng-container *ngIf="error !== 'NoContent'">
     Check your network connection and reload the page.
   </ng-container>
 </h2>
 
 <mat-menu #quickLinksMenu="matMenu">
-  <ng-container *ngFor="let link of links; let i = index" [wsResolverWidget]="link"></ng-container>
+  <ng-container *ngFor="let link of links; let i = index" [sbUiResolverWidget]="link"></ng-container>
 </mat-menu>
 <mat-menu #helpMenu="matMenu">
   <!-- <ws-widget-btn-feature [widgetData]="{

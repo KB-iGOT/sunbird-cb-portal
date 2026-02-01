@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core'
 import { Observable, of } from 'rxjs'
 import { HttpClient } from '@angular/common/http'
-import { NsAppRating } from '@ws/app'
+import { NsAppRating } from '../app-toc/models/rating.model'
 
 const PROXY_SLAG_V8 = '/apis/proxies/v8'
 const API_END_POINTS = {

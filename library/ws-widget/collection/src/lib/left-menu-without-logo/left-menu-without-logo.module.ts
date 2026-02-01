@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { RouterModule } from '@angular/router'
 import { LeftMenuWithoutLogoComponent } from './left-menu-without-logo.component'
-import { WidgetResolverModule } from '@sunbird-cb/resolver'
+import { SbUiResolverModule } from '@sunbird-cb/resolver-v2'
 import { MatButtonModule } from '@angular/material/button'
 import { MatCardModule } from '@angular/material/card'
 import { MatChipsModule } from '@angular/material/chips'
@@ -17,7 +17,7 @@ import { MatTooltipModule } from '@angular/material/tooltip'
     imports: [
         CommonModule,
         RouterModule,
-        WidgetResolverModule,
+        SbUiResolverModule,
         MatButtonModule,
         MatIconModule,
         MatTooltipModule,

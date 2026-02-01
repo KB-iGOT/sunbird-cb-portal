@@ -1,4 +1,4 @@
-import { NgModule } from '@angular/core'
+import { NgModule, NO_ERRORS_SCHEMA } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { EmailInputComponent } from './email-input.component'
 import { MatChipsModule } from '@angular/material/chips'
@@ -17,5 +17,6 @@ import { MatInputModule } from '@angular/material/input'
     MatInputModule,
   ],
   exports: [EmailInputComponent],
+  schemas: [NO_ERRORS_SCHEMA]
 })
 export class EmailInputModule { }

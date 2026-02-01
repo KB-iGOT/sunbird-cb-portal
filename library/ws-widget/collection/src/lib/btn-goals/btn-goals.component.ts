@@ -1,6 +1,6 @@
 import { Component, HostBinding, Input, OnInit } from '@angular/core'
 import { MatDialog } from '@angular/material/dialog'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { NsContent } from '../_services/widget-content.model'
 import { BtnGoalsDialogComponent } from './btn-goals-dialog/btn-goals-dialog.component'
 import { NsGoal } from './btn-goals.model'
@@ -15,10 +15,10 @@ const VALID_CONTENT_TYPES: NsContent.EContentTypes[] = [
 ]
 
 @Component({
-    selector: 'ws-widget-btn-goals',
-    templateUrl: './btn-goals.component.html',
-    styleUrls: ['./btn-goals.component.scss'],
-    standalone: false
+  selector: 'ws-widget-btn-goals',
+  templateUrl: './btn-goals.component.html',
+  styleUrls: ['./btn-goals.component.scss'],
+  standalone: false
 })
 export class BtnGoalsComponent extends WidgetBaseComponent
   implements OnInit, NsWidgetResolver.IWidgetData<NsGoal.IBtnGoal> {

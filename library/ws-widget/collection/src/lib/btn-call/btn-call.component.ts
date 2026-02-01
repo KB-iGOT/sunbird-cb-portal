@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { MatDialog } from '@angular/material/dialog'
 import {
   BtnCallDialogComponent,
@@ -13,10 +13,10 @@ export interface IWidgetBtnCall {
   replaceIconWithLabel?: boolean
 }
 @Component({
-    selector: 'ws-widget-btn-call',
-    templateUrl: './btn-call.component.html',
-    styleUrls: ['./btn-call.component.scss'],
-    standalone: false
+  selector: 'ws-widget-btn-call',
+  templateUrl: './btn-call.component.html',
+  styleUrls: ['./btn-call.component.scss'],
+  standalone: false
 })
 export class BtnCallComponent extends WidgetBaseComponent
   implements OnInit, NsWidgetResolver.IWidgetData<IWidgetBtnCall> {

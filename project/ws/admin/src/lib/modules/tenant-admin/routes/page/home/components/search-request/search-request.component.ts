@@ -1,5 +1,4 @@
 import { Component, OnInit, EventEmitter, Output } from '@angular/core'
-// import { ISearchRequest } from '../../../../../../../../../../app/src/lib/routes/search/models/search.model'
 import { NsContentStripRequest } from '../../models/content-strip-request.model'
 
 @Component({

@@ -7,13 +7,13 @@ import { animate, style, transition, trigger } from '@angular/animations'
 /* tslint:disable*/
 import _ from 'lodash'
 import moment from 'moment'
-import { CertificateService } from '@ws/app'
-import { AppTocService } from '@ws/app'
 import { Subscription } from 'rxjs'
 import { ContentLanguageService } from '@sunbird-cb/consumption'
-import { ResourceDownloadHelperService } from '../../../../../../../../src/app/services/resource-download-helper.service'
 import { NsContent } from '../../../_services/widget-content.model'
 import { viewerRouteGenerator } from '../../../_services/viewer-route-util'
+import { AppTocService } from '../../../app-toc/services/app-toc.service'
+import { CertificateService } from '../../../certificate/services/certificate.service'
+import { ResourceDownloadHelperService } from '../../../_services/resource-download-helper.service'
 
 @Component({
   selector: 'ws-widget-app-toc-content-card-v2',
@@ -33,7 +33,7 @@ import { viewerRouteGenerator } from '../../../_services/viewer-route-util'
   standalone: false
 })
 export class AppTocContentCardV2Component implements OnInit {
-  @Input() content: NsContent.IContent | null = null
+  @Input() content: NsContent.IContent | any | null = null
   @Input() expandAll = false
   @Input() rootId!: string
   @Input() rootContentType!: string

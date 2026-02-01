@@ -1,6 +1,6 @@
 import { Component, HostBinding, Input, OnInit } from '@angular/core'
 import { NSCarrierData } from './carrier.model'
-import { WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { Router } from '@angular/router'
 
 @Component({

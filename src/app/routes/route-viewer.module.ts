@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core'
-import { ViewerModule } from '@ws/viewer'
 import { MatDialogModule } from '@angular/material/dialog'
+import { ViewerModule } from '@sunbird-cb/collection'
 @NgModule({
   declarations: [],
   imports: [

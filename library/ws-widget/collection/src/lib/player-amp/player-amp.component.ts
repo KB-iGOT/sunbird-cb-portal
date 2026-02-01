@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { IWidgetsPlayerAmpData } from './player-amp.model'
 
 @Component({

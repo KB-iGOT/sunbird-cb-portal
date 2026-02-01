@@ -1,5 +1,5 @@
 import { Component, Inject, OnInit } from '@angular/core'
-import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms'
+import { FormGroup, FormControl, Validators } from '@angular/forms'
 import { TSendStatus, TFetchStatus } from '@sunbird-cb/utils-v2'
 import { NsContent } from '../../../_services/widget-content.model'
 import { FeedbackService } from '../../services/feedback.service'
@@ -9,18 +9,18 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
 
 @Component({
-    selector: 'ws-widget-btn-content-feedback-dialog-v2',
-    templateUrl: './btn-content-feedback-dialog-v2.component.html',
-    styleUrls: ['./btn-content-feedback-dialog-v2.component.scss'],
-    standalone: false
+  selector: 'ws-widget-btn-content-feedback-dialog-v2',
+  templateUrl: './btn-content-feedback-dialog-v2.component.html',
+  styleUrls: ['./btn-content-feedback-dialog-v2.component.scss'],
+  standalone: false
 })
 export class BtnContentFeedbackDialogV2Component implements OnInit {
   positiveFeedbackSendStatus: TSendStatus
   negativeFeedbackSendStatus: TSendStatus
   singleFeedbackSendStatus: TSendStatus
   configFetchStatus: TFetchStatus
-  feedbackForm: UntypedFormGroup
-  singleFeedbackForm: UntypedFormGroup
+  feedbackForm: FormGroup
+  singleFeedbackForm: FormGroup
   feedbackConfig!: IFeedbackConfig
 
   constructor(
@@ -34,13 +34,13 @@ export class BtnContentFeedbackDialogV2Component implements OnInit {
     this.singleFeedbackSendStatus = 'none'
     this.configFetchStatus = 'none'
 
-    this.feedbackForm = new UntypedFormGroup({
-      positive: new UntypedFormControl(null, [Validators.minLength(1), Validators.maxLength(2000)]),
-      negative: new UntypedFormControl(null, [Validators.minLength(1), Validators.maxLength(2000)]),
+    this.feedbackForm = new FormGroup({
+      positive: new FormControl(null, [Validators.minLength(1), Validators.maxLength(2000)]),
+      negative: new FormControl(null, [Validators.minLength(1), Validators.maxLength(2000)]),
     })
 
-    this.singleFeedbackForm = new UntypedFormGroup({
-      feedback: new UntypedFormControl(null, [Validators.minLength(1), Validators.maxLength(2000)]),
+    this.singleFeedbackForm = new FormGroup({
+      feedback: new FormControl(null, [Validators.minLength(1), Validators.maxLength(2000)]),
     })
   }
 

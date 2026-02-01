@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { NsContent } from '../_services/widget-content.model'
 import { MatDialog } from '@angular/material/dialog'
 import { BtnMailUserDialogComponent } from './btn-mail-user-dialog/btn-mail-user-dialog.component'
@@ -13,10 +13,10 @@ export interface IBtnMailUser {
 }
 
 @Component({
-    selector: 'ws-widget-btn-mail-user',
-    templateUrl: './btn-mail-user.component.html',
-    styleUrls: ['./btn-mail-user.component.scss'],
-    standalone: false
+  selector: 'ws-widget-btn-mail-user',
+  templateUrl: './btn-mail-user.component.html',
+  styleUrls: ['./btn-mail-user.component.scss'],
+  standalone: false
 })
 export class BtnMailUserComponent extends WidgetBaseComponent
   implements OnInit, NsWidgetResolver.IWidgetData<IBtnMailUser> {

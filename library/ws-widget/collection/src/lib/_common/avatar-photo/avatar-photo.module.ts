@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { RouterModule } from '@angular/router'
-import { WidgetResolverModule } from '@sunbird-cb/resolver'
+import { SbUiResolverModule } from '@sunbird-cb/resolver-v2'
 import { AvatarPhotoComponent } from './avatar-photo.component'
 import { PipeCertificateImageURLModule } from '@sunbird-cb/utils-v2'
 import { MatButtonModule } from '@angular/material/button'
@@ -18,7 +18,7 @@ import { MatMenuModule } from '@angular/material/menu'
         MatIconModule,
         MatMenuModule,
         MatRippleModule,
-        WidgetResolverModule,
+        SbUiResolverModule,
         PipeCertificateImageURLModule,
     ],
     exports: [AvatarPhotoComponent]

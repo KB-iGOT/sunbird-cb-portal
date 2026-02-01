@@ -16,13 +16,13 @@ import { MatPaginator } from '@angular/material/paginator'
 import { MatSnackBar } from '@angular/material/snack-bar'
 
 @Component({
-    selector: 'ws-widget-ui-user-table',
-    templateUrl: './ui-admin-user-table.component.html',
-    styleUrls: ['./ui-admin-user-table.component.scss'],
-    standalone: false
+  selector: 'ws-widget-ui-user-table',
+  templateUrl: './ui-admin-user-table.component.html',
+  styleUrls: ['./ui-admin-user-table.component.scss'],
+  standalone: false
 })
 export class UIAdminUserTableComponent implements OnInit, AfterViewInit, OnChanges {
-  @Input() tableData!: ITableData | undefined
+  @Input() tableData!: ITableData | undefined | any
   @Input() data?: []
   @Input() needCreateUser?: boolean
   @Input() needAddAdmin?: boolean

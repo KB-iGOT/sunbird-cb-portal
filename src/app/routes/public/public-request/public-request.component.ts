@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core'
-import { UntypedFormGroup, UntypedFormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms'
+import { FormGroup, FormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms'
 import { ActivatedRoute, Router } from '@angular/router'
 import { environment } from 'src/environments/environment'
 // tslint:disable-next-line: import-name
@@ -33,13 +33,13 @@ export function forbiddenNamesValidatorPosition(optionsArray: any): ValidatorFn 
 }
 
 @Component({
-    selector: 'ws-public-request',
-    templateUrl: './public-request.component.html',
-    styleUrls: ['./public-request.component.scss'],
-    standalone: false
+  selector: 'ws-public-request',
+  templateUrl: './public-request.component.html',
+  styleUrls: ['./public-request.component.scss'],
+  standalone: false
 })
 export class PublicRequestComponent implements OnInit {
-  requestForm!: UntypedFormGroup
+  requestForm!: FormGroup
   namePatern = `[a-zA-Z\\s\\']{1,32}$`
   // emailWhitelistPattern = `^[a-zA-Z0-9._-]{3,}\\b@\\b[a-zA-Z0-9]*|\\b(.gov|.nic)\b\\.\\b(in)\\b$`
   phoneNumberPattern = '^((\\+91-?)|0)?[0-9]{10}$'
@@ -99,19 +99,19 @@ export class PublicRequestComponent implements OnInit {
       this.isEmailVerified = extraData.isEmailVerified
     }
     this.requestType = this.activatedRoute.snapshot.queryParams.type
-    this.requestForm = new UntypedFormGroup({
-      firstname: new UntypedFormControl('', [Validators.required, Validators.pattern(this.namePatern)]),
+    this.requestForm = new FormGroup({
+      firstname: new FormControl('', [Validators.required, Validators.pattern(this.namePatern)]),
       // tslint:disable-next-line:max-line-length
-      email: new UntypedFormControl('', [Validators.required, Validators.pattern(this.emailPattern)]),
-      mobile: new UntypedFormControl('', [Validators.required, Validators.pattern(this.phoneNumberPattern)]),
+      email: new FormControl('', [Validators.required, Validators.pattern(this.emailPattern)]),
+      mobile: new FormControl('', [Validators.required, Validators.pattern(this.phoneNumberPattern)]),
       // tslint:disable-next-line:max-line-length
-      position: new UntypedFormControl('', this.requestType === 'Position' ? [Validators.pattern(this.customCharsPattern),
+      position: new FormControl('', this.requestType === 'Position' ? [Validators.pattern(this.customCharsPattern),
       Validators.required, forbiddenNamesValidatorPosition(this.masterPositions)] : []),
       // tslint:disable-next-line:max-line-length
-      organisation: new UntypedFormControl('', this.requestType === 'Organisation' ? [Validators.required, Validators.pattern(this.customCharsPatternOrg)] : []),
-      domain: new UntypedFormControl('', this.requestType === 'Domain' ? [Validators.required, Validators.pattern(this.domainPattern)] : []),
-      addDetails: new UntypedFormControl('', []),
-      confirmBox: new UntypedFormControl(false, [Validators.required]),
+      organisation: new FormControl('', this.requestType === 'Organisation' ? [Validators.required, Validators.pattern(this.customCharsPatternOrg)] : []),
+      domain: new FormControl('', this.requestType === 'Domain' ? [Validators.required, Validators.pattern(this.domainPattern)] : []),
+      addDetails: new FormControl('', []),
+      confirmBox: new FormControl(false, [Validators.required]),
     })
     if (this.userform) {
       this.requestForm.patchValue({

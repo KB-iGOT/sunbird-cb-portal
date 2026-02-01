@@ -1,14 +1,14 @@
 import { Component, Input, OnInit } from '@angular/core'
 import { Router } from '@angular/router'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { CardNetWorkService } from './card-network.service'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 
 @Component({
-    selector: 'ws-widget-card-network',
-    templateUrl: './card-network.component.html',
-    styleUrls: ['./card-network.component.scss'],
-    standalone: false
+  selector: 'ws-widget-card-network',
+  templateUrl: './card-network.component.html',
+  styleUrls: ['./card-network.component.scss'],
+  standalone: false
 })
 export class CardNetworkComponent extends WidgetBaseComponent
 

@@ -1,5 +1,5 @@
 import { Component, Input, OnDestroy, OnInit } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { ConfigurationsService, NsPage, LogoutComponent } from '@sunbird-cb/utils-v2'
 import { Subscription } from 'rxjs'
 import { ROOT_WIDGET_CONFIG } from '../collection.config'
@@ -8,10 +8,10 @@ import { Router, NavigationStart, NavigationEnd } from '@angular/router'
 import { MatDialog } from '@angular/material/dialog'
 
 @Component({
-    selector: 'ws-widget-btn-apps',
-    templateUrl: './btn-apps.component.html',
-    styleUrls: ['./btn-apps.component.scss'],
-    standalone: false
+  selector: 'ws-widget-btn-apps',
+  templateUrl: './btn-apps.component.html',
+  styleUrls: ['./btn-apps.component.scss'],
+  standalone: false
 })
 export class BtnAppsComponent extends WidgetBaseComponent
   implements OnInit, OnDestroy, NsWidgetResolver.IWidgetData<IBtnAppsConfig> {

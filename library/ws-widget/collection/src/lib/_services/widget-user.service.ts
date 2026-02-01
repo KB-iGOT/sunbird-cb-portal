@@ -1,11 +1,10 @@
-import { Injectable } from '@angular/core'
+import { Inject, Injectable } from '@angular/core'
 import { HttpClient, HttpHeaders } from '@angular/common/http'
 import { Observable, throwError, of } from 'rxjs'
 import { catchError, map } from 'rxjs/operators'
 import { IUserGroupDetails } from './widget-user.model'
 import { NsContent } from './widget-content.model'
 import dayjs from 'dayjs'
-import { environment } from 'src/environments/environment'
 import { NsCardContent } from '../card-content-v2/card-content-v2.model'
 import lodash from 'lodash'
 
@@ -30,9 +29,9 @@ const API_END_POINTS = {
   providedIn: 'root',
 })
 export class WidgetUserService {
-  constructor(private http: HttpClient) { }
+  constructor(@Inject('environment') private environment: any, private http: HttpClient) { }
 
-  compentencyKey = environment.compentencyVersionKey
+  compentencyKey = this.environment.compentencyVersionKey
 
   handleError(error: ErrorEvent) {
     let errorMessage = ''
@@ -139,7 +138,7 @@ export class WidgetUserService {
       if (parsedData[key]) {
         const date = dayjs()
         const diffMin = date.diff(parsedData[key], 'minute')
-        const timeCheck = environment.apiCache || 0
+        const timeCheck = this.environment.apiCache || 0
         if (diffMin >= timeCheck) {
           return true
         }

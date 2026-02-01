@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, HostBinding, Input, OnDestroy, OnInit } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { ConfigurationsService, EventService, UtilityService, NsInstanceConfig, MultilingualTranslationsService, WsEvents } from '@sunbird-cb/utils-v2'
 import { Subscription } from 'rxjs'
 import { NsGoal } from '../btn-goals/btn-goals.model'
@@ -8,7 +8,6 @@ import { NsContent } from '../_services/widget-content.model'
 import { NsCardContent } from './card-content-v2.model'
 /* tslint:disable*/
 import _ from 'lodash'
-import { CertificateService } from '@ws/app'
 import { CertificateDialogComponent } from '../_common/certificate-dialog/certificate-dialog.component'
 import { TranslateService } from '@ngx-translate/core'
 import { WidgetContentLibService } from '@sunbird-cb/consumption'
@@ -16,6 +15,7 @@ import { ActivatedRoute, Router } from '@angular/router'
 import { VIEWER_ROUTE_FROM_MIME } from '../_services/viewer-route-util'
 import { MatDialog } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
+import { CertificateService } from '../certificate/services/certificate.service'
 // import { Router } from '@angular/router'
 
 @Component({
@@ -26,7 +26,7 @@ import { MatSnackBar } from '@angular/material/snack-bar'
 })
 export class CardContentV2Component extends WidgetBaseComponent
   implements OnInit, OnDestroy, AfterViewInit, NsWidgetResolver.IWidgetData<NsCardContent.ICard> {
-  @Input() widgetData!: NsCardContent.ICard
+  @Input() widgetData!: NsCardContent.ICard | any
   @HostBinding('id')
   primaryCategory = NsContent.EPrimaryCategory
   acbpConstants = NsCardContent.ACBPConst

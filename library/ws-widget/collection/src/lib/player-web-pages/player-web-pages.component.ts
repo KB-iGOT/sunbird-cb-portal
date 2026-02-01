@@ -1,15 +1,15 @@
 import { Component, Input, OnInit } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 
 @Component({
-    selector: 'ws-widget-player-web-pages',
-    templateUrl: './player-web-pages.component.html',
-    styleUrls: ['./player-web-pages.component.scss'],
-    standalone: false
+  selector: 'ws-widget-player-web-pages',
+  templateUrl: './player-web-pages.component.html',
+  styleUrls: ['./player-web-pages.component.scss'],
+  standalone: false
 })
 export class PlayerWebPagesComponent extends WidgetBaseComponent
   implements OnInit, NsWidgetResolver.IWidgetData<any> {
   @Input() widgetData!: any
 
-  ngOnInit() {}
+  ngOnInit() { }
 }

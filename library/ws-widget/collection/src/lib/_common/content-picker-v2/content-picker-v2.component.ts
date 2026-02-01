@@ -5,7 +5,7 @@ import { NSSearch } from '../../_services/widget-search.model'
 import { IWidgetData, IAppliedFilters } from './content-picker-v2.model'
 import { NsContent } from '../../_services/widget-content.model'
 import { ContentPickerV2Service } from './content-picker-v2.service'
-import { UntypedFormControl } from '@angular/forms'
+import { FormControl } from '@angular/forms'
 import { distinctUntilChanged } from 'rxjs/operators'
 
 @Component({
@@ -29,14 +29,14 @@ export class ContentPickerV2Component implements OnInit, OnDestroy {
   filtersExpanded = false
   isLtMediumSubscription: Subscription | null = null
   triggerSearchSubscription: Subscription | null = null
-  searchReq: NSSearch.ISearchV6Request
+  searchReq: NSSearch.ISearchV6Request | any
   searchResults!: NSSearch.ISearchV6ApiResult
   defaultThumbnail = ''
   fetchStatus: 'none' | 'fetching' | 'done' | 'error'
   searchConfig: any = null
   objKey = Object.keys
-  sortOrderControl = new UntypedFormControl('desc')
-  sortByControl = new UntypedFormControl()
+  sortOrderControl = new FormControl('desc')
+  sortByControl = new FormControl()
 
   constructor(
     private valueSvc: ValueService,
@@ -124,13 +124,13 @@ export class ContentPickerV2Component implements OnInit, OnDestroy {
     })
     this.sortByControl.valueChanges.pipe(
       distinctUntilChanged()
-    ).subscribe(sortKey => {
+    ).subscribe((sortKey: any) => {
       this.searchReq.sort = [{ [sortKey]: this.sortOrderControl.value }]
       this.triggerSearch()
     })
     this.sortOrderControl.valueChanges.pipe(
       distinctUntilChanged()
-    ).subscribe(sortOrder => {
+    ).subscribe((sortOrder: any) => {
       if (this.sortByControl.value) {
         this.searchReq.sort = [{ [this.sortByControl.value]: sortOrder }]
         this.triggerSearch()

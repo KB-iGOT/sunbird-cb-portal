@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core'
 import { switchMap, map, catchError } from 'rxjs/operators'
 import { of, Observable } from 'rxjs'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { ConfigurationsService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
 import { NsContent } from '../_services/widget-content.model'
 import {
@@ -23,10 +23,10 @@ interface IMailMeResponseObj extends IWidgetMailMeDialogComponentResponse {
 const VALID_CATEGORIES = new Set(['leave behind'])
 
 @Component({
-    selector: 'ws-widget-btn-content-mail-me',
-    templateUrl: './btn-content-mail-me.component.html',
-    styleUrls: ['./btn-content-mail-me.component.scss'],
-    standalone: false
+  selector: 'ws-widget-btn-content-mail-me',
+  templateUrl: './btn-content-mail-me.component.html',
+  styleUrls: ['./btn-content-mail-me.component.scss'],
+  standalone: false
 })
 export class BtnContentMailMeComponent extends WidgetBaseComponent
   implements OnInit, NsWidgetResolver.IWidgetData<NsContent.IContent> {

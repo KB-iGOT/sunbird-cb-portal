@@ -1,11 +1,11 @@
 import { Component, Input, OnInit } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 
 @Component({
-    selector: 'ws-widget-btn-preview',
-    templateUrl: './btn-preview.component.html',
-    styleUrls: ['./btn-preview.component.scss'],
-    standalone: false
+  selector: 'ws-widget-btn-preview',
+  templateUrl: './btn-preview.component.html',
+  styleUrls: ['./btn-preview.component.scss'],
+  standalone: false
 })
 export class BtnPreviewComponent extends WidgetBaseComponent
   implements OnInit, NsWidgetResolver.IWidgetData<any> {

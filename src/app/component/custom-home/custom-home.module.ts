@@ -10,11 +10,10 @@ import {
 } from '@sunbird-cb/collection'
 import { CustomHomeComponent } from './custom-home.component'
 import { CustomHomeFormResolverService } from './resolvers/custom-home-form-resolver.service'
-import { FeedListModule } from 'src/app/home/home/feed-list/feed-list.module'
 import { AnnouncementsModule } from '@sunbird-cb/consumption'
 import { ProfileCardStatsModule } from '@sunbird-cb/collection'
-import { EventsCalendarModule } from '@ws/app'
-
+import { EventsCalendarModule } from '@sunbird-cb/collection'
+import { FeedListModule } from '../../home/home/feed-list/feed-list.module'
 
 const routes: Routes = [
   {

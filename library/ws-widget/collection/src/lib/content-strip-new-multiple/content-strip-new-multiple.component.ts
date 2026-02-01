@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, OnDestroy, HostBinding } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { NsContentStripNewMultiple } from './content-strip-new-multiple.model'
 import { ContentStripNewMultipleService } from './content-strip-new-multiple.service'
 import { WidgetContentService } from '../_services/widget-content.service'
@@ -68,7 +68,7 @@ export class ContentStripNewMultipleComponent extends WidgetBaseComponent
   searchArray = ['preview', 'channel', 'author']
   contentAvailable = true
   isFromAuthoring = false
-  baseUrl = this.configSvc.sitePath || ''
+  baseUrl: any
 
   changeEventSubscription: Subscription | null = null
 
@@ -84,6 +84,7 @@ export class ContentStripNewMultipleComponent extends WidgetBaseComponent
     private userSvc: WidgetUserServiceLib,
   ) {
     super()
+    this.baseUrl = this.configSvc.sitePath
   }
 
   ngOnInit() {

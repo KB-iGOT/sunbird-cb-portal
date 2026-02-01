@@ -1,0 +1,51 @@
+import { NgModule } from '@angular/core'
+import { CommonModule } from '@angular/common'
+
+
+import { NotificationV2RoutingModule } from './notification-v2-routing.module'
+import { HomeComponent } from './components/home/home.component'
+import { NotificationService } from './services/notification.service'
+import { NotificationApiService } from './services/notification-api.service'
+import { NotificationEventComponent } from './components/notification-event/notification-event.component'
+import { MatButtonModule } from '@angular/material/button'
+import { MatRippleModule } from '@angular/material/core'
+import { MatDividerModule } from '@angular/material/divider'
+import { MatIconModule } from '@angular/material/icon'
+import { MatToolbarModule } from '@angular/material/toolbar'
+import { MyNotificationsComponent } from './components/my-notifications/my-notifications.component'
+import { MatTabsModule } from '@angular/material/tabs'
+import { AllNotificationsModule, LibNotificationsService } from '@sunbird-cb/notification'
+import { TranslateLoader, TranslateModule } from '@ngx-translate/core'
+import { HttpClient } from '@angular/common/http'
+import { MatSnackBarModule } from '@angular/material/snack-bar'
+import { NotificationsService } from '../services/notifications.service'
+import { BtnPageBackModule } from '../btn-page-back/btn-page-back.module'
+import { ConfirmDialogModule } from '../_common/confirm-dialog/confirm-dialog.module'
+
+import { HttpLoaderFactory } from './../_services/http-loader.factory'
+@NgModule({
+  declarations: [HomeComponent, NotificationEventComponent, MyNotificationsComponent],
+  imports: [
+    CommonModule,
+    NotificationV2RoutingModule,
+    MatToolbarModule,
+    MatDividerModule,
+    MatButtonModule,
+    MatRippleModule,
+    MatIconModule,
+    BtnPageBackModule,
+    MatTabsModule,
+    MatSnackBarModule,
+    AllNotificationsModule,
+    TranslateModule.forRoot({
+      loader: {
+        provide: TranslateLoader,
+        useFactory: HttpLoaderFactory,
+        deps: [HttpClient],
+      },
+    }),
+    ConfirmDialogModule
+  ],
+  providers: [NotificationApiService, NotificationService, NotificationsService, LibNotificationsService],
+})
+export class NotificationV2Module { }

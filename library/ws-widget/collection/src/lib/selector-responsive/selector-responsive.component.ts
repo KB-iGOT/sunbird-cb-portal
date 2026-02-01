@@ -1,13 +1,13 @@
 import { Component, OnInit, Input } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { ISelectorResponsive } from './selector-responsive.model'
 import { BreakpointObserver, BreakpointState } from '@angular/cdk/layout'
 import { debounceTime, map, distinctUntilChanged } from 'rxjs/operators'
 @Component({
-    selector: 'ws-widget-selector-responsive',
-    templateUrl: './selector-responsive.component.html',
-    styleUrls: ['./selector-responsive.component.scss'],
-    standalone: false
+  selector: 'ws-widget-selector-responsive',
+  templateUrl: './selector-responsive.component.html',
+  styleUrls: ['./selector-responsive.component.scss'],
+  standalone: false
 })
 export class SelectorResponsiveComponent extends WidgetBaseComponent
   implements OnInit, NsWidgetResolver.IWidgetData<ISelectorResponsive | null> {

@@ -9,16 +9,13 @@ import { Subject } from 'rxjs'
 import { EMAIL_PATTERN, EMP_ID_PATTERN, IMAGE_SIZE_1MB, MOBILE_PATTERN, PIN_CODE_PATTERN, state } from '../../models/profile-revamp.model'
 import { ProfileV2RevampService } from '../../services/profile-v2-revamp.service'
 import { ConfirmDialogComponent } from '@sunbird-cb/collection'
-import { OtpService } from '../../../user-profile/services/otp.services'
+import { OtpService, NotificationComponent, PROFILE_IMAGE_SUPPORT_TYPES, Notify, NsUserProfileDetails, NOTIFICATION_TIME, UserProfileService } from '@sunbird-cb/collection'
 import { VerifyOtpComponent } from '../../components/verify-otp/verify-otp.component'
 import { RejectionReasonPopupComponent } from '../../components/rejection-reason-popup/rejection-reason-popup.component'
 import { WithdrawRequestComponent } from '../../components/withdraw-request/withdraw-request.component'
-import { NsUserProfileDetails } from '../../../user-profile/models/NsUserProfile'
 import { DatePipe, Location } from '@angular/common'
 import { ConfigurationsService, ImageCropComponent, PipeCertificateImageURL } from '@sunbird-cb/utils-v2'
-import { NotificationComponent, PROFILE_IMAGE_SUPPORT_TYPES, Notify } from '@ws/author'
-import { NOTIFICATION_TIME } from '@ws/author'
-import { UserProfileService } from '../../../user-profile/services/user-profile.service'
+
 import { TranslateService } from '@ngx-translate/core'
 // import { Router } from '@angular/router';
 

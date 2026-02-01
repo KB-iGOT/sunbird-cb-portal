@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { GoalsModule } from '@ws/app'
+import { GoalsModule } from '@sunbird-cb/collection'
 
 @NgModule({
   declarations: [],

@@ -1,0 +1,19 @@
+import { Component, OnInit, Input } from '@angular/core'
+import { EFeedbackType } from '../../../../models/feedback.model'
+
+@Component({
+  selector: 'ws-app-feedback-type',
+  templateUrl: './feedback-type.component.html',
+  styleUrls: ['./feedback-type.component.scss'],
+  standalone: false
+})
+export class FeedbackTypeComponent implements OnInit {
+  @Input() feedbackType!: EFeedbackType
+  feedbackTypes: typeof EFeedbackType
+
+  constructor() {
+    this.feedbackTypes = EFeedbackType
+  }
+
+  ngOnInit() { }
+}

@@ -1,5 +1,5 @@
 import { Component, EventEmitter, OnInit, Output, ElementRef, ViewChild } from '@angular/core'
-import { UntypedFormControl } from '@angular/forms'
+import { FormControl } from '@angular/forms'
 import { NsAnalytics } from '../../models/learning-analytics.model'
 
 import { QuarterServiceService } from '../../services/quarter-filter.service'
@@ -41,8 +41,8 @@ export class QuarterFiltersComponent implements OnInit {
     selectedQuarters: this.selectedQuarterArray,
   }
   public quarterOrInput = false
-  dateStart = new UntypedFormControl(null)
-  dateEnd = new UntypedFormControl(null)
+  dateStart = new FormControl(null)
+  dateEnd = new FormControl(null)
   startDate = new Date(2019, 3, 1)
   count = 0
   endDate = new Date()
@@ -239,8 +239,8 @@ export class QuarterFiltersComponent implements OnInit {
       const priorDate = new Date(new Date().setDate(today.getDate() - 30))
       // tslint:disable-next-line: max-line-length
       this.config.fromDate = `${priorDate.getFullYear()}-${`0${priorDate.getMonth() + 1}`.slice(-2)}-${`0${priorDate.getDate()}`.slice(-2)}`
-      this.dateEnd = new UntypedFormControl(new Date(today))
-      this.dateStart = new UntypedFormControl(new Date(priorDate))
+      this.dateEnd = new FormControl(new Date(today))
+      this.dateStart = new FormControl(new Date(priorDate))
     } catch (e) { }
   }
   inputChange(type: string, event: MatDatepickerInputEvent<Date>) {

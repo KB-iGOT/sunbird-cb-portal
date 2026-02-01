@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { CertificateModuleV2 } from '@ws/app'
+import { CertificateModuleV2 } from '@sunbird-cb/collection'
 
 @NgModule({
   imports: [CommonModule, CertificateModuleV2],

@@ -1410,11 +1410,11 @@
             [routerLink]="['/app/toc/',widgetData.content.identifier,'overview']"
             [queryParams]="{primaryCategory: widgetData.content.primaryCategory}" [state]="widgetData?.stateData"
             [matTooltipPosition]="'below'"
-            [matTooltipDisabled]="(!widgetData.content?.completionPercentage ? translateLabels('start', 'cardcontentv2') : translateLabels('resume', 'cardcontentv2')).length < 11"
-            matTooltip="{{!widgetData.content?.completionPercentage ? translateLabels('start', 'cardcontentv2') : translateLabels('resume', 'cardcontentv2')}}">
+            [matTooltipDisabled]="(!widgetData.content?.completionPercentage ? translateLabels('start', 'cardcontentv2','') : translateLabels('resume', 'cardcontentv2','')).length < 11"
+            matTooltip="{{!widgetData.content?.completionPercentage ? translateLabels('start', 'cardcontentv2','') : translateLabels('resume', 'cardcontentv2','')}}">
             <span class="textwrap margin-right-xs">
-              {{!widgetData.content?.completionPercentage ? translateLabels('start', 'cardcontentv2') :
-              translateLabels('resume', 'cardcontentv2')}}</span>
+              {{!widgetData.content?.completionPercentage ? translateLabels('start', 'cardcontentv2','') :
+              translateLabels('resume', 'cardcontentv2','')}}</span>
             <img class="stats-icon" height="20" width="20" src="/assets/icons/home/play.svg">
           </button>
         </div>
@@ -1427,7 +1427,7 @@
             [ngClass]="{'disable-btn': downloadCertificateLoading || widgetData?.content?.issuedCertificates?.length === 0}"
             (click)="!downloadCertificateLoading && downloadCertificate(widgetData.content);$event.stopPropagation()"
             [matTooltipPosition]="'below'"
-            [matTooltipDisabled]="(translateLabels('viewCertificate', 'cardcontentv2')).length < 11"
+            [matTooltipDisabled]="(translateLabels('viewCertificate', 'cardcontentv2','')).length < 11"
             matTooltip="{{'cardcontentv2.viewCertificate' | translate }}">
             <span class="margin-right-xs textwrap">{{'cardcontentv2.viewCertificate' | translate }}</span>
             <img class="stats-icon" *ngIf="!downloadCertificateLoading" height="20" width="20"

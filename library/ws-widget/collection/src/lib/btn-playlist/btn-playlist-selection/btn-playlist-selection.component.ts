@@ -1,5 +1,5 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core'
-import { UntypedFormControl, Validators } from '@angular/forms'
+import { FormControl, Validators } from '@angular/forms'
 import { EventService, TFetchStatus, WsEvents } from '@sunbird-cb/utils-v2'
 import { NsPlaylist } from '../btn-playlist.model'
 import { BtnPlaylistService } from '../btn-playlist.service'
@@ -7,10 +7,10 @@ import { MatListOption } from '@angular/material/list'
 import { MatSnackBar } from '@angular/material/snack-bar'
 
 @Component({
-    selector: 'ws-widget-btn-playlist-selection',
-    templateUrl: './btn-playlist-selection.component.html',
-    styleUrls: ['./btn-playlist-selection.component.scss'],
-    standalone: false
+  selector: 'ws-widget-btn-playlist-selection',
+  templateUrl: './btn-playlist-selection.component.html',
+  styleUrls: ['./btn-playlist-selection.component.scss'],
+  standalone: false
 })
 export class BtnPlaylistSelectionComponent implements OnInit {
   @ViewChild('contentAdd', { static: true }) contentAddMessage!: ElementRef<any>
@@ -27,7 +27,7 @@ export class BtnPlaylistSelectionComponent implements OnInit {
   createPlaylistMode = false
   selectedPlaylists = new Set<string>()
 
-  playlistNameFormControl = new UntypedFormControl('', [
+  playlistNameFormControl = new FormControl('', [
     Validators.required,
     Validators.minLength(1),
     Validators.maxLength(100),

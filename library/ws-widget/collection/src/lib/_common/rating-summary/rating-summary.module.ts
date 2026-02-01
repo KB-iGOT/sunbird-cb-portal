@@ -4,10 +4,10 @@ import { RatingSummaryComponent } from './rating-summary.component'
 import { PipeCountTransformModule } from '@sunbird-cb/utils-v2'
 import { HttpClient } from '@angular/common/http'
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core'
-import { HttpLoaderFactory } from 'src/app/app.module'
 import { MatIconModule } from '@angular/material/icon'
 import { MatProgressBarModule } from '@angular/material/progress-bar'
 import { MatTooltipModule } from '@angular/material/tooltip'
+import { HttpLoaderFactory } from './../../_services/http-loader.factory'
 
 @NgModule({
   declarations: [RatingSummaryComponent],

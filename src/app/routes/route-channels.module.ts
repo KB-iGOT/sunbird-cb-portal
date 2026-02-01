@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { ChannelsModule } from '@ws/app'
+import { ChannelsModule } from '@sunbird-cb/collection'
 
 @NgModule({
   declarations: [],

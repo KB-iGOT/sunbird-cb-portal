@@ -36,13 +36,13 @@ import {
 import { delay, catchError, map, filter } from 'rxjs/operators'
 import { MobileAppsService } from '../../services/mobile-apps.service'
 import { RootService } from './root.service'
-import { UrlService } from 'src/app/shared/url.service'
 
 import { CsModule } from '@project-sunbird/client-services'
 // import { MatDialog } from '@angular/material/dialog'
 // import { DialogConfirmComponent } from '../dialog-confirm/dialog-confirm.component'
 import { of } from 'rxjs'
 import { iGOTAIService } from './../../services/igot-ai.service'
+import { UrlService } from '../../shared/url.service'
 @Component({
   selector: 'ws-root',
   templateUrl: './root.component.html',

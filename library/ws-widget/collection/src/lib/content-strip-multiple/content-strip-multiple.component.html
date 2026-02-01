@@ -4,8 +4,8 @@
   <div *ngIf="showParentLoader" class="text-center my-2">
     <mat-spinner class="inline-block"></mat-spinner>
   </div>
-  <ng-container *ngIf="showParentError" [wsResolverWidget]="widgetData.errorWidget"></ng-container>
-  <ng-container *ngIf="showParentNoData" [wsResolverWidget]="widgetData.noDataWidget"></ng-container>
+  <ng-container *ngIf="showParentError" [sbUiResolverWidget]="widgetData.errorWidget"></ng-container>
+  <ng-container *ngIf="showParentNoData" [sbUiResolverWidget]="widgetData.noDataWidget"></ng-container>
   <ng-container *ngFor="let key of stripsKeyOrder; let i = index; trackBy: identify">
     <ng-container *ngIf="isStripShowing(stripsResultDataMap[key])">
       <a name="{{stripsResultDataMap[key]?.stripTitle}}">
@@ -15,7 +15,7 @@
                   stripsResultDataMap[key]?.showOnError)
                 " [ngClass]="
                   !widgetData.isChannelStrip ? 'xs:px-8 sx:px-10ss py-2 my-1' : i > 0 ? 'mt-12' : ''
-                " [id]="key" [ngClass]="!widgetData.isChannelStrip ? margin-bottom-custom : margin-bottom-xs">
+                " [id]="key" [ngClass]="!widgetData.isChannelStrip ? 'margin-bottom-custom' : 'margin-bottom-xs'">
           <div [ngClass]="{ pad: stripsResultDataMap[key]?.stripBackground }"
             [ngStyle]="{ 'background-color': stripsResultDataMap[key]?.stripBackground }">
             <div class="flex items-center justify-between" [ngClass]="
@@ -32,15 +32,17 @@
                 </h1>
 
                 <button *ngIf="stripsResultDataMap[key]?.stripInfo?.icon" type="button" mat-icon-button
-                  (click)="toggleInfo(stripsResultDataMap[key])" i18n-matTooltip matTooltip="{{ 'contentstripmultiple.info' | translate }}"
-                  class="flex justify-center items-center">
+                  (click)="toggleInfo(stripsResultDataMap[key])" i18n-matTooltip
+                  matTooltip="{{ 'contentstripmultiple.info' | translate }}" class="flex justify-center items-center">
                   <mat-icon>{{ stripsResultDataMap[key]?.stripInfo?.icon.icon }}</mat-icon>
                 </button>
                 <span class="spacer"></span>
                 <!-- viewAll -->
                 <div *ngIf="checkCondition(widgetData , stripsResultDataMap[key])" class="ws-mat-accent-text">
-                  <div class="flex flex-row gap-2 items-center cursor-pointer" [routerLink]="widgetData.strips[0]?.viewMoreUrl?.path" [queryParams]="widgetData.strips[0]?.viewMoreUrl?.queryParams">
-                    <span >{{ 'contentstripmultiple.showAll' | translate }}</span>
+                  <div class="flex flex-row gap-2 items-center cursor-pointer"
+                    [routerLink]="widgetData.strips[0]?.viewMoreUrl?.path"
+                    [queryParams]="widgetData.strips[0]?.viewMoreUrl?.queryParams">
+                    <span>{{ 'contentstripmultiple.showAll' | translate }}</span>
                     <mat-icon>chevron_right</mat-icon>
                   </div>
                 </div>
@@ -53,26 +55,26 @@
               </mat-icon>
             </div>
             <div class="mb-4" *ngIf="checkVisible(stripsResultDataMap[key])">
-              <ng-container [wsResolverWidget]="getdata(stripsResultDataMap[key])">
+              <ng-container [sbUiResolverWidget]="getdata(stripsResultDataMap[key])">
               </ng-container>
             </div>
             <div *ngIf="stripsResultDataMap[key]?.showOnLoader" class="text-center my-2">
               <mat-spinner [diameter]="40" [strokeWidth]="3"></mat-spinner>
             </div>
             <ng-container *ngIf="stripsResultDataMap[key]?.showOnNoData"
-              [wsResolverWidget]="stripsResultDataMap[key]?.noDataWidget"></ng-container>
+              [sbUiResolverWidget]="stripsResultDataMap[key]?.noDataWidget"></ng-container>
             <ng-container *ngIf="stripsResultDataMap[key]?.showOnError"
-              [wsResolverWidget]="stripsResultDataMap[key]?.errorWidget"></ng-container>
+              [sbUiResolverWidget]="stripsResultDataMap[key]?.errorWidget"></ng-container>
             <ng-container *ngIf="key === 'continueLearning'">
               <ws-utils-horizontal-scroller
                 *ngIf="getContineuLearningLenth(stripsResultDataMap[key]) && showAccordion(key)" [loadStatus]="'done'">
                 <ng-container *ngFor="let widget of stripsResultDataMap[key]?.widgets; trackBy: tracker">
                   <ng-container *ngIf="widget.widgetData.context.pageSection === 'continueLearning' ">
                     <ng-container *ngIf="widget.widgetData.content.completionPercentage !== 100"
-                      [wsResolverWidget]="widget"></ng-container>
+                      [sbUiResolverWidget]="widget"></ng-container>
                   </ng-container>
                 </ng-container>
-                <!-- <ng-container *ngFor="let widget of stripsResultDataMap[key]?.widgets; trackBy: tracker" [wsResolverWidget]="widget"></ng-container> -->
+                <!-- <ng-container *ngFor="let widget of stripsResultDataMap[key]?.widgets; trackBy: tracker" [sbUiResolverWidget]="widget"></ng-container> -->
                 <!-- <div *ngIf="stripsResultDataMap[key]?.viewMoreUrl" class="ml-4 mr-6 mb-2 view-more ws-mat-primary-text">
                 <a [routerLink]="stripsResultDataMap[key]?.viewMoreUrl?.path"
                   [queryParams]="stripsResultDataMap[key]?.viewMoreUrl?.queryParams">
@@ -86,14 +88,15 @@
               <ws-utils-horizontal-scroller *ngIf="getLength(stripsResultDataMap[key]) && showAccordion(key)"
                 [loadStatus]="'done'">
                 <div *ngFor="let widget of stripsResultDataMap[key]?.widgets; trackBy: tracker">
-                  <ng-container 
+                  <ng-container
                     *ngIf="widget.widgetData.content.primaryCategory === this.environment.programStripPrimaryCategory && stripsResultDataMap[key]?.key === this.environment.programStripKey && stripsResultDataMap[key]?.stripTitle === this.environment.programStripName"
-                    [wsResolverWidget]="widget"></ng-container>
-                  <ng-container *ngIf="stripsResultDataMap[key]?.key !== this.environment.programStripKey && stripsResultDataMap[key]?.stripTitle !== this.environment.programStripName"
-                    [wsResolverWidget]="widget"></ng-container>
-                 </div>
+                    [sbUiResolverWidget]="widget"></ng-container>
+                  <ng-container
+                    *ngIf="stripsResultDataMap[key]?.key !== this.environment.programStripKey && stripsResultDataMap[key]?.stripTitle !== this.environment.programStripName"
+                    [sbUiResolverWidget]="widget"></ng-container>
+                </div>
                 <!-- <ng-container *ngFor="let widget of stripsResultDataMap[key]?.widgets; trackBy: tracker"
-                  [wsResolverWidget]="widget"></ng-container> -->
+                  [sbUiResolverWidget]="widget"></ng-container> -->
               </ws-utils-horizontal-scroller>
             </ng-container>
 
@@ -109,11 +112,11 @@
   <mat-card>
     <div class="w-full">
       <div class="p-4">
-        <div class="text-3xl font-semibold text-center leading-tight" >
+        <div class="text-3xl font-semibold text-center leading-tight">
           {{ 'contentstripmultiple.contentNotAvailable' | translate }}
         </div>
         <br />
-        <div class="text-base font-medium text-center leading-normal" >
+        <div class="text-base font-medium text-center leading-normal">
           <!-- Please try different keywords or change the search query. -->
           {{ 'contentstripmultiple.tryDifferentKeywords' | translate }}
         </div>

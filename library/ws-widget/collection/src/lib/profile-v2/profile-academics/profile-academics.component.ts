@@ -1,14 +1,14 @@
 import { Component, HostBinding, Input, OnInit } from '@angular/core'
-import { WidgetBaseComponent, NsWidgetResolver } from '@sunbird-cb/resolver'
+import { WidgetBaseComponent, NsWidgetResolver } from '@sunbird-cb/resolver-v2'
 import { IProfileAcademic } from './profile-academics.model'
 import { TranslateService } from '@ngx-translate/core'
 @Component({
-    selector: 'ws-widget-profile-v2-academics',
-    templateUrl: './profile-academics.component.html',
-    styleUrls: ['./profile-academics.component.scss'],
-    /* tslint:disable */
-    host: { class: 'flex flex-1' },
-    standalone: false
+  selector: 'ws-widget-profile-v2-academics',
+  templateUrl: './profile-academics.component.html',
+  styleUrls: ['./profile-academics.component.scss'],
+  /* tslint:disable */
+  host: { class: 'flex flex-1' },
+  standalone: false
 })
 export class ProfileAcademicsComponent extends WidgetBaseComponent implements OnInit, NsWidgetResolver.IWidgetData<any> {
   @Input() widgetData!: IProfileAcademic
@@ -18,7 +18,7 @@ export class ProfileAcademicsComponent extends WidgetBaseComponent implements On
   }
 
   constructor(private translate: TranslateService
-    ) {
+  ) {
     super()
     if (localStorage.getItem('websiteLanguage')) {
       this.translate.setDefaultLang('en')

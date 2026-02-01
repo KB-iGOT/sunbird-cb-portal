@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { BtnProfileComponent } from './btn-profile.component'
-import { WidgetResolverModule } from '@sunbird-cb/resolver'
+import { SbUiResolverModule } from '@sunbird-cb/resolver-v2'
 import { RouterModule } from '@angular/router'
 import { LogoutModule } from '@sunbird-cb/utils-v2'
 import { AvatarPhotoModule } from '../_common/avatar-photo/avatar-photo.module'
@@ -28,7 +28,7 @@ import { MatTooltipModule } from '@angular/material/tooltip'
         MatTooltipModule,
         MatSlideToggleModule,
         RouterModule,
-        WidgetResolverModule,
+        SbUiResolverModule,
         TranslateModule,
     ],
     exports: [BtnProfileComponent]

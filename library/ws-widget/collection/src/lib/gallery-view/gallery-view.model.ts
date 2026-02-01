@@ -1,4 +1,4 @@
-import { NsWidgetResolver } from '@sunbird-cb/resolver'
+import { NsWidgetResolver } from '@sunbird-cb/resolver-v2'
 
 export namespace NsGalleryView {
   export interface IWidgetGalleryView {

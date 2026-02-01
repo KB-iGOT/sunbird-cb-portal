@@ -1,13 +1,13 @@
 import { Component, OnInit, Input } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { IWidgetCardBreadcrumb, IBreadcrumbPath } from './card-breadcrumb.model'
 import { EventService, WsEvents } from '@sunbird-cb/utils-v2'
 
 @Component({
-    selector: 'ws-widget-card-breadcrumb',
-    templateUrl: './card-breadcrumb.component.html',
-    styleUrls: ['./card-breadcrumb.component.scss'],
-    standalone: false
+  selector: 'ws-widget-card-breadcrumb',
+  templateUrl: './card-breadcrumb.component.html',
+  styleUrls: ['./card-breadcrumb.component.scss'],
+  standalone: false
 })
 export class CardBreadcrumbComponent extends WidgetBaseComponent
   implements OnInit, NsWidgetResolver.IWidgetData<IWidgetCardBreadcrumb> {
@@ -44,6 +44,6 @@ export class CardBreadcrumbComponent extends WidgetBaseComponent
       {
         pageIdExt: 'btn-breadcrumb',
         module: WsEvents.EnumTelemetrymodules.PROFILE,
-    })
+      })
   }
 }

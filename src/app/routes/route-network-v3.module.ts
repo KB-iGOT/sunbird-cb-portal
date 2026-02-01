@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { NetworkV3Module } from '@ws/app'
+import { NetworkV3Module } from '@sunbird-cb/collection'
 
 @NgModule({
   imports: [CommonModule, NetworkV3Module],

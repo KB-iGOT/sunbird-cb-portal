@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, HostBinding, Input, OnDestroy, OnInit } from '@angular/core'
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser'
 import { ActivatedRoute } from '@angular/router'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import {
   ConfigurationsService,
   EventService, LoggerService,
@@ -13,10 +13,10 @@ import { filter } from 'rxjs/operators'
 import { CustomTourService } from '../_common/tour-guide/tour-guide.service'
 
 @Component({
-    selector: 'ws-widget-page',
-    templateUrl: './page.component.html',
-    styleUrls: ['./page.component.scss'],
-    standalone: false
+  selector: 'ws-widget-page',
+  templateUrl: './page.component.html',
+  styleUrls: ['./page.component.scss'],
+  standalone: false
 })
 export class PageComponent extends WidgetBaseComponent
   implements OnInit, AfterViewInit, OnDestroy, NsWidgetResolver.IWidgetData<NsPage.IPage | null> {

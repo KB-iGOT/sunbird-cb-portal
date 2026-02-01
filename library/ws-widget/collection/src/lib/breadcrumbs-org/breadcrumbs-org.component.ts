@@ -1,10 +1,10 @@
 import { animate, style, transition, trigger } from '@angular/animations'
 import { Component, HostBinding, Input, OnInit } from '@angular/core'
 import { Router } from '@angular/router'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { ConfigurationsService, NsInstanceConfig } from '@sunbird-cb/utils-v2'
 import { BreadcrumbsOrgService } from './breadcrumbs-org.service'
-import { DiscussUtilsService } from '@ws/app'
+import { DiscussUtilsService } from '../discuss/services/discuss-utils.service'
 
 type TUrl = undefined | 'none' | 'back' | string
 

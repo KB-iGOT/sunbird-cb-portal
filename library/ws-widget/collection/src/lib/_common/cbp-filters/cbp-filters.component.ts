@@ -1,13 +1,13 @@
 import { TranslateService } from '@ngx-translate/core'
 import { Component, Input, ElementRef, EventEmitter, OnInit, Output, QueryList, ViewChildren, Inject } from '@angular/core'
-import { UntypedFormControl } from '@angular/forms'
+import { FormControl } from '@angular/forms'
 import { MAT_BOTTOM_SHEET_DATA, MAT_BOTTOM_SHEET_DEFAULT_OPTIONS, MatBottomSheetRef } from '@angular/material/bottom-sheet'
-import { AppCbpPlansService } from 'src/app/services/app-cbp-plans.service'
+
 // tslint:disable
 import _ from 'lodash'
 import { ConfigurationsService, MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
-import { environment } from 'src/environments/environment'
 import { NsContent } from '../../_services/widget-content.model'
+import { AppCbpPlansService } from '../../_services/app-cbp-plans.service'
 
 @Component({
 	selector: 'ws-widget-cbp-filters',
@@ -65,11 +65,12 @@ export class CbpFiltersComponent implements OnInit {
 	competencyThemeOriginalList: any[] = []
 	competencySubThemeOriginalList: any[] = []
 	filterObjEmpty: any
-	searchThemeControl = new UntypedFormControl()
+	searchThemeControl = new FormControl()
 	@ViewChildren('checkboxes') checkboxes!: QueryList<ElementRef>
 	compentencyKey!: NsContent.ICompentencyKeys
 
 	constructor(
+		@Inject('environment') private environment: any,
 		@Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
 		private bottomSheetRef: MatBottomSheetRef<CbpFiltersComponent>,
 		private appCbpPlansService: AppCbpPlansService,
@@ -89,7 +90,7 @@ export class CbpFiltersComponent implements OnInit {
 	}
 
 	ngOnInit() {
-		this.compentencyKey = this.configSvc.compentency[environment.compentencyVersionKey]
+		this.compentencyKey = this.configSvc.compentency[this.environment.compentencyVersionKey]
 
 		this.filterObjEmpty = {
 			primaryCategory: [],

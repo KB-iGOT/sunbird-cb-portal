@@ -1,6 +1,6 @@
 import { Platform } from '@angular/cdk/platform'
 import { Component, HostBinding, Input, OnInit } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { ConfigurationsService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
 // import { MobileAppsService } from './mobile-apps.service'
 import { NsContent } from '../_services/widget-content.model'
@@ -18,10 +18,10 @@ export interface IWidgetBtnDownload {
 }
 
 @Component({
-    selector: 'ws-widget-btn-content-download',
-    templateUrl: './btn-content-download.component.html',
-    styleUrls: ['./btn-content-download.component.scss'],
-    standalone: false
+  selector: 'ws-widget-btn-content-download',
+  templateUrl: './btn-content-download.component.html',
+  styleUrls: ['./btn-content-download.component.scss'],
+  standalone: false
 })
 export class BtnContentDownloadComponent extends WidgetBaseComponent
   implements OnInit, NsWidgetResolver.IWidgetData<IWidgetBtnDownload> {
@@ -93,11 +93,11 @@ export class BtnContentDownloadComponent extends WidgetBaseComponent
         id: this.widgetData.identifier,
       },
       {
-      platform: this.platform,
-      // contentId: this.widgetData.identifier,
-      // contentType: this.widgetData.contentType, // cccc
-      id: this.widgetData.identifier,
-      type: this.widgetData.primaryCategory,
+        platform: this.platform,
+        // contentId: this.widgetData.identifier,
+        // contentType: this.widgetData.contentType, // cccc
+        id: this.widgetData.identifier,
+        type: this.widgetData.primaryCategory,
       },
       {
         pageIdExt: 'download',

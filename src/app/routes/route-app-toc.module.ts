@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { AppTocModule } from '@ws/app'
+import { AppTocModule } from '@sunbird-cb/collection'
 import { MatDialogModule } from '@angular/material/dialog'
 
 @NgModule({

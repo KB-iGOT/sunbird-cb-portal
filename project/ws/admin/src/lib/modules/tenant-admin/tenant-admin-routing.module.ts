@@ -87,17 +87,17 @@ const routes: Routes = [
       },
     ],
   },
-  {
-    path: 'content-assignment',
-    loadChildren: () =>
-      import('../../../../../app/src/lib/routes/content-assignment/content-assignment.module').then(
-        u => u.ContentAssignmentModule,
-      ),
-    canActivate: [GeneralGuard],
-    data: {
-      requiredFeatures: ['adminFeatureContentAssignment'],
-    },
-  },
+  // {
+  //   path: 'content-assignment',
+  //   loadChildren: () =>
+  //     import('../../../../../app/src/lib/routes/content-assignment/content-assignment.module').then(
+  //       u => u.ContentAssignmentModule,
+  //     ),
+  //   canActivate: [GeneralGuard],
+  //   data: {
+  //     requiredFeatures: ['adminFeatureContentAssignment'],
+  //   },
+  // },
 ]
 
 @NgModule({

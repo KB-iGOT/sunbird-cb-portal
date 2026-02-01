@@ -6,7 +6,6 @@ import { HorizontalScrollerModule, PipeNameTransformModule, PipeOrderByModule } 
 import { RouterModule } from '@angular/router'
 import { HttpClient } from '@angular/common/http'
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core'
-import { HttpLoaderFactory } from 'src/app/app.module'
 import { ClickOutsideDirective } from './clickoutside.directive'
 import { MatButtonModule } from '@angular/material/button'
 import { MatCardModule } from '@angular/material/card'
@@ -15,6 +14,8 @@ import { MatDividerModule } from '@angular/material/divider'
 import { MatExpansionModule } from '@angular/material/expansion'
 import { MatIconModule } from '@angular/material/icon'
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'
+
+import { HttpLoaderFactory } from './../_services/http-loader.factory'
 
 @NgModule({
     declarations: [CardHubsListComponent,

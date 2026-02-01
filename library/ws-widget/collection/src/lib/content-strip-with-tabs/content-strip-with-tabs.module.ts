@@ -1,11 +1,10 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { RouterModule } from '@angular/router'
-import { WidgetResolverModule } from '@sunbird-cb/resolver'
+import { SbUiResolverModule } from '@sunbird-cb/resolver-v2'
 import { ContentStripWithTabsComponent } from './content-strip-with-tabs.component'
 import { HttpClient } from '@angular/common/http'
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core'
-import { TranslateHttpLoader } from '@ngx-translate/http-loader'
 import { MatAutocompleteModule } from '@angular/material/autocomplete'
 import { MatButtonModule } from '@angular/material/button'
 import { MatButtonToggleModule } from '@angular/material/button-toggle'
@@ -31,10 +30,7 @@ import { MatToolbarModule } from '@angular/material/toolbar'
 import { MatTooltipModule } from '@angular/material/tooltip'
 import { HorizontalScrollerV2Module } from '@sunbird-cb/consumption'
 
-// tslint:disable-next-line:function-name
-export function HttpLoaderFactory() {
-    return new TranslateHttpLoader()
-}
+import { HttpLoaderFactory } from './../_services/http-loader.factory'
 
 @NgModule({
     declarations: [ContentStripWithTabsComponent],
@@ -42,7 +38,7 @@ export function HttpLoaderFactory() {
         CommonModule,
         RouterModule,
         HorizontalScrollerV2Module,
-        WidgetResolverModule,
+        SbUiResolverModule,
         MatProgressSpinnerModule,
         MatToolbarModule,
         MatIconModule,

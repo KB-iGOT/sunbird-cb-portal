@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { NsContent } from '../_services/widget-content.model'
 
 export interface IWidgetBtnKbAnalytics {
@@ -13,10 +13,10 @@ export interface IWidgetBtnKbAnalytics {
 }
 
 @Component({
-    selector: 'ws-widget-btn-kb-analytics',
-    templateUrl: './btn-kb-analytics.component.html',
-    styleUrls: ['./btn-kb-analytics.component.scss'],
-    standalone: false
+  selector: 'ws-widget-btn-kb-analytics',
+  templateUrl: './btn-kb-analytics.component.html',
+  styleUrls: ['./btn-kb-analytics.component.scss'],
+  standalone: false
 })
 export class BtnKbAnalyticsComponent extends WidgetBaseComponent
   implements OnInit, NsWidgetResolver.IWidgetData<IWidgetBtnKbAnalytics> {

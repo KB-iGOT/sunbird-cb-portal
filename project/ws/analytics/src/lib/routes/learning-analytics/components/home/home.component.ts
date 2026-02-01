@@ -11,12 +11,12 @@ import { Subscription } from 'rxjs'
 import { NsAnalytics } from '../../models/learning-analytics.model'
 import { AnalyticsResolver } from '../../resolvers/learning-analytics-filters.resolver'
 import { LearningAnalyticsService } from '../../services/learning-analytics.service'
-import { UntypedFormControl } from '@angular/forms'
+import { FormControl } from '@angular/forms'
 @Component({
-    selector: 'ws-analytics-home',
-    templateUrl: './home.component.html',
-    styleUrls: ['./home.component.scss'],
-    standalone: false
+  selector: 'ws-analytics-home',
+  templateUrl: './home.component.html',
+  styleUrls: ['./home.component.scss'],
+  standalone: false
 })
 export class HomeComponent implements OnInit, OnDestroy {
   fetchStatus: TFetchStatus = 'none'
@@ -73,7 +73,7 @@ export class HomeComponent implements OnInit, OnDestroy {
     },
   }
   showCategory = false
-  filterControl = new UntypedFormControl()
+  filterControl = new FormControl()
   filterList = [
     { filterName: 'All', key: 'all' },
     { filterName: 'Sunday', key: '0' },

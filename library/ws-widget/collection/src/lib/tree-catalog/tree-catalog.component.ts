@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { TreeCatalogService } from './tree-catalog.service'
 import { NSCatalog } from './tree-catalog.model'
 import { NSSearch } from '../_services/widget-search.model'
@@ -7,10 +7,10 @@ import { TFetchStatus } from '@sunbird-cb/utils-v2'
 import { IWsTree } from '../tree/tree.model'
 
 @Component({
-    selector: 'ws-widget-tree-catalog',
-    templateUrl: './tree-catalog.component.html',
-    styleUrls: ['./tree-catalog.component.scss'],
-    standalone: false
+  selector: 'ws-widget-tree-catalog',
+  templateUrl: './tree-catalog.component.html',
+  styleUrls: ['./tree-catalog.component.scss'],
+  standalone: false
 })
 export class TreeCatalogComponent extends WidgetBaseComponent
   implements OnInit, NsWidgetResolver.IWidgetData<NSCatalog.ITreeCatalogData> {

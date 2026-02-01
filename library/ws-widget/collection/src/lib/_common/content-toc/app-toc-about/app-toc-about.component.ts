@@ -1,4 +1,4 @@
-import { Component, OnInit, Input, OnChanges, SimpleChanges, AfterViewInit, OnDestroy, ViewChild, ElementRef, Output, EventEmitter } from '@angular/core'
+import { Component, OnInit, Input, OnChanges, SimpleChanges, AfterViewInit, OnDestroy, ViewChild, ElementRef, Output, EventEmitter, Inject } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
 import { MatDialog } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
@@ -13,10 +13,9 @@ dayjs.extend(isSameOrAfter)
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore'
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
 
-import { NsWidgetResolver } from '@sunbird-cb/resolver'
+import { NsWidgetResolver } from '@sunbird-cb/resolver-v2'
 import { NsContentStripWithTabs } from '../../../content-strip-with-tabs/content-strip-with-tabs.model'
 
-import { AppTocService, TimerService, LoadCheckService, DiscussUtilsService, ResetRatingsService } from '@ws/app'
 import { LoggerService, ConfigurationsService, WidgetContentService } from '@sunbird-cb/utils-v2'
 
 import { HandleClaimService } from '../content-services/handle-claim.service'
@@ -24,9 +23,13 @@ import { ReviewComponentDataService } from '../content-services/review-component
 
 import { ReviewsContentComponent } from '../reviews-content/reviews-content.component'
 import { CertificateDialogComponent } from '../../certificate-dialog/certificate-dialog.component'
-import { environment } from 'src/environments/environment'
 import { NsContent } from '../../../_services/widget-content.model'
 import { RatingService } from '../../../_services/rating.service'
+import { AppTocService } from '../../../app-toc/services/app-toc.service'
+import { LoadCheckService } from '../../../app-toc/services/load-check.service'
+import { ResetRatingsService } from '../../../app-toc/services/reset-ratings.service'
+import { TimerService } from '../../../app-toc/services/timer.service'
+import { DiscussUtilsService } from '../../../discuss/services/discuss-utils.service'
 
 interface IStripUnitContentData {
   key: string
@@ -178,6 +181,7 @@ export class AppTocAboutComponent implements OnInit, OnChanges, AfterViewInit, O
   refreshratingSub
   pageConfigData: any
   constructor(
+    @Inject('environment') private environment: any,
     private ratingService: RatingService,
     private loggerService: LoggerService,
     private dialog: MatDialog,
@@ -200,7 +204,7 @@ export class AppTocAboutComponent implements OnInit, OnChanges, AfterViewInit, O
   }
   ngOnInit() {
     this.pageConfigData = this.activatedRoute?.snapshot?.data?.pageData?.data
-    this.compentencyKey = this.configService.compentency[environment.compentencyVersionKey]
+    this.compentencyKey = this.configService.compentency[this.environment.compentencyVersionKey]
     this.userProfile = this.configService.userProfile
     if (window.innerWidth <= 1200) {
       this.isMobile = true
@@ -288,7 +292,7 @@ export class AppTocAboutComponent implements OnInit, OnChanges, AfterViewInit, O
   }
 
   ngOnChanges(changes: SimpleChanges): void {
-    this.compentencyKey = this.configService.compentency[environment.compentencyVersionKey]
+    this.compentencyKey = this.configService.compentency[this.environment.compentencyVersionKey]
     if (changes.selectedTabValue && changes.selectedTabValue.currentValue === 0) {
       setTimeout(() => {
         if (!this.isMobile) {

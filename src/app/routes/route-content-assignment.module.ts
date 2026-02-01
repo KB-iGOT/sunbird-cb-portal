@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common'
 import { NgModule } from '@angular/core'
-import { ContentAssignmentModule } from '@ws/app'
+import { ContentAssignmentModule } from '@sunbird-cb/collection'
 
 @NgModule({
   declarations: [],

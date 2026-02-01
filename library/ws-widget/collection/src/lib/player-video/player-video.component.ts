@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, ElementRef, HostBinding, Input, OnDestroy, OnInit, ViewChild } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { EventService } from '@sunbird-cb/utils-v2'
 import videoJs from 'video.js'
 import { ROOT_WIDGET_CONFIG } from '../collection.config'
@@ -13,10 +13,10 @@ import {
   videoJsInitializer,
 } from '../_services/videojs-util'
 import { WidgetContentService } from '../_services/widget-content.service'
-import { ViewerUtilService } from '@ws/viewer'
-import { AppTocService } from '@ws/app'
 import { Subscription } from 'rxjs'
 import 'videojs-hls-quality-selector'
+import { AppTocService } from '../app-toc/services/app-toc.service'
+import { ViewerUtilService } from '../viewer-util.service'
 const videoJsOptions: videoJs.PlayerOptions = {
   controls: true,
   autoplay: true,

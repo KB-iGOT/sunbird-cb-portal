@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { SeeAllModule } from '@ws/app'
+import { SeeAllModule } from '@sunbird-cb/collection'
 
 @NgModule({
   declarations: [],

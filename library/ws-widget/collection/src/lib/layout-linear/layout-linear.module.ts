@@ -1,9 +1,9 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { LayoutLinearComponent } from './layout-linear.component'
-import { WidgetResolverModule } from '@sunbird-cb/resolver'
+import { SbUiResolverModule } from '@sunbird-cb/resolver-v2'
 @NgModule({
     declarations: [LayoutLinearComponent],
-    imports: [CommonModule, WidgetResolverModule]
+    imports: [CommonModule, SbUiResolverModule]
 })
-export class LayoutLinearModule {}
+export class LayoutLinearModule { }

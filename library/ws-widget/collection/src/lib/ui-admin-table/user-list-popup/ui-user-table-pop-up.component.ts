@@ -13,19 +13,19 @@ import { UserViewPopUpService } from './ui-user-table-pop-up.services'
 interface IUser { fullname: string; email: string, userId: string }
 
 @Component({
-    selector: 'ws-widget-ui-user-table-pop-up',
-    templateUrl: './ui-user-table-pop-up.component.html',
-    styleUrls: ['./ui-user-table-pop-up.component.scss'],
-    standalone: false
+  selector: 'ws-widget-ui-user-table-pop-up',
+  templateUrl: './ui-user-table-pop-up.component.html',
+  styleUrls: ['./ui-user-table-pop-up.component.scss'],
+  standalone: false
 })
 export class UIUserTablePopUpComponent implements OnInit, AfterViewInit, OnChanges {
-  tableData!: ITableData | undefined
-  data!: IUser[] | undefined
+  tableData!: ITableData | undefined | any
+  data!: IUser[] | undefined | any
   @Output() clicked?: EventEmitter<any>
   @Output() actionsClick?: EventEmitter<any>
   @Output() eOnRowClick = new EventEmitter<any>()
   bodyHeight = document.body.clientHeight - 125
-  displayedColumns: IColums[] | undefined
+  displayedColumns: IColums[] | undefined | any
   viewPaginator = false
   dataSource!: any
   widgetData: any

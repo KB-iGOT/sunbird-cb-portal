@@ -13,16 +13,16 @@ import { ConfigurationsService, LoggerService, NsPage, TFetchStatus, UtilityServ
 import { Subscription, Observable } from 'rxjs'
 import { share } from 'rxjs/operators'
 import { SafeHtml, DomSanitizer, SafeStyle } from '@angular/platform-browser'
-import { AccessControlService } from '@ws/author'
+import { AccessControlService } from '@sunbird-cb/collection'
 // import { FormControl, Validators } from '@angular/forms'
 import { MatDialog } from '@angular/material/dialog'
-import { MobileAppsService } from 'src/app/services/mobile-apps.service'
+import { MobileAppsService } from '@sunbird-cb/collection'
 import dayjs from 'dayjs'
 // tslint:disable-next-line
 import _ from 'lodash'
 import { ContentRatingV2DialogComponent } from '@sunbird-cb/collection'
 import moment from 'moment'
-import { NsAppToc, AppTocService, ActionService } from '@ws/app'
+import { NsAppToc, AppTocService, ActionService } from '@sunbird-cb/collection'
 
 export enum ErrorType {
     internalServer = 'internalServer',

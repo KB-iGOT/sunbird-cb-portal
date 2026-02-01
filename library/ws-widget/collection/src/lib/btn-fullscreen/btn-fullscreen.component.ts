@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, OnDestroy, Output, EventEmitter, HostBinding } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { Subscription, fromEvent } from 'rxjs'
 import {
   getFullScreenElement,
@@ -9,10 +9,10 @@ import {
 } from './fullscreen.util'
 
 @Component({
-    selector: 'ws-widget-btn-fullscreen',
-    templateUrl: './btn-fullscreen.component.html',
-    styleUrls: ['./btn-fullscreen.component.scss'],
-    standalone: false
+  selector: 'ws-widget-btn-fullscreen',
+  templateUrl: './btn-fullscreen.component.html',
+  styleUrls: ['./btn-fullscreen.component.scss'],
+  standalone: false
 })
 export class BtnFullscreenComponent extends WidgetBaseComponent
   implements OnInit, OnDestroy, NsWidgetResolver.IWidgetData<{ fsContainer: HTMLElement | null }> {

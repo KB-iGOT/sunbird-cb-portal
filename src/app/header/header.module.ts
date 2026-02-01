@@ -5,7 +5,7 @@ import { AppNavBarComponent } from '../component/app-nav-bar/app-nav-bar.compone
 import { RouterModule } from '@angular/router'
 import { GridLayoutModule, BtnFeatureModule, ErrorResolverModule, TourModule, StickyHeaderModule } from '@sunbird-cb/collection'
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
-import { SearchV3Module, SearchModule } from '@ws/app'
+import { SearchV3Module, SearchModule } from '@sunbird-cb/collection'
 import { SharedModule } from '../shared/shared.module'
 import { FontSettingComponent } from './../component/font-setting/font-setting.component'
 import { TopRightNavBarComponent } from './../component/top-right-nav-bar/top-right-nav-bar.component'

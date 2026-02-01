@@ -1,5 +1,5 @@
 import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { EventService, ValueService } from '@sunbird-cb/utils-v2'
 import { Subscription } from 'rxjs'
 import videoJs from 'video.js'
@@ -9,7 +9,7 @@ import { IWidgetsPlayerMediaData } from '../_models/player-media.model'
 import { fireRealTimeProgressFunction, saveContinueLearningFunction, telemetryEventDispatcherFunction, videoJsInitializer, youtubeInitializer } from '../_services/videojs-util'
 import { NsContent } from '../_services/widget-content.model'
 import { WidgetContentService } from '../_services/widget-content.service'
-import { ViewerUtilService } from '@ws/viewer'
+import { ViewerUtilService } from '../viewer-util.service'
 interface IYTOptions extends videoJs.PlayerOptions {
   youtube: {
     ytControls: 0 | 1 | 2

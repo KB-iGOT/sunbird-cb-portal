@@ -12,8 +12,8 @@ import {
 } from '@sunbird-cb/utils-v2'
 import { Subscription } from 'rxjs'
 import { filter } from 'rxjs/operators'
-import { SearchServService } from '@ws/app'
 import { NsContentStripVertical } from './content-strip-vertical.model'
+import { SearchServService } from '../search/services/search-serv.service'
 
 interface IStripUnitContentData {
   key: string
@@ -442,7 +442,7 @@ export class ContentStripVerticalComponent extends WidgetBaseComponent
     return this.contentSvc
       .fetchContentLikes(contentIds)
       .then(likeHash => {
-        const likes = likeHash
+        const likes: any = likeHash
         results.forEach(result => {
           result.widgetData.likes = likes[result.widgetData.content.identifier] || 0
         })

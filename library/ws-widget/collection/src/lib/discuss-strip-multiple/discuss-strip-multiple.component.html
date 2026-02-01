@@ -4,23 +4,20 @@
   <div *ngIf="showParentLoader" class="text-center my-2">
     <mat-spinner class="inline-block"></mat-spinner>
   </div>
-  <ng-container *ngIf="showParentError" [wsResolverWidget]="widgetData.errorWidget"></ng-container>
-  <ng-container *ngIf="showParentNoData" [wsResolverWidget]="widgetData.noDataWidget"></ng-container>
+  <ng-container *ngIf="showParentError" [sbUiResolverWidget]="widgetData.errorWidget"></ng-container>
+  <ng-container *ngIf="showParentNoData" [sbUiResolverWidget]="widgetData.noDataWidget"></ng-container>
 
   <ng-container *ngFor="let key of stripsKeyOrder; let i = index">
     <ng-container *ngIf="stripsResultDataMap[key].showStrip">
       <a name="{{stripsResultDataMap[key]?.stripTitle}}">
-        <div 
-          *ngIf="
+        <div *ngIf="
             stripsResultDataMap[key]?.widgets ||
             stripsResultDataMap[key]?.showOnNoData ||
             stripsResultDataMap[key]?.showOnLoader ||
             stripsResultDataMap[key]?.showOnError
-          " 
-          [ngClass]="
+          " [ngClass]="
             !widgetData.isChannelStrip ? 'xs:px-8 sx:px-10ss py-2 my-1' : i > 0 ? 'mt-12' : ''
-          "
-          [id]="key" class="margin-bottom-custom">
+          " [id]="key" class="margin-bottom-custom">
           <div class="oneBox">
             <div [ngClass]="{ pad: stripsResultDataMap[key]?.stripBackground }" class="background-norepeat"
               [ngStyle]="{ 'background-image': 'url('+ stripsResultDataMap[key]?.stripBackground+')'}"></div>
@@ -42,8 +39,8 @@
                 <mat-icon class="rotate-t-90 ws-mat-primary-default-text mob">maximize</mat-icon>
                 <!-- <span class="mat-subheading-1 margin-remove inline-block ws-mat-primary-default-text margin-left-s mob">
                   {{stripsResultDataMap[key]?.description}}</span> -->
-                  <span class="mat-subheading-1 margin-remove inline-block ws-mat-primary-default-text margin-left-s mob">
-                    {{stripsResultDataMap[key]?.description}}</span>
+                <span class="mat-subheading-1 margin-remove inline-block ws-mat-primary-default-text margin-left-s mob">
+                  {{stripsResultDataMap[key]?.description}}</span>
                 <span class="spacer"></span>
                 <div
                   *ngIf="widgetData.strips[0].viewMoreUrl && stripsResultDataMap[key] && stripsResultDataMap[key].widgets"
@@ -51,7 +48,7 @@
                   <!-- <a mat-button routerLink="widgetData.strips[0]?.viewMoreUrl?.path"
                     queryParams="widgetData.strips[0]?.viewMoreUrl?.queryParams"> -->
                   <a mat-button (click)="navigate()">
-                    <span >{{widgetData.strips[0].viewMoreUrl.viewMoreText || 'View All'}}</span>
+                    <span>{{widgetData.strips[0].viewMoreUrl.viewMoreText || 'View All'}}</span>
                     <mat-icon class="default-icon">arrow_forward</mat-icon>
                   </a>
                 </div>
@@ -65,18 +62,18 @@
               </mat-icon>
             </div>
             <!-- <div class="mb-4" *ngIf="stripsResultDataMap[key]?.stripInfo?.visibilityMode === 'visible'"> -->
-            <!-- <ng-container [wsResolverWidget]="stripsResultDataMap[key]?.stripInfo?.widget"></ng-container> -->
+            <!-- <ng-container [sbUiResolverWidget]="stripsResultDataMap[key]?.stripInfo?.widget"></ng-container> -->
             <!-- </div> -->
             <div *ngIf="stripsResultDataMap[key]?.showOnLoader" class="text-center my-2">
               <mat-spinner [diameter]="40" [strokeWidth]="3"></mat-spinner>
             </div>
             <ng-container *ngIf="stripsResultDataMap[key]?.showOnNoData"
-              [wsResolverWidget]="stripsResultDataMap[key]?.noDataWidget"></ng-container>
+              [sbUiResolverWidget]="stripsResultDataMap[key]?.noDataWidget"></ng-container>
             <ng-container *ngIf="stripsResultDataMap[key]?.showOnError"
-              [wsResolverWidget]="stripsResultDataMap[key]?.errorWidget"></ng-container>
+              [sbUiResolverWidget]="stripsResultDataMap[key]?.errorWidget"></ng-container>
             <ws-utils-horizontal-scroller class="flex container-balanced new-width"
               *ngIf="getLength(stripsResultDataMap[key]) && showAccordion(key)" [loadStatus]="'done'">
-              <ng-container *ngFor="let widget of stripsResultDataMap[key]?.widgets" [wsResolverWidget]="widget">
+              <ng-container *ngFor="let widget of stripsResultDataMap[key]?.widgets" [sbUiResolverWidget]="widget">
               </ng-container>
             </ws-utils-horizontal-scroller>
           </div>
@@ -90,11 +87,11 @@
   <mat-card>
     <div class="w-full">
       <div class="p-4">
-        <div class="text-3xl font-semibold text-center leading-tight" >
+        <div class="text-3xl font-semibold text-center leading-tight">
           Content not available
         </div>
         <br />
-        <div class="text-base font-medium text-center leading-normal" >
+        <div class="text-base font-medium text-center leading-normal">
           Please try different keywords or change the search query.
         </div>
       </div>

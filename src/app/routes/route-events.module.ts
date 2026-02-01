@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { EventsModule } from '@ws/app'
+import { EventsModule } from '@sunbird-cb/collection'
 
 @NgModule({
   imports: [CommonModule, EventsModule],

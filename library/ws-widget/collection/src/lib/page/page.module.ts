@@ -1,7 +1,7 @@
 import { CommonModule } from '@angular/common'
 import { NgModule } from '@angular/core'
 import { RouterModule } from '@angular/router'
-import { WidgetResolverModule } from '@sunbird-cb/resolver'
+import { SbUiResolverModule } from '@sunbird-cb/resolver-v2'
 import { BtnPageBackModule } from '../btn-page-back/btn-page-back.module'
 import { TourModule } from '../_common/tour-guide/tour-guide.module'
 import { PageComponent } from './page.component'
@@ -17,7 +17,7 @@ import { MatTooltipModule } from '@angular/material/tooltip'
     imports: [
         CommonModule,
         RouterModule,
-        WidgetResolverModule,
+        SbUiResolverModule,
         BtnPageBackModule,
         MatButtonModule,
         MatToolbarModule,

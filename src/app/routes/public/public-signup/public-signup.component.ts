@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, ViewChild, ElementRef, DOCUMENT } from '@angular/core'
 import { Subscription, Observable, interval } from 'rxjs'
-import { UntypedFormGroup, UntypedFormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms'
+import { FormGroup, FormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms'
 import { SignupService } from './signup.service'
 import { LoggerService, ConfigurationsService, NsInstanceConfig, MultilingualTranslationsService, WsEvents, EventService, TelemetryService } from '@sunbird-cb/utils-v2'
 import { startWith, map, pairwise, debounceTime, distinctUntilChanged, finalize } from 'rxjs/operators'
@@ -15,10 +15,9 @@ import { TermsAndConditionComponent } from './terms-and-condition/terms-and-cond
 import { TranslateService } from '@ngx-translate/core'
 import { HttpClient } from '@angular/common/http'
 import { DomSanitizer } from '@angular/platform-browser'
-import { DialogBoxComponent as ZohoDialogComponent } from '@ws/app'
+import { DialogBoxComponent as ZohoDialogComponent, UserProfileService, } from '@sunbird-cb/collection'
 import { MatDialog } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
-import { UserProfileService } from '@ws/app'
 
 // export function forbiddenNamesValidator(optionsArray: any): ValidatorFn {
 //   return (control: AbstractControl): { [key: string]: any } | null => {
@@ -101,8 +100,8 @@ export class PublicSignupComponent implements OnInit, OnDestroy {
   @ViewChild('state', { read: ElementRef }) stateRef?: ElementRef
   @ViewChild('department', { read: ElementRef }) departmentRef?: ElementRef
   @ViewChild('organisation', { read: ElementRef }) organisationRef?: ElementRef
-  registrationFormStepOne!: UntypedFormGroup
-  registrationFormStepTwo!: UntypedFormGroup
+  registrationFormStepOne!: FormGroup
+  registrationFormStepTwo!: FormGroup
   // namePatern = `^[a-zA-Z']{1,32}$`
   namePatern = `[a-zA-Z\\s\\']{1,32}$`
   // emailWhitelistPattern = `^[a-zA-Z0-9._-]{3,}\\b@\\b[a-zA-Z0-9]*|\\b(.gov|.nic)\b\\.\\b(in)\\b$`
@@ -270,39 +269,39 @@ export class PublicSignupComponent implements OnInit, OnDestroy {
     })
     this.isMobileVerified = userData && userData.isMobileVerified || false
     this.isEmailVerified = userData && userData.isEmailVerified || false
-    this.registrationFormStepOne = new UntypedFormGroup({
+    this.registrationFormStepOne = new FormGroup({
 
-      email: new UntypedFormControl(userData && userData.email || '', [Validators.required, Validators.pattern(this.emailPattern)]),
-      type: new UntypedFormControl('ministry', [Validators.required]),
+      email: new FormControl(userData && userData.email || '', [Validators.required, Validators.pattern(this.emailPattern)]),
+      type: new FormControl('ministry', [Validators.required]),
       // ministry: new FormControl('', [Validators.required, forbiddenNamesValidator(this.masterMinisteries)]),
       // department: new FormControl('', [forbiddenNamesValidator(this.masterDepartments)]),
       // organisation: new FormControl('', [Validators.required, Validators.pattern(this.customCharsPattern)]),
-      ministry: new UntypedFormControl('', [Validators.required]),
-      searchMinistry: new UntypedFormControl('', []),
-      organisation: new UntypedFormControl('', [Validators.required]),
-      searchOrganisation: new UntypedFormControl('', []),
+      ministry: new FormControl('', [Validators.required]),
+      searchMinistry: new FormControl('', []),
+      organisation: new FormControl('', [Validators.required]),
+      searchOrganisation: new FormControl('', []),
       // recaptchaReactive: new FormControl(null, [Validators.required]),
-      position: new UntypedFormControl('', [Validators.required]),
-      searchDesignation: new UntypedFormControl('', []),
-      state: new UntypedFormControl('', []),
-      searchState: new UntypedFormControl('', []),
-      department: new UntypedFormControl('', []),
-      searchDepartment: new UntypedFormControl('', []),
+      position: new FormControl('', [Validators.required]),
+      searchDesignation: new FormControl('', []),
+      state: new FormControl('', []),
+      searchState: new FormControl('', []),
+      department: new FormControl('', []),
+      searchDepartment: new FormControl('', []),
     })
-    this.registrationFormStepTwo = new UntypedFormGroup({
-      firstname: new UntypedFormControl(userData && userData.firstname || '', [Validators.required, Validators.pattern(this.namePatern)]),
+    this.registrationFormStepTwo = new FormGroup({
+      firstname: new FormControl(userData && userData.firstname || '', [Validators.required, Validators.pattern(this.namePatern)]),
       // lastname: new FormControl('', [Validators.required, Validators.pattern(this.namePatern)]),
       // tslint:disable-next-line:max-line-length
       // position: new FormControl('', [Validators.required,  Validators.pattern(this.customCharsPattern), forbiddenNamesValidatorPosition(this.masterPositions)]),
       // tslint:disable-next-line:max-line-length
-      group: new UntypedFormControl('', [Validators.required]),
+      group: new FormControl('', [Validators.required]),
 
       // department: new FormControl('', [Validators.required, forbiddenNamesValidator(this.masterDepartments)]),
-      mobile: new UntypedFormControl(userData && userData.mobile || '', [Validators.required,
+      mobile: new FormControl(userData && userData.mobile || '', [Validators.required,
       Validators.pattern(this.phoneNumberPattern), Validators.maxLength(12)]),
-      confirmBox: new UntypedFormControl(false, [Validators.required]),
-      confirmTermsBox: new UntypedFormControl(false, [Validators.required]),
-      type: new UntypedFormControl('ministry', [Validators.required]),
+      confirmBox: new FormControl(false, [Validators.required]),
+      confirmTermsBox: new FormControl(false, [Validators.required]),
+      type: new FormControl('ministry', [Validators.required]),
     })
     if (this.configSvc.instanceConfig && this.configSvc.instanceConfig.isMultilingualEnabled) {
       this.isMultiLangEnabled = this.configSvc.instanceConfig.isMultilingualEnabled
@@ -869,7 +868,7 @@ export class PublicSignupComponent implements OnInit, OnDestroy {
   orgClicked(event: any) {
     if (event) {
       if (event.option && event.option.value && event.option.value.orgName) {
-        const frmctr = this.registrationFormStepOne.get('organisation') as UntypedFormControl
+        const frmctr = this.registrationFormStepOne.get('organisation') as FormControl
         frmctr.setValue(_.get(event, 'option.value.orgName') || '')
         // frmctr.patchValue(_.get(event, 'option.value') || '')
         this.heirarchyObject = _.get(event, 'option.value')

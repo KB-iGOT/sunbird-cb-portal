@@ -1,15 +1,15 @@
 import { Component, Input, OnInit } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 
 @Component({
-    selector: 'ws-widget-player-slides',
-    templateUrl: './player-slides.component.html',
-    styleUrls: ['./player-slides.component.scss'],
-    standalone: false
+  selector: 'ws-widget-player-slides',
+  templateUrl: './player-slides.component.html',
+  styleUrls: ['./player-slides.component.scss'],
+  standalone: false
 })
 export class PlayerSlidesComponent extends WidgetBaseComponent
   implements OnInit, NsWidgetResolver.IWidgetData<any> {
   @Input() widgetData!: any
 
-  ngOnInit() {}
+  ngOnInit() { }
 }

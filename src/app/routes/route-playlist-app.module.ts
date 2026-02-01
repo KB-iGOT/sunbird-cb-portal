@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { PlaylistModule } from '@ws/app'
+import { PlaylistModule } from '@sunbird-cb/collection'
 
 @NgModule({
   declarations: [],

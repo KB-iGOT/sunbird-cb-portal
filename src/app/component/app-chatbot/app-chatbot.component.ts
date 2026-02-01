@@ -5,10 +5,10 @@ import { RootService } from './../root/root.service'
 import { environment } from 'src/environments/environment'
 import { NavigationEnd, Router } from '@angular/router'
 import { CdkDragEnd } from '@angular/cdk/drag-drop'
-import { DialogBoxComponent as ZohoDialogComponent } from '@ws/app'
 import { HttpClient } from '@angular/common/http'
 import { DomSanitizer } from '@angular/platform-browser'
 import { MatDialog } from '@angular/material/dialog'
+import { DialogBoxComponent } from '../dialog-box/dialog-box.component'
 @Component({
   selector: 'ws-app-chatbot',
   templateUrl: './app-chatbot.component.html',
@@ -837,7 +837,7 @@ export class AppChatbotComponent implements OnInit, AfterViewChecked, OnChanges 
   }
 
   getZohoForm() {
-    const dialogRef = this.dialog.open(ZohoDialogComponent, {
+    const dialogRef = this.dialog.open(DialogBoxComponent, {
       width: '45%',
       data: {
         view: 'zohoform',

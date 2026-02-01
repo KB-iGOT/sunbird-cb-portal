@@ -1,13 +1,13 @@
 import { Component, Input, OnInit, OnDestroy } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { NsWidgetLayoutTab } from './layout-tab.model'
 import { Subscription } from 'rxjs'
 import { ActivatedRoute, Router, ParamMap } from '@angular/router'
 @Component({
-    selector: 'ws-widget-layout-tab',
-    templateUrl: './layout-tab.component.html',
-    styleUrls: ['./layout-tab.component.scss'],
-    standalone: false
+  selector: 'ws-widget-layout-tab',
+  templateUrl: './layout-tab.component.html',
+  styleUrls: ['./layout-tab.component.scss'],
+  standalone: false
 })
 export class LayoutTabComponent extends WidgetBaseComponent
   implements OnInit, OnDestroy, NsWidgetResolver.IWidgetData<NsWidgetLayoutTab.ILayout> {

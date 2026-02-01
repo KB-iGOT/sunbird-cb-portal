@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { Searchv2Module } from '@ws/app'
+import { Searchv2Module } from '@sunbird-cb/collection'
 
 @NgModule({
   declarations: [],

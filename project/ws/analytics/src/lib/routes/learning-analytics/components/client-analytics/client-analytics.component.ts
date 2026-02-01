@@ -1,5 +1,5 @@
 import { Component, OnDestroy, OnInit } from '@angular/core'
-import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup } from '@angular/forms'
+import { UntypedFormBuilder, FormControl, FormGroup } from '@angular/forms'
 import { ActivatedRoute, ParamMap, Router } from '@angular/router'
 import { GraphGeneralService } from '@sunbird-cb/collection'
 import { ConfigurationsService, NsPage, ValueService, TFetchStatus } from '@sunbird-cb/utils-v2'
@@ -10,10 +10,10 @@ import { AnalyticsResolver } from '../../resolvers/learning-analytics-filters.re
 import { LearningAnalyticsService } from '../../services/learning-analytics.service'
 
 @Component({
-    selector: 'ws-analytics-client-analytics',
-    templateUrl: './client-analytics.component.html',
-    styleUrls: ['./client-analytics.component.scss'],
-    standalone: false
+  selector: 'ws-analytics-client-analytics',
+  templateUrl: './client-analytics.component.html',
+  styleUrls: ['./client-analytics.component.scss'],
+  standalone: false
 })
 export class ClientAnalyticsComponent implements OnInit, OnDestroy {
   errorMessageCode: 'API_FAILURE' | 'NO_DATA' | 'INVALID_DATA' | 'NONE' = 'NONE'
@@ -49,13 +49,13 @@ export class ClientAnalyticsComponent implements OnInit, OnDestroy {
   fetchStatus: TFetchStatus = 'none'
   filterArray: NsAnalytics.IFilterObj[] = []
   filterData: NsAnalytics.IFilter[] = []
-  searchControl = new UntypedFormControl()
+  searchControl = new FormControl()
   analytics = this.route.snapshot.data.pageData.data.analytics.subFeatures.learningAnalytics
   private filterEventSubscription: Subscription | null = null
   private searchEventSubscription: Subscription | null = null
   private defaultSearchSubscription: Subscription | null = null
   paramSubscription: Subscription | null = null
-  searchForm: UntypedFormGroup
+  searchForm: FormGroup
   constructor(
     private route: ActivatedRoute,
     private valueSvc: ValueService,

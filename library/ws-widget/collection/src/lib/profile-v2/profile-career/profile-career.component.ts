@@ -1,16 +1,16 @@
 import { Component, HostBinding, Input, OnInit } from '@angular/core'
-import { WidgetBaseComponent, NsWidgetResolver } from '@sunbird-cb/resolver'
+import { WidgetBaseComponent, NsWidgetResolver } from '@sunbird-cb/resolver-v2'
 import { IProfileCareer } from './profile-career.model'
 import moment from 'moment'
 import { TranslateService } from '@ngx-translate/core'
 
 @Component({
-    selector: 'ws-widget-profile-v2-career',
-    templateUrl: './profile-career.component.html',
-    styleUrls: ['./profile-career.component.scss'],
-    /* tslint:disable */
-    host: { class: 'flex flex-1' },
-    standalone: false
+  selector: 'ws-widget-profile-v2-career',
+  templateUrl: './profile-career.component.html',
+  styleUrls: ['./profile-career.component.scss'],
+  /* tslint:disable */
+  host: { class: 'flex flex-1' },
+  standalone: false
 })
 export class ProfileCareerComponent extends WidgetBaseComponent implements OnInit, NsWidgetResolver.IWidgetData<any> {
   @Input() widgetData!: IProfileCareer

@@ -3,7 +3,7 @@ import { ConfigurationsService, DomainConfService, MultilingualTranslationsServi
 import { Router } from '@angular/router'
 /* tslint:disable */
 import _ from 'lodash'
-import { DiscussUtilsService } from '../../../../../project/ws/app/src/lib/routes/discuss/services/discuss-utils.service'
+import { DiscussUtilsService } from '@sunbird-cb/collection'
 /* tslint:enable */
 @Component({
   selector: 'ws-footer-section',

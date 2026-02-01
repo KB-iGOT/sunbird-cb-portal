@@ -1,14 +1,13 @@
 import { trigger, transition, style, animate } from '@angular/animations'
-import { Component, HostBinding, Input, OnDestroy, OnInit } from '@angular/core'
+import { Component, HostBinding, Inject, Input, OnDestroy, OnInit } from '@angular/core'
 import { Router, NavigationEnd } from '@angular/router'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { ConfigurationsService, MultilingualTranslationsService, NsInstanceConfig, ValueService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
 import { Subscription } from 'rxjs'
-import { DiscussUtilsService } from '@ws/app'
-import { environment } from 'src/environments/environment'
 // tslint:disable
 import _ from 'lodash'
 import { LibNotificationsService } from '@sunbird-cb/notification'
+import { DiscussUtilsService } from '../discuss/services/discuss-utils.service'
 
 // interface IGroupWithFeatureWidgets extends NsAppsConfig.IGroup {
 //   featureWidgets: NsWidgetResolver.IRenderConfigWithTypedData<NsPage.INavLink>[]
@@ -35,7 +34,7 @@ import { LibNotificationsService } from '@sunbird-cb/notification'
 export class CardHubsListComponent extends WidgetBaseComponent
   implements OnInit, OnDestroy, NsWidgetResolver.IWidgetData<any> {
   private defaultMenuSubscribe: Subscription | null = null
-  isLtMedium$ = this.valueSvc.isLtMedium$
+  isLtMedium$: any
   enableFeature = true
   enablePeopleSearch = true
   @Input() widgetData: any
@@ -48,7 +47,6 @@ export class CardHubsListComponent extends WidgetBaseComponent
   visible = false
   searchSpinner = false
   isMobile = false
-  environment!: any
   @HostBinding('id')
   public id = `hub_${Math.random()}`
   public activeRoute = ''
@@ -59,6 +57,7 @@ export class CardHubsListComponent extends WidgetBaseComponent
   // private readonly featuresConfig: IGroupWithFeatureWidgets[] = []
 
   constructor(
+    @Inject('environment') private environment: any,
     private configSvc: ConfigurationsService,
     private discussUtilitySvc: DiscussUtilsService,
     private router: Router,
@@ -69,6 +68,7 @@ export class CardHubsListComponent extends WidgetBaseComponent
     // private accessService: AccessControlService
   ) {
     super()
+    this.isLtMedium$ = this.valueSvc.isLtMedium$
   }
 
   hubsList!: NsInstanceConfig.IHubs[]
@@ -132,7 +132,7 @@ export class CardHubsListComponent extends WidgetBaseComponent
       this.router.navigateByUrl('app/person-profile/me#profileInfo')
     }
     // onclick="return false;"
-    this.environment = environment
+    this.environment = this.environment
     this.environment.portals = this.environment.portals.filter(
       (obj: any) => ((obj.name !== 'Frac Dictionary') &&
         (obj.isPublic || this.isAllowed(obj.id))))
@@ -300,7 +300,7 @@ export class CardHubsListComponent extends WidgetBaseComponent
   }
 
   isAllowed(portalName: string) {
-    const roles = _.get(_.first(_.filter(environment.portals, { id: portalName })), 'roles') || []
+    const roles = _.get(_.first(_.filter(this.environment.portals, { id: portalName })), 'roles') || []
     if (!(roles && roles.length)) {
       return true
     }
@@ -330,7 +330,7 @@ export class CardHubsListComponent extends WidgetBaseComponent
     this.routeToMentorship()
   }
   routeToMentorship() {
-    window.open(`${environment.contentHost}/mentorship`, '_blank')
+    window.open(`${this.environment.contentHost}/mentorship`, '_blank')
   }
 
   exploreContent() {

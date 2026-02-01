@@ -1,0 +1,40 @@
+import { Component, OnInit } from '@angular/core'
+import { IFilterUnitContent } from '../../../search/models/search.model'
+import { WidgetContentService } from '../../../_services/widget-content.service'
+import { NsContent } from '../../../_services/widget-content.model'
+
+@Component({
+  selector: 'ws-app-channels-home',
+  templateUrl: './channels-home.component.html',
+  styleUrls: ['./channels-home.component.scss'],
+  standalone: false
+})
+export class ChannelsHomeComponent implements OnInit {
+  labelFilters: IFilterUnitContent[] = []
+  categories: { [type: string]: NsContent.IContent[] } = {}
+  constructor(private contentSvc: WidgetContentService) { }
+
+  ngOnInit() {
+    this.contentSvc.search({
+    }).subscribe(response => {
+      if (response.notToBeShownFilters) {
+        const labels = response.notToBeShownFilters.find(unit => unit.type === 'labels')
+        if (labels) {
+          this.labelFilters = labels.content
+        }
+      }
+    })
+  }
+
+  fetchChannel(label: IFilterUnitContent) {
+    this.contentSvc.search({
+      filters: {
+        contentType: [NsContent.EContentTypes.CHANNEL],
+        labels: label.type ? [label.type] : [],
+      },
+    }).subscribe(response => {
+      this.categories[label.type || ''] = response.result
+    })
+  }
+
+}

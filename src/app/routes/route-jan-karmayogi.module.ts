@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { JanKarmayogiModule } from '@ws/app'
+import { JanKarmayogiModule } from '@sunbird-cb/collection'
 
 @NgModule({
   imports: [

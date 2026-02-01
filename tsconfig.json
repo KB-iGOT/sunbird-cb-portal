@@ -26,50 +26,26 @@
     "noUnusedParameters": true,
     "outDir": "./dist/out-tsc",
     "paths": {
-      "@ws/app": [
-        "project/ws/app"
-      ],
-      "@ws/app/*": [
-        "project/ws/app/*"
-      ],
-      "@ws/author": [
-        "project/ws/author"
-      ],
-      "@ws/author/*": [
-        "project/ws/author/*"
-      ],
-      "@ws/viewer": [
-        "project/ws/viewer"
-      ],
-      "@ws/viewer/*": [
-        "project/ws/viewer/*"
-      ],
-      "@ws/learning-hub": [
-        "project/ws/learning-hub"
-      ],
-      "@ws/learning-hub/*": [
-        "project/ws/learning-hub/*"
-      ],
       "@sunbird-cb/collection": [
-        "library/ws-widget/collection"
+        "library/ws-widget/collection/src/public-api"
       ],
       "@sunbird-cb/collection/*": [
-        "library/ws-widget/collection/*"
+        "library/ws-widget/collection/src/*"
       ],
       "@sunbird-cb/resolver": [
-        "library/ws-widget/resolver"
+        "library/ws-widget/resolver/src/public-api"
       ],
       "@sunbird-cb/resolver/*": [
-        "library/ws-widget/resolver/*"
+        "library/ws-widget/resolver/src/*"
       ]
     },
     "removeComments": true,
     "sourceMap": false,
-    "strict": true,
-    "strictBindCallApply": true,
-    "strictFunctionTypes": true,
-    "strictNullChecks": true,
-    "strictPropertyInitialization": true,
+    "strict": false,
+    "strictBindCallApply": false,
+    "strictFunctionTypes": false,
+    "strictNullChecks": false,
+    "strictPropertyInitialization": false,
     "target": "ES2022",
     "typeRoots": [
       "node_modules/@types",
@@ -88,5 +64,23 @@
       }
     ],
     "useDefineForClassFields": false
-  }
+  },
+   "angularCompilerOptions": {
+    "enableIvy": true,
+    "skipTemplateCodegen": true,
+    "strictMetadataEmit": false,
+    "strictTemplates": false,
+    "strictInjectionParameters": false,
+    "strictInputAccessModifiers": false,
+    "strictInputTypes": false,
+    "strictAttributeTypes": false,
+    "strictSafeNavigationTypes": false,
+    "strictDomLocalRefTypes": false,
+    "strictOutputEventTypes": false,
+    "strictDomEventTypes": false,
+    "strictContextGenerics": false,
+    "strictLiteralTypes": false,
+    "fullTemplateTypeCheck": false,
+    "enableResourceInlining": false
+  },
 }

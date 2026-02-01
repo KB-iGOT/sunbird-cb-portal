@@ -1,6 +1,5 @@
 import { Injectable } from '@angular/core'
 // import { AuthKeycloakService } from '@sunbird-cb/utils-v2'
-import { NsContent } from '../../public-api'
 // tslint:disable-next-line: max-line-length
 import {
   CHAT_BOT_VISIBILITY,
@@ -12,6 +11,7 @@ import {
   NAVIGATION_DATA_INCOMING
 } from '../_models/mobile-events.model'
 import { NavigationExternalService } from './navigation-external.service'
+import { NsContent } from './widget-content.model'
 interface IWindowMobileAppModified extends Window {
   appRef?: any
   webkit?: any
@@ -30,7 +30,7 @@ export class MobileAppsService {
   constructor(
     // private authSvc: AuthKeycloakService,
     private navigateSvc: NavigationExternalService,
-  ) {}
+  ) { }
 
   init() {
     this.setupGlobalMethods()

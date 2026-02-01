@@ -1,14 +1,14 @@
 import { Component, Input, OnInit } from '@angular/core'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { interval, Subscription } from 'rxjs'
 import { EventService, WsEvents } from '@sunbird-cb/utils-v2'
 import { ICarousel } from '../sliders/sliders.model'
 
 @Component({
-    selector: 'ws-widget-sliders-mob',
-    templateUrl: './sliders-mob.component.html',
-    styleUrls: ['./sliders-mob.component.scss'],
-    standalone: false
+  selector: 'ws-widget-sliders-mob',
+  templateUrl: './sliders-mob.component.html',
+  styleUrls: ['./sliders-mob.component.scss'],
+  standalone: false
 })
 export class SlidersMobComponent extends WidgetBaseComponent
   implements OnInit, NsWidgetResolver.IWidgetData<ICarousel[]> {
@@ -90,6 +90,6 @@ export class SlidersMobComponent extends WidgetBaseComponent
       {
         pageIdExt: 'knowledge-card',
         module: WsEvents.EnumTelemetrymodules.CONTENT,
-    })
+      })
   }
 }

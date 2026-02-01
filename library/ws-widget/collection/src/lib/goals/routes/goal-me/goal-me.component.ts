@@ -1,0 +1,43 @@
+import { Component, OnInit } from '@angular/core'
+import { ActivatedRoute } from '@angular/router'
+import { TFetchStatus } from '@sunbird-cb/utils-v2'
+import { NsGoal } from '../../../btn-goals/btn-goals.model'
+import { BtnGoalsService } from '../../../btn-goals/btn-goals.service'
+
+@Component({
+  selector: 'ws-app-goal-me',
+  templateUrl: './goal-me.component.html',
+  styleUrls: ['./goal-me.component.scss'],
+  standalone: false
+})
+export class GoalMeComponent implements OnInit {
+  fetchGoalsStatus: TFetchStatus = 'none'
+  userGoals: NsGoal.IUserGoals = this.route.snapshot.data.userGoals.data.result
+  error = this.route.snapshot.data.userGoals.error
+
+  type = this.route.snapshot.data.type || 'all'
+
+  constructor(private route: ActivatedRoute, private goalsSvc: BtnGoalsService) { }
+
+  ngOnInit() {
+    // TODO: remove hardcoding of goal progress
+    // this.userGoals.goalsInProgress = this.userGoals.goalsInProgress.map(goal => {
+    //   goal.progress = Math.random()
+    //   return goal
+    // })
+  }
+
+  updateGoals() {
+    this.fetchGoalsStatus = 'fetching'
+    this.userGoals = { completedGoals: [], goalsInProgress: [] }
+    this.goalsSvc.getUserGoals(NsGoal.EGoalTypes.USER, 'isInIntranet').subscribe(response => {
+      this.fetchGoalsStatus = 'done'
+      this.userGoals = response
+    })
+  }
+
+  deletedGoal(id: string) {
+    this.userGoals.goalsInProgress = this.userGoals.goalsInProgress.filter(goal => goal.id !== id)
+    this.userGoals.completedGoals = this.userGoals.completedGoals.filter(goal => goal.id !== id)
+  }
+}

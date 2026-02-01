@@ -13,8 +13,7 @@ import { takeUntil } from 'rxjs/operators'
 
 import { ConfigurationsService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
 import { MobileAppsService } from '../../services/mobile-apps.service'
-import { UserProfileService } from '@ws/app'
-import { BtnSettingsService } from '@sunbird-cb/collection'
+import { UserProfileService, BtnSettingsService } from '@sunbird-cb/collection'
 import { ProfileVerificationDialogComponent } from '../../profile-verification-dialog/profile-verification-dialog.component'
 
 

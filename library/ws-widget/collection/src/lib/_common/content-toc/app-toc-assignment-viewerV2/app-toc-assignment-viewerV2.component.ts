@@ -6,8 +6,8 @@ import { MatSnackBar } from '@angular/material/snack-bar'
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser'
 import { Router } from '@angular/router'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
-import { AppTocService } from '@ws/app'
 import { ConfirmationDialogComponent } from '@sunbird-cb/consumption'
+import { AppTocService } from '../../../app-toc/services/app-toc.service'
 @Component({
   selector: 'ws-widget-app-assignment-viewerV2',
   templateUrl: './app-toc-assignment-viewerV2.component.html',

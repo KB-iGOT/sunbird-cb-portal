@@ -8,9 +8,9 @@ import {
   OnInit,
   ViewChild,
 } from '@angular/core'
-import { UntypedFormControl } from '@angular/forms'
+import { FormControl } from '@angular/forms'
 import { ActivatedRoute, Router } from '@angular/router'
-import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
+import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver-v2'
 import { EventService, LoggerService, WsEvents, ValueService } from '@sunbird-cb/utils-v2'
 import { GlobalWorkerOptions, getDocument, PDFDocumentProxy } from 'pdfjs-dist/legacy/build/pdf'
 import { fromEvent, interval, merge, Subject, Subscription } from 'rxjs'
@@ -19,7 +19,7 @@ import { ROOT_WIDGET_CONFIG } from '../collection.config'
 import { NsContent } from '../_services/widget-content.model'
 import { WidgetContentService } from '../_services/widget-content.service'
 import { IWidgetsPlayerPdfData } from './player-pdf.model'
-import { ViewerUtilService } from '@ws/viewer'
+import { ViewerUtilService } from '../viewer-util.service'
 
 let pdfjsViewer: any
 
@@ -51,8 +51,8 @@ export class PlayerPdfComponent extends WidgetBaseComponent
   MIN_SCALE = 0.2
   CSS_UNITS = 96 / 72
   totalPages = 0
-  currentPage = new UntypedFormControl(0)
-  zoom = new UntypedFormControl(this.DEFAULT_SCALE)
+  currentPage: any = new FormControl(0)
+  zoom = new FormControl(this.DEFAULT_SCALE)
   isSmallViewPort = false
   realTimeProgressRequest = {
     content_type: 'Resource',
@@ -219,7 +219,7 @@ export class PlayerPdfComponent extends WidgetBaseComponent
   }
 
   changeScale(val: 'zoomin' | 'zoomout') {
-    const currentZoom = this.zoom.value
+    const currentZoom: any = this.zoom.value
     const step = 0.1
     this.zoom.setValue(val === 'zoomin' ? currentZoom + step : currentZoom - step)
   }
@@ -324,7 +324,7 @@ export class PlayerPdfComponent extends WidgetBaseComponent
 
     this.pdfContainer.nativeElement.innerHTML = ''
 
-    const page = await this.pdfInstance.getPage(this.currentPage.value)
+    const page: any = await this.pdfInstance.getPage(this.currentPage.value)
     const viewport = page.getViewport({ scale: this.zoom.value })
 
     const pageNumStr = this.currentPage.value.toString()
