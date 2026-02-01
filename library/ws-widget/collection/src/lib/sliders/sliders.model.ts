@@ -15,5 +15,6 @@ interface IBannerUnit {
   s: string,
   m: string,
   l: string,
-  xl: string
+  xl: string,
+  [key: string]: string | undefined
 }

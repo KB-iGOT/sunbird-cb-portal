@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core'
-import { NsContent } from '../../public-api'
+import { NsContent } from '../_services/widget-content.model'
 // tslint:disable-next-line: max-line-length
 import {
   CHAT_BOT_VISIBILITY,
@@ -8,12 +8,9 @@ import {
   GET_PLAYERCONTENT_JSON,
   GO_OFFLINE,
   IOS_OPEN_IN_BROWSER,
-  ISAUTHENTICATED_OUTGOING,
   NAVIGATION_DATA_INCOMING,
-  SESSIONID_OUTGOING,
-  TOKEN_OUTGOING,
 } from './models/mobile-events.model'
-import { NavigationExternalService } from './navigation-external.service'
+import { BtnFeatureNavigationExternalService } from './navigation-external.service'
 interface IWindowMobileAppModified extends Window {
   appRef?: any
   webkit?: any
@@ -28,10 +25,9 @@ declare var window: IWindowMobileAppModified
 @Injectable({
   providedIn: 'root',
 })
-export class MobileAppsService {
+export class BtnFeatureMobileAppsService {
   constructor(
-    private authSvc: any,
-    private navigateSvc: NavigationExternalService,
+    private navigateSvc: BtnFeatureNavigationExternalService,
   ) { }
 
   init() {
@@ -94,12 +90,12 @@ export class MobileAppsService {
       document.dispatchEvent(new CustomEvent(NAVIGATION_DATA_INCOMING, { detail: { url, params } }))
     }
 
-    // Incoming Requests with outgoing data
-    window.getToken = () => this.sendDataAppToClient(TOKEN_OUTGOING, this.authSvc.token)
-    window.getToken()
-    window.getSessionId = () => this.sendDataAppToClient(SESSIONID_OUTGOING, this.authSvc.sessionId)
-    window.isAuthenticated = () =>
-      this.sendDataAppToClient(ISAUTHENTICATED_OUTGOING, this.authSvc.isAuthenticated)
+    // Auth-related methods commented out - authSvc dependency removed for Angular 20 compatibility
+    // window.getToken = () => this.sendDataAppToClient(TOKEN_OUTGOING, this.authSvc.token)
+    // window.getToken()
+    // window.getSessionId = () => this.sendDataAppToClient(SESSIONID_OUTGOING, this.authSvc.sessionId)
+    // window.isAuthenticated = () =>
+    //   this.sendDataAppToClient(ISAUTHENTICATED_OUTGOING, this.authSvc.isAuthenticated)
   }
 
   isFunctionAvailableInAndroid(functionName: string) {
@@ -127,3 +123,4 @@ export class MobileAppsService {
     }
   }
 }
+

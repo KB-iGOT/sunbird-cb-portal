@@ -61,9 +61,11 @@ export namespace NsWidgetResolver {
     ) => void
   }
   export interface ITitle {
-    title: string,
-    url: TUrl,
+    title: string
+    url: TUrl
     icon?: string
+    path?: string
+    accessKey?: string
   }
 
   export interface WidgetRegistration extends Omit<IRegistrationConfig, 'component'> {

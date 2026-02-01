@@ -1,5 +1,5 @@
 import { Component } from '@angular/core'
-import { UserProfileService } from '../../../user-profile/services/user-profile.service'
+import { UserProfileService } from '@sunbird-cb/collection'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import _ from 'lodash'
 import { MatDialog } from '@angular/material/dialog'

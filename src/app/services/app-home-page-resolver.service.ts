@@ -3,7 +3,7 @@ import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router'
 import { ConfigurationsService, IResolveResponse } from '@sunbird-cb/utils-v2'
 import { Observable, of } from 'rxjs'
 import { catchError, map } from 'rxjs/operators'
-import { FormExtService } from './form-ext.service'
+import { FormExtService } from '@ws/app'
 import { HttpClient } from '@angular/common/http'
 
 @Injectable({

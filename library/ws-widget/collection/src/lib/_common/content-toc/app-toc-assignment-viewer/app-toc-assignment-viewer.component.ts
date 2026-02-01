@@ -6,7 +6,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser'
 import { Router } from '@angular/router'
 import { ConfirmationDialogComponent } from '@sunbird-cb/consumption'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
-import { AppTocService } from '@ws/app'
+import { AppTocService } from '../../../_services/app-toc.service'
 
 @Component({
   selector: 'ws-widget-app-assignment-viewer',

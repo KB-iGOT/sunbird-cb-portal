@@ -1,4 +1,4 @@
-import { ILanguages } from './user-profile.model'
+import { ILanguages } from '@sunbird-cb/collection'
 export namespace NsUserProfileDetails {
   export interface IUserProfileFields {
     'firstname': string

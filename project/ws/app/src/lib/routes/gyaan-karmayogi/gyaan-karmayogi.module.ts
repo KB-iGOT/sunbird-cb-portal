@@ -5,7 +5,7 @@ import { GyaanKarmayogiRoutingModule } from './gyaan-karmayogi-routing.module'
 import { GyaanKarmayogiHomeComponent } from './components/gyaan-karmayogi-home/gyaan-karmayogi-home.component'
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core'
 import { HttpClient } from '@angular/common/http'
-import { TranslateHttpLoader } from '@ngx-translate/http-loader'
+import { HttpLoaderFactory } from '@ws/app'
 import { BtnPageBackModule, ContentStripWithTabsModule, SlidersModule } from '@sunbird-cb/collection'
 import { PdfModule, PdfScormDataService, VideoModule, AudioModule, YoutubeModule } from '@ws/viewer'
 import { GyaanPlayerComponent } from './components/gyaan-player/gyaan-player.component'
@@ -17,7 +17,7 @@ import { CardContentV2Module } from '@sunbird-cb/collection'
 import { GyaanKarmayogiService } from './services/gyaan-karmayogi.service'
 import { PdfComponent } from './components/players/pdf/pdf.component'
 import { GyaanVideoComponent } from './components/players/gyaan-video/gyaan-video.component'
-import { ViewerDataService } from '@ws/viewer'
+import { ViewerDataService } from '@sunbird-cb/collection'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 import { SkeletonLoaderModule } from '@sunbird-cb/collection'
 import { ShareTocModule } from '../app-toc/share-toc/share-toc.module'
@@ -41,10 +41,6 @@ import { NgxSliderModule } from '@angular-slider/ngx-slider'
 import { HorizontalScrollerV2Module } from '@sunbird-cb/consumption'
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
 
-// tslint:disable-next-line:function-name
-export function HttpLoaderFactory() {
-  return new TranslateHttpLoader()
-}
 
 @NgModule({
   declarations: [GyaanKarmayogiHomeComponent, GyaanPlayerComponent,

@@ -15,7 +15,7 @@
                   stripsResultDataMap[key]?.showOnError)
                 " [ngClass]="
                   !widgetData.isChannelStrip ? 'xs:px-8 sx:px-10ss py-2 my-1' : i > 0 ? 'mt-12' : ''
-                " [id]="key" [ngClass]="!widgetData.isChannelStrip ? margin-bottom-custom : margin-bottom-xs">
+                " [id]="key" [ngClass]="!widgetData.isChannelStrip ? 'margin-bottom-custom' : 'margin-bottom-xs'">
           <div [ngClass]="{ pad: stripsResultDataMap[key]?.stripBackground }"
             [ngStyle]="{ 'background-color': stripsResultDataMap[key]?.stripBackground }">
             <div class="flex items-center justify-between" [ngClass]="
@@ -32,15 +32,17 @@
                 </h1>
 
                 <button *ngIf="stripsResultDataMap[key]?.stripInfo?.icon" type="button" mat-icon-button
-                  (click)="toggleInfo(stripsResultDataMap[key])" i18n-matTooltip matTooltip="{{ 'contentstripmultiple.info' | translate }}"
-                  class="flex justify-center items-center">
+                  (click)="toggleInfo(stripsResultDataMap[key])" i18n-matTooltip
+                  matTooltip="{{ 'contentstripmultiple.info' | translate }}" class="flex justify-center items-center">
                   <mat-icon>{{ stripsResultDataMap[key]?.stripInfo?.icon.icon }}</mat-icon>
                 </button>
                 <span class="spacer"></span>
                 <!-- viewAll -->
                 <div *ngIf="checkCondition(widgetData , stripsResultDataMap[key])" class="ws-mat-accent-text">
-                  <div class="flex flex-row gap-2 items-center cursor-pointer" [routerLink]="widgetData.strips[0]?.viewMoreUrl?.path" [queryParams]="widgetData.strips[0]?.viewMoreUrl?.queryParams">
-                    <span >{{ 'contentstripmultiple.showAll' | translate }}</span>
+                  <div class="flex flex-row gap-2 items-center cursor-pointer"
+                    [routerLink]="widgetData.strips[0]?.viewMoreUrl?.path"
+                    [queryParams]="widgetData.strips[0]?.viewMoreUrl?.queryParams">
+                    <span>{{ 'contentstripmultiple.showAll' | translate }}</span>
                     <mat-icon>chevron_right</mat-icon>
                   </div>
                 </div>
@@ -86,12 +88,13 @@
               <ws-utils-horizontal-scroller *ngIf="getLength(stripsResultDataMap[key]) && showAccordion(key)"
                 [loadStatus]="'done'">
                 <div *ngFor="let widget of stripsResultDataMap[key]?.widgets; trackBy: tracker">
-                  <ng-container 
+                  <ng-container
                     *ngIf="widget.widgetData.content.primaryCategory === this.environment.programStripPrimaryCategory && stripsResultDataMap[key]?.key === this.environment.programStripKey && stripsResultDataMap[key]?.stripTitle === this.environment.programStripName"
                     [wsResolverWidget]="widget"></ng-container>
-                  <ng-container *ngIf="stripsResultDataMap[key]?.key !== this.environment.programStripKey && stripsResultDataMap[key]?.stripTitle !== this.environment.programStripName"
+                  <ng-container
+                    *ngIf="stripsResultDataMap[key]?.key !== this.environment.programStripKey && stripsResultDataMap[key]?.stripTitle !== this.environment.programStripName"
                     [wsResolverWidget]="widget"></ng-container>
-                 </div>
+                </div>
                 <!-- <ng-container *ngFor="let widget of stripsResultDataMap[key]?.widgets; trackBy: tracker"
                   [wsResolverWidget]="widget"></ng-container> -->
               </ws-utils-horizontal-scroller>
@@ -109,11 +112,11 @@
   <mat-card>
     <div class="w-full">
       <div class="p-4">
-        <div class="text-3xl font-semibold text-center leading-tight" >
+        <div class="text-3xl font-semibold text-center leading-tight">
           {{ 'contentstripmultiple.contentNotAvailable' | translate }}
         </div>
         <br />
-        <div class="text-base font-medium text-center leading-normal" >
+        <div class="text-base font-medium text-center leading-normal">
           <!-- Please try different keywords or change the search query. -->
           {{ 'contentstripmultiple.tryDifferentKeywords' | translate }}
         </div>

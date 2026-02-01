@@ -8,7 +8,7 @@ import { NsContent } from '../_services/widget-content.model'
 import { NsCardContent } from './card-content-v2.model'
 /* tslint:disable*/
 import _ from 'lodash'
-import { CertificateService } from '@ws/app'
+import { CertificateService } from '../_services/certificate.service'
 import { CertificateDialogComponent } from '../_common/certificate-dialog/certificate-dialog.component'
 import { TranslateService } from '@ngx-translate/core'
 import { WidgetContentLibService } from '@sunbird-cb/consumption'

@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing'
 
-import { SignupService } from './signup.service'
+import { SignupService } from '@ws/app'
 
 describe('SignupService', () => {
   beforeEach(() => TestBed.configureTestingModule({}))

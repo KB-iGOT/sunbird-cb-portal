@@ -4,7 +4,7 @@ import { RatingSummaryComponent } from './rating-summary.component'
 import { PipeCountTransformModule } from '@sunbird-cb/utils-v2'
 import { HttpClient } from '@angular/common/http'
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core'
-import { HttpLoaderFactory } from 'src/app/app.module'
+import { HttpLoaderFactory } from '../../collection-utils'
 import { MatIconModule } from '@angular/material/icon'
 import { MatProgressBarModule } from '@angular/material/progress-bar'
 import { MatTooltipModule } from '@angular/material/tooltip'
@@ -17,7 +17,7 @@ import { MatTooltipModule } from '@angular/material/tooltip'
     MatProgressBarModule,
     MatIconModule,
     MatTooltipModule,
-    TranslateModule.forRoot({
+    TranslateModule.forChild({
       loader: {
         provide: TranslateLoader,
         useFactory: HttpLoaderFactory,

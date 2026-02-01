@@ -1,7 +1,7 @@
 import { AfterViewChecked, AfterViewInit, Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, Renderer2, ViewChild } from '@angular/core'
 import { ActivatedRoute, Router, NavigationEnd } from '@angular/router'
 import { ConfigurationsService, EventService, UtilityService, WsEvents } from '@sunbird-cb/utils-v2'
-import { RootService } from 'src/app/component/root/root.service'
+import { RootService } from '@ws/app'
 import { environment } from 'src/environments/environment'
 import { WebSocketService } from './socket.service'
 import { Subscription } from 'rxjs'

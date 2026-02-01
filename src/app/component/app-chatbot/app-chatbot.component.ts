@@ -1,7 +1,7 @@
 import { AfterViewChecked, OnChanges, Component, ElementRef, Input, OnInit, Renderer2, ViewChild } from '@angular/core'
 import { ConfigurationsService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
 // import { ChatbotService } from './chatbot.service'
-import { RootService } from './../root/root.service'
+import { RootService } from '@ws/app'
 import { environment } from 'src/environments/environment'
 import { NavigationEnd, Router } from '@angular/router'
 import { CdkDragEnd } from '@angular/cdk/drag-drop'

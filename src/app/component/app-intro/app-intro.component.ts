@@ -5,7 +5,7 @@ import {
 } from '@angular/core'
 
 import { MatDialogRef } from '@angular/material/dialog'
-import { RootService } from '../root/root.service'
+import { RootService } from '@ws/app'
 
 @Component({
     selector: 'ws-app-intro',

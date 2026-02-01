@@ -1,7 +1,7 @@
 import { Component } from '@angular/core'
 import { TranslateService } from '@ngx-translate/core'
 import { ConfigurationsService, EventService, MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
-import { NotificationsService } from '../../../../../../../../../src/app/services/notifications.service'
+import { NotificationsService } from '@ws/app'
 import { environment } from 'src/environments/environment'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { MatDialog } from '@angular/material/dialog'

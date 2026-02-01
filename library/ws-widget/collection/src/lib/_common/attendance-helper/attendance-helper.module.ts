@@ -4,7 +4,7 @@ import { AttendanceHelperComponent } from './attendance-helper.component'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 import { HttpClient } from '@angular/common/http'
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core'
-import { HttpLoaderFactory } from 'src/app/app.module'
+import { HttpLoaderFactory } from '../../collection-utils'
 import { MatButtonModule } from '@angular/material/button'
 import { MatCardModule } from '@angular/material/card'
 import { MatDialogModule } from '@angular/material/dialog'
@@ -32,7 +32,7 @@ import { MatTooltipModule } from '@angular/material/tooltip'
         MatInputModule,
         MatSnackBarModule,
         MatMenuModule,
-        TranslateModule.forRoot({
+        TranslateModule.forChild({
             loader: {
                 provide: TranslateLoader,
                 useFactory: HttpLoaderFactory,

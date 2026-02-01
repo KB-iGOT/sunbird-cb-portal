@@ -1,7 +1,7 @@
 import { DatePipe } from '@angular/common'
 import { Component, OnInit, Inject, ViewChild, ElementRef, HostListener } from '@angular/core'
 import { FormControl, FormGroup, Validators } from '@angular/forms'
-import { UserProfileService } from '../../../user-profile/services/user-profile.service'
+import { UserProfileService } from '@sunbird-cb/collection'
 import { debounceTime, distinctUntilChanged, startWith, takeUntil } from 'rxjs/operators'
 import { HttpErrorResponse } from '@angular/common/http'
 import { Subject } from 'rxjs'
@@ -15,7 +15,7 @@ import { MatSnackBar } from '@angular/material/snack-bar'
 /* tslint:disable */
 import _ from 'lodash'
 import { TranslateService } from '@ngx-translate/core'
-// import { SignupService } from 'src/app/routes/public/public-signup/signup.service'
+// import { SignupService } from '@ws/app'
 import { designation } from '../../../profile-v2/models/profile-revamp.model'
 
 const MOBILE_PATTERN = /^[0]?[6789]\d{9}$/

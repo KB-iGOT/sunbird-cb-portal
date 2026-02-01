@@ -4,9 +4,9 @@ import { RouterModule } from '@angular/router'
 import { FormsModule } from '@angular/forms'
 import { HttpClient } from '@angular/common/http'
 import { InfiniteScrollModule } from 'ngx-infinite-scroll'
-import { NgCircleProgressModule } from 'ng-circle-progress'
+// import { NgCircleProgressModule } from 'ng-circle-progress'
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core'
-import { HttpLoaderFactory } from 'src/app/app.module'
+import { HttpLoaderFactory } from '../../collection-utils'
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
 import {
   PipeDurationTransformModule, HorizontalScrollerV2Module,
@@ -46,7 +46,7 @@ import { AppTocReferenceNotesComponent } from './app-toc-reference-notes/app-toc
 import { AiTutorConfirmPopupComponent } from './ai-tutor-confirm-popup/ai-tutor-confirm-popup.component'
 import { HighlightPipe } from '../../_pipes/highlight.pipe'
 import { MatSelectModule } from '@angular/material/select'
-import { AiTutorComponent } from '@ws/viewer'
+// import { AiTutorComponent } from '@ws/viewer'
 import { MarkdownModule } from 'ngx-markdown'
 import { AppTocBatchAssignmentsComponent } from './app-toc-batch-assignments/app-toc-batch-assignments.component'
 import { AssignmentViewerComponent } from './app-toc-assignment-viewer/app-toc-assignment-viewer.component'
@@ -70,7 +70,6 @@ import { SamuhikCharchaContentComponent } from './samuhik-charcha-content/samuhi
     ReplaceNbspPipe,
     AiTutorConfirmPopupComponent,
     HighlightPipe,
-    AiTutorComponent,
     AppTocBatchAssignmentsComponent,
     AssignmentViewerComponent,
     AssignmentViewerV2Component,
@@ -93,7 +92,7 @@ import { SamuhikCharchaContentComponent } from './samuhik-charcha-content/samuhi
     RatingSummaryModule,
     PipeDurationTransformModule,
     ContentProgressModule,
-    NgCircleProgressModule.forRoot({}),
+    // NgCircleProgressModule.forRoot({}),
     PipeRelativeTimeModule,
     InfiniteScrollModule,
     CardCompetencyModule,
@@ -103,9 +102,8 @@ import { SamuhikCharchaContentComponent } from './samuhik-charcha-content/samuhi
     MatTooltipModule,
     TocKpiValuesModule,
     KarmaPointsModule,
-    TranslateModule,
     DialogComponentsModule,
-    TranslateModule.forRoot({
+    TranslateModule.forChild({
       loader: {
         provide: TranslateLoader,
         useFactory: HttpLoaderFactory,
@@ -115,7 +113,7 @@ import { SamuhikCharchaContentComponent } from './samuhik-charcha-content/samuhi
     PipeSafeSanitizerModule,
     WidgetCommentModule,
     MatSelectModule,
-    MarkdownModule.forRoot(),
+    MarkdownModule.forChild(),
     ContentStripWithTabsPillsModule,
     ContentStripWithTabsLibModule,
   ],
@@ -124,8 +122,6 @@ import { SamuhikCharchaContentComponent } from './samuhik-charcha-content/samuhi
     AppTocAboutComponent,
     AppTocContentComponent,
     AppTocTeachersNotesComponent,
-    ReviewsContentComponent,
-    AiTutorComponent,
     AppTocBatchAssignmentsComponent
   ]
 })

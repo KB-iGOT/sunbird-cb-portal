@@ -5,7 +5,7 @@ import * as _ from 'lodash'
     name: 'listPipe',
     standalone: false
 })
-export class ListPipePipe implements PipeTransform {
+export class AdminUserPopupListPipe implements PipeTransform {
 
   transform(value: any, args?: any): any {
     // return (value || []).map(i => ' '+i[args]); older

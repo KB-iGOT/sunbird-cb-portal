@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core'
 import { ProfileKarmapointsComponent } from './profile-karmapoints.component'
 
-import { BrowserModule } from '@angular/platform-browser'
+import { CommonModule } from '@angular/common'
 import { PipeOrderByModule } from '@sunbird-cb/utils-v2'
 import { TranslateModule } from '@ngx-translate/core'
 import { MatButtonModule } from '@angular/material/button'
@@ -14,7 +14,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'
 
 @NgModule({
     declarations: [ProfileKarmapointsComponent],
-    imports: [BrowserModule, MatButtonModule, MatCardModule, MatChipsModule,
+    imports: [CommonModule, MatButtonModule, MatCardModule, MatChipsModule,
         MatDividerModule, MatExpansionModule, MatIconModule, MatProgressSpinnerModule, PipeOrderByModule, TranslateModule]
 })
 export class ProfileKarmapointsModule {

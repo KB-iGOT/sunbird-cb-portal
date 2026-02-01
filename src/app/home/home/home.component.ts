@@ -12,10 +12,9 @@ import { Subject } from 'rxjs'
 import { takeUntil } from 'rxjs/operators'
 
 import { ConfigurationsService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
-import { MobileAppsService } from '../../services/mobile-apps.service'
-import { UserProfileService } from '@ws/app'
-import { BtnSettingsService } from '@sunbird-cb/collection'
-import { ProfileVerificationDialogComponent } from '../../profile-verification-dialog/profile-verification-dialog.component'
+import { MobileAppsService } from '@ws/app'
+import { UserProfileService, BtnSettingsService } from '@sunbird-cb/collection'
+import { ProfileVerificationDialogComponent } from '@ws/app'
 
 
 // import { NotificationComponent } from './notification/notification.component'
@@ -296,7 +295,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
       } else {
         this.canShowCustomAttrOpen = false
       }
-    }, error => {
+    }, (error: any) => {
       this.canShowCustomAttrOpen = false
       console.error('Error fetching organization details', error)
     })
@@ -312,7 +311,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
         //this.redirectToCustomProfile()
         this.canShowCustomAttrOpen = false
       }
-    }, error => {
+    }, (error: any) => {
       this.canShowCustomAttrOpen = false
       console.log('Error', error)
     })

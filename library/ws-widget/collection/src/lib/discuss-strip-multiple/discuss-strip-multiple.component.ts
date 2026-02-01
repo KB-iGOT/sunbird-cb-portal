@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, OnDestroy, HostBinding } from '@angular/core'
 import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
 import { NsDiscussStripNewMultiple } from './discuss-strip-multiple.model'
-import { ContentStripNewMultipleService } from './discuss-strip-multiple.service'
+import { DiscussStripMultipleService } from './discuss-strip-multiple.service'
 import { WidgetContentService } from '../_services/widget-content.service'
 import { NsContent } from '../_services/widget-content.model'
 import {
@@ -66,7 +66,7 @@ export class DiscussStripMultipleComponent extends WidgetBaseComponent
   changeEventSubscription: Subscription | null = null
 
   constructor(
-    private contentStripSvc: ContentStripNewMultipleService,
+    private contentStripSvc: DiscussStripMultipleService,
     private contentSvc: WidgetContentService,
     private loggerSvc: LoggerService,
     // private eventSvc: EventService,

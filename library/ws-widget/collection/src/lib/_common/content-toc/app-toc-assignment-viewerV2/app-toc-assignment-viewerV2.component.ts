@@ -6,7 +6,7 @@ import { MatSnackBar } from '@angular/material/snack-bar'
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser'
 import { Router } from '@angular/router'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
-import { AppTocService } from '@ws/app'
+import { AppTocService } from '../../../_services/app-toc.service'
 import { ConfirmationDialogComponent } from '@sunbird-cb/consumption'
 @Component({
   selector: 'ws-widget-app-assignment-viewerV2',
@@ -85,7 +85,7 @@ export class AssignmentViewerV2Component implements OnInit, OnDestroy {
           this.handleError('No file data received')
         }
       },
-      error: (error) => {
+      error: (error: any) => {
         this.handleError(`Failed to load file: ${error.message || 'Unknown error'}`)
       }
     })
@@ -137,7 +137,7 @@ export class AssignmentViewerV2Component implements OnInit, OnDestroy {
         this.dialogRef.close()
         this.notifyAssignmentSubmission()
       }
-    }, error => {
+    }, (error: any) => {
       this.dialogRef.close()
       console.error('Error submitting assignment', error)
     })
@@ -153,7 +153,7 @@ export class AssignmentViewerV2Component implements OnInit, OnDestroy {
       if (res && res.responseCode && res.responseCode === 'OK') {
         console.log('Notified assignment submission')
       }
-    }, error => {
+    }, (error: any) => {
       console.error('Error notifying assignment submission', error)
     })
   }
@@ -318,7 +318,7 @@ export class AssignmentViewerV2Component implements OnInit, OnDestroy {
         this.openSnackbar('Assignment saved as a draft')
         this.dialogRef.close()
       }
-    }, error => {
+    }, (error: any) => {
       this.dialogRef.close()
       console.error('Error submitting assignment', error)
     })

@@ -3,13 +3,13 @@ import { CommonModule, DatePipe } from '@angular/common'
 import { RouterModule } from '@angular/router'
 import { ReactiveFormsModule, FormsModule } from '@angular/forms'
 import { AppTocRoutingModule } from './app-toc-routing.module'
-import { NgCircleProgressModule } from 'ng-circle-progress'
+// import { NgCircleProgressModule } from 'ng-circle-progress'
 import { TranslateModule } from '@ngx-translate/core'
 import { InfiniteScrollModule } from 'ngx-infinite-scroll'
 
 // custom modules
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
-import { DiscussionUiModule } from '@sunbird-cb/discussions-ui-v8'
+import { ComponentsModule } from '@sunbird-cb/discussions-ui-v8'
 import {
   PipeDurationTransformModule,
   PipeSafeSanitizerModule,
@@ -95,10 +95,10 @@ import { TagWidgetComponent } from '../discuss/widget/tag-widget/tag-widget.comp
 import { AppTocService } from './services/app-toc.service'
 import { ProfileResolverService } from './resolvers/profile-resolver.service'
 import { CertificationApiService } from './routes/app-toc-certification/apis/certification-api.service'
-import { ActionService } from './services/action.service'
+// import { ActionService } from '@sunbird-cb/collection'
 import { ApiService, AccessControlService } from '@ws/author'
 import { EditorService } from '../../../../../author/src/lib/routing/modules/editor/services/editor.service'
-import { AppPublicTocResolverService } from 'src/app/routes/public/public-toc/app-public-toc-resolver.service'
+import { AppPublicTocResolverService } from '@ws/app'
 
 // Resolver
 import { CertificationMetaResolver } from './routes/app-toc-certification/resolvers/certification-meta.resolver'
@@ -111,7 +111,7 @@ import { AppTocCohortsDirective } from './routes/app-toc-cohorts/app-toc-cohorts
 import { AppTocSinglePageDirective } from './routes/app-toc-single-page/app-toc-single-page.directive'
 import { AppTocCiosHomeComponent } from './components/app-toc-cios-home/app-toc-cios-home.component'
 import { CommonMethodsService, ContentLanguageService, DialogComponentsModule, TOCMultiLingualDialogModule } from '@sunbird-cb/consumption'
-import { UserProfileService } from '../user-profile/services/user-profile.service'
+// import { UserProfileService } from '@sunbird-cb/collection' // Unused
 import { OtpService } from '../user-profile/services/otp.services'
 import { MatAutocompleteModule } from '@angular/material/autocomplete'
 import { MatButtonModule } from '@angular/material/button'
@@ -139,8 +139,7 @@ import { MatTooltipModule } from '@angular/material/tooltip'
 import { WidgetCommentModule } from '@sunbird-cb/discussion-v2'
 import { SlidersDynamicModule } from '@sunbird-cb/collection'
 import { EnrollProfileFormComponent } from './components/enroll-profile-form/enroll-profile-form.component'
-import { SurveyFormQuestionComponent } from './components/survey-form-question/survey-form-question.component'
-import { SurveyFormSectionComponent } from './components/survey-form-section/survey-form-section.component'
+import { PlayerSurveyFormQuestionComponent, PlayerSurveyFormSectionComponent } from '@sunbird-cb/collection'
 import { NonReleventFeedbackDialogModule } from '../../../../../../../library/ws-widget/collection/src/lib/_common/non-relevent-feedback-dialog/non-relevent-feedback-dialog.module'
 import { AppTocContentReadResolverService } from './resolvers/app-toc-content-read-resolver.service'
 import { AppTocHomeV2Component } from './components/app-toc-home-v2/app-toc-home-v2.component'
@@ -258,7 +257,7 @@ import { ConsentDialogComponent } from './components/app-toc-cios-home/consent-d
     BtnContentShareModule,
     UserAutocompleteModule,
     AvatarPhotoModule,
-    DiscussionUiModule,
+    ComponentsModule,
     ConnectionNameModule,
     CardRatingCommentModule,
     InfiniteScrollModule,
@@ -268,7 +267,7 @@ import { ConsentDialogComponent } from './components/app-toc-cios-home/consent-d
     MatChipsModule,
     MatAutocompleteModule,
     ContentTocModule,
-    NgCircleProgressModule.forRoot({}),
+    // NgCircleProgressModule.forRoot({}),
     TranslateModule,
     ShareTocModule,
     TocKpiValuesModule,
@@ -278,8 +277,8 @@ import { ConsentDialogComponent } from './components/app-toc-cios-home/consent-d
     WidgetCommentModule,
     SlidersDynamicModule,
     NonReleventFeedbackDialogModule,
-    SurveyFormQuestionComponent,
-    SurveyFormSectionComponent,
+    PlayerSurveyFormQuestionComponent,
+    PlayerSurveyFormSectionComponent,
   ],
   providers: [
     AppTocContentReadResolverService,
@@ -293,10 +292,10 @@ import { ConsentDialogComponent } from './components/app-toc-cios-home/consent-d
     ApiService,
     AccessControlService,
     ProfileResolverService,
-    ActionService,
+    // ActionService,
     MultilingualTranslationsService,
     CommonMethodsService,
-    UserProfileService,
+
     OtpService,
     ContentLanguageService,
     TOCMultiLingualDialogModule,

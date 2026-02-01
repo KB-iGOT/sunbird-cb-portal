@@ -4,7 +4,7 @@ import { WidgetBaseComponent, NsWidgetResolver } from '@sunbird-cb/resolver'
 import moment from 'moment'
 import { ProfileCertificateDialogComponent } from '../profile-certificate-dialog/profile-certificate-dialog.component'
 import { IProCert } from './profile-cretifications-v2.model'
-import { AppTocService } from '@ws/app'
+import { AppTocService } from '../../_services/app-toc.service'
 import { ConfigurationsService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
 import { TranslateService } from '@ngx-translate/core'
 import { WidgetContentService } from '../../_services/widget-content.service'
@@ -27,6 +27,7 @@ export class ProfileCretificationsV2Component extends WidgetBaseComponent implem
   defaultThumbnail = ''
   allCertificate: any = []
   certId: any
+  iGOT = 'iGOT'
 
   constructor(
     private dialog: MatDialog,

@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core'
 import { ProfileCretificationsV2Component } from './profile-cretifications-v2.component'
-import { BrowserModule } from '@angular/platform-browser'
+import { CommonModule } from '@angular/common'
 import { ProfileCertificateDialogModule } from '../profile-certificate-dialog/profile-certificate-dialog.module'
 import { PipePublicURLModule, DefaultThumbnailModule, PipeCertificateImageURLModule } from '@sunbird-cb/utils-v2'
 import { TranslateModule } from '@ngx-translate/core'
@@ -15,7 +15,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'
 @NgModule({
     declarations: [ProfileCretificationsV2Component],
     imports: [
-        BrowserModule,
+        CommonModule,
         MatButtonModule,
         MatCardModule,
         MatChipsModule,

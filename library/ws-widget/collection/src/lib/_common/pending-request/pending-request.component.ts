@@ -2,10 +2,10 @@ import { Component, Input, OnInit } from '@angular/core'
 import { Router } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
 @Component({
-    selector: 'ws-widget-pending-request',
-    templateUrl: './pending-request.component.html',
-    styleUrls: ['./pending-request.component.scss'],
-    standalone: false
+  selector: 'ws-widget-pending-request',
+  templateUrl: './pending-request.component.html',
+  styleUrls: ['./pending-request.component.scss'],
+  standalone: false
 })
 
 export class PendingRequestComponent implements OnInit {
@@ -24,6 +24,10 @@ export class PendingRequestComponent implements OnInit {
 
   navigateTo() {
     this.router.navigateByUrl('app/network-v2/connection-requests?page=people_connection_request')
+  }
+
+  moveToUserProfile(id: string) {
+    this.router.navigateByUrl(`/app/person-profile/${id}?page=network`)
   }
 
 }

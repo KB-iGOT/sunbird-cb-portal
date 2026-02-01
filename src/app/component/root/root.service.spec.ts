@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing'
 
-import { RootService } from './root.service'
+import { RootService } from '@ws/app'
 
 describe('RootService', () => {
   beforeEach(() => TestBed.configureTestingModule({}))

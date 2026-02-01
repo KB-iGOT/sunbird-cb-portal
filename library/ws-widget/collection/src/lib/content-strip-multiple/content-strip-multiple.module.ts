@@ -4,9 +4,7 @@ import { RouterModule } from '@angular/router'
 import { ContentStripMultipleComponent } from './content-strip-multiple.component'
 import { HorizontalScrollerModule } from '@sunbird-cb/utils-v2'
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
-import { HttpClient } from '@angular/common/http'
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core'
-import { HttpLoaderFactory } from 'src/app/app.module'
+import { TranslateModule } from '@ngx-translate/core'
 import { MatButtonModule } from '@angular/material/button'
 import { MatCardModule } from '@angular/material/card'
 import { MatChipsModule } from '@angular/material/chips'
@@ -27,13 +25,7 @@ import { MatTooltipModule } from '@angular/material/tooltip'
         MatProgressSpinnerModule,
         MatChipsModule,
         MatCardModule,
-        TranslateModule.forRoot({
-            loader: {
-                provide: TranslateLoader,
-                useFactory: HttpLoaderFactory,
-                deps: [HttpClient],
-            },
-        }),
+        TranslateModule.forChild(),
     ],
     exports: [ContentStripMultipleComponent]
 })

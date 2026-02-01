@@ -2,13 +2,8 @@ import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { DownloadAppComponent } from '../component/download-app/download-app.component'
 import { TranslateModule, TranslateService } from '@ngx-translate/core'
-import { TranslateHttpLoader } from '@ngx-translate/http-loader'
 import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 
-// tslint:disable-next-line:function-name
-export function HttpLoaderFactory() {
-  return new TranslateHttpLoader()
-}
 
 @NgModule({
   declarations: [DownloadAppComponent],

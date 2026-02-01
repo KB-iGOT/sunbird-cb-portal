@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { IWidgetsPlayerMediaData, NsContent } from '@sunbird-cb/collection'
-import { NotificationComponent } from '../../../../../../../../../../../../../../src/app/home/home/notification/notification.component'
+import { NotificationComponent } from '../../../../modules/shared/components/notification/notification.component'
 import { CONTENT_BASE_WEBHOST_ASSETS, AUTHORING_CONTENT_BASE } from '../../../../../../../../../constants/apiEndpoints'
 import { NOTIFICATION_TIME } from '../../../../../../../../../constants/constant'
 import { Notify } from '../../../../../../../../../constants/notificationMessage'

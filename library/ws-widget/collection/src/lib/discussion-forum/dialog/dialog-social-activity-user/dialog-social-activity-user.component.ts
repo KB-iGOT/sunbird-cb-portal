@@ -15,30 +15,19 @@ const TAB_INDEX_ACTIVITY_TYPE_MAPPING: { [key: number]: string } = {
 }
 
 @Component({
-    selector: 'ws-widget-dialog-social-activity-user',
-    templateUrl: './dialog-social-activity-user.component.html',
-    styleUrls: ['./dialog-social-activity-user.component.scss'],
-    standalone: false
+  selector: 'ws-widget-dialog-social-activity-user',
+  templateUrl: './dialog-social-activity-user.component.html',
+  styleUrls: ['./dialog-social-activity-user.component.scss'],
+  standalone: false
 })
 export class DialogSocialActivityUserComponent implements OnInit {
-  commonRequestForActivityUsers = {
-    postId: this.data.postId,
-    pgNo: 0,
-    pgSize: 20,
-  }
+  commonRequestForActivityUsers: any
   activityTyp = NsDiscussionForum.EActivityType
   activityUsersFetchRequest: {
     like: NsDiscussionForum.IActivityUsers
     upvote: NsDiscussionForum.IActivityUsers
     downvote: NsDiscussionForum.IActivityUsers
-  } = {
-      like: { ...this.commonRequestForActivityUsers, activityType: NsDiscussionForum.EActivityType.LIKE },
-      upvote: { ...this.commonRequestForActivityUsers, activityType: NsDiscussionForum.EActivityType.UPVOTE },
-      downvote: {
-        ...this.commonRequestForActivityUsers,
-        activityType: NsDiscussionForum.EActivityType.DOWNVOTE,
-      },
-    }
+  } | any
 
   activityUsersResult: {
     like: { data: NsDiscussionForum.IActivityUsersResult | null; fetchStatus: TFetchStatus }
@@ -69,6 +58,19 @@ export class DialogSocialActivityUserComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.commonRequestForActivityUsers = {
+      postId: this.data.postId,
+      pgNo: 0,
+      pgSize: 20,
+    }
+    this.activityUsersFetchRequest = {
+      like: { ...this.commonRequestForActivityUsers, activityType: NsDiscussionForum.EActivityType.LIKE },
+      upvote: { ...this.commonRequestForActivityUsers, activityType: NsDiscussionForum.EActivityType.UPVOTE },
+      downvote: {
+        ...this.commonRequestForActivityUsers,
+        activityType: NsDiscussionForum.EActivityType.DOWNVOTE,
+      },
+    }
     try {
       for (const index in TAB_INDEX_ACTIVITY_TYPE_MAPPING) {
         if (TAB_INDEX_ACTIVITY_TYPE_MAPPING[index] === this.data.activityType) {

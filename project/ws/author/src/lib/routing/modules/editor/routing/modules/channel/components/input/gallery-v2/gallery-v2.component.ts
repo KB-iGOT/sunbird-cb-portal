@@ -5,7 +5,7 @@ import { NsWidgetResolver } from '@sunbird-cb/resolver'
 
 import { WIDGET_LIBRARY } from '../../../constants/widet'
 import { FILE_MAX_SIZE } from './../../../../../../../../../constants/upload'
-import { NotificationComponent } from '../../../../../../../../../../../../app/src/lib/routes/notification/components/notification/notification.component'
+import { NotificationComponent } from '../../../../modules/shared/components/notification/notification.component'
 import { CONTENT_BASE_WEBHOST_ASSETS, AUTHORING_CONTENT_BASE } from '../../../../../../../../../constants/apiEndpoints'
 import { NOTIFICATION_TIME } from '../../../../../../../../../constants/constant'
 import { Notify } from '../../../../../../../../../constants/notificationMessage'

@@ -9,7 +9,7 @@ import { takeUntil } from 'rxjs/operators'
 import * as _ from 'lodash'
 
 import { OtpService } from '../../../user-profile/services/otp.services'
-import { UserProfileService } from '../../../user-profile/services/user-profile.service'
+import { UserProfileService } from '@sunbird-cb/collection'
 
 @Component({
     selector: 'ws-verify-otp',

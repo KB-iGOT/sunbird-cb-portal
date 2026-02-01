@@ -7,7 +7,7 @@ import { NsNetworkStripNewMultiple } from './activity-strip-multiple.model'
 @Injectable({
   providedIn: 'root',
 })
-export class ContentStripNewMultipleService {
+export class ActivityStripMultipleService {
 
   constructor(
     private http: HttpClient,

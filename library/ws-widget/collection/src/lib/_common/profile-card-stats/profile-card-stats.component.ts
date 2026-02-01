@@ -6,14 +6,14 @@ import {
 } from '@sunbird-cb/utils-v2'
 import { InfoDialogComponent } from '../info-dialog/info-dialog.component'
 import { MatDialog } from '@angular/material/dialog'
-import { HomePageService } from 'src/app/services/home-page.service'
+import { CollectionService } from '../../_services/collection.service'
 
 @Component({
-    selector: 'ws-widget-profile-card-stats',
-    templateUrl: './profile-card-stats.component.html',
-    styleUrls: ['./profile-card-stats.component.scss'],
-    providers: [PipeDurationTransformPipe],
-    standalone: false
+  selector: 'ws-widget-profile-card-stats',
+  templateUrl: './profile-card-stats.component.html',
+  styleUrls: ['./profile-card-stats.component.scss'],
+  providers: [PipeDurationTransformPipe],
+  standalone: false
 })
 export class ProfileCardStatsComponent implements OnInit {
   @Input() isLoading = false
@@ -45,7 +45,7 @@ export class ProfileCardStatsComponent implements OnInit {
     private router: Router,
     private pipDuration: PipeDurationTransformPipe,
     private langtranslations: MultilingualTranslationsService,
-    private homePageSvc: HomePageService,
+    private collectionSvc: CollectionService,
     private eventService: EventService,
     private dialog: MatDialog) { }
 
@@ -79,7 +79,7 @@ export class ProfileCardStatsComponent implements OnInit {
       this.showrepublicBanner = false
     }, ((1000 * timeInterval) + pDelayTime))
 
-    this.homePageSvc.getLearnerLeaderboard().subscribe((res: any) => {
+    this.collectionSvc.getLearnerLeaderboard().subscribe((res: any) => {
       if (res && res.result && res.result.result) {
         this.currentUserRank = res.result.result.find((rankDetails: any) => rankDetails.userId === this.currentUserId)
       }
@@ -176,7 +176,7 @@ export class ProfileCardStatsComponent implements OnInit {
   }
   async getEventEnrollData(): Promise<void> {
     try {
-      const res: any = await this.homePageSvc.geteventsHoursData().toPromise()
+      const res: any = await this.collectionSvc.geteventsHoursData().toPromise()
       const resdata = res?.result?.userEventEnrolmentInfo || {}
       this.eventcountdata = {
         certificate: resdata.eventsAttended ?? 0,

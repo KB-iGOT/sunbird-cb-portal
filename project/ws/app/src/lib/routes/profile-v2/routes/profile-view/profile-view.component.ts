@@ -19,7 +19,7 @@ import { PipeCertificateImageURL } from '@sunbird-cb/utils-v2'
 import { IMAGE_MAX_SIZE, PROFILE_IMAGE_SUPPORT_TYPES } from '@ws/author'
 import { Notify } from '@ws/author'
 import { NOTIFICATION_TIME } from '@ws/author'
-import { UserProfileService } from '../../../user-profile/services/user-profile.service'
+import { UserProfileService } from '@sunbird-cb/collection'
 import { OtpService } from '../../../user-profile/services/otp.services'
 
 import { NSProfileDataV2 } from '../../models/profile-v2.model'
@@ -29,13 +29,13 @@ import { TransferRequestComponent } from '../../components/transfer-request/tran
 import { WithdrawRequestComponent } from '../../components/withdraw-request/withdraw-request.component'
 import { NotificationComponent } from '@ws/author'
 import { DesignationRequestComponent } from '../../components/designation-request/designation-request.component'
-import { HomePageService } from 'src/app/services/home-page.service'
+import { HomePageService } from '@ws/app'
 import { RejectionReasonPopupComponent } from '../../components/rejection-reason-popup/rejection-reason-popup.component'
 import { ConfirmDialogComponent } from '@sunbird-cb/collection'
 import { ProfileV2Service } from '../../services/profile-v2.servive'
 import { environment } from 'src/environments/environment'
-import { NetCoreService } from '../../../../../../../../../src/app/services/netcore.service'
-import { SignupService } from 'src/app/routes/public/public-signup/signup.service'
+import { NetCoreService } from '@ws/app'
+import { SignupService } from '@ws/app'
 
 export const MY_FORMATS = {
   parse: {

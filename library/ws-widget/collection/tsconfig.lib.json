@@ -4,11 +4,36 @@
     "outDir": "../../../out-tsc/lib",
     "target": "es2022",
     "module": "es2022",
+    "moduleResolution": "node",
     "declaration": true,
     "declarationMap": true,
-    "sourceMap": true,          // <-- ADD THIS
+    "sourceMap": true,
     "inlineSources": true,
-    "types": []
+    "types": [],
+    "paths": {
+      "@ws/app": ["../../../project/ws/app"],
+      "@ws/app/*": ["../../../project/ws/app/*"],
+      "@ws/author": ["../../../project/ws/author"],
+      "@ws/author/*": ["../../../project/ws/author/*"],
+      "@sunbird-cb/resolver": [
+        "library/ws-widget/resolver/src/public-api.ts"
+      ],
+      "@sunbird-cb/resolver/*": [
+        "library/ws-widget/resolver/src/*"
+      ],
+      "@sunbird-cb/collection": [
+        "library/ws-widget/collection/src/public-api.ts"
+      ],
+      "@sunbird-cb/collection/*": [
+        "library/ws-widget/collection/src/*"
+      ],
+      "@sunbird-cb/utils-v2": [
+        "../../utils-v2/src/public-api.ts"
+      ],
+      "@sunbird-cb/utils-v2/*": [
+        "../../utils-v2/src/*"
+      ]
+    }
   },
   "angularCompilerOptions": {
     "compilationMode": "full",

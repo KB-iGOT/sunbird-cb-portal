@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/co
 import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms'
 import { Subscription } from 'rxjs'
 import { MatSnackBar } from '@angular/material/snack-bar'
-import { SignupService } from './signup.service'
+import { SignupService } from '@ws/app'
 
 @Component({
     selector: 'ws-signup',

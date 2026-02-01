@@ -9,7 +9,7 @@ import { NOTIFICATION_TIME } from '../../../../../../../../../constants/constant
 import { Notify } from '../../../../../../../../../constants/notificationMessage'
 import { LoaderService } from '../../../../../../../../../services/loader.service'
 import { UploadService } from '../../../../../../shared/services/upload.service'
-import { NotificationComponent } from '../../../../../../../../../../../../../../src/app/home/home/notification/notification.component'
+import { NotificationComponent } from '../../../../modules/shared/components/notification/notification.component'
 import { FILE_MAX_SIZE } from '../../../../../../../../../constants/upload'
 
 @Component({

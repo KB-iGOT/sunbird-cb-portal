@@ -32,24 +32,21 @@ import { ConfirmationDialogComponent, ContentLanguageService, TOCMultiLingualDia
 import { NsAppToc } from '../../models/app-toc.model'
 import { AppTocService } from '../../services/app-toc.service'
 import { AccessControlService } from '@ws/author'
-import { MobileAppsService } from 'src/app/services/mobile-apps.service'
-import { HandleClaimService } from '@sunbird-cb/collection'
-import { ActionService } from '../../services/action.service'
+import { MobileAppsService } from '@ws/app'
+import { HandleClaimService, ActionService, LoadCheckService, ResetRatingsService } from '@sunbird-cb/collection'
 import { RatingService } from '../../../../../../../../../library/ws-widget/collection/src/lib/_services/rating.service'
 import { ViewerUtilService } from '@ws/viewer'
-import { LoadCheckService } from '../../services/load-check.service'
-import { ResetRatingsService } from '../../services/reset-ratings.service'
 
 import { AppTocDialogIntroVideoComponent } from '../app-toc-dialog-intro-video/app-toc-dialog-intro-video.component'
 import { ContentRatingV2DialogComponent } from '@sunbird-cb/collection'
 import { NsCardContent } from '@sunbird-cb/collection'
 import { environment } from 'src/environments/environment'
-import { TimerService } from '../../services/timer.service'
+import { TimerService } from '@sunbird-cb/collection'
 import { MatDialog } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { MatSnackBar as MatSnackbarNew } from '@angular/material/snack-bar'
 import { NonReleventFeedbackDialogComponent } from '../../../../../../../../../library/ws-widget/collection/src/lib/_common/non-relevent-feedback-dialog/non-relevent-feedback-dialog.component'
-import { NetCoreService } from '../../../../../../../../../src/app/services/netcore.service'
+import { NetCoreService } from '@ws/app'
 import { EnrollLanguageDialogueComponent } from '../enroll-language-dialogue/enroll-language-dialogue.component'
 import { CompletionSurveyFormComponent } from '../completion-survey-form/completion-survey-form.component'
 import { PublicSurveyFormComponent } from '../public-survey-form/public-survey-form.component'
@@ -310,7 +307,7 @@ export class AppTocHomeV2Component implements OnInit, OnDestroy, AfterViewChecke
       this.translate.use(lang)
     }
 
-    this.loadCheckService.childComponentLoaded$.subscribe(_isLoaded => {
+    this.loadCheckService.childComponentLoaded$.subscribe((_isLoaded: boolean) => {
       // Present in app-toc-about.component
       if (document.getElementById('ratingsDiv')) {
         setTimeout(() => {

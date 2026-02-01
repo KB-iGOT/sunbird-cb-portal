@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http'
 import { NsUser, ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
-import { IUserProfileDetailsFromRegistry } from '../../user-profile/models/user-profile.model'
+import { IUserProfileDetails, ILanguagesApiData, INationalityApiData, ICountryApiData, IUserProfileDetailsFromRegistry, IProfileMetaApiData } from '@sunbird-cb/collection'
 // tslint:disable
 import _ from 'lodash'
 // tslint:enable

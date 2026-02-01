@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core'
 import { RouterModule, Routes } from '@angular/router'
 import { PageResolve } from '@sunbird-cb/utils-v2'
-import { GeneralGuard } from '../../../../../../../src/app/guards/general.guard'
+import { GeneralGuard } from '@ws/app'
 // import { AppTocCohortsComponent } from './components/app-toc-cohorts/app-toc-cohorts.component'
 import { AppTocDiscussionComponent } from './components/app-toc-discussion/app-toc-discussion.component'
 import { KnowledgeArtifactDetailsComponent } from './components/knowledge-artifact-details/knowledge-artifact-details.component'
@@ -16,7 +16,7 @@ import { AppTocCiosResolverService } from './resolvers/app-toc-cios-resolver.ser
 import { AppTocCiosUserEnrollResolverService } from './resolvers/app-toc-cios-user-enroll-resolver.service'
 import { AppTocContentReadResolverService } from './resolvers/app-toc-content-read-resolver.service'
 import { AppTocHomeV2Component } from './components/app-toc-home-v2/app-toc-home-v2.component'
-import { FormDataResolverService } from '../../../../../../../src/app/services/form-data-resolver.service'
+import { FormDataResolverService } from '@ws/app'
 
 const routes: Routes = [
   {

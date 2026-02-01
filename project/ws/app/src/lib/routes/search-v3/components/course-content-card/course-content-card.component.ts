@@ -16,7 +16,7 @@ import {
 } from '@sunbird-cb/utils-v2'
 import { MatDialog } from '@angular/material/dialog'
 import { CertificateDialogComponent } from '@sunbird-cb/collection'
-import { CertificateService } from '../../../certificate/services/certificate.service'
+import { CertificateService } from '@sunbird-cb/collection'
 import { Router } from '@angular/router'
 import { WidgetContentLibService } from '@sunbird-cb/consumption'
 import * as _ from 'lodash'

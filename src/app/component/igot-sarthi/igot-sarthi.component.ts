@@ -1,7 +1,7 @@
 import { AfterViewChecked, AfterViewInit, Component, ElementRef, EventEmitter, Input, OnDestroy, OnInit, Output, Renderer2, ViewChild } from '@angular/core'
 import { Router, NavigationEnd } from '@angular/router'
 import { ConfigurationsService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
-import { RootService } from '../../component/root/root.service'
+import { RootService } from '@ws/app'
 import { environment } from '../../../environments/environment'
 import { NonReleventFeedbackDialogComponent } from '@sunbird-cb/collection'
 import { MatDialog } from '@angular/material/dialog'

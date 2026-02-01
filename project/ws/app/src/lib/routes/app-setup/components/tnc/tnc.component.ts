@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy } from '@angular/core'
-import { NsTnc } from '../../../../../../../../../src/app/models/tnc.model'
+import { NsTnc } from '@ws/app'
 import { Subscription } from 'rxjs'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import {
@@ -13,8 +13,8 @@ import {
   ConfigurationsService,
   NsPage,
 } from '@sunbird-cb/utils-v2'
-import { TncAppResolverService } from '../../../../../../../../../src/app/services/tnc-app-resolver.service'
-import { TncPublicResolverService } from '../../../../../../../../../src/app/services/tnc-public-resolver.service'
+import { TncAppResolverService } from '@ws/app'
+import { TncPublicResolverService } from '@ws/app'
 import { Globals } from '../../globals'
 
 @Component({

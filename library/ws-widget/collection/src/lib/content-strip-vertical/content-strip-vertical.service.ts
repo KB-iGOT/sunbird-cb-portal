@@ -27,4 +27,19 @@ export class ContentStripVerticalService {
     url += stringifiedQueryParams ? `?${stringifiedQueryParams}` : ''
     return this.http.get<NsContentStripVertical.IContentStripResponseApi>(url)
   }
+
+  transformSearchV6Filters(v6filters: any[]) {
+    const filters: any = {}
+    v6filters.forEach((f => {
+      if (f.andFilters) {
+        f.andFilters.forEach((andFilter: any) => {
+          Object.keys(andFilter).forEach(key => {
+            filters[key] = andFilter[key]
+          })
+
+        })
+      }
+    }))
+    return filters
+  }
 }

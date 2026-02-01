@@ -13,8 +13,8 @@ import {
   videoJsInitializer,
 } from '../_services/videojs-util'
 import { WidgetContentService } from '../_services/widget-content.service'
-import { ViewerUtilService } from '@ws/viewer'
-import { AppTocService } from '@ws/app'
+import { ViewerUtilService } from '../_services/viewer-util.service'
+import { AppTocService } from '../_services/app-toc.service'
 import { Subscription } from 'rxjs'
 import 'videojs-hls-quality-selector'
 const videoJsOptions: videoJs.PlayerOptions = {

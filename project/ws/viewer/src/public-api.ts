@@ -2,10 +2,8 @@
  * Public API Surface of viewer
  */
 export * from './lib/viewer.module'
-export * from './lib/viewer-data.service'
 export * from './lib/components/ai-tutor/ai-tutor.component'
 export * from './lib/viewer-util.service'
-export * from './lib/viewer-data.service'
 export * from './lib/viewer.resolve'
 export * from './lib/route-view-container/pdf/pdf.module'
 export * from './lib/route-view-container/audio-native/audio-native.module'

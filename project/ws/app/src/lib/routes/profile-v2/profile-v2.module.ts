@@ -12,7 +12,7 @@ import { MatExpansionModule } from '@angular/material/expansion'
 import { MatDividerModule } from '@angular/material/divider'
 import { SkeletonLoaderModule } from '@sunbird-cb/collection'
 
-import { HttpLoaderFactory } from 'src/app/app.module'
+import { HttpLoaderFactory } from '@ws/app'
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
 import { PipeFilterModule, PipeHtmlTagRemovalModule, PipeOrderByModule, PipeRelativeTimeModule, PipeCertificateImageURL } from '@sunbird-cb/utils-v2'
 import { AvatarPhotoModule, BtnPageBackModule } from '@sunbird-cb/collection'
@@ -160,7 +160,7 @@ import { ViewCustomFieldsComponent } from './routes/view-custom-fields/view-cust
         SearchV3Module,
         CommunitySuggestionsModule,
         DialogComponentsModule,
-        TranslateModule.forRoot({
+        TranslateModule.forChild({
             loader: {
                 provide: TranslateLoader,
                 useFactory: HttpLoaderFactory,

@@ -10,7 +10,7 @@ import { ImageResponsiveModule, PipeFilterV2Module, PipeOrderByModule } from '@s
 import { BtnPageBackModule } from '@sunbird-cb/collection'
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core'
 import { HttpClient } from '@angular/common/http'
-import { HttpLoaderFactory } from 'src/app/app.module'
+import { HttpLoaderFactory } from '@ws/app'
 import { KarmaProgramDataService } from './service/karma-program-data.service'
 import { KarmaProgramsComponent } from './karma-programs/karma-programs.component'
 import { KarmaProgramsMicrositeV2Component } from './karma-programs-microsite-v2/karma-programs-microsite-v2.component'
@@ -47,7 +47,7 @@ import { MatSidenavModule } from '@angular/material/sidenav'
     MatMenuModule,
     MatButtonModule,
     ImageResponsiveModule,
-    TranslateModule.forRoot({
+    TranslateModule.forChild({
       loader: {
         provide: TranslateLoader,
         useFactory: HttpLoaderFactory,

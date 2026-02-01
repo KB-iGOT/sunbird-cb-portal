@@ -8,20 +8,21 @@ import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 
 import { IWidgetErrorNotFound } from './error-not-found.model'
 @Component({
-    selector: 'ws-widget-error-not-found',
-    templateUrl: './error-not-found.component.html',
-    styleUrls: ['./error-not-found.component.scss'],
-    standalone: false
+  selector: 'ws-widget-error-not-found',
+  templateUrl: './error-not-found.component.html',
+  styleUrls: ['./error-not-found.component.scss'],
+  standalone: false
 })
 export class ErrorNotFoundComponent implements OnInit, OnDestroy {
   @Input() errorData: IWidgetErrorNotFound | null = null
-  isDarkMode: boolean = this.configurationSvc.isDarkMode
+  isDarkMode = false
 
   private routeChangeSubs: Subscription | null = null
   private prefChangeSubs: Subscription | null = null
-  constructor(private route: ActivatedRoute, private configurationSvc: ConfigurationsService) {}
+  constructor(private route: ActivatedRoute, private configurationSvc: ConfigurationsService) { }
 
   ngOnInit() {
+    this.isDarkMode = this.configurationSvc.isDarkMode
     if (!this.errorData) {
       this.routeChangeSubs = this.route.data.subscribe(response => {
         if (response.pageData.data) {

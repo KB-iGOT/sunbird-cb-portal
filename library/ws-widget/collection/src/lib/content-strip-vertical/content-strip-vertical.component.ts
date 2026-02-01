@@ -12,7 +12,7 @@ import {
 } from '@sunbird-cb/utils-v2'
 import { Subscription } from 'rxjs'
 import { filter } from 'rxjs/operators'
-import { SearchServService } from '@ws/app'
+// import { SearchServService } from '@ws/app'
 import { NsContentStripVertical } from './content-strip-vertical.model'
 
 interface IStripUnitContentData {
@@ -70,7 +70,7 @@ export class ContentStripVerticalComponent extends WidgetBaseComponent
     private eventSvc: EventService,
     private configSvc: ConfigurationsService,
     protected utilitySvc: UtilityService,
-    private searchServSvc: SearchServService,
+    // private searchServSvc: SearchServService,
   ) {
     super()
   }
@@ -244,7 +244,7 @@ export class ContentStripVerticalComponent extends WidgetBaseComponent
                 f:
                   strip.request && strip.request.searchV6 && strip.request.searchV6.filters
                     ? JSON.stringify(
-                      this.searchServSvc.transformSearchV6Filters(
+                      this.contentStripSvc.transformSearchV6Filters(
                         strip.request.searchV6.filters,
                       ),
                     )

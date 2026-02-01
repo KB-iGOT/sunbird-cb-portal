@@ -11,14 +11,14 @@ import { HtmlModule } from './routes/html/html.module'
 import { PdfComponent } from './routes/pdf/pdf.component'
 import { PdfModule } from './routes/pdf/pdf.module'
 // import { PracticeTestComponent } from './routes/practice-test/practice-test.component'
-import { PracticeTestModule } from './routes/practice-test/practice-test.module'
+// import { PracticeTestModule } from './routes/practice-test/practice-test.module' // Temporarily commented to test
 import { ChannelComponent } from './routes/channel/channel.component'
 import { ChannelModule } from './routes/channel/channel.module'
 import { VideoComponent } from './routes/video/video.component'
 import { VideoModule } from './routes/video/video.module'
 import { YoutubeComponent } from './routes/youtube/youtube.component'
 import { YoutubeModule } from './routes/youtube/youtube.module'
-import { SurveyModule } from './routes/survey/survey.module'
+// import { SurveyModule } from './routes/survey/survey.module' // Removed - lazy-loaded via loadChildren
 import { HtmlMobileComponent } from './routes/html-mobile/html-mobile.component'
 import { HtmlMobileModule } from './routes/html-mobile/html-mobile.module'
 // import { ConfigurationsService } from './resolvers/config-resolver.service'
@@ -392,8 +392,8 @@ const routes: Routes = [
     HtmlModule,
     HtmlMobileModule,
     PdfModule,
-    SurveyModule,
-    PracticeTestModule,
+    // SurveyModule, // Removed - this module is lazy-loaded via loadChildren
+    // PracticeTestModule, // Temporarily commented to test
     VideoModule,
     YoutubeModule,
     ChannelModule,

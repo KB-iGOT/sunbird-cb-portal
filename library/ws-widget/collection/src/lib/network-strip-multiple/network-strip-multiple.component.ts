@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, OnDestroy, HostBinding } from '@angular/core'
 import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
 import { NsNetworkStripNewMultiple } from './network-strip-multiple.model'
-import { ContentStripNewMultipleService } from './network-strip-multiple.service'
+import { NetworkStripMultipleService } from './network-strip-multiple.service'
 import { WidgetContentService } from '../_services/widget-content.service'
 import {
   TFetchStatus,
@@ -65,7 +65,7 @@ export class NetworkStripMultipleComponent extends WidgetBaseComponent
   changeEventSubscription: Subscription | null = null
 
   constructor(
-    private contentStripSvc: ContentStripNewMultipleService,
+    private contentStripSvc: NetworkStripMultipleService,
     private contentSvc: WidgetContentService,
     private loggerSvc: LoggerService,
     // private eventSvc: EventService,

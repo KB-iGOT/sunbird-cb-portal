@@ -10,13 +10,14 @@ import { ChallengeModule } from '../challenge/challenge.module'
 import { RouterModule } from '@angular/router'
 import { HttpClient } from '@angular/common/http'
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core'
-import { HttpLoaderFactory } from 'src/app/app.module'
+import { HttpLoaderFactory } from '../collection-utils'
 import { MatButtonModule } from '@angular/material/button'
 import { MatCardModule } from '@angular/material/card'
 import { MatChipsModule } from '@angular/material/chips'
 import { MatDividerModule } from '@angular/material/divider'
 import { MatExpansionModule } from '@angular/material/expansion'
 import { MatIconModule } from '@angular/material/icon'
+import { PipeRelativeTimeModule } from '@sunbird-cb/utils-v2'
 
 @NgModule({
     declarations: [CardLearnComponent],
@@ -34,7 +35,8 @@ import { MatIconModule } from '@angular/material/icon'
         TourModule,
         ChallengeModule,
         RouterModule,
-        TranslateModule.forRoot({
+        PipeRelativeTimeModule,
+        TranslateModule.forChild({
             loader: {
                 provide: TranslateLoader,
                 useFactory: HttpLoaderFactory,

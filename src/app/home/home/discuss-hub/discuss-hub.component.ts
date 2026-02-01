@@ -2,8 +2,8 @@
 import { Component, OnInit, Input } from '@angular/core'
 import { HttpErrorResponse } from '@angular/common/http'
 import { ConfigurationsService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
-import { HomePageService } from 'src/app/services/home-page.service'
-import { DiscussUtilsService } from '@ws/app'
+import { HomePageService } from '@ws/app'
+import { DiscussUtilsService } from '@sunbird-cb/collection'
 import { Router } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
 @Component({

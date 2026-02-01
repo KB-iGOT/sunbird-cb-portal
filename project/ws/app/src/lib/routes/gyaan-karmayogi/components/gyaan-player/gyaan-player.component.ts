@@ -4,7 +4,7 @@ import { ActivatedRoute, NavigationEnd, Router } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
 import { VIEWER_ROUTE_FROM_MIME } from '@sunbird-cb/collection'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
-import { ViewerDataService } from '@ws/viewer'
+import { ViewerDataService } from '@sunbird-cb/collection'
 import _ from 'lodash'
 
 @Component({

@@ -19,7 +19,7 @@ import { CertificateDialogComponent } from './../../../../../../../../../library
 // import { WidgetContentLibService } from '@sunbird-cb/consumption'
 import { NsContentStripWithTabs } from '@sunbird-cb/collection'
 import { NsContent } from '@sunbird-cb/collection'
-import { NetCoreService } from '../../../../../../../../../src/app/services/netcore.service'
+import { NetCoreService } from '@ws/app'
 import { switchMap } from 'rxjs/operators'
 import { of } from 'rxjs'
 /* tslint:enable */

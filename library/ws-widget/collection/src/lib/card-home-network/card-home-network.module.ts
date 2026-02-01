@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core'
 import { CardHomeNetworkComponent } from './card-home-network.component'
-import { BrowserModule } from '@angular/platform-browser'
+import { CommonModule } from '@angular/common'
 import { AvatarPhotoModule } from '../_common/avatar-photo/avatar-photo.module'
 import { MatButtonModule } from '@angular/material/button'
 import { MatCardModule } from '@angular/material/card'
@@ -12,7 +12,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'
 
 @NgModule({
     declarations: [CardHomeNetworkComponent],
-    imports: [BrowserModule, MatButtonModule, MatCardModule, MatChipsModule, MatDividerModule,
+    imports: [CommonModule, MatButtonModule, MatCardModule, MatChipsModule, MatDividerModule,
         MatExpansionModule, MatIconModule, MatProgressSpinnerModule, AvatarPhotoModule]
 })
 export class CardHomeNetworkModule {

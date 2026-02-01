@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing'
 
-import { TncPublicResolverService } from './tnc-public-resolver.service'
+import { TncPublicResolverService } from '@ws/app'
 
 describe('TncPublicResolverService', () => {
   beforeEach(() => TestBed.configureTestingModule({}))

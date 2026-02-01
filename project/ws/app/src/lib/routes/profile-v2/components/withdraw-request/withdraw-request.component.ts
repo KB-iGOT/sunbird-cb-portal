@@ -5,7 +5,7 @@ import { MatSnackBar } from '@angular/material/snack-bar'
 import { Subject } from 'rxjs'
 import { takeUntil } from 'rxjs/operators'
 
-import { UserProfileService } from '../../../user-profile/services/user-profile.service'
+import { UserProfileService } from '@sunbird-cb/collection'
 import { HttpErrorResponse } from '@angular/common/http'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 

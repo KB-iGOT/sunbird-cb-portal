@@ -23,7 +23,7 @@ import { SkeletonLoaderModule } from '../_common/skeleton-loader/skeleton-loader
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'
 import { HttpClient } from '@angular/common/http'
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core'
-import { HttpLoaderFactory } from 'src/app/app.module'
+import { HttpLoaderFactory } from '../collection-utils'
 import { MatButtonModule } from '@angular/material/button'
 import { MatCardModule } from '@angular/material/card'
 import { MatChipsModule } from '@angular/material/chips'
@@ -72,7 +72,7 @@ import { TOCMultiLingualDialogModule, CardsModule } from '@sunbird-cb/consumptio
         MatProgressSpinnerModule,
         TOCMultiLingualDialogModule,
         CardsModule,
-        TranslateModule.forRoot({
+        TranslateModule.forChild({
             loader: {
                 provide: TranslateLoader,
                 useFactory: HttpLoaderFactory,

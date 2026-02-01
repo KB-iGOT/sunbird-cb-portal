@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core'
 import { CardDiscussComponent } from './card-discuss.component'
 
-import { BrowserModule } from '@angular/platform-browser'
+import { CommonModule } from '@angular/common'
 import { MatButtonModule } from '@angular/material/button'
 import { MatCardModule } from '@angular/material/card'
 import { MatChipsModule } from '@angular/material/chips'
@@ -15,7 +15,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'
         CardDiscussComponent,
         // DiscussCardComponent
     ],
-    imports: [BrowserModule, MatButtonModule, MatCardModule, MatChipsModule, MatDividerModule,
+    imports: [CommonModule, MatButtonModule, MatCardModule, MatChipsModule, MatDividerModule,
         MatExpansionModule, MatIconModule, MatProgressSpinnerModule]
 })
 export class CardDiscussModule {

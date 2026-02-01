@@ -19,7 +19,7 @@ import { ROOT_WIDGET_CONFIG } from '../collection.config'
 import { NsContent } from '../_services/widget-content.model'
 import { WidgetContentService } from '../_services/widget-content.service'
 import { IWidgetsPlayerPdfData } from './player-pdf.model'
-import { ViewerUtilService } from '@ws/viewer'
+import { ViewerUtilService } from '../_services/viewer-util.service'
 
 let pdfjsViewer: any
 

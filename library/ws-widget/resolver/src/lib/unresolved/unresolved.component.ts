@@ -1,11 +1,11 @@
 import { Component, OnInit, Input } from '@angular/core'
-import { NsWidgetResolver } from '@sunbird-cb/resolver'
+import { NsWidgetResolver } from '../widget-resolver.model'
 import { WidgetBaseComponent } from '../widget-base.component'
 @Component({
-    selector: 'ws-resolver-unresolved',
-    templateUrl: './unresolved.component.html',
-    styleUrls: ['./unresolved.component.scss'],
-    standalone: false
+  selector: 'ws-resolver-unresolved',
+  templateUrl: './unresolved.component.html',
+  styleUrls: ['./unresolved.component.scss'],
+  standalone: false
 })
 export class UnresolvedComponent extends WidgetBaseComponent
   implements OnInit, NsWidgetResolver.IWidgetData<any> {

@@ -5,10 +5,10 @@ import { Router } from '@angular/router'
 import { WidgetContentService } from '../../_services/widget-content.service'
 
 @Component({
-    selector: 'ws-widget-player-brief',
-    templateUrl: './player-brief.component.html',
-    styleUrls: ['./player-brief.component.scss'],
-    standalone: false
+  selector: 'ws-widget-player-brief',
+  templateUrl: './player-brief.component.html',
+  styleUrls: ['./player-brief.component.scss'],
+  standalone: false
 })
 export class PlayerBriefComponent implements OnInit {
   @Input()
@@ -23,6 +23,7 @@ export class PlayerBriefComponent implements OnInit {
   forPreview = false
   @Input()
   askAuthorEnabled = false
+  contentTypes = NsContent.EContentTypes
   tocConfig: any = null
 
   showMoreGlance = false

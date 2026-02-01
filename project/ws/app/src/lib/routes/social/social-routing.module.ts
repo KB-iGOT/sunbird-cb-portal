@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core'
 import { RouterModule, Routes } from '@angular/router'
-import { GeneralGuard } from '../../../../../../../src/app/guards/general.guard'
+import { GeneralGuard } from '@ws/app'
 import { PostFetchResolverService } from './resolvers/post-fetch-resolver.service'
 import { SocialTimelineResolverService } from './resolvers/social-timeline-resolver.service'
 import { BlogEditComponent } from './routes/blogs/blogs-edit/components/blog-edit.component'

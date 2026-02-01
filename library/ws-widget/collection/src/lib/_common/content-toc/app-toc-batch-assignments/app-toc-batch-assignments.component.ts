@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { ActivatedRoute, Router } from '@angular/router'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
-import { AppTocService } from '@ws/app'
+import { AppTocService } from '../../../_services/app-toc.service'
 import { ConfirmationDialogComponent } from '@sunbird-cb/consumption'
 import * as _ from 'lodash'
 import { AssignmentViewerV2Component } from '../app-toc-assignment-viewerV2/app-toc-assignment-viewerV2.component'
@@ -56,7 +56,7 @@ export class AppTocBatchAssignmentsComponent implements OnInit {
         this.submissions = _.get(response, 'result.response.content', [])
         console.log('submissions', this.submissions)
         this.processAssignmentsWithStatus()
-      }, error => {
+      }, (error: any) => {
         console.error('Error fetching assignment status', error)
       })
     }
@@ -94,7 +94,7 @@ export class AppTocBatchAssignmentsComponent implements OnInit {
         submissionMeta: {}
       }))
       this.getUserAssignmentStatus()
-    }, error => {
+    }, (error: any) => {
       console.error('Error fetching assignments', error)
     })
   }

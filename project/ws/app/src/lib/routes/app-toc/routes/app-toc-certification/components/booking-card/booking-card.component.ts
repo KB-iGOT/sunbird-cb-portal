@@ -17,10 +17,10 @@ import { MatDialog } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
 
 @Component({
-    selector: 'ws-app-toc-certification-booking-card',
-    templateUrl: './booking-card.component.html',
-    styleUrls: ['./booking-card.component.scss'],
-    standalone: false
+  selector: 'ws-app-toc-certification-booking-card',
+  templateUrl: './booking-card.component.html',
+  styleUrls: ['./booking-card.component.scss'],
+  standalone: false
 })
 export class BookingCardComponent implements OnDestroy {
   @Input() certification!: ICertificationMeta
@@ -45,7 +45,7 @@ export class BookingCardComponent implements OnDestroy {
   }
 
   ngOnDestroy() {
-    this.subscriptionSubject$.next()
+    this.subscriptionSubject$.next(undefined)
     this.subscriptionSubject$.complete()
   }
 

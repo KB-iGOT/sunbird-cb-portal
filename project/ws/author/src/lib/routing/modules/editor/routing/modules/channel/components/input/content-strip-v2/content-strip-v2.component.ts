@@ -11,7 +11,7 @@ import {
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { Observable, of } from 'rxjs'
 import { debounceTime, distinctUntilChanged, startWith, switchMap } from 'rxjs/operators'
-import { InterestService } from './../../../../../../../../../../../../app/src/lib/routes/profile/routes/interest/services/interest.service'
+import { InterestService } from '../../../../../../../../../services/interest.service'
 import { SEARCHV6 } from './content-strip-v2.constant'
 import { MatChipInputEvent } from '@angular/material/chips'
 import { MatDialog } from '@angular/material/dialog'

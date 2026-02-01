@@ -9,10 +9,10 @@ import { TranslateService } from '@ngx-translate/core'
 import { Router } from '@angular/router'
 
 @Component({
-    selector: 'ws-widget-event-card-v2',
-    templateUrl: './event-card-v2.component.html',
-    styleUrls: ['./event-card-v2.component.scss'],
-    standalone: false
+  selector: 'ws-widget-event-card-v2',
+  templateUrl: './event-card-v2.component.html',
+  styleUrls: ['./event-card-v2.component.scss'],
+  standalone: false
 })
 export class EventCardV2Component extends WidgetBaseComponent
   implements OnInit, NsWidgetResolver.IWidgetData<NsCardContent.ICard> {
@@ -26,6 +26,8 @@ export class EventCardV2Component extends WidgetBaseComponent
   defaultThumbnail = ''
   defaultSLogo = ''
   event: any
+  isCardFlipped = false
+
 
   sourceLogos: NsInstanceConfig.ISourceLogo[] | undefined
 
@@ -64,9 +66,9 @@ export class EventCardV2Component extends WidgetBaseComponent
   }
 
   getTime(minutes: number): string {
-    const hours = Math.floor(minutes / 60);
-    const remainingMinutes = minutes % 60;
-    return `${hours}hr ${remainingMinutes}mins`;
+    const hours = Math.floor(minutes / 60)
+    const remainingMinutes = minutes % 60
+    return `${hours}hr ${remainingMinutes}mins`
   }
 
   getStartDate(startDate: any, startTime: any) {
@@ -87,7 +89,7 @@ export class EventCardV2Component extends WidgetBaseComponent
         id: `${_.camelCase(this.widgetData.content.primaryCategory)}-card`,
       },
       {
-        id: this.widgetData.content.identifier,
+        id: this.widgetData.content.primaryCategory,
         type: this.widgetData.content.primaryCategory,
         //context: this.widgetData.context,
         rollup: {},

@@ -1,14 +1,14 @@
-<mat-chip-list *ngIf="widgetData?.showChips" class="mb-4 block">
+<mat-chip-set *ngIf="widgetData?.showChips" class="mb-4 block">
   <!-- <mat-chip *ngFor="let chipId of selectedContentIds" [value]="chipId" [removable]="true"
     (removed)="selectedContentChanged(chipId, false)">
     {{ widgetData.chipNamesHash[chipId] }}
     <mat-icon matChipRemove>cancel</mat-icon>
   </mat-chip> -->
-</mat-chip-list>
+</mat-chip-set>
 <div class="flex">
-  <mat-form-field class="width-expand margin-right-m" appearance="fill" floatLabel="never">
+  <mat-form-field class="width-expand margin-right-m" appearance="fill" floatLabel="auto">
     <mat-icon matSuffix>dashboard</mat-icon>
-    <mat-label >Search content</mat-label>
+    <mat-label>Search content</mat-label>
     <input name="content-search-input" matInput [(ngModel)]="query" (ngModelChange)="debounceSubject.next(true)"
       autocomplete="off" class="resize-none" required />
   </mat-form-field>
@@ -20,27 +20,27 @@
     <mat-menu #filterMenu="matMenu" xPosition="before">
       <div mat-menu-item *ngIf="(dataType === 'authoring' && selectionType !== 'radio') || content === 'resource'">
         <mat-checkbox name="resource-checkbox" [checked]="selectedContentTypes.includes(appContentTypes.RESOURCE)"
-          (change)="filterChanged(appContentTypes.RESOURCE, $event.checked)" >Resource</mat-checkbox>
+          (change)="filterChanged(appContentTypes.RESOURCE, $event.checked)">Resource</mat-checkbox>
       </div>
       <div *ngIf="searchableContentTypes.includes(appContentTypes.MODULE)" mat-menu-item>
         <mat-checkbox name="module-checkbox" [checked]="selectedContentTypes.includes(appContentTypes.MODULE)"
-          (change)="filterChanged(appContentTypes.MODULE, $event.checked)" >Module</mat-checkbox>
+          (change)="filterChanged(appContentTypes.MODULE, $event.checked)">Module</mat-checkbox>
       </div>
       <div *ngIf="searchableContentTypes.includes(appContentTypes.COURSE)" mat-menu-item>
         <mat-checkbox name="course-checkbox" [checked]="selectedContentTypes.includes(appContentTypes.COURSE)"
-          (change)="filterChanged(appContentTypes.COURSE, $event.checked)" >Course</mat-checkbox>
+          (change)="filterChanged(appContentTypes.COURSE, $event.checked)">Course</mat-checkbox>
       </div>
       <div *ngIf="searchableContentTypes.includes(appContentTypes.PROGRAM)" mat-menu-item>
         <mat-checkbox name="program-checkbox" [checked]="selectedContentTypes.includes(appContentTypes.PROGRAM)"
-          (change)="filterChanged(appContentTypes.PROGRAM, $event.checked)" >Program</mat-checkbox>
+          (change)="filterChanged(appContentTypes.PROGRAM, $event.checked)">Program</mat-checkbox>
       </div>
       <div *ngIf="dataType === 'authoring'" mat-menu-item>
         <mat-checkbox name="channel-checkbox" [checked]="selectedContentTypes.includes(appContentTypes.CHANNEL)"
-          (change)="filterChanged(appContentTypes.CHANNEL, $event.checked)" >Channel</mat-checkbox>
+          (change)="filterChanged(appContentTypes.CHANNEL, $event.checked)">Channel</mat-checkbox>
       </div>
       <div *ngIf="dataType === 'authoring'" mat-menu-item>
         <mat-checkbox name="kb-checkbox" [checked]="selectedContentTypes.includes(appContentTypes.KNOWLEDGE_BOARD)"
-          (change)="filterChanged(appContentTypes.KNOWLEDGE_BOARD, $event.checked)" >Knowledge Board
+          (change)="filterChanged(appContentTypes.KNOWLEDGE_BOARD, $event.checked)">Knowledge Board
         </mat-checkbox>
       </div>
     </mat-menu>
@@ -64,10 +64,10 @@
     </mat-menu>
   </div>
 </div>
-<h2 *ngIf="searchFetchStatus === 'error'" class="mat-title" >
+<h2 *ngIf="searchFetchStatus === 'error'" class="mat-title">
   Error fetching data
 </h2>
-<h2 *ngIf="searchFetchStatus === 'done' && !searchResults?.length" class="mat-title" >
+<h2 *ngIf="searchFetchStatus === 'done' && !searchResults?.length" class="mat-title">
   No results
 </h2>
 <div class="flex flex-wrap -mr-4" *ngIf="searchFetchStatus === 'done'">
@@ -96,10 +96,10 @@
           </p>
           <p *ngIf="content?.uniqueLearners" class="margin-remove-bottom margin-left-xs margin-right-xs">
             {{ content?.uniqueLearners }}
-            <ng-container *ngIf="(content?.uniqueLearners || 0) > 1" >
+            <ng-container *ngIf="(content?.uniqueLearners || 0) > 1">
               people are studying this
             </ng-container>
-            <ng-container *ngIf="content?.uniqueLearners === 1" >
+            <ng-container *ngIf="content?.uniqueLearners === 1">
               person is studying this
             </ng-container>
           </p>

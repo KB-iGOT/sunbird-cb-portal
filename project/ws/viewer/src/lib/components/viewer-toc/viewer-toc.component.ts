@@ -1,12 +1,16 @@
 import { NestedTreeControl } from '@angular/cdk/tree'
 import { Component, EventEmitter, OnDestroy, OnInit, Output, Input } from '@angular/core'
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser'
-import { ActivatedRoute, NavigationExtras, Params } from '@angular/router'
+import { ActivatedRoute, NavigationExtras } from '@angular/router'
 import {
   // ContentProgressService,
   NsContent,
   VIEWER_ROUTE_FROM_MIME,
   WidgetContentService,
+  IViewerTocCard,
+  ICollectionCard,
+  TCollectionCardType,
+  ViewerDataService,
 } from '@sunbird-cb/collection'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { WidgetUserServiceLib } from '@sunbird-cb/consumption'
@@ -21,41 +25,9 @@ import {
 import _ from 'lodash'
 import { of, Subscription } from 'rxjs'
 import { delay } from 'rxjs/operators'
-import { ViewerDataService } from '../../viewer-data.service'
+// import { ViewerDataService } from '../../viewer-data.service'
 import { ViewerUtilService } from '../../viewer-util.service'
 import { MatTreeNestedDataSource } from '@angular/material/tree'
-export interface IViewerTocCard {
-  identifier: string
-  viewerUrl: string
-  thumbnailUrl: string
-  title: string
-  duration: number
-  type: string
-  mimeType: NsContent.EMimeTypes
-  complexity: string
-  children: null | IViewerTocCard[]
-  primaryCategory: NsContent.EPrimaryCategory
-  collectionId: string | null
-  collectionType: string,
-  batchId: string | number,
-  viewMode: string,
-  optionalReading: boolean,
-  channelId: string
-}
-
-export type TCollectionCardType = 'content' | 'playlist' | 'goals'
-
-interface ICollectionCard {
-  type: TCollectionCardType | null
-  id: string
-  title: string
-  thumbnail: string
-  subText1: string
-  subText2: string
-  duration: number
-  redirectUrl: string | null
-  queryParams: Params
-}
 
 @Component({
   selector: 'viewer-viewer-toc',

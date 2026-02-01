@@ -18,14 +18,11 @@ import { MatTabsModule } from '@angular/material/tabs'
 import { AllNotificationsModule, LibNotificationsService } from '@sunbird-cb/notification'
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core'
 import { HttpClient } from '@angular/common/http'
-import { TranslateHttpLoader } from '@ngx-translate/http-loader'
-import { NotificationsService } from '../../../../../../../src/app/services/notifications.service'
+import { HttpLoaderFactory } from '@ws/app'
+import { NotificationsService } from '@ws/app'
 import { MatSnackBarModule } from '@angular/material/snack-bar'
 import { ConfirmDialogModule } from '@sunbird-cb/collection'
 
-export function HttpLoaderFactory() {
-  return new TranslateHttpLoader()
-}
 @NgModule({
   declarations: [HomeComponent, NotificationEventComponent, MyNotificationsComponent],
   imports: [
@@ -40,7 +37,7 @@ export function HttpLoaderFactory() {
     MatTabsModule,
     MatSnackBarModule,
     AllNotificationsModule,
-    TranslateModule.forRoot({
+    TranslateModule.forChild({
       loader: {
         provide: TranslateLoader,
         useFactory: HttpLoaderFactory,

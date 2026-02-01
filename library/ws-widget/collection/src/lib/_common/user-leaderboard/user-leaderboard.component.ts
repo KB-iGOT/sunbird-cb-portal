@@ -4,9 +4,9 @@ import {
   ConfigurationsService, MultilingualTranslationsService, PipeDurationTransformPipe
   , PipeOrdinalPipe,
 } from '@sunbird-cb/utils-v2'
-import { HomePageService } from 'src/app/services/home-page.service'
+import { CollectionService } from '../../_services/collection.service'
 import moment from 'moment'
-import { UserProfileService } from '@ws/app'
+import { UserProfileService } from '../../_services/user-profile.service'
 
 @Component({
   selector: 'ws-widget-user-leaderboard',
@@ -37,7 +37,7 @@ export class UserLeaderboardComponent implements OnInit {
   maxLength = 2
   tooltipDelay: any = 1000
   constructor(private configSvc: ConfigurationsService,
-    private homePageSvc: HomePageService,
+    private collectionSvc: CollectionService,
     private userProfileSvc: UserProfileService,
     private langtranslations: MultilingualTranslationsService,
     private ordinalPipe: PipeOrdinalPipe) { }
@@ -49,7 +49,7 @@ export class UserLeaderboardComponent implements OnInit {
     this.loader = true
     this.userInfo = this.configSvc && this.configSvc.userProfile
     this.loading = true
-    this.homePageSvc.getLearnerLeaderboard().subscribe((res: any) => {
+    this.collectionSvc.getLearnerLeaderboard().subscribe((res: any) => {
       if (res && res.result && res.result.result && res.result.result.length) {
         this.currentUserRank = res.result.result.find((rankDetails: any) => rankDetails.userId === this.currentUserId)
         this.isLeaderboardAvailable.emit(true)

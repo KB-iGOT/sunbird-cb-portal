@@ -68,7 +68,7 @@ export class ContentStripNewMultipleComponent extends WidgetBaseComponent
   searchArray = ['preview', 'channel', 'author']
   contentAvailable = true
   isFromAuthoring = false
-  baseUrl = this.configSvc.sitePath || ''
+  baseUrl = ''
 
   changeEventSubscription: Subscription | null = null
 
@@ -91,7 +91,12 @@ export class ContentStripNewMultipleComponent extends WidgetBaseComponent
     this.isFromAuthoring = this.searchArray.some((word: string) => {
       return url.indexOf(word) > -1
     })
+    this.baseUrl = this.configSvc.sitePath || ''
     this.initData()
+  }
+
+  tracker(_index: number, content: NsWidgetResolver.IRenderConfigWithAnyData) {
+    return content.widgetData.content.identifier
   }
 
   ngOnDestroy() {

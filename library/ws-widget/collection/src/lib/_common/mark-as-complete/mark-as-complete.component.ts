@@ -1,7 +1,7 @@
 import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core'
 import { MatDialog } from '@angular/material/dialog'
 import { NsContent } from '../../_services/widget-content.model'
-import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog.component'
+import { MarkAsCompleteConfirmDialogComponent } from './confirm-dialog/confirm-dialog.component'
 import { IReqMarkAsComplete } from './mark-as-complete.model'
 import { WidgetContentService } from '../../_services/widget-content.service'
 
@@ -25,7 +25,7 @@ export class MarkAsCompleteComponent implements OnInit, OnChanges {
 
   confirm(): void {
     if (!this.forPreview) {
-      const dialogRef = this.dialog.open(ConfirmDialogComponent, {
+      const dialogRef = this.dialog.open(MarkAsCompleteConfirmDialogComponent, {
         width: '450px',
         data: {
           body: this.reqBody,

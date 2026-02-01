@@ -16,9 +16,8 @@ import { KnowledgeDetailComponent } from './routes/knowledge-detail/knowledge-de
 import { PipeSafeSanitizerModule } from '@sunbird-cb/utils-v2'
 import { MatExpansionModule } from '@angular/material/expansion'
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core'
-// import { HttpLoaderFactory } from 'src/app/app.module'
+import { HttpLoaderFactory } from '@ws/app'
 import { HttpClient } from '@angular/common/http'
-import { TranslateHttpLoader } from '@ngx-translate/http-loader'
 import { MatCardModule } from '@angular/material/card'
 import { MatFormFieldModule } from '@angular/material/form-field'
 import { MatIconModule } from '@angular/material/icon'
@@ -26,10 +25,6 @@ import { MatInputModule } from '@angular/material/input'
 import { MatListModule } from '@angular/material/list'
 import { MatSidenavModule } from '@angular/material/sidenav'
 
-// tslint:disable-next-line:function-name
-export function HttpLoaderFactory() {
-  return new TranslateHttpLoader()
-}
 
 @NgModule({
   declarations: [

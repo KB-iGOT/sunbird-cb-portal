@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { DiscussionEventsService, DiscussionUiModule } from '@sunbird-cb/discussions-ui-v8'
+import { DiscussionEventsService, ComponentsModule } from '@sunbird-cb/discussions-ui-v8'
 import { TelemetryService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
 // import {TelemetryService }
 // import { ConfigService } from '../services/config.service'
@@ -9,21 +9,21 @@ import { TelemetryService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
     declarations: [],
     imports: [
         CommonModule,
-        DiscussionUiModule,
+        ComponentsModule,
     ],
-    exports: [DiscussionUiModule],
+    exports: [ComponentsModule],
 })
 export class WrapperModule {
     // processed: any
     constructor(private discussionEventsService: DiscussionEventsService,
-                private teleSvc: TelemetryService,
-                private eventsSvc: EventService,
+        private teleSvc: TelemetryService,
+        private eventsSvc: EventService,
 
     ) {
         this.discussionEventsService.telemetryEvent.subscribe(data => {
             switch (data.eid) {
                 case 'IMPRESSION':
-                   this.teleSvc.impression({ pageId: data.edata.pageid,  module: WsEvents.EnumTelemetrymodules.DISCUSS })
+                    this.teleSvc.impression({ pageId: data.edata.pageid, module: WsEvents.EnumTelemetrymodules.DISCUSS })
                     break
                 case 'INTERACT':
                     this.eventsSvc.raiseInteractTelemetry(
@@ -34,9 +34,9 @@ export class WrapperModule {
                         },
                         data.object,
                         {
-                        pageId: data.edata.pageid,
-                        module: WsEvents.EnumTelemetrymodules.DISCUSS,
-                      })
+                            pageId: data.edata.pageid,
+                            module: WsEvents.EnumTelemetrymodules.DISCUSS,
+                        })
                     break
             }
         })

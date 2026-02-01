@@ -4,8 +4,8 @@ import { Router, NavigationEnd } from '@angular/router'
 import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
 import { ConfigurationsService, MultilingualTranslationsService, NsInstanceConfig, ValueService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
 import { Subscription } from 'rxjs'
-import { DiscussUtilsService } from '@ws/app'
-import { environment } from 'src/environments/environment'
+import { DiscussUtilsService } from '../_services/discuss-utils.service'
+import { environment } from '../environment'
 // tslint:disable
 import _ from 'lodash'
 import { LibNotificationsService } from '@sunbird-cb/notification'
@@ -35,7 +35,7 @@ import { LibNotificationsService } from '@sunbird-cb/notification'
 export class CardHubsListComponent extends WidgetBaseComponent
   implements OnInit, OnDestroy, NsWidgetResolver.IWidgetData<any> {
   private defaultMenuSubscribe: Subscription | null = null
-  isLtMedium$ = this.valueSvc.isLtMedium$
+  isLtMedium$!: any
   enableFeature = true
   enablePeopleSearch = true
   @Input() widgetData: any
@@ -157,6 +157,7 @@ export class CardHubsListComponent extends WidgetBaseComponent
       this.hubsList = (instanceConfig.hubs || []).sort((a, b) => a.order - b.order)
       this.inactiveHubList = (instanceConfig.hubs || []).filter(i => !(i.active))
     }
+    this.isLtMedium$ = this.valueSvc.isLtMedium$
     this.defaultMenuSubscribe = this.isLtMedium$.subscribe((isLtMedium: boolean) => {
       this.isMobile = isLtMedium
     })
@@ -308,7 +309,7 @@ export class CardHubsListComponent extends WidgetBaseComponent
     return value
   }
 
-  translateLabels(label: string, type: any, subtype: '') {
+  translateLabels(label: string, type: any, subtype: any = '') {
     return this.langtranslations.translateLabel(label, type, subtype)
   }
   raiseTelemetry(name: any) {

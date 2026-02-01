@@ -1,14 +1,15 @@
 <section [hidden]="!createPlaylistMode">
-  <h2 class="mat-h2 margin-bottom-xs" >Enter Playlist Details</h2>
+  <h2 class="mat-h2 margin-bottom-xs">Enter Playlist Details</h2>
   <mat-form-field class="width-1-1 margin-bottom-m" appearance="fill">
-    <mat-label >Name</mat-label>
-    <mat-error >Playlist title should be 1-100 characters</mat-error>
+    <mat-label>Name</mat-label>
+    <mat-error>Playlist title should be 1-100 characters</mat-error>
     <input name="playlist-name-input-playlist-selection" type="text" matInput [formControl]="playlistNameFormControl"
       #playlistName class="width-1-1" autocomplete="off" />
   </mat-form-field>
 </section>
 <div class="playlists-collection custom-scroll" *ngIf="!createPlaylistMode">
-  <mat-selection-list *ngIf="fetchPlaylistStatus !== 'fetching'" (selectionChange)="selectionChange($event?.option)">
+  <mat-selection-list *ngIf="fetchPlaylistStatus !== 'fetching'"
+    (selectionChange)="selectionChange($any($event).options[0])">
     <mat-list-option name="playlist-name-playlist-selection" *ngFor="let playlist of playlists"
       [selected]="selectedPlaylists.has(playlist?.identifier)" [value]="playlist?.identifier" checkboxPosition="before">
       {{ playlist?.name }}
@@ -21,18 +22,18 @@
 <div class="mt-2 flex flex-row-reverse">
   <ng-container *ngIf="!createPlaylistMode">
     <button name="done-button-playlist-selection" mat-raised-button color="primary" [disabled]="isDoneDisabled()"
-      [mat-dialog-close]="true" >Done</button>
+      [mat-dialog-close]="true">Done</button>
     <button name="create-new-button-playlist-selection" mat-raised-button class="margin-right-xs" color="primary" i18n
-      (click)="createPlaylistMode = true" >Create
+      (click)="createPlaylistMode = true">Create
       New</button>
   </ng-container>
   <ng-container *ngIf="createPlaylistMode">
     <button name="create-button-playlist-selection" mat-raised-button color="primary"
       [disabled]="playlistNameFormControl.invalid" class="margin-right-xs"
-      (click)="createPlaylist(playlistName.value, playlistCreate.value, playlistCreateFail.value)" >
+      (click)="createPlaylist(playlistName.value, playlistCreate.value, playlistCreateFail.value)">
       Create
     </button>
-    <button name="cancel-button-playlist-selection" mat-button [mat-dialog-close]="true" >Cancel</button>
+    <button name="cancel-button-playlist-selection" mat-button [mat-dialog-close]="true">Cancel</button>
   </ng-container>
 </div>
 

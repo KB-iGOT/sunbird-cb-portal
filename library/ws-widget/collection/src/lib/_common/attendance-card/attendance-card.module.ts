@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common'
 import { AttendanceCardComponent } from './attendance-card.component'
 import { HttpClient } from '@angular/common/http'
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core'
-import { HttpLoaderFactory } from 'src/app/app.module'
+import { HttpLoaderFactory } from '../../collection-utils'
 import { MatButtonModule } from '@angular/material/button'
 import { MatCardModule } from '@angular/material/card'
 import { MatCheckboxModule } from '@angular/material/checkbox'
@@ -53,7 +53,7 @@ import { MatTooltipModule } from '@angular/material/tooltip'
     MatSnackBarModule,
     MatDatepickerModule,
     MatNativeDateModule,
-    TranslateModule.forRoot({
+    TranslateModule.forChild({
       loader: {
         provide: TranslateLoader,
         useFactory: HttpLoaderFactory,

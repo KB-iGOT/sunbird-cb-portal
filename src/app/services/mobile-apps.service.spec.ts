@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing'
 
-import { MobileAppsService } from './mobile-apps.service'
+import { MobileAppsService } from '@ws/app'
 
 describe('MobileAppsService', () => {
   beforeEach(() => TestBed.configureTestingModule({}))

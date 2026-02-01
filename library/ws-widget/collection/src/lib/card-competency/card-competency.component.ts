@@ -39,7 +39,7 @@ export class CardCompetencyComponent extends WidgetBaseComponent implements OnIn
   ngOnInit() {
   }
 
-  handleToggleSize(_viewMore: any): void {
+  handleToggleSize(_viewMore?: any): void {
     this.isExpanded = !this.isExpanded
   }
 }

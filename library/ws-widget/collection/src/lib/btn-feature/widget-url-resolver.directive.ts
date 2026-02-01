@@ -6,7 +6,7 @@ import { MobileAppsService } from '../_services/mobile-apps.service'
     selector: '[wsWidgetUrlResolver]',
     standalone: false
 })
-export class WidgetUrlResolverDirective {
+export class BtnFeatureWidgetUrlResolverDirective {
   constructor(
     private router: Router,
     private mobileAppsSvc: MobileAppsService,

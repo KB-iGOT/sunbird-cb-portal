@@ -1,12 +1,13 @@
 import { NgModule } from '@angular/core'
 import { RouterModule, Routes } from '@angular/router'
-import { GeneralGuard } from './guards/general.guard'
+import { GeneralGuard } from '@ws/app'
 // 💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥
 // Please declare routes in alphabetical order
 // 😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵
 
 const routes: Routes = [
 
+  { path: '', redirectTo: 'page/home', pathMatch: 'full' },
   { path: 'home', redirectTo: 'page/home', pathMatch: 'full' },
   {
     path: 'page/home',

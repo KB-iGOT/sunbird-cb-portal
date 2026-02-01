@@ -1,3 +1,26 @@
+declare namespace amp {
+  namespace Player {
+    interface Options {
+      techOrder?: string[]
+      autoplay?: boolean
+      controls?: boolean
+      poster?: string
+      logo?: { enabled: boolean }
+      nativeControlsForTouch?: boolean
+      plugins?: any
+      width?: number | string
+      height?: number | string
+      playbackSpeed?: {
+        enabled: boolean
+        initialSpeed: number
+        speedLevels: {
+          value: number
+          label: string
+        }[]
+      }
+    }
+  }
+}
 
 const ampDefaultConfig: amp.Player.Options = {
   techOrder: ['azureHtml5JS', 'flashSS', 'html5FairPlayHLS', 'silverlightSS', 'html5'],

@@ -2,11 +2,10 @@ import { TranslateService } from '@ngx-translate/core'
 import { Component, Input, ElementRef, EventEmitter, OnInit, Output, QueryList, ViewChildren, Inject } from '@angular/core'
 import { UntypedFormControl } from '@angular/forms'
 import { MAT_BOTTOM_SHEET_DATA, MAT_BOTTOM_SHEET_DEFAULT_OPTIONS, MatBottomSheetRef } from '@angular/material/bottom-sheet'
-import { AppCbpPlansService } from 'src/app/services/app-cbp-plans.service'
+import { CollectionService } from '../../_services/collection.service'
 // tslint:disable
 import _ from 'lodash'
 import { ConfigurationsService, MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
-import { environment } from 'src/environments/environment'
 import { NsContent } from '../../_services/widget-content.model'
 
 @Component({
@@ -72,7 +71,7 @@ export class CbpFiltersComponent implements OnInit {
 	constructor(
 		@Inject(MAT_BOTTOM_SHEET_DATA) public data: any,
 		private bottomSheetRef: MatBottomSheetRef<CbpFiltersComponent>,
-		private appCbpPlansService: AppCbpPlansService,
+		private collectionSvc: CollectionService,
 		private translate: TranslateService,
 		private langtranslations: MultilingualTranslationsService,
 		private configSvc: ConfigurationsService,) {
@@ -89,7 +88,7 @@ export class CbpFiltersComponent implements OnInit {
 	}
 
 	ngOnInit() {
-		this.compentencyKey = this.configSvc.compentency[environment.compentencyVersionKey]
+		this.compentencyKey = this.configSvc.compentency['v4']
 
 		this.filterObjEmpty = {
 			primaryCategory: [],
@@ -122,7 +121,7 @@ export class CbpFiltersComponent implements OnInit {
 			},
 		}
 
-		this.appCbpPlansService.getFilterEntity(filterObj).subscribe((res: any) => {
+		this.collectionSvc.getFilterEntity(filterObj).subscribe((res: any) => {
 			this.competencyList = res
 			this.manageCompetency()
 		})
@@ -144,7 +143,7 @@ export class CbpFiltersComponent implements OnInit {
 	}
 
 	getProviders() {
-		this.appCbpPlansService.getProviders().subscribe((res: any) => {
+		this.collectionSvc.getProviders().subscribe((res: any) => {
 			this.providersList = res
 			this.bindProviders()
 		})

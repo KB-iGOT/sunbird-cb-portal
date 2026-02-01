@@ -9,20 +9,21 @@ import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { IWidgetErrorServiceUnavailable } from './error-service-unavailable.model'
 
 @Component({
-    selector: 'ws-widget-error-service-unavailable',
-    templateUrl: './error-service-unavailable.component.html',
-    styleUrls: ['./error-service-unavailable.component.scss'],
-    standalone: false
+  selector: 'ws-widget-error-service-unavailable',
+  templateUrl: './error-service-unavailable.component.html',
+  styleUrls: ['./error-service-unavailable.component.scss'],
+  standalone: false
 })
 export class ErrorServiceUnavailableComponent implements OnInit, OnDestroy {
   @Input() errorData: IWidgetErrorServiceUnavailable | null = null
-  isDarkMode: boolean = this.configurationSvc.isDarkMode
+  isDarkMode = false
 
   private prefChangeSubs: Subscription | null = null
   private routeChangeSubs: Subscription | null = null
-  constructor(private route: ActivatedRoute, private configurationSvc: ConfigurationsService) {}
+  constructor(private route: ActivatedRoute, private configurationSvc: ConfigurationsService) { }
 
   ngOnInit() {
+    this.isDarkMode = this.configurationSvc.isDarkMode
     if (!this.errorData) {
       this.routeChangeSubs = this.route.data.subscribe(response => {
         if (response.pageData.data) {

@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core'
 import { CardCarrierHomeComponent } from './card-carrier-home.component'
 import { CardCarrierComponent } from '../card-carrier/card-carrier.component'
-import { BrowserModule } from '@angular/platform-browser'
+import { CommonModule } from '@angular/common'
 import { PipeRelativeTimeModule } from '@sunbird-cb/utils-v2'
 import { MatButtonModule } from '@angular/material/button'
 import { MatCardModule } from '@angular/material/card'
@@ -13,7 +13,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'
 @NgModule({
     declarations: [CardCarrierHomeComponent, CardCarrierComponent],
     imports: [
-        BrowserModule,
+        CommonModule,
         MatButtonModule,
         MatCardModule,
         MatChipsModule,

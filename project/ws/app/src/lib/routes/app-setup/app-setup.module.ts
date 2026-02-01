@@ -19,7 +19,7 @@ import { LangSelectComponent } from './components/lang-select/lang-select.compon
 import { TncComponent } from './components/tnc/tnc.component'
 import { TncRendererComponent } from './components/tnc-renderer/tnc-renderer.component'
 import { PipeSafeSanitizerModule } from '@sunbird-cb/utils-v2'
-import { TncAppResolverService } from '../../../../../../../src/app/services/tnc-app-resolver.service'
+import { TncAppResolverService } from '@ws/app'
 import { SetupDoneComponent } from './components/setup-done/setup-done.component'
 import { InterestModules } from './module/interest/interest.module'
 import { Globals } from './globals'

@@ -3,8 +3,7 @@ import { ClickOutsideDirective } from './clickoutside.directive'
 import { AppChatbotComponent } from './app-chatbot.component'
 import { ChatbotService } from './chatbot.service'
 import { FormsModule } from '@angular/forms'
-import { BrowserModule } from '@angular/platform-browser'
-import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
+
 import { CommonModule } from '@angular/common'
 import { MatIconModule } from '@angular/material/icon'
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'
@@ -24,13 +23,11 @@ import { MatTooltipModule } from '@angular/material/tooltip'
   ],
   imports: [
     FormsModule,
-    BrowserModule,
     MatIconModule,
-    BrowserAnimationsModule,
     MatProgressSpinnerModule,
     CommonModule,
     PipeDurationTransformModule,
-    MarkdownModule.forRoot(),
+    MarkdownModule.forChild(),
     DragDropModule,
     NonReleventFeedbackDialogModule,
     MatTooltipModule

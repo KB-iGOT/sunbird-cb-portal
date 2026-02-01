@@ -3,7 +3,7 @@ import { Resolve, ActivatedRouteSnapshot, RouterStateSnapshot, Router, UrlTree }
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { Observable, of } from 'rxjs'
 import { map, catchError } from 'rxjs/operators'
-import { FormExtService } from './form-ext.service'
+import { FormExtService } from '@ws/app'
 
 @Injectable({
   providedIn: 'root'

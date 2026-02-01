@@ -5,7 +5,11 @@ export interface ICarousel {
   banners: IBannerUnit,
   mailTo?: string,
   queryParams?: any,
-  sliderData?: any
+  sliderData?: any,
+  type?: string,
+  iconsDisplay?: boolean,
+  cardClass?: string,
+  height?: string
 }
 
 interface IBannerUnit {

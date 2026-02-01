@@ -49,7 +49,7 @@ export class PickerContentComponent extends WidgetBaseComponent
   @Input() showFilter = true
   @Input() customSearchFilters!: any
   query = ''
-  language = (this.configSvc.activeLocale && this.configSvc.activeLocale.locals[0]) || 'en'
+  language = 'en'
   availableLanguages: string[] = []
   @Input() selectedContentTypes = NsContent.PLAYLIST_SUPPORTED_CONTENT_TYPES
 
@@ -91,6 +91,9 @@ export class PickerContentComponent extends WidgetBaseComponent
   }
 
   ngOnInit() {
+    if (this.configSvc.activeLocale && this.configSvc.activeLocale.locals[0]) {
+      this.language = this.configSvc.activeLocale.locals[0]
+    }
     this.initializeSearchSubject()
     this.preSelected = new Set(Array.from(this.widgetData.preselected || new Set()))
     this.getAvailableLanguages()

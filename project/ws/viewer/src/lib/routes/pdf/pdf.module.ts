@@ -55,7 +55,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar'
     UserContentRatingModule,
     BtnContentFeedbackV2Module,
     PdfViewContainerModule,
-    TranslateModule.forRoot(),
+    TranslateModule.forChild(),
   ],
   exports: [
     PdfComponent,

@@ -6,14 +6,13 @@ import { IWidgetsPlayerAmpData } from './player-amp.model'
   selector: 'ws-widget-player-amp',
   templateUrl: './player-amp.component.html',
   styleUrls: ['./player-amp.component.scss'],
+  standalone: false
 })
 export class PlayerAmpComponent
   extends WidgetBaseComponent
   implements NsWidgetResolver.IWidgetData<any> {
 
-  @Input() widgetType!: string
-  @Input() widgetSubType!: string
-  @Input() widgetInstanceId?: string
+
   @Input() widgetData!: any
 
   @Input() data!: IWidgetsPlayerAmpData

@@ -6,8 +6,8 @@ import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
 import { ConfigurationsService, MultilingualTranslationsService, NsInstanceConfig } from '@sunbird-cb/utils-v2'
 
 import { BtnPageBackService } from './btn-page-back.service'
-import { DiscussUtilsService } from '@ws/app'
-import { environment } from 'src/environments/environment'
+import { DiscussUtilsService } from '../_services/discuss-utils.service'
+import { environment } from '../environment'
 // tslint:disable
 import _ from 'lodash'
 import { TranslateService } from '@ngx-translate/core'
@@ -41,12 +41,12 @@ export class BtnPageBackComponent extends WidgetBaseComponent
   visible = false
   enablePeopleSearch = true
   environment!: any
-  loggedinUser = !!(this.configSvc.userProfile && this.configSvc.userProfile.userId)
+  loggedinUser = false
   hubsList!: NsInstanceConfig.IHubs[]
   constructor(
     private btnBackSvc: BtnPageBackService,
     public router: Router,
-    private configSvc: ConfigurationsService,
+    public configSvc: ConfigurationsService,
     private discussUtilitySvc: DiscussUtilsService,
     private translate: TranslateService,
     private langtranslations: MultilingualTranslationsService
@@ -183,7 +183,7 @@ export class BtnPageBackComponent extends WidgetBaseComponent
     return value
   }
 
-  translateLabels(label: string, type: any, subtype: any) {
+  translateLabels(label: string, type: any, subtype?: any) {
     return this.langtranslations.translateLabel(label, type, subtype)
   }
 
