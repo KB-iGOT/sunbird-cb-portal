@@ -57,10 +57,10 @@
         "library/ws-widget/collection/*"
       ],
       "@sunbird-cb/resolver": [
-        "dist/ws-widget/resolver"
+        "library/ws-widget/resolver"
       ],
       "@sunbird-cb/resolver/*": [
-        "dist/ws-widget/resolver/*"
+        "library/ws-widget/resolver/*"
       ]
     },
     "removeComments": true,
