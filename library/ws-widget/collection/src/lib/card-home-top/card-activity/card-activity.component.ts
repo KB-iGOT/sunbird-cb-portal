@@ -2,13 +2,13 @@ import { Component } from '@angular/core'
 import { StarRatingColor } from '../star-rating/star-rating.component'
 
 @Component({
-    selector: 'ws-widget-card-activity',
+    selector: 'ws-widget-card-home-top-activity',
     templateUrl: './card-activity.component.html',
     styleUrls: ['./card-activity.component.scss'],
     standalone: false
 })
 
-export class CardActivityComponent {
+export class CardHomeTopActivityComponent {
   rating = 3
   starCount = 5
   items = [

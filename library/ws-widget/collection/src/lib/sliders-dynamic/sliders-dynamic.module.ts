@@ -10,7 +10,7 @@ import Hammer from 'hammerjs'
 import { MatIconModule } from '@angular/material/icon'
 import { MatTooltipModule } from '@angular/material/tooltip'
 @Injectable()
-export class MyHammerConfig extends HammerGestureConfig {
+export class SlidersDynamicHammerConfig extends HammerGestureConfig {
   buildHammer(element: HTMLElement) {
     const mc = new Hammer(element, {
       touchAction: 'pan-y',
@@ -34,7 +34,7 @@ export class MyHammerConfig extends HammerGestureConfig {
   providers: [
     {
       provide: HAMMER_GESTURE_CONFIG,
-      useClass: MyHammerConfig,
+      useClass: SlidersDynamicHammerConfig,
     },
   ]
 })

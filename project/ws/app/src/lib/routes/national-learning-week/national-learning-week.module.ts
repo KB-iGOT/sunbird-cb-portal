@@ -8,7 +8,7 @@ import {
 import { CardContentV2Module } from '@sunbird-cb/collection'
 import { HttpClient } from '@angular/common/http'
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core'
-import { HttpLoaderFactory } from 'src/app/app.module'
+import { HttpLoaderFactory } from '@ws/app'
 import {
   CommonMethodsService,
   CommonStripModule,
@@ -87,7 +87,7 @@ import { MatTooltipModule } from '@angular/material/tooltip'
     CommonStripModule,
     MatMenuModule,
     NationalLearningModule,
-    TranslateModule.forRoot({
+    TranslateModule.forChild({
       loader: {
         provide: TranslateLoader,
         useFactory: HttpLoaderFactory,

@@ -1,7 +1,7 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpTestingController, provideHttpClientTesting } from '@angular/common/http/testing';
 import { EventService } from './events.service';
-import { FormExtService } from '../../../../../../../../src/app/services/form-ext.service';
+import { FormExtService } from '@ws/app';
 import { environment } from '../../../../../../../../src/environments/environment';
 import { of } from 'rxjs';
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';

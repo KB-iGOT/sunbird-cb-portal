@@ -2,14 +2,14 @@ import { Component, OnInit, OnDestroy, Input, Output, EventEmitter } from '@angu
 import { NSScrollspyMenuData } from './scrollspy-left-menu.model'
 
 @Component({
-    selector: 'ws-widget-scrollspy-left-menu',
-    templateUrl: './scrollspy-left-menu.component.html',
-    styleUrls: ['./scrollspy-left-menu.component.scss'],
-    standalone: false
+  selector: 'ws-widget-scrollspy-left-menu',
+  templateUrl: './scrollspy-left-menu.component.html',
+  styleUrls: ['./scrollspy-left-menu.component.scss'],
+  standalone: false
 })
 export class ScrollspyLeftMenuComponent implements OnInit, OnDestroy {
 
-  @Input() tabsData!: NSScrollspyMenuData.IScrollspyTab
+  @Input() tabsData!: NSScrollspyMenuData.IScrollspyTab[]
   @Input() currentTab!: string
   @Output() eSideNavClick = new EventEmitter<any>()
   constructor() { }

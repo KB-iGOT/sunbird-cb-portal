@@ -4,10 +4,10 @@ import { IFeatureSearchConfig } from '../../models/search.model'
 import { ConfigurationsService, NsPage } from '@sunbird-cb/utils-v2'
 
 @Component({
-    selector: 'ws-app-search-root',
-    templateUrl: './search-root.component.html',
-    styleUrls: ['./search-root.component.scss'],
-    standalone: false
+  selector: 'ws-app-search-root',
+  templateUrl: './search-root.component.html',
+  styleUrls: ['./search-root.component.scss'],
+  standalone: false
 })
 export class SearchRootComponent implements OnInit {
   searchTabs: IFeatureSearchConfig = {
@@ -18,10 +18,10 @@ export class SearchRootComponent implements OnInit {
   }
   route = 'learning'
   searchRequest: {
-    query: string;
-    filters: { [type: string]: string[] };
-    social?: string;
-    sort?: string;
+    query: string
+    filters: { [type: string]: string[] }
+    social?: string
+    sort?: string
   } = {
       query: '',
       filters: {},
@@ -37,7 +37,10 @@ export class SearchRootComponent implements OnInit {
   ) { }
 
   ngOnInit() {
-    if (this.activated.snapshot.data.searchPageData.data.search) {
+    if (this.activated.snapshot.data &&
+      this.activated.snapshot.data.searchPageData &&
+      this.activated.snapshot.data.searchPageData.data &&
+      this.activated.snapshot.data.searchPageData.data.search) {
       this.searchTabs = this.activated.snapshot.data.searchPageData.data.search
     }
     this.activated.queryParamMap.subscribe(queryParam => {

@@ -34,8 +34,8 @@ import {
   NsInstanceConfig,
 } from '@sunbird-cb/utils-v2'
 import { delay, catchError, map, filter } from 'rxjs/operators'
-import { MobileAppsService } from '../../services/mobile-apps.service'
-import { RootService } from './root.service'
+import { MobileAppsService } from '@ws/app'
+import { RootService } from '@ws/app'
 import { UrlService } from 'src/app/shared/url.service'
 
 import { CsModule } from '@project-sunbird/client-services'

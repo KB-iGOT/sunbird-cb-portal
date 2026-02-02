@@ -33,7 +33,7 @@ import { CompetencyTestComponent } from './routes/competence-test/competence-tes
 import { ViewerTopBarModule } from '@ws/viewer'
 import { CompetenceAssessmentService } from './services/comp-assessment.service'
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core'
-import { HttpLoaderFactory } from 'src/app/app.module'
+import { HttpLoaderFactory } from '@ws/app'
 import { HttpClient } from '@angular/common/http'
 import { MatButtonModule } from '@angular/material/button'
 import { MatChipsModule } from '@angular/material/chips'
@@ -96,7 +96,7 @@ import { MatSidenavModule } from '@angular/material/sidenav'
         BtnPageBackModule,
         WidgetResolverModule,
         ViewerTopBarModule,
-        TranslateModule.forRoot({
+        TranslateModule.forChild({
             loader: {
                 provide: TranslateLoader,
                 useFactory: HttpLoaderFactory,

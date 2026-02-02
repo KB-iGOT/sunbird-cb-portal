@@ -33,15 +33,7 @@ import { WidgetResolverModule } from '@sunbird-cb/resolver'
 import { ViewerComponent } from './viewer.component'
 import { ViewerTocComponent } from './components/viewer-toc/viewer-toc.component'
 import { ViewerTopBarModule } from './components/viewer-top-bar/viewer-top-bar.module'
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core'
-import { HttpClient } from '@angular/common/http'
-import { TranslateHttpLoader } from '@ngx-translate/http-loader'
-
-// tslint:disable-next-line:function-name
-export function HttpLoaderFactory() {
-  return new TranslateHttpLoader()
-}
-
+import { TranslateModule } from '@ngx-translate/core'
 import { ViewerSecondaryTopBarModule } from './components/viewer-secondary-top-bar/viewer-secondary-top-bar.module'
 
 import { PdfScormDataService } from './pdf-scorm-data-service'
@@ -103,13 +95,7 @@ import { MarkdownModule } from 'ngx-markdown'
     DisplayContentTypeIconModule,
     PipePartialContentModule,
     SkeletonLoaderModule,
-    TranslateModule.forRoot({
-      loader: {
-        provide: TranslateLoader,
-        useFactory: HttpLoaderFactory,
-        deps: [HttpClient],
-      },
-    }),
+    TranslateModule.forChild(),
     MatTabsModule,
     PlayerBriefModule,
     ViewerTopBarModule,
@@ -119,7 +105,7 @@ import { MarkdownModule } from 'ngx-markdown'
     FormsModule,
     MatSelectModule,
     MatFormFieldModule,
-    MarkdownModule.forRoot()
+    MarkdownModule.forChild()
   ],
   providers: [PdfScormDataService, DomainConfService],
 })

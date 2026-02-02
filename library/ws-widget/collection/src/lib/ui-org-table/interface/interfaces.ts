@@ -1,26 +1,29 @@
+import { SortDirection } from '@angular/material/sort'
+
 export interface IColums {
-    displayName: String
-    key: String
-    isList?: boolean
-    prop?: string
-  }
-  export interface IAction {
-    name: String
-    icon: String
-    type: string
-    disabled?: boolean
-    label: string
-    condition?: string
-    optional?: boolean
-    optional_key?: string
-    optional_Value?: string
-  }
-  export interface ITableData {
-    columns: IColums[]
-    actions: IAction[]
-    needHash: boolean
-    needCheckBox: boolean
-    sortState?: string
-    sortColumn?: string
-    needUserMenus: boolean
-  }
+  displayName: string
+  key: string
+  isList?: boolean
+  prop?: string
+  name?: string
+}
+export interface IAction {
+  name: string
+  icon: string
+  type: string
+  disabled?: boolean
+  label: string
+  condition?: string
+  optional?: boolean
+  optional_key?: string
+  optional_Value?: string
+}
+export interface ITableData {
+  columns: IColums[]
+  actions: IAction[]
+  needHash: boolean
+  needCheckBox: boolean
+  sortState?: SortDirection
+  sortColumn?: string
+  needUserMenus: boolean
+}

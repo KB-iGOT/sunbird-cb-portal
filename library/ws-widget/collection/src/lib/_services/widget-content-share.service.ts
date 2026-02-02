@@ -15,7 +15,9 @@ const API_END_POINTS = {
   providedIn: 'root',
 })
 export class WidgetContentShareService {
-  baseUrl = this.configSvc.sitePath
+  get baseUrl() {
+    return this.configSvc.sitePath
+  }
 
   constructor(private http: HttpClient, private configSvc: ConfigurationsService) { }
 
@@ -66,7 +68,7 @@ export class WidgetContentShareService {
           size: content.size || 0,
           thumbnailUrl: content.appIcon,
           title: content.name,
-          track: (content.track || []).map(t => t.name).join(';'),
+          track: (content.track || []).map((t: any) => t.name).join(';'),
           url: `${document.baseURI}app/toc/${content.identifier}/overview`,
         },
       ],

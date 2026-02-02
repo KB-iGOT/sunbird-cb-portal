@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, ViewChild, ElementRef, DOCUMENT } from '@angular/core'
 import { Subscription, Observable, interval } from 'rxjs'
 import { UntypedFormGroup, UntypedFormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms'
-import { SignupService } from './signup.service'
+import { SignupService } from '@ws/app'
 import { LoggerService, ConfigurationsService, NsInstanceConfig, MultilingualTranslationsService, WsEvents, EventService, TelemetryService } from '@sunbird-cb/utils-v2'
 import { startWith, map, pairwise, debounceTime, distinctUntilChanged, finalize } from 'rxjs/operators'
 import { environment } from 'src/environments/environment'
@@ -18,7 +18,7 @@ import { DomSanitizer } from '@angular/platform-browser'
 import { DialogBoxComponent as ZohoDialogComponent } from '@ws/app'
 import { MatDialog } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
-import { UserProfileService } from '@ws/app'
+import { UserProfileService } from '@sunbird-cb/collection'
 
 // export function forbiddenNamesValidator(optionsArray: any): ValidatorFn {
 //   return (control: AbstractControl): { [key: string]: any } | null => {

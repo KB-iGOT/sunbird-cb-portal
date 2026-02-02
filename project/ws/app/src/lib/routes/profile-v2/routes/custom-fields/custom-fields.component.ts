@@ -1,6 +1,6 @@
 import { Component } from '@angular/core'
 import { FormBuilder, Validators, FormGroup } from '@angular/forms'
-import { UserProfileService } from '../../../user-profile/services/user-profile.service'
+import { UserProfileService } from '@sunbird-cb/collection'
 import _ from 'lodash'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { MatSnackBar } from '@angular/material/snack-bar'

@@ -7,7 +7,7 @@ import { AllContentService } from './../service/all-content.service'
 import { EventService, UtilityService, WsEvents, MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 import { environment } from 'src/environments/environment'
 import { TranslateService } from '@ngx-translate/core'
-import { FormExtService } from 'src/app/services/form-ext.service'
+import { FormExtService } from '@ws/app'
 
 @Component({
   selector: 'ws-app-mdo-channels-all-content',

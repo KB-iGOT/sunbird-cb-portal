@@ -33,11 +33,9 @@ import { NetworkHubComponent } from './home/network-hub/network-hub.component'
 import { NotificationComponent } from './home/notification/notification.component'
 import { SurveyFormComponent } from '../component/app-survey/survey-form/survey-form.component'
 
-import { HomePageService } from '../services/home-page.service'
+import { HomePageService } from '@ws/app'
 import { PendingRequestModule } from '@sunbird-cb/collection'
-import { TranslateLoader, TranslateModule } from '@ngx-translate/core'
-import { HttpLoaderFactory } from '../app.module'
-import { HttpClient } from '@angular/common/http'
+import { TranslateModule } from '@ngx-translate/core'
 import { UserLeaderboardModule } from '@sunbird-cb/collection'
 import { MatTooltipModule } from '@angular/material/tooltip'
 import { ContentStripWithTabsLibModule, ContentStripWithTabsPillsModule } from '@sunbird-cb/consumption'
@@ -89,13 +87,7 @@ import { InSightSideBarModule } from '../component/in-sight-side-bar/in-sight-si
         MatSelectModule,
         MatButtonModule,
         MatAutocompleteModule,
-        TranslateModule.forRoot({
-            loader: {
-                provide: TranslateLoader,
-                useFactory: HttpLoaderFactory,
-                deps: [HttpClient],
-            },
-        }),
+        TranslateModule.forChild(),
         MatTooltipModule,
         SurveyFormModule,
         MatDialogModule,

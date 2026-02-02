@@ -1,5 +1,5 @@
 import { Component, Input, Output, EventEmitter, OnChanges, OnInit } from '@angular/core'
-import { NsTnc } from '../../models/tnc.model'
+import { NsTnc } from '@ws/app'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 
 @Component({

@@ -12,14 +12,12 @@ import { MatInputModule } from '@angular/material/input'
 import { MatMenuModule } from '@angular/material/menu'
 import { MatSliderModule } from '@angular/material/slider'
 import { MatToolbarModule } from '@angular/material/toolbar'
-import { SurveyFormQuestionComponent } from '@ws/app'
+import { PlayerSurveyFormQuestionComponent } from './components/survey-form-question/survey-form-question.component'
+import { PlayerSurveyFormSectionComponent } from './components/survey-form-section/survey-form-section.component'
 import { MatRadioModule } from '@angular/material/radio'
 import { MatSelectModule } from '@angular/material/select'
 import { MatCheckboxModule } from '@angular/material/checkbox'
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'
-import { SurveyFormSectionComponent } from '@ws/app'
-
-
 
 @NgModule({
     declarations: [PlayerSurveyComponent],
@@ -41,8 +39,8 @@ import { SurveyFormSectionComponent } from '@ws/app'
         MatSelectModule,
         MatCheckboxModule,
         MatProgressSpinnerModule,
-        SurveyFormQuestionComponent,
-        SurveyFormSectionComponent,
+        PlayerSurveyFormQuestionComponent,
+        PlayerSurveyFormSectionComponent,
         TranslateModule.forChild(),
     ],
     exports: [PlayerSurveyComponent]

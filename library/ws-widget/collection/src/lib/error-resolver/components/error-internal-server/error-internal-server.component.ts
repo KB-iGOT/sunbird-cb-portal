@@ -8,19 +8,20 @@ import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 
 import { IWidgetErrorInternalServer } from './error-internal-server.model'
 @Component({
-    selector: 'ws-widget-error-internal-server',
-    templateUrl: './error-internal-server.component.html',
-    styleUrls: ['./error-internal-server.component.scss'],
-    standalone: false
+  selector: 'ws-widget-error-internal-server',
+  templateUrl: './error-internal-server.component.html',
+  styleUrls: ['./error-internal-server.component.scss'],
+  standalone: false
 })
 export class ErrorInternalServerComponent implements OnInit, OnDestroy {
   @Input() errorData: IWidgetErrorInternalServer | null = null
-  isDarkMode: boolean = this.configurationsSvc.isDarkMode
+  isDarkMode = false
 
   private prefChangeSubs: Subscription | null = null
   private routeChangeSubs: Subscription | null = null
-  constructor(private route: ActivatedRoute, private configurationsSvc: ConfigurationsService) {}
+  constructor(private route: ActivatedRoute, private configurationsSvc: ConfigurationsService) { }
   ngOnInit() {
+    this.isDarkMode = this.configurationsSvc.isDarkMode
     if (!this.errorData) {
       this.routeChangeSubs = this.route.data.subscribe(response => {
         if (response.pageData.data) {

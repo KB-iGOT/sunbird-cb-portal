@@ -5,7 +5,7 @@ import { map } from 'rxjs/operators'
 import { ConfigurationsService, NsPage } from '@sunbird-cb/utils-v2'
 import { Subscription } from 'rxjs'
 import { ActivatedRoute } from '@angular/router'
-import { IAboutObject } from './about.model'
+import { IAboutObject } from '@ws/app'
 
 @Component({
     selector: 'ws-public-about',

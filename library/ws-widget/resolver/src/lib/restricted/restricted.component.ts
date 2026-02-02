@@ -1,16 +1,16 @@
 import { Component, OnInit, Input } from '@angular/core'
-import { NsWidgetResolver } from '@sunbird-cb/resolver'
+import { NsWidgetResolver } from '../widget-resolver.model'
 import { WidgetBaseComponent } from '../widget-base.component'
 @Component({
-    selector: 'ws-resolver-restricted',
-    templateUrl: './restricted.component.html',
-    styleUrls: ['./restricted.component.scss'],
-    standalone: false
+  selector: 'ws-resolver-restricted',
+  templateUrl: './restricted.component.html',
+  styleUrls: ['./restricted.component.scss'],
+  standalone: false
 })
 export class RestrictedComponent extends WidgetBaseComponent
   implements OnInit, NsWidgetResolver.IWidgetData<any> {
   @Input() widgetData!: any
   showData = true
 
-  ngOnInit() {}
+  ngOnInit() { }
 }

@@ -1,7 +1,7 @@
 import { Component, Input, OnInit } from '@angular/core'
 import { delay } from 'rxjs/operators'
 import { HeaderService } from './header.service'
-import { MobileAppsService } from '../../services/mobile-apps.service'
+import { MobileAppsService } from '@ws/app'
 import {
   ValueService,
 } from '@sunbird-cb/utils-v2'

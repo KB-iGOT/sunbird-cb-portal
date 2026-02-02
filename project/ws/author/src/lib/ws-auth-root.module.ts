@@ -1,5 +1,5 @@
 import { ZipJSResolverService } from './services/zip-js-resolve.service'
-import { NotificationService } from './../../../app/src/lib/routes/notification-v2/services/notification.service'
+import { NotificationService } from './services/notification.service'
 import { AuthInitService } from './services/init.service'
 import { ContentAndDataReadMultiLangTOCResolver } from './services/content-and-data-read-multi-lang.service'
 import { InitResolver } from './services/init-resolve.service'

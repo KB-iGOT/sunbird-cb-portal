@@ -31,11 +31,11 @@ import { ProviderCardComponent } from './components/provider-card/provider-card.
 import { CardContentV2Module } from '@sunbird-cb/collection'
 import { HttpClient } from '@angular/common/http'
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core'
-import { HttpLoaderFactory } from 'src/app/app.module'
+import { HttpLoaderFactory } from '@ws/app'
 import { ProviderPageComponent } from './routes/provider-page/provider-page.component'
 import { CalenderModule, CardsModule, CommonStripModule, CompetencyPassbookModule, ContentStripWithTabsLibModule, DataPointsModule, SlidersLibModule, UserContentRatingLibModule, ProvidersModule } from '@sunbird-cb/consumption'
 import { ProviderFormResolverService } from './services/provider-form-resolver.service'
-import { FormExtService } from 'src/app/services/form-ext.service'
+import { FormExtService } from '@ws/app'
 import { ProviderCalendarComponent } from './routes/provider-calendar/provider-calendar.component'
 import { ProviderContentAllComponent } from './routes/provider-content-all/provider-content-all.component'
 import { ProviderPageV2Component } from './routes/provider-page-v2/provider-page-v2.component'
@@ -114,7 +114,7 @@ import { MatTooltipModule } from '@angular/material/tooltip'
     MatCheckboxModule,
     MatTooltipModule,
     AvatarPhotoModule,
-    TranslateModule.forRoot({
+    TranslateModule.forChild({
       loader: {
         provide: TranslateLoader,
         useFactory: HttpLoaderFactory,

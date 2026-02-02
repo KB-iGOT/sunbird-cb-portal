@@ -3,9 +3,7 @@ import { CommonModule } from '@angular/common'
 import { RouterModule } from '@angular/router'
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
 import { ContentStripWithTabsComponent } from './content-strip-with-tabs.component'
-import { HttpClient } from '@angular/common/http'
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core'
-import { TranslateHttpLoader } from '@ngx-translate/http-loader'
+import { TranslateModule } from '@ngx-translate/core'
 import { MatAutocompleteModule } from '@angular/material/autocomplete'
 import { MatButtonModule } from '@angular/material/button'
 import { MatButtonToggleModule } from '@angular/material/button-toggle'
@@ -32,9 +30,7 @@ import { MatTooltipModule } from '@angular/material/tooltip'
 import { HorizontalScrollerV2Module } from '@sunbird-cb/consumption'
 
 // tslint:disable-next-line:function-name
-export function HttpLoaderFactory() {
-    return new TranslateHttpLoader()
-}
+export { HttpLoaderFactory } from '../collection-utils'
 
 @NgModule({
     declarations: [ContentStripWithTabsComponent],
@@ -67,13 +63,7 @@ export function HttpLoaderFactory() {
         MatButtonToggleModule,
         MatTabsModule,
         MatAutocompleteModule,
-        TranslateModule.forRoot({
-            loader: {
-                provide: TranslateLoader,
-                useFactory: HttpLoaderFactory,
-                deps: [HttpClient],
-            },
-        }),
+        TranslateModule.forChild(),
     ],
     exports: [ContentStripWithTabsComponent]
 })

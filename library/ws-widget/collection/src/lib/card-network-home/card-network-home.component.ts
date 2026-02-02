@@ -2,7 +2,7 @@ import { Component, HostBinding, Input, OnInit } from '@angular/core'
 import { Router } from '@angular/router'
 import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
-import { DiscussUtilsService } from '@ws/app'
+import { DiscussUtilsService } from '../_services/discuss-utils.service'
 import { ConnectionHoverService } from '../_common/connection-hover-card/connection-hover.servive'
 
 @Component({
@@ -16,8 +16,8 @@ export class CardNetworkHomeComponent extends WidgetBaseComponent
   implements OnInit, NsWidgetResolver.IWidgetData<any> {
   @Input() widgetData: any
   networkUser!: any
-  @HostBinding('id')
   howerUser!: any
+  @HostBinding('id')
   public id = `ws-card-home-network_${Math.random()}`
   constructor(private router: Router, public configurationsService: ConfigurationsService, private discussUtils: DiscussUtilsService,
     private connectionHoverService: ConnectionHoverService) {

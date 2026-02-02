@@ -22,7 +22,7 @@ import {
 } from '@sunbird-cb/utils-v2'
 import { interval, Observable, Subscription } from 'rxjs'
 import { environment } from 'src/environments/environment'
-import { SignupService } from '../public-signup/signup.service'
+import { SignupService } from '@ws/app'
 import { MatDialog } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { ActivatedRoute, Router } from '@angular/router'
@@ -38,7 +38,7 @@ import { DialogBoxComponent as ZohoDialogComponent } from '@ws/app'
 // tslint:disable-next-line: import-name
 import _ from 'lodash'
 import { IOrganizationDetails } from './models/public-crp-model'
-import { MobileAppsService } from '../../../services/mobile-apps.service'
+import { MobileAppsService } from '@ws/app'
 import { AppOtpReaderComponent } from 'src/app/component/app-otp-reader/app-otp-reader.component'
 
 @Component({

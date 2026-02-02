@@ -1,4 +1,4 @@
-import { environment } from 'src/environments/environment'
+import { environment } from '../environment'
 import { NsContent } from '../_services/widget-content.model'
 
 export namespace NsCardContent {

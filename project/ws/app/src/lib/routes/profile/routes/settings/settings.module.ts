@@ -10,9 +10,8 @@ import { PrivacySettingsComponent } from './components/privacy-settings/privacy-
 import { AccountPasswordSettingsComponent } from './components/account-password-settings/account-password-settings.component'
 // import { ProfileSettingsComponent } from '../../../person-profile/module/profile-settings/profile-settings.component'
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core'
-// import { HttpLoaderFactory } from 'src/app/app.module'
+import { HttpLoaderFactory } from '@ws/app'
 import { HttpClient } from '@angular/common/http'
-import { TranslateHttpLoader } from '@ngx-translate/http-loader'
 import { MatButtonModule } from '@angular/material/button'
 import { MatCardModule } from '@angular/material/card'
 import { MatChipsModule } from '@angular/material/chips'
@@ -36,10 +35,6 @@ import { ProfileVisibilitySettingsComponent } from './components/profile-visibil
 import { LeftMenuItemComponent } from './components/left-menu-item/left-menu-item.component'
 import { SkeletonLoaderModule } from '@sunbird-cb/collection'
 
-// tslint:disable-next-line:function-name
-export function HttpLoaderFactory() {
-  return new TranslateHttpLoader()
-}
 @NgModule({
   declarations: [SettingsComponent, NotificationSettingsComponent, LeftMenuComponent,
     PrivacySettingsComponent,
@@ -73,7 +68,7 @@ export function HttpLoaderFactory() {
     MatTooltipModule,
     RouterModule,
     SkeletonLoaderModule,
-    TranslateModule.forRoot({
+    TranslateModule.forChild({
       loader: {
         provide: TranslateLoader,
         useFactory: HttpLoaderFactory,

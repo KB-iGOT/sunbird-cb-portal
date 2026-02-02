@@ -6,7 +6,7 @@ import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { ApiService } from '@ws/author'
-import { CertificateService } from '../../services/certificate.service'
+import { CertificateService } from '@sunbird-cb/collection'
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser'
 // import { IImpressionEventInput,  } from '@project-sunbird/telemetry-sdk'
 

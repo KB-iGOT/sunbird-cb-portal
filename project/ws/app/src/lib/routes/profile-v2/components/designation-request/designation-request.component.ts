@@ -7,8 +7,8 @@ import { Subject } from 'rxjs'
 import { takeUntil } from 'rxjs/operators'
 
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
-import { RequestService } from 'src/app/routes/public/public-request/request.service'
-import { UserProfileService } from '../../../user-profile/services/user-profile.service'
+import { RequestService } from '@ws/app'
+import { UserProfileService } from '@sunbird-cb/collection'
 
 @Component({
     selector: 'ws-designation-request',

@@ -45,7 +45,7 @@ import { FeedbackFormComponent } from './components/feedback-form/feedback-form.
 import { StatusContentDisplayComponent } from './components/status-content-display/status-content-display.component'
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core'
 import { HttpClient } from '@angular/common/http'
-import { HttpLoaderFactory } from 'src/app/app.module'
+import { HttpLoaderFactory } from './../../services/translation-loader'
 import { MatAutocompleteModule } from '@angular/material/autocomplete'
 import { MatButtonModule } from '@angular/material/button'
 import { MatButtonToggleModule } from '@angular/material/button-toggle'
@@ -120,7 +120,7 @@ import { MatTooltipModule } from '@angular/material/tooltip'
         ImageCropModule,
         PipeContentRouteModule,
         PipeOrderByModule,
-        TranslateModule.forRoot({
+        TranslateModule.forChild({
             loader: {
                 provide: TranslateLoader,
                 useFactory: HttpLoaderFactory,

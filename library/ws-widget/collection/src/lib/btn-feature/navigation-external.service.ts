@@ -6,7 +6,7 @@ import { NAVIGATION_DATA_INCOMING } from './models/mobile-events.model'
 @Injectable({
   providedIn: 'root',
 })
-export class NavigationExternalService {
+export class BtnFeatureNavigationExternalService {
 
   dummy = 1
   constructor(private router: Router) {

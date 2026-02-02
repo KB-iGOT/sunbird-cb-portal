@@ -13,10 +13,10 @@ import { MatDialog } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
 
 @Component({
-    selector: 'ws-app-toc-certification-budget-card',
-    templateUrl: './budget-card.component.html',
-    styleUrls: ['./budget-card.component.scss'],
-    standalone: false
+  selector: 'ws-app-toc-certification-budget-card',
+  templateUrl: './budget-card.component.html',
+  styleUrls: ['./budget-card.component.scss'],
+  standalone: false
 })
 export class BudgetCardComponent {
   @Input() certification!: ICertificationMeta
@@ -68,7 +68,7 @@ export class BudgetCardComponent {
           this.budgetCancelStatus = 'done'
 
           if (res.res_code === 1) {
-            this.certificationFetchSubject.next()
+            this.certificationFetchSubject.next(undefined)
           }
         },
         () => {

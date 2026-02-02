@@ -3,7 +3,7 @@ import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router'
 import { IResolveResponse } from '@sunbird-cb/utils-v2'
 import { Observable, of } from 'rxjs'
 import { catchError, map, tap } from 'rxjs/operators'
-import { SignupService } from './signup.service'
+import { SignupService } from '@ws/app'
 
 @Injectable()
 export class AppPublicPositionResolverService

@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core'
 import { ProfileCareerComponent } from './profile-career.component'
-import { BrowserModule } from '@angular/platform-browser'
+import { CommonModule } from '@angular/common'
 import { PipeRelativeTimeModule } from '@sunbird-cb/utils-v2'
 import { TranslateModule } from '@ngx-translate/core'
 import { MatButtonModule } from '@angular/material/button'
@@ -13,7 +13,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'
 
 @NgModule({
     declarations: [ProfileCareerComponent],
-    imports: [BrowserModule, MatButtonModule, MatCardModule, MatChipsModule,
+    imports: [CommonModule, MatButtonModule, MatCardModule, MatChipsModule,
         MatDividerModule, MatExpansionModule, MatIconModule, MatProgressSpinnerModule,
         PipeRelativeTimeModule,
         TranslateModule,

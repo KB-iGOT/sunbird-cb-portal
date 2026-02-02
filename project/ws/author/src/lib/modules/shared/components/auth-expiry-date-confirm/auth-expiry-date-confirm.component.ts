@@ -14,7 +14,7 @@ import { ISearchContent } from '../../../../interface/search'
 import { NotificationService } from '../../../../services/notification.service'
 import { AccessControlService } from '../../services/access-control.service'
 import { ApiService } from '../../services/api.service'
-import { NotificationComponent } from '../../../../../../../../../src/app/home/home/notification/notification.component'
+import { NotificationComponent } from '../../../../modules/shared/components/notification/notification.component'
 
 
 @Component({

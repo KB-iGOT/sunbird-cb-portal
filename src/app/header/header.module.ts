@@ -5,14 +5,13 @@ import { AppNavBarComponent } from '../component/app-nav-bar/app-nav-bar.compone
 import { RouterModule } from '@angular/router'
 import { GridLayoutModule, BtnFeatureModule, ErrorResolverModule, TourModule, StickyHeaderModule } from '@sunbird-cb/collection'
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
-import { SearchV3Module, SearchModule } from '@ws/app'
+import { SearchV3Module } from '@ws/app/src/lib/routes/search-v3/search-v3.module'
+import { SearchModule } from '@ws/app/src/lib/routes/search/search.module'
 import { SharedModule } from '../shared/shared.module'
 import { FontSettingComponent } from './../component/font-setting/font-setting.component'
 import { TopRightNavBarComponent } from './../component/top-right-nav-bar/top-right-nav-bar.component'
 import { FormsModule } from '@angular/forms'
-import { HttpClient } from '@angular/common/http'
-import { TranslateModule, TranslateLoader } from '@ngx-translate/core'
-import { HttpLoaderFactory } from '../app.module'
+import { TranslateModule } from '@ngx-translate/core'
 import { SkeletonLoaderModule } from '@sunbird-cb/collection'
 import { MatDialogModule } from '@angular/material/dialog'
 import { MatFormFieldModule } from '@angular/material/form-field'
@@ -52,13 +51,7 @@ import { ConfirmDialogModule } from '@sunbird-cb/collection'
     MatTooltipModule,
     MatSnackBarModule,
     NotificationDropdownModule,
-    TranslateModule.forRoot({
-      loader: {
-        provide: TranslateLoader,
-        useFactory: HttpLoaderFactory,
-        deps: [HttpClient],
-      },
-    }),
+    TranslateModule.forChild(),
     SkeletonLoaderModule,
     ConfirmDialogModule
   ],

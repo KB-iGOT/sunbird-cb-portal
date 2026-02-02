@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, OnDestroy, HostBinding } from '@angular/core'
 import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
 import { NsCarrierStripNewMultiple } from './carrier-strip-multiple.model'
-import { ContentStripNewMultipleService } from './carrier-strip-multiple.service'
+import { CarrierStripMultipleService } from './carrier-strip-multiple.service'
 import { WidgetContentService } from '../_services/widget-content.service'
 import { NsContent } from '../_services/widget-content.model'
 // tslint:disable-next-line
@@ -65,7 +65,7 @@ export class CarrierStripMultipleComponent extends WidgetBaseComponent
   changeEventSubscription: Subscription | null = null
 
   constructor(
-    private contentStripSvc: ContentStripNewMultipleService,
+    private contentStripSvc: CarrierStripMultipleService,
     private contentSvc: WidgetContentService,
     private loggerSvc: LoggerService,
     public utilitySvc: UtilityService,

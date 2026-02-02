@@ -6,17 +6,16 @@ import { WidgetContentService } from '@sunbird-cb/collection'
 import { NsContent } from '@sunbird-cb/collection'
 import { ConfigurationsService, LoggerService, NsPage, ValueService, EventService, WsEvents, DomainConfService } from '@sunbird-cb/utils-v2'
 import { Subscription } from 'rxjs'
-import { ViewerDataService } from '../../viewer-data.service'
+import { ViewerDataService } from '@sunbird-cb/collection'
 import { ViewerUtilService } from '../../viewer-util.service'
 import { CourseCompletionDialogComponent } from '../course-completion-dialog/course-completion-dialog.component'
-import { ContentRatingV2DialogComponent, RatingService } from '@sunbird-cb/collection'
+import { ContentRatingV2DialogComponent, RatingService, ResetRatingsService } from '@sunbird-cb/collection'
 import { ViewerHeaderSideBarToggleService } from './../../viewer-header-side-bar-toggle.service'
 import { WidgetContentLibService, ContentLanguageService } from '@sunbird-cb/consumption'
 // import { WidgetContentService as WidgetContentServiceUtils } from '@sunbird-cb/utils-v2'
 
 /* tslint:disable*/
 import _ from 'lodash'
-import { ResetRatingsService } from '../../../../../app/src/lib/routes/app-toc/services/reset-ratings.service'
 // import { ALLOWED_CATEGORY_FOR_DYNAMIC_GENERATION } from '../../../../../author/src/lib/constants/constant'
 
 @Component({

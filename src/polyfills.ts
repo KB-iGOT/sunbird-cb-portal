@@ -54,6 +54,48 @@ import 'hammerjs'
 import '@angular/localize/init'
 // these changes are for SVG Preview
 (window as any).global = window
-global.Buffer = global.Buffer || require('buffer').Buffer
-global.process = require('process')
+
+// Polyfill Buffer and process for browser environment
+// Using dynamic imports that work with Angular 20's esbuild
+let bufferPromise: Promise<any> | null = null
+let processPromise: Promise<any> | null = null
+
+// Initialize Buffer polyfill
+if (typeof (global as any).Buffer === 'undefined') {
+  bufferPromise = import('buffer').then((bufferModule) => {
+    (global as any).Buffer = bufferModule.Buffer
+    return bufferModule
+  }).catch((err) => {
+    console.warn('Buffer polyfill not available:', err)
+    return null
+  })
+}
+
+// Initialize process polyfill
+if (typeof (global as any).process === 'undefined') {
+  processPromise = import('process').then((processModule) => {
+    (global as any).process = processModule.default || processModule
+    return processModule
+  }).catch((err) => {
+    // Fallback: create a minimal process implementation
+    (global as any).process = {
+      env: {},
+      version: '',
+      versions: {},
+      platform: 'browser',
+      nextTick: (fn: () => void) => setTimeout(fn, 0),
+      browser: true
+    }
+    console.warn('Process polyfill fallback used:', err)
+    return null
+  })
+}
+
+// Store promises for potential use elsewhere
+if (bufferPromise) {
+  (window as any).__bufferPolyfillPromise = bufferPromise
+}
+if (processPromise) {
+  (window as any).__processPolyfillPromise = processPromise
+}
 // END : changes

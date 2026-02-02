@@ -1,4 +1,4 @@
-import { CommonDataService } from './common-data.service';
+import { CommonDataService } from '@ws/app';
 
 describe('CommonDataService', () => {
   let service: CommonDataService;

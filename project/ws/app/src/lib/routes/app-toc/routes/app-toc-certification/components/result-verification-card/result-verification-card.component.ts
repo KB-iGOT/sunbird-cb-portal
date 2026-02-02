@@ -16,10 +16,10 @@ import { MatDialog } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
 
 @Component({
-    selector: 'ws-app-toc-certification-result-verification-card',
-    templateUrl: './result-verification-card.component.html',
-    styleUrls: ['./result-verification-card.component.scss'],
-    standalone: false
+  selector: 'ws-app-toc-certification-result-verification-card',
+  templateUrl: './result-verification-card.component.html',
+  styleUrls: ['./result-verification-card.component.scss'],
+  standalone: false
 })
 export class ResultVerificationCardComponent implements OnDestroy {
   @Input() certification?: ICertificationMeta
@@ -132,7 +132,7 @@ export class ResultVerificationCardComponent implements OnDestroy {
         certification => {
           this.certification = certification
           this.resultWithdrawStatus = 'done'
-          this.certificationFetchSubject.next()
+          this.certificationFetchSubject.next(undefined)
         },
         () => {
           this.resultWithdrawStatus = 'error'

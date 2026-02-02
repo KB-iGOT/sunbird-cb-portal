@@ -2,7 +2,7 @@ import { Component, OnInit, Inject, ViewChild, ElementRef } from '@angular/core'
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 import { ENTER, COMMA } from '@angular/cdk/keycodes'
 import { UntypedFormGroup, UntypedFormBuilder } from '@angular/forms'
-import { InterestService } from '../../../../../../../../../app/src/lib/routes/profile/routes/interest/services/interest.service'
+import { InterestService } from '../../../../../../services/interest.service'
 import { MatChipInputEvent } from '@angular/material/chips'
 import { MatSnackBar } from '@angular/material/snack-bar'
 export interface IDialogData {
@@ -10,10 +10,10 @@ export interface IDialogData {
   name: string
 }
 @Component({
-    selector: 'ws-auth-competency-add-popup',
-    templateUrl: './competency-add-popup.html',
-    styleUrls: ['./competency-add-popup.scss'],
-    standalone: false
+  selector: 'ws-auth-competency-add-popup',
+  templateUrl: './competency-add-popup.html',
+  styleUrls: ['./competency-add-popup.scss'],
+  standalone: false
 })
 export class CompetencyAddPopUpComponent implements OnInit {
   startForm!: UntypedFormGroup
@@ -102,7 +102,7 @@ export class CompetencyAddPopUpComponent implements OnInit {
         this.openSnackbar('Competency Request created succesfully! Please wait for reviewer to approve it')
         this.dialogRef.close('postCreated')
       },
-      err => {
+      (err: any) => {
         this.openSnackbar(this.toastError.nativeElement.value)
         this.uploadSaveData = false
         if (err) {

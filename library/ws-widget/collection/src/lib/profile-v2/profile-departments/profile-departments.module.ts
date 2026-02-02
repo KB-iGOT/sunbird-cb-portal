@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core'
 import { ProfileDepartmentsComponent } from './profile-departments.component'
 
-import { BrowserModule } from '@angular/platform-browser'
+import { CommonModule } from '@angular/common'
 import { MatButtonModule } from '@angular/material/button'
 import { MatCardModule } from '@angular/material/card'
 import { MatChipsModule } from '@angular/material/chips'
@@ -12,7 +12,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'
 
 @NgModule({
     declarations: [ProfileDepartmentsComponent],
-    imports: [BrowserModule, MatButtonModule, MatCardModule, MatChipsModule,
+    imports: [CommonModule, MatButtonModule, MatCardModule, MatChipsModule,
         MatDividerModule, MatExpansionModule, MatIconModule, MatProgressSpinnerModule]
 })
 export class ProfileDepartmentsModule {

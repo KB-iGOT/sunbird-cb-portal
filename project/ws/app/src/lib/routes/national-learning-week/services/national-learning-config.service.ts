@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core'
 import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router'
 import { Observable, of } from 'rxjs'
 import { catchError, map, tap } from 'rxjs/operators'
-import { FormExtService } from 'src/app/services/form-ext.service'
+import { FormExtService } from '@ws/app'
 
 @Injectable({
   providedIn: 'root',

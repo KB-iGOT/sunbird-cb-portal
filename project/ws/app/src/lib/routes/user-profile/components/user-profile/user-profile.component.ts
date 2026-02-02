@@ -6,7 +6,7 @@ import { startWith, map, debounceTime, distinctUntilChanged, pairwise } from 'rx
 import { AppDateAdapter, APP_DATE_FORMATS, changeformat } from '../../services/format-datepicker'
 import { ImageCropComponent, ConfigurationsService, WsEvents, EventService, PipeCertificateImageURL, MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 import { IMAGE_MAX_SIZE, PROFILE_IMAGE_SUPPORT_TYPES } from '@ws/author'
-import { UserProfileService } from '../../services/user-profile.service'
+import { UserProfileService } from '@sunbird-cb/collection'
 import { Router, ActivatedRoute } from '@angular/router'
 
 import {

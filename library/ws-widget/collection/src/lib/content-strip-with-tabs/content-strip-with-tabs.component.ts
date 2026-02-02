@@ -16,12 +16,12 @@ import {
 import { Subscription } from 'rxjs'
 import { filter } from 'rxjs/operators'
 import { WidgetUserServiceLib } from '@sunbird-cb/consumption'
-import { environment } from 'src/environments/environment'
+import { environment } from '../environment'
 // tslint:disable-next-line
 import * as _ from 'lodash'
 import { MatTabChangeEvent } from '@angular/material/tabs'
 import { NsCardContent } from '../card-content-v2/card-content-v2.model'
-import { ITodayEvents } from '@ws/app'
+import { ITodayEvents } from '@ws/app/src/lib/routes/events/models/event'
 import { TranslateService } from '@ngx-translate/core'
 
 interface IStripUnitContentData {

@@ -6,7 +6,7 @@ import { UserProfileComponent } from './components/user-profile/user-profile.com
 import { TabDirective } from './components/user-profile/tab.directive'
 import { SharedModule } from '@ws/author'
 import { ReactiveFormsModule, FormsModule } from '@angular/forms'
-import { UserProfileService } from './services/user-profile.service'
+import { UserProfileService } from '@sunbird-cb/collection'
 import { LoaderService } from '@ws/author'
 import { BtnPageBackModule } from '@sunbird-cb/collection'
 import { PipeDurationTransformModule } from '@sunbird-cb/utils-v2'
@@ -80,6 +80,6 @@ import { MatTooltipModule } from '@angular/material/tooltip'
         PipeDurationTransformModule,
         SkeletonLoaderModule,
     ],
-    providers: [UserProfileService, LoaderService, OtpService]
+    providers: [LoaderService, OtpService]
 })
 export class UserProfileModule { }

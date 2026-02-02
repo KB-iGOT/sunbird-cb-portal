@@ -32,23 +32,23 @@ import { WidgetContentLibService, WidgetUserServiceLib } from '@sunbird-cb/consu
 import { NsAppToc } from '../../models/app-toc.model'
 import { AppTocService } from '../../services/app-toc.service'
 import { AccessControlService } from '@ws/author'
-import { MobileAppsService } from 'src/app/services/mobile-apps.service'
+import { MobileAppsService } from '@ws/app'
 import { HandleClaimService, NsCardContent, ContentRatingV2DialogComponent } from '@sunbird-cb/collection'
-import { ActionService } from '../../services/action.service'
+import { ActionService } from '@sunbird-cb/collection'
 import { RatingService } from '../../../../../../../../../library/ws-widget/collection/src/lib/_services/rating.service'
 import { ViewerUtilService } from '@ws/viewer'
-import { LoadCheckService } from '../../services/load-check.service'
-import { ResetRatingsService } from './../../services/reset-ratings.service'
+import { LoadCheckService } from '@sunbird-cb/collection'
+import { ResetRatingsService } from '@sunbird-cb/collection'
 
 import { AppTocDialogIntroVideoComponent } from '../app-toc-dialog-intro-video/app-toc-dialog-intro-video.component'
 
 import { environment } from 'src/environments/environment'
-import { TimerService } from '../../services/timer.service'
+import { TimerService } from '@sunbird-cb/collection'
 import { MatDialog } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { MatSnackBar as MatSnackbarNew } from '@angular/material/snack-bar'
 import { NonReleventFeedbackDialogComponent } from '../../../../../../../../../library/ws-widget/collection/src/lib/_common/non-relevent-feedback-dialog/non-relevent-feedback-dialog.component'
-import { NetCoreService } from '../../../../../../../../../src/app/services/netcore.service'
+import { NetCoreService } from '@ws/app'
 
 export enum ErrorType {
   internalServer = 'internalServer',

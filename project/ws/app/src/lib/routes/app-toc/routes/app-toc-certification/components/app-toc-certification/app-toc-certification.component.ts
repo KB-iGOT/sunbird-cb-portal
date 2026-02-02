@@ -11,10 +11,10 @@ import { switchMap, catchError, takeUntil } from 'rxjs/operators'
 import { CertificationApiService } from '../../apis/certification-api.service'
 
 @Component({
-    selector: 'ws-app-toc-certification',
-    templateUrl: './app-toc-certification.component.html',
-    styleUrls: ['./app-toc-certification.component.scss'],
-    standalone: false
+  selector: 'ws-app-toc-certification',
+  templateUrl: './app-toc-certification.component.html',
+  styleUrls: ['./app-toc-certification.component.scss'],
+  standalone: false
 })
 export class AppTocCertificationComponent implements OnInit, OnDestroy {
   content?: NsContent.IContent | null
@@ -40,7 +40,7 @@ export class AppTocCertificationComponent implements OnInit, OnDestroy {
   }
 
   ngOnDestroy() {
-    this.subscriptionSubject$.next()
+    this.subscriptionSubject$.next(undefined)
     this.subscriptionSubject$.complete()
   }
 
@@ -75,7 +75,7 @@ export class AppTocCertificationComponent implements OnInit, OnDestroy {
       .pipe(takeUntil(this.subscriptionSubject$))
       .subscribe(content => {
         this.content = content
-      },         noop)
+      }, noop)
   }
 
   private subscribeToCertificationFetchSubject() {

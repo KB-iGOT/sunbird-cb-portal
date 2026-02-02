@@ -8,20 +8,21 @@ import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 
 import { IWidgetErrorAccessForbidden } from '../error-access-forbidden/error-access-forbidden.model'
 @Component({
-    selector: 'ws-widget-error-content-unavailable',
-    templateUrl: './error-content-unavailable.component.html',
-    styleUrls: ['./error-content-unavailable.component.scss'],
-    standalone: false
+  selector: 'ws-widget-error-content-unavailable',
+  templateUrl: './error-content-unavailable.component.html',
+  styleUrls: ['./error-content-unavailable.component.scss'],
+  standalone: false
 })
 export class ErrorContentUnavailableComponent implements OnInit, OnDestroy {
   @Input() errorData: null | IWidgetErrorAccessForbidden = null
-  isDarkMode: boolean = this.configurationsSvc.isDarkMode
+  isDarkMode = false
 
   private prefChangeSubs: Subscription | null = null
   private routeChangeSubs: Subscription | null = null
 
-  constructor(private route: ActivatedRoute, private configurationsSvc: ConfigurationsService) {}
+  constructor(private route: ActivatedRoute, private configurationsSvc: ConfigurationsService) { }
   ngOnInit() {
+    this.isDarkMode = this.configurationsSvc.isDarkMode
     if (!this.errorData) {
       this.routeChangeSubs = this.route.data.subscribe(response => {
         if (response.pageData.data) {

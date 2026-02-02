@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core'
-import { HomePageService } from '../../services/home-page.service'
+import { HomePageService } from '@ws/app'
 import { TranslateService } from '@ngx-translate/core'
 @Component({
     selector: 'ws-download-app',

@@ -20,7 +20,7 @@ import { WidgetUserServiceLib } from '@sunbird-cb/consumption'
 // tslint:disable-next-line
 import _ from 'lodash'
 import { HttpClient } from '@angular/common/http'
-import { environment } from 'src/environments/environment'
+import { environment } from '../environment'
 import { SearchApiService } from '../_services/search-api.service'
 import { NSSearch } from '../_services/widget-search.model'
 
@@ -70,7 +70,7 @@ export class ContentStripMultipleComponent extends WidgetBaseComponent
   searchArray = ['preview', 'channel', 'author']
   contentAvailable = true
   isFromAuthoring = false
-  baseUrl = this.configSvc.sitePath || ''
+  baseUrl = ''
   veifiedKarmayogi = false
   profileStatus = false
 
@@ -106,6 +106,7 @@ export class ContentStripMultipleComponent extends WidgetBaseComponent
       this.configSvc.unMappedUser.profileDetails.profileStatus === 'VERIFIED') {
       this.profileStatus = true
     }
+    this.baseUrl = this.configSvc.sitePath || ''
     this.initData()
   }
 
@@ -136,11 +137,11 @@ export class ContentStripMultipleComponent extends WidgetBaseComponent
   get isMobile() {
     return this.utilitySvc.isMobile || false
   }
-  getdata(data: IStripUnitContentData) {
+  getdata(data: IStripUnitContentData): NsWidgetResolver.IRenderConfigWithAnyData | null {
     if (data.stripInfo) {
       return data.stripInfo.widget
     }
-    return {}
+    return null
 
   }
   checkCondition(wData: NsContentStripMultiple.IContentStripMultiple, data: IStripUnitContentData) {

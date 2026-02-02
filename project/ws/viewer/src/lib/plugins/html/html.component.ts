@@ -4,7 +4,7 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser'
 import { Router, ActivatedRoute } from '@angular/router'
 import { NsContent, WidgetContentService } from '@sunbird-cb/collection'
 import { ConfigurationsService, EventService, LoggerService, TFetchStatus } from '@sunbird-cb/utils-v2'
-import { MobileAppsService } from '../../../../../../../src/app/services/mobile-apps.service'
+import { MobileAppsService } from '@ws/app'
 import { SCORMAdapterService, scormLMSStatus } from './SCORMAdapter/scormAdapter'
 /* tslint:disable */
 import _ from 'lodash'

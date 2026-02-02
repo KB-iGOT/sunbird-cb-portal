@@ -1,7 +1,6 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { CardNotifyComponent } from './card-notify.component'
-import { BrowserModule } from '@angular/platform-browser'
 import { MatButtonModule } from '@angular/material/button'
 import { TranslateModule } from '@ngx-translate/core'
 
@@ -9,7 +8,6 @@ import { TranslateModule } from '@ngx-translate/core'
     declarations: [CardNotifyComponent],
     imports: [
         CommonModule,
-        BrowserModule,
         MatButtonModule,
         TranslateModule,
     ],

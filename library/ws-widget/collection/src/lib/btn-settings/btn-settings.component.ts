@@ -7,14 +7,14 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators'
 import { BtnSettingsService } from './btn-settings.service'
 
 @Component({
-    selector: 'ws-widget-btn-settings',
-    templateUrl: './btn-settings.component.html',
-    styleUrls: ['./btn-settings.component.scss'],
-    standalone: false
+  selector: 'ws-widget-btn-settings',
+  templateUrl: './btn-settings.component.html',
+  styleUrls: ['./btn-settings.component.scss'],
+  standalone: false
 })
 export class BtnSettingsComponent extends WidgetBaseComponent
   implements OnInit, OnDestroy, NsWidgetResolver.IWidgetData<any> {
-  constructor(private configSvc: ConfigurationsService, private settingsSvc: BtnSettingsService) {
+  constructor(public configSvc: ConfigurationsService, public settingsSvc: BtnSettingsService) {
     super()
   }
   @Input() widgetData!: any
@@ -23,7 +23,7 @@ export class BtnSettingsComponent extends WidgetBaseComponent
   allowedLangCode: { [langCode: string]: NsInstanceConfig.ILocalsConfig } = {}
 
   darkModeForm = new UntypedFormControl(false)
-  isRTLForm = new UntypedFormControl(this.configSvc.isRTL)
+  isRTLForm = new UntypedFormControl(false)
   activeThemeClass = ''
   activeFontClass = ''
   // Subscriptions
@@ -34,6 +34,7 @@ export class BtnSettingsComponent extends WidgetBaseComponent
   isLanguageEnabled = true
 
   ngOnInit() {
+    this.isRTLForm.setValue(this.configSvc.isRTL)
     const instanceConfig = this.configSvc.instanceConfig
     if (instanceConfig) {
       this.themes = instanceConfig.themes

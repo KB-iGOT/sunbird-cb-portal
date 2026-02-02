@@ -4,22 +4,26 @@
     "outDir": "../../../out-tsc/lib",
     "target": "ES2022",
     "module": "ES2022",
-    "moduleResolution": "bundler",  // Changed from "node16"
+    "moduleResolution": "bundler",
 
-    "declaration": true,
-    "declarationMap": true,  // Enable this
+    "declaration": false,
+    "declarationMap": false,
 
-    "sourceMap": true,  // Consider enabling for debugging
+    "sourceMap": false,
     "inlineSources": false,
     "skipLibCheck": true,
+    "traceResolution": true,
 
     "types": [],
+    "paths": {
+      "@ws/author": [],
+      "@ws/author/*": []
+    },
     "lib": ["ES2022", "DOM"]  // Add explicit lib
   },
   "angularCompilerOptions": {
     "compilationMode": "partial",
-    "enableIvy": true,
-    "strictTemplates": true  // Consider adding
+    "enableIvy": true
   },
   "exclude": ["src/test.ts", "**/*.spec.ts", "node_modules"]
 }

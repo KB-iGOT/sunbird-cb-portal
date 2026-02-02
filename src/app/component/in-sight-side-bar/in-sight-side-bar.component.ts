@@ -1,17 +1,16 @@
 import { AUTO_STYLE, animate, state, transition, trigger, style } from '@angular/animations'
 import { Component, EventEmitter, OnInit, Output } from '@angular/core'
-import { HomePageService } from '../../services/home-page.service'
+import { HomePageService } from '@ws/app'
 import { ConfigurationsService, EventService, WsEvents, MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 import { HttpErrorResponse } from '@angular/common/http'
 import { ActivatedRoute, Router } from '@angular/router'
-import { DiscussUtilsService } from '@ws/app'
+import { DiscussUtilsService, UserProfileService } from '@sunbird-cb/collection'
 import { TranslateService } from '@ngx-translate/core'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import moment from 'moment'
-import { SignupService } from '../../routes/public/public-signup/signup.service'
+import { SignupService } from '@ws/app'
 import _ from 'lodash'
-import { ProfileV2Service } from '@ws/app'
-import { UserProfileService } from '@ws/app'
+import { ProfileV2Service } from '@ws/app/src/lib/routes/profile-v2/services/profile-v2.servive'
 import { MatAutocompleteTrigger } from '@angular/material/autocomplete'
 
 const DEFAULT_WEEKLY_DURATION = 300
@@ -588,7 +587,7 @@ export class InsightSideBarComponent implements OnInit {
         this.showUpdateDesignations = false
         this.openSnackbar('Designation updated successfully')
       }
-    }, error => {
+    }, (error: any) => {
       /* tslint:disable */
       console.log(error)
       this.snackBar.open("something went wrong!")

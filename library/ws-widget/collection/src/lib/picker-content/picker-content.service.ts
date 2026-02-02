@@ -8,12 +8,13 @@ import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 })
 export class PickerContentService {
 
-  private baseUrl = this.configSvc.sitePath
-
+  private baseUrl = ''
   constructor(
     private http: HttpClient,
     private configSvc: ConfigurationsService,
-  ) { }
+  ) {
+    this.baseUrl = this.configSvc.sitePath
+  }
 
   removeSubset(contentIds: string[]) {
     return this.http.post<IRemoveSubsetResponse>('/apis/protected/v8/content/removeSubset', { contentIds })

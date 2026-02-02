@@ -23,7 +23,7 @@ import { MatAutocompleteSelectedEvent } from '@angular/material/autocomplete'
 import { MatChipInputEvent } from '@angular/material/chips'
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
-import { NotificationComponent } from '../../../../../../../../../src/app/home/home/notification/notification.component'
+import { NotificationComponent } from '../../../../modules/shared/components/notification/notification.component'
 import { Notify } from '../../../../constants/notificationMessage'
 
 const NOTIFICATION_TIME = 5

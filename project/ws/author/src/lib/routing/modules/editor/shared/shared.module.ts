@@ -22,7 +22,7 @@ import { OptionsComponent } from './components/options/options.component'
 import { FormsModule } from '@angular/forms'
 import { CompetencyAddPopUpComponent } from './components/competency-add-popup/competency-add-popup'
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core'
-import { HttpLoaderFactory } from 'src/app/app.module'
+import { HttpLoaderFactory } from '@ws/app'
 import { HttpClient } from '@angular/common/http'
 import { SharedModule } from '../../../../modules/shared/shared.module'
 
@@ -53,7 +53,7 @@ import { SharedModule } from '../../../../modules/shared/shared.module'
         SharedModule,
         // AceEditorModule,
         CatalogSelectModule,
-        TranslateModule.forRoot({
+        TranslateModule.forChild({
             loader: {
                 provide: TranslateLoader,
                 useFactory: HttpLoaderFactory,

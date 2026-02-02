@@ -16,10 +16,10 @@ const VALID_CONTENT_TYPES: NsContent.EContentTypes[] = [
 ]
 
 @Component({
-    selector: 'ws-widget-btn-playlist',
-    templateUrl: './btn-playlist.component.html',
-    styleUrls: ['./btn-playlist.component.scss'],
-    standalone: false
+  selector: 'ws-widget-btn-playlist',
+  templateUrl: './btn-playlist.component.html',
+  styleUrls: ['./btn-playlist.component.scss'],
+  standalone: false
 })
 export class BtnPlaylistComponent extends WidgetBaseComponent
   implements OnInit, NsWidgetResolver.IWidgetData<NsPlaylist.IBtnPlaylist> {
@@ -35,7 +35,7 @@ export class BtnPlaylistComponent extends WidgetBaseComponent
   constructor(
     private dialog: MatDialog,
     private playlistSvc: BtnPlaylistService,
-    private configSvc: ConfigurationsService,
+    public configSvc: ConfigurationsService,
   ) {
     super()
   }

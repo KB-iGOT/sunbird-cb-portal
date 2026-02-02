@@ -8,7 +8,7 @@
       "/apis": "/apis"
     },
     "headers": {
-      "Cookie": "connect.sid=s%3Awq92f5rkgqCVTGEFFkaAjWD2eY0vR9Kc.thz7nTOV2vqbedXhgp3v88%2BNv98WavMRv1DMimP4T9g"
+      "Cookie": "connect.sid=s%3AKcCUgFqRJ1C2fkgkXTcmmRTWdABjoikA.Kdzn66ndSCl5bcmeViIiEvUGyeMFVZb3sguKNhebPXs"
     }
   },
   "/api/*": {
@@ -65,15 +65,6 @@
       "/apis": ""
     }
   },
-  "/assets/*": {
-    "target": "http://127.0.0.1:8080",
-    "secure": false,
-    "logLevel": "debug",
-    "changeOrigin": true,
-    "pathRewrite": {
-      "/apis": ""
-    }
-  },
   "/abcd/*": {
     "target": "https://igot-qa.in",
     "secure": false,
@@ -82,5 +73,11 @@
     "pathRewrite": {
       "/abcd": ""
     }
+  },
+  "/assets": {
+    "target": "http://127.0.0.1:8080",
+    "secure": false,
+    "logLevel": "debug",
+    "changeOrigin": true
   }
 }

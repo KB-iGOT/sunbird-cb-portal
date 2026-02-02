@@ -11,17 +11,17 @@ interface IDialogData {
 }
 
 @Component({
-    selector: 'ws-widget-confirm-dialog',
-    templateUrl: './confirm-dialog.component.html',
-    styleUrls: ['./confirm-dialog.component.scss'],
-    standalone: false
+  selector: 'ws-widget-mark-as-complete-confirm-dialog',
+  templateUrl: './confirm-dialog.component.html',
+  styleUrls: ['./confirm-dialog.component.scss'],
+  standalone: false
 })
-export class ConfirmDialogComponent implements OnInit {
+export class MarkAsCompleteConfirmDialogComponent implements OnInit {
 
   fetchStatus: 'fetching' | 'fetched' | 'failed' | null = null
 
   constructor(
-    public dialogRef: MatDialogRef<ConfirmDialogComponent>,
+    public dialogRef: MatDialogRef<MarkAsCompleteConfirmDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: IDialogData,
     private markAsCompleteSvc: MarkAsCompleteService,
     private progressSvc: ContentProgressService,

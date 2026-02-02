@@ -6,10 +6,10 @@ import { ConfigurationsService, EventService, MultilingualTranslationsService, W
 import { LoaderService } from '@ws/author'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { MatDialog } from '@angular/material/dialog'
-import { CertificateService } from '../../../certificate/services/certificate.service'
+import { CertificateService } from '@sunbird-cb/collection'
 import { NsDiscussionV2 } from '@sunbird-cb/discussion-v2'
 import * as _ from 'lodash'
-import { NetCoreService } from '../../../../../../../../../src/app/services/netcore.service'
+import { NetCoreService } from '@ws/app'
 import { ConsentDialogComponent } from './consent-dialog.component'
 import { environment } from '../../../../../../../../../src/environments/environment'
 

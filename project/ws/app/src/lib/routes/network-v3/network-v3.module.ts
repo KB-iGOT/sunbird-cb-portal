@@ -24,7 +24,7 @@ import { PaginationModule } from '@sunbird-cb/collection'
 import { MatButtonModule } from '@angular/material/button'
 import { SkeletonLoaderModule } from '@sunbird-cb/collection'
 import { MatDialogModule } from '@angular/material/dialog'
-import { HttpLoaderFactory } from 'src/app/app.module'
+import { HttpLoaderFactory } from '@ws/app'
 import { HttpClient } from '@angular/common/http'
 
 
@@ -60,7 +60,7 @@ import { HttpClient } from '@angular/common/http'
     MatDialogModule,
     DialogComponentsModule,
     AvatarPhotoLibModule,
-    TranslateModule.forRoot({
+    TranslateModule.forChild({
       loader: {
         provide: TranslateLoader,
         useFactory: HttpLoaderFactory,

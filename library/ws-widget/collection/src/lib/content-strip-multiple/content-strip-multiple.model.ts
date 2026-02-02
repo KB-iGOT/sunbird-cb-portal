@@ -19,7 +19,7 @@ export namespace NsContentStripMultiple {
     mode?: 'accordion'
     info?: IStripInfo
     viewMoreUrl?: {
-      queryParams?: string
+      queryParams?: any
       path?: string
       viewMoreText?: string
     }

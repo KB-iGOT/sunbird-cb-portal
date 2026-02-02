@@ -1,10 +1,10 @@
 import { NgModule } from '@angular/core'
 import { CardHomeTopComponent } from './card-home-top.component'
-import { CardActivityComponent } from './card-activity/card-activity.component'
-import { CardCompetencyComponent } from './card-competency/card-competency.component'
+import { CardHomeTopActivityComponent } from './card-activity/card-activity.component'
+import { CardHomeTopCompetencyComponent } from './card-competency/card-competency.component'
 import { CardGoalComponent } from './card-goal/card-goal.component'
 import { MatProgressBarModule } from '@angular/material/progress-bar'
-import { BrowserModule } from '@angular/platform-browser'
+import { CommonModule } from '@angular/common'
 import { AvatarPhotoModule } from '../_common/avatar-photo/avatar-photo.module'
 import { CardLearningStatusComponent } from './card-learning-status/card-learning-status.component'
 import { StarRatingComponent } from './star-rating/star-rating.component'
@@ -21,10 +21,10 @@ import { MatIconModule } from '@angular/material/icon'
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'
 
 @NgModule({
-    declarations: [CardHomeTopComponent, StarRatingComponent, CardActivityComponent,
-        CardCompetencyComponent, CardGoalComponent,
+    declarations: [CardHomeTopComponent, StarRatingComponent, CardHomeTopActivityComponent,
+        CardHomeTopCompetencyComponent, CardGoalComponent,
         CardLearningStatusComponent],
-    imports: [AvatarPhotoModule, BrowserModule, MatButtonModule, MatCardModule, MatChipsModule, MatDividerModule, MatGridListModule,
+    imports: [AvatarPhotoModule, CommonModule, MatButtonModule, MatCardModule, MatChipsModule, MatDividerModule, MatGridListModule,
         MatExpansionModule, MatIconModule, MatProgressSpinnerModule, MatProgressBarModule, MatFormFieldModule,
         MatTooltipModule, HorizontalScrollerModule, PipeNameTransformModule]
 })

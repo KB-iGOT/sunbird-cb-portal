@@ -24,7 +24,7 @@ import { RelatedPostsComponent } from './components/related-posts/related-posts.
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
 import { CareersPaginationComponent } from './components/careers-pagination/careers-pagination.component'
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core'
-import { HttpLoaderFactory } from 'src/app/app.module'
+import { HttpLoaderFactory } from '@ws/app'
 import { HttpClient } from '@angular/common/http'
 import { MatButtonModule } from '@angular/material/button'
 import { MatChipsModule } from '@angular/material/chips'
@@ -73,7 +73,7 @@ import { MatSidenavModule } from '@angular/material/sidenav'
     PipeFilterSearchModule,
     BtnPageBackModule,
     WidgetResolverModule,
-    TranslateModule.forRoot({
+    TranslateModule.forChild({
       loader: {
         provide: TranslateLoader,
         useFactory: HttpLoaderFactory,

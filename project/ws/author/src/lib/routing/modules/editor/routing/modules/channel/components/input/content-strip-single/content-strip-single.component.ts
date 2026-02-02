@@ -12,7 +12,7 @@ import { NotificationComponent } from '../../../../../../../../../modules/shared
 import { SEARCHV6 } from './content-strip-single.constant'
 import { COMMA, ENTER } from '@angular/cdk/keycodes'
 import { Observable, of } from 'rxjs'
-import { InterestService } from './../../../../../../../../../../../../app/src/lib/routes/profile/routes/interest/services/interest.service'
+import { InterestService } from '../../../../../../../../../services/interest.service'
 import { MatChipInputEvent } from '@angular/material/chips'
 import { MatDialog } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'

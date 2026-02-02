@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core'
 import { Subscription, Observable, interval } from 'rxjs'
 import { UntypedFormGroup, UntypedFormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms'
 import { WelcomeUsersService } from './public-welcome.service'
-import { SignupService } from '../public-signup/signup.service'
+import { SignupService } from '@ws/app'
 import { LoggerService, ConfigurationsService, NsInstanceConfig } from '@sunbird-cb/utils-v2'
 import { startWith, map, pairwise } from 'rxjs/operators'
 import { MatSnackBar } from '@angular/material/snack-bar'
@@ -11,7 +11,7 @@ import { MatSnackBar } from '@angular/material/snack-bar'
 // tslint:disable-next-line: import-name
 import _ from 'lodash'
 import { ActivatedRoute, Router } from '@angular/router'
-import { InitService } from 'src/app/services/init.service'
+import { InitService } from '@ws/app'
 import { environment } from 'src/environments/environment'
 
 // export function forbiddenNamesValidator(optionsArray: any): ValidatorFn {

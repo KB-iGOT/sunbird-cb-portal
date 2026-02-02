@@ -32,7 +32,9 @@
                 <div class="flex flex-col gap-4 items-center p-5">
                     <img src="assets/icons/home/users.svg" alt="users icon img" />
                     <div class="text-center">{{ 'home.networkBuildConn' | translate }}</div>
-                    <button (click)="handleFindConnectionsTelemetry()" class="network-btn text-sm font-semibold text-white py-3 px-5 rounded-full border-none cursor-pointer tracking-wide" [routerLink]="['/app/network-v2']" [queryParams]="{page: 'people_connection_request'}" >
+                    <button (click)="handleFindConnectionsTelemetry()"
+                        class="network-btn text-sm font-semibold text-white py-3 px-5 rounded-full border-none cursor-pointer tracking-wide"
+                        [routerLink]="['/app/network-v2']" [queryParams]="{page: 'people_connection_request'}">
                         {{ 'home.networkFindConn' | translate }}
                     </button>
                 </div>
@@ -41,24 +43,26 @@
                 <div class="flex-1 h-full">
                     <ng-container *ngFor="let reqData of recentRequests?.data | slice:0:3;let isLast=last">
                         <div class="flex flex-row gap-3 items-center pb-3 pt-3" [ngClass]="{'recent-div': !isLast}">
-                            <ws-widget-avatar-photo [name]="reqData?.fullName" [photoUrl]="''"
+                            <ws-widget-avatar-photo [name]="$any(reqData)?.fullName" [photoUrl]="''"
                                 size="round-m"></ws-widget-avatar-photo>
                             <div class="flex-1 flex-col">
-                                <div class="mat-subheading-1">{{ reqData?.fullName }}</div>
-                                <div class="text-sm">{{ reqData?.departmentName }}</div>
+                                <div class="mat-subheading-1">{{ $any(reqData)?.fullName }}</div>
+                                <div class="text-sm">{{ $any(reqData)?.departmentName }}</div>
                             </div>
                             <div class="flex flex-row gap-2 justify-center items-center">
-                                <ng-container *ngIf="reqData?.connecting">
+                                <ng-container *ngIf="$any(reqData)?.connecting">
                                     <div class="flex justify-center items-center">
                                         <mat-icon class="pending">cached</mat-icon>
                                     </div>
                                 </ng-container>
 
-                                <ng-container *ngIf="!reqData?.connecting">
-                                    <div class="flex justify-center items-center" (click)="handleRequest(reqData, 'Rejected')">
+                                <ng-container *ngIf="!$any(reqData)?.connecting">
+                                    <div class="flex justify-center items-center"
+                                        (click)="handleRequest(reqData, 'Rejected')">
                                         <mat-icon class="cancel">cancel</mat-icon>
                                     </div>
-                                    <div class="flex justify-center items-center" (click)="handleRequest(reqData, 'Approved')">
+                                    <div class="flex justify-center items-center"
+                                        (click)="handleRequest(reqData, 'Approved')">
                                         <mat-icon class="approve">check_circle</mat-icon>
                                     </div>
                                 </ng-container>

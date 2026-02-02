@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 
 import { CbpFiltersComponent } from './cbp-filters.component'
-import { FilterSearchPipeModule } from 'src/app/pipes/filter-search/filter-search.module'
+import { FilterSearchPipe } from '../../_pipes/filter-search.pipe'
 import { TranslateModule } from '@ngx-translate/core'
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet'
 import { MatCardModule } from '@angular/material/card'
@@ -24,14 +24,15 @@ import { MatTabsModule } from '@angular/material/tabs'
         MatBottomSheetModule,
         MatMenuModule,
         MatRadioModule,
-        FilterSearchPipeModule,
         TranslateModule,
     ],
     exports: [
         CbpFiltersComponent,
+        FilterSearchPipe,
     ],
     declarations: [
         CbpFiltersComponent,
+        FilterSearchPipe,
     ],
     providers: [],
 })

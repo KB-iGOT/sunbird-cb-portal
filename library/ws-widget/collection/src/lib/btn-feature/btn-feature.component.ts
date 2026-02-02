@@ -4,7 +4,7 @@ import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
 import { ConfigurationsService, EventService, NsPage, WsEvents } from '@sunbird-cb/utils-v2'
 import { Subscription } from 'rxjs'
 import { take } from 'rxjs/operators'
-import { MobileAppsService } from '../_services/mobile-apps.service'
+import { BtnFeatureMobileAppsService } from './mobile-apps.service'
 import { CustomTourService } from '../_common/tour-guide/tour-guide.service'
 import { BtnFeatureService } from './btn-feature.service'
 
@@ -50,7 +50,7 @@ export class BtnFeatureComponent extends WidgetBaseComponent
     private configurationsSvc: ConfigurationsService,
     private btnFeatureSvc: BtnFeatureService,
     private router: Router,
-    private mobileSvc: MobileAppsService,
+    private mobileSvc: BtnFeatureMobileAppsService,
     private configSvc: ConfigurationsService,
     private tour: CustomTourService,
   ) {

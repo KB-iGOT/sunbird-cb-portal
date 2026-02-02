@@ -6,7 +6,7 @@ import { NsContentStripWithTabs } from '@sunbird-cb/consumption'
 import { BrowseProviderService } from '../../services/browse-provider.service'
 import { UtilityService } from '@sunbird-cb/utils-v2'
 import { environment } from 'src/environments/environment'
-import { FormExtService } from 'src/app/services/form-ext.service'
+import { FormExtService } from '@ws/app'
 
 @Component({
   selector: 'ws-app-provider-content-all',

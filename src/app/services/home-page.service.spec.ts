@@ -1,5 +1,5 @@
 import { TestBed } from '@angular/core/testing'
-import { HomePageService } from './home-page.service'
+import { HomePageService } from '@ws/app'
 
 describe('HomePageService', () => {
   beforeEach(() => TestBed.configureTestingModule({}))

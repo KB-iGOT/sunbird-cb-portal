@@ -5,7 +5,7 @@ import { catchError, map } from 'rxjs/operators'
 import { IUserGroupDetails } from './widget-user.model'
 import { NsContent } from './widget-content.model'
 import dayjs from 'dayjs'
-import { environment } from 'src/environments/environment'
+import { environment } from '../environment'
 import { NsCardContent } from '../card-content-v2/card-content-v2.model'
 import lodash from 'lodash'
 

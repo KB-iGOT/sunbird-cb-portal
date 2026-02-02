@@ -143,7 +143,7 @@ import { MatRadioModule } from '@angular/material/radio'
     MatTooltipModule,
     ShareDiscussionModule,
     EventsCalendarModule,
-    TranslateModule.forRoot({
+    TranslateModule.forChild({
       loader: {
         provide: TranslateLoader,
         useFactory: HttpLoaderFactory,

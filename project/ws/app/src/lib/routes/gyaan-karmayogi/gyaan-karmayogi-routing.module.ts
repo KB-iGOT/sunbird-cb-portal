@@ -11,7 +11,7 @@ import { GyaanVideoComponent } from './components/players/gyaan-video/gyaan-vide
 import { PdfComponent } from './components/players/pdf/pdf.component'
 import { GyaanAudioComponent } from './components/players/gyaan-audio/gyaan-audio.component'
 import { GyaanYoutubeComponent } from './components/players/gyaan-youtube/gyaan-youtube.component'
-import { FormDataResolverService } from 'src/app/services/form-data-resolver.service'
+import { FormDataResolverService } from '@ws/app'
 
 const routes: Routes = [
   {

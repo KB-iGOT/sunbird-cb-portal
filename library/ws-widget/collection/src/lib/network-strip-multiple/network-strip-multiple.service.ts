@@ -7,7 +7,7 @@ import { Observable } from 'rxjs'
 @Injectable({
   providedIn: 'root',
 })
-export class ContentStripNewMultipleService {
+export class NetworkStripMultipleService {
 
   constructor(
     private http: HttpClient,

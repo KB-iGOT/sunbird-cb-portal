@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing'
 
-import { FormExtService } from './form-ext.service'
+import { FormExtService } from '@ws/app'
 
 describe('FormExtService', () => {
   beforeEach(() => TestBed.configureTestingModule({}))

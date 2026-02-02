@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core'
 import { CardActivityComponent } from './card-activity.component'
 import { MatProgressBarModule } from '@angular/material/progress-bar'
-import { BrowserModule } from '@angular/platform-browser'
+import { CommonModule } from '@angular/common'
 
 import { MatTooltipModule } from '@angular/material/tooltip'
 import { MatGridListModule } from '@angular/material/grid-list'
@@ -17,7 +17,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'
 
 @NgModule({
     declarations: [CardActivityComponent],
-    imports: [BrowserModule, MatButtonModule, MatCardModule, MatChipsModule, MatDividerModule, MatGridListModule,
+    imports: [CommonModule, MatButtonModule, MatCardModule, MatChipsModule, MatDividerModule, MatGridListModule,
         MatExpansionModule, MatIconModule, MatProgressSpinnerModule, MatProgressBarModule, MatFormFieldModule,
         MatTooltipModule, HorizontalScrollerModule]
 })

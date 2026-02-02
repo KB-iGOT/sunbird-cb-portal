@@ -4,7 +4,7 @@ import { CertificateRoutingModule } from './certificate-routing.module'
 // import { SuiModalModule } from 'ng2-semantic-ui';
 import { FormsModule } from '@angular/forms'
 import { CertificateDetailsComponent } from './components/index'
-import { CertificateService } from './services/certificate.service'
+import { CertificateService } from '@sunbird-cb/collection'
 import { ApiService } from '@ws/author'
 import { MatIconModule } from '@angular/material/icon'
 // import { SharedModule } from '@sunbird/shared';

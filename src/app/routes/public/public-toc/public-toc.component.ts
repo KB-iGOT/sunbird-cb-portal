@@ -16,13 +16,13 @@ import { SafeHtml, DomSanitizer, SafeStyle } from '@angular/platform-browser'
 import { AccessControlService } from '@ws/author'
 // import { FormControl, Validators } from '@angular/forms'
 import { MatDialog } from '@angular/material/dialog'
-import { MobileAppsService } from 'src/app/services/mobile-apps.service'
+import { MobileAppsService } from '@ws/app'
 import dayjs from 'dayjs'
 // tslint:disable-next-line
 import _ from 'lodash'
-import { ContentRatingV2DialogComponent } from '@sunbird-cb/collection'
+import { ContentRatingV2DialogComponent, ActionService } from '@sunbird-cb/collection'
 import moment from 'moment'
-import { NsAppToc, AppTocService, ActionService } from '@ws/app'
+import { NsAppToc, AppTocService } from '@ws/app'
 
 export enum ErrorType {
     internalServer = 'internalServer',

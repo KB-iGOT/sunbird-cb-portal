@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { MarkAsCompleteComponent } from './mark-as-complete.component'
-import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog.component'
+import { MarkAsCompleteConfirmDialogComponent } from './confirm-dialog/confirm-dialog.component'
 import { RouterModule } from '@angular/router'
 import { MatButtonModule } from '@angular/material/button'
 import { MatCardModule } from '@angular/material/card'
@@ -13,7 +13,7 @@ import { MatSnackBarModule } from '@angular/material/snack-bar'
 import { MatTooltipModule } from '@angular/material/tooltip'
 
 @NgModule({
-    declarations: [MarkAsCompleteComponent, ConfirmDialogComponent],
+    declarations: [MarkAsCompleteComponent, MarkAsCompleteConfirmDialogComponent],
     imports: [
         CommonModule,
         MatCardModule,

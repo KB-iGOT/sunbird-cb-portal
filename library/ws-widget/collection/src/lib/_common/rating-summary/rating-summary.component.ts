@@ -2,14 +2,17 @@ import { Component, OnInit, Input, OnChanges } from '@angular/core'
 import { RatingService } from '../../_services/rating.service'
 
 @Component({
-    selector: 'ws-widget-rating-summary',
-    templateUrl: './rating-summary.component.html',
-    styleUrls: ['./rating-summary.component.scss'],
-    standalone: false
+  selector: 'ws-widget-rating-summary',
+  templateUrl: './rating-summary.component.html',
+  styleUrls: ['./rating-summary.component.scss'],
+  standalone: false
 })
 
 export class RatingSummaryComponent implements OnInit, OnChanges {
   @Input() ratingSummary: any | null = null
+  @Input() className = ''
+  @Input() contentId = ''
+  @Input() ratingColor = 'accent'
 
   constructor(
     private ratingService: RatingService

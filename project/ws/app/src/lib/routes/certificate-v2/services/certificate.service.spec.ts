@@ -3,7 +3,7 @@ import { ConfigService } from '@sunbird/shared'
 import { LearnerService } from './../learner/learner.service'
 import { provideHttpClientTesting } from '@angular/common/http/testing'
 import { mockResponseData } from './certificate.service.spec.data'
-import { CertificateService } from './certificate.service'
+import { CertificateService } from '@sunbird-cb/collection'
 import { of as observableOf, Observable } from 'rxjs'
 import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 

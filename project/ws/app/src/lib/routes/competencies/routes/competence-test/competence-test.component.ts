@@ -3,8 +3,8 @@ import { MatDialog } from '@angular/material/dialog'
 import { Subscription } from 'rxjs'
 import { ValueService } from '@sunbird-cb/utils-v2'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
-import { RootService } from 'src/app/component/root/root.service'
-import { TStatus, ViewerDataService } from '@ws/viewer'
+import { RootService } from '@ws/app'
+import { TStatus, ViewerDataService } from '@sunbird-cb/collection'
 import { ActivatedRoute, Router } from '@angular/router'
 
 // import { Router } from '@angular/router';

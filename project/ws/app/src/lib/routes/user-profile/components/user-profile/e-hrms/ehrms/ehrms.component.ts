@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, OnChanges } from '@angular/core'
-import { UserProfileService } from '../../../../services/user-profile.service'
+import { UserProfileService } from '@sunbird-cb/collection'
 import { UntypedFormControl, UntypedFormGroup } from '@angular/forms'
 
 @Component({

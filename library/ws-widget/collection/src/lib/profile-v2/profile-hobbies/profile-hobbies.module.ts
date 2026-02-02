@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core'
 import { ProfileHobbiesComponent } from './profile-hobbies.component'
 
-import { BrowserModule } from '@angular/platform-browser'
+import { CommonModule } from '@angular/common'
 
 import { TranslateModule } from '@ngx-translate/core'
 import { MatButtonModule } from '@angular/material/button'
@@ -14,7 +14,7 @@ import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'
 
 @NgModule({
     declarations: [ProfileHobbiesComponent],
-    imports: [BrowserModule, MatButtonModule, MatCardModule, MatChipsModule,
+    imports: [CommonModule, MatButtonModule, MatCardModule, MatChipsModule,
         MatDividerModule, MatExpansionModule, MatIconModule, MatProgressSpinnerModule,
         TranslateModule,
     ]

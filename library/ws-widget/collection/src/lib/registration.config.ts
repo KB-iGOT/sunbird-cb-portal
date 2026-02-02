@@ -169,11 +169,11 @@ import { UIORGTableModule } from './ui-org-table/ui-org-table.module'
 
 import { BreadcrumbsOrgModule } from './breadcrumbs-org/breadcrumbs-org.module'
 import { CardNotifyComponent } from './card-notify/card-notify.component'
-import { PlayerSurveyComponent } from './player-survey/player-survey.component'
-import { PlayerSurveyModule } from './player-survey/player-survey.module'
-import { CardContentV2Component } from './card-content-v2/card-content-v2.component'
-import { CardContentV2Module } from './card-content-v2/card-content-v2.module'
-import { ContentStripWithTabsComponent } from './content-strip-with-tabs/content-strip-with-tabs.component'
+// import { PlayerSurveyComponent } from './player-survey/player-survey.component'
+// import { PlayerSurveyModule } from './player-survey/player-survey.module'
+// import { CardContentV2Component } from './card-content-v2/card-content-v2.component'
+// import { CardContentV2Module } from './card-content-v2/card-content-v2.module'
+// import { ContentStripWithTabsComponent } from './content-strip-with-tabs/content-strip-with-tabs.component'
 import { ProfileKarmapointsModule } from './profile-v2/profile-karmapoints/profile-karmapoints.module'
 import { ProfileKarmapointsComponent } from './profile-v2/profile-karmapoints/profile-karmapoints.component'
 import { CardEventHubComponent } from './card-event-hub/card-event-hub.component'
@@ -205,7 +205,7 @@ export const WIDGET_REGISTERED_MODULES = [
   BtnSettingsModule,
   CardBreadcrumbModule,
   // CardContentModule,
-  CardContentV2Module,
+  //   CardContentV2Module,
   CardChannelModule,
   CardLearnModule,
   CardWelcomeModule,
@@ -219,6 +219,7 @@ export const WIDGET_REGISTERED_MODULES = [
   ContentStripNewMultipleModule,
   ContentStripSingleModule,
   // ContentStripVerticalModule,
+  // ContentStripWithTabsModule,
   GraphGeneralModule,
   LayoutLinearModule,
   LayoutTabModule,
@@ -228,7 +229,7 @@ export const WIDGET_REGISTERED_MODULES = [
   PlayerAudioModule,
   PlayerPdfModule,
   PlayerOfflineSessionModule,
-  PlayerSurveyModule,
+  //   PlayerSurveyModule,
   PlayerSlidesModule,
   PlayerVideoModule,
   PlayerWebPagesModule,
@@ -379,11 +380,11 @@ export const WIDGET_REGISTRATION_CONFIG: NsWidgetResolver.IRegistrationConfig[] 
   //   widgetSubType: ROOT_WIDGET_CONFIG.card.content,
   //   component: CardContentComponent,
   // },
-  {
-    widgetType: ROOT_WIDGET_CONFIG.card._type,
-    widgetSubType: ROOT_WIDGET_CONFIG.card.content,
-    component: CardContentV2Component,
-  },
+  // {
+  //   widgetType: ROOT_WIDGET_CONFIG.card._type,
+  //   widgetSubType: ROOT_WIDGET_CONFIG.card.content,
+  //   component: CardContentV2Component,
+  // },
   {
     widgetType: ROOT_WIDGET_CONFIG.card._type,
     widgetSubType: ROOT_WIDGET_CONFIG.card.learning,
@@ -434,11 +435,11 @@ export const WIDGET_REGISTRATION_CONFIG: NsWidgetResolver.IRegistrationConfig[] 
     widgetSubType: ROOT_WIDGET_CONFIG.contentStrip.multiStripNew,
     component: ContentStripNewMultipleComponent,
   },
-  {
-    widgetType: ROOT_WIDGET_CONFIG.contentStrip._type,
-    widgetSubType: ROOT_WIDGET_CONFIG.contentStrip.stripWithTabs,
-    component: ContentStripWithTabsComponent,
-  },
+  // {
+  //   widgetType: ROOT_WIDGET_CONFIG.contentStrip._type,
+  //   widgetSubType: ROOT_WIDGET_CONFIG.contentStrip.stripWithTabs,
+  //   component: ContentStripWithTabsComponent,
+  // },
   // {
   //   widgetType: ROOT_WIDGET_CONFIG.contentStrip._type,
   //   widgetSubType: ROOT_WIDGET_CONFIG.contentStrip.verticalStrip,
@@ -499,11 +500,11 @@ export const WIDGET_REGISTRATION_CONFIG: NsWidgetResolver.IRegistrationConfig[] 
     widgetSubType: ROOT_WIDGET_CONFIG.player.pdf,
     component: PlayerPdfComponent,
   },
-  {
-    widgetType: ROOT_WIDGET_CONFIG.player._type,
-    widgetSubType: ROOT_WIDGET_CONFIG.player.survey,
-    component: PlayerSurveyComponent,
-  },
+  // {
+  //   widgetType: ROOT_WIDGET_CONFIG.player._type,
+  //   widgetSubType: ROOT_WIDGET_CONFIG.player.survey,
+  //   component: PlayerSurveyComponent,
+  // },
   {
     widgetType: ROOT_WIDGET_CONFIG.player._type,
     widgetSubType: ROOT_WIDGET_CONFIG.player.offlineSession,

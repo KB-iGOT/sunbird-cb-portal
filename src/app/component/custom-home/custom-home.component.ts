@@ -5,7 +5,7 @@ import { ConfigurationsService, EventService, WsEvents } from '@sunbird-cb/utils
 /* tslint:disable */
 import _ from 'lodash'
 import moment from 'moment'
-import { HomePageService } from 'src/app/services/home-page.service'
+import { HomePageService } from '@ws/app'
 
 // Add this helper function before your component class
 function isStripActive(strip: any): boolean {

@@ -1,6 +1,6 @@
 import { TestBed } from '@angular/core/testing';
 
-import { FormDataResolverService } from './form-data-resolver.service';
+import { FormDataResolverService } from '@ws/app';
 
 describe('FormDataResolverService', () => {
   let service: FormDataResolverService;

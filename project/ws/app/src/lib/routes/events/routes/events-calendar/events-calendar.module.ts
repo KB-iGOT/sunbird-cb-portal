@@ -42,7 +42,7 @@ import { EventsCalendarComponent } from './events-calendar.component'
     PipeFilterV2Module,
     PipePublicURLModule,
     SkeletonLoaderModule,
-    TranslateModule.forRoot({
+    TranslateModule.forChild({
       loader: {
         provide: TranslateLoader,
         useFactory: HttpLoaderFactory,

@@ -5,10 +5,10 @@ import { ConfigurationsService, EventService, WsEvents } from '@sunbird-cb/utils
 import { BtnContentLikeService } from './btn-content-like.service'
 
 @Component({
-    selector: 'ws-widget-btn-content-like',
-    templateUrl: './btn-content-like.component.html',
-    styleUrls: ['./btn-content-like.component.scss'],
-    standalone: false
+  selector: 'ws-widget-btn-content-like',
+  templateUrl: './btn-content-like.component.html',
+  styleUrls: ['./btn-content-like.component.scss'],
+  standalone: false
 })
 export class BtnContentLikeComponent extends WidgetBaseComponent
   implements
@@ -27,7 +27,7 @@ export class BtnContentLikeComponent extends WidgetBaseComponent
   public id = 'like-content'
   status: 'LIKED' | 'NOT_LIKED' | 'PENDING' = 'PENDING'
   isRestricted = false
-  rootOrg = this.configSvc.rootOrg
+  rootOrg = ''
   private likeSubscription: Subscription | null = null
   constructor(
     private events: EventService,
@@ -38,6 +38,10 @@ export class BtnContentLikeComponent extends WidgetBaseComponent
     if (this.configSvc.restrictedFeatures) {
       this.isRestricted = this.configSvc.restrictedFeatures.has('contentLike')
     }
+  }
+
+  get baseUrl() {
+    return this.configSvc.sitePath
   }
 
   get showLikesCount(): boolean {
@@ -58,10 +62,11 @@ export class BtnContentLikeComponent extends WidgetBaseComponent
   }
 
   ngOnInit() {
+    this.rootOrg = this.configSvc.rootOrg || ''
     if (!this.isRestricted && !this.forPreview) {
       this.likeSubscription = this.btnLikeSvc
         .isLikedFor(this.widgetData.identifier)
-        .subscribe(isLiked => {
+        .subscribe((isLiked: boolean) => {
           if (isLiked) {
             this.status = 'LIKED'
           } else if (this.btnLikeSvc.fetchingLikes) {
@@ -140,6 +145,6 @@ export class BtnContentLikeComponent extends WidgetBaseComponent
       {
         pageIdExt: 'btn-like',
         module: WsEvents.EnumTelemetrymodules.FEEDBACK,
-    })
+      })
   }
 }

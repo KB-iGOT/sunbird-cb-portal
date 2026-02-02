@@ -16,7 +16,7 @@
       "es2018",
       "dom"
     ],
-    "module": "es2020",
+    "module": "esnext",
     "moduleResolution": "bundler",
     "noFallthroughCasesInSwitch": true,
     "noImplicitAny": true,
@@ -57,10 +57,10 @@
         "library/ws-widget/collection/*"
       ],
       "@sunbird-cb/resolver": [
-        "library/ws-widget/resolver"
+        "dist/ws-widget/resolver"
       ],
       "@sunbird-cb/resolver/*": [
-        "library/ws-widget/resolver/*"
+        "dist/ws-widget/resolver/*"
       ]
     },
     "removeComments": true,
@@ -72,20 +72,7 @@
     "strictPropertyInitialization": true,
     "target": "ES2022",
     "typeRoots": [
-      "node_modules/@types",
-      "./custom_typings"
-    ],
-    "plugins": [
-      {
-        "name": "@angular/language-service"
-      },
-      {
-        "name": "typescript-tslint-plugin",
-        "alwaysShowRuleFailuresAsWarnings": false,
-        "ignoreDefinitionFiles": true,
-        "configFile": "./tslint.json",
-        "suppressWhileTypeErrorsPresent": false
-      }
+      "node_modules/@types"
     ],
     "useDefineForClassFields": false
   }

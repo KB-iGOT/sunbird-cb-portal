@@ -18,7 +18,7 @@ import { DatePipe, Location } from '@angular/common'
 import { ConfigurationsService, ImageCropComponent, PipeCertificateImageURL } from '@sunbird-cb/utils-v2'
 import { NotificationComponent, PROFILE_IMAGE_SUPPORT_TYPES, Notify } from '@ws/author'
 import { NOTIFICATION_TIME } from '@ws/author'
-import { UserProfileService } from '../../../user-profile/services/user-profile.service'
+import { UserProfileService } from '@sunbird-cb/collection'
 import { TranslateService } from '@ngx-translate/core'
 // import { Router } from '@angular/router';
 

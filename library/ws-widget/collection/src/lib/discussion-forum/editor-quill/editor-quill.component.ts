@@ -1,10 +1,10 @@
 import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core'
 
 @Component({
-    selector: 'ws-widget-editor-quill',
-    templateUrl: './editor-quill.component.html',
-    styleUrls: ['./editor-quill.component.scss'],
-    standalone: false
+  selector: 'ws-widget-editor-quill',
+  templateUrl: './editor-quill.component.html',
+  styleUrls: ['./editor-quill.component.scss'],
+  standalone: false
 })
 export class EditorQuillComponent implements OnInit {
   @Output() textData = new EventEmitter<{
@@ -13,8 +13,8 @@ export class EditorQuillComponent implements OnInit {
   }>()
 
   @Input() htmlText = ''
-  @Input() minLength = '1'
-  @Input() post ?= false
+  @Input() minLength = 1
+  @Input() post? = false
 
   reset = false
   placeholder = 'Ask a question, or add something you found helpful'
@@ -38,6 +38,6 @@ export class EditorQuillComponent implements OnInit {
     this.reset = true
     setTimeout(() => {
       this.reset = false
-    },         0)
+    }, 0)
   }
 }

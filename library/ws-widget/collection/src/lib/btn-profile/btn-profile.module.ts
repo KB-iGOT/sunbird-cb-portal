@@ -5,7 +5,7 @@ import { WidgetResolverModule } from '@sunbird-cb/resolver'
 import { RouterModule } from '@angular/router'
 import { LogoutModule } from '@sunbird-cb/utils-v2'
 import { AvatarPhotoModule } from '../_common/avatar-photo/avatar-photo.module'
-import { WidgetUrlResolverDirective } from './widget-url-resolver.directive'
+import { BtnProfileWidgetUrlResolverDirective } from './widget-url-resolver.directive'
 import { TranslateModule } from '@ngx-translate/core'
 import { MatButtonModule } from '@angular/material/button'
 import { MatDialogModule } from '@angular/material/dialog'
@@ -16,7 +16,7 @@ import { MatTooltipModule } from '@angular/material/tooltip'
 // import { TreeCatalogModule } from '../tree-catalog/tree-catalog.module'
 
 @NgModule({
-    declarations: [BtnProfileComponent, WidgetUrlResolverDirective],
+    declarations: [BtnProfileComponent, BtnProfileWidgetUrlResolverDirective],
     imports: [
         AvatarPhotoModule,
         CommonModule,

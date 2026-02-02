@@ -7,7 +7,7 @@ import { MatSnackBar } from '@angular/material/snack-bar'
 // import { Observable, Subject } from 'rxjs'
 import { debounceTime, distinctUntilChanged, startWith, takeUntil } from 'rxjs/operators'
 
-import { UserProfileService } from '../../../user-profile/services/user-profile.service'
+import { UserProfileService } from '@sunbird-cb/collection'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { Subject } from 'rxjs'
 import { ProfileV2RevampService } from '../../services/profile-v2-revamp.service'
