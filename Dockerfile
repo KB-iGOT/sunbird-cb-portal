@@ -12,24 +12,7 @@ RUN npm run compress:brotli
 
 WORKDIR /app/dist
 COPY assets/iGOT/client-assets/dist www/en/assets
-
-RUN echo '{ \
-  "name": "fusion-server", \
-  "version": "1.0.0", \
-  "scripts": { \
-    "serve:prod": "node server.js" \
-  }, \
-  "dependencies": { \
-    "express": "^4.18.2", \
-    "compression": "^1.7.4", \
-    "express-healthcheck": "^0.1.0" \
-  } \
-}' > package.json
-
-RUN npm install --legacy-peer-deps --force --production
-COPY server.js .
-
+RUN npm install --production
 EXPOSE 3004
 
 CMD [ "npm", "run", "serve:prod" ]
-
