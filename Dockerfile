@@ -27,7 +27,7 @@ RUN echo '{ \
 }' > package.json
 
 RUN npm install --legacy-peer-deps --force --production
-COPY server.js.
+COPY server.js .
 
 EXPOSE 3004
 
