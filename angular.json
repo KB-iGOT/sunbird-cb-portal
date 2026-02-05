@@ -30,6 +30,7 @@
             "assets": [
               "src/favicon.ico",
               "src/favicon.png",
+              // "src/assets",
               "src/fusion-assets/icons/",
               "src/fusion-assets/images/",
               "src/dashboard-assets/",
@@ -268,6 +269,7 @@
             "karmaConfig": "karma.conf.js",
             "assets": [
               "src/favicon.ico",
+              // "src/assets",
               "src/fusion-assets",
               {
                 "glob": "**/*.*",

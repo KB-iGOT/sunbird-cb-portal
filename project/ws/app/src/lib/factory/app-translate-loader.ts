@@ -1,19 +1,16 @@
-import { HttpClient } from '@angular/common/http'
+
 import { TranslateHttpLoader, provideTranslateHttpLoader, TRANSLATE_HTTP_LOADER_CONFIG } from '@ngx-translate/http-loader'
 import { Provider } from '@angular/core'
 
 /**
- * Factory function for TranslateHttpLoader - legacy support
- * Note: @ngx-translate/http-loader v17+ requires TRANSLATE_HTTP_LOADER_CONFIG injection token
+ * Factory function for TranslateHttpLoader - Angular 17+ version
+ * Note: @ngx-translate/http-loader v17+ uses dependency injection, not constructor params
+ * The TranslateHttpLoader will automatically inject TRANSLATE_HTTP_LOADER_CONFIG
  */
 // tslint:disable-next-line:function-name
-export function HttpLoaderFactory(http: HttpClient) {
-  // Create a minimal TranslateHttpLoader-like object that doesn't rely on injection
-  return {
-    getTranslation(lang: string) {
-      return http.get(`/assets/i18n/${lang}.json`)
-    }
-  }
+export function HttpLoaderFactory() {
+  // Return a new TranslateHttpLoader instance (config comes from DI)
+  return new TranslateHttpLoader()
 }
 
 /**

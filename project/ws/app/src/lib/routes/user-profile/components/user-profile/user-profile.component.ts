@@ -6,21 +6,8 @@ import { startWith, map, debounceTime, distinctUntilChanged, pairwise } from 'rx
 import { AppDateAdapter, APP_DATE_FORMATS, changeformat } from '../../services/format-datepicker'
 import { ImageCropComponent, ConfigurationsService, WsEvents, EventService, PipeCertificateImageURL, MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 import { IMAGE_MAX_SIZE, PROFILE_IMAGE_SUPPORT_TYPES } from '@ws/author'
-import { UserProfileService } from '@sunbird-cb/collection'
+import { UserProfileService, INationality, ILanguages, IChipItems, IGovtOrgMeta, IIndustriesMeta, IProfileAcademics, INation, IdegreesMeta, INameField, ICountry } from '@sunbird-cb/collection'
 import { Router, ActivatedRoute } from '@angular/router'
-
-import {
-  INationality,
-  ILanguages,
-  IChipItems,
-  IGovtOrgMeta,
-  IIndustriesMeta,
-  IProfileAcademics,
-  INation,
-  IdegreesMeta,
-  INameField,
-  ICountry,
-} from '../../models/user-profile.model'
 
 import { Notify } from '@ws/author'
 import { NOTIFICATION_TIME } from '@ws/author'
@@ -651,7 +638,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   private filterDegrees(name: string): INameField[] {
     if (name) {
       const filterValue = name.toLowerCase()
-      return this.degreesMeta.graduations.filter(option => option.name.toLowerCase().includes(filterValue))
+      return this.degreesMeta.graduations.filter((option: INameField) => option.name.toLowerCase().includes(filterValue))
     }
     return this.degreesMeta.graduations
   }
@@ -659,7 +646,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
   private filterPostDegrees(name: string): INameField[] {
     if (name) {
       const filterValue = name.toLowerCase()
-      return this.degreesMeta.postGraduations.filter(option => option.name.toLowerCase().includes(filterValue))
+      return this.degreesMeta.postGraduations.filter((option: INameField) => option.name.toLowerCase().includes(filterValue))
     }
     return this.degreesMeta.postGraduations
   }

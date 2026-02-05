@@ -124,7 +124,7 @@ import { AppChatbotModule } from './component/app-chatbot/app-chatbot.module'
 import { AppHierarchyResolverService } from './services/app-hierarchy-resolver.service'
 import { AppEnrollmentResolverService } from './services/app-enrollment-resolver.service'
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core'
-import { HttpLoaderFactory } from '@ws/app'
+import { HttpLoaderFactory, TRANSLATE_HTTP_LOADER_CONFIG } from '@ws/app'
 import { AppContentResolverService } from './services/app-content-read-resolver.service'
 
 import { HeaderModule } from './header/header.module'
@@ -398,9 +398,13 @@ const getBaseHref = (platformLocation: PlatformLocation): string => {
       deps: [PlatformLocation],
     },
     {
+      provide: TRANSLATE_HTTP_LOADER_CONFIG,
+      useValue: { prefix: '/assets/i18n/', suffix: '.json' }
+    },
+    {
       provide: TranslateLoader,
       useFactory: HttpLoaderFactory,
-      deps: [HttpClient],
+      deps: [],
     },
     { provide: OverlayContainer, useClass: FullscreenOverlayContainer },
     // { provide: HAMMER_GESTURE_CONFIG, useClass: HammerConfig },

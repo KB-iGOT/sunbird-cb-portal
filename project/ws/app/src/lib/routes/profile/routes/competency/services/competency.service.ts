@@ -20,14 +20,14 @@ export class AssessmentService {
       validator_URL: `https://${this.configSvc.hostPath}/apis/protected/v8/user/validate`,
     }),
   }
-  private assessmentSubject: ReplaySubject<NSCompetency.IAchievementsRes> | null = null
+  private assessmentSubject: ReplaySubject<NSCompetency.IAchievementsRes | undefined> | null = null
   constructor(private http: HttpClient, private configSvc: ConfigurationsService) {
   }
 
   getAssessmentDetails(
     startDate: string,
     endDate: string,
-  ): Observable<NSCompetency.IAchievementsRes> {
+  ): Observable<NSCompetency.IAchievementsRes | undefined> {
     if (!this.assessmentSubject) {
       this.assessmentSubject = new ReplaySubject()
       this.fetchAssessments(startDate, endDate)
@@ -44,8 +44,8 @@ export class AssessmentService {
     return this.assessmentSubject
       .asObservable()
       .pipe(
-        map((data: NSCompetency.IAchievementsRes) => {
-          if (data.achievements) {
+        map((data: NSCompetency.IAchievementsRes | undefined) => {
+          if (data && data.achievements) {
             data.achievements.find(assessment => assessment.id === id)
           }
         }),
@@ -73,7 +73,7 @@ export class AssessmentService {
           if (!this.assessmentSubject) {
             this.assessmentSubject = new ReplaySubject(1)
           }
-          this.assessmentSubject.next()
+          this.assessmentSubject.next(undefined)
         },
       )
   }

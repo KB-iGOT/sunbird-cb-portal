@@ -6,7 +6,6 @@ import { BadgesCardComponent } from './components/badges-card/badges-card.compon
 import { BadgesShareDialogComponent } from './components/badges-share-dialog/badges-share-dialog.component'
 import { BadgesNotEarnedComponent } from './components/badges-not-earned/badges-not-earned.component'
 import { HorizontalScrollerModule, DefaultThumbnailModule } from '@sunbird-cb/utils-v2'
-import { BtnLinkedinShareModule, BtnFacebookShareModule, BtnTwitterShareModule } from '@sunbird-cb/collection'
 import { MatButtonModule } from '@angular/material/button'
 import { MatCardModule } from '@angular/material/card'
 import { MatIconModule } from '@angular/material/icon'
@@ -30,9 +29,6 @@ import { MatTooltipModule } from '@angular/material/tooltip'
         HorizontalScrollerModule,
         DefaultThumbnailModule,
         MatMenuModule,
-        BtnLinkedinShareModule,
-        BtnFacebookShareModule,
-        BtnTwitterShareModule,
     ]
 })
 export class BadgesModule { }

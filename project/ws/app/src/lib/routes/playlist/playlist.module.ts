@@ -14,9 +14,6 @@ import {
     UserAutocompleteModule,
     UserImageModule,
     ContentPickerV2Module,
-    BtnLinkedinShareModule,
-    BtnFacebookShareModule,
-    BtnTwitterShareModule,
 } from '@sunbird-cb/collection'
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
 import { DefaultThumbnailModule, PipeDurationTransformModule } from '@sunbird-cb/utils-v2'
@@ -100,9 +97,6 @@ import { MatTooltipModule } from '@angular/material/tooltip'
         MatToolbarModule,
         MatTooltipModule,
         MatProgressBarModule,
-        BtnLinkedinShareModule,
-        BtnFacebookShareModule,
-        BtnTwitterShareModule,
     ]
 })
 export class PlaylistModule { }

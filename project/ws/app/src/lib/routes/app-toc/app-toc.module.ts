@@ -110,7 +110,7 @@ import { AppTocHomeDirective } from './routes/app-toc-home/app-toc-home.directiv
 import { AppTocCohortsDirective } from './routes/app-toc-cohorts/app-toc-cohorts.directive'
 import { AppTocSinglePageDirective } from './routes/app-toc-single-page/app-toc-single-page.directive'
 import { AppTocCiosHomeComponent } from './components/app-toc-cios-home/app-toc-cios-home.component'
-import { CommonMethodsService, ContentLanguageService, DialogComponentsModule, TOCMultiLingualDialogModule } from '@sunbird-cb/consumption'
+import { CommonMethodsService, ContentLanguageService } from '@sunbird-cb/consumption'
 // import { UserProfileService } from '@sunbird-cb/collection' // Unused
 import { OtpService } from '../user-profile/services/otp.services'
 import { MatAutocompleteModule } from '@angular/material/autocomplete'
@@ -136,11 +136,8 @@ import { MatSnackBarModule } from '@angular/material/snack-bar'
 import { MatTabsModule } from '@angular/material/tabs'
 import { MatToolbarModule } from '@angular/material/toolbar'
 import { MatTooltipModule } from '@angular/material/tooltip'
-import { WidgetCommentModule } from '@sunbird-cb/discussion-v2'
-import { SlidersDynamicModule } from '@sunbird-cb/collection'
+import { SlidersDynamicModule, NonReleventFeedbackDialogModule } from '@sunbird-cb/collection'
 import { EnrollProfileFormComponent } from './components/enroll-profile-form/enroll-profile-form.component'
-import { PlayerSurveyFormQuestionComponent, PlayerSurveyFormSectionComponent } from '@sunbird-cb/collection'
-import { NonReleventFeedbackDialogModule } from '../../../../../../../library/ws-widget/collection/src/lib/_common/non-relevent-feedback-dialog/non-relevent-feedback-dialog.module'
 import { AppTocContentReadResolverService } from './resolvers/app-toc-content-read-resolver.service'
 import { AppTocHomeV2Component } from './components/app-toc-home-v2/app-toc-home-v2.component'
 import { EnrollLanguageDialogueComponent } from './components/enroll-language-dialogue/enroll-language-dialogue.component'
@@ -274,11 +271,8 @@ import { ConsentDialogComponent } from './components/app-toc-cios-home/consent-d
     KarmaPointsModule,
     TipsForLearnerModule,
     ReactiveFormsModule,
-    WidgetCommentModule,
     SlidersDynamicModule,
     NonReleventFeedbackDialogModule,
-    PlayerSurveyFormQuestionComponent,
-    PlayerSurveyFormSectionComponent,
   ],
   providers: [
     AppTocContentReadResolverService,
@@ -295,12 +289,9 @@ import { ConsentDialogComponent } from './components/app-toc-cios-home/consent-d
     // ActionService,
     MultilingualTranslationsService,
     CommonMethodsService,
-
     OtpService,
     ContentLanguageService,
-    TOCMultiLingualDialogModule,
     DatePipe,
-    DialogComponentsModule
   ],
   exports: [
     AppTocDiscussionComponent,
