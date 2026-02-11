@@ -405,13 +405,11 @@ export class ViewerTopBarComponent implements OnInit, OnDestroy, OnChanges {
         for (const itemId of Array.from(mandatoryItemIds)) {
           const itemData = this.hierarchyMapData[itemId]
           if (!itemData) continue
-
           // Check if this item's parent chain includes a locked milestone
           let currentParentId = itemData.parent
           let depth = 0
           const maxDepth = 10
           let isLocked = false
-
           while (currentParentId && depth < maxDepth) {
             if (lockedMilestoneIds.includes(currentParentId)) {
               isLocked = true
@@ -422,7 +420,6 @@ export class ViewerTopBarComponent implements OnInit, OnDestroy, OnChanges {
             currentParentId = parentData.parent
             depth++
           }
-
           if (!isLocked) {
             accessibleMandatoryItems.push(itemId)
           }
@@ -446,7 +443,6 @@ export class ViewerTopBarComponent implements OnInit, OnDestroy, OnChanges {
 
         this.completedCount = completedItems.length
         this.overallLeafNodes = mandatoryLeafCount  // Show only mandatory count
-
         this.completedCountOutput.emit(this.completedCount)
 
         const percentDenominator = this.overallLeafNodes > 0 ? this.overallLeafNodes : 1

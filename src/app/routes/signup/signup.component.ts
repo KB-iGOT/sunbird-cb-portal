@@ -5,10 +5,10 @@ import { MatSnackBar } from '@angular/material/snack-bar'
 import { SignupService } from '@ws/app'
 
 @Component({
-    selector: 'ws-signup',
-    templateUrl: './signup.component.html',
-    styleUrls: ['./signup.component.scss'],
-    standalone: false
+  selector: 'ws-signup',
+  templateUrl: './signup.component.html',
+  styleUrls: ['./signup.component.scss'],
+  standalone: false
 })
 export class SignupComponent implements OnInit, OnDestroy {
   signupForm: UntypedFormGroup
