@@ -3,13 +3,13 @@ import { CommonModule } from '@angular/common'
 import { PublicTocComponent } from './public-toc.component'
 import { RouterModule } from '@angular/router'
 import { PipeDurationTransformModule, PipePartialContentModule, PipeSafeSanitizerModule } from '@sunbird-cb/utils-v2'
-import { AppTocService } from '@ws/app'
-import { AppTocModule } from '@ws/app/src/lib/routes/app-toc/app-toc.module'
-import { BtnPageBackNavModule } from '@sunbird-cb/collection'
+
 import { MatButtonModule } from '@angular/material/button'
 import { MatCardModule } from '@angular/material/card'
 import { MatCheckboxModule } from '@angular/material/checkbox'
 import { MatChipsModule } from '@angular/material/chips'
+import { AppTocService, ActionService, AppTocLibModule } from '@sunbird-cb/toc'
+import { BtnPageBackNavModule } from '@sunbird-cb/collection/src/public-api'
 import { MatNativeDateModule } from '@angular/material/core'
 import { MatDatepickerModule } from '@angular/material/datepicker'
 import { MatDialogModule } from '@angular/material/dialog'
@@ -59,11 +59,11 @@ import { MatTooltipModule } from '@angular/material/tooltip'
         PipeSafeSanitizerModule,
         PipeDurationTransformModule,
         PipePartialContentModule,
-        AppTocModule,
+        AppTocLibModule,
         BtnPageBackNavModule,
     ],
     exports: [PublicTocComponent],
-    providers: [AppTocService],
+    providers: [AppTocService, ActionService],
     schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
 export class PublicTocModule { }

@@ -6,13 +6,13 @@ import { RouterModule } from '@angular/router'
 import { ValueService } from '@sunbird-cb/utils-v2'
 import { CourseCompletionDialogModule } from '../course-completion-dialog/course-completion-dialog.module'
 import { TranslateModule } from '@ngx-translate/core'
-import { SkeletonLoaderModule } from '@sunbird-cb/collection'
 import { MatButtonModule } from '@angular/material/button'
+import { ShareTocModule } from '@sunbird-cb/toc'
+import { SkeletonLoaderModule } from '@sunbird-cb/collection/src/lib/_common/skeleton-loader/skeleton-loader.module'
 import { MatIconModule } from '@angular/material/icon'
 import { MatProgressBarModule } from '@angular/material/progress-bar'
 import { MatToolbarModule } from '@angular/material/toolbar'
 import { MatTooltipModule } from '@angular/material/tooltip'
-import { ShareTocModule } from '../../../../../app/src/lib/routes/app-toc/share-toc/share-toc.module'
 @NgModule({
   declarations: [ViewerTopBarComponent],
   imports: [

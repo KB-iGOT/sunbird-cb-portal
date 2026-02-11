@@ -2,7 +2,6 @@ import { Component, OnDestroy, OnInit, AfterViewInit, AfterViewChecked, HostList
 import { ActivatedRoute, Event, Data, Router, NavigationEnd } from '@angular/router'
 import {
     NsContent,
-    WidgetContentService,
     viewerRouteGenerator,
     NsPlaylist,
     NsGoal,
@@ -20,9 +19,11 @@ import { MobileAppsService } from '@ws/app'
 import dayjs from 'dayjs'
 // tslint:disable-next-line
 import _ from 'lodash'
-import { ContentRatingV2DialogComponent, ActionService } from '@sunbird-cb/collection'
+import { ContentRatingV2DialogComponent } from '@sunbird-cb/collection'
 import moment from 'moment'
-import { NsAppToc, AppTocService } from '@ws/app'
+import { NsAppToc } from '@sunbird-cb/toc'
+import { AppTocService } from '@sunbird-cb/toc'
+import { ActionService, WidgetContentService } from '@sunbird-cb/toc'
 
 export enum ErrorType {
     internalServer = 'internalServer',

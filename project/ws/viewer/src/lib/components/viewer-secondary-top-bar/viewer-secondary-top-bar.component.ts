@@ -1,26 +1,24 @@
-import { Component, EventEmitter, Input, OnDestroy, OnInit, Output } from '@angular/core'
+import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, AfterViewInit, ChangeDetectorRef } from '@angular/core'
 import { MatDialog } from '@angular/material/dialog'
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser'
 import { ActivatedRoute, NavigationEnd, NavigationExtras, Router } from '@angular/router'
-import { WidgetContentService } from '@sunbird-cb/collection'
-import { NsContent, VIEWER_ROUTE_FROM_MIME } from '@sunbird-cb/collection'
+import { WidgetContentService } from '@sunbird-cb/toc'
+import { NsContent, VIEWER_ROUTE_FROM_MIME, ViewerDataService } from '@sunbird-cb/collection'
 import { ConfigurationsService, EventService, NsPage, ValueService, WsEvents } from '@sunbird-cb/utils-v2'
 import { Subscription } from 'rxjs'
-import { ViewerDataService } from '@sunbird-cb/collection'
-import { ViewerUtilService } from '../../viewer-util.service'
+import { ViewerUtilService } from '@sunbird-cb/toc'
 import { CourseCompletionDialogComponent } from '../course-completion-dialog/course-completion-dialog.component'
 import { PdfScormDataService } from '../../pdf-scorm-data-service'
+import { AppTocService } from '@sunbird-cb/toc'
 import { WidgetContentLibService } from '@sunbird-cb/consumption'
-import { AppTocService } from '../../../../../app/src/lib/routes/app-toc/services/app-toc.service'
 // import { WidgetContentService as WidgetContentServiceUtils } from '@sunbird-cb/utils-v2'
 
 @Component({
   selector: 'viewer-viewer-secondary-top-bar',
   templateUrl: './viewer-secondary-top-bar.component.html',
   styleUrls: ['./viewer-secondary-top-bar.component.scss'],
-  standalone: false
 })
-export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy {
+export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy, AfterViewInit {
 
   @Input() frameReference: any
   @Input() forPreview = false
@@ -68,8 +66,10 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy {
   currentDataFromEnrollList: any
   enrollmentList: any = []
   pageScrollSubscription: Subscription | null = null
+  hashmapUpdateSubscription: Subscription | null = null
   // primaryCategory = NsContent.EPrimaryCategory
   contentPrimaryCategory: any
+  isNextResourceLocked = false
   constructor(
     private activatedRoute: ActivatedRoute,
     private domSanitizer: DomSanitizer,
@@ -85,6 +85,7 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy {
     private events: EventService,
     private appTocSvc: AppTocService,
     private widgetLibSvc: WidgetContentLibService,
+    private cdr: ChangeDetectorRef,
     // private contentSvc: WidgetContentServiceUtils
 
   ) {
@@ -118,6 +119,41 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy {
             })
           }
         }, 1000)
+      }
+    })
+
+    // Subscribe to hashmap updates to dynamically update lock status
+    this.hashmapUpdateSubscription = this.appTocSvc.hashmapUpdated$.subscribe((update) => {
+      console.log('🔄 [NEXT BUTTON] Hashmap update received:', {
+        hasUpdate: !!update,
+        hasNextUrl: !!this.nextResourceUrl,
+        nextUrl: this.nextResourceUrl
+      })
+
+      if (update && this.nextResourceUrl) {
+        // Extract the resource ID from the nextResourceUrl
+        const urlParts = this.nextResourceUrl.split('/')
+        const nextResourceId = urlParts[urlParts.length - 1]
+
+        if (nextResourceId) {
+          // Recheck lock status when hashmap updates
+          const previousLockState = this.isNextResourceLocked
+          this.isNextResourceLocked = this.checkIfContentIsLocked(nextResourceId)
+
+          console.log('🔓 [NEXT BUTTON] Lock status check:', {
+            nextResourceId,
+            previousLockState,
+            newLockState: this.isNextResourceLocked,
+            changed: previousLockState !== this.isNextResourceLocked
+          })
+
+          if (previousLockState !== this.isNextResourceLocked) {
+            console.log('✅ [NEXT BUTTON] Lock status CHANGED - triggering UI update')
+            // Trigger change detection to update UI immediately
+            this.cdr.markForCheck()
+            this.cdr.detectChanges()
+          }
+        }
       }
     })
 
@@ -173,6 +209,9 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy {
     })
 
     this.viewerDataServiceSubscription = this.viewerDataSvc.tocChangeSubject.subscribe((data: any) => {
+      // Reset the locked state at the beginning of each navigation to avoid stale values
+      this.isNextResourceLocked = false
+
       if (data.prevResource) {
         if (data.prevResource && !data.prevResource.viewerUrl) {
           data.prevResource['viewerUrl'] = `${this.forPreview ? '' : ''}/viewer/${VIEWER_ROUTE_FROM_MIME(
@@ -239,6 +278,43 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy {
           },
           fragment: '',
         }
+
+        // Check if next resource is locked from tocSvc hashmap
+        this.isNextResourceLocked = this.checkIfContentIsLocked(data.nextResource.identifier)
+        console.log('📍 Initial Next Resource Locked Status:', this.isNextResourceLocked, 'for identifier:', data.nextResource.identifier)
+
+        // Store next resource ID for future rechecks
+        const nextResourceIdForRecheck = data.nextResource.identifier
+
+        // Recheck after delays to catch late-arriving hashmap updates
+        // This handles race conditions where milestone lock computation completes after initial check
+        setTimeout(() => {
+          const recheckResult = this.checkIfContentIsLocked(nextResourceIdForRecheck)
+          if (recheckResult !== this.isNextResourceLocked) {
+            console.log('⏱️ [300ms RECHECK] Next resource lock status changed:', {
+              identifier: nextResourceIdForRecheck,
+              oldStatus: this.isNextResourceLocked,
+              newStatus: recheckResult
+            })
+            this.isNextResourceLocked = recheckResult
+            this.cdr.detectChanges()
+          }
+        }, 300)
+
+        // Additional recheck after a longer delay to catch milestone lock computations
+        setTimeout(() => {
+          const recheckResult = this.checkIfContentIsLocked(nextResourceIdForRecheck)
+          if (recheckResult !== this.isNextResourceLocked) {
+            console.log('⏱️ [1000ms RECHECK] Next resource lock status changed:', {
+              identifier: nextResourceIdForRecheck,
+              oldStatus: this.isNextResourceLocked,
+              newStatus: recheckResult
+            })
+            this.isNextResourceLocked = recheckResult
+            this.cdr.detectChanges()
+          }
+        }, 1000)
+
         if (data.nextResource.optionalReading && data.nextResource.primaryCategory === 'Learning Resource') {
           this.updateProgress(2, data.nextResource.identifier)
         }
@@ -247,6 +323,7 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy {
         // }
       } else {
         this.nextResourceUrl = null
+        this.isNextResourceLocked = false
       }
       if (this.resourceId !== this.viewerDataSvc.resourceId) {
         this.resourceId = this.viewerDataSvc.resourceId as string
@@ -282,6 +359,72 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy {
     }
   }
 
+  ngAfterViewInit() {
+    // Check lock status after view initialization with multiple retry attempts
+    // This ensures hashmap and subscription data are ready
+    this.recheckLockStatusWithRetry(0)
+  }
+
+  recheckLockStatusWithRetry(attempt: number) {
+    const maxAttempts = 5
+    const delay = attempt === 0 ? 200 : 500 // First check after 200ms, then 500ms intervals
+
+    setTimeout(() => {
+      const lockChecked = this.checkInitialLockStatus()
+
+      // If lock status wasn't determined and we haven't exceeded max attempts, retry
+      if (!lockChecked && attempt < maxAttempts) {
+        console.log(`Retrying lock status check, attempt ${attempt + 1}/${maxAttempts}`)
+        this.recheckLockStatusWithRetry(attempt + 1)
+      }
+    }, delay)
+  }
+
+  checkInitialLockStatus(): boolean {
+    // Get the current resource from the viewer data service
+    const currentResourceId = this.viewerDataSvc.resourceId
+
+    console.log('Checking initial lock status:', {
+      currentResourceId,
+      hasNextUrl: !!this.nextResourceUrl,
+      hasHashmap: !!this.appTocSvc.hashmap,
+      hashmapSize: this.appTocSvc.hashmap ? Object.keys(this.appTocSvc.hashmap).length : 0
+    })
+
+    // Method 1: Check using nextResourceUrl if it's already set by subscription
+    if (this.nextResourceUrl && this.nextResourceUrlParams?.queryParams) {
+      // Extract the resource ID from the nextResourceUrl
+      const urlParts = this.nextResourceUrl.split('/')
+      const nextResourceId = urlParts[urlParts.length - 1]
+
+      if (nextResourceId && this.appTocSvc.hashmap && this.appTocSvc.hashmap[nextResourceId]) {
+        this.isNextResourceLocked = this.checkIfContentIsLocked(nextResourceId)
+        return true
+      }
+    }
+
+    // Method 2: Check using hashmap with current resource
+    if (this.appTocSvc.hashmap && currentResourceId) {
+      const currentContent = this.appTocSvc.hashmap[currentResourceId]
+
+      if (currentContent) {
+        console.log('Current content in hashmap:', {
+          id: currentResourceId,
+          hasNextResource: !!currentContent.nextResource
+        })
+
+        // Check if there's a nextResource property
+        if (currentContent.nextResource) {
+          this.isNextResourceLocked = this.checkIfContentIsLocked(currentContent.nextResource)
+          return true
+        }
+      }
+    }
+
+    console.log('Could not determine lock status yet')
+    return false
+  }
+
   updateProgress(status: number, resourceId: any) {
     const collectionId = this.activatedRoute.snapshot.queryParams.collectionId ?
       this.activatedRoute.snapshot.queryParams.collectionId : ''
@@ -310,6 +453,9 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy {
     }
     if (this.pageScrollSubscription) {
       this.pageScrollSubscription.unsubscribe()
+    }
+    if (this.hashmapUpdateSubscription) {
+      this.hashmapUpdateSubscription.unsubscribe()
     }
   }
 
@@ -365,10 +511,23 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy {
             this.widgetServ.setProgramChildResumeData(this.contentProgressHash, this.identifier)
 
             const lastIndexData = this.contentProgressHash?.length && this.contentProgressHash[this.contentProgressHash?.length - 1]
-            if (lastIndexData && lastIndexData?.completionPercentage === 100 && lastIndexData?.status === 2) {
+            if (lastIndexData && lastIndexData?.completionPercentage === 100 && lastIndexData?.status === 2 && lastIndexData?.contentId === this.resourceId) {
               this.generateCertificate()
             }
-            if (this.content && ![
+
+            // Check if this is a Learning Pathway
+            const isLearningPathway = this.baseContentReadData && this.baseContentReadData.courseCategory === 'Learning Pathway'
+
+            if (isLearningPathway) {
+
+              // For Learning Pathway, check if all mandatory items are completed
+              // completedCount should already reflect only mandatory items from viewer-top-bar
+              if (lastIndexData?.completionPercentage >= 100 && lastIndexData?.status === 2 && lastIndexData?.contentId === this.resourceId) {
+                this.showCompletionPopUp()
+              } else {
+                this.router.navigateByUrl(`app/toc/${this.collectionId}/overview`)
+              }
+            } else if (this.content && ![
               NsContent.ECourseCategory.MODERATED_COURSE,
               NsContent.ECourseCategory.MODERATED_ASSESSEMENT,
               NsContent.ECourseCategory.MODERATED_PROGRAM,
@@ -502,6 +661,8 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy {
   }
 
   backToPrev() {
+    // Previous navigation - lock status should already be current from hashmap updates
+
     if (this.prevResourceUrl) {
       this.router.navigate([this.prevResourceUrl], { queryParams: this.prevResourceUrlParams.queryParams })
     } else {
@@ -514,10 +675,108 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy {
     }
   }
 
-  // updateProgressForPreAssessment(data:any) {
-  //   console.log('data--', data)
-  //   console.log('this.tocSvc.hashmap', this.appTocSvc.hashmap)
-  // }
+
+
+  checkIfContentIsLocked(contentIdentifier: string): boolean {
+    // Return false if no identifier provided
+    if (!contentIdentifier) {
+      return false
+    }
+
+    // Return false if no hashmap exists
+    if (!this.appTocSvc.hashmap) {
+      return false
+    }
+
+    // Check if hashmap has the content
+    if (!this.appTocSvc.hashmap[contentIdentifier]) {
+
+      // If content not in hashmap, check if it might be in preview mode
+      if (this.forPreview) {
+        return false
+      }
+      // If not in preview and not in hashmap, it might be locked by default
+      return true
+    }
+
+    const contentData = this.appTocSvc.hashmap[contentIdentifier]
+
+    // Check all possible locking properties from hashmap
+    const isDirectlyLocked = contentData.isLocked === true
+    const isComputedLocked = contentData.computedIsLocked === true
+    const isParentLocked = contentData.isParentMilestoneLocked === true
+    const isMilestoneLocked = contentData.isMilestoneLocked === true
+
+    // NEW: Check if this is a milestone assessment that's locked due to incomplete mandatory items
+    let milestoneAssessmentLocked = false
+    if (contentData.parent) {
+      const parentData = this.appTocSvc.hashmap[contentData.parent]
+
+      // If parent is a milestone and this content is an assessment
+      if (parentData && parentData.isMilestone &&
+        (contentData.primaryCategory === 'Course Assessment' ||
+          contentData.primaryCategory === 'Standalone Assessment' ||
+          contentData.mimeType === 'application/vnd.sunbird.questionset')) {
+
+        // Check if all mandatory courses in this milestone are completed
+        milestoneAssessmentLocked = contentData.milestoneAssessmentLocked === true
+      }
+    }
+
+    // Final determination - locked if ANY of these are true
+    const isLocked = isDirectlyLocked ||
+      isComputedLocked ||
+      isParentLocked ||
+      isMilestoneLocked ||
+      milestoneAssessmentLocked
+
+    // Comprehensive debug logging
+
+
+    return isLocked
+  }
+
+  onNextClick(event: Event) {
+    // Check current lock status before allowing navigation
+    // Lock status should already be up-to-date from previous hashmap updates
+    if (this.nextResourceUrl) {
+      const urlParts = this.nextResourceUrl.split('/')
+      const nextResourceId = urlParts[urlParts.length - 1]
+
+      if (nextResourceId) {
+        // Perform a fresh check right before navigation using current hashmap state
+        const currentLockStatus = this.checkIfContentIsLocked(nextResourceId)
+
+        console.log('🔍 [NEXT CLICK] Lock check before navigation:', {
+          nextResourceId,
+          currentLockStatus,
+          hashmapExists: !!this.appTocSvc.hashmap,
+          hashmapHasContent: this.appTocSvc.hashmap && !!this.appTocSvc.hashmap[nextResourceId]
+        })
+
+        // Update lock status if it differs from what we have
+        if (currentLockStatus !== this.isNextResourceLocked) {
+          console.log('⚠️ [NEXT CLICK] Lock status mismatch - updating:', {
+            storedState: this.isNextResourceLocked,
+            actualState: currentLockStatus
+          })
+          this.isNextResourceLocked = currentLockStatus
+        }
+      }
+    }
+
+    if (this.isNextResourceLocked) {
+      event.preventDefault()
+      event.stopPropagation()
+      console.log('🚫 [NEXT CLICK] Navigation blocked - content is locked')
+      console.log('🔒 Please complete all mandatory items before proceeding')
+      return false
+    }
+
+    console.log('✅ [NEXT CLICK] Navigation allowed - proceeding to next content')
+    this.checkForNextOfflineOnlineSession()
+    return true
+  }
 
   generateCertificate() {
     // const allowedPrimaryCategory = ALLOWED_CATEGORY_FOR_DYNAMIC_GENERATION?.map(

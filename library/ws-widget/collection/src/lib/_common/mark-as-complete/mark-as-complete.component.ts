@@ -3,7 +3,7 @@ import { MatDialog } from '@angular/material/dialog'
 import { NsContent } from '../../_services/widget-content.model'
 import { MarkAsCompleteConfirmDialogComponent } from './confirm-dialog/confirm-dialog.component'
 import { IReqMarkAsComplete } from './mark-as-complete.model'
-import { WidgetContentService } from '../../_services/widget-content.service'
+import { WidgetContentService } from '@sunbird-cb/toc'
 
 @Component({
   selector: 'ws-widget-mark-as-complete',

@@ -18,10 +18,10 @@ import {
   saveContinueLearningFunction,
   fireRealTimeProgressFunction,
 } from '../_services/videojs-util'
-import { WidgetContentService } from '../_services/widget-content.service'
+import { WidgetContentService } from '@sunbird-cb/toc'
 import { NsContent } from '../_services/widget-content.model'
 import { ActivatedRoute } from '@angular/router'
-import { ViewerUtilService } from '../_services/viewer-util.service'
+import { ViewerUtilService } from '@sunbird-cb/toc'
 
 const videoJsOptions: videoJs.PlayerOptions = {
   controls: true,

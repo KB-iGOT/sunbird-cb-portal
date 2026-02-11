@@ -51,7 +51,7 @@ export class SignupComponent implements OnInit, OnDestroy {
         this.uploadSaveData = false
         this.openSnackbar(this.toastSuccess.nativeElement.value)
       },
-      err => {
+      (err: any) => {
         this.openSnackbar(err.error.split(':')[1])
         this.uploadSaveData = false
       })

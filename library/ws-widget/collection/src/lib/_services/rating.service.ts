@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core'
 import { Observable, of } from 'rxjs'
 import { HttpClient } from '@angular/common/http'
-import { NsAppRating } from './rating.model'
+import { NsAppRating } from '@sunbird-cb/toc'
 
 const PROXY_SLAG_V8 = '/apis/proxies/v8'
 const API_END_POINTS = {
@@ -31,7 +31,7 @@ export class RatingService {
         API_END_POINTS.GET_RATING(contentId, contentType, userId)
       )
     }
-    return of({})
+    return Observable.of({})
   }
 
   addOrUpdateRating(req: NsAppRating.IRating): Observable<any> {
@@ -63,7 +63,7 @@ export class RatingService {
         API_END_POINTS.POST_AUTHOR_REPLY, req
       )
     }
-    return of({})
+    return Observable.of({})
   }
 
   getRatingIcon(ratingIndex: number, avg: number): 'star' | 'star_border' | 'star_half' {
