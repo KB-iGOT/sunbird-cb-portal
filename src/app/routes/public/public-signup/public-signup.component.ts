@@ -2542,6 +2542,7 @@ export class PublicSignupComponent implements OnInit, OnDestroy {
         }
       }
     }
+    this.masterData['departmentBackup'] = []
     this.getDepartmentData()
   }
 
