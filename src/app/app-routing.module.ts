@@ -8,7 +8,6 @@ import { LoginRootComponent } from './component/login-root/login-root.component'
 import { ETopBar } from './constants/topBar.constants'
 // import { EmptyRouteGuard } from './guards/empty-route.guard'
 import { ExternalUrlResolverService } from './guards/external-url-resolver.service'
-import { GeneralGuard } from './guards/general.guard'
 import { LoginGuard } from './guards/login.guard'
 import { RedirectGuard } from './guards/redirect.guard'
 import { FeaturesComponent } from './routes/features/features.component'
@@ -17,9 +16,8 @@ import { MobileAppHomeComponent } from './routes/public/mobile-app/components/mo
 import { PublicAboutComponent } from './routes/public/public-about/public-about.component'
 import { PublicContactComponent } from './routes/public/public-contact/public-contact.component'
 import { TncComponent } from './routes/tnc/tnc.component'
-import { TncAppResolverService } from './services/tnc-app-resolver.service.ts'
-import { TncPublicResolverService } from './services/tnc-public-resolver.service'
-import { AppTocResolverService } from '@ws/app/src/lib/routes/app-toc/resolvers/app-toc-resolver.service'
+import { TncAppResolverService, TncPublicResolverService } from '@ws/app'
+import { AppTocResolverService } from '@sunbird-cb/toc'
 import { PublicLogoutComponent } from './routes/public/public-logout/public-logout.component'
 import { PublicSignupComponent } from './routes/public/public-signup/public-signup.component'
 import { PublicContacthomeComponent } from './routes/public/public-contacthome/public-contacthome.component'
@@ -43,15 +41,14 @@ import { AppGyaanKarmayogiService } from './services/app-gyaan-karmayogi.service
 import { PrivacyPolicyComponent } from './component/privacy-policy/privacy-policy.component'
 import { LearnerAdvisoryComponent } from './learner-advisory/learner-advisory.component'
 import { AppHomePageResolverService } from './services/app-home-page-resolver.service'
-import { AppEventPageResolverService } from './services/app-event-page-resolver.service'
 import { HomeResolverService } from './home/home/home-resolver.service'
 import { PublicExtTocComponent } from './routes/public/public-ext-toc/public-ext-toc.component'
-import { AppTocExtPublicResolverService } from '@ws/app/src/lib/routes/app-toc/resolvers/app-toc-ext-public-resolver.service'
+import { AppTocExtPublicResolverService } from '@sunbird-cb/toc'
 import { PublicCrpComponent } from './routes/public/public-crp/public-crp.component'
 import { AppPublicOrganizationResolver } from './routes/public/public-signup/organization.resolver'
-import { FormDataResolverService } from './services/form-data-resolver.service'
 import { AppPreAssessmentContentResolverService } from './services/app-pre-assessment-content-read-resolver.service'
 import { FormMicroSiteDataService } from './services/form-micro-site-data.service'
+import { AppEventPageResolverService, FormDataResolverService, GeneralGuard } from '../../project/ws/app/src/public-api'
 // 💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥
 // Please declare routes in alphabetical order
 // 😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵
@@ -391,6 +388,22 @@ const routes: Routes = [
       module: 'Profile',
     },
     loadChildren: () => import('./routes/route-cert.module').then(u => u.RouteCertificateModule),
+  },
+  {
+    path: 'achievements',
+    data: {
+      pageId: 'certs',
+      module: 'Profile',
+    },
+    loadChildren: () => import('./routes/route-cert.module').then(u => u.RouteCertificateModule),
+  },
+  {
+    path: 'achievements/v2',
+    data: {
+      pageId: 'certs',
+      module: 'Profile',
+    },
+    loadChildren: () => import('./routes/route-cert-v2.module').then(u => u.RouteCertificateV2Module),
   },
   {
     path: 'public/certs',

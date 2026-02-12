@@ -2,10 +2,10 @@ import { Component, OnDestroy, OnInit } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { ConfigurationsService, EventService, LoggerService, WsEvents } from '@sunbird-cb/utils-v2'
 import { Subscription } from 'rxjs'
-import { NsContent } from '@sunbird-cb/collection'
-import { WidgetContentService } from '@sunbird-cb/collection'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
+import { WidgetContentService } from '@sunbird-cb/toc'
 import { NSQuiz } from '../../plugins/quiz/quiz.model'
-import { ViewerUtilService } from '../../viewer-util.service'
+import { ViewerUtilService } from '@sunbird-cb/toc'
 // import { ViewerDataService } from '../../viewer-data.service'
 /// **
 // * this will not be available for any Preview.

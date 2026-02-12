@@ -11,10 +11,10 @@ export interface IActivityProgress {
 }
 
 @Component({
-    selector: 'ws-app-activities',
-    templateUrl: './activities.component.html',
-    styleUrls: ['./activities.component.scss'],
-    standalone: false
+  selector: 'ws-app-activities',
+  templateUrl: './activities.component.html',
+  styleUrls: ['./activities.component.scss'],
+  standalone: false
 })
 export class ActivitiesComponent implements OnInit {
 
@@ -48,8 +48,8 @@ export class ActivitiesComponent implements OnInit {
 
   ngOnInit() {
     if (this.showActivities) {
-      this.activitiesSvc.fetchActivites().then((result: IActivity) => {
-        if (result.activities.length !== 0) {
+      this.activitiesSvc.fetchActivites().then((result: IActivity | undefined) => {
+        if (result && result.activities.length !== 0) {
           this.activityCards = result.activities
           this.activityCards.forEach(activityCard => {
             if (!(this.keyTag.includes(activityCard.tag))) {

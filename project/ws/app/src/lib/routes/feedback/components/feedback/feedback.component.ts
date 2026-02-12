@@ -2,16 +2,17 @@ import { Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@ang
 import { NgForm } from '@angular/forms'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { ActivatedRoute, Router } from '@angular/router'
-import { NsFeedback, BtnContentFeedbackService } from '@sunbird-cb/collection'
+import { NsFeedback } from '@sunbird-cb/collection'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { Subscription } from 'rxjs'
 import { debounceTime } from 'rxjs/operators'
 import { IFeedbackRequest } from '../../models/feedback.model'
+import { HttpClient } from '@angular/common/http'
 @Component({
-    selector: 'ws-app-feedback',
-    templateUrl: './feedback.component.html',
-    styleUrls: ['./feedback.component.scss'],
-    standalone: false
+  selector: 'ws-app-feedback',
+  templateUrl: './feedback.component.html',
+  styleUrls: ['./feedback.component.scss'],
+  standalone: false
 })
 export class FeedbackComponent implements OnInit, OnDestroy {
   @Input() widgetType!: string
@@ -84,7 +85,7 @@ export class FeedbackComponent implements OnInit, OnDestroy {
     private activatedRoute: ActivatedRoute,
     private route: ActivatedRoute,
     private confSvc: ConfigurationsService,
-    private submitFeedbackSvc: BtnContentFeedbackService,
+    private http: HttpClient,
   ) { }
 
   ngOnInit() {
@@ -108,7 +109,7 @@ export class FeedbackComponent implements OnInit, OnDestroy {
 
   submitFeedback(request: NsFeedback.IWsFeedbackTypeRequest, form: NgForm) {
     this.submitInProgress = true
-    this.submitFeedbackSvc.submitFeedback(request).subscribe(
+    this.http.post(`${this.confSvc.baseUrl}/apis/protected/v8/user/feedback/submit`, request).subscribe(
       () => {
         this.resetFeedbackForm()
         form.resetForm()

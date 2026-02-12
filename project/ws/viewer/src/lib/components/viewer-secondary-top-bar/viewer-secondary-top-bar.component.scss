@@ -123,6 +123,17 @@
     white-space: nowrap !important;
 }
 
+a.disabled {
+    opacity: 0.5;
+    cursor: not-allowed !important;
+    pointer-events: none;
+
+    span,
+    mat-icon {
+        color: rgba(0, 0, 0, 0.38) !important;
+    }
+}
+
 @media screen and (min-width: 280px) and (max-width: 540px) {
     .heading {
         padding-top: 10px;

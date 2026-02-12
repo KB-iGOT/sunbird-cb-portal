@@ -1,10 +1,10 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { BrowseByCompetencyModuleV2 } from '@ws/app'
+import { BrowseByCompetencyModule } from '@ws/app'
 
 @NgModule({
-  imports: [CommonModule, BrowseByCompetencyModuleV2],
-  exports: [BrowseByCompetencyModuleV2],
+  imports: [CommonModule, BrowseByCompetencyModule],
+  exports: [BrowseByCompetencyModule],
 })
 export class RouteBrowseCompetencyModuleV2 {
 

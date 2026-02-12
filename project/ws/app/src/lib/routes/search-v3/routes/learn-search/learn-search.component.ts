@@ -158,6 +158,8 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
     this.competencyAreaNameKey = `${this.compentencyKey.vKey}.${this.compentencyKey.vCompetencyArea}`
     this.competencyThemeKey = `${this.compentencyKey.vKey}.${this.compentencyKey.vCompetencyTheme}`
     this.competencySubThemeKey = `${this.compentencyKey.vKey}.${this.compentencyKey.vCompetencySubTheme}`
+
+    this.checkIfExploreContentTab()
   }
 
   ngOnInit() {
@@ -190,7 +192,6 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
     this.checkCourseEnrollmentAndCbpPlan()
     this.getFetchIgotSpecializationPrograms()
     // this.fetchCbpPlan()
-    this.checkIfExploreContentTab()
     localStorage.removeItem(SearchConstantLocalStorage.SortType)
   }
 
@@ -229,7 +230,9 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       changes.searchQuery.previousValue?.searchCategory
     ) {
       this.searchContentLoader = true
-      this.resetAllSearchParams()
+      if(!this.isExploreContentTab) {
+        this.resetAllSearchParams()
+      }
       this.statedata = {
         param: this.searchQuery?.nlp
           ? this.searchQuery?.nlp
@@ -330,6 +333,9 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
     if (this.searchRequestCourse && this.searchRequestCourse['request'] && Object.keys(this.searchRequestCourse['request']['filters'])) {
       if (this.searchRequestCourse['request']['filters']['courseCategory']?.length === 0) {
         this.searchRequestCourse['request']['filters']['courseCategory'] = { "!=": ["pre enrolment assessment"] }
+      }
+      if( this.searchRequestCourse['request']['facets'] && this.searchRequestCourse['request']['facets'].length) {
+        this.searchRequestCourse['request']['facets'] =  _.uniq(this.searchRequestCourse['request']['facets'])
       }
 
     }
@@ -1023,6 +1029,10 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(params => {
         this.isExploreContentTab = !!params['tab']
+        if ( this.isExploreContentTab ) {
+          this.searchSortFilter = SortType.RecentlyAdded
+          this.searchRequestCourse.request.sort_by.createdOn = 'desc'
+        }
       })
   }
 

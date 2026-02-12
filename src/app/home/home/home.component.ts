@@ -124,7 +124,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     }
     if (this.configSvc) {
       this.jan26Change = this.configSvc.overrideThemeChanges
-      if (this.configSvc.unMappedUser.profileDetails && this.configSvc.unMappedUser.profileDetails.additionalProperties) {
+      if (this.configSvc.unMappedUser && this.configSvc.unMappedUser.profileDetails && this.configSvc.unMappedUser.profileDetails.additionalProperties) {
         if (this.configSvc.unMappedUser.profileDetails.additionalProperties.isProfileUpdatedMsgViewed !== undefined) {
           this.isMDOMsgOpen = this.configSvc.unMappedUser.profileDetails.additionalProperties.isProfileUpdatedMsgViewed
           if (!this.isMDOMsgOpen) {

@@ -2,7 +2,7 @@ import { Component, OnInit, Input, OnDestroy, HostBinding } from '@angular/core'
 import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
 import { NsContentStripNewMultiple } from './content-strip-new-multiple.model'
 import { ContentStripNewMultipleService } from './content-strip-new-multiple.service'
-import { WidgetContentService } from '../_services/widget-content.service'
+import { WidgetContentService } from '@sunbird-cb/toc'
 import { NsContent } from '../_services/widget-content.model'
 import {
   TFetchStatus,
@@ -234,7 +234,7 @@ export class ContentStripNewMultipleComponent extends WidgetBaseComponent
       } else {
         strip.request.search.locale = ['en']
       }
-      this.contentSvc.search(strip.request.search).subscribe(
+      this.contentSvc.search(strip.request.search as any).subscribe(
         results => {
           const showViewMore = Boolean(
             results.result.length > 5 && strip.stripConfig && strip.stripConfig.postCardForSearch,
@@ -274,7 +274,7 @@ export class ContentStripNewMultipleComponent extends WidgetBaseComponent
       Object.keys(strip.request.searchRegionRecommendation).length
     ) {
       this.contentSvc
-        .searchRegionRecommendation(strip.request.searchRegionRecommendation)
+        .searchRegionRecommendation(strip.request.searchRegionRecommendation as any)
         .subscribe(
           results => {
             this.processStrip(

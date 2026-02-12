@@ -8,9 +8,6 @@ import {
     EmailInputModule,
     DisplayContentsModule,
     UserAutocompleteModule,
-    BtnLinkedinShareModule,
-    BtnFacebookShareModule,
-    BtnTwitterShareModule,
 } from '@sunbird-cb/collection'
 import { GoalsRoutingModule } from './goals-routing.module'
 import { GoalDeleteDialogComponent } from './components/goal-delete-dialog/goal-delete-dialog.component'
@@ -115,9 +112,6 @@ import { MatTooltipModule } from '@angular/material/tooltip'
         MatChipsModule,
         MatCheckboxModule,
         MatTableModule,
-        BtnLinkedinShareModule,
-        BtnFacebookShareModule,
-        BtnTwitterShareModule,
     ]
 })
 export class GoalsModule { }

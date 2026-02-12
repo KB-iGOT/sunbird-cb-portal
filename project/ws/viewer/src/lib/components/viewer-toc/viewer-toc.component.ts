@@ -1,15 +1,11 @@
 import { NestedTreeControl } from '@angular/cdk/tree'
 import { Component, EventEmitter, OnDestroy, OnInit, Output, Input } from '@angular/core'
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser'
-import { ActivatedRoute, NavigationExtras } from '@angular/router'
+import { ActivatedRoute, NavigationExtras, Params } from '@angular/router'
 import {
-  // ContentProgressService,
+  // ContentProgressService
   NsContent,
   VIEWER_ROUTE_FROM_MIME,
-  WidgetContentService,
-  IViewerTocCard,
-  ICollectionCard,
-  TCollectionCardType,
   ViewerDataService,
 } from '@sunbird-cb/collection'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
@@ -26,8 +22,43 @@ import _ from 'lodash'
 import { of, Subscription } from 'rxjs'
 import { delay } from 'rxjs/operators'
 // import { ViewerDataService } from '../../viewer-data.service'
-import { ViewerUtilService } from '../../viewer-util.service'
 import { MatTreeNestedDataSource } from '@angular/material/tree'
+import { ViewerUtilService } from '@sunbird-cb/toc'
+import { AppTocV2Service, WidgetContentService } from '@sunbird-cb/toc'
+// import { AppTocService } from '@sunbird-cb/toc'
+
+export interface IViewerTocCard {
+  identifier: string
+  viewerUrl: string
+  thumbnailUrl: string
+  title: string
+  duration: number
+  type: string
+  mimeType: NsContent.EMimeTypes
+  complexity: string
+  children: null | IViewerTocCard[]
+  primaryCategory: NsContent.EPrimaryCategory
+  collectionId: string | null
+  collectionType: string,
+  batchId: string | number,
+  viewMode: string,
+  optionalReading: boolean,
+  channelId: string
+}
+
+export type TCollectionCardType = 'content' | 'playlist' | 'goals'
+
+interface ICollectionCard {
+  type: TCollectionCardType | null
+  id: string
+  title: string
+  thumbnail: string
+  subText1: string
+  subText2: string
+  duration: number
+  redirectUrl: string | null
+  queryParams: Params
+}
 
 @Component({
   selector: 'viewer-viewer-toc',
@@ -59,7 +90,8 @@ export class ViewerTocComponent implements OnInit, OnDestroy {
     private configSvc: ConfigurationsService,
     // private contentProgressSvc: ContentProgressService,
     private userSvc: WidgetUserServiceLib,
-    public eventSvc: EventService
+    public eventSvc: EventService,
+    public tocV2Svc: AppTocV2Service
     // private tocSvc: AppTocService,
   ) {
     this.nestedTreeControl = new NestedTreeControl<IViewerTocCard>(this._getChildren)
@@ -244,7 +276,7 @@ export class ViewerTocComponent implements OnInit, OnDestroy {
       }
 
     })
-    this.viewerDataServiceSubscription = this.viewerDataSvc.changedSubject.subscribe(_data => {
+    this.viewerDataServiceSubscription = this.viewerDataSvc.changedSubject.subscribe((_data: any) => {
       if (this.resourceId !== this.viewerDataSvc.resourceId) {
         if (this.viewerDataSvc && this.viewerDataSvc.resource && this.viewerDataSvc.resource.contextCategory &&
           this.viewerDataSvc.resource.contextCategory === 'Pre Enrolment Assessment' &&
@@ -396,8 +428,13 @@ export class ViewerTocComponent implements OnInit, OnDestroy {
             : this.contentSvc.fetchContent(collectionId, 'detail', [], _collectionType)
           ).toPromise()
         }
-        const contentData = content.result.content
-        this.collection = content.result.content
+        let contentData: any = {}
+        if (this.contentSvc?.currentContentReadMetaData?.courseCategory === NsContent.ECourseCategory.LEARNING_PATHWAY) {
+          contentData = this.tocV2Svc.constructHeirarchyData(this.contentSvc?.currentContentReadMetaData)
+        } else {
+          contentData = content.result.content
+        }
+        this.collection = contentData
         this.contentSvc.currentMetaData = contentData
         this.collectionCard = this.createCollectionCard(contentData)
         const viewerTocCardContent = this.convertContentToIViewerTocCard(contentData)
@@ -531,7 +568,7 @@ export class ViewerTocComponent implements OnInit, OnDestroy {
       children:
         Array.isArray(content.children) && content.children.length
           && content.mimeType !== NsContent.EMimeTypes.QUESTION_SET // this is because of ne api ( questionset structure)
-          ? content.children.map(child => this.convertContentToIViewerTocCard(child))
+          ? content.children.map((child: any) => this.convertContentToIViewerTocCard(child))
           : null,
     }
   }

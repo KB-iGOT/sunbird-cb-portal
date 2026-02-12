@@ -6,81 +6,17 @@ import { APP_INITIALIZER, NgModule, ErrorHandler, CUSTOM_ELEMENTS_SCHEMA } from 
 // HAMMER_GESTURE_CONFIG
 import { BrowserModule } from '@angular/platform-browser'
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
-import {
-  ErrorResolverModule, TourModule, WIDGET_REGISTRATION_CONFIG, PipeContentRoutePipe,
-  StickyHeaderModule,
-  AvatarPhotoModule,
-  BtnAppsModule,
-  BtnCallModule,
-  BtnCatalogModule,
-  BtnChannelAnalyticsModule,
-  BtnContentDownloadModule,
-  BtnContentFeedbackModule,
-  BtnContentLikeModule,
-  BtnContentMailMeModule,
-  BtnContentShareModule,
-  BtnFullscreenModule,
-  BtnGoalsModule,
-  BtnMailUserModule,
-  BtnPageBackNavModule,
-  BtnPageBackModule,
-  BtnPlaylistModule,
-  BtnPreviewModule,
-  BtnSettingsModule,
-  CardBreadcrumbModule,
-  CardChannelModuleV2,
-  CardContentModule,
-  CardWelcomeModule,
-  CardNetworkModule,
-  CardHomeTopModule,
-  CardBrowseCourseModule,
-  ChannelHubModule,
-  ContentStripMultipleModule,
-  ContentStripSingleModule,
-  DiscussionForumModule,
-  ElementHtmlModule,
-  EmbeddedPageModule,
-  GalleryViewModule,
-  GraphGeneralModule,
-  GridLayoutModule,
-  ImageMapResponsiveModule,
-  IntranetSelectorModule,
-  LayoutLinearModule,
-  LayoutTabModule,
-  PageModule,
-  PickerContentModule,
-  PlayerAmpModule,
-  PlayerAudioModule,
-  PlayerPdfModule,
-  PlayerSlidesModule,
-  PlayerVideoModule,
-  PlayerWebPagesModule,
-  PlayerYoutubeModule,
-  ReleaseNotesModule,
-  SelectorResponsiveModule,
-  SlidersMobModule,
-  SlidersModule,
-  TreeCatalogModule,
-  TreeModule,
-  CardHubsListModule,
-  CardNetworkHomeModule,
-  CardActivityModule,
-  BtnFeatureModule,
-  UIAdminTableModule,
-  LeftMenuModule,
-  UIORGTableModule,
-  BreadcrumbsOrgModule,
-} from '@sunbird-cb/collection'
+
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
 import { SbUiResolverModule } from '@sunbird-cb/resolver-v2'
 import { LoggerService, PipeSafeSanitizerModule, ConfigurationsService, PipeOrderByModule, NPSGridService, DomainConfService } from '@sunbird-cb/utils-v2'
-import { SearchModule } from '@ws/app/src/lib/routes/search/search.module'
+import { CommonDataService, ProfileVerificationDialogComponent, ResourceDownloadHelperService, SearchModule } from '@ws/app/src/public-api'
 import 'hammerjs'
 // import { KeycloakAngularModule } from 'keycloak-angular'
 import { AppRoutingModule } from './app-routing.module'
 import { InitService } from '@ws/app'
 import { GlobalErrorHandlingService } from './services/global-error-handling.service'
-import { AppTocResolverService } from './services/app-toc-resolver.service'
+import { AppTocResolverService, WIDGET_REGISTRATION_TOC_LIB_CONFIG } from '@sunbird-cb/toc'
 
 import { RootComponent } from './component/root/root.component'
 import { LoginComponent } from './component/login/login.component'
@@ -97,11 +33,11 @@ import { PublicContactModule } from './routes/public/public-contact/public-conta
 import { TncComponent } from './routes/tnc/tnc.component'
 import { AppInterceptorService } from './services/app-interceptor.service'
 import { AppRetryInterceptorService } from './services/app-retry-interceptor.service'
-import { TncAppResolverService } from '@ws/app'
-import { TncPublicResolverService } from '@ws/app'
+import { TncAppResolverService } from './services/tnc-app-resolver.service'
+import { TncPublicResolverService } from './services/tnc-public-resolver.service'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 import { ConfigService } from '@ws/app/src/lib/routes/discuss/services/config.service'
-import { ComponentsModule, AbstractConfigService } from '@sunbird-cb/discussions-ui-v8'
+import { DiscussionUiModule } from '@sunbird-cb/discussions-ui-v8'
 import { ServiceWorkerModule } from '@angular/service-worker'
 import { environment } from 'src/environments/environment'
 import { QuickTourModule } from '@ws/app/src/lib/routes/info/quick-tour/quick-tour.module'
@@ -123,6 +59,7 @@ import { AppTourVideoComponent } from './component/app-tour-video/app-tour-video
 import { AppChatbotModule } from './component/app-chatbot/app-chatbot.module'
 import { AppHierarchyResolverService } from './services/app-hierarchy-resolver.service'
 import { AppEnrollmentResolverService } from './services/app-enrollment-resolver.service'
+import { TranslateHttpLoader } from '@ngx-translate/http-loader'
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core'
 import { AppContentResolverService } from './services/app-content-read-resolver.service'
 
@@ -163,12 +100,9 @@ import { MatToolbarModule } from '@angular/material/toolbar'
 import { MatTooltipModule } from '@angular/material/tooltip'
 import { PickerModule } from '@ctrl/ngx-emoji-mart'
 import { CKEditorModule } from '@ckeditor/ckeditor5-angular'
-import { MarkdownModule } from 'ngx-markdown'
 import { AppPreAssessmentContentResolverService } from './services/app-pre-assessment-content-read-resolver.service'
-import { ResourceDownloadHelperService } from '@ws/app'
-import { ProfileVerificationDialogComponent } from '@ws/app'
-import { CommonDataService } from '@ws/app'
-import { TRANSLATE_HTTP_LOADER_CONFIG, TranslateHttpLoader } from '@ngx-translate/http-loader'
+
+import { WIDGET_REGISTRATION_CONFIG } from '../../library/ws-widget/collection/src/public-api'
 // @Injectable()
 // export class HammerConfig extends GestureConfig {
 //   buildHammer(element: HTMLElement) {
@@ -187,6 +121,10 @@ const getBaseHref = (platformLocation: PlatformLocation): string => {
   return platformLocation.getBaseHrefFromDOM()
 }
 
+// tslint:disable-next-line:function-name
+export function HttpLoaderFactory(http: HttpClient) {
+  return new TranslateHttpLoader(http)
+}
 
 // tslint:disable-next-line: max-classes-per-file
 @NgModule({
@@ -228,78 +166,13 @@ const getBaseHref = (platformLocation: PlatformLocation): string => {
     BrowserModule,
     HttpClientModule,
     HttpClientJsonpModule,
-    // BrowserModule, // Removed duplicate - already imported above
+    BrowserModule,
     BrowserAnimationsModule,
     AppRoutingModule,
-    AvatarPhotoModule,
-    BtnAppsModule,
-    BtnCallModule,
-    BtnCatalogModule,
-    BtnChannelAnalyticsModule,
-    BtnContentDownloadModule,
-    BtnContentFeedbackModule,
-    BtnContentLikeModule,
-    BtnContentMailMeModule,
-    BtnContentShareModule,
-    BtnFullscreenModule,
-    BtnGoalsModule,
-    BtnMailUserModule,
-    BtnPageBackNavModule,
-    BtnPageBackModule,
-    BtnPlaylistModule,
-    BtnPreviewModule,
-    BtnSettingsModule,
-    CardBreadcrumbModule,
-    CardChannelModuleV2,
-    CardContentModule,
-    CardWelcomeModule,
-    CardNetworkModule,
-    CardHomeTopModule,
-    CardBrowseCourseModule,
-    ChannelHubModule,
-    ContentStripMultipleModule,
-    ContentStripSingleModule,
-    DiscussionForumModule,
-    ElementHtmlModule,
-    EmbeddedPageModule,
-    GalleryViewModule,
-    GraphGeneralModule,
-    GridLayoutModule,
-    ImageMapResponsiveModule,
-    IntranetSelectorModule,
-    LayoutLinearModule,
-    LayoutTabModule,
-    PageModule,
-    PickerContentModule,
-    PlayerAmpModule,
-    PlayerAudioModule,
-    PlayerPdfModule,
-    PlayerSlidesModule,
-    PlayerVideoModule,
-    PlayerWebPagesModule,
-    PlayerYoutubeModule,
-    ReleaseNotesModule,
-    SelectorResponsiveModule,
-    SlidersMobModule,
-    SlidersModule,
-    TreeCatalogModule,
-    TreeModule,
-    CardHubsListModule,
-    CardNetworkHomeModule,
-    CardActivityModule,
-    BtnFeatureModule,
-    UIAdminTableModule,
-    LeftMenuModule,
-    UIORGTableModule,
-    BreadcrumbsOrgModule,
+
     CardsModule,
-    WidgetResolverModule.forRoot([
-      ...(WIDGET_REGISTRATION_CONFIG && Array.isArray(WIDGET_REGISTRATION_CONFIG) ? WIDGET_REGISTRATION_CONFIG : []),
-      ...(WIDGET_REGISTRATION_LIB_CONFIG && Array.isArray(WIDGET_REGISTRATION_LIB_CONFIG) ? WIDGET_REGISTRATION_LIB_CONFIG : [])
-    ]),
-    SbUiResolverModule.forRoot(WIDGET_REGISTRATION_LIB_CONFIG && Array.isArray(WIDGET_REGISTRATION_LIB_CONFIG) ? WIDGET_REGISTRATION_LIB_CONFIG : []),
-    StickyHeaderModule,
-    ErrorResolverModule,
+    WidgetResolverModule.forRoot([...WIDGET_REGISTRATION_CONFIG, ...WIDGET_REGISTRATION_LIB_CONFIG, ...WIDGET_REGISTRATION_TOC_LIB_CONFIG]),
+    SbUiResolverModule.forRoot([...WIDGET_REGISTRATION_LIB_CONFIG, ...WIDGET_REGISTRATION_TOC_LIB_CONFIG]),
     // Material Imports
     MatSliderModule,
     MatFormFieldModule,
@@ -319,7 +192,6 @@ const getBaseHref = (platformLocation: PlatformLocation): string => {
     MatTableModule,
     MatProgressSpinnerModule,
     SearchModule,
-    // BtnFeatureModule, // Removed duplicate - already imported above
     PipeOrderByModule,
     PublicAboutModule,
     PublicContactModule,
@@ -331,11 +203,10 @@ const getBaseHref = (platformLocation: PlatformLocation): string => {
     PublicExtTocModule,
     MobileAppModule,
     PipeSafeSanitizerModule,
-    TourModule,
     MatTabsModule,
     GuidedTourModule,
     AppChatbotModule,
-    ComponentsModule,
+    DiscussionUiModule.forRoot(ConfigService),
     ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
     HeaderModule,
     TranslateModule.forRoot({
@@ -348,8 +219,7 @@ const getBaseHref = (platformLocation: PlatformLocation): string => {
     ProfileV3Module,
     MatSidenavModule,
     PickerModule,
-    CKEditorModule,
-    MarkdownModule.forRoot()
+    CKEditorModule
   ],
   exports: [
     TncComponent,
@@ -380,9 +250,7 @@ const getBaseHref = (platformLocation: PlatformLocation): string => {
     TncAppResolverService,
     TncPublicResolverService,
     WelcomeUserResolverService,
-    { provide: AbstractConfigService, useClass: ConfigService },
     ConfigurationsService,
-    PipeContentRoutePipe,
     AppTocResolverService,
     AppHierarchyResolverService,
     AppContentResolverService,
