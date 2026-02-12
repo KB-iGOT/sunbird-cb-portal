@@ -1,6 +1,6 @@
 {
   "/apis/*": {
-    "target": "https://portal.qa.karmayogibharat.net/",
+    "target": "https://portal.uat.karmayogibharat.net/",
     "secure": false,
     "logLevel": "debug",
     "changeOrigin": true,
@@ -8,11 +8,11 @@
       "/apis": "/apis"
     },
     "headers": {
-      "Cookie": "connect.sid=s%3AKcCUgFqRJ1C2fkgkXTcmmRTWdABjoikA.Kdzn66ndSCl5bcmeViIiEvUGyeMFVZb3sguKNhebPXs"
+      "Cookie": "connect.sid=s%3AaHXoy_KLGQGEuFmlumqu5O8IbvhuEBlW.LOvDItTVVjK%2B9IcXoJQ%2FrA6JvzOcp0lz9TDsuqLgIDQ"
     }
   },
   "/api/*": {
-    "target": "https://portal.qa.karmayogibharat.net/",
+    "target": "https://portal.uat.karmayogibharat.net/",
     "secure": false,
     "logLevel": "debug",
     "changeOrigin": true,
@@ -74,7 +74,7 @@
       "/abcd": ""
     }
   },
-  "/assets": {
+  "/assets/*": {
     "target": "http://127.0.0.1:8080",
     "secure": false,
     "logLevel": "debug",

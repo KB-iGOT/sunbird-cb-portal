@@ -3,7 +3,7 @@ import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms
 import { EventService, WsEvents, LoggerService, NsContent } from '@sunbird-cb/utils-v2'
 import { switchMap, takeUntil } from 'rxjs/operators'
 import { Subject } from 'rxjs'
-import { NsAppRating } from '../../_services/rating.model'
+import { NsAppRating } from '@sunbird-cb/toc'
 import { Router } from '@angular/router'
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'

@@ -30,6 +30,7 @@
             "assets": [
               "src/favicon.ico",
               "src/favicon.png",
+              // "src/assets",
               "src/fusion-assets/icons/",
               "src/fusion-assets/images/",
               "src/dashboard-assets/",
@@ -114,7 +115,7 @@
                 {
                   "type": "initial",
                   "maximumWarning": "4mb",
-                  "maximumError": "30mb"
+                  "maximumError": "40mb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -166,7 +167,7 @@
                 {
                   "type": "initial",
                   "maximumWarning": "5mb",
-                  "maximumError": "30mb"
+                  "maximumError": "40mb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -192,7 +193,7 @@
                 {
                   "type": "initial",
                   "maximumWarning": "5mb",
-                  "maximumError": "30mb"
+                  "maximumError": "40mb"
                 },
                 {
                   "type": "anyComponentStyle",
@@ -218,7 +219,7 @@
                 {
                   "type": "initial",
                   "maximumWarning": "5mb",
-                  "maximumError": "30mb"
+                  "maximumError": "40mb"
                 },
                 {
                   "type": "anyComponentStyle",

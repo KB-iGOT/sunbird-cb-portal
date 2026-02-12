@@ -2,7 +2,7 @@ import { Component, OnInit, Input, OnDestroy, HostBinding, EventEmitter, Output 
 import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
 import { NsContentStripWithTabs } from './content-strip-with-tabs.model'
 // import { HttpClient } from '@angular/common/http'
-import { WidgetContentService } from '../_services/widget-content.service'
+import { WidgetContentService } from '@sunbird-cb/toc'
 import { NsContent } from '../_services/widget-content.model'
 import {
   TFetchStatus,

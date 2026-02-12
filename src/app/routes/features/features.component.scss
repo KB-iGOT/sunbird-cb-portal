@@ -1,6 +1,5 @@
 @use 'ws-mixins' as *;
-@use 'ws-common';
-@use 'ws-mixins' as *;
+@use 'ws-common' as *;
 
 .container-balanced {
   @include page-center;

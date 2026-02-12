@@ -5,6 +5,7 @@ import { ConfigurationsService, AuthKeycloakService } from '@sunbird-cb/utils-v2
 import { catchError } from 'rxjs/operators'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { NOTIFICATION_TIME } from '@sunbird-cb/collection'
+import { Router } from '@angular/router'
 // import 'rxjs/add/operator/do'
 
 @Injectable({
@@ -15,7 +16,7 @@ export class AppInterceptorService implements HttpInterceptor {
     private configSvc: ConfigurationsService,
     private snackBar: MatSnackBar,
     private authSvc: AuthKeycloakService,
-    // private router: Router,
+    private router: Router,
     @Inject(LOCALE_ID) private locale: string,
   ) { }
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
@@ -62,7 +63,6 @@ export class AppInterceptorService implements HttpInterceptor {
           catchError(error => {
             if (error instanceof HttpErrorResponse) {
               const localUrl = location.origin
-              const pagePath = location.href || `${localUrl}/page/home`
               const pageName = (location.href || '').replace(localUrl, '')
               switch (error.status) {
                 case 0:
@@ -84,16 +84,17 @@ export class AppInterceptorService implements HttpInterceptor {
                     localStorage.removeItem('telemetrySessionId')
                   }
                   if (localUrl.includes('localhost')) {
-                    // tslint:disable-next-line: prefer-template
-                    window.location.href = error.error.redirectUrl + `?redirect_uri=${encodeURIComponent(pagePath)}`
+                    // For localhost development, don't redirect to external auth
+                    // Just show error and stay on current page
+                    this.snackBar.open('Session expired. Please check your cookie/token.', undefined, { duration: NOTIFICATION_TIME * 3 })
+                    // Optionally navigate to public home instead of external redirect
+                    if (!window.location.href.includes('/public/home')) {
+                      this.router.navigate(['public', 'home'])
+                    }
                   } else {
                     // tslint:disable-next-line: prefer-template
                     window.location.href = error.error.redirectUrl + `?redirect_uri=${encodeURIComponent(pageName)}`
                   }
-                  // if (!window.location.href.includes('/public/home')) {
-                  //   this.router.navigate(['public', 'home'])
-                  //   // window.location.href = '/public/home'
-                  // }
                   // this.authSvc.force_logout()
                   break
               }

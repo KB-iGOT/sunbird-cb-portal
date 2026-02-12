@@ -3,7 +3,7 @@ import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router'
 import { IResolveResponse } from '@sunbird-cb/utils-v2'
 import { Observable, of } from 'rxjs'
 import { catchError, map, tap } from 'rxjs/operators'
-import { WidgetContentService } from '@sunbird-cb/collection'
+import { WidgetContentService } from '@sunbird-cb/toc'
 
 @Injectable()
 export class AppHierarchyResolverService {
@@ -15,7 +15,6 @@ export class AppHierarchyResolverService {
     ): Observable<IResolveResponse<any>> {
         let collectionId = _route.queryParams && _route.queryParams.collectionId || ''
         const collectionType = _route.queryParams && _route.queryParams._collectionType || ''
-
         const multilingualContentId = _route.queryParams && _route.queryParams.MLId || ''
         if (multilingualContentId && (collectionId !== multilingualContentId)) {
             collectionId = multilingualContentId

@@ -299,10 +299,6 @@
     overflow-y: auto
   }
 
-  .Mweb-btns {
-    display: flex;
-    justify-content: center;
-  }
 
 
 }
@@ -389,4 +385,8 @@ video {
 
 .ques-padding-top {
   padding-top: 2px
+}
+
+.question-marks-inline {
+  margin-left: 10px;
 }

@@ -1,8 +1,9 @@
 import { Component, OnDestroy, OnInit } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { AccessControlService } from '@ws/author'
-import { NsContent, NsDiscussionForum, WidgetContentService } from '@sunbird-cb/collection'
+import { NsContent, NsDiscussionForum } from '@sunbird-cb/collection'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
+import { WidgetContentService } from '@sunbird-cb/toc'
 import {
   EventService,
   SubapplicationRespondService,
@@ -11,7 +12,7 @@ import {
 } from '@sunbird-cb/utils-v2'
 import { fromEvent, Subscription } from 'rxjs'
 import { filter } from 'rxjs/operators'
-// import { ViewerUtilService } from '../../viewer-util.service'
+// import { ViewerUtilService } from '@sunbird-cb/toc'
 import { environment } from 'src/environments/environment'
 @Component({
     selector: 'viewer-html-mobile',

@@ -1,7 +1,8 @@
 import { Component, Input, OnInit, OnChanges } from '@angular/core'
-import { ContentStripMultipleService, NsContent, WidgetContentService } from '@sunbird-cb/collection'
+import { ContentStripMultipleService, NsContent } from '@sunbird-cb/collection'
 import { IWidgetAuthor } from './../../../interface/widget'
 import { ChannelStoreService } from './../../../services/store.service'
+import { WidgetContentService } from '@sunbird-cb/toc'
 
 @Component({
   selector: 'ws-auth-content-strip-holder',

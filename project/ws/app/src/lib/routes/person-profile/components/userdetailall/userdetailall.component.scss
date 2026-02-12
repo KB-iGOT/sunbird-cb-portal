@@ -1,3 +1,5 @@
+@use 'ws-mixins' as *;
+
 .smallimage {
   width: 50px;
   height: 50px;
@@ -29,8 +31,6 @@
 .details {
   overflow-x: auto;
 }
-
-@use 'ws-mixins' as *;
 
 mat-card-content {
   width: -webkit-fill-available;
@@ -91,8 +91,6 @@ $description-line-height: 3em;
   overflow: hidden;
   height: 1.4rem;
 }
-
-@use 'ws-mixins' as *;
 
 .playlist-card {
   width: 210px;

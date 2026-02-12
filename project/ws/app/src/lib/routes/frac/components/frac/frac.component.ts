@@ -5,10 +5,10 @@ import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser'
 import { IFrac } from '../../interfaces/frac.model'
 
 @Component({
-    selector: 'ws-app-frac',
-    templateUrl: './frac.component.html',
-    styleUrls: ['./frac.component.scss'],
-    standalone: false
+  selector: 'ws-app-frac',
+  templateUrl: './frac.component.html',
+  styleUrls: ['./frac.component.scss'],
+  standalone: false
 })
 
 export class FracComponent implements
@@ -29,7 +29,7 @@ export class FracComponent implements
 
   }
   ngOnInit() {
-    this.fracService.fetchFrac().then((result: IFrac) => {
+    this.fracService.fetchFrac().then((result: IFrac | undefined) => {
       if (result) {
         this.widgetData = result
         if (this.widgetData && this.widgetData.iframeSrc) {

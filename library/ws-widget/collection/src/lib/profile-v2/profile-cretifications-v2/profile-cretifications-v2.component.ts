@@ -1,13 +1,14 @@
 import { Component, EventEmitter, HostBinding, Input, OnInit, Output } from '@angular/core'
 import { MatDialog } from '@angular/material/dialog'
+import { WidgetContentService } from '@sunbird-cb/toc'
 import { WidgetBaseComponent, NsWidgetResolver } from '@sunbird-cb/resolver'
 import moment from 'moment'
 import { ProfileCertificateDialogComponent } from '../profile-certificate-dialog/profile-certificate-dialog.component'
 import { IProCert } from './profile-cretifications-v2.model'
-import { AppTocService } from '../../_services/app-toc.service'
+import { AppTocService } from '@sunbird-cb/toc'
 import { ConfigurationsService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
 import { TranslateService } from '@ngx-translate/core'
-import { WidgetContentService } from '../../_services/widget-content.service'
+
 @Component({
   selector: 'ws-widget-profile-cretifications-v2',
   templateUrl: './profile-cretifications-v2.component.html',

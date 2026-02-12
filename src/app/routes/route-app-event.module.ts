@@ -1,12 +1,12 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { AppEventModule } from '@ws/app'
+import { EventsModule } from '@ws/app'
 
 @NgModule({
   declarations: [],
   imports: [
     CommonModule,
-    AppEventModule,
+    EventsModule,
   ],
 })
 export class AppEventsModule { }

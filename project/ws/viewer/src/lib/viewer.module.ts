@@ -52,7 +52,7 @@ import { MatTabsModule } from '@angular/material/tabs'
 import { MatToolbarModule } from '@angular/material/toolbar'
 import { MatTreeModule } from '@angular/material/tree'
 
-import { ContentTocModule } from '@sunbird-cb/collection'
+import { ContentTocModule } from '@sunbird-cb/toc'
 // import { AiTutorComponent } from './components/ai-tutor/ai-tutor.component'
 import { FormsModule } from '@angular/forms'
 import { MatSelectModule } from '@angular/material/select'

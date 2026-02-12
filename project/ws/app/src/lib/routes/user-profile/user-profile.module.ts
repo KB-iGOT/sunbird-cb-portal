@@ -6,7 +6,6 @@ import { UserProfileComponent } from './components/user-profile/user-profile.com
 import { TabDirective } from './components/user-profile/tab.directive'
 import { SharedModule } from '@ws/author'
 import { ReactiveFormsModule, FormsModule } from '@angular/forms'
-import { UserProfileService } from '@sunbird-cb/collection'
 import { LoaderService } from '@ws/author'
 import { BtnPageBackModule } from '@sunbird-cb/collection'
 import { PipeDurationTransformModule } from '@sunbird-cb/utils-v2'

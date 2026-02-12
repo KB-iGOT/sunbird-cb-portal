@@ -24,7 +24,7 @@ export class ForumService {
     type: SocialForum.EForumViewType.ACTIVEALL,
 
   }
-  private forumsSubject: ReplaySubject<SocialForum.IForumViewResponse> | null = null
+  private forumsSubject: ReplaySubject<SocialForum.IForumViewResponse | undefined> | null = null
 
   constructor(private http: HttpClient) { }
   fetchTimelineData(request: SocialForum.ITimelineRequest): Observable<SocialForum.ITimeline> {
@@ -61,7 +61,7 @@ export class ForumService {
           if (!this.forumsSubject) {
             this.forumsSubject = new ReplaySubject(1)
           }
-          this.forumsSubject.next()
+          this.forumsSubject.next(undefined)
         },
       )
   }
@@ -72,7 +72,7 @@ export class ForumService {
 
   getForumsDetails(
     forumViewRequest: SocialForum.IForumViewRequest
-  ): Observable<SocialForum.IForumViewResponse> {
+  ): Observable<SocialForum.IForumViewResponse | undefined> {
 
     this.forumsSubject = new ReplaySubject()
     this.fetchForumsSubject(forumViewRequest)

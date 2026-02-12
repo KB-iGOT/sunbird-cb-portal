@@ -16,18 +16,18 @@ import { OnConnectionBindInfo } from 'jsplumb'
 import { QuizService } from './quiz.service'
 import { EventService, WsEvents } from '@sunbird-cb/utils-v2'
 import { ActivatedRoute } from '@angular/router'
-import { ViewerUtilService } from '../../viewer-util.service'
 import { MatDialog } from '@angular/material/dialog'
+import { ViewerUtilService } from '@sunbird-cb/toc'
 import { MatSidenav } from '@angular/material/sidenav'
 export type FetchStatus = 'hasMore' | 'fetching' | 'done' | 'error' | 'none'
 
 @Component({
-    selector: 'viewer-plugin-quiz',
-    templateUrl: './quiz.component.html',
-    styleUrls: ['./quiz.component.scss'],
-    /* tslint:disable */
-    host: { class: 'h-inherit' },
-    standalone: false
+  selector: 'viewer-plugin-quiz',
+  templateUrl: './quiz.component.html',
+  styleUrls: ['./quiz.component.scss'],
+  /* tslint:disable */
+  host: { class: 'h-inherit' },
+  standalone: false
 })
 export class QuizComponent implements OnInit, OnChanges, OnDestroy {
 
