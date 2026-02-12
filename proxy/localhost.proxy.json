@@ -1,5 +1,5 @@
 {
-  "/apis/*": {
+  "/apis": {
     "target": "https://portal.qa.karmayogibharat.net/",
     "secure": false,
     "logLevel": "debug",
@@ -8,70 +8,64 @@
       "/apis": "/apis"
     },
     "headers": {
-      "Cookie": "connect.sid=s%3AKcCUgFqRJ1C2fkgkXTcmmRTWdABjoikA.Kdzn66ndSCl5bcmeViIiEvUGyeMFVZb3sguKNhebPXs"
+      "Cookie": "connect.sid=s%3AC-BaVjFWaCUPibsdWPQ0W4ZYH-Tzk7Rd.8xFHf%2F3Z44NuukfiLLWCw2M2JMdivTcTLa8%2FtfGi2ug"
     }
   },
-  "/api/*": {
+  "/api": {
     "target": "https://portal.qa.karmayogibharat.net/",
     "secure": false,
     "logLevel": "debug",
     "changeOrigin": true,
     "pathRewrite": {
-      "/apis": "/apis"
+      "/api": "/api"
+    },
+    "headers": {
+      "Cookie": "connect.sid=s%3AC-BaVjFWaCUPibsdWPQ0W4ZYH-Tzk7Rd.8xFHf%2F3Z44NuukfiLLWCw2M2JMdivTcTLa8%2FtfGi2ug"
     }
   },
-  "/content-api/*": {
+  "/content-api": {
     "target": "http://localhost:3004",
     "secure": false,
     "logLevel": "debug",
     "changeOrigin": true,
     "pathRewrite": {
-      "/apis": ""
+      "^/content-api": ""
     }
   },
-  "/content-store/*": {
+  "/content-store": {
     "target": "http://localhost:3005",
     "secure": false,
     "logLevel": "debug",
     "changeOrigin": true,
     "pathRewrite": {
-      "/apis": ""
+      "^/content-store": ""
     }
   },
-  "/chat-bot/*": {
+  "/chat-bot": {
     "target": "http://localhost:3006",
     "secure": false,
     "logLevel": "debug",
     "changeOrigin": true,
     "pathRewrite": {
-      "/apis": ""
+      "^/chat-bot": ""
     }
   },
-  "/mobile-apps/*": {
+  "/mobile-apps": {
     "target": "http://localhost:3007",
     "secure": false,
     "logLevel": "debug",
     "changeOrigin": true,
     "pathRewrite": {
-      "/apis": ""
+      "^/mobile-apps": ""
     }
   },
-  "/LA/*": {
+  "/LA": {
     "target": "http://localhost:3008",
     "secure": false,
     "logLevel": "debug",
     "changeOrigin": true,
     "pathRewrite": {
-      "/apis": ""
-    }
-  },
-  "/abcd/*": {
-    "target": "https://igot-qa.in",
-    "secure": false,
-    "logLevel": "debug",
-    "changeOrigin": true,
-    "pathRewrite": {
-      "/abcd": ""
+      "^/LA": ""
     }
   },
   "/assets": {

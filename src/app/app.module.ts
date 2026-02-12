@@ -124,7 +124,6 @@ import { AppChatbotModule } from './component/app-chatbot/app-chatbot.module'
 import { AppHierarchyResolverService } from './services/app-hierarchy-resolver.service'
 import { AppEnrollmentResolverService } from './services/app-enrollment-resolver.service'
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core'
-import { HttpLoaderFactory } from '@ws/app'
 import { AppContentResolverService } from './services/app-content-read-resolver.service'
 
 import { HeaderModule } from './header/header.module'
@@ -169,6 +168,7 @@ import { AppPreAssessmentContentResolverService } from './services/app-pre-asses
 import { ResourceDownloadHelperService } from '@ws/app'
 import { ProfileVerificationDialogComponent } from '@ws/app'
 import { CommonDataService } from '@ws/app'
+import { TRANSLATE_HTTP_LOADER_CONFIG, TranslateHttpLoader } from '@ngx-translate/http-loader'
 // @Injectable()
 // export class HammerConfig extends GestureConfig {
 //   buildHammer(element: HTMLElement) {
@@ -341,7 +341,7 @@ const getBaseHref = (platformLocation: PlatformLocation): string => {
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
-        useFactory: HttpLoaderFactory,
+        useClass: TranslateHttpLoader,
         deps: [HttpClient],
       },
     }),
@@ -397,13 +397,15 @@ const getBaseHref = (platformLocation: PlatformLocation): string => {
       useFactory: getBaseHref,
       deps: [PlatformLocation],
     },
-    {
-      provide: TranslateLoader,
-      useFactory: HttpLoaderFactory,
-      deps: [HttpClient],
-    },
     { provide: OverlayContainer, useClass: FullscreenOverlayContainer },
     // { provide: HAMMER_GESTURE_CONFIG, useClass: HammerConfig },
+    {
+      provide: TRANSLATE_HTTP_LOADER_CONFIG,
+      useValue: {
+        prefix: '/assets/i18n/',
+        suffix: '.json',
+      },
+    },
     { provide: ErrorHandler, useClass: GlobalErrorHandlingService },
     { provide: 'environment', useValue: environment },
     GuidedTourService,
