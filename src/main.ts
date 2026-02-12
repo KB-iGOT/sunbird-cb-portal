@@ -3,7 +3,7 @@ import { platformBrowserDynamic } from '@angular/platform-browser-dynamic'
 
 import { environment } from './environments/environment'
 import { AppModule } from './app/app.module'
-
+import { TRANSLATE_HTTP_LOADER_CONFIG } from '@ngx-translate/http-loader'
 if (environment.production) {
   enableProdMode()
 }
@@ -17,7 +17,15 @@ if (/trident/i.test(MATCHING_IE[1])) {
     enableProdMode()
   }
 
-  platformBrowserDynamic()
+  platformBrowserDynamic([
+    {
+      provide: TRANSLATE_HTTP_LOADER_CONFIG,
+      useValue: {
+        prefix: '/assets/i18n/',
+        suffix: '.json',
+      },
+    },
+  ])
     .bootstrapModule(AppModule)
     .catch(err => console.error(err)) // tslint:disable-line:no-console
 }

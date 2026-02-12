@@ -211,7 +211,8 @@ export function HttpLoaderFactory() {
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
-        useFactory: HttpLoaderFactory,
+        useClass: TranslateHttpLoader,
+        deps: [HttpClient],
       },
     }),
     ProfileV3Module,
@@ -262,10 +263,6 @@ export function HttpLoaderFactory() {
       provide: APP_BASE_HREF,
       useFactory: getBaseHref,
       deps: [PlatformLocation],
-    },
-    {
-      provide: TranslateLoader,
-      useFactory: HttpLoaderFactory,
     },
     { provide: OverlayContainer, useClass: FullscreenOverlayContainer },
     // { provide: HAMMER_GESTURE_CONFIG, useClass: HammerConfig },
