@@ -31,7 +31,7 @@ export class RatingService {
         API_END_POINTS.GET_RATING(contentId, contentType, userId)
       )
     }
-    return Observable.of({})
+    return of({})
   }
 
   addOrUpdateRating(req: NsAppRating.IRating): Observable<any> {
@@ -63,7 +63,7 @@ export class RatingService {
         API_END_POINTS.POST_AUTHOR_REPLY, req
       )
     }
-    return Observable.of({})
+    return of({})
   }
 
   getRatingIcon(ratingIndex: number, avg: number): 'star' | 'star_border' | 'star_half' {

@@ -35,12 +35,12 @@ const ampDefaultConfig: amp.Player.Options = {
     enabled: true,
     initialSpeed: 1.0,
     speedLevels: [
-      { name: 'x3.0', value: 3.0 },
-      { name: 'x2.0', value: 2.0 },
-      { name: 'x1.25', value: 1.25 },
-      { name: 'x1.0', value: 1.0 },
-      { name: 'x0.85', value: 0.85 },
-      { name: 'x0.75', value: 0.75 },
+      { label: 'x3.0', value: 3.0 },
+      { label: 'x2.0', value: 2.0 },
+      { label: 'x1.25', value: 1.25 },
+      { label: 'x1.0', value: 1.0 },
+      { label: 'x0.85', value: 0.85 },
+      { label: 'x0.75', value: 0.75 },
     ],
   },
 }

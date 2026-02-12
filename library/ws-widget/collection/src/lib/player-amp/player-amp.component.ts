@@ -1,12 +1,10 @@
 import { AfterViewInit, Component, ElementRef, Input, OnDestroy, OnInit, ViewChild } from '@angular/core'
 import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
-import { EventService, ValueService, WsEvents } from '@sunbird-cb/utils-v2'
-import { DomSanitizer } from '@angular/platform-browser'
+import { EventService, WsEvents } from '@sunbird-cb/utils-v2'
 import { Subscription, interval, timer } from 'rxjs'
 import { filter, first } from 'rxjs/operators'
 import { IWidgetsPlayerAmpData } from './player-amp.model'
 import { ViewerUtilService } from '@sunbird-cb/toc'
-import { WidgetContentService } from '@sunbird-cb/toc'
 import { ROOT_WIDGET_CONFIG } from '../collection.config'
 import { LINKS, getAmpConfig, isIOS } from './player-amp.utility'
 import { DynamicAssetsLoaderService } from '../_services/dynamic-assets-loader.service'
@@ -37,10 +35,7 @@ export class PlayerAmpComponent
 
   constructor(
     private eventSvc: EventService,
-    private contentSvc: WidgetContentService,
     private viewerSvc: ViewerUtilService,
-    private valueSvc: ValueService,
-    private sanitizer: DomSanitizer,
     private dynamicLoaderSvc: DynamicAssetsLoaderService,
   ) {
     super()

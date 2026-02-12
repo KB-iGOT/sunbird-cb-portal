@@ -33,8 +33,7 @@ import { PublicContactModule } from './routes/public/public-contact/public-conta
 import { TncComponent } from './routes/tnc/tnc.component'
 import { AppInterceptorService } from './services/app-interceptor.service'
 import { AppRetryInterceptorService } from './services/app-retry-interceptor.service'
-import { TncAppResolverService } from './services/tnc-app-resolver.service'
-import { TncPublicResolverService } from './services/tnc-public-resolver.service'
+import { TncAppResolverService, TncPublicResolverService } from '@ws/app'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 import { ConfigService } from '@ws/app/src/lib/routes/discuss/services/config.service'
 import { DiscussionUiModule } from '@sunbird-cb/discussions-ui-v8'
@@ -122,8 +121,8 @@ const getBaseHref = (platformLocation: PlatformLocation): string => {
 }
 
 // tslint:disable-next-line:function-name
-export function HttpLoaderFactory(http: HttpClient) {
-  return new TranslateHttpLoader(http)
+export function HttpLoaderFactory() {
+  return new TranslateHttpLoader()
 }
 
 // tslint:disable-next-line: max-classes-per-file
@@ -213,7 +212,6 @@ export function HttpLoaderFactory(http: HttpClient) {
       loader: {
         provide: TranslateLoader,
         useFactory: HttpLoaderFactory,
-        deps: [HttpClient],
       },
     }),
     ProfileV3Module,
@@ -268,7 +266,6 @@ export function HttpLoaderFactory(http: HttpClient) {
     {
       provide: TranslateLoader,
       useFactory: HttpLoaderFactory,
-      deps: [HttpClient],
     },
     { provide: OverlayContainer, useClass: FullscreenOverlayContainer },
     // { provide: HAMMER_GESTURE_CONFIG, useClass: HammerConfig },

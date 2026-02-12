@@ -3,10 +3,9 @@ import { MatDialog } from '@angular/material/dialog'
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser'
 import { ActivatedRoute, NavigationEnd, NavigationExtras, Router } from '@angular/router'
 import { WidgetContentService, AppTocService } from '@sunbird-cb/toc'
-import { NsContent } from '@sunbird-cb/collection'
+import { NsContent, ViewerDataService } from '@sunbird-cb/collection'
 import { ConfigurationsService, LoggerService, NsPage, ValueService, EventService, WsEvents, DomainConfService } from '@sunbird-cb/utils-v2'
 import { Subscription } from 'rxjs'
-import { ViewerDataService } from '../../viewer-data.service'
 import { ViewerUtilService } from '@sunbird-cb/toc'
 import { CourseCompletionDialogComponent } from '../course-completion-dialog/course-completion-dialog.component'
 import { ContentRatingV2DialogComponent, RatingService } from '@sunbird-cb/collection/src/public-api'
@@ -167,7 +166,7 @@ export class ViewerTopBarComponent implements OnInit, OnDestroy, OnChanges {
       }
     })
 
-    this.viewerDataServiceSubscription = this.viewerDataSvc.tocChangeSubject.subscribe(data => {
+    this.viewerDataServiceSubscription = this.viewerDataSvc.tocChangeSubject.subscribe((data: any) => {
       if (data.prevResource) {
         this.prevResourceUrl = data.prevResource.viewerUrl
         this.prevResourceUrlParams = {
