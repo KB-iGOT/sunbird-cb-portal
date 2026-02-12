@@ -67,7 +67,6 @@ import { DialogBoxComponent } from './component/dialog-box/dialog-box.component'
 import { SocialLinkComponent } from './component/social-link/social-link.component'
 import { FooterSectionComponent } from './component/app-footer/footer-section/footer-section.component'
 import { AppLogoComponent } from './component/app-logo/app-logo.component'
-import { ProfileV3Module } from '@ws/app/src/lib/routes/profile-v3/profile-v3.module'
 import { NoDataComponent } from './component/no-data/no-data.component'
 import { SurveyShikshaComponent } from './component/survey-shiksha/survey-shiksha.component'
 import {
@@ -211,11 +210,9 @@ export function HttpLoaderFactory() {
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
-        useClass: TranslateHttpLoader,
-        deps: [HttpClient],
+        useFactory: HttpLoaderFactory,
       },
     }),
-    ProfileV3Module,
     MatSidenavModule,
     PickerModule,
     CKEditorModule
