@@ -33,8 +33,7 @@ import { PublicContactModule } from './routes/public/public-contact/public-conta
 import { TncComponent } from './routes/tnc/tnc.component'
 import { AppInterceptorService } from './services/app-interceptor.service'
 import { AppRetryInterceptorService } from './services/app-retry-interceptor.service'
-import { TncAppResolverService } from './services/tnc-app-resolver.service'
-import { TncPublicResolverService } from './services/tnc-public-resolver.service'
+import { TncAppResolverService, TncPublicResolverService } from '@ws/app'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 import { ConfigService } from '@ws/app/src/lib/routes/discuss/services/config.service'
 import { DiscussionUiModule } from '@sunbird-cb/discussions-ui-v8'
@@ -68,7 +67,6 @@ import { DialogBoxComponent } from './component/dialog-box/dialog-box.component'
 import { SocialLinkComponent } from './component/social-link/social-link.component'
 import { FooterSectionComponent } from './component/app-footer/footer-section/footer-section.component'
 import { AppLogoComponent } from './component/app-logo/app-logo.component'
-import { ProfileV3Module } from '@ws/app/src/lib/routes/profile-v3/profile-v3.module'
 import { NoDataComponent } from './component/no-data/no-data.component'
 import { SurveyShikshaComponent } from './component/survey-shiksha/survey-shiksha.component'
 import {
@@ -122,8 +120,8 @@ const getBaseHref = (platformLocation: PlatformLocation): string => {
 }
 
 // tslint:disable-next-line:function-name
-export function HttpLoaderFactory(http: HttpClient) {
-  return new TranslateHttpLoader(http)
+export function HttpLoaderFactory() {
+  return new TranslateHttpLoader()
 }
 
 // tslint:disable-next-line: max-classes-per-file
@@ -212,11 +210,9 @@ export function HttpLoaderFactory(http: HttpClient) {
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
-        useClass: TranslateHttpLoader,
-        deps: [HttpClient],
+        useFactory: HttpLoaderFactory,
       },
     }),
-    ProfileV3Module,
     MatSidenavModule,
     PickerModule,
     CKEditorModule
@@ -267,13 +263,6 @@ export function HttpLoaderFactory(http: HttpClient) {
     },
     { provide: OverlayContainer, useClass: FullscreenOverlayContainer },
     // { provide: HAMMER_GESTURE_CONFIG, useClass: HammerConfig },
-    {
-      provide: TRANSLATE_HTTP_LOADER_CONFIG,
-      useValue: {
-        prefix: '/assets/i18n/',
-        suffix: '.json',
-      },
-    },
     { provide: ErrorHandler, useClass: GlobalErrorHandlingService },
     { provide: 'environment', useValue: environment },
     GuidedTourService,

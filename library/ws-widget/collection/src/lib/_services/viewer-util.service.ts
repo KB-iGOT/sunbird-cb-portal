@@ -5,7 +5,7 @@ import { noop, Observable, Subject } from 'rxjs'
 import dayjs from 'dayjs'
 import { NsContent } from './widget-content.model'
 import { environment } from '../environment'
-import { WidgetContentService } from './widget-content.service'
+import { WidgetContentService } from '@sunbird-cb/toc'
 import { ContentLanguageService, WidgetUserServiceLib } from '@sunbird-cb/consumption'
 import { AppTocService } from './app-toc.service'
 

@@ -12,7 +12,7 @@ import { UntypedFormControl } from '@angular/forms'
 import { ActivatedRoute, Router } from '@angular/router'
 import { NsWidgetResolver, WidgetBaseComponent } from '@sunbird-cb/resolver'
 import { EventService, LoggerService, WsEvents, ValueService } from '@sunbird-cb/utils-v2'
-import * as PDFJS from 'pdfjs-dist/webpack'
+import * as PDFJS from 'pdfjs-dist'
 import { fromEvent, interval, merge, Subject, Subscription } from 'rxjs'
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators'
 import { ROOT_WIDGET_CONFIG } from '../collection.config'
@@ -91,6 +91,9 @@ export class PlayerPdfComponent extends WidgetBaseComponent
   }
 
   ngOnInit() {
+    // Set the worker path for PDF.js
+    PDFJS.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/' + PDFJS.version + '/pdf.worker.min.js'
+
     // SimpleLinkService does not support handling of relative link switching PDFLinkService
     pdfjsViewer.SimpleLinkService.prototype.getDestinationHash =
       pdfjsViewer.PDFLinkService.prototype.getDestinationHash

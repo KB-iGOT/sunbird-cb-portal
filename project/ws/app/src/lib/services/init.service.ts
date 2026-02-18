@@ -28,12 +28,11 @@ import { map } from 'rxjs/operators'
 import { v4 as uuid } from 'uuid'
 // import { Subscription } from 'rxjs'
 import { NSProfileDataV3 } from '@ws/app'
-import { NPSGridService } from '@sunbird-cb/collection'
+import { NPSGridService, BtnSettingsService } from '@sunbird-cb/collection'
 import moment from 'moment'
 import { TranslateService } from '@ngx-translate/core'
 import { SbUiResolverService } from '@sunbird-cb/resolver-v2'
 import { NetCoreService } from './netcore.service'
-import { BtnSettingsService } from '../../../library/ws-widget/collection/src/public-api'
 declare const smartech: any
 // import { of } from 'rxjs'
 /* tslint:enable */
