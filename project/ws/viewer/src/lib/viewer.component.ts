@@ -345,6 +345,10 @@ export class ViewerComponent implements OnInit, OnDestroy, AfterViewChecked {
             }
 
             // Apply the completion data to leaf nodes
+            console.log('📊 [VIEWER] contentStatusMap:', JSON.stringify(contentStatusMap))
+            console.log('📊 [VIEWER] enrolledCourse keys:', Object.keys(enrolledCourse))
+            console.log('📊 [VIEWER] enrolledCourse.contentList:', enrolledCourse.contentList)
+            console.log('📊 [VIEWER] enrolledCourse.contentStatus:', enrolledCourse.contentStatus)
             if (Object.keys(contentStatusMap).length > 0) {
               Object.keys(contentStatusMap).forEach((contentId: string) => {
                 if (this.tocSvc.hashmap[contentId]) {
@@ -352,9 +356,11 @@ export class ViewerComponent implements OnInit, OnDestroy, AfterViewChecked {
                   this.tocSvc.hashmap[contentId].completionStatus = status || 0
                   this.tocSvc.hashmap[contentId].status = status || 0
                   this.tocSvc.hashmap[contentId].completionPercentage = status === 2 ? 100 : 0
-
+                  console.log('📊 [VIEWER] Applied status', status, 'to leaf node', contentId)
                 }
               })
+            } else {
+              console.log('⚠️ [VIEWER] contentStatusMap is empty - no progress data in enrollment')
             }
 
           }
