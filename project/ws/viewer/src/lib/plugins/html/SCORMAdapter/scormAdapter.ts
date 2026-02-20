@@ -27,6 +27,7 @@ export enum scormLMSStatus {
 })
 export class SCORMAdapterService {
   id = ''
+  scormLocalStorageData: Record<string, string> = {}
   public scormInitialized = new Subject<scormLMSStatus>()
   scormInitialized$ = this.scormInitialized.asObservable()
 
@@ -206,20 +207,30 @@ export class SCORMAdapterService {
             if (content.contentId === this.contentId && content.progressdetails) {
               found = true
               const data = content.progressdetails
-              const loadDatas: IScromData = {
-                "cmi.core.exit": data["cmi.core.exit"],
-                "cmi.core.lesson_status": data["cmi.core.lesson_status"],
-                "cmi.core.session_time": data["cmi.core.session_time"],
-                "cmi.suspend_data": data["cmi.suspend_data"],
-                Initialized: data["Initialized"],
-                spentTime: data["spentTime"],
+              // Restore ALL fields from progressdetails (not just hardcoded CMI fields)
+              const scormDataToRestore = data.scormData
+              const loadDatas: any = {
+                ...data,
                 completionStatus: content.status,
-                completionPercentage: content.completionPercentage
-                // errors: data["errors"]
+                completionPercentage: content.completionPercentage,
               }
-              this.store.setAll(loadDatas)
-              // if scorm has progress and LMS was not initialized
-              if (data["Initialized"]) {
+              // Remove scormData from store object (it goes to flat localStorage)
+              delete loadDatas.scormData
+              this.store.setAll(loadDatas as IScromData)
+
+              // Restore flat localStorage keys from scormData (localStorage polling approach)
+              if (scormDataToRestore && typeof scormDataToRestore === 'object') {
+                this.scormLocalStorageData = { ...scormDataToRestore }
+                Object.keys(this.scormLocalStorageData).forEach(key => {
+                  const val = this.scormLocalStorageData[key]
+                  window.localStorage.setItem(key, typeof val === 'string' ? val : JSON.stringify(val))
+                })
+              }
+
+              // Determine initialization status
+              const hasScormData = scormDataToRestore && typeof scormDataToRestore === 'object' && Object.keys(scormDataToRestore).length > 0
+              if (data["Initialized"] || hasScormData) {
+                this.store.setItem('Initialized', true)
                 this.updateScormInitialized(scormLMSStatus.LMSPositive)
               } else {
                 this.updateScormInitialized(scormLMSStatus.LMSNegative)
