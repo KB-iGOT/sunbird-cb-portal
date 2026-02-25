@@ -15,7 +15,8 @@ export class RedirectGuard  {
       window.location.href =  this.domainSvc.isKbPortal() ? route.data['externalUrl'] : this.domainSvc.getNonLoggedInPageUrl()
       return false
     } else {
-      const path = this.domainSvc.isKbPortal() ? 'page/home' : this.domainSvc.getDomainRedirectPath()
+      // Redirect to Angular 20 MFE home instead of old page/home
+      const path = this.domainSvc.isKbPortal() ? 'home' : this.domainSvc.getDomainRedirectPath()
       this.router.navigateByUrl(path)
       return false
     }

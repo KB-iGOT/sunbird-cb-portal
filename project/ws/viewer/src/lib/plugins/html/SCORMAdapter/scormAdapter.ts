@@ -206,16 +206,13 @@ export class SCORMAdapterService {
             if (content.contentId === this.contentId && content.progressdetails) {
               found = true
               const data = content.progressdetails
+              // Restore ALL fields saved by the SCORM player (cmi.suspend_data,
+              // cmi.core.lesson_status, cmi.interactions.*, etc.) plus override
+              // completionStatus/completionPercentage from the API response.
               const loadDatas: IScromData = {
-                "cmi.core.exit": data["cmi.core.exit"],
-                "cmi.core.lesson_status": data["cmi.core.lesson_status"],
-                "cmi.core.session_time": data["cmi.core.session_time"],
-                "cmi.suspend_data": data["cmi.suspend_data"],
-                Initialized: data["Initialized"],
-                spentTime: data["spentTime"],
+                ...data,
                 completionStatus: content.status,
                 completionPercentage: content.completionPercentage
-                // errors: data["errors"]
               }
               this.store.setAll(loadDatas)
               // if scorm has progress and LMS was not initialized

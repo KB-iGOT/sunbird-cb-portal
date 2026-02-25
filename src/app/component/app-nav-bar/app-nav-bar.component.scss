@@ -426,3 +426,65 @@
     }
   }
 }
+
+/* ── Old ↔ New UI Toggle ───────────────────────────── */
+.mfe-toggle-container {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 0 12px;
+  user-select: none;
+}
+
+.mfe-toggle-label {
+  font-size: 12px;
+  font-weight: 500;
+  color: rgba(255, 255, 255, 0.55);
+  transition: color 0.2s;
+  &.active {
+    color: #fff;
+    font-weight: 700;
+  }
+}
+
+.mfe-toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 36px;
+  height: 20px;
+  cursor: pointer;
+
+  input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+  }
+}
+
+.mfe-toggle-slider {
+  position: absolute;
+  inset: 0;
+  background: rgba(255, 255, 255, 0.25);
+  border-radius: 20px;
+  transition: background 0.3s;
+
+  &::before {
+    content: '';
+    position: absolute;
+    width: 16px;
+    height: 16px;
+    left: 2px;
+    bottom: 2px;
+    background: #fff;
+    border-radius: 50%;
+    transition: transform 0.3s;
+  }
+}
+
+.mfe-toggle-switch input:checked + .mfe-toggle-slider {
+  background: #4caf50;
+}
+
+.mfe-toggle-switch input:checked + .mfe-toggle-slider::before {
+  transform: translateX(16px);
+}

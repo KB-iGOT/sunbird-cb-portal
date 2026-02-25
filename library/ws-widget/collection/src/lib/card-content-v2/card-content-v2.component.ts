@@ -11,7 +11,7 @@ import _ from 'lodash'
 import { CertificateService } from '@ws/app/src/lib/routes/certificate/services/certificate.service'
 import { CertificateDialogComponent } from '../_common/certificate-dialog/certificate-dialog.component'
 import { TranslateService } from '@ngx-translate/core'
-import { CommonMethodsService, WidgetContentLibService } from '@sunbird-cb/consumption'
+import { WidgetContentLibService } from '@sunbird-cb/consumption'
 import { ActivatedRoute, Router } from '@angular/router'
 import { VIEWER_ROUTE_FROM_MIME } from '../_services/viewer-route-util'
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
@@ -60,8 +60,6 @@ export class CardContentV2Component extends WidgetBaseComponent
     private contSvc: WidgetContentLibService,
     private router: Router,
     private route: ActivatedRoute,
-    private commonSvc: CommonMethodsService
-
   ) {
     super()
     this.langtranslations.languageSelectedObservable.subscribe(() => {
@@ -75,7 +73,7 @@ export class CardContentV2Component extends WidgetBaseComponent
 
   ngOnInit() {
     // this.widgetInstanceId=his.id
-    this.CaCourseUnitIds = this.commonSvc.getCourseUnitIds()
+    this.CaCourseUnitIds = localStorage.getItem('comprehensiveAssessmentCourseUnits')
     this.isIntranetAllowedSettings = this.configSvc.isIntranetAllowed
     this.prefChangeSubscription = this.configSvc.prefChangeNotifier.subscribe(() => {
       this.isIntranetAllowedSettings = this.configSvc.isIntranetAllowed

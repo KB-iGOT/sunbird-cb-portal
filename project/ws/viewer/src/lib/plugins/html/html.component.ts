@@ -155,11 +155,10 @@ export class HtmlComponent implements OnInit, OnChanges, OnDestroy {
       const completionData = this.calculateCompletionStatus(htmlContent)
 
       let progressData
-      if (this.store.getItem('Initialized')) {
-        progressData = { ...this.store.getAll() || 0, spentTime: (completionData && completionData.spentTime) }
-      } else {
-        progressData = { spentTime: (completionData && completionData.spentTime) || 0 }
-      }
+      // Always spread the full localStorage SCORM data so that all cmi.* fields
+      // set by LMSSetValue (suspend_data, lesson_status, interactions, etc.) are
+      // included in progressdetails — regardless of whether LMSInitialize was called.
+      progressData = { ...(this.store.getAll() || {}), spentTime: (completionData && completionData.spentTime) || 0 }
 
       const req = {
         ...this.realTimeProgressRequest,

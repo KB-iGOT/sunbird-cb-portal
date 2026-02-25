@@ -54,19 +54,121 @@ import { AppPreAssessmentContentResolverService } from './services/app-pre-asses
 import { FormMicroSiteDataService } from './services/form-micro-site-data.service'
 // 💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥
 // Please declare routes in alphabetical order
+import { MfeWrapperComponent } from './mfe/mfe-wrapper.component'
+import { UrlSegment, UrlMatchResult } from '@angular/router'
+
+const REMOTE_ENTRY = 'http://localhost:4200/remoteEntry.js'
+const REMOTE_NAME = 'igotLearnerPortal'
+
+/**
+ * Custom URL matcher for the full new portal.
+ * Matches /new, /new/home, /new/profile, /new/search … (any depth).
+ * Angular does not support 'new/**' as a path string in Angular 16;
+ * a UrlMatcher is the correct mechanism to greedily consume sub-segments.
+ */
+function newPortalMatcher(segments: UrlSegment[]): UrlMatchResult | null {
+  if (segments.length >= 1 && segments[0].path === 'new') {
+    return { consumed: segments }  // consume all segments: /new, /new/home …
+  }
+  return null
+}
+
 // 😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵
 
 const routes: Routes = [
+  // ── Angular 20 MFE routes ─────────────────────────────────────────
+  // These MUST be first so they are matched before any old portal routes.
+  // The old portal shell (header/footer/navbar) is hidden on these routes.
+
+  // ── Full new portal — entire Angular 20 app as one web component ──
+  // UrlMatcher catches /new, /new/home, /new/profile, /new/search, … (any depth).
+  // MfeWrapperComponent mounts <igot-mfe-app> and rewrites sub-paths to hashes
+  // (/new/home → window replaces to /new#/home) so the new portal's hash
+  // router navigates to the correct page without conflicting with this router.
+  {
+    matcher: newPortalMatcher,
+    component: MfeWrapperComponent,
+    data: {
+      remoteEntry: REMOTE_ENTRY,
+      remoteName: REMOTE_NAME,
+      exposedModule: './AppFeature',
+      elementName: 'igot-mfe-app',
+      pageId: 'new',
+      module: 'NewPortal',
+    },
+  },
+  {
+    path: 'home',
+    component: MfeWrapperComponent,
+    data: {
+      remoteEntry: REMOTE_ENTRY,
+      remoteName: REMOTE_NAME,
+      exposedModule: './HomeFeature',
+      elementName: 'igot-mfe-home',
+      pageId: 'home',
+      module: 'Home',
+    },
+  },
+  {
+    path: 'search',
+    component: MfeWrapperComponent,
+    data: {
+      remoteEntry: REMOTE_ENTRY,
+      remoteName: REMOTE_NAME,
+      exposedModule: './SearchFeature',
+      elementName: 'igot-mfe-search',
+      pageId: 'search',
+      module: 'Search',
+    },
+  },
+  {
+    path: 'profile',
+    component: MfeWrapperComponent,
+    data: {
+      remoteEntry: REMOTE_ENTRY,
+      remoteName: REMOTE_NAME,
+      exposedModule: './ProfileFeature',
+      elementName: 'igot-mfe-profile',
+      pageId: 'profile',
+      module: 'Profile',
+    },
+  },
+  {
+    path: 'my-learning',
+    component: MfeWrapperComponent,
+    data: {
+      remoteEntry: REMOTE_ENTRY,
+      remoteName: REMOTE_NAME,
+      exposedModule: './MyLearningFeature',
+      elementName: 'igot-mfe-my-learning',
+      pageId: 'my-learning',
+      module: 'Profile',
+    },
+  },
+  {
+    path: 'toc',
+    component: MfeWrapperComponent,
+    data: {
+      remoteEntry: REMOTE_ENTRY,
+      remoteName: REMOTE_NAME,
+      exposedModule: './TocFeature',
+      elementName: 'igot-mfe-toc',
+      pageId: 'toc',
+      module: 'Learn',
+    },
+  },
+  // ── Root redirect → MFE home ───────────────────────────────────────
   {
     path: '',
+    pathMatch: 'full',
     canActivate: [RedirectGuard],
     component: RedirectGuard,
     data: {
       dynamicRedirect: true,
-      fallbackPath: 'page/home',
+      fallbackPath: 'home',
       pageType: 'feature',
       pageKey: 'home',
-      pageId: 'page/home',
+      pageId: 'home',
       module: 'home',
     },
   },
@@ -844,7 +946,7 @@ const routes: Routes = [
     canActivate: [ExternalUrlResolverService],
     component: ErrorResolverComponent,
   },
-  { path: 'home', redirectTo: 'page/home', pathMatch: 'full' },
+  // /home is now handled by the Angular 20 MFE (RouteMfeModule)
   {
     path: 'login',
     canActivate: [LoginGuard],

@@ -51,6 +51,7 @@ export class AppNavBarComponent implements OnInit, OnChanges, OnDestroy {
   isLoggedIn = false
   fontContainerFlag = false
   activeRoute = ''
+  isNewUI = false
   countdata: any
   enrollInterval: any
   karmaPointLoading = true
@@ -95,6 +96,9 @@ export class AppNavBarComponent implements OnInit, OnChanges, OnDestroy {
         this.routeSubs(event)
         this.cancelTour()
         this.bindUrl(event.url.replace('/app/competencies/', ''))
+        // Track whether we are currently in the MFE (new UI) section.
+        // Must cover bare '/new' (no sub-path) as well as '/new/*'.
+        this.isNewUI = event.urlAfterRedirects === '/new' || event.urlAfterRedirects.startsWith('/new/')
       }
       this.showLangDropdown = window.location.href.includes('/karmayogi-saptah') ?
         false : true
@@ -147,6 +151,9 @@ export class AppNavBarComponent implements OnInit, OnChanges, OnDestroy {
         }
       }
     })
+
+    // Detect initial route for new UI toggle (true when on /new or /new/* routes)
+    this.isNewUI = this.router.url === '/new' || this.router.url.startsWith('/new/')
 
     if (this.configSvc.userProfile && this.configSvc.userProfile.userId) {
       this.isLoggedIn = true
@@ -382,6 +389,50 @@ export class AppNavBarComponent implements OnInit, OnChanges, OnDestroy {
       this.router.navigate([pathConfig.path])
     }
     this.configSvc.openExploreMenuForMWeb.next(false)
+  }
+
+  /**
+   * Toggle between old UI and new MFE UI.
+   *
+   * Uses Angular router to stay within the old portal shell (port 3000).
+   * The MFE remote (port 4200) only serves remoteEntry.js + chunks —
+   * the actual page stays at port 3000 with the old portal's header/footer.
+   *
+   * Route mapping (old ↔ new):
+   *   /page/home          ↔  /new/home
+   *   /app/globalsearch   ↔  /new/search
+   *   /app/person-profile ↔  /new/profile
+   *   /app/my-learning    ↔  /new/my-learning
+   *   /app/toc            ↔  /new/toc
+   */
+  toggleNewUI(): void {
+    if (this.isNewUI) {
+      // Currently on new MFE UI — switch back to old portal route
+      const newToOldMap: { new: string; old: string }[] = [
+        { new: '/new/home',        old: '/page/home' },
+        { new: '/new/search',      old: '/app/globalsearch' },
+        { new: '/new/profile',     old: '/app/person-profile' },
+        { new: '/new/my-learning', old: '/app/my-learning' },
+        { new: '/new/toc',         old: '/app/toc' },
+        { new: '/new',             old: '/page/home' },  // bare /new (no sub-path)
+      ]
+      const url = this.router.url
+      const match = newToOldMap.find(r => url.startsWith(r.new))
+      this.router.navigateByUrl(match ? match.old : '/page/home')
+    } else {
+      // Currently on old UI — switch to new MFE route (loaded within this shell)
+      const oldToNewMap: { old: string; new: string }[] = [
+        { old: '/page/home',          new: '/new/home' },
+        { old: '/app/globalsearch',   new: '/new/search' },
+        { old: '/app/search',         new: '/new/search' },
+        { old: '/app/person-profile', new: '/new/profile' },
+        { old: '/app/my-learning',    new: '/new/my-learning' },
+        { old: '/app/toc',            new: '/new/toc' },
+      ]
+      const url = this.router.url
+      const match = oldToNewMap.find(r => url.startsWith(r.old))
+      this.router.navigateByUrl(match ? match.new : '/new/home')
+    }
   }
 
   openExploreMenu() {
