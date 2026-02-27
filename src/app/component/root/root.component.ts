@@ -87,6 +87,13 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
       this.hideHeaderAndFooter = true
     }
 
+    // ── MFE routes: hide old shell immediately on page load ──
+    const MFE_INIT_PATHS = ['/new', '/home', '/search', '/profile', '/my-learning', '/toc']
+    const pathname = window.location.pathname
+    if (MFE_INIT_PATHS.some(p => pathname === p || pathname.startsWith(p + '/'))) {
+      this.hideHeaderAndFooter = true
+    }
+
     this.getHeaderFooterConfiguration().subscribe((sectionData: any) => {
       // console.log('headerFooterConfigData',sectionData)
       if (sectionData && sectionData.data) {
@@ -368,6 +375,23 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
           this.showNavbar = true
           this.isNavBarRequired = true
         }
+
+        // ── MFE / New UI routes (/new, /home, /search, /profile, /my-learning, /toc) ──
+        // Hide the old portal header, footer, and navbar so only the remote
+        // web component renders inside a clean shell.
+        const MFE_PATHS = ['/new', '/home', '/search', '/profile', '/my-learning', '/toc']
+        const isMfeRoute = MFE_PATHS.some(p => this.currentUrl === p || this.currentUrl.startsWith(p + '/'))
+        if (isMfeRoute) {
+          this.hideHeaderAndFooter = true
+          this.showNavbar = false
+          this.showFooter = false
+          this.isNavBarRequired = false
+          this.showBottomNav = false
+        } else if (this.hideHeaderAndFooter && !this.currentUrl.includes('/public/privacy-policy')) {
+          // Restore chrome when navigating away from MFE routes
+          this.hideHeaderAndFooter = false
+        }
+
         if (window.location.pathname.includes('/learner-advisory')) {
           this.showNavbar = true
           this.isNavBarRequired = true

@@ -105,6 +105,7 @@ import { ResourceDownloadHelperService } from './services/resource-download-help
 import { ProfileVerificationDialogComponent } from './profile-verification-dialog/profile-verification-dialog.component'
 import { CommonDataService } from './services/common-data.service'
 import { WIDGET_REGISTRATION_CONFIG } from '../../library/ws-widget/collection/src/public-api'
+import { MfeModule } from './mfe/mfe.module'
 // @Injectable()
 // export class HammerConfig extends GestureConfig {
 //   buildHammer(element: HTMLElement) {
@@ -161,6 +162,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     ProfileVerificationDialogComponent
   ],
   imports: [
+    MfeModule,
     FormsModule,
     MatCheckboxModule,
     QuickTourModule,

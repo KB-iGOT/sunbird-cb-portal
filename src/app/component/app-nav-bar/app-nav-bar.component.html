@@ -60,6 +60,17 @@
             <div class="hidden md:block md:flex mr-auto items-center" *ngIf="!isforPreview">
               <!-- <ng-container [ngTemplateOutlet]="karmaBadge"></ng-container> -->
             </div>
+
+            <!-- Old ↔ New UI Toggle -->
+            <div class="mfe-toggle-container hidden md:flex items-center" *ngIf="!isforPreview">
+              <span class="mfe-toggle-label" [class.active]="!isNewUI">Old</span>
+              <label class="mfe-toggle-switch">
+                <input type="checkbox" [checked]="isNewUI" (change)="toggleNewUI()">
+                <span class="mfe-toggle-slider"></span>
+              </label>
+              <span class="mfe-toggle-label" [class.active]="isNewUI">New</span>
+            </div>
+
             <ng-container [ngTemplateOutlet]="navbarSide" [ngTemplateOutletContext]="{ item: getItem(item) }"
               *ngFor="let item of primaryNavbarConfig?.mediumScreen?.right">
             </ng-container>
