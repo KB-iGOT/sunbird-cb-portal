@@ -66,7 +66,7 @@ function loadRemoteEntry(url: string): Promise<void> {
  * @example
  * ```typescript
  * const homeModule = await loadRemoteModule({
- *   remoteEntry: 'http://localhost:4200/remoteEntry.js',
+ *   remoteEntry: `${environment.mfeRemoteBaseUrl}/remoteEntry.js`,
  *   remoteName: 'igotLearnerPortal',
  *   exposedModule: './HomeFeature',
  * });

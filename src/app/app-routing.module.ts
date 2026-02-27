@@ -28,7 +28,6 @@ import { PublicWelcomeComponent } from './routes/public/welcome/public-welcome.c
 import { PublicLoginWGComponent } from './routes/public/public-login-wg/public-login-wg.component'
 import { WelcomeUserResolverService } from './services/welcome-user-resolver.service'
 import { PublicTocComponent } from './routes/public/public-toc/public-toc.component'
-import { environment } from 'src/environments/environment'
 import { AppPublicPositionResolverService } from './routes/public/public-signup/position-resolver.service'
 import { PublicRequestComponent } from './routes/public/public-request/public-request.component'
 import { AppPublicGroupResolverService } from './routes/public/public-signup/group-resolver.service'
@@ -52,12 +51,13 @@ import { AppPublicOrganizationResolver } from './routes/public/public-signup/org
 import { FormDataResolverService } from './services/form-data-resolver.service'
 import { AppPreAssessmentContentResolverService } from './services/app-pre-assessment-content-read-resolver.service'
 import { FormMicroSiteDataService } from './services/form-micro-site-data.service'
+import { environment } from 'src/environments/environment'
 // 💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥
 // Please declare routes in alphabetical order
 import { MfeWrapperComponent } from './mfe/mfe-wrapper.component'
 import { UrlSegment, UrlMatchResult } from '@angular/router'
 
-const REMOTE_ENTRY = 'http://localhost:4200/remoteEntry.js'
+const REMOTE_ENTRY = `${environment.mfeRemoteBaseUrl}/remoteEntry.js`
 const REMOTE_NAME = 'igotLearnerPortal'
 
 /**

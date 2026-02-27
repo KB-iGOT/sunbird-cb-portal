@@ -2,12 +2,13 @@ import { NgModule } from '@angular/core'
 import { RouterModule, Routes } from '@angular/router'
 import { MfeModule } from '../mfe/mfe.module'
 import { MfeWrapperComponent } from '../mfe/mfe-wrapper.component'
+import { environment } from 'src/environments/environment'
 
 /**
  * Remote entry URL — the Angular 20 portal's Module Federation entry point.
  * Change this to the deployed URL in production.
  */
-const REMOTE_ENTRY = 'http://localhost:4200/remoteEntry.js'
+const REMOTE_ENTRY = `${environment.mfeRemoteBaseUrl}/remoteEntry.js`
 const REMOTE_NAME = 'igotLearnerPortal'
 
 /**

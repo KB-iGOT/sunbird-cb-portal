@@ -17,7 +17,7 @@ export class MfeConfigService {
    */
   private readonly remotes: Record<string, string> = {
     igotLearnerPortal: (environment as any).mfeRemotes?.igotLearnerPortal
-      || 'http://localhost:4200/remoteEntry.js',
+      || `${(environment as any).mfeRemoteBaseUrl || '/assets/mfe'}/remoteEntry.js`,
   }
 
   getRemoteEntryUrl(remoteName: string): string {

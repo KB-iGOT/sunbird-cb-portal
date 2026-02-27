@@ -50,7 +50,8 @@ export const environment: IEnvironment = {
   compentencyVersionKey: (window as { [key: string]: any })['env']['compentencyVersionKey'] || '',
   cbcOrg: (window as { [key: string]: any })['env']['cbcOrg'] || '',
   portalsForNotifications: (((window as { [key: string]: any })['env']['portalsForNotifications'] || {})) || {},
-  publicContentSurveyId: (window as { [key: string]: any })['env']['publicContentSurveyId'] || ''
+  publicContentSurveyId: (window as { [key: string]: any })['env']['publicContentSurveyId'] || '',
+  mfeRemoteBaseUrl: (window as { [key: string]: any })['env']['mfeRemoteBaseUrl'] || '/assets/mfe'
 }
 interface IEnvironment {
   name: string,
@@ -96,7 +97,8 @@ interface IEnvironment {
   cbcOrg: string
   portalsForNotifications: any,
   missionKarmayogiPath:string,
-  publicContentSurveyId: string
+  publicContentSurveyId: string,
+  mfeRemoteBaseUrl: string
 }
 
 // import { AnyCnameRecord } from 'dns'

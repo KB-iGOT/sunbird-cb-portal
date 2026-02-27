@@ -1,6 +1,7 @@
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { loadRemoteModule } from './load-remote'
+import { environment } from 'src/environments/environment'
 
 /**
  * MfeWrapperComponent — Generic wrapper that loads a Module Federation
@@ -18,7 +19,7 @@ import { loadRemoteModule } from './load-remote'
  *   path: 'home',
  *   component: MfeWrapperComponent,
  *   data: {
- *     remoteEntry: 'http://localhost:4200/remoteEntry.js',
+ *     remoteEntry: `${environment.mfeRemoteBaseUrl}/remoteEntry.js`,
  *     remoteName: 'igotLearnerPortal',
  *     exposedModule: './HomeFeature',
  *     elementName: 'igot-mfe-home',
@@ -164,7 +165,7 @@ export class MfeWrapperComponent implements OnInit, OnDestroy {
     const styleLink = document.createElement('link')
     styleLink.id = STYLE_ID
     styleLink.rel = 'stylesheet'
-    styleLink.href = 'http://localhost:4200/styles.css'
+    styleLink.href = `${(environment as any).mfeRemoteBaseUrl || '/assets/mfe'}/styles.css`
     document.head.appendChild(styleLink)
   }
 
