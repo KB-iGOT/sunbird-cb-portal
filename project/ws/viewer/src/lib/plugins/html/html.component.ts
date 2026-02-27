@@ -23,6 +23,7 @@ import { WidgetContentService } from '@sunbird-cb/toc'
 export class HtmlComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild('mobileOpenInNewTab', { read: ElementRef }) mobileOpenInNewTab !: ElementRef<HTMLAnchorElement>
   @Input() htmlContent: NsContent.IContent | null = null
+  @Input() isMobileApp = false
   iframeUrl: SafeResourceUrl | null = null
   iframeName = `piframe_${Date.now()}`
   showIframeSupportWarning = false
@@ -159,7 +160,11 @@ export class HtmlComponent implements OnInit, OnChanges, OnDestroy {
       this.progressUpdateTimer = null
     }
     // console.log('this.ticks: ', this.ticks)
-    this.raiseRealTimeProgress()
+    if (this.isMobileApp) {
+      this.emitScormEventToMobile()
+    } else {
+      this.raiseRealTimeProgress()
+    }
     // Clean up flat localStorage keys written by SCORM content
     const keysToClean = new Set([...Object.keys(this.scormData), ...Object.keys(this.scormAdapterService.scormLocalStorageData)])
     keysToClean.forEach(key => localStorage.removeItem(key))
@@ -328,7 +333,11 @@ export class HtmlComponent implements OnInit, OnChanges, OnDestroy {
         // }
         // call fireRealTimeProgress func for LMS data and non-LMS data also
         if (!this.forPreview) {
-          this.fireRealTimeProgress(this.oldData)
+          if (this.isMobileApp) {
+            this.emitScormEventToMobile()
+          } else {
+            this.fireRealTimeProgress(this.oldData)
+          }
         }
         // Stop polling and clean up old content's SCORM localStorage keys
         this.diffStorage()
@@ -692,7 +701,8 @@ export class HtmlComponent implements OnInit, OnChanges, OnDestroy {
         this.scormData[key] = current[key]
         hasChanges = true
         console.log('[SCORM] diffStorage detected:', isNew ? 'NEW' : 'CHANGED', 'key:', key,
-          'value length:', current[key] ? current[key].length : 0)
+          'value length:', current[key] ? current[key].length : 0,
+          'value:', current[key])
       }
     }
 
@@ -1014,9 +1024,49 @@ export class HtmlComponent implements OnInit, OnChanges, OnDestroy {
     }
     this.progressUpdateTimer = setTimeout(() => {
       if (!this.forPreview && this.htmlContent) {
-        this.fireRealTimeProgress(this.htmlContent)
+        if (this.isMobileApp) {
+          this.emitScormEventToMobile()
+        } else {
+          this.fireRealTimeProgress(this.htmlContent)
+        }
       }
     }, 2000)
+  }
+
+  private emitScormEventToMobile() {
+    if (!this.htmlContent) { return }
+    const storeData = this.store.getAll() || {}
+    const completionData = this.calculateCompletionStatus(this.htmlContent)
+    const payload: any = {
+      type: 'SCORM_EVENT',
+      contentId: this.htmlContent.identifier,
+      primaryCategory: this.htmlContent.primaryCategory,
+      mimeType: this.htmlContent.mimeType,
+      status: (completionData && completionData.status) || 0,
+      completionPercentage: (completionData && completionData.completionPercentage) || 0,
+      spentTime: (completionData && completionData.spentTime) || 0,
+      progressDetails: {
+        ...storeData,
+        spentTime: (completionData && completionData.spentTime) || 0,
+      },
+    }
+    if (Object.keys(this.scormData).length > 0) {
+      payload.progressDetails.scormData = { ...this.scormData }
+    }
+    console.log('[SCORM] Emitting event to mobile:', JSON.stringify(payload).substring(0, 500))
+    // Emit via Flutter JavaScript channel if available
+    try {
+      if ((window as any).ScormEventChannel && (window as any).ScormEventChannel.postMessage) {
+        (window as any).ScormEventChannel.postMessage(JSON.stringify(payload))
+      } else if ((window as any).flutter_inappwebview && (window as any).flutter_inappwebview.callHandler) {
+        (window as any).flutter_inappwebview.callHandler('ScormEventHandler', JSON.stringify(payload))
+      } else {
+        // Fallback: use window.postMessage so Flutter webview can intercept
+        window.parent.postMessage(payload, '*')
+      }
+    } catch (e) {
+      console.warn('[SCORM] Failed to emit event to mobile:', e)
+    }
   }
 
   generateUrl(oldUrl: string) {
