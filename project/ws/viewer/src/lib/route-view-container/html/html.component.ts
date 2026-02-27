@@ -19,6 +19,7 @@ export class HtmlComponent implements OnInit, OnChanges {
   > | null = null
   @Input() isPreviewMode = false
   @Input() forPreview = false
+  @Input() isMobileApp = false
   isTypeOfCollection = false
   learningObjective: SafeHtml = ''
   description: SafeHtml = ''
