@@ -236,3 +236,8 @@
     display: none !important;
   }
 }
+
+::ng-deep .support-dialog .mat-dialog-container {
+  width: 85% !important;
+  height: 85% !important;
+}

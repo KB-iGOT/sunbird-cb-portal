@@ -50,7 +50,7 @@ export class TopRightNavBarComponent implements OnInit, OnChanges {
   selectedLanguage = 'en'
   multiLang: any = []
   zohoHtml: any
-  zohoUrl: any = '/assets/static-data/zoho-code.html'
+  zohoUrl: any = '/assets/static-data/zoho-code-2.html'
   isMultiLangEnabled: any
   showDropdown: boolean = false
   roles: string[] = []
@@ -60,8 +60,8 @@ export class TopRightNavBarComponent implements OnInit, OnChanges {
     private langtranslations: MultilingualTranslationsService, private translate: TranslateService,
     private http: HttpClient, private sanitizer: DomSanitizer,
     private events: EventService, private snackBar: MatSnackBar,
-    private router: Router, private notificationsService: NotificationsService, 
-  private rootService: RootService) {
+    private router: Router, private notificationsService: NotificationsService,
+    private rootService: RootService) {
     if (localStorage.getItem('websiteLanguage')) {
       this.translate.setDefaultLang('en')
       let lang = JSON.stringify(localStorage.getItem('websiteLanguage'))
@@ -127,7 +127,7 @@ export class TopRightNavBarComponent implements OnInit, OnChanges {
     this.showDropdown = false
     setTimeout(() => {
       this.showDropdown = true
-    });
+    })
   }
 
   onMenuClosed() {
@@ -165,7 +165,12 @@ export class TopRightNavBarComponent implements OnInit, OnChanges {
 
   openDialog(): void {
     this.dialogRef = this.dialog.open(DialogBoxComponent, {
-      width: '1000px',
+      width: '85%',
+      height: '85%',
+      maxWidth: '85vw',
+      maxHeight: '85vh',
+      panelClass: 'support-dialog'
+
     })
 
     this.dialogRef.afterClosed().subscribe(() => {
@@ -246,18 +251,20 @@ export class TopRightNavBarComponent implements OnInit, OnChanges {
     )
   }
 
-openSupportChatBot() {
-  if(this.configSvc.iGOTAIConfig && this.configSvc.iGOTAIConfig?.supportAI && this.configSvc.iGOTAIConfig?.supportAI?.all) {
-    this.enableSupportAI = true
-    this.rootService.openSupportAIChatbot.next(true)  
-  } else if(this.configSvc.iGOTAIConfig && this.configSvc.iGOTAIConfig?.supportAI && this.configSvc.iGOTAIConfig?.supportAI?.forOrg && this.configSvc.iGOTAIConfig?.supportAI?.forOrg?.length 
-    && this.configSvc.iGOTAIConfig?.supportAI?.forOrg?.includes(this.configSvc.userProfile?.rootOrgId)
-  ) {
-    this.enableSupportAI = true
-    this.rootService.openSupportAIChatbot.next(true)  
-  } else {
-      this.getZohoForm()
-    }
+  openSupportChatBot() {
+    console.log('this.rootService', this.rootService)
+    // if (this.configSvc.iGOTAIConfig && this.configSvc.iGOTAIConfig?.supportAI && this.configSvc.iGOTAIConfig?.supportAI?.all) {
+    //   this.enableSupportAI = true
+    //   this.rootService.openSupportAIChatbot.next(true)
+    // } else if (this.configSvc.iGOTAIConfig && this.configSvc.iGOTAIConfig?.supportAI && this.configSvc.iGOTAIConfig?.supportAI?.forOrg && this.configSvc.iGOTAIConfig?.supportAI?.forOrg?.length
+    //   && this.configSvc.iGOTAIConfig?.supportAI?.forOrg?.includes(this.configSvc.userProfile?.rootOrgId)
+    // ) {
+    //   this.enableSupportAI = true
+    //   this.rootService.openSupportAIChatbot.next(true)
+    // } else {
+    //   this.getZohoForm()
+    // }
+    this.getZohoForm()
   }
-  
+
 }
