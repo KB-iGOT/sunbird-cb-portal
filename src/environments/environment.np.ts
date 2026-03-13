@@ -41,7 +41,9 @@ export const environment = {
   compentencyVersionKey: (window as { [key: string]: any })['env']['compentencyVersionKey'] || '',
   cbcOrg: (window as { [key: string]: any })['env']['cbcOrg'] || '',
   portalsForNotifications: (((window as { [key: string]: any })['env']['portalsForNotifications'] || {})) || {},
-  publicContentSurveyId: (window as { [key: string]: any })['env']['publicContentSurveyId'] || ''
+  publicContentSurveyId: (window as { [key: string]: any })['env']['publicContentSurveyId'] || '',
+  logo: (window as { [key: string]: any })['env']['logo'] || '',
+  redirectPath: (window as { [key: string]: any })['env']['redirectPath'] || ''
   // mdoPortal: (window as { [key: string]: any })['env']['mdoPath'] || '',
   // spvPortal: (window as { [key: string]: any })['env']['spvPath'] || '',
   // cbcPortal: (window as { [key: string]: any })['env']['cbcPath'] || '',

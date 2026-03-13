@@ -52,6 +52,7 @@ import { AppPublicOrganizationResolver } from './routes/public/public-signup/org
 import { FormDataResolverService } from './services/form-data-resolver.service'
 import { AppPreAssessmentContentResolverService } from './services/app-pre-assessment-content-read-resolver.service'
 import { FormMicroSiteDataService } from './services/form-micro-site-data.service'
+import { FeatureGuard } from './guards/feature.guard'
 // 💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥
 // Please declare routes in alphabetical order
 // 😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵
@@ -191,9 +192,10 @@ const routes: Routes = [
     path: 'app/amrit-gyaan-kosh',
     loadChildren: () =>
       import('./routes/route-gyaan-karmayogi.module').then(u => u.RouteGyaanKarmayogiModule),
-    canActivate: [GeneralGuard],
+    canActivate: [GeneralGuard, FeatureGuard],
     data: {
       pageType: 'feature',
+      feature: 'amrit-gyaan-kosh',
       pageKey: 'amrit-gyaan-kosh',
       pageId: 'app/amrit-gyaan-kosh',
     },

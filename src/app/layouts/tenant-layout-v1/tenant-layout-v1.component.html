@@ -1,0 +1,48 @@
+<!-- Tenant Layout V1: Clean external tenant layout with tenant branding -->
+
+<!-- Tenant Header -->
+<header class="tenant-header" *ngIf="navBarRequired && !hideHeaderAndFooter" [hidden]="!showNavbar">
+  <div class="tenant-header-inner">
+    <!-- Tenant Logo & Branding -->
+    <div class="tenant-brand" (click)="navigateToHome()">
+      <img *ngIf="tenantLogo" [src]="tenantLogo" alt="Tenant Logo" class="tenant-logo" />
+      <span class="tenant-name" *ngIf="!tenantLogo">{{ tenantName | titlecase }}</span>
+    </div>
+
+    <!-- Search Bar -->
+    <div class="tenant-search">
+      <div class="tenant-search-bar" (click)="navigateToExplore()">
+        <mat-icon class="search-icon">search</mat-icon>
+        <span class="search-placeholder">Type Here</span>
+        <button mat-flat-button class="search-btn">Search</button>
+      </div>
+    </div>
+
+    <!-- Right Actions -->
+    <div class="tenant-actions">
+      <button mat-flat-button color="primary" class="explore-btn" (click)="navigateToExplore()">
+        <mat-icon>menu_book</mat-icon>
+        Explore Content
+        <mat-icon>chevron_right</mat-icon>
+      </button>
+
+      <!-- User Avatar -->
+      <div class="user-avatar" (click)="navigateToProfile()" *ngIf="userName">
+        <img *ngIf="userProfileImg" [src]="userProfileImg" alt="Profile" class="avatar-img" />
+        <div *ngIf="!userProfileImg" class="avatar-initials">
+          {{ userName.charAt(0) | uppercase }}
+        </div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<!-- Content Area -->
+<div class="tenant-content" [ngClass]="{'tenant-content-with-header': navBarRequired && !hideHeaderAndFooter && showNavbar}">
+  <router-outlet></router-outlet>
+</div>
+
+<!-- Footer (reuses existing footer if config available) -->
+<ws-app-footer class="app-footer" *ngIf="showNavbar && showFooter && headerFooterConfigData && !hideHeaderAndFooter"
+  [headerFooterConfigData]="headerFooterConfigData">
+</ws-app-footer>

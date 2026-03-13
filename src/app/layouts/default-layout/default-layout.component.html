@@ -1,0 +1,29 @@
+<!-- Default Layout: Standard portal header + content + footer -->
+<ws-header *ngIf="navBarRequired && !hideHeaderAndFooter" [hidden]="!showNavbar" [mode]="'top'" [headerFooterConfigData]="headerFooterConfigData" [showHubs]="showHubs">
+</ws-header>
+
+<div class="height-adjust" [ngClass]="{
+  'height-on-bottom custom-scroll':
+    (isXSmall$ | async) === true && true && showNavbar,
+    'height-adjust-setup' : isSetupPage,
+  'height-on-top':
+    (isXSmall$ | async) === false &&
+    showNavbar &&
+    navBarRequired &&
+    !customHeight && !hideHeaderAndFooter && !disableHeightOnTop,
+  'height-on-top-not-valid-user': (isXSmall$ | async) === false && disableHeightOnTop
+}">
+
+  <div class="abc" [ngClass]="{'margin186': mobileTopHeaderVisibilityStatus && showHubs, 'mt-0': !mobileTopHeaderVisibilityStatus && showHubs, 'mt-136': mobileTopHeaderVisibilityStatus && !showHubs && !viewerPage && !hideHeaderAndFooter, 'mt-4': !mobileTopHeaderVisibilityStatus && !showHubs && !viewerPage }">
+    <router-outlet></router-outlet>
+  </div>
+</div>
+
+<ws-app-chatbot *ngIf="!hideHeaderAndFooter && tenantConfigSvc.isFeatureEnabled('chatbot')" [iGOTAIConfigLoaded]="iGOTAIConfigLoaded" [rootOrgId]="rootOrgId"></ws-app-chatbot>
+
+<ws-app-footer class="app-footer" *ngIf="showNavbar && showFooter && headerFooterConfigData && !hideHeaderAndFooter" [headerFooterConfigData]="headerFooterConfigData">
+</ws-app-footer>
+
+<ws-app-nav-bar class="bottom-nav-bar" [hidden]="!showNavbar || !showBottomNav" *ngIf="navBarRequired && (isXSmall$ | async) === true && !hideHeaderAndFooter && tenantConfigSvc.isFeatureEnabled('bottomNav')"
+  [mode]="'bottom'">
+</ws-app-nav-bar>

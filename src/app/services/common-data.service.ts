@@ -178,7 +178,7 @@ export class CommonDataService {
         this.showMandatoryNotification = false
       }
     }, error => {
-      this.showMandatoryNotification = false
+       this.showMandatoryNotification = false
       console.error('Error fetching mandatory notification:', error)
     })
   }

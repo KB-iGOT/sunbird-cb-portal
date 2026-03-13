@@ -35,6 +35,7 @@ import { SbUiResolverService } from '@sunbird-cb/resolver-v2'
 import { NetCoreService } from './netcore.service'
 import { BtnSettingsService } from '../../../library/ws-widget/collection/src/public-api'
 import { GlobalService } from './global.service'
+import { DomainConfService } from '@sunbird-cb/utils-v2'
 declare const smartech: any
 // import { of } from 'rxjs'
 /* tslint:enable */
@@ -92,6 +93,7 @@ export class InitService {
     private netCoreService: NetCoreService,
     // private widgetContentSvc: WidgetContentService,
     private globalService: GlobalService,
+    private domainConfSvc: DomainConfService,
 
     @Inject(APP_BASE_HREF) private baseHref: string,
     // private router: Router,
@@ -216,6 +218,7 @@ export class InitService {
   }
 
   async init() {
+    await this.globalConfigData()
     if (this.updateProfileSubscription) {
       this.updateProfileSubscription.unsubscribe()
     }
@@ -230,7 +233,6 @@ export class InitService {
     await this.profileNudgeConfig()
     await this.themeOverrideConfig()
     await this.netCoreConfig()
-    await this.globalConfigData()
 
     // const authenticated = await this.authSvc.initAuth()
     // if (!authenticated) {
@@ -442,11 +444,16 @@ export class InitService {
         "type": "page",
         "subType": "globalConfig",
         "action": "page-configuration",
-        "component": "portal", "rootOrgId": "*"
+        "component": "portal",
+        "rootOrgId": "*"
       }
     }
     const publicConfig: any = await this.globalService.globalConfigReadData(payload).toPromise()
     this.configSvc.globalConfig = publicConfig.globalConfig
+    // Initialize tenant layout/feature config from API response
+    if (publicConfig.globalConfig && publicConfig.globalConfig.applicationConfig) {
+      this.domainConfSvc.initFromConfig(publicConfig.globalConfig.applicationConfig)
+    }
     return publicConfig
   }
 
@@ -459,7 +466,8 @@ export class InitService {
         "type": "page",
         "subType": "netcore",
         "action": "page-configuration",
-        "component": "portal", "rootOrgId": "*"
+        "component": "portal", 
+        "rootOrgId": "*"
       }
     }
     const publicConfig: any = await this.netCoreService.netCoreConfigReadData(payload).toPromise()
