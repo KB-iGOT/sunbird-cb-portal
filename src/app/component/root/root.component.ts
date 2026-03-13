@@ -47,6 +47,8 @@ import { DialogConfirmComponent } from '../dialog-confirm/dialog-confirm.compone
 import { concat, interval, timer, of } from 'rxjs'
 import { iGOTAIService } from './../../services/igot-ai.service'
 import { CommonDataService } from '../../services/common-data.service'
+import { LayoutStateService } from '../../layouts/layout-state.service'
+import { DomainConfService } from '@sunbird-cb/utils-v2'
 @Component({
   selector: 'ws-root',
   templateUrl: './root.component.html',
@@ -81,7 +83,8 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
     private urlService: UrlService,
     private iGOTAIService: iGOTAIService,
     private commonDataSvc: CommonDataService,
-
+    private layoutState: LayoutStateService,
+    public tenantConfigSvc: DomainConfService,
     // private dialogRef: MatDialogRef<any>,
   ) {
 
@@ -94,6 +97,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
       if (sectionData && sectionData.data) {
         this.headerFooterConfigData = sectionData.data
         this.showFooter = true
+        this.syncLayoutState()
         // Manually trigger change detection to ensure footer updates
         this.changeDetector.detectChanges()
       }
@@ -614,6 +618,34 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
     if (show !== this.showTour) { // check if it change, tell CD update view
       // this.showTour = this.showTour
     }
+    this.syncLayoutState()
     this.changeDetector.detectChanges()
+  }
+
+  /**
+   * Pushes current root component state to the LayoutStateService
+   * so that layout components can consume it reactively.
+   */
+  syncLayoutState(): void {
+    // Single setState() call = single BehaviorSubject emission instead of 17
+    this.layoutState.setState({
+      navBarRequired: this.isNavBarRequired,
+      showNavbar: this.showNavbar,
+      showFooter: this.showFooter,
+      showBottomNav: this.showBottomNav,
+      showHubs: this.showHubs,
+      headerFooterConfigData: this.headerFooterConfigData,
+      hideHeaderAndFooter: this.hideHeaderAndFooter,
+      isSetupPage: this.isSetupPage,
+      customHeight: this.customHeight,
+      disableHeightOnTop: this.disableHeightOnTop,
+      routeChangeInProgress: this.routeChangeInProgress,
+      mobileTopHeaderVisibilityStatus: this.mobileTopHeaderVisibilityStatus,
+      viewerPage: this.viewerPage,
+      iGOTAIConfigLoaded: this.iGOTAIConfigLoaded,
+      loggedinUser: this.loggedinUser,
+      showTour: this.showTour,
+      rootOrgId: this.configSvc?.unMappedUser?.rootOrgId || '',
+    })
   }
 }

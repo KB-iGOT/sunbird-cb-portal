@@ -20,7 +20,6 @@ import { AppTocResolverService, WIDGET_REGISTRATION_TOC_LIB_CONFIG } from '@sunb
 
 import { RootComponent } from './component/root/root.component'
 import { LoginComponent } from './component/login/login.component'
-import { AppFooterComponent } from './component/app-footer/app-footer.component'
 import { AppPublicNavBarComponent } from './component/app-public-nav-bar/app-public-nav-bar.component'
 import { DialogConfirmComponent } from './component/dialog-confirm/dialog-confirm.component'
 import { InvalidUserComponent } from './component/invalid-user/invalid-user.component'
@@ -66,7 +65,6 @@ import { AppContentResolverService } from './services/app-content-read-resolver.
 import { HeaderModule } from './header/header.module'
 import { DialogBoxComponent } from './component/dialog-box/dialog-box.component'
 import { SocialLinkComponent } from './component/social-link/social-link.component'
-import { FooterSectionComponent } from './component/app-footer/footer-section/footer-section.component'
 import { AppLogoComponent } from './component/app-logo/app-logo.component'
 import { ProfileV3Module } from '@ws/app/src/lib/routes/profile-v3/profile-v3.module'
 import { NoDataComponent } from './component/no-data/no-data.component'
@@ -106,6 +104,10 @@ import { ProfileVerificationDialogComponent } from './profile-verification-dialo
 import { CommonDataService } from './services/common-data.service'
 import { WIDGET_REGISTRATION_CONFIG } from '../../library/ws-widget/collection/src/public-api'
 import { MandatoryNotificationModalComponent } from './component/mandatory-notification-modal/mandatory-notification-modal.component'
+import { FooterModule } from './component/app-footer/footer.module'
+import { LayoutsModule } from './layouts/layouts.module'
+
+import { FeatureGuard } from './guards/feature.guard'
 // @Injectable()
 // export class HammerConfig extends GestureConfig {
 //   buildHammer(element: HTMLElement) {
@@ -140,7 +142,6 @@ export function HttpLoaderFactory(http: HttpClient) {
     TncComponent,
     AppIntroComponent,
     TncRendererComponent,
-    AppFooterComponent,
     InvalidUserComponent,
     DialogConfirmComponent,
     LoginRootComponent,
@@ -154,7 +155,6 @@ export function HttpLoaderFactory(http: HttpClient) {
     AppTourComponent,
     DialogBoxComponent,
     SocialLinkComponent,
-    FooterSectionComponent,
     AppLogoComponent,
     SurveyShikshaComponent,
     PrivacyPolicyComponent,
@@ -223,7 +223,9 @@ export function HttpLoaderFactory(http: HttpClient) {
     ProfileV3Module,
     MatSidenavModule,
     PickerModule,
-    CKEditorModule
+    CKEditorModule,
+    LayoutsModule,
+    FooterModule,
   ],
   exports: [
     TncComponent,
@@ -264,6 +266,8 @@ export function HttpLoaderFactory(http: HttpClient) {
     HttpClient,
     CommonDataService,
     DomainConfService,
+
+    FeatureGuard,
     {
       provide: APP_BASE_HREF,
       useFactory: getBaseHref,

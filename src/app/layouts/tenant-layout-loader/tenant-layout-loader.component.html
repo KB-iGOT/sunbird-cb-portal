@@ -1,0 +1,6 @@
+<!-- Layout Loader: Switches between layouts based on tenant config -->
+<ng-container [ngSwitch]="layout">
+  <app-default-layout *ngSwitchCase="'default'"></app-default-layout>
+  <app-tenant-layout-v1 *ngSwitchCase="'tenant-layout-v1'"></app-tenant-layout-v1>
+  <app-default-layout *ngSwitchDefault></app-default-layout>
+</ng-container>
