@@ -5,40 +5,105 @@
   <div class="tenant-header-inner">
     <!-- Tenant Logo & Branding -->
     <div class="tenant-brand" (click)="navigateToHome()">
-      <img *ngIf="tenantLogo" [src]="tenantLogo" alt="Tenant Logo" class="tenant-logo" />
-      <span class="tenant-name" *ngIf="!tenantLogo">{{ tenantName | titlecase }}</span>
+      <div>
+        <img *ngIf="tenantLogo" [src]="tenantLogo" alt="Tenant Logo" class="tenant-logo" />
+        <span class="tenant-name" *ngIf="!tenantLogo">{{ tenantName | titlecase }}</span>
+      </div>
+      <div class="seperator"></div>
+      <div>
+        <img src="/assets/instances/eagle/app_logos/KarmayogiBharat_Logo_Horizontal.svg" alt="Karmayogi Bharat"
+          class="tenant-logo" />
+      </div>
+
     </div>
 
     <!-- Search Bar -->
-    <div class="tenant-search">
-      <div class="tenant-search-bar" (click)="navigateToExplore()">
-        <mat-icon class="search-icon">search</mat-icon>
-        <span class="search-placeholder">Type Here</span>
-        <button mat-flat-button class="search-btn">Search</button>
+    <div class="flex items-center border search-v3 search-border w-full" id="app-search-bar">
+      <div class="w-full search relative">
+        <form (submit)="updateQuery(queryControl.value); $event.preventDefault()"
+          class="mat-full-radius flex items-center">
+          <mat-form-field class="autocomplete-form w-full" color="primary" appearance="outline">
+            <ng-container *ngIf="loaderSearching">
+              <img [src]="SAKSHAMAI_ICON_LOADER" alt="loader" width="16" class="search-home">
+            </ng-container>
+            <ng-container *ngIf="!loaderSearching">
+              <img src="/assets/icons/top-nav/search.svg" alt="searchicon" class="search-home">
+            </ng-container>
+            <input matInput type="text" role="combobox" class="global-search-input-element" accesskey="S" #searchInput
+              [attr.title]="placeHolder" id="global-search-input" i18n-placeholder="search content"
+              placeholder="Search content" i18-aria-label aria-label="search content" [formControl]="queryControl"
+              maxlength="100" (input)="loaderSearching = true" autocomplete="off" />
+            <ng-container *ngIf="queryControl.value && !loaderSearching">
+              <mat-icon matSuffix (click)="clearSearchText();" class="cursor-pointer search-close-icon">close</mat-icon>
+            </ng-container>
+
+          </mat-form-field>
+          <button mat-flat-button type="submit" class="mat-btn-flat global-search" [disabled]="!queryControl.value"
+            [ngClass]="{'disabled-search-btn': !queryControl.value}">Search</button>
+        </form>
       </div>
     </div>
 
     <!-- Right Actions -->
     <div class="tenant-actions">
-      <button mat-flat-button color="primary" class="explore-btn" (click)="navigateToExplore()">
-        <mat-icon>menu_book</mat-icon>
-        Explore Content
-        <mat-icon>chevron_right</mat-icon>
-      </button>
+      <ng-container [@enterAnimation]="visible">
+        <div class="explore-more flex items-center">
+          <button mat-raised-button class="mat-btn-outline cursor-pointer explore-content-action"
+            (click)="navigateToExplore()">
+            <div class="flex items-center">
+              <mat-icon class="mr-1" svgIcon="course-cataloguee"></mat-icon>
+              <div class="flex items-center explore-content-text">
+                <span class="">
+                  Explore Content
+                </span>
+              </div>
+            </div>
+          </button>
+        </div>
+      </ng-container>
 
       <!-- User Avatar -->
-      <div class="user-avatar" (click)="navigateToProfile()" *ngIf="userName">
+      <!-- Avatar Trigger -->
+      <div class="user-avatar" *ngIf="userName" [matMenuTriggerFor]="profileMenu">
         <img *ngIf="userProfileImg" [src]="userProfileImg" alt="Profile" class="avatar-img" />
+
         <div *ngIf="!userProfileImg" class="avatar-initials">
           {{ userName.charAt(0) | uppercase }}
         </div>
       </div>
+
+      <!-- Menu -->
+      <mat-menu #profileMenu="matMenu" class="profile-menu">
+
+        <!-- Profile Header -->
+        <div class="profile-header">
+          <div class="profile-avatar">{{ userName.charAt(0) | uppercase }}</div>
+
+          <div class="profile-info">
+            <div class="profile-name">{{ userName | titlecase }}</div>
+            <div class="view-profile" (click)="navigateToProfile()">View Profile</div>
+          </div>
+        </div>
+
+        <mat-divider></mat-divider>
+        <button mat-menu-item (click)="navigateToMyLearning()">
+          My Learning
+        </button>
+        <button mat-menu-item (click)="navigateToSettings()">
+          Settings
+        </button>
+        <button mat-menu-item (click)="navigateToLogout()">
+          Sign-out
+        </button>
+
+      </mat-menu>
     </div>
   </div>
 </header>
 
 <!-- Content Area -->
-<div class="tenant-content" [ngClass]="{'tenant-content-with-header': navBarRequired && !hideHeaderAndFooter && showNavbar}">
+<div class="tenant-content"
+  [ngClass]="{'tenant-content-with-header': navBarRequired && !hideHeaderAndFooter && showNavbar}">
   <router-outlet></router-outlet>
 </div>
 

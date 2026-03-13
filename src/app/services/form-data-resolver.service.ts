@@ -9,40 +9,41 @@ import { HttpClient } from '@angular/common/http'
 @Injectable({
   providedIn: 'root',
 })
-export class FormDataResolverService  implements
-Resolve<Observable<IResolveResponse<any>> | IResolveResponse<any>> {
-constructor(
-private http: HttpClient,
-public configSvc: ConfigurationsService,
-private formSvc: FormExtService) {}
+export class FormDataResolverService implements
+  Resolve<Observable<IResolveResponse<any>> | IResolveResponse<any>> {
+  constructor(
+    private http: HttpClient,
+    public configSvc: ConfigurationsService,
+    private formSvc: FormExtService) { }
 
-resolve(
-      _route: ActivatedRouteSnapshot,
-      _state: RouterStateSnapshot,
+  resolve(
+    _route: ActivatedRouteSnapshot,
+    _state: RouterStateSnapshot,
   ): Observable<IResolveResponse<any>> {
     const pageDataKey = _route.data.pageKey
     const pageType = _route.data.pageType || 'feature'
     const requestData: any = {
       'request': {
-          'type': 'page',
-          'subType': pageDataKey,
-          'action': 'page-configuration',
-          'component': 'portal',
-          'rootOrgId': '*',
+        'type': 'page',
+        'subType': pageDataKey,
+        'action': 'page-configuration',
+        'component': 'portal',
+        'rootOrgId': '*',
       },
     }
+    console.log('requestData--', requestData)
     return this.formSvc.formReadData(requestData).pipe(
-        map((rData: any) => {
-          const finalData = rData && rData.result.form.data
-          return ({ data: finalData, error: null })
-        }),
-        catchError((_error: any) => {
-          const baseUrl = this.configSvc.sitePath
-          return this.http.get(`${baseUrl}/${pageType}/${pageDataKey}.json`).pipe(
-            map(data => ({ data, error: null })),
-            catchError(err => of({ data: null, error: err })),
-          )
-        }
+      map((rData: any) => {
+        const finalData = rData && rData.result.form.data
+        return ({ data: finalData, error: null })
+      }),
+      catchError((_error: any) => {
+        const baseUrl = this.configSvc.sitePath
+        return this.http.get(`${baseUrl}/${pageType}/${pageDataKey}.json`).pipe(
+          map(data => ({ data, error: null })),
+          catchError(err => of({ data: null, error: err })),
+        )
+      }
       ),
     )
   }

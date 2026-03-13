@@ -21,19 +21,29 @@ export class GlobalService {
     }
 
     globalConfigReadData(payload: any): Observable<any> {
-        return this.formReadData(payload).pipe(
+        console.log('payload', payload)
+        // return this.formReadData(payload).pipe(
+        //     map((rData: any) => {
+        //         const finalData = rData && rData.result.form.data
+        //         return (finalData)
+        //     }),
+        //     catchError((_error: any) => {
+        //         const baseUrl = this.configSvc.sitePath
+        //         return this.http.get(`${baseUrl}/global.config.json`).pipe(
+        //             map(data => (data)),
+        //             catchError(err => of({ data: null, error: err })),
+        //         )
+        //     }
+        //     ),
+        // )
+        const baseUrl = this.configSvc.sitePath
+        console.log(`${baseUrl}/global.config.json`)
+        return this.http.get(`${baseUrl}/global.config.json`).pipe(
             map((rData: any) => {
                 const finalData = rData && rData.result.form.data
                 return (finalData)
             }),
-            catchError((_error: any) => {
-                const baseUrl = this.configSvc.sitePath
-                return this.http.get(`${baseUrl}/global.config.json`).pipe(
-                    map(data => (data)),
-                    catchError(err => of({ data: null, error: err })),
-                )
-            }
-            ),
+            catchError(err => of({ data: null, error: err })),
         )
     }
 

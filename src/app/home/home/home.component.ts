@@ -89,6 +89,8 @@ export class HomeComponent implements OnInit, AfterViewInit {
   }
   canShowCustomAttrOpen: boolean = false
   rootOrgId: string = ''
+  globalConfig: any
+  defaultTenant = 'portal'
 
   // You could also add it as a class property for better encapsulation
   private readonly initialVisibleStrips = INITIAL_VISIBLE_STRIPS;
@@ -121,6 +123,13 @@ export class HomeComponent implements OnInit, AfterViewInit {
       this.router.navigateByUrl('app/person-profile/me#profileInfo')
     }
     if (this.configSvc) {
+      if (this.configSvc.globalConfig.applicationConfig.defaultTenant) {
+        this.defaultTenant = this.configSvc.globalConfig.applicationConfig.defaultTenant
+        this.globalConfig = this.configSvc.globalConfig.applicationConfig.tenants[this.defaultTenant]
+      }
+
+
+      console.log('globalConfig--', this.globalConfig)
       this.jan26Change = this.configSvc.overrideThemeChanges
       if (this.configSvc.unMappedUser.profileDetails && this.configSvc.unMappedUser.profileDetails.additionalProperties) {
         if (this.configSvc.unMappedUser.profileDetails.additionalProperties.isProfileUpdatedMsgViewed !== undefined) {
@@ -137,12 +146,14 @@ export class HomeComponent implements OnInit, AfterViewInit {
     })
     if (this.activatedRoute.snapshot.data.pageData) {
       this.homeConfig = this.activatedRoute.snapshot.data.pageData.data.homeConfig
+      console.log('homeConfig---', this.homeConfig)
     }
     // if (this.activatedRoute.snapshot.data.pageData) {
     //   this.newHomeStrips = this.activatedRoute.snapshot.data.pageData.data.newHomeStrip
     // }
     if (this.activatedRoute.snapshot.data.pageData && this.activatedRoute.snapshot.data.pageData.data) {
       this.contentStripData = this.activatedRoute.snapshot.data.pageData.data || []
+      console.log('this.contentStripData--', this.contentStripData)
       // tslint:disable-next-line: prefer-template
       this.contentStripData = (this.contentStripData.newHomeStrip || []).sort((a: any, b: any) => a.order - b.order)
 

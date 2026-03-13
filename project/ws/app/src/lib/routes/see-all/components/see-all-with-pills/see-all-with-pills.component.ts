@@ -73,6 +73,7 @@ export class SeeAllWithPillsComponent implements OnInit, OnDestroy {
     //     })
     //   }
     // })
+    console.log('configData', configData)
     if (!this.seeAllPageConfig) {
       if (configData && configData.assessmentData) {
         configData.assessmentData.forEach((ele: any) => {
@@ -105,6 +106,7 @@ export class SeeAllWithPillsComponent implements OnInit, OnDestroy {
       this.seeAllPageConfig.tabs.length
     ) {
       this.tabResults = this.seeAllPageConfig.tabs
+      console.log(' this.tabResults---', this.tabResults)
       this.dynamicTabIndex = _.findIndex(this.tabResults, (v: any) => v.value === this.tabSelected)
     }
     if (

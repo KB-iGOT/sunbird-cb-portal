@@ -65,7 +65,6 @@ import { AppContentResolverService } from './services/app-content-read-resolver.
 import { HeaderModule } from './header/header.module'
 import { DialogBoxComponent } from './component/dialog-box/dialog-box.component'
 import { SocialLinkComponent } from './component/social-link/social-link.component'
-import { AppLogoComponent } from './component/app-logo/app-logo.component'
 import { ProfileV3Module } from '@ws/app/src/lib/routes/profile-v3/profile-v3.module'
 import { NoDataComponent } from './component/no-data/no-data.component'
 import { SurveyShikshaComponent } from './component/survey-shiksha/survey-shiksha.component'
@@ -155,7 +154,6 @@ export function HttpLoaderFactory(http: HttpClient) {
     AppTourComponent,
     DialogBoxComponent,
     SocialLinkComponent,
-    AppLogoComponent,
     SurveyShikshaComponent,
     PrivacyPolicyComponent,
     LearnerAdvisoryComponent,

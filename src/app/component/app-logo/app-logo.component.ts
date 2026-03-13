@@ -12,6 +12,7 @@ export class AppLogoComponent implements OnInit {
   constructor() { }
 
   ngOnInit() {
+    console.log('this.logoSrc', this.logoSrc)
   }
 
 }

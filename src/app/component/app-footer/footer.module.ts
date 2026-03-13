@@ -10,6 +10,7 @@ import { MatLegacyButtonModule as MatButtonModule } from '@angular/material/lega
 import { MatToolbarModule } from '@angular/material/toolbar'
 import { TranslateModule } from '@ngx-translate/core'
 import { PipeOrderByModule } from '@sunbird-cb/utils-v2'
+import { AppLogoComponent } from '../app-logo/app-logo.component'
 
 /**
  * FooterModule
@@ -21,6 +22,7 @@ import { PipeOrderByModule } from '@sunbird-cb/utils-v2'
   declarations: [
     AppFooterComponent,
     FooterSectionComponent,
+    AppLogoComponent
   ],
   imports: [
     CommonModule,
@@ -34,6 +36,7 @@ import { PipeOrderByModule } from '@sunbird-cb/utils-v2'
   exports: [
     AppFooterComponent,
     FooterSectionComponent,
+    AppLogoComponent
   ],
 })
-export class FooterModule {}
+export class FooterModule { }

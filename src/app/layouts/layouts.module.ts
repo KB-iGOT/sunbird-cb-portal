@@ -13,6 +13,11 @@ import { TenantLayoutLoaderComponent } from './tenant-layout-loader/tenant-layou
 import { HeaderModule } from '../header/header.module'
 import { AppChatbotModule } from '../component/app-chatbot/app-chatbot.module'
 import { FooterModule } from '../component/app-footer/footer.module'
+import { MatLegacyFormFieldModule as MatFormFieldModule } from '@angular/material/legacy-form-field'
+import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy-input'
+import { ReactiveFormsModule } from '@angular/forms'
+import { MatLegacyMenuModule as MatMenuModule } from '@angular/material/legacy-menu'
+import { MatDividerModule } from '@angular/material/divider'
 
 /**
  * LayoutsModule
@@ -36,6 +41,11 @@ import { FooterModule } from '../component/app-footer/footer.module'
     HeaderModule,
     AppChatbotModule,
     FooterModule,
+    MatFormFieldModule,
+    MatInputModule,
+    ReactiveFormsModule,
+    MatMenuModule,
+    MatDividerModule
   ],
   exports: [
     TenantLayoutLoaderComponent,
@@ -43,4 +53,4 @@ import { FooterModule } from '../component/app-footer/footer.module'
     TenantLayoutV1Component,
   ],
 })
-export class LayoutsModule {}
+export class LayoutsModule { }

@@ -71,6 +71,7 @@ export class AppFooterComponent implements OnInit {
       this.hubsList = (newInstance.hubs || []).filter(i => i.active)
     }
     this.logoSrc = this.domainConfSvc.getDomainAppLogo()
+    console.log('this.logoSrc--', this.logoSrc)
     this.redirectPath = this.domainConfSvc.getDomainRedirectPath()
   }
   async readAgain() {
