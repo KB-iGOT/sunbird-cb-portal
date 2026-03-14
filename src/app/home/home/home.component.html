@@ -52,7 +52,7 @@
                     <div class="discuss" *ngIf="homeConfig?.discussHub?.active">
                         <ng-container *ngFor="let sectionItem of sectionList">
                             <ng-container
-                                *ngIf="sectionItem.section === 'discuss' && sectionItem.isVisible && ((globalConfig?.features?.discussion)) || !(globalConfig?.features)">
+                                *ngIf="sectionItem.section === 'discuss' && sectionItem.isVisible && (domainConfService?.isFeatureByPageEnabled('home','discussion'))">
                                 <ws-discuss-hub [discussConfig]="homeConfig?.discussHub"></ws-discuss-hub>
                             </ng-container>
                         </ng-container>
@@ -63,7 +63,7 @@
                     <div class="network" *ngIf="homeConfig?.networkHub?.active">
                         <ng-container *ngFor="let sectionItem of sectionList">
                             <ng-container
-                                *ngIf="sectionItem.section === 'network' && sectionItem.isVisible && ((globalConfig?.features?.network)) || !(globalConfig?.features)">
+                                *ngIf="sectionItem.section === 'network' && sectionItem.isVisible && (domainConfService?.isFeatureByPageEnabled('home','network'))">
                                 <ws-network-hub [networkConfig]="homeConfig?.networkHub"></ws-network-hub>
                             </ng-container>
                         </ng-container>
@@ -85,14 +85,14 @@
 
                     <!-- Discussion section starts here -->
                     <div class="discuss"
-                        *ngIf="homeConfig?.discussHub?.active && ((globalConfig?.features?.discussion)) || !(globalConfig?.features)">
+                        *ngIf="homeConfig?.discussHub?.active && (domainConfService?.isFeatureByPageEnabled('home','discussion'))">
                         <ws-discuss-hub [discussConfig]="homeConfig?.discussHub"></ws-discuss-hub>
                     </div>
                     <!-- Discussion section ends here -->
 
                     <!-- Go to Network hub starts here -->
                     <div class="network"
-                        *ngIf="homeConfig?.networkHub?.active && ((globalConfig?.features?.network)) || !(globalConfig?.features)">
+                        *ngIf="homeConfig?.networkHub?.active && (domainConfService?.isFeatureByPageEnabled('home','network'))">
                         <ws-network-hub [networkConfig]="homeConfig?.networkHub"></ws-network-hub>
                     </div>
                     <!-- Go to Network hub end here -->
@@ -131,7 +131,7 @@
                     <div class="discuss" *ngIf="homeConfig?.discussHub?.active">
                         <ng-container *ngFor="let sectionItem of sectionList">
                             <ng-container
-                                *ngIf="sectionItem.section === 'discuss' && sectionItem.isVisible && ((globalConfig?.features?.discussion)) || !(globalConfig?.features)">
+                                *ngIf="sectionItem.section === 'discuss' && sectionItem.isVisible && (domainConfService?.isFeatureByPageEnabled('home','discussion'))">
                                 <ws-discuss-hub [discussConfig]="homeConfig?.discussHub"></ws-discuss-hub>
                             </ng-container>
                         </ng-container>
@@ -142,7 +142,7 @@
                     <div class="network" *ngIf="homeConfig?.networkHub?.active">
                         <ng-container *ngFor="let sectionItem of sectionList">
                             <ng-container
-                                *ngIf="sectionItem.section === 'network' && sectionItem.isVisible && ((globalConfig?.features?.network)) || !(globalConfig?.features)">
+                                *ngIf="sectionItem.section === 'network' && sectionItem.isVisible && (domainConfService?.isFeatureByPageEnabled('home','network'))">
                                 <ws-network-hub [networkConfig]="homeConfig?.networkHub"></ws-network-hub>
                             </ng-container>
                         </ng-container>
@@ -164,14 +164,14 @@
 
                     <!-- Discussion section starts here -->
                     <div class="discuss"
-                        *ngIf="homeConfig?.discussHub?.active && ((globalConfig?.features?.discussion)) || !(globalConfig?.features)">
+                        *ngIf="homeConfig?.discussHub?.active && (domainConfService?.isFeatureByPageEnabled('home','discussion'))">
                         <ws-discuss-hub [discussConfig]="homeConfig?.discussHub"></ws-discuss-hub>
                     </div>
                     <!-- Discussion section ends here -->
 
                     <!-- Go to Network hub starts here -->
                     <div class="network"
-                        *ngIf="homeConfig?.networkHub?.active && ((globalConfig?.features?.network)) || !(globalConfig?.features)">
+                        *ngIf="homeConfig?.networkHub?.active && (domainConfService?.isFeatureByPageEnabled('home','network'))">
                         <ws-network-hub [networkConfig]="homeConfig?.networkHub"></ws-network-hub>
                     </div>
                     <!-- Go to Network hub end here -->
@@ -187,10 +187,10 @@
         </div>
     </ng-container>
 </div>
-<ng-container *ngIf="((globalConfig?.features?.topProviders)) || !(globalConfig?.features)">
+<ng-container *ngIf="(domainConfService?.isFeatureByPageEnabled('home','topProviders'))">
     <ws-client-slider [clientList]="clientList"></ws-client-slider>
 </ng-container>
-<div class="download-section" *ngIf="((globalConfig?.features?.downloadApp)) || !(globalConfig?.features)">
+<div class="download-section" *ngIf="(domainConfService?.isFeatureByPageEnabled('home','downloadApp'))">
     <ws-download-app></ws-download-app>
 </div>
 

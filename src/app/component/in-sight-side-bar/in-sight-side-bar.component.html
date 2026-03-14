@@ -149,7 +149,7 @@
         </ng-template>
     </div>
     <section class="collapsible" [@collapse]="collapsed"
-        *ngIf="((globalConfig?.features?.leaderboard)) || !(globalConfig?.features)"
+        *ngIf="(domainConfService?.isFeatureByPageEnabled('home','leaderboard'))"
         [ngClass]="{'padding-top-m':(!collapsed && isLeaderboardExist)}">
         <ws-widget-user-leaderboard
             (isLeaderboardAvailable)="checkLeaderboardData($event)"></ws-widget-user-leaderboard>
@@ -249,7 +249,7 @@
 
         </div>
     </div>
-    <div class="flex flex-col" *ngIf="((globalConfig?.features?.otherPortals)) || !(globalConfig?.features)">
+    <div class="flex flex-col" *ngIf="(domainConfService?.isFeatureByPageEnabled('home','otherPortals'))">
         <ws-home-other-portal></ws-home-other-portal>
     </div>
 </section>

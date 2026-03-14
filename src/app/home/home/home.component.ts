@@ -15,6 +15,7 @@ import { MobileAppsService } from '../../services/mobile-apps.service'
 import { UserProfileService } from '@ws/app/src/lib/routes/user-profile/services/user-profile.service'
 // import { IUserProfileDetailsFromRegistry } from '@ws/app/src/lib/routes/user-profile/models/user-profile.model'
 import { BtnSettingsService } from '@sunbird-cb/collection'
+import { DomainConfService } from '@sunbird-cb/utils-v2'
 
 // import { NotificationComponent } from './notification/notification.component'
 
@@ -53,6 +54,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     private userProfileService: UserProfileService,
     private matSnackBar: MatSnackBar,
     private events: EventService,
+    public domainConfService: DomainConfService
   ) { }
   private destroySubject$ = new Subject()
   widgetData = {}
@@ -123,13 +125,6 @@ export class HomeComponent implements OnInit, AfterViewInit {
       this.router.navigateByUrl('app/person-profile/me#profileInfo')
     }
     if (this.configSvc) {
-      if (this.configSvc.globalConfig.applicationConfig.defaultTenant) {
-        this.defaultTenant = this.configSvc.globalConfig.applicationConfig.defaultTenant
-        this.globalConfig = this.configSvc.globalConfig.applicationConfig.tenants[this.defaultTenant]
-      }
-
-
-      console.log('globalConfig--', this.globalConfig)
       this.jan26Change = this.configSvc.overrideThemeChanges
       if (this.configSvc.unMappedUser.profileDetails && this.configSvc.unMappedUser.profileDetails.additionalProperties) {
         if (this.configSvc.unMappedUser.profileDetails.additionalProperties.isProfileUpdatedMsgViewed !== undefined) {

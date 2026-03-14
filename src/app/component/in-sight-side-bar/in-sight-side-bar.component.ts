@@ -1,7 +1,7 @@
 import { AUTO_STYLE, animate, state, transition, trigger, style } from '@angular/animations'
 import { Component, EventEmitter, OnInit, Output } from '@angular/core'
 import { HomePageService } from '../../services/home-page.service'
-import { ConfigurationsService, EventService, WsEvents, MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
+import { ConfigurationsService, EventService, WsEvents, MultilingualTranslationsService, DomainConfService } from '@sunbird-cb/utils-v2'
 import { HttpErrorResponse } from '@angular/common/http'
 import { ActivatedRoute, Router } from '@angular/router'
 import { DiscussUtilsService } from '@ws/app/src/lib/routes/discuss/services/discuss-utils.service'
@@ -102,8 +102,6 @@ export class InsightSideBarComponent implements OnInit {
   desigantionUnderApproval: any
   filterDesigantionList: any = []
   isMatcompleteOpened = false
-  globalConfig: any
-  defaultTenant = 'portal'
   @Output() telemetryRaisedLibrary = new EventEmitter()
 
   constructor(
@@ -118,7 +116,8 @@ export class InsightSideBarComponent implements OnInit {
     private signupService: SignupService,
     private profileV2Svc: ProfileV2Service,
     private userProfileService: UserProfileService,
-    private langtranslations: MultilingualTranslationsService) {
+    private langtranslations: MultilingualTranslationsService,
+    public domainConfService: DomainConfService) {
     if (localStorage.getItem('websiteLanguage')) {
       this.translate.setDefaultLang('en')
       const lang = localStorage.getItem('websiteLanguage')!
@@ -181,10 +180,7 @@ export class InsightSideBarComponent implements OnInit {
       this.configSvc.unMappedUser.profileDetails.employmentDetails.departmentName) {
       this.isIgotOrg = this.configSvc.unMappedUser.profileDetails.employmentDetails.departmentName === 'igot' ? true : false
     }
-    if (this.configSvc.globalConfig.applicationConfig.defaultTenant) {
-      this.defaultTenant = this.configSvc.globalConfig.applicationConfig.defaultTenant
-      this.globalConfig = this.configSvc.globalConfig.applicationConfig.tenants[this.defaultTenant]
-    }
+
 
     // this.learnAdvisoryDataLength = this.learnAdvisoryData.length
     this.getInsights()
