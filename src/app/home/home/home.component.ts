@@ -92,12 +92,16 @@ export class HomeComponent implements OnInit, AfterViewInit {
   canShowCustomAttrOpen: boolean = false
   rootOrgId: string = ''
   globalConfig: any
-  defaultTenant = 'portal'
-
+  homePageSectionOrder: string[] = ["strip", "slider"]
   // You could also add it as a class property for better encapsulation
   private readonly initialVisibleStrips = INITIAL_VISIBLE_STRIPS;
 
   ngOnInit() {
+    console.log('domainConfService---', this.domainConfService.getTenantConfig())
+    const tenantConfig: any = this.domainConfService.getTenantConfig()
+    if (tenantConfig?.homePageSectionOrder) {
+      this.homePageSectionOrder = tenantConfig?.homePageSectionOrder
+    }
     let isNotMyUser = false
     let isIgotOrg = false
     if (this.configSvc && this.configSvc.unMappedUser) {
@@ -590,6 +594,10 @@ export class HomeComponent implements OnInit, AfterViewInit {
         module: WsEvents.EnumTelemetrymodules.HOME,
       }
     )
+  }
+
+  trackByIndex(index: number) {
+    return index
   }
 
 

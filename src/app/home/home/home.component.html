@@ -1,4 +1,5 @@
-<div class="mat-body-2 karmapoints-panel" *ngIf="isKPPanelenabled">
+<div class="mat-body-2 karmapoints-panel"
+    *ngIf="isKPPanelenabled && (domainConfService?.isFeatureByPageEnabled('home','karmaPointStrip'))">
     <p class="margin-remove"> {{'appKarmapointsPanel.earn' |translate}}
         <img src="/assets/icons/home/karma-badge.svg" alt="KarmaPoints">
         <span class="font-bold"> {{'appKarmapointsPanel.fKarmaPoints' |translate}} </span>
@@ -30,23 +31,31 @@
             *ngIf="homeConfig?.rightSection?.active">
             <div class="flex flex-col gap-1 mt-3">
                 <ng-container *ngIf="enableLazyLoadingFlag">
-                    <ng-container *ngFor="let sectionItem of sectionList; let i=index; trackBy i">
-                        <div [ngClass]="sectionItem.section" *ngIf="sectionItem.section.startsWith('section_')">
-                            <ng-container *ngIf="sectionItem.isVisible && sectionItem.isActive">
-                                <ws-feed-list [widgetData]="sectionItem.stripData"
-                                    (telemetryRaisedLibrary)="raiseTelemetryInteratEvent($event)">
-                                </ws-feed-list>
+                    <ng-container *ngFor="let section of homePageSectionOrder">
+
+                        <!-- Slider -->
+                        <div class="slider" *ngIf="section === 'slider' && sliderData && sliderData[0]?.active">
+                            <ng-container *ngFor="let sectionItem of sectionList">
+                                <ng-container *ngIf="sectionItem.section === 'slider' && sectionItem.isVisible">
+                                    <ws-widget-sliders [widgetData]="sliderData"></ws-widget-sliders>
+                                </ng-container>
                             </ng-container>
                         </div>
-                    </ng-container>
 
-                    <div class="slider" *ngIf="sliderData && sliderData[0]?.active">
-                        <ng-container *ngFor="let sectionItem of sectionList">
-                            <ng-container *ngIf="sectionItem.section === 'slider' && sectionItem.isVisible">
-                                <ws-widget-sliders [widgetData]="sliderData"></ws-widget-sliders>
+                        <!-- Strip -->
+                        <ng-container *ngIf="section === 'strip'">
+                            <ng-container *ngFor="let sectionItem of sectionList; let i=index; trackBy: trackByIndex">
+                                <div [ngClass]="sectionItem.section" *ngIf="sectionItem.section.startsWith('section_')">
+                                    <ng-container *ngIf="sectionItem.isVisible && sectionItem.isActive">
+                                        <ws-feed-list [widgetData]="sectionItem.stripData"
+                                            (telemetryRaisedLibrary)="raiseTelemetryInteratEvent($event)">
+                                        </ws-feed-list>
+                                    </ng-container>
+                                </div>
                             </ng-container>
                         </ng-container>
-                    </div>
+
+                    </ng-container>
 
                     <!-- Discussion section starts here -->
                     <div class="discuss" *ngIf="homeConfig?.discussHub?.active">
@@ -72,16 +81,31 @@
                 </ng-container>
 
                 <ng-container *ngIf="!enableLazyLoadingFlag">
-                    <ng-container *ngFor="let item of contentStripData; let i=index; trackBy i">
-                        <ng-container *ngIf="item?.strips[0]?.active">
-                            <ws-feed-list [widgetData]="item"
-                                (telemetryRaisedLibrary)="raiseTelemetryInteratEvent($event)"></ws-feed-list>
-                        </ng-container>
-                    </ng-container>
+                    <ng-container *ngFor="let section of homePageSectionOrder">
 
-                    <div class="slider" *ngIf="sliderData && sliderData[0]?.active">
-                        <ws-widget-sliders [widgetData]="sliderData"></ws-widget-sliders>
-                    </div>
+                        <!-- Slider -->
+                        <div class="slider" *ngIf="section === 'slider' && sliderData && sliderData[0]?.active">
+                            <ng-container *ngFor="let sectionItem of sectionList">
+                                <ng-container *ngIf="sectionItem.section === 'slider' && sectionItem.isVisible">
+                                    <ws-widget-sliders [widgetData]="sliderData"></ws-widget-sliders>
+                                </ng-container>
+                            </ng-container>
+                        </div>
+
+                        <!-- Strip -->
+                        <ng-container *ngIf="section === 'strip'">
+                            <ng-container *ngFor="let sectionItem of sectionList; let i=index; trackBy: trackByIndex">
+                                <div [ngClass]="sectionItem.section" *ngIf="sectionItem.section.startsWith('section_')">
+                                    <ng-container *ngIf="sectionItem.isVisible && sectionItem.isActive">
+                                        <ws-feed-list [widgetData]="sectionItem.stripData"
+                                            (telemetryRaisedLibrary)="raiseTelemetryInteratEvent($event)">
+                                        </ws-feed-list>
+                                    </ng-container>
+                                </div>
+                            </ng-container>
+                        </ng-container>
+
+                    </ng-container>
 
                     <!-- Discussion section starts here -->
                     <div class="discuss"
@@ -109,23 +133,31 @@
             <div class="flex flex-col gap-3 mt-8">
 
                 <ng-container *ngIf="enableLazyLoadingFlag">
-                    <ng-container *ngFor="let sectionItem of sectionList; let i=index; trackBy i">
-                        <div [ngClass]="sectionItem.section" *ngIf="sectionItem.section.startsWith('section_')">
-                            <ng-container *ngIf="sectionItem.isVisible && sectionItem.isActive">
-                                <ws-feed-list [widgetData]="sectionItem.stripData"
-                                    (telemetryRaisedLibrary)="raiseTelemetryInteratEvent($event)">
-                                </ws-feed-list>
+                    <ng-container *ngFor="let section of homePageSectionOrder">
+
+                        <!-- Slider -->
+                        <div class="slider" *ngIf="section === 'slider' && sliderData && sliderData[0]?.active">
+                            <ng-container *ngFor="let sectionItem of sectionList">
+                                <ng-container *ngIf="sectionItem.section === 'slider' && sectionItem.isVisible">
+                                    <ws-widget-sliders [widgetData]="sliderData"></ws-widget-sliders>
+                                </ng-container>
                             </ng-container>
                         </div>
-                    </ng-container>
 
-                    <div class="slider" *ngIf="sliderData && sliderData[0]?.active">
-                        <ng-container *ngFor="let sectionItem of sectionList">
-                            <ng-container *ngIf="sectionItem.section === 'slider' && sectionItem.isVisible">
-                                <ws-widget-sliders [widgetData]="sliderData"></ws-widget-sliders>
+                        <!-- Strip -->
+                        <ng-container *ngIf="section === 'strip'">
+                            <ng-container *ngFor="let sectionItem of sectionList; let i=index; trackBy: trackByIndex">
+                                <div [ngClass]="sectionItem.section" *ngIf="sectionItem.section.startsWith('section_')">
+                                    <ng-container *ngIf="sectionItem.isVisible && sectionItem.isActive">
+                                        <ws-feed-list [widgetData]="sectionItem.stripData"
+                                            (telemetryRaisedLibrary)="raiseTelemetryInteratEvent($event)">
+                                        </ws-feed-list>
+                                    </ng-container>
+                                </div>
                             </ng-container>
                         </ng-container>
-                    </div>
+
+                    </ng-container>
 
                     <!-- Discussion section starts here -->
                     <div class="discuss" *ngIf="homeConfig?.discussHub?.active">
@@ -151,16 +183,31 @@
                 </ng-container>
 
                 <ng-container *ngIf="!enableLazyLoadingFlag">
-                    <ng-container *ngFor="let item of contentStripData; let i=index; trackBy i">
-                        <ng-container *ngIf="item?.strips[0]?.active">
-                            <ws-feed-list [widgetData]="item"
-                                (telemetryRaisedLibrary)="raiseTelemetryInteratEvent($event)"></ws-feed-list>
-                        </ng-container>
-                    </ng-container>
+                    <ng-container *ngFor="let section of homePageSectionOrder">
 
-                    <div class="slider" *ngIf="sliderData && sliderData[0]?.active">
-                        <ws-widget-sliders [widgetData]="sliderData"></ws-widget-sliders>
-                    </div>
+                        <!-- Slider -->
+                        <div class="slider" *ngIf="section === 'slider' && sliderData && sliderData[0]?.active">
+                            <ng-container *ngFor="let sectionItem of sectionList">
+                                <ng-container *ngIf="sectionItem.section === 'slider' && sectionItem.isVisible">
+                                    <ws-widget-sliders [widgetData]="sliderData"></ws-widget-sliders>
+                                </ng-container>
+                            </ng-container>
+                        </div>
+
+                        <!-- Strip -->
+                        <ng-container *ngIf="section === 'strip'">
+                            <ng-container *ngFor="let sectionItem of sectionList; let i=index; trackBy: trackByIndex">
+                                <div [ngClass]="sectionItem.section" *ngIf="sectionItem.section.startsWith('section_')">
+                                    <ng-container *ngIf="sectionItem.isVisible && sectionItem.isActive">
+                                        <ws-feed-list [widgetData]="sectionItem.stripData"
+                                            (telemetryRaisedLibrary)="raiseTelemetryInteratEvent($event)">
+                                        </ws-feed-list>
+                                    </ng-container>
+                                </div>
+                            </ng-container>
+                        </ng-container>
+
+                    </ng-container>
 
                     <!-- Discussion section starts here -->
                     <div class="discuss"

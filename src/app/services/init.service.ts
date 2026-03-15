@@ -232,7 +232,9 @@ export class InitService {
     await this.fetchDefaultConfig()
     await this.profileNudgeConfig()
     await this.themeOverrideConfig()
-    await this.netCoreConfig()
+    if (this.domainConfSvc?.isFeatureByPageEnabled('services', 'netcore')) {
+      await this.netCoreConfig()
+    }
 
     // const authenticated = await this.authSvc.initAuth()
     // if (!authenticated) {
@@ -466,7 +468,7 @@ export class InitService {
         "type": "page",
         "subType": "netcore",
         "action": "page-configuration",
-        "component": "portal", 
+        "component": "portal",
         "rootOrgId": "*"
       }
     }
