@@ -173,6 +173,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.clientList = this.activatedRoute.snapshot.data.pageData.data.clientList
     this.widgetData = this.activatedRoute.snapshot.data.pageData.data.hubsData
     this.enableLazyLoadingFlag = this.activatedRoute.snapshot.data.pageData.data.enableLazyLoading
+    console.log('enableLazyLoadingFlag--', this.enableLazyLoadingFlag)
 
     this.discussStripData = {
       strips: [
@@ -269,11 +270,12 @@ export class HomeComponent implements OnInit, AfterViewInit {
     }
 
     this.sliderData = this.activatedRoute.snapshot.data.pageData.data.sliderData
-    this.sectionList.push({ section: 'slider', isVisible: false })
+    this.sectionList.push({ section: 'slider', isVisible: (this.homePageSectionOrder.length && this.homePageSectionOrder[0] === 'slider' ? true : false) })
     this.sectionList.push({ section: 'discuss', isVisible: false })
     this.sectionList.push({ section: 'network', isVisible: false })
-
-    this.getListPendingApproval()
+    if (this.domainConfService.isFeatureByPageEnabled('services', 'workflow')) {
+      this.getListPendingApproval()
+    }
     // this.handleUpdateMobileNudge()
     this.handleDefaultFontSetting()
 

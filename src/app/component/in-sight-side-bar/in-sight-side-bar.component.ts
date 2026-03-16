@@ -253,34 +253,38 @@ export class InsightSideBarComponent implements OnInit {
           const disOrderedList = _.get(organisationsList, '[0].children', [])
           this.designationList = _.sortBy(disOrderedList, 'name')
           this.filterDesigantionList = this.designationList
-          this.profileV2Svc.fetchApprovalDetails().subscribe((resp: any) => {
-            if (resp && resp.result && resp.result.data) {
-              if (resp.result.data.length > 0) {
-                resp.result.data.forEach((user: any) => {
-                  if (user['designation']) {
-                    let designationsArray = this.designationList.map((des: any) => des.name.toLowerCase())
-                    if (!designationsArray.includes(user['designation'].toLowerCase())) {
-                      this.showUpdateDesignations = true
-                      this.desigantionUnderApproval = user
+          alert()
+          if (this.domainConfService.isFeatureByPageEnabled('services', 'workflow')) {
+            this.profileV2Svc.fetchApprovalDetails().subscribe((resp: any) => {
+              if (resp && resp.result && resp.result.data) {
+                if (resp.result.data.length > 0) {
+                  resp.result.data.forEach((user: any) => {
+                    if (user['designation']) {
+                      let designationsArray = this.designationList.map((des: any) => des.name.toLowerCase())
+                      if (!designationsArray.includes(user['designation'].toLowerCase())) {
+                        this.showUpdateDesignations = true
+                        this.desigantionUnderApproval = user
+                      }
                     }
-                  }
-                })
-              } else {
-                if (this.configSvc.userProfile && this.configSvc.userProfile.professionalDetails &&
-                  this.configSvc.userProfile.professionalDetails[0] && this.configSvc.userProfile.professionalDetails[0].designation) {
-                  let designation = this.configSvc.userProfile.professionalDetails[0].designation
-                  if (designation) {
-                    let designationsArray = this.designationList.map((des: any) => des.name.toLowerCase())
-                    if (!designationsArray.includes(designation.toLowerCase())) {
-                      this.showUpdateDesignations = true
-                    }
-                  }
+                  })
                 } else {
-                  this.showUpdateDesignations = true
+                  if (this.configSvc.userProfile && this.configSvc.userProfile.professionalDetails &&
+                    this.configSvc.userProfile.professionalDetails[0] && this.configSvc.userProfile.professionalDetails[0].designation) {
+                    let designation = this.configSvc.userProfile.professionalDetails[0].designation
+                    if (designation) {
+                      let designationsArray = this.designationList.map((des: any) => des.name.toLowerCase())
+                      if (!designationsArray.includes(designation.toLowerCase())) {
+                        this.showUpdateDesignations = true
+                      }
+                    }
+                  } else {
+                    this.showUpdateDesignations = true
+                  }
                 }
               }
-            }
-          })
+            })
+          }
+
         }, (_error: any) => {
           // tslint:disable-next-line
           console.error('Error occurred:', _error)
