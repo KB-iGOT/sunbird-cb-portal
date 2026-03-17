@@ -253,7 +253,7 @@ export class InsightSideBarComponent implements OnInit {
           const disOrderedList = _.get(organisationsList, '[0].children', [])
           this.designationList = _.sortBy(disOrderedList, 'name')
           this.filterDesigantionList = this.designationList
-          alert()
+
           if (this.domainConfService.isFeatureByPageEnabled('services', 'workflow')) {
             this.profileV2Svc.fetchApprovalDetails().subscribe((resp: any) => {
               if (resp && resp.result && resp.result.data) {
