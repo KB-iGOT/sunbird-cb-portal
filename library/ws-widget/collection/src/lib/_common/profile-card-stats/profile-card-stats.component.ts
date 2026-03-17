@@ -89,7 +89,6 @@ export class ProfileCardStatsComponent implements OnInit {
 
 
   }
-
   getTimelyNudge() {
     if (this.configSvc.profileTimelyNudges.enable) {
       const rand = Math.round(Math.random() * 4)
@@ -173,6 +172,7 @@ export class ProfileCardStatsComponent implements OnInit {
         certificate: enrollList.userCourseEnrolmentInfo.certificatesIssued,
         inProgress: enrollList.userCourseEnrolmentInfo.coursesInProgress,
         karmaPoints: enrollList.userCourseEnrolmentInfo.karmaPoints,
+        badgeCount: enrollList.userCourseEnrolmentInfo.badgeCount,
         learningHours: enrollList.userCourseEnrolmentInfo.timeSpentOnCompletedCourses,
       }
     }
