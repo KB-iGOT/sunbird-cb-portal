@@ -68,7 +68,7 @@ export class InsightSideBarComponent implements OnInit {
   clapsDataLoading = true
   collapsed = false
   userData: any
-  insightsData: any
+  insightsData: any = {}
   discussion = {
     loadSkeleton: false,
     data: [],
@@ -183,7 +183,13 @@ export class InsightSideBarComponent implements OnInit {
 
 
     // this.learnAdvisoryDataLength = this.learnAdvisoryData.length
-    this.getInsights()
+    if (this.domainConfService.isFeatureByPageEnabled('services', 'insights')) {
+      this.getInsights()
+    } else {
+      this.profileDataLoading = false
+      this.clapsDataLoading = false
+    }
+
     this.getPendingRequestData()
     this.noDataValue = noData
     // this.getDiscussionsData()

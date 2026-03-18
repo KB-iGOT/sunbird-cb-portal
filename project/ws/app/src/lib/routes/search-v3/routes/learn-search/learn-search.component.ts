@@ -11,6 +11,7 @@ import {
 import { GbSearchService } from '../../services/gb-search.service'
 import {
   ConfigurationsService,
+  DomainConfService,
   EventService,
   MultilingualTranslationsService,
   ValueService,
@@ -144,7 +145,9 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
     private router: Router,
     private langtranslations: MultilingualTranslationsService,
     private userService: WidgetUserService,
-    private networkV2Service: NetworkV2Service
+    private networkV2Service: NetworkV2Service,
+    private domainConfService: DomainConfService
+
   ) {
     if (localStorage.getItem('websiteLanguage')) {
       this.translate.setDefaultLang('en')
@@ -229,7 +232,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       changes.searchQuery.previousValue?.searchCategory
     ) {
       this.searchContentLoader = true
-      if(!this.isExploreContentTab) {
+      if (!this.isExploreContentTab) {
         this.resetAllSearchParams()
       }
       this.statedata = {
@@ -244,12 +247,21 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
         this.seeAllResults(category)
       } else {
         await this.searchCourses()
-        await this.searchEvents()
-
-        await this.searchPeople()
-        await this.searchcommunities()
-        await this.searchResources()
-        await this.searchExternalContents()
+        if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchEvent')))) {
+          await this.searchEvents()
+        }
+        if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchPeople')))) {
+          await this.searchPeople()
+        }
+        if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchCommunity')))) {
+          await this.searchcommunities()
+        }
+        if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchResources')))) {
+          await this.searchResources()
+        }
+        if (((this.domainConfService?.isFeatureByPageEnabled('services', 'contentpartnerSearch')))) {
+          await this.searchExternalContents()
+        }
 
         this.searchContentLoader = false
       }
@@ -333,8 +345,8 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       if (this.searchRequestCourse['request']['filters']['courseCategory']?.length === 0) {
         this.searchRequestCourse['request']['filters']['courseCategory'] = { "!=": ["pre enrolment assessment"] }
       }
-      if( this.searchRequestCourse['request']['facets'] && this.searchRequestCourse['request']['facets'].length) {
-        this.searchRequestCourse['request']['facets'] =  _.uniq(this.searchRequestCourse['request']['facets'])
+      if (this.searchRequestCourse['request']['facets'] && this.searchRequestCourse['request']['facets'].length) {
+        this.searchRequestCourse['request']['facets'] = _.uniq(this.searchRequestCourse['request']['facets'])
       }
 
     }
@@ -360,18 +372,21 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
         }
       }
       if (formContextList.length) {
-        const formBody = {
-          userId: _.get(this.configSvc, 'userProfile.userId'),
-          formContextList
-        }
-        const surveyLInksStatus = await this.searchV3Service.getApplicationsById(formBody).toPromise()
-        const statusList = _.get(surveyLInksStatus, 'result.response', [])
-        for (const status of statusList) {
-          const course = formRefMap[status.contextId]
-          if (course) {
-            course['surveyCompletionStatus'] = status.submitted
+        if (((this.domainConfService?.isFeatureByPageEnabled('services', 'bulkGetApplicationsById')))) {
+          const formBody = {
+            userId: _.get(this.configSvc, 'userProfile.userId'),
+            formContextList
+          }
+          const surveyLInksStatus = await this.searchV3Service.getApplicationsById(formBody).toPromise()
+          const statusList = _.get(surveyLInksStatus, 'result.response', [])
+          for (const status of statusList) {
+            const course = formRefMap[status.contextId]
+            if (course) {
+              course['surveyCompletionStatus'] = status.submitted
+            }
           }
         }
+
       }
       // result.result.content = enrichedResults;
     }
@@ -1002,21 +1017,34 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
     ) {
       this.searchCourses()
     } else if (this.seeAllResult === SearchCategory.Events) {
-      this.searchEvents()
+      if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchEvent')))) {
+        this.searchEvents()
+      }
     } else if (this.seeAllResult === SearchCategory.Resources) {
-      this.searchResources()
+      if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchResources')))) {
+        this.searchResources()
+      }
     }
     else if (this.seeAllResult === SearchCategory.People) {
-      this.searchPeople()
+      if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchUsers')))) {
+        this.searchPeople()
+      }
     } else if (this.seeAllResult === SearchCategory.Communities) {
-      this.searchcommunities()
+      if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchCommunity')))) {
+        this.searchcommunities()
+      }
     } else if (this.seeAllResult === SearchCategory.ExternalContents) {
-      this.searchExternalContents()
+      if (((this.domainConfService?.isFeatureByPageEnabled('services', 'contentpartnerSearch')))) {
+        this.searchExternalContents()
+      }
     } else {
       await this.searchCourses()
-      await this.searchEvents()
-      this.searchPeople()
-      this.searchcommunities()
+      if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchEvent')))) {
+        await this.searchEvents()
+      }
+      if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchUsers')))) {
+        this.searchPeople()
+      }
     }
 
     this.searchContentLoader = false
@@ -1028,7 +1056,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       .pipe(takeUntil(this.destroy$))
       .subscribe(params => {
         this.isExploreContentTab = !!params['tab']
-        if ( this.isExploreContentTab ) {
+        if (this.isExploreContentTab) {
           this.searchSortFilter = SortType.RecentlyAdded
           this.searchRequestCourse.request.sort_by.createdOn = 'desc'
         }
@@ -1169,8 +1197,11 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       this.externalSearchTotalCount = 0
 
       this.searchRequestEvents.request.limit = this.initialPaginationSize
-      await this.searchEvents()
-      this.combinedFacets = [this.eventsFacets]
+      if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchEventts')))) {
+        await this.searchEvents()
+        this.combinedFacets = [this.eventsFacets]
+      }
+
       // this.getCompetencyHierichy();
       this.processTypeOfEventsFilter()
     } else if (category === SearchCategory.People) {
@@ -1181,8 +1212,11 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       this.externalSearchTotalCount = 0
 
       this.searchRequestPeoples.limit = this.initialPaginationSize
-      await this.searchPeople()
-      this.combinedFacets = this.peoplesFacets.length ? [this.peoplesFacets] : []
+      if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchPeople')))) {
+        await this.searchPeople()
+        this.combinedFacets = this.peoplesFacets.length ? [this.peoplesFacets] : []
+      }
+
     } else if (category === SearchCategory.Communities) {
       this.courseSearchTotalCount = 0
       this.eventSearchTotalCount = 0
@@ -1191,8 +1225,11 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       this.externalSearchTotalCount = 0
 
       this.searchRequestCommunities.pageSize = this.initialPaginationSize
-      await this.searchcommunities()
-      this.combinedFacets = [this.communitiesFacets]
+      if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchCommunity')))) {
+        await this.searchcommunities()
+        this.combinedFacets = [this.communitiesFacets]
+      }
+
       // this.getCompetencyHierichy();
     } else if (category === SearchCategory.Resources) {
       this.courseSearchTotalCount = 0
@@ -1201,8 +1238,11 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       this.peopleSearchTotalCount = 0
       this.externalSearchTotalCount = 0
       this.searchRequestResources.request.limit = this.initialPaginationSize
-      await this.searchResources()
-      this.combinedFacets = [this.resourcesFacets]
+      if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchResources')))) {
+        await this.searchResources()
+        this.combinedFacets = [this.resourcesFacets]
+      }
+
     } else if (category === SearchCategory.ExternalContents) {
       this.courseSearchTotalCount = 0
       this.eventSearchTotalCount = 0
@@ -1210,9 +1250,11 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       this.peopleSearchTotalCount = 0
       this.resourcesSearchTotalCount = 0
       this.searchRequestExternal.pageSize = this.initialPaginationSize
+      if (((this.domainConfService?.isFeatureByPageEnabled('services', 'contentpartnerSearch')))) {
+        await this.searchExternalContents()
 
-      await this.searchExternalContents()
-      this.combinedFacets = [this.externalFacets]
+      }
+
     }
     // this.scrollToTop();
     this.searchContentLoader = false
@@ -1276,25 +1318,35 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
     } else if (this.seeAllResult === SearchCategory.Events) {
       this.searchRequestEvents.request.limit = event.limit
       this.searchRequestEvents.request.offset = (event.currentPage - 1) * event.limit
-      await this.searchEvents()
+      if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchEvent')))) {
+        await this.searchEvents()
+      }
     } else if (this.seeAllResult === SearchCategory.People) {
       this.searchRequestPeoples.limit = event.limit
       this.searchRequestPeoples.offset = (event.currentPage - 1) * event.limit
-      this.searchPeople()
+      if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchPeople')))) {
+        this.searchPeople()
+      }
     } else if (this.seeAllResult === SearchCategory.Resources) {
       this.searchRequestResources.request.limit = event.limit
       this.searchRequestResources.request.offset = (event.currentPage - 1) * event.limit
-      await this.searchResources()
+      if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchResources')))) {
+        await this.searchResources()
+      }
     }
     else if (this.seeAllResult === SearchCategory.ExternalContents) {
       this.searchRequestExternal.pageSize = event.limit
       this.searchRequestExternal.pageNumber = event.currentPage - 1
-      await this.searchExternalContents()
+      if (((this.domainConfService?.isFeatureByPageEnabled('services', 'contentpartnerSearch')))) {
+        await this.searchExternalContents()
+      }
     }
     else if (this.seeAllResult === SearchCategory.Communities) {
       this.searchRequestCommunities.pageSize = event.limit
       this.searchRequestCommunities.pageNumber = event.currentPage - 1
-      await this.searchcommunities()
+      if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchCommunity')))) {
+        await this.searchcommunities()
+      }
     }
 
     this.searchContentLoader = false
@@ -1339,93 +1391,139 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
     if (event === SortType.MostRelevent) {
       if (this.seeAllResult === '') {
         await this.searchCourses()
-        await this.searchEvents()
-        await this.searchcommunities()
+        if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchEvent')))) {
+          await this.searchEvents()
+        }
+        if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchCommunity')))) {
+          await this.searchcommunities()
+        }
       } else if (this.seeAllResult === SearchCategory.Courses) {
         this.searchRequestCourse.request.sort_by = {}
         await this.searchCourses()
       } else if (this.seeAllResult === SearchCategory.Events) {
         this.searchRequestEvents.request.sort_by = {}
-        await this.searchEvents()
+        if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchEvent')))) {
+          await this.searchEvents()
+        }
       } else if (this.seeAllResult === SearchCategory.Resources) {
         this.searchRequestResources.request.sort_by = {}
-        await this.searchResources()
+        if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchResources')))) {
+          await this.searchResources()
+        }
       }
       else if (this.seeAllResult === SearchCategory.ExternalContents) {
         this.searchRequestExternal.orderBy = 'createdOn'
-        await this.searchExternalContents()
+        if (((this.domainConfService?.isFeatureByPageEnabled('services', 'contentpartnerSearch')))) {
+          await this.searchExternalContents()
+        }
       }
     } else if (event === SortType.RecentlyAdded) {
       if (this.seeAllResult === '') {
         this.searchRequestCourse.request.sort_by.createdOn = 'desc'
         this.searchRequestEvents.request.sort_by.startDate = 'desc'
         await this.searchCourses()
-        await this.searchEvents()
-        await this.searchcommunities()
+        if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchEvent')))) {
+          await this.searchEvents()
+        }
+        if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchCommunity')))) {
+          await this.searchcommunities()
+        }
       } else if (this.seeAllResult === SearchCategory.Courses) {
         this.searchRequestCourse.request.sort_by.createdOn = 'desc'
         await this.searchCourses()
       } else if (this.seeAllResult === SearchCategory.Events) {
         this.searchRequestEvents.request.sort_by.startDate = 'desc'
-        await this.searchEvents()
+        if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchEvent')))) {
+          await this.searchEvents()
+        }
       } else if (this.seeAllResult === SearchCategory.Communities) {
         this.searchRequestCommunities.orderDirection = 'desc'
-        await this.searchcommunities()
+        if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchCommunity')))) {
+          await this.searchcommunities()
+        }
       } else if (this.seeAllResult === SearchCategory.People) {
         delete this.searchRequestPeoples?.sort_by?.firstName
         this.searchRequestPeoples.sort_by.createdOn = 'desc'
-        await this.searchPeople()
+        if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchPeople')))) {
+          await this.searchPeople()
+        }
       } else if (this.seeAllResult === SearchCategory.Resources) {
         this.searchRequestResources.request.sort_by.createdOn = 'desc'
-        await this.searchResources()
+        if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchResources')))) {
+          await this.searchResources()
+        }
       }
       else if (this.seeAllResult === SearchCategory.ExternalContents) {
         this.searchRequestExternal.orderBy = 'createdOn'
-        await this.searchExternalContents()
+        if (((this.domainConfService?.isFeatureByPageEnabled('services', 'contentpartnerSearch')))) {
+          await this.searchExternalContents()
+        }
       }
     } else if (event === SortType.HighestRated) {
       if (this.seeAllResult === '') {
         this.searchRequestCourse.request.sort_by.avgRating = 'desc'
         this.searchRequestEvents.request.sort_by.avgRating = 'desc'
         await this.searchCourses()
-        await this.searchEvents()
-        await this.searchcommunities()
+        if (((this.domainConfService?.isFeatureByPageEnabled('services', 'seachEvent')))) {
+          await this.searchEvents()
+        }
+        if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchCommunity')))) {
+          await this.searchcommunities()
+        }
       } else if (this.seeAllResult === SearchCategory.Courses) {
         this.searchRequestCourse.request.sort_by.avgRating = 'desc'
         await this.searchCourses()
       } else if (this.seeAllResult === SearchCategory.Events) {
         this.searchRequestEvents.request.sort_by.avgRating = 'desc'
-        await this.searchEvents()
+        if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchEvent')))) {
+          await this.searchEvents()
+        }
       } else if (this.seeAllResult === SearchCategory.Resources) {
         this.searchRequestResources.request.sort_by.avgRating = 'desc'
-        await this.searchResources()
+        if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchResources')))) {
+          await this.searchResources()
+        }
       }
     } else if (event === SortType.Ascending) {
       this.searchRequestPeoples.sort_by.firstName = SortType.Ascending
-      await this.searchPeople()
+      if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchPeople')))) {
+        await this.searchPeople()
+      }
     } else if (event === SortType.Descending) {
       this.searchRequestPeoples.sort_by.firstName = SortType.Descending
-      await this.searchPeople()
+      if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchPeople')))) {
+        await this.searchPeople()
+      }
     } else if (event === SortType.AtoZ) {
       if (this.seeAllResult === '') {
         this.searchRequestCourse.request.sort_by.name = SortType.Ascending
         this.searchRequestEvents.request.sort_by.name = SortType.Ascending
         await this.searchCourses()
-        await this.searchEvents()
-        await this.searchcommunities()
+        if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchEvent')))) {
+          await this.searchEvents()
+        }
+        if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchCommunity')))) {
+          await this.searchcommunities()
+        }
       } else if (this.seeAllResult === SearchCategory.Courses) {
         this.searchRequestCourse.request.sort_by.name = SortType.Ascending
         await this.searchCourses()
       } else if (this.seeAllResult === SearchCategory.Events) {
         this.searchRequestEvents.request.sort_by.name = SortType.Ascending
-        await this.searchEvents()
+        if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchEvent')))) {
+          await this.searchEvents()
+        }
       } else if (this.seeAllResult === SearchCategory.Resources) {
         this.searchRequestResources.request.sort_by.name = SortType.Ascending
-        await this.searchResources()
+        if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchResources')))) {
+          await this.searchResources()
+        }
       }
       else if (this.seeAllResult === SearchCategory.ExternalContents) {
         this.searchRequestExternal.orderDirection = SortType.Ascending
-        await this.searchExternalContents()
+        if (((this.domainConfService?.isFeatureByPageEnabled('services', 'contentpartnerSearch')))) {
+          await this.searchExternalContents()
+        }
       }
 
     } else if (event === SortType.ZtoA) {
@@ -1433,21 +1531,31 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
         this.searchRequestCourse.request.sort_by.name = SortType.Descending
         this.searchRequestEvents.request.sort_by.name = SortType.Descending
         await this.searchCourses()
-        await this.searchEvents()
-        await this.searchcommunities()
+        if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchEvent')))) {
+          await this.searchEvents()
+        }
+        if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchCommunity')))) {
+          await this.searchcommunities()
+        }
       } else if (this.seeAllResult === SearchCategory.Courses) {
         this.searchRequestCourse.request.sort_by.name = SortType.Descending
         await this.searchCourses()
       } else if (this.seeAllResult === SearchCategory.Events) {
         this.searchRequestEvents.request.sort_by.name = SortType.Descending
-        await this.searchEvents()
+        if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchEvent')))) {
+          await this.searchEvents()
+        }
       } else if (this.seeAllResult === SearchCategory.Resources) {
         this.searchRequestResources.request.sort_by.name = SortType.Descending
-        await this.searchResources()
+        if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchResources')))) {
+          await this.searchResources()
+        }
       }
       else if (this.seeAllResult === SearchCategory.ExternalContents) {
         this.searchRequestExternal.orderDirection = SortType.Descending
-        await this.searchExternalContents()
+        if (((this.domainConfService?.isFeatureByPageEnabled('services', 'contentpartnerSearch')))) {
+          await this.searchExternalContents()
+        }
       }
     }
 
@@ -1681,15 +1789,25 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       ) {
         await this.searchCourses()
       } else if (this.seeAllResult === SearchCategory.Events) {
-        await this.searchEvents()
+        if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchEvent')))) {
+          await this.searchEvents()
+        }
       } else if (this.seeAllResult === SearchCategory.Resources) {
-        await this.searchResources()
+        if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchResources')))) {
+          await this.searchResources()
+        }
       } else if (this.seeAllResult === SearchCategory.People) {
-        await this.searchPeople()
+        if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchPeople')))) {
+          await this.searchPeople()
+        }
       } else if (this.seeAllResult === SearchCategory.Communities) {
-        await this.searchcommunities()
+        if (((this.domainConfService?.isFeatureByPageEnabled('services', 'searchCommunity')))) {
+          await this.searchcommunities()
+        }
       } else if (this.seeAllResult === SearchCategory.ExternalContents) {
-        await this.searchExternalContents()
+        if (((this.domainConfService?.isFeatureByPageEnabled('services', 'contentpartnerSearch')))) {
+          await this.searchExternalContents()
+        }
       }
 
       this.searchContentLoader = false
