@@ -49,7 +49,7 @@ export class QuestionComponent implements OnInit, AfterViewInit {
   ) { }
 
   ngOnInit() {
-    const res: string[] = this.question.question.match(/<img[^>]+src="([^">]+)"/g) || ['']
+    const res: string[] = this.question?.question?.match(/<img[^>]+src="([^">]+)"/g) || ['']
     for (const oldImg of res) {
       if (oldImg) {
         let temp = oldImg.match(/src="([^">]+)"/g) || ['']
@@ -58,11 +58,11 @@ export class QuestionComponent implements OnInit, AfterViewInit {
         temp = [temp[0].replace(/\"/g, '')]
         const baseUrl = this.artifactUrl.split('/')
         const newUrl = this.artifactUrl.replace(baseUrl[baseUrl.length - 1], temp[0])
-        this.question.question = this.question.question.replace(toBeReplaced, `src="${newUrl}"`)
+        this.question.question = this.question?.question?.replace(toBeReplaced, `src="${newUrl}"`)
       }
     }
     if (this.question.questionType === 'fitb') {
-      const iterationNumber = (this.question.question.match(/<input/g) || []).length
+      const iterationNumber = (this.question?.question?.match(/<input/g) || []).length
       for (let i = 0; i < iterationNumber; i += 1) {
         this.question.question = this.question.question.replace('<input', 'idMarkerForReplacement')
         this.correctOption.push(false)
