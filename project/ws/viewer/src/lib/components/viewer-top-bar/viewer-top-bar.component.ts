@@ -116,7 +116,6 @@ export class ViewerTopBarComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnInit() {
-    console.log('domainConfService', this.domainConfSvc)
     this.domainConfSvc.initFromConfig(this.configSvc.globalConfig.applicationConfig)
     this.enrollmentList = this.activatedRoute.snapshot.data.enrollmentData
       && this.activatedRoute.snapshot.data.enrollmentData.data || []

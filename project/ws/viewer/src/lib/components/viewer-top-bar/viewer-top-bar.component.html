@@ -30,8 +30,15 @@
       <a *ngIf="logo && forPreview" mat-button routerLink="/static-home">
         <img [src]="appIcon" alt="Application Logo" class="app-logo" />
       </a>
-      <a *ngIf="logo && !forPreview" mat-button [routerLink]="redirectPath">
+      <a class="flex" *ngIf="logo && !forPreview" [routerLink]="redirectPath">
         <img [src]="appIcon" alt="Application Logo" class="app-logo" />
+        <ng-container *ngIf="(!domainConfService?.isFeatureByPageEnabled('home','footerWithHostLogo'))">
+          <div class="seperator"></div>
+          <div>
+            <img height="100%" src="/assets/instances/eagle/app_logos/KarmayogiBharat_Logo_Horizontal.svg"
+              alt="Karmayogi Bharat" class="tenant-logo" />
+          </div>
+        </ng-container>
       </a>
     </div>
     <div class="flex" *ngIf="isTypeOfCollection">

@@ -72,8 +72,11 @@ export class ProfileCardStatsComponent implements OnInit {
     this.getTimelyNudge()
     const pDelayTime = this.profileDelay * 1000
     setTimeout(() => {
+
       // this.getTimelyNudge()
-      this.showrepublicBanner = true
+      if (this.domainConfService?.isFeatureByPageEnabled('home', 'profileGreetings')) {
+        this.showrepublicBanner = true
+      }
     }, pDelayTime)
     const timeInterval = this.configSvc.profileTimelyNudges.nudgeDelayInSec
     setTimeout(() => {

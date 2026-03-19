@@ -14,6 +14,7 @@ import {
   UserPreferenceService,
   UtilityService,
   MultilingualTranslationsService,
+  DomainConfService,
 } from '@sunbird-cb/utils-v2'
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators'
 import { BtnSettingsService } from '@sunbird-cb/collection'
@@ -66,7 +67,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     {
       value: 'English',
       key: 'en',
-      checked : true,
+      checked: true,
     },
   ]
 
@@ -81,6 +82,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
     private utilitySvc: UtilityService,
     private langtranslations: MultilingualTranslationsService,
     private translate: TranslateService,
+    private domainConfService: DomainConfService
   ) {
     if (localStorage.getItem('websiteLanguage')) {
       this.translate.setDefaultLang('en')
@@ -98,7 +100,9 @@ export class SettingsComponent implements OnInit, OnDestroy {
       }
     })
 
-    if (this.configSvc.instanceConfig && this.configSvc.instanceConfig.isMultilingualEnabled) {
+    if (this.configSvc.instanceConfig && this.configSvc.instanceConfig.isMultilingualEnabled
+      && this.domainConfService?.isFeatureByPageEnabled('settings', 'isMultiLangEnabled')
+    ) {
       this.isMultiLangEnabled = this.configSvc.instanceConfig.isMultilingualEnabled
     }
   }
@@ -221,7 +225,7 @@ export class SettingsComponent implements OnInit, OnDestroy {
 
   // change font
   changeFont(fontClass: string) {
-    localStorage.setItem('setting' , fontClass)
+    localStorage.setItem('setting', fontClass)
     // this.loggerSvc.log('Font', fontClass)
     this.btnSettingsSvc.changeFont(fontClass)
   }
