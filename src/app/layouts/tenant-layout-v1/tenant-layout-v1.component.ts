@@ -1,6 +1,6 @@
-import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core'
+import { Component, OnInit, OnDestroy, ViewChild, ElementRef, TemplateRef } from '@angular/core'
 import { Subscription } from 'rxjs'
-import { ConfigurationsService, ValueService, DomainConfService } from '@sunbird-cb/utils-v2'
+import { ConfigurationsService, ValueService, DomainConfService, AuthKeycloakService, UtilityService } from '@sunbird-cb/utils-v2'
 import { LayoutStateService } from '../layout-state.service'
 
 import { ActivatedRoute, Router } from '@angular/router'
@@ -9,6 +9,9 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators'
 import { trigger, transition, style, animate } from '@angular/animations'
 import { SearchNLP, SearchV4Request, SearchCategory } from '../../../../project/ws/app/src/lib/routes/search-v3/models/search-v3.model'
 import { GbSearchService } from '../../../../project/ws/app/src/lib/routes/search-v3/services/gb-search.service'
+
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
+
 
 /**
  * TenantLayoutV1Component
@@ -61,6 +64,12 @@ export class TenantLayoutV1Component implements OnInit, OnDestroy {
   allSearchResults: any[] = [];
   ref = 'home'
   @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>
+  isDownloadableIos = false
+  isDownloadableAndroid = false
+  disabled = false
+  dialogRef: any
+  @ViewChild('logoutDialog') logoutDialog!: TemplateRef<any>
+
   constructor(
     private activated: ActivatedRoute,
     private valueSvc: ValueService,
@@ -69,6 +78,9 @@ export class TenantLayoutV1Component implements OnInit, OnDestroy {
     public domainConfSvc: DomainConfService,
     private router: Router,
     private searchV3Service: GbSearchService,
+    private authService: AuthKeycloakService,
+    private utilitySvc: UtilityService,
+    private dialog: MatDialog,
   ) {
     this.queryControl = new UntypedFormControl(
       this.activated.snapshot.queryParams.q || ''
@@ -108,6 +120,11 @@ export class TenantLayoutV1Component implements OnInit, OnDestroy {
         this.navBarRequired = s.navBarRequired
       }),
     )
+
+    if (this.configSvc.restrictedFeatures) {
+      this.isDownloadableIos = !this.configSvc.restrictedFeatures.has('iosDownload')
+      this.isDownloadableAndroid = !this.configSvc.restrictedFeatures.has('androidDownload')
+    }
   }
 
   ngOnDestroy(): void {
@@ -223,7 +240,25 @@ export class TenantLayoutV1Component implements OnInit, OnDestroy {
     this.router.navigate(['/app/profile/settings'])
   }
 
-  navigateToLogout(): void {
+  navigateToLogout() {
+    this.dialogRef = this.dialog.open(this.logoutDialog, {
+      width: '200px'
+    })
+  }
 
+  confirmed() {
+    this.disabled = true
+    this.dialogRef.close()
+    this.authService.force_logout()
+    // this.router.navigate(['public', 'logout'])
+    // this.router.logout()
+  }
+
+  get isDownloadable() {
+    if (this.configSvc.instanceConfig && this.configSvc.instanceConfig.isContentDownloadAvailable &&
+      (this.utilitySvc.iOsAppRef || this.utilitySvc.isAndroidApp)) {
+      return true
+    }
+    return false
   }
 }
