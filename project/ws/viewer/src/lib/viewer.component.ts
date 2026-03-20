@@ -629,20 +629,20 @@ export class ViewerComponent implements OnInit, OnDestroy, AfterViewChecked {
     // }
   }
 
-  toggleAccessibilityAndChatbot() {
+  // toggleAccessibilityAndChatbot() {
 
-    const classNames = ['userway_p2', 'chatbot-icon-container']
+  //   const classNames = ['userway_p2', 'chatbot-icon-container']
 
-    classNames.forEach(className => {
-      const elements = document.getElementsByClassName(className)
+  //   classNames.forEach(className => {
+  //     const elements = document.getElementsByClassName(className)
 
-      for (let i = 0; i < elements.length; i++) {
-        const el = elements[i] as HTMLElement
-        el.style.display = (this.isAssessmentScreen || this.isPreAssessment) ? 'none' : 'block'
-      }
-    })
+  //     for (let i = 0; i < elements.length; i++) {
+  //       const el = elements[i] as HTMLElement
+  //       el.style.display = (this.isAssessmentScreen || this.isPreAssessment) ? 'none' : 'block'
+  //     }
+  //   })
 
-  }
+  // }
 
   ngAfterViewChecked() {
     const container = document.getElementById('fullScreenContainer')
