@@ -8,7 +8,7 @@ import {
 } from '@angular/router'
 // tslint:disable-next-line
 import * as _ from 'lodash'
-import { ConfigurationsService, EventService, MultilingualTranslationsService, WsEvents, NsContent, WidgetEnrollService } from '@sunbird-cb/utils-v2'
+import { ConfigurationsService, EventService, MultilingualTranslationsService, WsEvents, NsContent, WidgetEnrollService, DomainConfService } from '@sunbird-cb/utils-v2'
 import { SeeAllService } from '../../services/see-all.service'
 import { NsContentStripWithTabsAndPills } from '@sunbird-cb/consumption/lib/_common/strips/content-strip-with-tabs-pills/content-strip-with-tabs-pills.model'
 import { catchError, map, mergeMap } from 'rxjs/operators'
@@ -48,6 +48,7 @@ export class SeeAllWithPillsComponent implements OnInit, OnDestroy {
     private eventSvc: EventService,
     private langtranslations: MultilingualTranslationsService,
     private enrollSvc: WidgetEnrollService,
+    public domainConfService: DomainConfService,
   ) {
 
   }
@@ -877,17 +878,21 @@ export class SeeAllWithPillsComponent implements OnInit, OnDestroy {
         if (res && res.result && res.result.courses && res.result.courses.length) {
           courses = [...courses, ...res.result.courses]
         }
-        this.enrollSvc.fetchExternalEnrollmentData(currentPillFromMap.request.payload).subscribe((res: any) => {
-          if (res && res.result && res.result.courses && res.result.courses.length) {
-            courses = [...courses, ...res.result.courses]
-          }
-          this.formatNewEnrollmentData(strip, tabIndex, pillIndex, courses, calculateParentStatus)
-        }, (_err: any) => {
-          if (courses && courses.length) {
-            courses = [...courses]
+        if(this.domainConfService.isFeatureByPageEnabled('toc','karmaPoints')) {
+          this.enrollSvc.fetchExternalEnrollmentData(currentPillFromMap.request.payload).subscribe((res: any) => {
+            if (res && res.result && res.result.courses && res.result.courses.length) {
+              courses = [...courses, ...res.result.courses]
+            }
             this.formatNewEnrollmentData(strip, tabIndex, pillIndex, courses, calculateParentStatus)
-          }
-        })
+          }, (_err: any) => {
+            if (courses && courses.length) {
+              courses = [...courses]
+              this.formatNewEnrollmentData(strip, tabIndex, pillIndex, courses, calculateParentStatus)
+            }
+          })
+        } else {
+          this.formatNewEnrollmentData(strip, tabIndex, pillIndex, courses, calculateParentStatus)
+        }
       }, (_err: any) => {
         if (courses && courses.length) {
           courses = [...courses]

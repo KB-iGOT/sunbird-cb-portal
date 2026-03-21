@@ -216,21 +216,17 @@
         </button>
       </div>
 
-
-    </ng-container>
   </div>
 
-</div>
-
-<div class="stats-container block hidden" *ngIf="!isLoading && !showrepublicBanner">
-  <div class="flex flex-middle flex-between" (click)="myActivity()">
-    <div class="flex flex-middle">
-      <img class="stats-icon margin-right-s" width="20" height="20" src="/assets/icons/home/dashboard.svg">
-      <span class="activites">{{ 'profileCardStats.ShowMyActivities' | translate}}</span>
+  <div class="stats-container block hidden" *ngIf="!isLoading && !showrepublicBanner">
+    <div class="flex flex-middle flex-between" (click)="myActivity()">
+      <div class="flex flex-middle">
+        <img class="stats-icon margin-right-s" width="20" height="20" src="/assets/icons/home/dashboard.svg">
+        <span class="activites">{{ 'profileCardStats.ShowMyActivities' | translate}}</span>
+      </div>
+      <div class="flex"><img class="stats-icon" width="20" height="20" src="/assets/icons/home/right_arrow.svg"></div>
     </div>
-    <div class="flex"><img class="stats-icon" width="20" height="20" src="/assets/icons/home/right_arrow.svg"></div>
   </div>
-</div>
 </div>
 
 <div class="profile-wrapper profile-loading-wrapper" *ngIf="isLoading">
