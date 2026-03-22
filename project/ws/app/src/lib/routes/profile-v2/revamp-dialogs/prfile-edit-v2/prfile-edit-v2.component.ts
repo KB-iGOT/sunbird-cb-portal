@@ -15,7 +15,7 @@ import { RejectionReasonPopupComponent } from '../../components/rejection-reason
 import { WithdrawRequestComponent } from '../../components/withdraw-request/withdraw-request.component'
 import { NsUserProfileDetails } from '../../../user-profile/models/NsUserProfile'
 import { DatePipe, Location } from '@angular/common'
-import { ConfigurationsService, ImageCropComponent, PipeCertificateImageURL } from '@sunbird-cb/utils-v2'
+import { ConfigurationsService, DomainConfService, ImageCropComponent, PipeCertificateImageURL } from '@sunbird-cb/utils-v2'
 import { NotificationComponent } from '@ws/author/src/lib/modules/shared/components/notification/notification.component'
 import { PROFILE_IMAGE_SUPPORT_TYPES } from '@ws/author/src/lib/constants/upload'
 import { Notify } from '@ws/author/src/lib/constants/notificationMessage'
@@ -135,12 +135,13 @@ export class PrfileEditV2Component implements OnInit, OnDestroy {
     private configSvc: ConfigurationsService,
     private translate: TranslateService,
     // private router: Router,
-    private location: Location
+    private location: Location,
+    public domainConfService: DomainConfService
   ) {
 
     // Handle both data structures - direct and wrapped in dialogDetails
     const hasDialogDetails = this.data && this.data.hasOwnProperty('dialogDetails')
-
+    console.log('this.data', this.data)
     this.header = hasDialogDetails ? _.get(this.data, 'dialogDetails.header', '') : _.get(this.data, 'header', '')
     this.profileDetails = hasDialogDetails ? _.get(this.data, 'dialogDetails.profileDetails', {}) : _.get(this.data, 'profileDetails', {})
     this.profileImage = hasDialogDetails ? _.get(this.data, 'dialogDetails.profileImage', null) : _.get(this.data, 'profileImage', null)
@@ -237,6 +238,7 @@ export class PrfileEditV2Component implements OnInit, OnDestroy {
 
   //#region (profile)
   private createProfileForm(): void {
+    console.log('this.profileDetails--', this.profileDetails)
     this.profileImage = _.get(this.profileDetails, 'profileImage', null)
     this.profileForm = this.fb.group({
       firstname: [_.get(this.profileDetails, 'firstname', ''), [Validators.required, Validators.pattern(/^(?! )[a-zA-Z]+(?: [a-zA-Z]+)*(?<! )$/), Validators.maxLength(200), Validators.minLength(2)]],

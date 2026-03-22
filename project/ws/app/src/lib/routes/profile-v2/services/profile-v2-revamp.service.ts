@@ -57,6 +57,7 @@ const API_END_POINTS = {
   LIST_ACHIEVEMENTS: '/apis/proxies/v8/learner/achievement/list',
   DELETE_ACHIEVEMENT: '/apis/proxies/v8/learner/achievement/delete',
   COMPETENCY_V6: `/apis/proxies/v8/framework/v1/read/kcmfinal_fw`,
+  GET_USER_PROFILE: `apis/proxies/v8/api/user/v2/read`
 
 }
 
@@ -330,6 +331,16 @@ export class ProfileV2RevampService {
 
   fetchCompetencyV6(): Observable<any> {
     return this.http.get(API_END_POINTS.COMPETENCY_V6)
+  }
+
+  fetchUserProfile(userId: string, isNotCurrentUser?: boolean): Observable<NSProfileDataV2.IProfile> {
+    return this.http.get<NSProfileDataV2.IProfile>(`${API_END_POINTS.GET_USER_PROFILE}/${userId}`)
+      .pipe(map(res => {
+        if (!isNotCurrentUser) {
+          this.configulreProfileDetails(res)
+        }
+        return res
+      }))
   }
 
 }

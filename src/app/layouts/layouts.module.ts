@@ -18,6 +18,7 @@ import { MatLegacyInputModule as MatInputModule } from '@angular/material/legacy
 import { ReactiveFormsModule } from '@angular/forms'
 import { MatLegacyMenuModule as MatMenuModule } from '@angular/material/legacy-menu'
 import { MatDividerModule } from '@angular/material/divider'
+import { PipeCertificateImageURL } from '@sunbird-cb/utils-v2'
 
 /**
  * LayoutsModule
@@ -52,5 +53,7 @@ import { MatDividerModule } from '@angular/material/divider'
     DefaultLayoutComponent,
     TenantLayoutV1Component,
   ],
+  providers: [PipeCertificateImageURL]
 })
+
 export class LayoutsModule { }

@@ -80,7 +80,7 @@
         </mat-form-field>
       </div>
 
-      <div class="form-fields-container">
+      <div class="form-fields-container" *ngIf="(domainConfService?.isFeatureByPageEnabled('profileUpdate','state'))">
         <div class="flex flex-col profile-control">
           <div class="lable">{{'NetworkV2Profile.state' | translate}}</div>
           <mat-form-field appearance="outline">
@@ -93,7 +93,8 @@
           </mat-form-field>
         </div>
 
-        <div class="flex flex-col profile-control">
+        <div class="flex flex-col profile-control"
+          *ngIf="(domainConfService?.isFeatureByPageEnabled('profileUpdate','district'))">
           <div class="lable">{{'NetworkV2Profile.district' | translate}}</div>
           <mat-form-field appearance="outline">
             <mat-select formControlName="district" placeholder="Select District">
