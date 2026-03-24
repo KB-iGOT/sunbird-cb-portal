@@ -791,6 +791,10 @@ export class ViewerComponent implements OnInit, OnDestroy, AfterViewChecked {
         el.style.pointerEvents = 'auto'      // allow clicks
       }
     })
+
+    localStorage.removeItem('currentPlayerTrackLabel')
+    localStorage.removeItem('currentPlayerTrackLangugage')
+    localStorage.removeItem('currentPlayerSubtitleOff')
   }
 
   downloadCertificate(courseData: any): void {
