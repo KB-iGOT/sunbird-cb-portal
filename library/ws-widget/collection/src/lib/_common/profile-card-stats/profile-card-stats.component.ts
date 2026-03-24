@@ -8,7 +8,11 @@ import {
 import { InfoDialogComponent } from '../info-dialog/info-dialog.component'
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
 import { HomePageService } from 'src/app/services/home-page.service'
-
+import { PrfileEditV2Component } from '../../../../../../../project/ws/app/src/lib/routes/profile-v2/revamp-dialogs/prfile-edit-v2/prfile-edit-v2.component'
+import { ProfileV2RevampService } from '../../../../../../../project/ws/app/src/lib/routes/profile-v2/services/profile-v2-revamp.service'
+import * as _ from 'lodash'
+import { HttpErrorResponse } from '@angular/common/http'
+import { MatLegacySnackBar } from '@angular/material/legacy-snack-bar'
 @Component({
   selector: 'ws-widget-profile-card-stats',
   templateUrl: './profile-card-stats.component.html',
@@ -41,6 +45,9 @@ export class ProfileCardStatsComponent implements OnInit {
   currentUserRank: any
   currentUserId: any
   profileNudgeUsername = ''
+  primaryDetails: any
+  profileImageUrl = '';
+  profesionalDetails: any
   constructor(private configSvc: ConfigurationsService,
     private router: Router,
     private pipDuration: PipeDurationTransformPipe,
@@ -48,6 +55,8 @@ export class ProfileCardStatsComponent implements OnInit {
     private homePageSvc: HomePageService,
     private eventService: EventService,
     public domainConfService: DomainConfService,
+    private profileV2RevampSvc: ProfileV2RevampService,
+    private snackBar: MatLegacySnackBar,
     private dialog: MatDialog) { }
 
   ngOnInit() {
@@ -86,6 +95,11 @@ export class ProfileCardStatsComponent implements OnInit {
     this.homePageSvc.getLearnerLeaderboard().subscribe((res: any) => {
       if (res && res.result && res.result.result) {
         this.currentUserRank = res.result.result.find((rankDetails: any) => rankDetails.userId === this.currentUserId)
+      }
+    })
+    this.profileV2RevampSvc.showUpdatePofileNameAndPic.subscribe((res) => {
+      if (res) {
+        this.fetchProfileDetails()
       }
     })
     this.fetchAndMergeData()
@@ -225,11 +239,228 @@ export class ProfileCardStatsComponent implements OnInit {
         module: WsEvents.EnumTelemetrymodules.HOME,
       }
     )
-    if ((this.domainConfService?.isFeatureByPageEnabled('home', 'profileCompletionPercentage'))) {
-      return
+    if (!(this.domainConfService?.isFeatureByPageEnabled('home', 'profileCompletionPercentage'))) {
+      this.navigateToProfile('Profile')
     } else {
       this.router.navigate(['/app/person-profile/me'])
     }
+  }
+
+  navigateToProfile(header: string): void {
+    // this.router.navigate(['/app/person-profile', 'me'])
+    console.log(this.configSvc.userProfile)
+    let data = this.configSvc.userProfile
+    this.profesionalDetails = _.merge(_.get(data, 'profiledetails', _.get(data, 'profileDetails', _.get(data, 'profile.data', {}))), {
+      professionalDetails: _.get(data, 'professionalDetails', {})
+    })
+    // this.profileData = _.get(data, 'firstName', '')
+    this.profesionalDetails['userId'] = _.get(data, 'userId', '')
+
+    this.profileImageUrl = _.get(data, 'profileImageUrl', '')
+
+    this.primaryDetails = {
+      firstname: this.configSvc.userProfile?.firstName
+    }
+
+    const dialogDetails: any = {
+      header: header,
+      profileDetails: this.primaryDetails,
+    }
+    if (header === 'Profile') {
+      dialogDetails.profileDetails = {
+        profileImage: this.profileImageUrl,
+        firstname: _.get(this.primaryDetails, 'firstname', ''),
+      }
+    }
+
+    // For mandatorySection, wrap dialogDetails and include approval fields
+    let dialogData: any
+
+    dialogData = dialogDetails
+
+    const dialogRef = this.dialog.open(PrfileEditV2Component, {
+      data: dialogData,
+      disableClose: true,
+      panelClass: 'dialog_sidenav',
+      autoFocus: false,
+      width: "400px"
+    })
+
+    dialogRef.afterClosed().subscribe((result: any) => {
+      if (result) {
+        this.generateBasicProfileFormBody(result)
+      }
+    })
+
+  }
+
+  fetchProfileDetails() {
+    let userId: any = this.configSvc.userProfile?.userId
+    this.profileV2RevampSvc.fetchUserProfile(userId).subscribe({
+      next: (response: any) => {
+        if (response) {
+          console.log('response--', response)
+          this.profesionalDetails = _.get(response, 'result.response.profiledetails', _.get(response, 'result.response.profileDetails', _.get(response, 'result', {})))
+          // this.userName = `${this.configSvc.userProfile.firstName || ''} ${this.configSvc.userProfile.lastName || ''}`.trim()
+          let userPidProfile = response?.result?.response
+          this.configSvc.unMappedUser = userPidProfile
+          const profileV2 = _.get(userPidProfile, 'profileDetails')
+          this.configSvc.userProfile = {
+            country: _.get(profileV2, 'personalDetails.countryCode') || null,
+            email: _.get(profileV2, 'profileDetails.officialEmail') || userPidProfile.email,
+            givenName: userPidProfile.firstName,
+            userId: userPidProfile.userId,
+            firstName: userPidProfile.firstName,
+            lastName: userPidProfile.lastName,
+            rootOrgId: userPidProfile.rootOrgId,
+            rootOrgName: userPidProfile.channel,
+            // tslint:disable-next-line: max-line-length
+            // userName: `${userPidProfile.firstName ? userPidProfile.firstName : ' '}${userPidProfile.lastName ? userPidProfile.lastName : ' '}`,
+            userName: userPidProfile.userName,
+            profileImage: userPidProfile.thumbnail,
+            departmentName: userPidProfile.channel,
+            dealerCode: null,
+            isManager: false,
+            profileUpdateCompletion: _.get(userPidProfile, 'profileUpdateCompletion') || 0,
+            profileImageUrl: _.get(userPidProfile, 'profileDetails.profileImageUrl') || '',
+            professionalDetails: _.get(userPidProfile, 'profileDetails.professionalDetails') || [],
+            userRootOrg: _.get(userPidProfile, 'rootOrg') || null
+          }
+          console.log('this.configSvc.userProfile=--', this.configSvc.userProfile)
+
+          this.configSvc.userProfileV2 = {
+            userId: _.get(profileV2, 'userId') || userPidProfile.userId,
+            email: _.get(profileV2, 'personalDetails.officialEmail') || userPidProfile.email,
+            firstName: _.get(profileV2, 'personalDetails.firstname') || userPidProfile.firstName,
+            surName: _.get(profileV2, 'personalDetails.surname') || userPidProfile.lastName,
+            middleName: _.get(profileV2, 'personalDetails.middlename') || '',
+            departmentName: _.get(profileV2, 'employmentDetails.departmentName') || userPidProfile.channel,
+            givenName: _.get(userPidProfile, 'userName'),
+            // tslint:disable-next-line: max-line-length
+            userName: `${_.get(profileV2, 'personalDetails.firstname') ? _.get(profileV2, 'personalDetails.firstname') : ''}${_.get(profileV2, 'personalDetails.surname') ? _.get(profileV2, 'personalDetails.surname') : ''}`,
+            profileImage: _.get(profileV2, 'photo') || userPidProfile.thumbnail,
+            profileImageUrl: _.get(userPidProfile, 'profileDetails.profileImageUrl') || '',
+            dealerCode: null,
+            isManager: false,
+            competencies: _.get(profileV2, 'competencies') || [],
+            desiredCompetencies: _.get(profileV2, 'desiredCompetencies') || [],
+            systemTopics: _.get(profileV2, 'systemTopics') || [],
+            desiredTopics: _.get(profileV2, 'desiredTopics') || [],
+            userRoles: _.get(profileV2, 'userRoles') || [],
+            webPortalLang: _.get(profileV2, 'additionalProperties.webPortalLang') || '',
+          }
+
+          this.userFullName = `${this.configSvc.userProfile.firstName || ''}`
+        }
+      },
+      error: (error: HttpErrorResponse) => {
+        if (error) {
+          this.openSnackbar('Something went wrong please try again')
+        }
+      }
+    })
+  }
+
+  generateBasicProfileFormBody(result: any): any {
+    if (result) {
+      const formBody: any = {
+        request: {
+          userId: this.configSvc.userProfile?.userId,
+          profileDetails: {}
+        }
+      }
+
+      // Define field mappings with their paths in the API response and form body
+      const fieldMappings: {
+        formField: string,
+        resultPath: string,
+        formBodyPath: string,
+        isCader?: boolean
+      }[] = [
+          {
+            formField: 'profileImageUrl',
+            resultPath: 'profileImageUrl',
+            formBodyPath: 'profileDetails.profileImageUrl'
+          },
+          {
+            formField: 'firstname',
+            resultPath: 'firstname',
+            formBodyPath: 'profileDetails.personalDetails.firstname'
+          }
+        ]
+
+      let hasChanges = false
+
+      // Compare each field and add to form body if changed
+      fieldMappings.forEach(mapping => {
+        const currentValue = _.get(result, mapping.resultPath, null)
+        let formValue = this.primaryDetails[mapping.formField]
+        if ((
+          (formValue !== currentValue && currentValue !== null) &&
+          (
+            (formValue === 'NA' && currentValue !== '') ||
+            formValue !== 'NA'
+          )
+        )
+          || mapping.isCader
+        ) {
+          const pathParts = mapping.formBodyPath.split('.')
+          let current = formBody.request
+
+          for (let i = 0; i < pathParts.length - 1; i++) {
+            const part = pathParts[i]
+            if (part.includes('[0]')) {
+              const arrayKey = part.replace('[0]', '')
+              if (!current[arrayKey]) current[arrayKey] = [{}]
+              current = current[arrayKey][0]
+            } else {
+              if (!current[part]) current[part] = {}
+              current = current[part]
+            }
+          }
+
+          // Set the final value
+          const finalKey = pathParts[pathParts.length - 1]
+          current[finalKey] = currentValue
+          hasChanges = true
+        }
+      })
+
+      if (hasChanges) {
+        this.updateProfileDetails(formBody)
+      }
+    }
+  }
+
+  updateProfileDetails(formBody: any) {
+    this.profileV2RevampSvc.updateProfileDetailsV3(formBody).subscribe({
+      next: (response: any) => {
+        if (response) {
+          this.fetchProfileDetails()
+
+
+          this.openSnackbar('Updated Successfully')
+        }
+      },
+      error: (error: HttpErrorResponse) => {
+        if (error) {
+          const errorMessage = this.getErrorMessage(error)
+          this.openSnackbar(errorMessage)
+        }
+      }
+    })
+  }
+
+  getErrorMessage(error: HttpErrorResponse): string {
+    const errorMsg = _.get(error, 'error.params.errmsg', '') || _.get(error, 'error.message', '')
+    // Return specific error message if available, otherwise return generic message
+    return errorMsg || 'Something went wrong please try again'
+  }
+
+  private openSnackbar(primaryMsg: string, duration: number = 5000) {
+    this.snackBar.open(primaryMsg, 'X', {
+      duration,
+    })
   }
 
   toggle() {
@@ -259,7 +490,7 @@ export class ProfileCardStatsComponent implements OnInit {
   }
 
   redirectTo(name: string) {
-    this.router.navigateByUrl(`app/person-profile/me?tab=1#${name}`)
+    this.router.navigateByUrl(`app / person - profile / me ? tab = 1#${name} `)
   }
 
   showMyActivities(): void {

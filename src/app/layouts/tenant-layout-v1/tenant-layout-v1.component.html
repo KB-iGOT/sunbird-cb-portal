@@ -64,7 +64,7 @@
 
       <!-- User Avatar -->
       <!-- Avatar Trigger -->
-      <div class="user-avatar" *ngIf="userName" [matMenuTriggerFor]="profileMenu">
+      <div class="user-avatar" *ngIf="userName" [matMenuTriggerFor]="profileMenu" (menuOpened)="onProfileMenuOpen()">
         <img *ngIf="userProfileImg" [src]="userProfileImg" alt="Profile" class="avatar-img" />
 
         <div *ngIf="!userProfileImg" class="avatar-initials">

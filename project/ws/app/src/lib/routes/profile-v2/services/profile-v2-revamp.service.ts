@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http'
 import { Injectable } from '@angular/core'
 import { NSProfileDataV2 } from '../models/profile-v2.model'
-import { Observable } from 'rxjs'
+import { Observable, Subject } from 'rxjs'
 import { map, retry } from 'rxjs/operators'
 import { TranslateService } from '@ngx-translate/core'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
@@ -65,7 +65,7 @@ const API_END_POINTS = {
   providedIn: 'root'
 })
 export class ProfileV2RevampService {
-
+  showUpdatePofileNameAndPic = new Subject()
   constructor(
     private http: HttpClient,
     private translateService: TranslateService,

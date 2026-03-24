@@ -340,7 +340,7 @@ export class TenantLayoutV1Component implements OnInit, OnDestroy {
       next: (response: any) => {
         if (response) {
           this.fetchProfileDetails()
-
+          this.profileV2RevampSvc.showUpdatePofileNameAndPic.next(true)
 
           this.openSnackbar('Updated Successfully')
         }
@@ -475,6 +475,13 @@ export class TenantLayoutV1Component implements OnInit, OnDestroy {
     this.authService.force_logout()
     // this.router.navigate(['public', 'logout'])
     // this.router.logout()
+  }
+
+  onProfileMenuOpen() {
+    if (this.configSvc.userProfile) {
+      this.userName = `${this.configSvc.userProfile.firstName || ''} ${this.configSvc.userProfile.lastName || ''}`.trim()
+      this.userProfileImg = this.configSvc.userProfile.source_profile_picture || ''
+    }
   }
 
   get isDownloadable() {
