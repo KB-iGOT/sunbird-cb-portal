@@ -225,7 +225,11 @@ export class ProfileCardStatsComponent implements OnInit {
         module: WsEvents.EnumTelemetrymodules.HOME,
       }
     )
-    this.router.navigate(['/app/person-profile/me'])
+    if ((this.domainConfService?.isFeatureByPageEnabled('home', 'profileCompletionPercentage'))) {
+      return
+    } else {
+      this.router.navigate(['/app/person-profile/me'])
+    }
   }
 
   toggle() {
