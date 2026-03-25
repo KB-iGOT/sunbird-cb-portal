@@ -102,6 +102,7 @@ export class InsightSideBarComponent implements OnInit {
   desigantionUnderApproval: any
   filterDesigantionList: any = []
   isMatcompleteOpened = false
+  isLeaderboardEnabled = true
   @Output() telemetryRaisedLibrary = new EventEmitter()
 
   constructor(
@@ -189,6 +190,9 @@ export class InsightSideBarComponent implements OnInit {
       this.profileDataLoading = false
       this.clapsDataLoading = false
     }
+
+    this.isLeaderboardEnabled =
+      this.domainConfService?.isFeatureByPageEnabled('home', 'leaderboard')
 
     this.getPendingRequestData()
     this.noDataValue = noData

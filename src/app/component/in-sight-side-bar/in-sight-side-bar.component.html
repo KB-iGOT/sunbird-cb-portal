@@ -123,7 +123,8 @@
     </div>
 </div>
 
-<div class="margin-top-m">
+<div
+    [ngClass]="!(domainConfService?.isFeatureByPageEnabled('home','leaderboard')) ? 'margin-top-m-12' : 'margin-top-m'">
     <ws-widget-profile-card-stats (expandCollapse)="expandCollapse($event)" (activity)="goToActivity($event)"
         [profileData]="homePageData.profileCard" [insightsData]="insightsData"
         [isLoading]="profileDataLoading"></ws-widget-profile-card-stats>
