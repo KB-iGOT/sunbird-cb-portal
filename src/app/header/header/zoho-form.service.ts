@@ -750,7 +750,6 @@ export class ZohoFormService {
 
     this.loadComprehensiveChildrenForCourse(course.identifier)
       .then((children: any[]) => {
-        debugger
         course.children = children
         const assessmentChild = children.find((ch: any) => {
           const cat = (ch.courseCategory || ch.primaryCategory || '').toLowerCase()
