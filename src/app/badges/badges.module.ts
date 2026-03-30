@@ -5,20 +5,25 @@ import { BadgeDetailsComponent } from './badge-details/badge-details.component'
 import { BadgeModalComponent, CardsModule } from '@sunbird-cb/consumption'
 import { BtnPageBackModule } from '../../../library/ws-widget/collection/src/public-api'
 import { PipePublicURLModule } from '@sunbird-cb/utils-v2'
-// import { MatIconModule } from '@angular/material/icon'
-// import { MatMenuModule } from '@angular/material/menu'
-// import { MatButtonModule } from '@angular/material/button'
+import { MatIconModule } from '@angular/material/icon'
+import { MatMenuModule } from '@angular/material/menu'
+import { MatButtonModule } from '@angular/material/button'
+import { MatTooltipModule } from '@angular/material/tooltip'
 
 @NgModule({
   declarations: [
-    BadgeDetailsComponent,
-    BadgeModalComponent,
+    BadgeDetailsComponent
   ],
   imports: [
     CommonModule,
     BadgesRoutingModule,
     BtnPageBackModule,
     PipePublicURLModule,
+    MatIconModule,
+    MatMenuModule,
+    MatButtonModule,
+    MatTooltipModule,
+    BadgeModalComponent,
     CardsModule
   ],
   exports: [

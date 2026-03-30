@@ -1637,7 +1637,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
     const params = this.activated.snapshot.queryParams
 
     this.queryParams = {
-      q: params['q'].trim(),
+      q: params['q']?.trim(),
       search: params['search'] || null,
       category: category || null,
       tab: null
