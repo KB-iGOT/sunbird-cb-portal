@@ -126,7 +126,7 @@
                             </ng-container>
                             <p class="see-all-results text-center font-normal brand-color cursor-pointer"
                                 *ngIf="!seeAllResult && courseSearchTotalCount > 3"
-                                (click)="constructQueryParam('courses')">
+                                (click)="constructQueryParam('courses','seeAllCourse')">
                                 {{ 'learnsearch.seeAllResults'
                                 | translate }}
                             </p>

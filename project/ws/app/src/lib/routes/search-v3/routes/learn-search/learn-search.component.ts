@@ -135,6 +135,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
   isExploreContentTab = false;
   applySelectedFilters: any = []
   compentencyKeyExist = false
+  loadPaginationCoursesForMauritius = false
   constructor(
     private searchV3Service: GbSearchService,
     private configSvc: ConfigurationsService,
@@ -441,7 +442,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
     this.searchPeopleLoader = true
 
     this.searchRequestPeoples.query = this.statedata?.param || ''
-    const result :any={}
+    const result: any = {}
     // AFTER NLW NEED TO ENABLE
     // const result = await this.searchV3Service.searchConnections(
     //   this.searchRequestPeoples
@@ -695,6 +696,8 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async applySearchFilter(selectedFilters: { [key: string]: any }) {
+    console.log('selectedFilters--', selectedFilters)
+    this.loadPaginationCoursesForMauritius = false
     if (Object.keys(selectedFilters).length === 1) {
       this.shouldReturnFromHere = true
     }
@@ -1635,16 +1638,35 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
-  constructQueryParam(category: any) {
+  constructQueryParam(category: any, seeAllCourse?: any) {
     const params = this.activated.snapshot.queryParams
 
-    this.queryParams = {
-      q: params['q']?.trim(),
-      search: params['search'] || null,
-      category: category || null,
-      tab: null
+    let selectedFilters = {
+      contentType: ['course'],
+      courses: ['Courses']
     }
-    this.queryParamChange.emit(this.queryParams)
+    if (seeAllCourse && (this.domainConfService?.isFeatureByPageEnabled('explore', 'showAllandContentOnly'))) {
+      this.loadPaginationCoursesForMauritius = true
+
+      this.applySearchFilter(selectedFilters)
+
+    } else if (params['q']?.trim() || params['search'] || category) {
+      this.loadPaginationCoursesForMauritius = false
+      this.queryParams = {
+        q: params['q']?.trim(),
+        search: params['search'] || null,
+        category: category || null,
+        tab: null
+      }
+      console.log(this.loadPaginationCoursesForMauritius)
+      console.log('params--', params)
+      console.log('this.queryParams--', this.queryParams)
+      this.queryParamChange.emit(this.queryParams)
+
+    }
+
+
+
   }
 
   resetPagination() {
@@ -1708,7 +1730,6 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async removeFilterChip(filter: any) {
-    this.searchContentLoader = true
     this.filtersChipFromLearn = this.filtersChipFromLearn.filter(ele => ele !== filter)
     this.searchRequestCourse.request.filters.courseCategory = this.filtersChipFromLearn
 
