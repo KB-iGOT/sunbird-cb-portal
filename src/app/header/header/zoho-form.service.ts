@@ -352,15 +352,6 @@ export class ZohoFormService {
     return new Set(ids)
   }
 
-  private logEnrollmentCourses(statusLabel: string, courses: any[]): void {
-    console.log(`[ZohoFormService] ${statusLabel} enrollment courses`, (courses || []).map((item: any) => ({
-      identifier: item?.identifier || item?.content?.identifier || item?.courseId || '',
-      name: item?.name || item?.content?.name || 'Untitled Course',
-      progress: Number(item?.completionPercentage ?? item?.completion_percentage ?? item?.progress ?? 0),
-      status: item?.status || item?.contentStatus || statusLabel,
-    })))
-  }
-
   private mergeUniqueEnrollmentCourses(...courseLists: any[][]): any[] {
     const mergedCourses = ([] as any[]).concat(...courseLists)
     return mergedCourses.filter((course: any, index: number, self: any[]) => {
@@ -386,7 +377,6 @@ export class ZohoFormService {
       this.http.post(url, requestPayload).subscribe(
         (res: any) => {
           const courses = res?.result?.courses || []
-          this.logEnrollmentCourses(status, courses)
           resolve(courses)
         },
         () => resolve(null),
@@ -613,7 +603,6 @@ export class ZohoFormService {
     }
 
     this.getMergedEnrollmentCourses(userId).then(courses => {
-      this.logEnrollmentCourses('Certificate flow (completed + in-progress merged)', courses)
       this.certificateCourses = this.mapEnrollmentCourses(courses)
       this.populateCertificateCourseSelect()
       if (select) select.disabled = false
@@ -785,7 +774,6 @@ export class ZohoFormService {
 
       const userId = this.userProfileData?.userId || this.userProfileData?.profileDetails?.userId
 
-      debugger
       const finalizeComprehensiveCourses = (enrollmentCourses: any[] = []) => {
         const enrolledIds = this.getEnrolledCourseIdsFromList(enrollmentCourses)
         const enrollmentById = new Map<string, any>()
@@ -826,7 +814,6 @@ export class ZohoFormService {
       }
 
       this.getMergedEnrollmentCourses(userId).then(courses => {
-        this.logEnrollmentCourses('Comprehensive flow (enrolled identifiers only)', courses)
         finalizeComprehensiveCourses(courses)
       }).catch(() => {
         this.comprehensiveCourses = []
