@@ -347,9 +347,38 @@ export class ZohoFormService {
 
   private getEnrolledCourseIdsFromList(courses: any[]): Set<string> {
     const ids = (courses || [])
-      .map((item: any) => item?.identifier || item?.content?.identifier || item?.courseId)
+      .map((item: any) => this.getNormalizedIdentifier(item?.identifier || item?.content?.identifier || item?.courseId))
       .filter((id: string) => !!id)
     return new Set(ids)
+  }
+
+  private getNormalizedIdentifier(identifier: any): string {
+    return String(identifier || '').trim().toLowerCase()
+  }
+
+  private parseCaIdentifiers(data: any): string[] {
+    let parsedValue = data
+
+    if (typeof parsedValue === 'string') {
+      try {
+        parsedValue = JSON.parse(parsedValue)
+      } catch {
+        parsedValue = []
+      }
+    }
+
+    if (!Array.isArray(parsedValue)) {
+      return []
+    }
+
+    return parsedValue
+      .map((item: any) => {
+        if (typeof item === 'string') {
+          return item.trim()
+        }
+        return String(item?.identifier || item?.content?.identifier || item?.courseId || '').trim()
+      })
+      .filter((identifier: string) => !!identifier)
   }
 
   private mergeUniqueEnrollmentCourses(...courseLists: any[][]): any[] {
@@ -458,6 +487,22 @@ export class ZohoFormService {
       req.onsuccess = (e: any) => resolve(e.target.result)
       req.onerror = () => reject(req.error)
     })
+  }
+
+  private getCaIdentifiers(): Promise<string[]> {
+    return this.openEnrollmentCache()
+      .then(db => {
+        return new Promise<string[]>((resolve, reject) => {
+          const req = db
+            .transaction(IDB_STORE, 'readonly')
+            .objectStore(IDB_STORE)
+            .get('comprehensiveAssessmentIdentifiers')
+
+          req.onsuccess = () => resolve(this.parseCaIdentifiers(req.result?.data))
+          req.onerror = () => reject(req.error)
+        })
+      })
+      .catch(() => [])
   }
 
   private getHierarchyCache(courseId: string): Promise<any[] | null> {
@@ -763,70 +808,79 @@ export class ZohoFormService {
     const select = document.getElementById('comprehensive-course-select') as HTMLSelectElement
     const baseUrl = window.location.origin
 
-    try {
-      const rawIdentifiers = localStorage.getItem('comprehensiveAssessmentIdentifiers')
-      const parsedIdentifiers = rawIdentifiers ? JSON.parse(rawIdentifiers) : []
-      this.caCourseUnitIds = Array.isArray(parsedIdentifiers)
-        ? parsedIdentifiers
-          .map((item: any) => typeof item === 'string' ? item : item?.identifier || item?.content?.identifier || item?.courseId || '')
-          .filter((id: string) => !!id)
-        : []
+    if (select) {
+      select.innerHTML = '<option value="">Loading assessment programs...</option>'
+      select.disabled = true
+    }
 
-      const userId = this.userProfileData?.userId || this.userProfileData?.profileDetails?.userId
+    const userId = this.userProfileData?.userId || this.userProfileData?.profileDetails?.userId
 
-      const finalizeComprehensiveCourses = (enrollmentCourses: any[] = []) => {
-        const enrolledIds = this.getEnrolledCourseIdsFromList(enrollmentCourses)
-        const enrollmentById = new Map<string, any>()
+    const finalizeComprehensiveCourses = (enrollmentCourses: any[] = []) => {
+      const enrolledIds = this.getEnrolledCourseIdsFromList(enrollmentCourses)
+      const enrollmentById = new Map<string, any>()
 
-          ; (enrollmentCourses || []).forEach((course: any) => {
-            const identifier = course?.content?.identifier || course?.identifier || course?.courseId || ''
-            if (identifier) {
-              enrollmentById.set(identifier, course)
-            }
-          })
-        const matchedIdentifiers = this.caCourseUnitIds.filter((identifier: string) => enrolledIds.has(identifier))
-        this.enrolledCourseIds = new Set<string>(matchedIdentifiers)
-
-        this.comprehensiveCourses = matchedIdentifiers.map((identifier: string) => {
-          const course = enrollmentById.get(identifier) || {}
-          const progress = Number(course?.completionPercentage ?? course?.completion_percentage ?? course?.progress ?? 0)
-          const status = this.normalizeStatus(course?.status, progress)
-          return {
-            name: course?.content?.name || course?.name || identifier || 'Untitled Program',
-            completionDate: `${status === 'completed' ? 'Completed' : 'In Progress'} · ${progress}%`,
-            identifier,
-            status,
-            progress,
-            category: 'Comprehensive Assessment Program',
-            assessmentUrl: `${baseUrl}/app/toc/${encodeURIComponent(identifier)}/overview`,
-            children: this.getComprehensiveChildren({ identifier }),
+        ; (enrollmentCourses || []).forEach((course: any) => {
+          const identifier = course?.content?.identifier || course?.identifier || course?.courseId || ''
+          const normalizedIdentifier = this.getNormalizedIdentifier(identifier)
+          if (identifier) {
+            enrollmentById.set(normalizedIdentifier, course)
           }
         })
-        this.populateComprehensiveCourseSelect()
-        if (select) select.disabled = false
-      }
+      const matchedIdentifiers = this.caCourseUnitIds
+        .map((identifier: string) => {
+          const normalizedIdentifier = this.getNormalizedIdentifier(identifier)
+          if (!normalizedIdentifier || !enrolledIds.has(normalizedIdentifier)) {
+            return ''
+          }
+          const enrolledCourse = enrollmentById.get(normalizedIdentifier)
+          return enrolledCourse?.content?.identifier || enrolledCourse?.identifier || enrolledCourse?.courseId || identifier
+        })
+        .filter((identifier: string) => !!identifier)
+      this.enrolledCourseIds = new Set<string>(matchedIdentifiers)
 
-      if (!userId) {
-        this.enrolledCourseIds = new Set<string>()
-        this.comprehensiveChildrenByIdentifier.clear()
-        finalizeComprehensiveCourses([])
-        return
-      }
+      this.comprehensiveCourses = matchedIdentifiers.map((identifier: string) => {
+        const course = enrollmentById.get(this.getNormalizedIdentifier(identifier)) || {}
+        const progress = Number(course?.completionPercentage ?? course?.completion_percentage ?? course?.progress ?? 0)
+        const status = this.normalizeStatus(course?.status, progress)
+        return {
+          name: course?.content?.name || course?.name || identifier || 'Untitled Program',
+          completionDate: `${status === 'completed' ? 'Completed' : 'In Progress'} · ${progress}%`,
+          identifier,
+          status,
+          progress,
+          category: 'Comprehensive Assessment Program',
+          assessmentUrl: `${baseUrl}/app/toc/${encodeURIComponent(identifier)}/overview`,
+          children: this.getComprehensiveChildren({ identifier }),
+        }
+      })
+      this.populateComprehensiveCourseSelect()
+      if (select) select.disabled = false
+    }
 
-      this.getMergedEnrollmentCourses(userId).then(courses => {
-        finalizeComprehensiveCourses(courses)
-      }).catch(() => {
+    this.getCaIdentifiers()
+      .then((parsedIdentifiers: string[]) => {
+        this.caCourseUnitIds = parsedIdentifiers
+
+        if (!userId) {
+          this.enrolledCourseIds = new Set<string>()
+          this.comprehensiveChildrenByIdentifier.clear()
+          finalizeComprehensiveCourses([])
+          return
+        }
+
+        this.getMergedEnrollmentCourses(userId).then(courses => {
+          finalizeComprehensiveCourses(courses)
+        }).catch(() => {
+          this.comprehensiveCourses = []
+          this.populateComprehensiveCourseSelect()
+          if (select) select.disabled = false
+        })
+      })
+      .catch(() => {
         this.comprehensiveCourses = []
         this.populateComprehensiveCourseSelect()
         if (select) select.disabled = false
       })
-      return
-    } catch {
-      this.comprehensiveCourses = []
-    }
-
-    this.populateComprehensiveCourseSelect()
-    if (select) select.disabled = false
   }
 
   private populateComprehensiveCourseSelect(): void {
