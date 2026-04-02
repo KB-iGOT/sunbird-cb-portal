@@ -12,6 +12,7 @@ const ENDPOINTS = {
 
 const ENROLLMENT_CACHE_TTL_MS = 4 * 60 * 60 * 1000 // 4 hours
 const HIERARCHY_CACHE_TTL_MS = 1 * 60 * 60 * 1000 // 1 hour
+const RECENT_ENROLLMENT_WINDOW_MS = 10 * 60 * 1000
 const IDB_NAME = 'zoho-form'
 const IDB_STORE = 'enrollment'
 const IDB_HIERARCHY_STORE = 'hierarchy'
@@ -173,26 +174,26 @@ export class ZohoFormService {
       const hasOrg = !!(empDetails?.departmentName || profileDetails?.personalDetails?.orgId)
       const hasGroup = !!profDetail?.group
       const isVerified = profileStatus === 'verified'
+      const aparCount = courses.filter((c: any) => c?.isApar)?.length
 
       let orgUpdateText: string
       let orgUpdateUrl = profileUrl
       let orgUpdateLabel = 'Update Profile'
-      let aparTitle = 'APAR Training Plan is Visible'
+      let aparTitle = aparCount > 0 ? 'APAR Training Plan is Visible' : 'APAR Training Plan Not Visible'
       let aparText = ''
 
-      if (this.checkIfUserCustodianOrg()) {
-        aparTitle = 'APAR Training Plan Not Visible'
-        aparText = 'You are currently mapped to an incorrect organization. Please raise a transfer request to your correct organization to view APAR training plans.'
+      if (this.checkIfUserCustodianOrg() && aparCount === 0) {
+        aparTitle = aparTitle
+        aparText = ''
         orgUpdateText = 'You are in the wrong organization. Please submit a transfer request to your proper organization. After transfer approval, APAR training plans will be visible.'
-      } else if (!isVerified || !hasGroup || !hasOrg) {
-        aparTitle = 'APAR Training Plan Not Visible'
-        aparText = 'Your profile is not up-to-date. Please update your organization, designation, and group details and contact your nodal officer to approve your profile.'
-        orgUpdateText = 'Your profile is not up-to-date. Please update your profile and talk to your nodal officer to approve the profile.'
+      } else if ((!isVerified || !hasGroup || !hasOrg) && aparCount === 0) {
+        aparTitle = aparTitle
+        aparText = ''
+        orgUpdateText = 'Your profile is not up-to-date. Please update your profile and reach out to your nodal officer to approve the profile.'
       } else {
-        orgUpdateText = `Your profile details are verified, Still not able to view your APAR course assignments? Please raise the support ticket or update the profile details`
+        orgUpdateText = `Still not able to view your APAR course assignments? Please raise the support ticket or update the profile details`
       }
 
-      const aparCount = courses.filter((c: any) => c?.isApar)?.length
       if (!aparText) {
         aparText = aparCount > 0
           ? `We found ${aparCount} APAR course(s) assigned to your account for the current cycle (2025-26). Your training plan is active and visible.`
@@ -204,9 +205,7 @@ export class ZohoFormService {
         text: aparText,
         courses,
         steps: [
-          'Navigate to: My Profile → Training Plan',
           'Ensure you are logged in with ' + (this.userProfileData?.profileDetails?.personalDetails?.primaryEmail || 'your registered email'),
-          'Check that the APAR cycle 2025-26 is selected',
           'If still not visible, clear browser cache and retry',
         ],
         orgUpdateText,
@@ -219,7 +218,10 @@ export class ZohoFormService {
   }
 
   checkIfUserCustodianOrg(): boolean {
-    return this.custodianOrgId === (this.userProfileData?.profileDetails?.personalDetails?.orgId || '')
+    if (!this.custodianOrgId || !this.userProfileData || !this.userProfileData?.ministryOrStateId) {
+      return false
+    }
+    return this.custodianOrgId === (this.userProfileData?.ministryOrStateId || '')
   }
 
   private renderAparBlock(data: any): void {
@@ -242,8 +244,31 @@ export class ZohoFormService {
       textEl.textContent = data.text
     }
 
+    const isTrainingPlanNotVisible = String(data?.title || '').toLowerCase().includes('not visible')
+    aparVisibleBlock.classList.toggle('apar-theme-not-visible', isTrainingPlanNotVisible)
+    aparVisibleBlock.classList.toggle('apar-theme-visible', !isTrainingPlanNotVisible)
+
     if (Array.isArray(data.courses) && tbodyEl) {
       const count = data.courses.length
+      const tableHead = aparVisibleBlock.querySelector('.apar-courses-head') as HTMLElement | null
+      const tableBody = aparVisibleBlock.querySelector('.apar-courses-body') as HTMLElement | null
+
+      if (count === 0) {
+        if (labelEl) {
+          labelEl.textContent = ''
+          labelEl.style.display = 'none'
+        }
+        if (tableHead) tableHead.style.display = 'none'
+        if (tableBody) tableBody.style.display = 'none'
+        tbodyEl.innerHTML = ''
+      } else {
+        if (labelEl) {
+          labelEl.style.display = ''
+        }
+        if (tableHead) tableHead.style.display = ''
+        if (tableBody) tableBody.style.display = ''
+      }
+
       if (labelEl) {
         labelEl.textContent = `View ${count} Assigned Course${count === 1 ? '' : 's'}`
       }
@@ -263,8 +288,6 @@ export class ZohoFormService {
           </tr>`
         })
         .join('')
-      const tableHead = aparVisibleBlock.querySelector('.apar-courses-head')
-      const tableBody = aparVisibleBlock.querySelector('.apar-courses-body')
       if (tableHead) tableHead.classList.remove('expanded')
       if (tableBody) tableBody.classList.remove('expanded')
     }
@@ -403,7 +426,7 @@ export class ZohoFormService {
     })
   }
 
-  private getMergedEnrollmentCourses(userId: string): Promise<any[]> {
+  private getCompletedEnrollmentCourses(userId: string): Promise<any[]> {
     return this.getEnrollmentCache(userId, 'completed')
       .then(completedCached => {
         if (completedCached !== null) {
@@ -415,6 +438,23 @@ export class ZohoFormService {
             this.setEnrollmentCache(userId, completedCourses, 'completed')
           }
           return completedCourses
+        })
+      })
+      .catch(() => [])
+  }
+
+  private getInprogressEnrollmentCourses(userId: string): Promise<any[]> {
+    return this.getEnrollmentCache(userId, 'inprogress')
+      .then(inprogressCached => {
+        if (inprogressCached !== null) {
+          return inprogressCached
+        }
+        return this.fetchEnrollmentCourses(userId, 'In-Progress').then(courses => {
+          const inprogressCourses = courses || []
+          if (courses !== null) {
+            this.setEnrollmentCache(userId, inprogressCourses, 'inprogress')
+          }
+          return inprogressCourses
         })
       })
       .catch(() => [])
@@ -542,6 +582,19 @@ export class ZohoFormService {
     }
   }
 
+  private clearTimeCheckValue(key: string): void {
+    try {
+      const saved = localStorage.getItem('timeCheck')
+      const parsed = saved ? JSON.parse(saved) : {}
+      if (parsed && Object.prototype.hasOwnProperty.call(parsed, key)) {
+        delete parsed[key]
+        localStorage.setItem('timeCheck', JSON.stringify(parsed))
+      }
+    } catch {
+      // silently ignore cache clear failures
+    }
+  }
+
   private getEnrollmentCache(userId: string, listType: 'completed' | 'inprogress'): Promise<any[] | null> {
     const timeCheckKey = this.getEnrollmentTimeCheckKey(listType)
     const lastUpdated = this.getTimeCheckValue(timeCheckKey)
@@ -576,6 +629,74 @@ export class ZohoFormService {
         this.setTimeCheckValue(timeCheckKey)
       })
       .catch(() => { /* silently ignore cache write failures */ })
+  }
+
+  private getMatchedEnrollment(courses: any[], collectionId: string): any | null {
+    if (!Array.isArray(courses) || !collectionId) {
+      return null
+    }
+
+    return courses.find((course: any) => {
+      const identifier = course?.content?.identifier || course?.identifier || course?.courseId || ''
+      return identifier === collectionId
+    }) || null
+  }
+
+  isRecentEnrollmentAccess(courses: any[], collectionId: string): boolean {
+    const matchedCourse = this.getMatchedEnrollment(courses, collectionId)
+    const lastContentAccessTime = matchedCourse?.lastContentAccessTime
+    if (!lastContentAccessTime) {
+      return true
+    }
+
+    const accessTime = new Date(lastContentAccessTime).getTime()
+    if (Number.isNaN(accessTime)) {
+      return false
+    }
+
+    return (Date.now() - accessTime) < RECENT_ENROLLMENT_WINDOW_MS
+  }
+
+  async clearEnrollmentCacheForUser(userId: string): Promise<void> {
+    if (!userId) {
+      return Promise.resolve()
+    }
+
+    this.clearTimeCheckValue(this.getEnrollmentTimeCheckKey('completed'))
+    this.clearTimeCheckValue(this.getEnrollmentTimeCheckKey('inprogress'))
+
+    const completedStoreKey = this.getEnrollmentStoreKey(userId, 'completed')
+    const inprogressStoreKey = this.getEnrollmentStoreKey(userId, 'inprogress')
+
+    return await this.openEnrollmentCache()
+      .then(db => new Promise<void>(resolve => {
+        const store = db.transaction(IDB_STORE, 'readwrite').objectStore(IDB_STORE)
+        const completedReq = store.delete(completedStoreKey)
+        const inprogressReq = store.delete(inprogressStoreKey)
+
+        let pending = 2
+        const finalize = () => {
+          pending -= 1
+          if (pending === 0) {
+            resolve()
+          }
+        }
+
+        completedReq.onsuccess = finalize
+        completedReq.onerror = finalize
+        inprogressReq.onsuccess = finalize
+        inprogressReq.onerror = finalize
+      }))
+      .catch(() => Promise.resolve())
+  }
+
+  clearEnrollmentCacheIfRecentAccess(userId: string, courses: any[], collectionId: string): boolean {
+    if (!userId || !this.isRecentEnrollmentAccess(courses, collectionId)) {
+      return false
+    }
+
+    this.clearEnrollmentCacheForUser(userId)
+    return true
   }
 
   // ===== Course loading =====
@@ -620,7 +741,7 @@ export class ZohoFormService {
       return
     }
 
-    this.getMergedEnrollmentCourses(userId).then(courses => {
+    this.getCompletedEnrollmentCourses(userId).then(courses => {
       const mappedCourses = this.mapEnrollmentCourses(courses)
       this.certificateCourses = mappedCourses.filter(c => !c.hasCertificate)
       this.hasOnlyIssuedCertificateCourses = mappedCourses.length > 0 && this.certificateCourses.length === 0
@@ -844,7 +965,7 @@ export class ZohoFormService {
           return
         }
 
-        this.getMergedEnrollmentCourses(userId).then(courses => {
+        this.getInprogressEnrollmentCourses(userId).then(courses => {
           finalizeComprehensiveCourses(courses)
         }).catch(() => {
           this.comprehensiveCourses = []
