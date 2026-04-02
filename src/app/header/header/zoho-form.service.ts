@@ -25,6 +25,7 @@ export class ZohoFormService {
   comprehensiveChildrenByIdentifier = new Map<string, any[]>()
   caCourseUnitIds: string[] = []
   enrolledCourseIds = new Set<string>()
+  private hasOnlyIssuedCertificateCourses = false
 
   private allowedFileExtensions = [
     'jpg',
@@ -381,23 +382,12 @@ export class ZohoFormService {
       .filter((identifier: string) => !!identifier)
   }
 
-  private mergeUniqueEnrollmentCourses(...courseLists: any[][]): any[] {
-    const mergedCourses = ([] as any[]).concat(...courseLists)
-    return mergedCourses.filter((course: any, index: number, self: any[]) => {
-      const identifier = course?.identifier || course?.content?.identifier || course?.courseId || ''
-      return !!identifier && index === self.findIndex((item: any) => {
-        const itemIdentifier = item?.identifier || item?.content?.identifier || item?.courseId || ''
-        return itemIdentifier === identifier
-      })
-    })
-  }
-
   private fetchEnrollmentCourses(userId: string, status: 'Completed' | 'In-Progress'): Promise<any[] | null> {
     const requestPayload = {
       request: {
         retiredCoursesEnabled: true,
         status,
-        limit: 50,
+        limit: 100,
       },
     }
     const url = `${ENDPOINTS.ENROLLMENT_API_BASE}${userId}`
@@ -414,36 +404,17 @@ export class ZohoFormService {
   }
 
   private getMergedEnrollmentCourses(userId: string): Promise<any[]> {
-    return Promise.all([
-      this.getEnrollmentCache(userId, 'completed'),
-      this.getEnrollmentCache(userId, 'inprogress'),
-    ])
-      .then(([completedCached, inProgressCached]) => {
-        if (completedCached !== null && inProgressCached !== null) {
-          return this.mergeUniqueEnrollmentCourses(completedCached, inProgressCached)
+    return this.getEnrollmentCache(userId, 'completed')
+      .then(completedCached => {
+        if (completedCached !== null) {
+          return completedCached
         }
-
-        return Promise.all([
-          completedCached !== null
-            ? Promise.resolve(completedCached)
-            : this.fetchEnrollmentCourses(userId, 'Completed').then(courses => {
-              const completedCourses = courses || []
-              if (courses !== null) {
-                this.setEnrollmentCache(userId, completedCourses, 'completed')
-              }
-              return completedCourses
-            }),
-          inProgressCached !== null
-            ? Promise.resolve(inProgressCached)
-            : this.fetchEnrollmentCourses(userId, 'In-Progress').then(courses => {
-              const inProgressCourses = courses || []
-              if (courses !== null) {
-                this.setEnrollmentCache(userId, inProgressCourses, 'inprogress')
-              }
-              return inProgressCourses
-            }),
-        ]).then(([completedCourses, inProgressCourses]) => {
-          return this.mergeUniqueEnrollmentCourses(completedCourses, inProgressCourses)
+        return this.fetchEnrollmentCourses(userId, 'Completed').then(courses => {
+          const completedCourses = courses || []
+          if (courses !== null) {
+            this.setEnrollmentCache(userId, completedCourses, 'completed')
+          }
+          return completedCourses
         })
       })
       .catch(() => [])
@@ -456,16 +427,17 @@ export class ZohoFormService {
     select.innerHTML = '<option value="">Choose from enrolled courses…</option>'
     this.certificateCourses.forEach((course, index) => {
       const option = document.createElement('option')
-      const statusLabel = course.status === 'completed' ? 'Completed' : 'In Progress'
       option.value = String(index)
-      option.textContent = `${course.name} (${statusLabel} · ${course.progress}%)`
+      option.textContent = `${course.name} (Completed · ${course.progress}%)`
       select.appendChild(option)
     })
 
     if (!this.certificateCourses.length) {
       const option = document.createElement('option')
       option.value = ''
-      option.textContent = 'No enrolled courses found'
+      option.textContent = this.hasOnlyIssuedCertificateCourses
+        ? 'All completed contents already have certificates'
+        : 'No enrolled courses found'
       select.appendChild(option)
     }
   }
@@ -641,6 +613,7 @@ export class ZohoFormService {
 
     const userId = this.userProfileData?.userId || this.userProfileData?.profileDetails?.userId
     if (!userId) {
+      this.hasOnlyIssuedCertificateCourses = false
       this.certificateCourses = []
       this.populateCertificateCourseSelect()
       if (select) select.disabled = false
@@ -648,10 +621,13 @@ export class ZohoFormService {
     }
 
     this.getMergedEnrollmentCourses(userId).then(courses => {
-      this.certificateCourses = this.mapEnrollmentCourses(courses)
+      const mappedCourses = this.mapEnrollmentCourses(courses)
+      this.certificateCourses = mappedCourses.filter(c => !c.hasCertificate)
+      this.hasOnlyIssuedCertificateCourses = mappedCourses.length > 0 && this.certificateCourses.length === 0
       this.populateCertificateCourseSelect()
       if (select) select.disabled = false
     }).catch(() => {
+      this.hasOnlyIssuedCertificateCourses = false
       this.certificateCourses = []
       this.populateCertificateCourseSelect()
       if (select) select.disabled = false
