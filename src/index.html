@@ -11,6 +11,7 @@
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <!-- <link id="id-app-fav-icon" rel="icon" type="image/png" /> -->
   <link rel="manifest" href="./manifest.json" />
+  <!-- <link href="https://vjs.zencdn.net/8.0.4/video-js.css" rel="stylesheet" /> -->
 
   <link id="id-app-x-icon" rel="icon" type="x-icon" />
   <link id="id-app-fav-icon" rel="icon" type="x-icon" href="/assets/configurations/manifest/favicon.ico" />
@@ -82,6 +83,7 @@
         window["env"]["doptOrg"] = envJson.doptOrg
         window['env']['portalsForNotifications'] = envJson.portalsForNotifications
         window['env']['publicContentSurveyId'] = envJson.publicContentSurveyId
+        window['env']['custodianOrgId'] = envJson.custodianOrgId
       } catch (error) {
         console.error("Error in fetching env json")
       }
@@ -95,7 +97,7 @@
     integrity="sha384-WxjccFdarXj9qC3CXtilb+x2qSQA3CMFOjT6vA0CkfexBVqYRAISERxH45f5VnmM"
     crossorigin="anonymous"></script>
   <script src="src\zoho-script.js"></script>
-  <script rel="preload" src='//cdnt.netcoresmartech.com/smartechclient.js'></script>
+  <!-- <script rel="preload" src='//cdnt.netcoresmartech.com/smartechclient.js'></script> -->
   <script>
     //  smartech('create', 'ADGMOT35CHFLVDHBJNIG50K968HALK3BMP0VCCVVE0PODR835I00' , "tin");
     //  smartech('register', 'b632681d782c843e187fd5447c97ed4d');

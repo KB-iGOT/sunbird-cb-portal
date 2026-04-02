@@ -212,7 +212,7 @@ export class InitService {
   }
 
   get isAnonymousTelemetryRequired(): boolean {
-    this.isAnonymousTelemetry = window.location.href.includes('/public/')
+    this.isAnonymousTelemetry = window.location.href.includes('/public/') || window.location.href.includes('/helpcenter')
       || window.location.href.includes('&preview=true') || window.location.href.includes('/certs') || window.location.href.includes('/achievements') || window.location.href.includes('/crp/')
     return this.isAnonymousTelemetry
   }
@@ -232,7 +232,9 @@ export class InitService {
     await this.fetchDefaultConfig()
     await this.profileNudgeConfig()
     await this.themeOverrideConfig()
-    await this.netCoreConfig()
+    if (this.domainConfSvc?.isFeatureByPageEnabled('services', 'netcore')) {
+      await this.netCoreConfig()
+    }
 
     // const authenticated = await this.authSvc.initAuth()
     // if (!authenticated) {
@@ -244,7 +246,7 @@ export class InitService {
     // Invalid User
     try {
       const path = window.location.pathname
-      const isPublic = window.location.href.includes('/public/')
+      const isPublic = window.location.href.includes('/public/') || window.location.href.includes('/helpcenter')
         || window.location.href.includes('&preview=true') || window.location.href.includes('/certs') || window.location.href.includes('/achievements') || window.location.href.includes('/crp/')
       this.setTelemetrySessionId()
       if (!path.startsWith('/public') && !isPublic) {
@@ -303,7 +305,7 @@ export class InitService {
         window.location.href.includes('/crp/') ||
         window.location.href.includes('/certs') ||
         window.location.href.includes('/achievements') ||
-        window.location.href.includes('/viewer')
+        window.location.href.includes('/viewer') || window.location.href.includes('/helpcenter')
       )
     ) {
       this.logFirstLogin()
@@ -466,7 +468,7 @@ export class InitService {
         "type": "page",
         "subType": "netcore",
         "action": "page-configuration",
-        "component": "portal", 
+        "component": "portal",
         "rootOrgId": "*"
       }
     }
@@ -484,9 +486,10 @@ export class InitService {
       let userCourseEnrolmentInfo: any = {}
       let userExternalCourseEnrolmentInfo: any = {}
       if (res && res.result && res.result.userCourseEnrolmentInfo) {
-
+        let badgeCount: any = res.result.badgeCount
         userCourseEnrolmentInfo = res.result.userCourseEnrolmentInfo
         userExternalCourseEnrolmentInfo = res.result.userExternalCourseEnrolmentInfo
+        userCourseEnrolmentInfo['badgeCount'] = badgeCount
         userCourseEnrolmentInfo['karmaPoints'] = userCourseEnrolmentInfo['karmaPoints'] + (userExternalCourseEnrolmentInfo['karmaPoints'] || 0)
         userCourseEnrolmentInfo['timeSpentOnCompletedCourses'] = userCourseEnrolmentInfo['timeSpentOnCompletedCourses'] + (userExternalCourseEnrolmentInfo['timeSpentOnCompletedCourses'] || 0)
         userCourseEnrolmentInfo['certificatesIssued'] = userCourseEnrolmentInfo['certificatesIssued'] + (userExternalCourseEnrolmentInfo['certificatesIssued'] || 0)
@@ -505,6 +508,7 @@ export class InitService {
           enrolledCourseCount,
           userCourseEnrolmentInfo
         }
+        console.log('userData', userData)
         localStorage.removeItem('userEnrollmentCount')
         localStorage.setItem('userEnrollmentCount', JSON.stringify(userData))
 
@@ -519,18 +523,21 @@ export class InitService {
             if (orgData && orgData['netcoreDisabled']) {
 
             } else {
-              smartech('create', 'ADGMOT35CHFLVDHBJNIG50K968HALK3BMP0VCCVVE0PODR835I00', "tin")
-              smartech('register', 'b632681d782c843e187fd5447c97ed4d')
-              smartech('identify', '')
-              smartech('dispatch', 1, {})
-              if (this.configSvc.netcoreConfig && this.configSvc.netcoreConfig.netcoreWebConfig
-                && this.configSvc.netcoreConfig.netcoreWebConfig.isActive
-              ) {
-                let netCoreUserSetupFlag: any = localStorage.getItem('netCoreUserSetup') ? localStorage.getItem('netCoreUserSetup') : ''
-                if (netCoreUserSetupFlag === 'false' || netCoreUserSetupFlag === false || netCoreUserSetupFlag === '') {
-                  this.netCoreUserLoginSetup()
+              if (this.domainConfSvc?.isFeatureByPageEnabled('services', 'netcore')) {
+                smartech('create', 'ADGMOT35CHFLVDHBJNIG50K968HALK3BMP0VCCVVE0PODR835I00', "tin")
+                smartech('register', 'b632681d782c843e187fd5447c97ed4d')
+                smartech('identify', '')
+                smartech('dispatch', 1, {})
+                if (this.configSvc.netcoreConfig && this.configSvc.netcoreConfig.netcoreWebConfig
+                  && this.configSvc.netcoreConfig.netcoreWebConfig.isActive
+                ) {
+                  let netCoreUserSetupFlag: any = localStorage.getItem('netCoreUserSetup') ? localStorage.getItem('netCoreUserSetup') : ''
+                  if (netCoreUserSetupFlag === 'false' || netCoreUserSetupFlag === false || netCoreUserSetupFlag === '') {
+                    this.netCoreUserLoginSetup()
+                  }
                 }
               }
+
             }
           })
         }

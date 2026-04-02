@@ -4,8 +4,8 @@ import { MatLegacyDialogRef, MAT_LEGACY_DIALOG_DATA, MatLegacyDialog } from '@an
 import * as _ from 'lodash'
 import { HttpErrorResponse } from '@angular/common/http'
 import { MatLegacySnackBar } from '@angular/material/legacy-snack-bar'
-import { debounceTime, distinctUntilChanged, startWith, takeUntil } from 'rxjs/operators'
-import { Subject } from 'rxjs'
+import { debounceTime, distinctUntilChanged, startWith, switchMap, takeUntil } from 'rxjs/operators'
+import { of, Subject } from 'rxjs'
 import { EMAIL_PATTERN, EMP_ID_PATTERN, IMAGE_SIZE_1MB, MOBILE_PATTERN, PIN_CODE_PATTERN, state } from '../../models/profile-revamp.model'
 import { ProfileV2RevampService } from '../../services/profile-v2-revamp.service'
 import { ConfirmDialogComponent } from '@sunbird-cb/collection/src/lib/_common/confirm-dialog/confirm-dialog.component'
@@ -15,7 +15,7 @@ import { RejectionReasonPopupComponent } from '../../components/rejection-reason
 import { WithdrawRequestComponent } from '../../components/withdraw-request/withdraw-request.component'
 import { NsUserProfileDetails } from '../../../user-profile/models/NsUserProfile'
 import { DatePipe, Location } from '@angular/common'
-import { ConfigurationsService, ImageCropComponent, PipeCertificateImageURL } from '@sunbird-cb/utils-v2'
+import { ConfigurationsService, DomainConfService, ImageCropComponent, PipeCertificateImageURL } from '@sunbird-cb/utils-v2'
 import { NotificationComponent } from '@ws/author/src/lib/modules/shared/components/notification/notification.component'
 import { PROFILE_IMAGE_SUPPORT_TYPES } from '@ws/author/src/lib/constants/upload'
 import { Notify } from '@ws/author/src/lib/constants/notificationMessage'
@@ -114,6 +114,12 @@ export class PrfileEditV2Component implements OnInit, OnDestroy {
   emailOtp: string | undefined
   phoneOtp: string | undefined
 
+  // Duplicate-user validation flags
+  emailExists = false
+  phoneExists = false
+  checkingEmail = false
+  checkingPhone = false
+
 
   constructor(
     private fb: FormBuilder,
@@ -129,12 +135,13 @@ export class PrfileEditV2Component implements OnInit, OnDestroy {
     private configSvc: ConfigurationsService,
     private translate: TranslateService,
     // private router: Router,
-    private location: Location
+    private location: Location,
+    public domainConfService: DomainConfService
   ) {
 
     // Handle both data structures - direct and wrapped in dialogDetails
     const hasDialogDetails = this.data && this.data.hasOwnProperty('dialogDetails')
-
+    console.log('this.data', this.data)
     this.header = hasDialogDetails ? _.get(this.data, 'dialogDetails.header', '') : _.get(this.data, 'header', '')
     this.profileDetails = hasDialogDetails ? _.get(this.data, 'dialogDetails.profileDetails', {}) : _.get(this.data, 'profileDetails', {})
     this.profileImage = hasDialogDetails ? _.get(this.data, 'dialogDetails.profileImage', null) : _.get(this.data, 'profileImage', null)
@@ -231,6 +238,7 @@ export class PrfileEditV2Component implements OnInit, OnDestroy {
 
   //#region (profile)
   private createProfileForm(): void {
+    console.log('this.profileDetails--', this.profileDetails)
     this.profileImage = _.get(this.profileDetails, 'profileImage', null)
     this.profileForm = this.fb.group({
       firstname: [_.get(this.profileDetails, 'firstname', ''), [Validators.required, Validators.pattern(/^(?! )[a-zA-Z]+(?: [a-zA-Z]+)*(?<! )$/), Validators.maxLength(200), Validators.minLength(2)]],
@@ -812,33 +820,69 @@ export class PrfileEditV2Component implements OnInit, OnDestroy {
     const domicileMediumControl = this.profileForm.get('domicileMedium')
 
     if (primaryEmailControl) {
-      primaryEmailControl.valueChanges.subscribe((value: string) => {
-        if (value && value !== _.get(this.profileDetails, 'primaryEmail', '')) {
-          if (EMAIL_PATTERN.test(value)) {
-            this.verifyEmail = true
-          } else {
+      primaryEmailControl.valueChanges
+        .pipe(
+          debounceTime(500),
+          distinctUntilChanged(),
+          takeUntil(this.destroySubject$),
+          switchMap((value: string) => {
+            this.emailExists = false
+            if (value && value !== _.get(this.profileDetails, 'primaryEmail', '')) {
+              if (EMAIL_PATTERN.test(value)) {
+                this.verifyEmail = true
+                this.checkingEmail = true
+                return this.profileV2RevampService.searchUserByField(
+                  'email', value
+                )
+              } else {
+                this.verifyEmail = false
+              }
+            } else {
+              this.verifyEmail = false
+            }
+            return of(null)
+          })
+        )
+        .subscribe((res: any) => {
+          this.checkingEmail = false
+          if (res && _.get(res, 'result.response.count', 0) > 0) {
+            this.emailExists = true
             this.verifyEmail = false
           }
-        } else if (!value) {
-          this.verifyEmail = false
-        } else if (value === _.get(this.profileDetails, 'primaryEmail', '')) {
-          this.verifyEmail = false
-        }
-      })
+        })
     }
 
     if (mobileControl) {
-      mobileControl.valueChanges.subscribe((value: string) => {
-        if (value && value !== _.get(this.profileDetails, 'mobile', '')) {
-          if (MOBILE_PATTERN.test(value)) {
-            this.verifyMobile = true
-          } else {
+      mobileControl.valueChanges
+        .pipe(
+          debounceTime(500),
+          distinctUntilChanged(),
+          takeUntil(this.destroySubject$),
+          switchMap((value: string) => {
+            this.phoneExists = false
+            if (value && value !== _.get(this.profileDetails, 'mobile', '')) {
+              if (MOBILE_PATTERN.test(value)) {
+                this.verifyMobile = true
+                this.checkingPhone = true
+                return this.profileV2RevampService.searchUserByField(
+                  'phone', value
+                )
+              } else {
+                this.verifyMobile = false
+              }
+            } else {
+              this.verifyMobile = false
+            }
+            return of(null)
+          })
+        )
+        .subscribe((res: any) => {
+          this.checkingPhone = false
+          if (res && _.get(res, 'result.response.count', 0) > 0) {
+            this.phoneExists = true
             this.verifyMobile = false
           }
-        } else if (!value || value === _.get(this.profileDetails, 'mobile', '')) {
-          this.verifyMobile = false
-        }
-      })
+        })
     }
 
     if (domicileMediumControl) {
@@ -1298,7 +1342,7 @@ export class PrfileEditV2Component implements OnInit, OnDestroy {
         }
         return false
       case 'Mandatory Section':
-        if (isFormValid && !this.verifyEmail && !this.verifyMobile) {
+        if (isFormValid && !this.verifyEmail && !this.verifyMobile && !this.emailExists && !this.phoneExists) {
           return true
         }
         return false
@@ -1308,7 +1352,7 @@ export class PrfileEditV2Component implements OnInit, OnDestroy {
         }
         return false
       case 'Other Details':
-        if (isFormValid && !this.verifyEmail && !this.verifyMobile) {
+        if (isFormValid && !this.verifyEmail && !this.verifyMobile && !this.emailExists && !this.phoneExists) {
           return true
         }
         return false
@@ -1920,33 +1964,69 @@ export class PrfileEditV2Component implements OnInit, OnDestroy {
     const primaryDetails = _.get(this.data, 'primaryDetails', this.profileDetails)
 
     if (primaryEmailControl) {
-      primaryEmailControl.valueChanges.subscribe((value: string) => {
-        if (value && value !== _.get(primaryDetails, 'primaryEmail', '')) {
-          if (primaryEmailControl.valid) {
-            this.verifyEmail = true
-          } else {
+      primaryEmailControl.valueChanges
+        .pipe(
+          debounceTime(500),
+          distinctUntilChanged(),
+          takeUntil(this.destroySubject$),
+          switchMap((value: string) => {
+            this.emailExists = false
+            if (value && value !== _.get(primaryDetails, 'primaryEmail', '')) {
+              if (primaryEmailControl.valid) {
+                this.verifyEmail = true
+                this.checkingEmail = true
+                return this.profileV2RevampService.searchUserByField(
+                  'email', value
+                )
+              } else {
+                this.verifyEmail = false
+              }
+            } else {
+              this.verifyEmail = false
+            }
+            return of(null)
+          })
+        )
+        .subscribe((res: any) => {
+          this.checkingEmail = false
+          if (res && _.get(res, 'result.response.count', 0) > 0) {
+            this.emailExists = true
             this.verifyEmail = false
           }
-        } else if (!value) {
-          this.verifyEmail = false
-        } else if (value === _.get(primaryDetails, 'primaryEmail', '')) {
-          this.verifyEmail = false
-        }
-      })
+        })
     }
 
     if (mobileControl) {
-      mobileControl.valueChanges.subscribe((value: string) => {
-        if (value && value !== _.get(primaryDetails, 'mobile', '')) {
-          if (mobileControl.valid) {
-            this.verifyMobile = true
-          } else {
+      mobileControl.valueChanges
+        .pipe(
+          debounceTime(500),
+          distinctUntilChanged(),
+          takeUntil(this.destroySubject$),
+          switchMap((value: string) => {
+            this.phoneExists = false
+            if (value && value !== _.get(primaryDetails, 'mobile', '')) {
+              if (mobileControl.valid) {
+                this.verifyMobile = true
+                this.checkingPhone = true
+                return this.profileV2RevampService.searchUserByField(
+                  'phone', value
+                )
+              } else {
+                this.verifyMobile = false
+              }
+            } else {
+              this.verifyMobile = false
+            }
+            return of(null)
+          })
+        )
+        .subscribe((res: any) => {
+          this.checkingPhone = false
+          if (res && _.get(res, 'result.response.count', 0) > 0) {
+            this.phoneExists = true
             this.verifyMobile = false
           }
-        } else if (!value || value === _.get(primaryDetails, 'mobile', '')) {
-          this.verifyMobile = false
-        }
-      })
+        })
     }
   }
 

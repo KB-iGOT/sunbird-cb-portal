@@ -1,6 +1,14 @@
 <!-- <a class="logo-dim" title="Home" href="/page/home"><img alt="Application Logo" class="app-logo"
     src="/assets/instances/eagle/app_logos/KarmayogiBharat_Logo_Horizontal.svg"></a> -->
 
-<a [ngClass]="classList" title="Home" [href]="path" >
+<a class="flex" [ngClass]="classList" title="Home" [href]="path">
+
     <img alt="Application Logo" [src]="logoSrc" />
+    <ng-container *ngIf="(!domainConfService?.isFeatureByPageEnabled('home','footerWithHostLogo'))">
+        <div class="seperator"></div>
+        <div>
+            <img src="/assets/instances/eagle/app_logos/KarmayogiBharat_Logo_Horizontal.svg" alt="Karmayogi Bharat"
+                class="tenant-logo" />
+        </div>
+    </ng-container>
 </a>

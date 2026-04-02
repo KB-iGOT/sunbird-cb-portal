@@ -42,7 +42,8 @@ export const environment = {
   portalsForNotifications: (((window as { [key: string]: any })['env']['portalsForNotifications'] || {})) || {},
   publicContentSurveyId: (window as { [key: string]: any })['env']['publicContentSurveyId'] || '',
   logo: (window as { [key: string]: any })['env']['logo'] || '',
-  redirectPath: (window as { [key: string]: any })['env']['redirectPath'] || ''
+  redirectPath: (window as { [key: string]: any })['env']['redirectPath'] || '',
+  custodianOrgId: (window as { [key: string]: any })['env']['custodianOrgId'] || ''
   // mdoPortal: (window as { [key: string]: any })['env']['mdoPath'] || '',
   // spvPortal: (window as { [key: string]: any })['env']['spvPath'] || '',
   // cbcPortal: (window as { [key: string]: any })['env']['cbcPath'] || '',

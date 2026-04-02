@@ -1,7 +1,7 @@
 import { HttpClient } from '@angular/common/http'
 import { Injectable } from '@angular/core'
 import { NSProfileDataV2 } from '../models/profile-v2.model'
-import { Observable } from 'rxjs'
+import { Observable, Subject } from 'rxjs'
 import { map, retry } from 'rxjs/operators'
 import { TranslateService } from '@ngx-translate/core'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
@@ -48,6 +48,7 @@ const API_END_POINTS = {
   SEARCH_USERS: '/apis/proxies/v8/user/v1/search',
 
   SEARCH_EDUCATIONAL_QUALIFICATIONS: '/apis/proxies/v8/masterdata/v1/search',
+  SEARCH_USER_PUBLIC: '/apis/proxies/v8/user/v5/public/search',
 
   // ASSESSMENT_DATA: `apis/proxies/v8/wheebox/read`, //old
 
@@ -56,6 +57,7 @@ const API_END_POINTS = {
   LIST_ACHIEVEMENTS: '/apis/proxies/v8/learner/achievement/list',
   DELETE_ACHIEVEMENT: '/apis/proxies/v8/learner/achievement/delete',
   COMPETENCY_V6: `/apis/proxies/v8/framework/v1/read/kcmfinal_fw`,
+  GET_USER_PROFILE: `apis/proxies/v8/api/user/v2/read`
 
 }
 
@@ -63,7 +65,7 @@ const API_END_POINTS = {
   providedIn: 'root'
 })
 export class ProfileV2RevampService {
-
+  showUpdatePofileNameAndPic = new Subject()
   constructor(
     private http: HttpClient,
     private translateService: TranslateService,
@@ -306,9 +308,39 @@ export class ProfileV2RevampService {
   deleteAchievementEntry(payload: any): Observable<any> {
     return this.http.delete<any>(API_END_POINTS.DELETE_ACHIEVEMENT, { body: payload })
   }
+  /**
+   * Search if a user already exists by email or mobile.
+   * @param filterField - The profile field path, e.g. 'profileDetails.personalDetails.primaryEmail'
+   * @param value - The value to search for
+   */
+  searchUserByField(filterField: string, value: string): Observable<any> {
+    if (filterField === 'email') {
+      value = value.toLowerCase()
+    }
+    const payload = {
+      request: {
+        limit: 1,
+        offset: 0,
+        filters: {
+          [filterField]: [value],
+        },
+      },
+    }
+    return this.http.post<any>(API_END_POINTS.SEARCH_USER_PUBLIC, payload)
+  }
 
   fetchCompetencyV6(): Observable<any> {
     return this.http.get(API_END_POINTS.COMPETENCY_V6)
+  }
+
+  fetchUserProfile(userId: string, isNotCurrentUser?: boolean): Observable<NSProfileDataV2.IProfile> {
+    return this.http.get<NSProfileDataV2.IProfile>(`${API_END_POINTS.GET_USER_PROFILE}/${userId}`)
+      .pipe(map(res => {
+        if (!isNotCurrentUser) {
+          this.configulreProfileDetails(res)
+        }
+        return res
+      }))
   }
 
 }

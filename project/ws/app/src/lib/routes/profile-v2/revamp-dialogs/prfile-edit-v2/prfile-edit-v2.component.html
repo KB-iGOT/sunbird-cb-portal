@@ -80,7 +80,7 @@
         </mat-form-field>
       </div>
 
-      <div class="form-fields-container">
+      <div class="form-fields-container" *ngIf="(domainConfService?.isFeatureByPageEnabled('profileUpdate','state'))">
         <div class="flex flex-col profile-control">
           <div class="lable">{{'NetworkV2Profile.state' | translate}}</div>
           <mat-form-field appearance="outline">
@@ -93,7 +93,8 @@
           </mat-form-field>
         </div>
 
-        <div class="flex flex-col profile-control">
+        <div class="flex flex-col profile-control"
+          *ngIf="(domainConfService?.isFeatureByPageEnabled('profileUpdate','district'))">
           <div class="lable">{{'NetworkV2Profile.district' | translate}}</div>
           <mat-form-field appearance="outline">
             <mat-select formControlName="district" placeholder="Select District">
@@ -352,7 +353,11 @@
               </mat-error>
             </mat-form-field>
           </div>
-          <div class="flex justify-end" *ngIf="verifyMobile">
+          <div class="error-text" *ngIf="phoneExists"
+            style="color: #f44336; font-size: 12px; margin-top: -12px; margin-bottom: 8px;">
+            This mobile number already exists.
+          </div>
+          <div class="flex justify-end" *ngIf="verifyMobile && !phoneExists">
             <span class="get-otp" (click)="handleGenerateOTP('phone')">{{ 'NetworkV2Profile.getOTP' | translate}}</span>
           </div>
         </div>
@@ -368,7 +373,11 @@
               {{ 'NetworkV2Profile.invalidEmail' | translate }}
             </mat-error>
           </mat-form-field>
-          <div class="flex justify-end" *ngIf="verifyEmail">
+          <div class="error-text" *ngIf="emailExists"
+            style="color: #f44336; font-size: 12px; margin-top: -12px; margin-bottom: 8px;">
+            This email ID already exists.
+          </div>
+          <div class="flex justify-end" *ngIf="verifyEmail && !emailExists">
             <span class="get-otp" (click)="handleGenerateEmailOTP('email')">{{ 'NetworkV2Profile.getOTP' |
               translate}}</span>
           </div>
@@ -526,7 +535,11 @@
               {{ 'NetworkV2Profile.invalidEmail' | translate }}
             </mat-error>
           </mat-form-field>
-          <div class="flex justify-end" *ngIf="verifyEmail">
+          <div class="error-text" *ngIf="emailExists"
+            style="color: #f44336; font-size: 12px; margin-top: -12px; margin-bottom: 8px;">
+            This email ID already exists.
+          </div>
+          <div class="flex justify-end" *ngIf="verifyEmail && !emailExists">
             <span class="get-otp" (click)="handleGenerateEmailOTP('email')">{{ 'NetworkV2Profile.getOTP' |
               translate}}</span>
           </div>
@@ -587,7 +600,11 @@
               </mat-error>
             </mat-form-field>
           </div>
-          <div class="flex justify-end" *ngIf="verifyMobile">
+          <div class="error-text" *ngIf="phoneExists"
+            style="color: #f44336; font-size: 12px; margin-top: -12px; margin-bottom: 8px;">
+            This mobile number already exists.
+          </div>
+          <div class="flex justify-end" *ngIf="verifyMobile && !phoneExists">
             <span class="get-otp" (click)="handleGenerateOTP('phone')">{{ 'NetworkV2Profile.getOTP' | translate}}</span>
           </div>
         </div>

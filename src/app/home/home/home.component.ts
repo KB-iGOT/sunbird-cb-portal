@@ -15,6 +15,7 @@ import { MobileAppsService } from '../../services/mobile-apps.service'
 import { UserProfileService } from '@ws/app/src/lib/routes/user-profile/services/user-profile.service'
 // import { IUserProfileDetailsFromRegistry } from '@ws/app/src/lib/routes/user-profile/models/user-profile.model'
 import { BtnSettingsService } from '@sunbird-cb/collection'
+import { DomainConfService } from '@sunbird-cb/utils-v2'
 
 // import { NotificationComponent } from './notification/notification.component'
 
@@ -53,6 +54,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     private userProfileService: UserProfileService,
     private matSnackBar: MatSnackBar,
     private events: EventService,
+    public domainConfService: DomainConfService
   ) { }
   private destroySubject$ = new Subject()
   widgetData = {}
@@ -89,11 +91,17 @@ export class HomeComponent implements OnInit, AfterViewInit {
   }
   canShowCustomAttrOpen: boolean = false
   rootOrgId: string = ''
-
+  globalConfig: any
+  homePageSectionOrder: string[] = ["strip", "slider"]
   // You could also add it as a class property for better encapsulation
   private readonly initialVisibleStrips = INITIAL_VISIBLE_STRIPS;
 
   ngOnInit() {
+    console.log('domainConfService---', this.domainConfService.getTenantConfig())
+    const tenantConfig: any = this.domainConfService.getTenantConfig()
+    if (tenantConfig?.homePageSectionOrder) {
+      this.homePageSectionOrder = tenantConfig?.homePageSectionOrder
+    }
     let isNotMyUser = false
     let isIgotOrg = false
     if (this.configSvc && this.configSvc.unMappedUser) {
@@ -137,12 +145,14 @@ export class HomeComponent implements OnInit, AfterViewInit {
     })
     if (this.activatedRoute.snapshot.data.pageData) {
       this.homeConfig = this.activatedRoute.snapshot.data.pageData.data.homeConfig
+      console.log('homeConfig---', this.homeConfig)
     }
     // if (this.activatedRoute.snapshot.data.pageData) {
     //   this.newHomeStrips = this.activatedRoute.snapshot.data.pageData.data.newHomeStrip
     // }
     if (this.activatedRoute.snapshot.data.pageData && this.activatedRoute.snapshot.data.pageData.data) {
       this.contentStripData = this.activatedRoute.snapshot.data.pageData.data || []
+      console.log('this.contentStripData--', this.contentStripData)
       // tslint:disable-next-line: prefer-template
       this.contentStripData = (this.contentStripData.newHomeStrip || []).sort((a: any, b: any) => a.order - b.order)
 
@@ -163,6 +173,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.clientList = this.activatedRoute.snapshot.data.pageData.data.clientList
     this.widgetData = this.activatedRoute.snapshot.data.pageData.data.hubsData
     this.enableLazyLoadingFlag = this.activatedRoute.snapshot.data.pageData.data.enableLazyLoading
+    console.log('enableLazyLoadingFlag--', this.enableLazyLoadingFlag)
 
     this.discussStripData = {
       strips: [
@@ -259,11 +270,12 @@ export class HomeComponent implements OnInit, AfterViewInit {
     }
 
     this.sliderData = this.activatedRoute.snapshot.data.pageData.data.sliderData
-    this.sectionList.push({ section: 'slider', isVisible: false })
+    this.sectionList.push({ section: 'slider', isVisible: (this.homePageSectionOrder.length && this.homePageSectionOrder[0] === 'slider' ? true : false) })
     this.sectionList.push({ section: 'discuss', isVisible: false })
     this.sectionList.push({ section: 'network', isVisible: false })
-
-    this.getListPendingApproval()
+    if (this.domainConfService.isFeatureByPageEnabled('services', 'workflow')) {
+      this.getListPendingApproval()
+    }
     // this.handleUpdateMobileNudge()
     this.handleDefaultFontSetting()
 
@@ -584,6 +596,10 @@ export class HomeComponent implements OnInit, AfterViewInit {
         module: WsEvents.EnumTelemetrymodules.HOME,
       }
     )
+  }
+
+  trackByIndex(index: number) {
+    return index
   }
 
 

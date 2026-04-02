@@ -254,6 +254,8 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
     this.mobileAppsSvc.mobileTopHeaderVisibilityStatus.subscribe((status: any) => {
       this.mobileTopHeaderVisibilityStatus = status
     })
+    console.log('this.configSvc.globalConfig--', this.configSvc.globalConfig)
+    this.tenantConfigSvc.initFromConfig(this.configSvc.globalConfig.applicationConfig)
     this.configSvc.updateTourGuideMethod(this.showTour)
     this.route.queryParams
       .subscribe(_params => {
@@ -281,7 +283,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
       // Extract fragment from URL
       const fragment = this.route.snapshot.fragment || ''
       // Initialize mandatory details from common data service
-      if (this.configSvc?.unMappedUser && !['mandatorySection', 'orgDetails'].includes(fragment)) {
+      if (this.configSvc?.unMappedUser && !['mandatorySection', 'orgDetails'].includes(fragment) && (this.tenantConfigSvc?.isFeatureByPageEnabled('home', 'mandatoryProfilePopup'))) {
         this.commonDataSvc.mandatoryDetails(isPlayer)
       }
       // Check and show mandatory notification on route change
@@ -445,7 +447,9 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
     let isNotMyUser = false
     let isIgotOrg = false
     if (this.configSvc && this.configSvc.unMappedUser && this.configSvc.unMappedUser.rootOrgId) {
-      this.iGOTAIConfig()
+      if (this.tenantConfigSvc?.isFeatureByPageEnabled('services', 'igotai')) {
+        this.iGOTAIConfig()
+      }
     }
     if (this.configSvc && this.configSvc.unMappedUser
       && this.configSvc.unMappedUser.profileDetails

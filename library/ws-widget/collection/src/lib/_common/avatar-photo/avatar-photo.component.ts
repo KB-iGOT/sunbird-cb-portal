@@ -62,7 +62,7 @@ export class AvatarPhotoComponent implements OnInit, OnChanges {
 
   }
   ngOnChanges(change: SimpleChanges) {
-    if (change.name.currentValue !== change.name.previousValue && !change.name.firstChange) {
+    if (change?.name?.currentValue !== change?.name?.previousValue && !change?.name?.firstChange) {
       this.createInititals()
     }
   }

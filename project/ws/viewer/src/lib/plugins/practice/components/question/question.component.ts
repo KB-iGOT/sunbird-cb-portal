@@ -102,7 +102,7 @@ export class QuestionComponent implements OnInit, OnChanges, AfterViewInit {
 
   init() {
     this.matchHintDisplay = []
-    const res: string[] = this.question.question.match(/<img[^>]+src="([^">]+)"/g) || ['']
+    const res: string[] = this.question?.question?.match(/<img[^>]+src="([^">]+)"/g) || ['']
     for (const oldImg of res) {
       if (oldImg) {
         let temp = oldImg.match(/src="([^">]+)"/g) || ['']
