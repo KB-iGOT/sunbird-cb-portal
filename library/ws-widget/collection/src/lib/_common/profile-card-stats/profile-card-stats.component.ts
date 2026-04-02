@@ -299,7 +299,7 @@ export class ProfileCardStatsComponent implements OnInit {
     this.profileV2RevampSvc.fetchUserProfile(userId).subscribe({
       next: (response: any) => {
         if (response) {
-          console.log('response--', response)
+
           this.profesionalDetails = _.get(response, 'result.response.profiledetails', _.get(response, 'result.response.profileDetails', _.get(response, 'result', {})))
           // this.userName = `${this.configSvc.userProfile.firstName || ''} ${this.configSvc.userProfile.lastName || ''}`.trim()
           let userPidProfile = response?.result?.response
@@ -326,7 +326,6 @@ export class ProfileCardStatsComponent implements OnInit {
             professionalDetails: _.get(userPidProfile, 'profileDetails.professionalDetails') || [],
             userRootOrg: _.get(userPidProfile, 'rootOrg') || null
           }
-          console.log('this.configSvc.userProfile=--', this.configSvc.userProfile)
 
           this.configSvc.userProfileV2 = {
             userId: _.get(profileV2, 'userId') || userPidProfile.userId,
@@ -351,6 +350,7 @@ export class ProfileCardStatsComponent implements OnInit {
           }
 
           this.userFullName = `${this.configSvc.userProfile.firstName || ''}`
+          this.userInfo = this.configSvc.userProfile
         }
       },
       error: (error: HttpErrorResponse) => {

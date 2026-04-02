@@ -12,6 +12,7 @@ import {
   UtilityService,
   WsEvents,
   MultilingualTranslationsService,
+  DomainConfService,
 } from '@sunbird-cb/utils-v2'
 import { Subscription } from 'rxjs'
 import { filter } from 'rxjs/operators'
@@ -101,7 +102,8 @@ export class ContentStripWithTabsComponent extends WidgetBaseComponent
     // private searchServSvc: SearchServService,
     private userSvc: WidgetUserServiceLib,
     private translate: TranslateService,
-    private langtranslations: MultilingualTranslationsService
+    private langtranslations: MultilingualTranslationsService,
+    public domainConfService: DomainConfService
   ) {
     super()
     if (localStorage.getItem('websiteLanguage')) {

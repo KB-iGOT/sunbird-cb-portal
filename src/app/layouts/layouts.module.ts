@@ -19,6 +19,7 @@ import { ReactiveFormsModule } from '@angular/forms'
 import { MatLegacyMenuModule as MatMenuModule } from '@angular/material/legacy-menu'
 import { MatDividerModule } from '@angular/material/divider'
 import { PipeCertificateImageURL } from '@sunbird-cb/utils-v2'
+import { AvatarPhotoModule } from '../../../library/ws-widget/collection/src/public-api'
 
 /**
  * LayoutsModule
@@ -46,7 +47,8 @@ import { PipeCertificateImageURL } from '@sunbird-cb/utils-v2'
     MatInputModule,
     ReactiveFormsModule,
     MatMenuModule,
-    MatDividerModule
+    MatDividerModule,
+    AvatarPhotoModule
   ],
   exports: [
     TenantLayoutLoaderComponent,

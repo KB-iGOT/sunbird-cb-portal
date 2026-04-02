@@ -68,7 +68,9 @@
         <img *ngIf="userProfileImg" [src]="userProfileImg" alt="Profile" class="avatar-img" />
 
         <div *ngIf="!userProfileImg" class="avatar-initials">
-          {{ userName.charAt(0) | uppercase }}
+          <ws-widget-avatar-photo [datalen]="1" [name]="userInfo?.firstName" [datalen]="" [randomColor]="true"
+            [photoUrl]="userInfo?.profileImageUrl" size="round-m">
+          </ws-widget-avatar-photo>
         </div>
       </div>
 
@@ -77,10 +79,15 @@
 
         <!-- Profile Header -->
         <div class="profile-header">
-          <div class="profile-avatar">{{ userName.charAt(0) | uppercase }}</div>
+          <!-- <div class="profile-avatar">{{ userName.charAt(0) | uppercase }}</div> -->
+          <ws-widget-avatar-photo [datalen]="1" [name]="userInfo?.firstName" [datalen]="" [randomColor]="true"
+            [photoUrl]="userInfo?.profileImageUrl" size="round-m">
+          </ws-widget-avatar-photo>
 
           <div class="profile-info">
-            <div class="profile-name">{{ userName | titlecase }}</div>
+            <div class="profile-name">{{ (userName | titlecase)?.length > 24
+              ? (userName | titlecase).slice(0, 24) + '...'
+              : (userName | titlecase) }}</div>
             <div class="view-profile" (click)="navigateToProfile('Profile')">View Profile</div>
           </div>
         </div>

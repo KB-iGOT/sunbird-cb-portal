@@ -246,7 +246,7 @@ export class InitService {
     // Invalid User
     try {
       const path = window.location.pathname
-      const isPublic = window.location.href.includes('/public/')|| window.location.href.includes('/helpcenter')
+      const isPublic = window.location.href.includes('/public/') || window.location.href.includes('/helpcenter')
         || window.location.href.includes('&preview=true') || window.location.href.includes('/certs') || window.location.href.includes('/achievements') || window.location.href.includes('/crp/')
       this.setTelemetrySessionId()
       if (!path.startsWith('/public') && !isPublic) {
@@ -305,7 +305,7 @@ export class InitService {
         window.location.href.includes('/crp/') ||
         window.location.href.includes('/certs') ||
         window.location.href.includes('/achievements') ||
-        window.location.href.includes('/viewer')|| window.location.href.includes('/helpcenter')
+        window.location.href.includes('/viewer') || window.location.href.includes('/helpcenter')
       )
     ) {
       this.logFirstLogin()
@@ -523,18 +523,21 @@ export class InitService {
             if (orgData && orgData['netcoreDisabled']) {
 
             } else {
-              smartech('create', 'ADGMOT35CHFLVDHBJNIG50K968HALK3BMP0VCCVVE0PODR835I00', "tin")
-              smartech('register', 'b632681d782c843e187fd5447c97ed4d')
-              smartech('identify', '')
-              smartech('dispatch', 1, {})
-              if (this.configSvc.netcoreConfig && this.configSvc.netcoreConfig.netcoreWebConfig
-                && this.configSvc.netcoreConfig.netcoreWebConfig.isActive
-              ) {
-                let netCoreUserSetupFlag: any = localStorage.getItem('netCoreUserSetup') ? localStorage.getItem('netCoreUserSetup') : ''
-                if (netCoreUserSetupFlag === 'false' || netCoreUserSetupFlag === false || netCoreUserSetupFlag === '') {
-                  this.netCoreUserLoginSetup()
+              if (this.domainConfSvc?.isFeatureByPageEnabled('services', 'netcore')) {
+                smartech('create', 'ADGMOT35CHFLVDHBJNIG50K968HALK3BMP0VCCVVE0PODR835I00', "tin")
+                smartech('register', 'b632681d782c843e187fd5447c97ed4d')
+                smartech('identify', '')
+                smartech('dispatch', 1, {})
+                if (this.configSvc.netcoreConfig && this.configSvc.netcoreConfig.netcoreWebConfig
+                  && this.configSvc.netcoreConfig.netcoreWebConfig.isActive
+                ) {
+                  let netCoreUserSetupFlag: any = localStorage.getItem('netCoreUserSetup') ? localStorage.getItem('netCoreUserSetup') : ''
+                  if (netCoreUserSetupFlag === 'false' || netCoreUserSetupFlag === false || netCoreUserSetupFlag === '') {
+                    this.netCoreUserLoginSetup()
+                  }
                 }
               }
+
             }
           })
         }

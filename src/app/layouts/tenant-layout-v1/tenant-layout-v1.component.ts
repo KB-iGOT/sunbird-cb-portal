@@ -76,6 +76,7 @@ export class TenantLayoutV1Component implements OnInit, OnDestroy {
   profileImageUrl = '';
   profesionalDetails: any
   profileData: any
+  userInfo: any
   @ViewChild('logoutDialog') logoutDialog!: TemplateRef<any>
 
   constructor(
@@ -111,6 +112,7 @@ export class TenantLayoutV1Component implements OnInit, OnDestroy {
 
   ngOnInit(): void {
     // Build tenant branding
+    this.userInfo = this.configSvc && this.configSvc.userProfile
     this.tenantName = this.domainConfSvc.subdomain
     this.tenantLogo = this.domainConfSvc.getDomainAppLogo()
 
@@ -254,6 +256,7 @@ export class TenantLayoutV1Component implements OnInit, OnDestroy {
           }
 
           this.userName = `${this.configSvc.userProfile.firstName || ''} ${this.configSvc.userProfile.lastName || ''}`.trim()
+          this.userInfo = this.configSvc && this.configSvc.userProfile
         }
       },
       error: (error: HttpErrorResponse) => {
