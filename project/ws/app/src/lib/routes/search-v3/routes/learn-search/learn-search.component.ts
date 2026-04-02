@@ -1658,9 +1658,6 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
         category: category || null,
         tab: null
       }
-      console.log(this.loadPaginationCoursesForMauritius)
-      console.log('params--', params)
-      console.log('this.queryParams--', this.queryParams)
       this.queryParamChange.emit(this.queryParams)
 
     }
