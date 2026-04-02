@@ -108,7 +108,7 @@
             </div>
         </ng-container>
         <!-- Slider controls (only when more than 1 slide) -->
-        <ng-container *ngIf="nlwSlides.length > 1">
+        <ng-container *ngIf="nlwSlides?.length > 1">
             <button class="nlw-nav nlw-nav-left" (click)="prevNlwSlide()" aria-label="Previous slide">
                 <mat-icon>chevron_left</mat-icon>
             </button>
