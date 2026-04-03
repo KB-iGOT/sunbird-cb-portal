@@ -11,7 +11,8 @@ $banner-min-height: 243px;
   margin: auto;
   border-radius: 12px;
   padding-bottom: 40px;
-  &.inline{
+
+  &.inline {
     padding-bottom: 0 !important;
   }
 }
@@ -65,11 +66,13 @@ $banner-min-height: 243px;
   border-radius: 12px;
   transform: translateX(-50%);
   box-sizing: border-box;
+
   &.left {
     left: 0;
     transform: translateX(0);
   }
-  &.right{
+
+  &.right {
     left: 100%;
     transform: translateX(-100%);
   }
@@ -175,7 +178,7 @@ $banner-min-height: 243px;
 .next {
   right: 0;
   margin-right: -16px;
- 
+
 }
 
 
@@ -189,4 +192,5 @@ $banner-min-height: 243px;
   width: 100%;
   display: block;
   border-radius: 12px;
+  height: 254px;
 }

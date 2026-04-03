@@ -6,7 +6,8 @@
 
     </mat-card-title> -->
     <mat-card-content class="certificate-img-content">
-        <img #certificate [src]="url| pipeSafeSanitizer: 'url'" alt="Certificate" role="image" class="certificate-banner-image">
+        <img #certificate [src]="url| pipeSafeSanitizer: 'url'" alt="Certificate" role="image"
+            class="certificate-banner-image">
     </mat-card-content>
     <mat-card-actions class="flex flex-row-reverse gap-4">
         <!-- <ws-widget-svg-to-pdf></ws-widget-svg-to-pdf> -->
@@ -14,7 +15,8 @@
             <mat-icon class="mat-icon material-icons-outlined download_icon margin-right-xs">share</mat-icon>
             Share
         </a>
-        <a mat-button [matMenuTriggerFor]="menu" class="ws-mat-accent-border-active mat-accent btn-custom" (click)="raiseIntreactTelemetry()">
+        <a mat-button [matMenuTriggerFor]="menu" class="ws-mat-accent-border-active mat-accent btn-custom"
+            (click)="raiseIntreactTelemetry()">
             <mat-icon class="mat-icon material-icons-outlined download_icon margin-right-xs">cloud_download</mat-icon>
             {{'certificatedialog.download' | translate}}
         </a>

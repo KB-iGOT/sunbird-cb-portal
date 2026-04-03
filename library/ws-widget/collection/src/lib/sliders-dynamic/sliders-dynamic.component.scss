@@ -157,6 +157,7 @@ $banner-min-height: 243px;
   overflow: hidden;
   margin: auto;
   border-radius: 12px;
+
 }
 
 .banner-image-solo {
@@ -167,7 +168,7 @@ $banner-min-height: 243px;
 
 .banner-data {
   opacity: 1;
-  color: rgba(0,0,0,0.87);
+  color: rgba(0, 0, 0, 0.87);
   font-family: "Lato-Regular";
   font-size: 0.75rem;
   font-weight: 400;
@@ -176,6 +177,7 @@ $banner-min-height: 243px;
   text-align: left;
   line-height: 16px;
 }
+
 .color-green {
   color: rgb(29, 137, 35);
 }
@@ -183,6 +185,7 @@ $banner-min-height: 243px;
 .color-red {
   color: #c41112;
 }
+
 .data-analysis {
   opacity: 1;
   font-family: "Lato-Regular";
@@ -193,29 +196,33 @@ $banner-min-height: 243px;
   text-align: left;
   line-height: 16px;
 }
-.data-analysis  {
+
+.data-analysis {
   mat-icon {
     width: 18px;
     height: 18px;
     font-size: 1.2rem;
   }
+
   p {
     // align-self: flex-end;
   }
 }
+
 .dot-grey {
   opacity: 0.2;
-  background-color: rgba(27,33,51, 1) !important;
+  background-color: rgba(27, 33, 51, 1) !important;
   width: 4px !important;
   height: 4px !important;
   box-shadow: unset !important;
 }
+
 .dot-active {
   width: 8px !important;
   height: 4px !important;
   border-radius: 2px !important;
   opacity: 1;
-  background-color: rgba(243,150,47, 1) !important;
+  background-color: rgba(243, 150, 47, 1) !important;
   box-shadow: unset !important;
 }
 
@@ -223,16 +230,18 @@ $banner-min-height: 243px;
   background: rgba(239, 149, 30, 0.16) !important;
   padding: 16px;
 }
+
 .text-no-wrap {
   text-wrap: nowrap;
   margin-top: 4px !important;
- }
- .icon-stats {
+}
+
+.icon-stats {
   margin-right: 4px;
- }
+}
 
 .info-icon {
   width: 16px;
   height: 16px;
   font-size: 16px;
-} 
+}
