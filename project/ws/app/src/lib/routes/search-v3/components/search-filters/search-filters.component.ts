@@ -63,6 +63,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
   competencySubThemeKey!: string
   showAllCompetencyTheme: boolean = false;
   showAllOrganisation: boolean = false;
+  showAllSectorCategories: boolean = false;
   showAllCompetencySubTheme: boolean = false;
   showAllDesignation: boolean = false;
   showAllSectors: boolean = false;
@@ -73,6 +74,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
 
   selectedFilterChips: any
   filterQueryOrganisation = '';
+  filterQuerySectorCategories = '';
   filterQueryContents = '';
   filterQueryLanguage = '';
   filterQueryDesignation = '';
@@ -128,12 +130,15 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
   ngOnChanges(changes: SimpleChanges): void {
     if ((this.domainConfService?.isFeatureByPageEnabled('explore', 'showAllandContentOnly'))) {
       this.categoryType = CATEGORY_TYPE.filter(
-        item => item?.name === '' || item?.name === 'courses'
+        item => item?.name === 'courses'
       )
+
       this.categoryTypeDup = CATEGORY_TYPE.filter(
-        item => item?.name === '' || item?.name === 'courses'
+        item => item?.name === 'courses'
       )
-      console.log('this.categoryType--', this.categoryType)
+      if (this.categoryType && this.categoryType?.length > 0) {
+        this.categoryType[0]['isChecked'] = true
+      }
     }
 
     if (changes['newfacets'] && changes['newfacets'].currentValue) {
@@ -237,10 +242,21 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
 
       }
     } else {
-      this.categoryType = this.categoryTypeDup.map((cat) => ({
-        ...cat,
-        isChecked: cat.name === SearchCategory.All ? true : false,
-      }))
+      if ((this.domainConfService?.isFeatureByPageEnabled('explore', 'showAllandContentOnly'))) {
+        this.categoryType = this.categoryTypeDup.map((cat) => ({
+          ...cat,
+          isChecked: cat.name === SearchCategory.Courses ? true : false,
+        }))
+        let event: any = { checked: true }
+        let option = this.categoryTypeDup[0]
+        this.onSelectionFilter(event, option, 'courses')
+      } else {
+        this.categoryType = this.categoryTypeDup.map((cat) => ({
+          ...cat,
+          isChecked: cat.name === SearchCategory.All ? true : false,
+        }))
+      }
+
     }
     // }
 
@@ -311,6 +327,9 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
 
       case FacetType.Designation:
         this.showAllDesignation = !this.showAllDesignation
+        break
+      case FacetType.sectorCategory:
+        this.showAllSectorCategories = !this.showAllSectorCategories
         break
 
       case FacetType.courseCategory:
@@ -506,6 +525,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
       { key: FacetType.subSectorNames_v1, enableKey: 'showAllSubSectors' },
       { key: FacetType.Language, enableKey: 'showAllLanguage' },
       { key: FacetType.Organization, enableKey: 'showAllOrganisation' },
+      { key: FacetType.sectorCategory, enableKey: 'showAllSectorCategory' },
       { key: this.competencyThemeKey, enableKey: 'showAllCompetencyTheme' },
       { key: FacetType.contentPartners, enableKey: 'showAllContentPartners' },
       { key: FacetType.topic, enableKey: 'showAllTopic' },
@@ -658,12 +678,17 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
       })
     })
 
+
     this.appliedFilter.emit(this.selectedFilters)
     this.selectedFilterChips = []
 
     if (!this.isExploreContentTab) {
       this.constructQueryParam.emit('')
     }
+
+    let event: any = { checked: true }
+    let option = this.categoryTypeDup[0]
+    this.onSelectionFilter(event, option, 'courses')
   }
 
   get filteredOrganisations() {
@@ -680,6 +705,20 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
     )
 
     return this.showAllOrganisation ? filteredList : filteredList?.slice(0, 4)
+  }
+
+  get filteredSectorCategories() {
+    let data: any
+
+    data = this.formattedFacets[FacetType.sectorCategory]
+
+    let filteredList = data?.filter((item: any) =>
+      item.name
+        .toLowerCase()
+        .includes(this.filterQuerySectorCategories.toLowerCase())
+    )
+
+    return this.showAllSectorCategories ? filteredList : filteredList?.slice(0, 4)
   }
 
   get filteredContents() {

@@ -345,12 +345,26 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
     if (this.searchRequestCourse && this.searchRequestCourse['request'] && Object.keys(this.searchRequestCourse['request']['filters'])) {
       if (this.searchRequestCourse['request']['filters']['courseCategory']?.length === 0) {
         this.searchRequestCourse['request']['filters']['courseCategory'] = { "!=": ["pre enrolment assessment"] }
+
       }
       if (this.searchRequestCourse['request']['facets'] && this.searchRequestCourse['request']['facets'].length) {
         this.searchRequestCourse['request']['facets'] = _.uniq(this.searchRequestCourse['request']['facets'])
       }
 
+      if ((this.domainConfService?.isFeatureByPageEnabled('explore', 'showAllandContentOnly'))) {
+        // this.searchRequestCourse['request']['filters']['sectorCategory'] = [
+        //   "governance and public policy",
+        //   "Public Leadership",
+        //   "Technology and Data Governance",
+        //   "Environment and Climate",
+        //   "Economy and Public Finance"
+        // ]
+        this.searchRequestCourse['request']['fields'].push("sectorCategory")
+        this.searchRequestCourse['request']['facets'].push("sectorCategory")
+      }
+
     }
+
     this.searchRequestCourse.request.query = this.statedata?.param
 
     const result = await this.searchV3Service.searchCoursesv4(this.searchRequestCourse)
@@ -814,8 +828,8 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
     }
 
     this.resetPagination()
-
     Object.keys(selectedFilters).forEach((key) => {
+
       if (selectedFilters[key] && Array.isArray(selectedFilters[key])) {
         if (key === FacetType.AvgRating) {
           const ratings = selectedFilters[key]
@@ -829,6 +843,9 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
           }
         } else if (key === FacetType.Language) {
           this.searchRequestCourse.request.filters.language =
+            selectedFilters[key]
+        } else if (key === FacetType.sectorCategory) {
+          this.searchRequestCourse.request.filters.sectorCategory =
             selectedFilters[key]
         } else if (key === FacetType.Organization) {
           this.searchRequestCourse.request.filters.organisation =
@@ -987,6 +1004,10 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
           this.searchRequestExternal.filterCriteriaMap[FacetType.topic] = [
             ...selectedFilters[key],
           ]
+        } else if (key === FacetType.sectorCategory) {
+          this.searchRequestResources.request.filters[FacetType.sectorCategory] = [
+            ...selectedFilters[key],
+          ]
         }
         else {
           this.searchRequestCourse.request.filters.courseCategory!.push(
@@ -996,6 +1017,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       }
     })
 
+    console.log('this.searchRequestCourse.request.filters--', this.searchRequestCourse.request.filters)
     if (!Object.keys(selectedFilters).includes('typeOfEvents')) {
       this.resetEventsTypesRequest()
     }

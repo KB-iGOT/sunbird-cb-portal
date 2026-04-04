@@ -398,6 +398,37 @@
     </ng-container>
 
     <ng-container
+        *ngIf="searchCategory && formattedFacets && formattedFacets['sectorCategory'] && formattedFacets['sectorCategory'].length">
+        <div class="content-provider-filter">
+            <p class="mat-subheading-1 mt-4 font-bold-imp text-dark mb-2">{{'profileInfo.sectorCategory' |
+                translate}}</p>
+            <div class="mat-full-radius mb-2"
+                *ngIf="formattedFacets['sectorCategory'].length > 4 || filterQuerySectorCategories">
+                <mat-form-field appearance="outline" class="search-input-block">
+                    <input matInput class="search-filter-input" placeholder="Search"
+                        [(ngModel)]="filterQuerySectorCategories" #inputSearchContentProvider>
+                    <mat-icon matPrefix class="search-icon">search</mat-icon>
+                </mat-form-field>
+            </div>
+            <mat-selection-list>
+                <section class="mat-body-2 text-capitalize" *ngFor="let options of filteredSectorCategories">
+                    <mat-checkbox [checked]="options?.isChecked || getSelectedFilter(options)"
+                        (change)="onSelectionFilter($event, options, 'sectorCategory')">
+                        <span class="min-width-adjust" [matTooltip]="capitalizeFirstLetter(options?.name)"
+                            [matTooltipPosition]="'right'"> {{ options?.name ? capitalizeFirstLetter(options?.name) :
+                            ''}}</span>
+                        <span class="min-width-adjust">{{' (' + options?.count + ')'}}</span>
+                    </mat-checkbox>
+                </section>
+            </mat-selection-list>
+            <div *ngIf="(formattedFacets?.['sectorCategory']?.length > 4)" class="brand-color underline cursor-pointer"
+                (click)="toggleShowMore('sectorCategory')">
+                {{ showAllSectorCategories ? 'See Less' : 'See More' }}
+            </div>
+        </div>
+    </ng-container>
+
+    <ng-container
         *ngIf="searchCategory && formattedFacets && formattedFacets['organisation'] && formattedFacets['organisation'].length">
         <div class="content-provider-filter">
             <p class="mat-subheading-1 mt-4 font-bold-imp text-dark mb-2">{{'profileInfo.organization' |
