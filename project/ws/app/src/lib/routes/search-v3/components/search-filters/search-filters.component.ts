@@ -132,12 +132,13 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
       this.categoryType = CATEGORY_TYPE.filter(
         item => item?.name === 'courses'
       )
-      this.categoryType[0]['isChecked'] = true
+
       this.categoryTypeDup = CATEGORY_TYPE.filter(
         item => item?.name === 'courses'
       )
-      this.categoryType[0]['isChecked'] = true
-      console.log('this.categoryType--', this.categoryType)
+      if (this.categoryType && this.categoryType?.length > 0) {
+        this.categoryType[0]['isChecked'] = true
+      }
     }
 
     if (changes['newfacets'] && changes['newfacets'].currentValue) {
@@ -258,7 +259,6 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
 
     }
     // }
-    console.log('this.categoryType--', this.categoryType)
 
 
   }
