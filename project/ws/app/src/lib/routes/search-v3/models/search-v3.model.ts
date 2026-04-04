@@ -54,6 +54,7 @@ export class Filters {
   contentType: any
   courseCategory?: any
   status: string[]
+  sectorCategory?: string[]
   sourceName?: string[]
   avgRating?: { [key: string]: string }
   language?: string[]
@@ -246,6 +247,7 @@ export enum FacetType {
   contentPartners = 'contentPartner.contentPartnerName',
   topic = 'topic',
   topicName = 'topicName',
+  sectorCategory = 'sectorCategory'
 }
 
 export enum SortType {
