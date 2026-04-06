@@ -13,7 +13,7 @@ import {
 } from '@angular/core'
 import { UntypedFormControl } from '@angular/forms'
 import { ActivatedRoute, Router } from '@angular/router'
-import { ConfigurationsService } from '@sunbird-cb/utils-v2'
+import { ConfigurationsService, DomainConfService } from '@sunbird-cb/utils-v2'
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators'
 import { SearchServService } from '../../../search/services/search-serv.service'
 import { GbSearchService } from '../../services/gb-search.service'
@@ -118,7 +118,8 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
     private eRef: ElementRef,
     private searchV3Service: GbSearchService,
     private contSvc: WidgetContentLibService,
-    private mobileAppsService: MobileAppsService
+    private mobileAppsService: MobileAppsService,
+    public domainConfService: DomainConfService
   ) {
     this.queryControl = new UntypedFormControl(
       this.activated.snapshot.queryParams.q || ''
@@ -958,7 +959,12 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
 
   openSearchTemplateF() {
     // AFTER NLW NEED TO ENABLE
-    this.openSearchTemplate = true
+    if (!this.domainConfService.isFeatureByPageEnabled('home', 'recentSearch')) {
+      this.openSearchTemplate = false
+    } else {
+      this.openSearchTemplate = true
+    }
+
     if (!this.hasReadRecentBeenCalled) {
       //   this.readRecent();
       this.hasReadRecentBeenCalled = false

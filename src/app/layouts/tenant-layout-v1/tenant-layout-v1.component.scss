@@ -33,6 +33,7 @@
   @include breakpoint-xs {
     padding: 8px 12px;
     gap: 8px;
+    justify-content: space-between;
   }
 }
 
@@ -114,6 +115,16 @@
   flex-shrink: 0;
 }
 
+.tenant-actions-mweb {
+  display: flex;
+  align-items: center;
+  justify-content: right;
+  gap: 12px;
+  flex-shrink: 0;
+  border-top: 1px solid #ccc;
+  padding: 10px;
+}
+
 ::ng-deep.explore-content-action {
   div {
     font-weight: 700 !important;
@@ -167,6 +178,7 @@
    ======================== */
 .tenant-content {
   min-height: calc(100vh - 120px);
+  margin-top: 30px;
   // background: #f5f7fa;
 }
 
