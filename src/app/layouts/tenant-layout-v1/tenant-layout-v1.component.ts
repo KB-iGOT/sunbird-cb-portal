@@ -403,11 +403,12 @@ export class TenantLayoutV1Component implements OnInit, OnDestroy {
 
   async updateQuery(query: string) {
     if (query && query.length) {
-      await this.searchInNLP(query).then(() => {
-        this.processSearchText(query)
-      }).catch(() => {
-        this.processSearchText(query)
-      })
+      // await this.searchInNLP(query).then(() => {
+      //   this.processSearchText(query)
+      // }).catch(() => {
+      //   this.processSearchText(query)
+      // })
+      this.processSearchText(query)
     } else {
       this.processSearchText(query)
     }

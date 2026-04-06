@@ -359,8 +359,11 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
         //   "Environment and Climate",
         //   "Economy and Public Finance"
         // ]
-        this.searchRequestCourse['request']['fields'].push("sectorCategory")
-        this.searchRequestCourse['request']['facets'].push("sectorCategory")
+        if (!this.searchRequestCourse?.request?.fields?.includes('searchCategory')) {
+          this.searchRequestCourse.request.fields.push('searchCategory')
+          this.searchRequestCourse.request.facets.push('searchCategory')
+        }
+
       }
 
     }

@@ -511,7 +511,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
     const returnedData = _.flatMap(data, (values, key) =>
       values.map((value) => ({
         type: key,
-        value: value === 'Courses' ? 'Contents' : this.formatValue(value),
+        value: value === 'Courses' ? 'Contents' : 'Contents',
       }))
     )
     this.categoriseByFacet(returnedData)
@@ -537,12 +537,12 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
     })
   }
 
-  private formatValue(value: string): string {
-    if (value.startsWith('sector-fw_sector_')) {
-      return this.formatSectorName(value)
-    }
-    return this.capitalizeFirstLetter(value)
-  }
+  // private formatValue(value: string): string {
+  //   if (value.startsWith('sector-fw_sector_')) {
+  //     return this.formatSectorName(value)
+  //   }
+  //   return this.capitalizeFirstLetter(value)
+  // }
 
   private reverseFormatSectorName(formattedName: string): string {
     const originalName = formattedName

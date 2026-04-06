@@ -92,7 +92,8 @@
                         </div>
                         <div
                             [ngClass]="{'right-section-row': content?.difficultyLevel || content?.knowledgeLevel, 'right-section-column': !content?.difficultyLevel || content?.knowledgeLevel}">
-                            <div class="flex items-center gap-3 bookmark-section">
+                            <div class="flex items-center gap-3 bookmark-section"
+                                *ngIf="!((this.domainConfService?.isFeatureByPageEnabled('explore', 'showAllandContentOnly')))">
                                 <ng-container
                                     *ngIf="courseEnrollment && courseEnrollment?.issuedCertificates && courseEnrollment?.completionPercentage === 100">
                                     <div matRipple (click)="downloadCertificate(courseEnrollment)"
