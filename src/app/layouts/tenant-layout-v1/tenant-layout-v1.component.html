@@ -18,7 +18,8 @@
     </div>
 
     <!-- Search Bar -->
-    <div class="flex items-center border search-v3 search-border w-full" id="app-search-bar">
+    <div *ngIf="(isXSmall$ | async) === false" class="flex items-center border search-v3 search-border w-full"
+      id="app-search-bar">
       <div class="w-full search relative">
         <form (submit)="updateQuery(queryControl.value); $event.preventDefault()"
           class="mat-full-radius flex items-center">
@@ -46,7 +47,7 @@
 
     <!-- Right Actions -->
     <div class="tenant-actions">
-      <ng-container [@enterAnimation]="visible">
+      <ng-container *ngIf="(isXSmall$ | async) === false" [@enterAnimation]="visible">
         <div class="explore-more flex items-center">
           <button mat-raised-button class="mat-btn-outline cursor-pointer explore-content-action"
             (click)="navigateToExplore()">
@@ -106,6 +107,23 @@
       </mat-menu>
     </div>
   </div>
+  <div class="tenant-actions-mweb" *ngIf="(isXSmall$ | async) === true">
+    <ng-container [@enterAnimation]="visible">
+      <div class="explore-more flex items-center">
+        <button mat-raised-button class="mat-btn-outline cursor-pointer explore-content-action"
+          (click)="navigateToExplore()">
+          <div class="flex items-center">
+            <mat-icon class="mr-1" svgIcon="course-cataloguee"></mat-icon>
+            <div class="flex items-center explore-content-text">
+              <span class="">
+                Explore Content
+              </span>
+            </div>
+          </div>
+        </button>
+      </div>
+    </ng-container>
+  </div>
 </header>
 
 <ng-template #logoutDialog>
@@ -135,6 +153,11 @@
 </div>
 
 <!-- Footer (reuses existing footer if config available) -->
-<ws-app-footer class="app-footer" *ngIf="showNavbar && showFooter && headerFooterConfigData && !hideHeaderAndFooter"
+<ws-app-footer class="app-footer"
+  *ngIf="showNavbar && showFooter && headerFooterConfigData && !hideHeaderAndFooter && (isXSmall$ | async) === false"
   [headerFooterConfigData]="headerFooterConfigData">
 </ws-app-footer>
+
+<ws-app-nav-bar class="bottom-nav-bar"
+  *ngIf="(isXSmall$ | async) === true  && domainConfSvc.isFeatureEnabled('bottomNav')" [mode]="'bottom'">
+</ws-app-nav-bar>

@@ -167,7 +167,10 @@
         [isLoading]="profileDataLoading"></ws-widget-profile-card-stats>
 </div>
 
-<section class="hidden md:block" style="position: relative;" [ngClass]="{'':!collapsed, 'margin-bottom-m': collapsed}">
+<section style="position: relative;" [ngClass]="{
+  'margin-bottom-m': collapsed,
+  'hidden md:block': !domainConfService?.isFeatureByPageEnabled('home','myLearningForMweb')
+}">
     <div class="assessment-box  collapsible" [@collapse]="collapsed"
         [ngClass]="{'margin-bottom-remove margin-top-remove':collapsed}">
         <ng-container [ngTemplateOutlet]="loadNewStrips"></ng-container>
