@@ -71,33 +71,33 @@
         }}</span></div>
     <div class="subheading-text" *ngIf="data?.courseCategory?.toLowerCase() !== 'case study'"><span>{{
         'coursecompletiondialog.yourCertificateAvailableShortly' | translate }}</span></div>
-    </div>
-    <!-- <div class="badge-section" *ngIf="badge">
-    
+  </div>
+  <!-- <div class="badge-section" *ngIf="badge">
+
                               <div class="badge-icon">
                                 <img [src]="badge.badgeTemplate" alt="badge" />
                               </div>
-    
+
                               <div class="badge-text">
                                 <div class="badge-title">
                                   {{ badge?.badgeTitle }}
                                 </div>
-    
+
                                 <div class="badge-subtitle">
                                   {{ badge?.badgeSubTitle }}
                                 </div>
     </div>
 
         </div> -->
-        <div class="badge-wrapper" *ngIf="badge">
-          <img [src]="badge?.badgeTemplate | pipePublicURL" class="badge-image" />
-        
-          <div class="badge-label">
-            <span class="badge-name">{{ badge?.badgeTitle }}</span>
-            <!-- <span class="badge-level">{{ badge?.badgeSubTitle }}</span> -->
-          </div>
-        </div>
-  <div class="seperator"></div>
+  <div class="badge-wrapper" *ngIf="badge">
+    <img [src]="badge?.badgeTemplate | pipePublicURL" class="badge-image" />
+
+    <div class="badge-label">
+      <span class="badge-name">{{ badge?.badgeTitle }}</span>
+      <!-- <span class="badge-level">{{ badge?.badgeSubTitle }}</span> -->
+    </div>
+  </div>
+  <div class="seperator-line"></div>
   <div class="rating-panel">
     <div class="" (click)="$event.stopPropagation();">
       <ng-container *ngFor="let start of [1, 2, 3, 4, 5]; let i = index">
