@@ -12,7 +12,7 @@ const CONSTANTS = {
   LA_HOST_PROXY: process.env.LA_HOST_PROXY || 'http://localhost',
   WEB_HOST_PROXY: process.env.WEB_HOST_PROXY || 'http://localhost:3007',
   FRAME_ANCESTORS: process.env.FRAME_ANCESTORS || "'self'",
-  JS_CACHE_CONTROL: 'public, max-age=1800',
+  JS_CACHE_CONTROL: 'public, max-age=300',
 }
 
 var app = express()
