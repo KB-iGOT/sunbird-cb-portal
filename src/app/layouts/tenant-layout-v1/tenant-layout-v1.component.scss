@@ -178,12 +178,11 @@
    ======================== */
 .tenant-content {
   min-height: calc(100vh - 120px);
-  margin-top: 30px;
   // background: #f5f7fa;
 }
 
 .tenant-content-with-header {
-  padding-top: 94px;
+  padding-top: 64px;
 }
 
 /* ========================
@@ -266,7 +265,12 @@
 }
 
 // 821
-@media only screen and (max-width: 821px) {}
+@media only screen and (max-width: 821px) {
+  .tenant-content {
+    margin-top: 45px;
+    // background: #f5f7fa;
+  }
+}
 
 ::ng-deep .mat-form-field-underline {
   display: none;
