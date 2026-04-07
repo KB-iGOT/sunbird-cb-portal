@@ -92,7 +92,7 @@
                         </div>
                         <div
                             [ngClass]="{'right-section-row': content?.difficultyLevel || content?.knowledgeLevel, 'right-section-column': !content?.difficultyLevel || content?.knowledgeLevel}">
-                            <div class="flex items-center gap-3 bookmark-section"
+                            <!-- <div class="flex items-center gap-3 bookmark-section"
                                 *ngIf="!((this.domainConfService?.isFeatureByPageEnabled('explore', 'showAllandContentOnly')))">
                                 <ng-container
                                     *ngIf="courseEnrollment && courseEnrollment?.issuedCertificates && courseEnrollment?.completionPercentage === 100">
@@ -120,7 +120,7 @@
                                     *ngIf="courseEnrollment && courseEnrollment?.completionPercentage === 100">
                                     <div class="inprogress-course font-stats rounded">Completed</div>
                                 </ng-container>
-                            </div>
+                            </div> -->
                             <div *ngIf="content?.difficultyLevel || content?.knowledgeLevel"
                                 class="knowledge-level-container">
                                 <span

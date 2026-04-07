@@ -103,7 +103,7 @@
           {{ resourceName }}
         </p>
       </div>
-      <div (click)="onClickOfShare()" *ngIf="canShare"
+      <div (click)="onClickOfShare()" *ngIf="canShare && (domainConfService?.isFeatureByPageEnabled('toc','shareToc'))"
         class="flex flex-row cursor-pointer items-center justify-end gap-2 share-tag">
         <mat-icon class="">share</mat-icon>
       </div>
