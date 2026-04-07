@@ -12,6 +12,7 @@ const CONSTANTS = {
   LA_HOST_PROXY: process.env.LA_HOST_PROXY || 'http://localhost',
   WEB_HOST_PROXY: process.env.WEB_HOST_PROXY || 'http://localhost:3007',
   FRAME_ANCESTORS: process.env.FRAME_ANCESTORS || "'self'",
+  JS_CACHE_CONTROL: 'public, max-age=300',
 }
 
 var app = express()
@@ -68,6 +69,7 @@ serveAssets('/ja')
 function serveAssets(hostPath) {
   app.use(
     `${hostPath}/assets`,
+    setJavaScriptCacheHeader,
     // proxyCreator(express.Router(), CONSTANTS.WEB_HOST_PROXY + '/web-hosted/client-assets/dist'),
      express.static(path.join(__dirname, `${hostPath}`, `assets`)) //  "public" off of current is root
   )
@@ -106,6 +108,7 @@ function proxyCreator(route, baseUrl) {
 function uiHostCreator(hostPath, hostFolderName) {
   app.use(
     `${hostPath}`,
+    setJavaScriptCacheHeader,
     expressStaticGzip(path.join(__dirname, `www/${hostFolderName}`), {
       enableBrotli: true,
       orderPreference: ['br', 'gz'],
@@ -113,6 +116,7 @@ function uiHostCreator(hostPath, hostFolderName) {
   )
 app.get(`${hostPath}/*`, (req, res) => {
 if (req.url.startsWith('/assets/')) {
+setJavaScriptCacheControl(res, req.path)
 res.sendFile(path.join(__dirname, `www/${hostFolderName}/${req.url}`))
 
 } else if (req.url.startsWith('/.well-known/')) {
@@ -122,6 +126,17 @@ res.sendFile(path.join(__dirname, `${req.url}`))
 res.sendFile(path.join(__dirname, `www/${hostFolderName}/index.html`))
 }
 })
+}
+
+function setJavaScriptCacheHeader(req, res, next) {
+  setJavaScriptCacheControl(res, req.path)
+  next()
+}
+
+function setJavaScriptCacheControl(res, filePath) {
+  if (path.extname(filePath) === '.js') {
+    res.setHeader('Cache-Control', CONSTANTS.JS_CACHE_CONTROL)
+  }
 }
 
 function haltOnTimedOut(req, _res, next) {
