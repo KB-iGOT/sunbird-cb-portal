@@ -4,7 +4,7 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser'
 import { ActivatedRoute, NavigationEnd, NavigationExtras, Router } from '@angular/router'
 import { WidgetContentService } from '@sunbird-cb/toc'
 import { NsContent, VIEWER_ROUTE_FROM_MIME } from '@sunbird-cb/collection'
-import { ConfigurationsService, EventService, NsPage, ValueService, WsEvents } from '@sunbird-cb/utils-v2'
+import { ConfigurationsService, DomainConfService, EventService, NsPage, ValueService, WsEvents } from '@sunbird-cb/utils-v2'
 import { Subscription } from 'rxjs'
 import { ViewerUtilService } from '@sunbird-cb/toc'
 import { CourseCompletionDialogComponent } from '../course-completion-dialog/course-completion-dialog.component'
@@ -88,6 +88,7 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy, AfterV
     private widgetLibSvc: WidgetContentLibService,
     private cdr: ChangeDetectorRef,
     private zohoFormService: ZohoFormService,
+    public domainConfService: DomainConfService
     // private contentSvc: WidgetContentServiceUtils
 
   ) {
