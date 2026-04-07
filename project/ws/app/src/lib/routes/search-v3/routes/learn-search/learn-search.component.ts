@@ -101,6 +101,11 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
   searchRequestExternal = new SearchExternalRequest([]);
   searchContentLoader = true;
 
+  // Debounce for sort change to prevent duplicate API calls from multiple sort-input instances
+  private lastSortChangeTime = 0;
+  private lastSortValue: string | null = null;
+  private sortChangeDebounceMs = 500;
+
   initialPaginationSize = 10;
   initialPaginationSizeOptions = [10, 20, 50, 100];
   initialPaginationPage = 1;
@@ -1385,6 +1390,19 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async onChangeSortSearch(event: string) {
+    // Debounce: ignore rapid duplicate calls from multiple sort-input instances (desktop & mobile)
+    const now = Date.now()
+    const isDuplicateValue = event === this.lastSortValue
+    const isWithinDebounceWindow = now - this.lastSortChangeTime < this.sortChangeDebounceMs
+
+    if (isDuplicateValue && isWithinDebounceWindow) {
+      console.debug('Sort change debounced - ignoring duplicate call for:', event)
+      return
+    }
+
+    this.lastSortChangeTime = now
+    this.lastSortValue = event
+
     this.searchContentLoader = true
     this.searchSortFilter = event
     this.resetPagination()

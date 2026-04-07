@@ -515,7 +515,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
       }))
     )
     this.categoriseByFacet(returnedData)
-    return this.selectedFilterChips.length ? returnedData : []
+    return this.selectedFilterChips && this.selectedFilterChips.length ? returnedData : []
   }
 
   categoriseByFacet(facetData: any) {

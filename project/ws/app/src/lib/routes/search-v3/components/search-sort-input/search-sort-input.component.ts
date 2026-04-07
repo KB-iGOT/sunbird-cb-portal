@@ -30,6 +30,9 @@ export class SearchSortInputComponent implements AfterViewInit, OnChanges {
 
   @ViewChild('sortSelect') sortSelect!: ElementRef
 
+  // Guard flag to emit feature flag filter only once
+  private featureFlagFilterEmitted = false;
+
   constructor(public domainConfService: DomainConfService) {
 
   }
@@ -37,7 +40,28 @@ export class SearchSortInputComponent implements AfterViewInit, OnChanges {
   ngOnChanges(): void {
     const excludedValues = ['most_relevant', 'recently_added_newest']
 
+    // Check feature flag first - if enabled, skip localStorage and other logic
+    if (this.domainConfService?.isFeatureByPageEnabled('explore', 'showAllandContentOnly')) {
+      this.options = SEARCH_SORT_DROPDOWN.filter(
+        item => !excludedValues.includes(item.value)
+      )
+      this.selectedOption = this.options[0].value
 
+      // Emit only once when feature flag is enabled for the first time
+      if (!this.featureFlagFilterEmitted) {
+        this.featureFlagFilterEmitted = true
+        // Emit in next tick to ensure options are updated in DOM first
+        setTimeout(() => {
+          this.searchSorter.emit(this.selectedOption)
+        }, 0)
+      }
+      return // Exit early - don't process normal logic
+    } else {
+      // Reset flag when feature flag is disabled
+      this.featureFlagFilterEmitted = false
+    }
+
+    // Normal flow when feature flag is not active
     if (this.customOptions && this.customOptions.length > 0) {
       this.options = this.customOptions
       this.selectedOption = this.customOptions[0].value
@@ -81,14 +105,6 @@ export class SearchSortInputComponent implements AfterViewInit, OnChanges {
       this.selectedOption = sortType
       // this.searchSorter.emit(this.selectedOption);
     }
-
-    if (this.domainConfService?.isFeatureByPageEnabled('explore', 'showAllandContentOnly')) {
-      this.options = SEARCH_SORT_DROPDOWN.filter(
-        item => !excludedValues.includes(item.value)
-      )
-      this.selectedOption = this.options[0].value
-    }
-
   }
 
   ngAfterViewInit() {
