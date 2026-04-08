@@ -1713,13 +1713,10 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   resetPagination() {
-    const defaultPaginationSize = 10
-    this.initialPaginationSize = defaultPaginationSize
-
     this.initialPaginationPage = 2
     setTimeout(() => {
       this.initialPaginationPage = 1
-    }, 0)
+    })
   }
 
   processEventsResult(events: any) {
