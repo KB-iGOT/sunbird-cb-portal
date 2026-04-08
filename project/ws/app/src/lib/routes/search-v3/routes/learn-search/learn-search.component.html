@@ -130,7 +130,7 @@
                                 {{ 'learnsearch.seeAllResults'
                                 | translate }}
                             </p>
-                            <ng-container *ngIf="seeAllResult && courseSearchTotalCount > initialPaginationSize">
+                            <ng-container *ngIf="seeAllResult">
                                 <div [ngClass]="{'md:mt-72': courseSearchResults.length < 3}">
                                     <ws-app-pagination [defaultPaginationSize]="initialPaginationSize"
                                         [defaultPaginationSizeOptions]="initialPaginationSizeOptions"
