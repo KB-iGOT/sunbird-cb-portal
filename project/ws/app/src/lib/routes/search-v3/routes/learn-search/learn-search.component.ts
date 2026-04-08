@@ -1345,8 +1345,6 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
   async onPageChange(event: PageChangeEmitter) {
     this.searchContentLoader = true
     this.scrollToTop()
-    // Keep parent page-size state in sync with child pagination component.
-    this.initialPaginationSize = event.limit
 
     if (this.seeAllResult === SearchCategory.Courses) {
       this.searchRequestCourse.request.limit = event.limit
