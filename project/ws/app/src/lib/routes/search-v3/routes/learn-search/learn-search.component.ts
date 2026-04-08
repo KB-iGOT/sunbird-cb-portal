@@ -1345,6 +1345,8 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
   async onPageChange(event: PageChangeEmitter) {
     this.searchContentLoader = true
     this.scrollToTop()
+    // Keep parent page-size state in sync with child pagination component.
+    this.initialPaginationSize = event.limit
 
     if (this.seeAllResult === SearchCategory.Courses) {
       this.searchRequestCourse.request.limit = event.limit
@@ -1405,9 +1407,9 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
 
     this.searchContentLoader = true
     this.searchSortFilter = event
-    this.resetPagination()
+    // this.resetPagination()
     this.searchRequestCourse.request.sort_by = {}
-    this.searchRequestCourse.request.offset = 0
+    // this.searchRequestCourse.request.offset = 0
 
     this.searchRequestResources.request.sort_by = {}
     this.searchRequestResources.request.offset = 0
@@ -1424,7 +1426,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
     if (this.seeAllResult) {
       this.searchRequestPeoples.limit = this.initialPaginationSize
       this.searchRequestEvents.request.limit = this.initialPaginationSize
-      this.searchRequestCourse.request.limit = this.initialPaginationSize
+      // this.searchRequestCourse.request.limit = this.initialPaginationSize
       this.searchRequestCommunities.pageSize = this.initialPaginationSize
       this.searchRequestResources.request.limit = this.initialPaginationSize
       this.searchRequestExternal.pageSize = this.initialPaginationSize
@@ -1432,7 +1434,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       this.searchRequestPeoples.limit = this.initialPaginationSize
       this.searchRequestCommunities.pageSize = this.initialPaginationSize
       this.searchRequestEvents.request.limit = this.commonPageResultSize
-      this.searchRequestCourse.request.limit = this.commonPageResultSize
+      // this.searchRequestCourse.request.limit = this.commonPageResultSize
       this.searchRequestResources.request.limit = this.commonPageResultSize
       this.searchRequestExternal.pageSize = this.initialPaginationSize
     }
@@ -1711,10 +1713,13 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   resetPagination() {
+    const defaultPaginationSize = 10
+    this.initialPaginationSize = defaultPaginationSize
+
     this.initialPaginationPage = 2
     setTimeout(() => {
       this.initialPaginationPage = 1
-    })
+    }, 0)
   }
 
   processEventsResult(events: any) {
