@@ -195,6 +195,10 @@ iframe {
   margin-right: 5px;
 }
 
+.filter-section .mat-expanded .mat-expansion-indicator::after {
+  margin-top: -12px;
+}
+
 mat-toolbar {
 
   &.mat-toolbar-row,
