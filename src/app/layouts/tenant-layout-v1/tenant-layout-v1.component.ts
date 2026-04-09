@@ -148,7 +148,7 @@ export class TenantLayoutV1Component implements OnInit, OnDestroy {
   }
 
   navigateToExplore(): void {
-    this.router.navigate(['/app/globalsearch'], { queryParams: { tab: 'Explore' } })
+    this.router.navigate(['/app/globalsearch'], { queryParams: { tab: 'Explore', q: '' } })
   }
 
   navigateToProfile(header: string): void {

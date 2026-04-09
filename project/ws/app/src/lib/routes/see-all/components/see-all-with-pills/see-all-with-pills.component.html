@@ -65,10 +65,7 @@
                                     <img alt="" class="mt-4 mb-4" src="assets/icons/home/nodataDefault.svg">
                                     <div class="mat-subheading-1 text-center info-content">{{ translateLabels('get Ready
                                         For Learning Adventure','contentstripmultiple') }} -
-                                        <a class="click-here"
-                                            [routerLink]="tab?.label === 'Events' ? '/app/event-hub/home':'/page/learn'">{{
-                                            translateLabels('click Here','contentstripmultiple') }}.</a> <span
-                                            *ngIf=" tab?.label === 'Events'">{{translateLabels('to Enroll Next
+                                        <span *ngIf=" tab?.label === 'Events'">{{translateLabels('to Enroll Next
                                             Events','contentstripmultiple') }}</span>
                                         <span *ngIf=" tab?.label !== 'Events'">{{ translateLabels('to Enroll Next
                                             Course','contentstripmultiple') }}</span>
