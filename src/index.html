@@ -32,7 +32,7 @@
     (async function getData() {
       const url = "/assets/env.json"
       try {
-        const response = await fetch(url, { cache: "no-cache" })
+        const response = await fetch(url)
         if (!response.ok) {
           throw new Error(`Response status: ${response.status}`)
         }

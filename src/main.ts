@@ -15,6 +15,19 @@ if (/trident/i.test(MATCHING_IE[1])) {
 } else {
   if (environment.production) {
     enableProdMode()
+
+    function waitForEnvAndBootstrap() {
+      if ((window as any).env && (window as any).env.name) {
+        platformBrowserDynamic()
+          .bootstrapModule(AppModule)
+          .catch(err => console.error(err))
+      } else {
+        //wait and retry
+        setTimeout(waitForEnvAndBootstrap, 50)
+      }
+    }
+
+    waitForEnvAndBootstrap()
   }
 
   platformBrowserDynamic()
