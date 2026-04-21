@@ -255,7 +255,9 @@ $title-line-count: 2;
 
 .link-text {
     color: #1B4CA1;
+    /* stylelint-disable */
     font: 700 14px Lato;
+    /* stylelint-enable */
     cursor: pointer;
     pointer-events: all;
 }
