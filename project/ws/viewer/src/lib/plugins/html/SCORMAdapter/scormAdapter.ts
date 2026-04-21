@@ -4,12 +4,12 @@ import { Storage, IScromData } from './storage'
 import { errorCodes } from './errors'
 import * as _ from 'lodash'
 import { HttpBackend, HttpClient } from '@angular/common/http'
-import { ActivatedRoute } from '@angular/router';
-import { ConfigurationsService } from '@sunbird-cb/utils-v2';
+import { ActivatedRoute } from '@angular/router'
+import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { NsContent } from '@sunbird-cb/collection'
 import dayjs from 'dayjs'
-import { ViewerUtilService } from '../../../viewer-util.service'
-import { Subject } from 'rxjs'
+import { ViewerUtilService } from '@sunbird-cb/toc'
+import { Subject, of, Observable } from 'rxjs'
 const API_END_POINTS = {
   SCROM_ADD_UPDTE: '/apis/protected/v8/scrom/add',
   SCROM_FETCH: '/apis/protected/v8/scrom/get',
@@ -116,21 +116,24 @@ export class SCORMAdapterService {
       // let newData = JSON.stringify(data)
       // data = Base64.encode(newData)
       let _return = false
-      
+
       //only for complete and pass status, progress call should be done
-      if(this.getStatus(data) === 2){
-        this.addDataV2(data).subscribe((response) => {
-          if (response) {
-            _return = true
-          }
-        }, (error) => {
-          if (error) {
-            this._setError(101)
-            // console.log(error)
-          }
-        })
+      if (this.getStatus(data) === 2) {
+        const obs = this.addDataV2(data)
+        if (obs && typeof (obs.subscribe) === 'function') {
+          obs.subscribe((response) => {
+            if (response) {
+              _return = true
+            }
+          }, (error) => {
+            if (error) {
+              this._setError(101)
+              // console.log(error)
+            }
+          })
+        }
       }
-      
+
       return _return
     }
     return false
@@ -183,14 +186,14 @@ export class SCORMAdapterService {
     if (this.configSvc.userProfile) {
       userId = this.configSvc.userProfile.userId || ''
     }
-    const requestCourse = this.viewerSvc.getBatchIdAndCourseId(this.activatedRoute.snapshot.queryParams.collectionId, 
+    const requestCourse = this.viewerSvc.getBatchIdAndCourseId(this.activatedRoute.snapshot.queryParams.collectionId,
       this.activatedRoute.snapshot.queryParams.batchId, this.contentId)
-    const ML  = this.viewerSvc.getResourceContentLanguage(this.contentId)
+    const ML = this.viewerSvc.getResourceContentLanguage(this.contentId)
     const req: NsContent.IContinueLearningDataReq = {
       request: {
         userId,
-        batchId: (requestCourse && requestCourse.batchId) ?  requestCourse.batchId : '',
-        courseId: (requestCourse && requestCourse.courseId) ?  requestCourse.courseId : '',
+        batchId: (requestCourse && requestCourse.batchId) ? requestCourse.batchId : '',
+        courseId: (requestCourse && requestCourse.courseId) ? requestCourse.courseId : '',
         contentIds: [],
         language: ML,
         fields: ['progressdetails'],
@@ -218,15 +221,15 @@ export class SCORMAdapterService {
                 // errors: data["errors"]
               }
               this.store.setAll(loadDatas)
-              // if scorm has progress and LMS was not initialized 
-              if(data["Initialized"]) {
+              // if scorm has progress and LMS was not initialized
+              if (data["Initialized"]) {
                 this.updateScormInitialized(scormLMSStatus.LMSPositive)
               } else {
                 this.updateScormInitialized(scormLMSStatus.LMSNegative)
               }
             }
           }
-          if(!found) {
+          if (!found) {
             this.updateScormInitialized(scormLMSStatus.LMSWating)
           }
         } else {
@@ -284,12 +287,13 @@ export class SCORMAdapterService {
       return 1
     }
   }
-  addDataV2(postData: IScromData) {
+  addDataV2(postData: IScromData): Observable<any> {
     let req: any
-    const requestCourse = this.viewerSvc.getBatchIdAndCourseId(this.activatedRoute.snapshot.queryParams.collectionId, 
+    const requestCourse = this.viewerSvc.getBatchIdAndCourseId(this.activatedRoute.snapshot.queryParams.collectionId,
       this.activatedRoute.snapshot.queryParams.batchId, this.contentId)
-    if (this.configSvc.userProfile && requestCourse.courseId && requestCourse.batchId) {
-      const language = this.viewerSvc.getResourceContentLanguage(this.contentId) 
+    // Avoid sending an empty request body. Require userProfile, courseId, batchId and non-empty postData.
+    if (this.configSvc.userProfile && requestCourse.courseId && requestCourse.batchId && postData && Object.keys(postData).length) {
+      const language = this.viewerSvc.getResourceContentLanguage(this.contentId)
       req = {
         request: {
           userId: this.configSvc.userProfile.userId || '',
@@ -297,8 +301,8 @@ export class SCORMAdapterService {
             {
               contentId: this.contentId,
               language: language,
-              batchId: (requestCourse && requestCourse.batchId) ?  requestCourse.batchId : '',
-              courseId: (requestCourse && requestCourse.courseId) ?  requestCourse.courseId : '',
+              batchId: (requestCourse && requestCourse.batchId) ? requestCourse.batchId : '',
+              courseId: (requestCourse && requestCourse.courseId) ? requestCourse.courseId : '',
               status: this.getStatus(postData),
               lastAccessTime: dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss:SSSZZ'),
               progressdetails: postData
@@ -306,15 +310,26 @@ export class SCORMAdapterService {
           ],
         },
       }
-    } else {
-      req = {}
+      return this.http.patch(`${API_END_POINTS.SCROM_UPDTE_PROGRESS}/${this.contentId}`, req)
     }
-    return this.http.patch(`${API_END_POINTS.SCROM_UPDTE_PROGRESS}/${this.contentId}`, req)
+    // Do not call the API with an empty payload; log and return an empty observable instead.
+    try {
+      const userId = this.configSvc.userProfile ? this.configSvc.userProfile.userId : ''
+      const contentId = this.contentId || ''
+      const batchId = (requestCourse && requestCourse.batchId) ? requestCourse.batchId : ''
+      const courseId = (requestCourse && requestCourse.courseId) ? requestCourse.courseId : ''
+      console.warn('Skipping addDataV2 due to missing context', { contentId, batchId, courseId, userId })
+    } catch (e) {
+      // swallow
+    }
+    return of(null)
   }
 
   addDataV3(reqDetails: any, contentId?: string) {
     let req: any
-    const requestCourse = this.viewerSvc.getBatchIdAndCourseId(this.activatedRoute.snapshot.queryParams.collectionId, 
+    // make return type explicit
+    let result: Observable<any>
+    const requestCourse = this.viewerSvc.getBatchIdAndCourseId(this.activatedRoute.snapshot.queryParams.collectionId,
       this.activatedRoute.snapshot.queryParams.batchId, this.contentId)
     if (this.configSvc.userProfile && requestCourse.courseId && requestCourse.batchId) {
       req = {
@@ -322,20 +337,30 @@ export class SCORMAdapterService {
           userId: this.configSvc.userProfile.userId || '',
           contents: [
             {
-              contentId: contentId ? contentId :  this.contentId,
-              batchId: (requestCourse && requestCourse.batchId) ?  requestCourse.batchId : '',
-              courseId: (requestCourse && requestCourse.courseId) ?  requestCourse.courseId : '',
-              status: (reqDetails.status) || 0,
+              contentId: contentId ? contentId : this.contentId,
+              batchId: (requestCourse && requestCourse.batchId) ? requestCourse.batchId : '',
+              courseId: (requestCourse && requestCourse.courseId) ? requestCourse.courseId : '',
+              status: (reqDetails && reqDetails.status) || 0,
               lastAccessTime: dayjs(new Date()).format('YYYY-MM-DD HH:mm:ss:SSSZZ'),
-              completionPercentage: reqDetails.completionPercentage,
-              progressdetails: {...reqDetails.progressDetails},
+              completionPercentage: reqDetails && reqDetails.completionPercentage,
+              progressdetails: { ...(reqDetails && reqDetails.progressDetails) },
             },
           ],
         },
       }
-    } else {
-      req = {}
+      result = this.http.patch(`${API_END_POINTS.SCROM_UPDTE_PROGRESS}/${this.contentId}`, req)
+      return result
     }
-    return this.http.patch(`${API_END_POINTS.SCROM_UPDTE_PROGRESS}/${this.contentId}`, req)
+    // Log skipped call and return null observable
+    try {
+      const userId = this.configSvc.userProfile ? this.configSvc.userProfile.userId : ''
+      const cid = contentId ? contentId : this.contentId || ''
+      const batchId = (requestCourse && requestCourse.batchId) ? requestCourse.batchId : ''
+      const courseId = (requestCourse && requestCourse.courseId) ? requestCourse.courseId : ''
+      console.warn('Skipping addDataV3 due to missing context', { contentId: cid, batchId, courseId, userId })
+    } catch (e) {
+      // swallow
+    }
+    return of(null)
   }
 }

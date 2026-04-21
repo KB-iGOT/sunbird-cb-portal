@@ -2,17 +2,18 @@ import { Component, ElementRef, Input, OnChanges, OnInit, ViewChild, OnDestroy }
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser'
 import { Router, ActivatedRoute } from '@angular/router'
-import { NsContent, WidgetContentService } from '@sunbird-cb/collection'
+import { NsContent } from '@sunbird-cb/collection'
 import { ConfigurationsService, EventService, LoggerService, TFetchStatus } from '@sunbird-cb/utils-v2'
 import { MobileAppsService } from '../../../../../../../src/app/services/mobile-apps.service'
 import { SCORMAdapterService, scormLMSStatus } from './SCORMAdapter/scormAdapter'
 /* tslint:disable */
-import * as _ from 'lodash'
-import { environment } from 'src/environments/environment';
+import _ from 'lodash'
+import { environment } from 'src/environments/environment'
 import { Subscription, timer } from 'rxjs'
 import { Storage } from './SCORMAdapter/storage'
-import { AppTocService } from '@ws/app/src/lib/routes/app-toc/services/app-toc.service'
+import { AppTocService, ViewerUtilService } from '@sunbird-cb/toc'
 /* tslint:enable */
+import { WidgetContentService } from '@sunbird-cb/toc'
 
 @Component({
   selector: 'viewer-plugin-html',
@@ -49,6 +50,7 @@ export class HtmlComponent implements OnInit, OnChanges, OnDestroy {
 
   ticks = 0
   private timer!: any
+  private progressSent = false
   // Subscription object
   private sub!: Subscription
   tocConfigSubscription: Subscription | null = null
@@ -67,6 +69,7 @@ export class HtmlComponent implements OnInit, OnChanges, OnDestroy {
     private loggerSvc: LoggerService,
     private widgetContentSvc: WidgetContentService,
     private tocSvc: AppTocService,
+    private viewerUtilSvc: ViewerUtilService,
   ) {
     (window as any).API = this.scormAdapterService
     // if (window.addEventListener) {
@@ -87,7 +90,7 @@ export class HtmlComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnInit() {
     this.tocConfigSubscription = this.widgetContentSvc.tocConfigData.subscribe((data: any) => {
-        this.tocConfig = data
+      this.tocConfig = data
     })
     if (this.htmlContent && this.htmlContent.identifier) {
       this.scormAdapterService.contentId = this.htmlContent.identifier
@@ -98,6 +101,27 @@ export class HtmlComponent implements OnInit, OnChanges, OnDestroy {
         this.sub = this.timer.subscribe((t: any) => this.tickerFunc(t))
         this.scormAdapterService.scormInitialized$.subscribe(value => {
           this.playScormContentFlag = value
+          // After loadDataV2 completes (LMSPositive/LMSNegative = data loaded from server),
+          // sync the stored completion status into tocSvc.hashmap so the top-bar shows
+          // correct progress on initial load.
+          if (value !== scormLMSStatus.LMSWating && this.htmlContent) {
+            const storedStatus = this.store.getItem('completionStatus')
+            const storedPercentage = this.store.getItem('completionPercentage')
+            const completionStatus = Number(storedStatus) || 0
+            const completionPercentage = Number(storedPercentage) || 0
+            if (completionStatus > 0 && this.tocSvc.hashmap && this.tocSvc.hashmap[this.htmlContent.identifier]) {
+              const currentStatus = this.tocSvc.hashmap[this.htmlContent.identifier]['completionStatus'] || 0
+              if (completionStatus > currentStatus) {
+                this.tocSvc.hashmap[this.htmlContent.identifier]['completionPercentage'] = completionPercentage
+                this.tocSvc.hashmap[this.htmlContent.identifier]['completionStatus'] = completionStatus
+                this.tocSvc.hashmap = { ...this.tocSvc.hashmap }
+                if (this.tocSvc.triggerMilestoneLockUpdate) {
+                  this.tocSvc.triggerMilestoneLockUpdate()
+                }
+                this.viewerUtilSvc.markAsCompleteSubject.next(true)
+              }
+            }
+          }
         })
       }
     }
@@ -105,6 +129,20 @@ export class HtmlComponent implements OnInit, OnChanges, OnDestroy {
 
   tickerFunc(tick: any) {
     this.ticks = tick
+    // If not previewing and progress not yet sent,
+    // check completion status on every tick and send real-time progress if completed
+    try {
+      if (!this.forPreview && this.htmlContent && !this.progressSent) {
+        const completion = this.calculateCompletionStatus(this.htmlContent)
+        if (completion && completion.status === 2) {
+          console.log('Content completed, sending real-time progress based on threshold - forcefully')
+          this.progressSent = true
+          this.fireRealTimeProgress(this.htmlContent)
+        }
+      }
+    } catch (e) {
+      this.loggerSvc.error('Error while checking/raising real-time progress', e)
+    }
   }
 
   ngOnDestroy() {
@@ -155,7 +193,7 @@ export class HtmlComponent implements OnInit, OnChanges, OnDestroy {
 
       let progressData
       if (this.store.getItem('Initialized')) {
-        progressData = { ...this.store.getAll() || 0 , spentTime: (completionData && completionData.spentTime) }
+        progressData = { ...this.store.getAll() || 0, spentTime: (completionData && completionData.spentTime) }
       } else {
         progressData = { spentTime: (completionData && completionData.spentTime) || 0 }
       }
@@ -174,15 +212,19 @@ export class HtmlComponent implements OnInit, OnChanges, OnDestroy {
           // tslint:disable-next-line: max-length
           if (this.tocSvc.hashmap[htmlContent.identifier]
             && (!this.tocSvc.hashmap[htmlContent.identifier]['completionStatus']
-            || this.tocSvc.hashmap[htmlContent.identifier]['completionStatus'] < 2)) {
+              || this.tocSvc.hashmap[htmlContent.identifier]['completionStatus'] < 2)) {
             this.tocSvc.hashmap[htmlContent.identifier]['completionPercentage'] = req.completionPercentage
             this.tocSvc.hashmap[htmlContent.identifier]['completionStatus'] = req.status
             this.tocSvc.hashmap = { ...this.tocSvc.hashmap }
+            if (this.tocSvc.triggerMilestoneLockUpdate) {
+              this.tocSvc.triggerMilestoneLockUpdate()
+            }
+            this.viewerUtilSvc.markAsCompleteSubject.next(true)
           }
         }
         // this.store.clearAll()
         return
-      // tslint:disable-next-line: align
+        // tslint:disable-next-line: align
       }, (err: any) => {
         this.loggerSvc.error('Error calling progress update for scorm content', err)
         // this.store.clearAll()
@@ -202,31 +244,31 @@ export class HtmlComponent implements OnInit, OnChanges, OnDestroy {
         completionPercentage: data && data['completionPercentage'],
         status: data && data['completionStatus'],
         spentTime: data && data['spentTime'],
-      // tslint:disable-next-line: whitespace
+        // tslint:disable-next-line: whitespace
       }
     }
-      // if (data) {
-        spentTimen = this.ticks + (data && data['spentTime'] || 0)
-        if (htmlContent && spentTimen) {
-          // ~~ will remove decimal after division
-          // tslint:disable-next-line
-          percentage = ~~((spentTimen / htmlContent.duration) * 100)
-        }
-      // }
+    // if (data) {
+    spentTimen = this.ticks + (data && data['spentTime'] || 0)
+    if (htmlContent && spentTimen) {
+      // ~~ will remove decimal after division
+      // tslint:disable-next-line
+      percentage = ~~((spentTimen / htmlContent.duration) * 100)
+    }
+    // }
 
-      if (percentage >= this.getThreshold()) {
-        return {
-          completionPercentage: 100,
-          status: 2,
-          spentTime: spentTimen,
-        }
-    // tslint:disable-next-line
-      } else {
-        return {
-          completionPercentage: percentage,
-          status: 1,
-          spentTime: spentTimen,
-        }
+    if (percentage >= this.getThreshold()) {
+      return {
+        completionPercentage: 100,
+        status: 2,
+        spentTime: spentTimen,
+      }
+      // tslint:disable-next-line
+    } else {
+      return {
+        completionPercentage: percentage,
+        status: 1,
+        spentTime: spentTimen,
+      }
       // }
     }
   }
@@ -263,6 +305,7 @@ export class HtmlComponent implements OnInit, OnChanges, OnDestroy {
         }
 
         this.ticks = 0
+        this.progressSent = false
         this.timer = timer(1000, 1000)
         // subscribing to a observable returns a subscription object
         this.sub = this.timer.subscribe((t: any) => this.tickerFunc(t))
@@ -364,34 +407,34 @@ export class HtmlComponent implements OnInit, OnChanges, OnDestroy {
         //   )
         // }
         if (this.htmlContent && this.htmlContent.streamingUrl) {
-        if (this.htmlContent.streamingUrl.includes(environment.azureHost)) {
-          this.iframeUrl = this.domSanitizer.bypassSecurityTrustResourceUrl(this.htmlContent.streamingUrl)
-        } else {
-          if (this.htmlContent.streamingUrl && this.htmlContent.initFile) {
-            this.iframeUrl = this.domSanitizer.bypassSecurityTrustResourceUrl(
-              // tslint:disable-next-line:max-line-length
-              `${this.generateUrl(this.htmlContent.streamingUrl)}/${this.htmlContent.initFile}?timestamp='${new Date().getTime()}`
-            )
+          if (this.htmlContent.streamingUrl.includes(environment.azureHost)) {
+            this.iframeUrl = this.domSanitizer.bypassSecurityTrustResourceUrl(this.htmlContent.streamingUrl)
           } else {
-            if (environment.production) {
+            if (this.htmlContent.streamingUrl && this.htmlContent.initFile) {
               this.iframeUrl = this.domSanitizer.bypassSecurityTrustResourceUrl(
-                // tslint:disable-next-line: max-line-length
-                // `${environment.azureHost}/${environment.azureBucket}/content/html/${this.htmlContent.identifier}-snapshot/index.html?timestamp='${new Date().getTime()}`
-                // tslint:disable-next-line: max-line-length
-                `${environment.azureHost}/${environment.azureBucket}/content/html/${this.htmlContent.identifier}-snapshot/index.html?timestamp='${new Date().getTime()}`
+                // tslint:disable-next-line:max-line-length
+                `${this.generateUrl(this.htmlContent.streamingUrl)}/${this.htmlContent.initFile}?timestamp='${new Date().getTime()}`
               )
             } else {
-              this.iframeUrl = this.domSanitizer.bypassSecurityTrustResourceUrl(
-                // tslint:disable-next-line: max-line-length
-                // `${environment.azureHost}/${environment.azureBucket}/content/html/${this.htmlContent.identifier}-snapshot/index.html?timestamp='${new Date().getTime()}`
-                // tslint:disable-next-line: max-line-length
-                `/abcd/${environment.azureBucket}/content/html/${this.htmlContent.identifier}-snapshot/index.html?timestamp='${new Date().getTime()}`
-              )
+              if (environment.production) {
+                this.iframeUrl = this.domSanitizer.bypassSecurityTrustResourceUrl(
+                  // tslint:disable-next-line: max-line-length
+                  // `${environment.azureHost}/${environment.azureBucket}/content/html/${this.htmlContent.identifier}-snapshot/index.html?timestamp='${new Date().getTime()}`
+                  // tslint:disable-next-line: max-line-length
+                  `${environment.azureHost}/${environment.azureBucket}/content/html/${this.htmlContent.identifier}-snapshot/index.html?timestamp='${new Date().getTime()}`
+                )
+              } else {
+                this.iframeUrl = this.domSanitizer.bypassSecurityTrustResourceUrl(
+                  // tslint:disable-next-line: max-line-length
+                  // `${environment.azureHost}/${environment.azureBucket}/content/html/${this.htmlContent.identifier}-snapshot/index.html?timestamp='${new Date().getTime()}`
+                  // tslint:disable-next-line: max-line-length
+                  `/abcd/${environment.azureBucket}/content/html/${this.htmlContent.identifier}-snapshot/index.html?timestamp='${new Date().getTime()}`
+                )
+              }
             }
           }
-        }
-          } else {
-             if (this.htmlContent.initFile) {
+        } else {
+          if (this.htmlContent.initFile) {
             this.iframeUrl = this.domSanitizer.bypassSecurityTrustResourceUrl(
               // tslint:disable-next-line: max-line-length
               `${environment.azureHost}/${environment.azureBucket}/content/html/${this.htmlContent.identifier}-snapshot/${this.htmlContent.initFile}?timestamp='${new Date().getTime()}`
@@ -564,7 +607,7 @@ export class HtmlComponent implements OnInit, OnChanges, OnDestroy {
       }
     }
     const newUrl = newLink.join('/')
-    return  newUrl
+    return newUrl
   }
 
 }

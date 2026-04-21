@@ -19,7 +19,7 @@ import { PublicContactComponent } from './routes/public/public-contact/public-co
 import { TncComponent } from './routes/tnc/tnc.component'
 import { TncAppResolverService } from './services/tnc-app-resolver.service'
 import { TncPublicResolverService } from './services/tnc-public-resolver.service'
-import { AppTocResolverService } from '@ws/app/src/lib/routes/app-toc/resolvers/app-toc-resolver.service'
+import { AppTocResolverService } from '@sunbird-cb/toc'
 import { PublicLogoutComponent } from './routes/public/public-logout/public-logout.component'
 import { PublicSignupComponent } from './routes/public/public-signup/public-signup.component'
 import { PublicContacthomeComponent } from './routes/public/public-contacthome/public-contacthome.component'
@@ -46,7 +46,7 @@ import { AppHomePageResolverService } from './services/app-home-page-resolver.se
 import { AppEventPageResolverService } from './services/app-event-page-resolver.service'
 import { HomeResolverService } from './home/home/home-resolver.service'
 import { PublicExtTocComponent } from './routes/public/public-ext-toc/public-ext-toc.component'
-import { AppTocExtPublicResolverService } from '@ws/app/src/lib/routes/app-toc/resolvers/app-toc-ext-public-resolver.service'
+import { AppTocExtPublicResolverService } from '@sunbird-cb/toc'
 import { PublicCrpComponent } from './routes/public/public-crp/public-crp.component'
 import { AppPublicOrganizationResolver } from './routes/public/public-signup/organization.resolver'
 import { FormDataResolverService } from './services/form-data-resolver.service'
@@ -56,7 +56,7 @@ import { FormMicroSiteDataService } from './services/form-micro-site-data.servic
 // Please declare routes in alphabetical order
 // 😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵
 
-const routes: Routes = [  
+const routes: Routes = [
   {
     path: '',
     canActivate: [RedirectGuard],
@@ -93,6 +93,15 @@ const routes: Routes = [
     data: {
       pageId: 'app/activities',
       module: 'Profile',
+    },
+  },
+  {
+    path: 'app/peer-validation',
+    loadChildren: () => import('./routes/route-peer-validation.module').then(u => u.RoutePeerValidationModule),
+    canActivate: [GeneralGuard],
+    data: {
+      pageId: 'app/peer-validation',
+      module: 'Peer Validation',
     },
   },
   {
@@ -205,7 +214,7 @@ const routes: Routes = [
   {
     path: 'app/jan-karmayogi',
     loadChildren: () =>
-    import('./routes/route-jan-karmayogi.module').then(u => u.RouteJanKarmayogiModule),
+      import('./routes/route-jan-karmayogi.module').then(u => u.RouteJanKarmayogiModule),
     canActivate: [GeneralGuard],
     data: {
       pageType: 'feature',
@@ -305,12 +314,11 @@ const routes: Routes = [
     },
   },
   {
-    path: 'app/learn/karmayogi-saptah',
+    path: 'app/learn/nlw',
     loadChildren: () =>
       import('./routes/route-national-learning-week.module').then(u => u.RouteNationalLearningWeekModule),
     canActivate: [GeneralGuard],
     data: {
-      // pageId: 'app/learn/karmayogi-saptah',
       module: 'National Learning Week',
     },
     resolve: {
@@ -342,7 +350,7 @@ const routes: Routes = [
       module: 'explore',
     },
     resolve: {
-      pageData: PageResolve, 
+      pageData: PageResolve,
     },
   },
   {
@@ -393,6 +401,22 @@ const routes: Routes = [
     loadChildren: () => import('./routes/route-cert.module').then(u => u.RouteCertificateModule),
   },
   {
+    path: 'achievements',
+    data: {
+      pageId: 'certs',
+      module: 'Profile',
+    },
+    loadChildren: () => import('./routes/route-cert.module').then(u => u.RouteCertificateModule),
+  },
+  {
+    path: 'achievements/v2',
+    data: {
+      pageId: 'certs',
+      module: 'Profile',
+    },
+    loadChildren: () => import('./routes/route-cert-v2.module').then(u => u.RouteCertificateV2Module),
+  },
+  {
     path: 'public/certs',
     redirectTo: 'certs',
     // pathMatch: 'full',
@@ -405,7 +429,7 @@ const routes: Routes = [
     },
     loadChildren: () => import('./routes/route-cert-v2.module').then(u => u.RouteCertificateV2Module),
   },
- 
+
   // {
   //   path: 'app/gamification',
   //   loadChildren: () =>
@@ -495,7 +519,7 @@ const routes: Routes = [
       pageData: PageResolve,
     },
   },
-    {
+  {
     path: 'page/custom-home',
     loadChildren: () => import('./routes/route-custom-home.module').then(m => m.RouteCustomHomeModule),
     data: {
@@ -507,8 +531,8 @@ const routes: Routes = [
     resolve: {
     },
     canActivate: [GeneralGuard]
-},
-    {
+  },
+  {
     path: 'app/my-learning',
     loadChildren: () =>
       import('./routes/route-my-learning.module').then(u => u.RouteMyLearningModule),
@@ -517,8 +541,8 @@ const routes: Routes = [
       pageId: 'app/my-learning',
       module: 'Profile',
     },
-    },
-    {
+  },
+  {
     path: 'app/my-dashboard',
     loadChildren: () =>
       import('./routes/route-my-dashboard.module').then(u => u.RouteMyDashboardModule),
@@ -527,8 +551,8 @@ const routes: Routes = [
       pageId: '',
       module: 'Dashboard',
     },
-    },
-    {
+  },
+  {
     path: 'app/my-rewards',
     loadChildren: () =>
       import('./routes/route-my-rewards.module').then(u => u.RouteMyRewarddModule),
@@ -537,8 +561,8 @@ const routes: Routes = [
       pageId: 'app/my-rewards',
       module: 'Profile',
     },
-    },
-    {
+  },
+  {
     path: 'app/network-v2',
     loadChildren: () =>
       import('./routes/route-network-v3.module').then(u => u.RouteNetworkV3Module),
@@ -595,7 +619,7 @@ const routes: Routes = [
       module: 'Profile',
     },
     resolve: {
-      pageData: PageResolve,
+      pageData: FormDataResolverService,
     },
   },
   {
@@ -944,7 +968,7 @@ const routes: Routes = [
     component: LearnerAdvisoryComponent,
     canActivate: [GeneralGuard],
     resolve: {
-     home: HomeResolverService,
+      home: HomeResolverService,
     },
     // data: {
     //   module: 'learner-advisory',
@@ -1192,13 +1216,31 @@ const routes: Routes = [
     component: SurveyShikshaComponent,
   },
   {
+    path: 'badges',
+    loadChildren: () =>
+      import('./badges/badges.module').then(m => m.BadgesModule),
+    canActivate: [GeneralGuard],
+    data: {
+      pageId: 'badges',
+      module: 'Badges',
+    },
+  },
+  {
+    path: 'helpcenter',
+    loadChildren: () => import('./help-center/help-center.module').then(m => m.HelpCenterModule),
+  },
+  {
+    path: 'igot/help-centre',
+    loadChildren: () => import('./help-center/help-center.module').then(m => m.HelpCenterModule),
+  },
+  {
     path: '**',
     component: ErrorResolverComponent,
     data: {
       errorType: 'notFound',
     },
   },
- 
+
 ]
 @NgModule({
   imports: [

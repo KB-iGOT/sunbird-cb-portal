@@ -2,9 +2,10 @@ import { Component, OnInit, OnDestroy } from '@angular/core'
 import { HttpClient } from '@angular/common/http'
 import { Subscription } from 'rxjs'
 import { EventService, WsEvents } from '@sunbird-cb/utils-v2'
-import { NsContent, WidgetContentService } from '@sunbird-cb/collection'
+import { NsContent } from '@sunbird-cb/collection'
 import { ActivatedRoute } from '@angular/router'
-import { ViewerUtilService } from '../../viewer-util.service'
+import { ViewerUtilService } from '@sunbird-cb/toc'
+import { WidgetContentService } from '@sunbird-cb/toc'
 
 @Component({
   selector: 'viewer-rdbms-hands-on',
@@ -26,7 +27,7 @@ export class RdbmsHandsOnComponent implements OnInit, OnDestroy {
     private contentSvc: WidgetContentService,
     private http: HttpClient,
     private viewSvc: ViewerUtilService,
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.dataSubscription = this.activatedRoute.data.subscribe(
@@ -57,7 +58,7 @@ export class RdbmsHandsOnComponent implements OnInit, OnDestroy {
           this.isErrorOccured = true
         }
       },
-      () => {},
+      () => { },
     )
   }
 
@@ -66,8 +67,8 @@ export class RdbmsHandsOnComponent implements OnInit, OnDestroy {
       this.activatedRoute.snapshot.queryParams.collectionType
       && this.rDbmsHandsOnData) {
       await this.contentSvc.continueLearning(this.rDbmsHandsOnData.identifier,
-                                             this.activatedRoute.snapshot.queryParams.collectionId,
-                                             this.activatedRoute.snapshot.queryParams.collectionType,
+        this.activatedRoute.snapshot.queryParams.collectionId,
+        this.activatedRoute.snapshot.queryParams.collectionType,
       )
     } else if (this.rDbmsHandsOnData) {
       await this.contentSvc.continueLearning(this.rDbmsHandsOnData.identifier)
@@ -89,7 +90,7 @@ export class RdbmsHandsOnComponent implements OnInit, OnDestroy {
       manifestFile = await this.http
         .get<any>(artifactUrl)
         .toPromise()
-        .catch((_err: any) => {})
+        .catch((_err: any) => { })
     }
     return manifestFile
   }

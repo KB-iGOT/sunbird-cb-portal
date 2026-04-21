@@ -411,6 +411,98 @@
 
 /** Natioanl Learning week **/
 
+// ─── NLW Slider ──────────────────────────────────────────────
+.nlw-slider {
+  width: 385px;
+  position: relative;
+  margin-top: 32px;
+}
+
+.nlw-slide {
+  width: 100%;
+  box-sizing: border-box;
+  animation: nlwFadeIn 0.5s ease-in-out;
+}
+
+@keyframes nlwFadeIn {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.nlw-slide-banner {
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.nlw-slide-banner-img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  border-radius: 8px;
+  display: block;
+}
+
+// ─── Nav arrows ─────────────────────────────────────────────
+.nlw-nav {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: none;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  padding: 0;
+  z-index: 2;
+  transition: background 0.2s ease;
+
+  mat-icon {
+    font-size: 20px;
+    width: 20px;
+    height: 20px;
+    line-height: 20px;
+    color: #333;
+  }
+
+  &:hover {
+    background: #fff;
+  }
+}
+
+.nlw-nav-left {
+  left: -14px;
+}
+
+.nlw-nav-right {
+  right: -14px;
+}
+
+.nlw-slider-dots {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-top: 10px;
+}
+
+.nlw-dot {
+  width: 22px;
+  height: 6px;
+  border-radius: 3px;
+  background: #b0b0b0;
+  cursor: pointer;
+  transition: background 0.3s ease;
+
+  &.active {
+    background: #F3962F;
+  }
+}
+
 .nlw-container {
   background: linear-gradient(180deg, #2C77A6 0%, #07446B 100%);
   padding: 16px;
@@ -418,7 +510,6 @@
   display: flex;
   flex-direction: column;
   justify-content: space-between;
-  margin-top: 32px;
   overflow: hidden;
   width: 385px;
   box-sizing: border-box;
@@ -473,4 +564,93 @@ background: white;
 }
 .active {
 background: #F3962F;
+}
+
+/** NLW Experience: Banner + Newsletter **/
+.nlw-experience-section {
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.nlw-exp-banner {
+  width: 100%;
+  overflow: hidden;
+  cursor: pointer;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  background: linear-gradient(135deg, #FFF5E6 0%, #FFECD2 50%, #E8F4FD 100%);
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  }
+}
+
+.nlw-exp-banner-img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover;
+}
+
+.nlw-newsletter-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #FFFFFF;
+  border: 1px solid #E0E0E0;
+  padding: 14px 16px;
+  margin-top: 12px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  gap: 12px;
+}
+
+.nlw-newsletter-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.nlw-newsletter-title {
+  /* stylelint-disable */
+  font-family: Montserrat, sans-serif;
+  /* stylelint-enable */
+  font-size: 16px;
+  font-weight: 700;
+  color: #1A1A1A;
+  line-height: 20px;
+  margin-bottom: 4px;
+}
+
+.nlw-newsletter-description {
+  /* stylelint-disable */
+  font-family: Lato, sans-serif;
+  /* stylelint-enable */
+  font-size: 13px;
+  font-weight: 400;
+  color: #555;
+  line-height: 18px;
+}
+
+.nlw-newsletter-cta {
+  flex-shrink: 0;
+}
+
+.nlw-newsletter-cta-btn {
+  background: none;
+  border: 1px solid #1B4CA1;
+  color: #1B4CA1;
+  /* stylelint-disable */
+  font-family: Lato, sans-serif;
+  /* stylelint-enable */
+  font-size: 14px;
+  font-weight: 700;
+  padding: 8px 20px;
+  border-radius: 24px;
+  cursor: pointer;
+  transition: background 0.2s, color 0.2s;
+  white-space: nowrap;
+
+  &:hover {
+    background: #1B4CA1;
+    color: #fff;
+  }
 }

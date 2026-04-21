@@ -27,6 +27,13 @@ export class CardEventHubComponent extends WidgetBaseComponent
   isEventLive = false
   isEventRecording = false
 
+  eventTypes: any = [
+    'Karmayogi Saptah',
+    'Karmayogi Talks',
+    'Sadhana Saptah',
+    'Samuhik Charcha - NLW 2026',
+  ]
+
   isIntranetAllowedSettings = false
 
   constructor(
@@ -46,8 +53,8 @@ export class CardEventHubComponent extends WidgetBaseComponent
     if (instanceConfig) {
       this.defaultThumbnail = instanceConfig.logos.defaultContent || ''
     }
-    if (this.widgetData && this.widgetData.context && (this.widgetData.context.pageSection === 'todaysevents' 
-      || this.widgetData.context.pageSection === 'liveEvents' || this.widgetData.context.pageSection === 'keySpeakersEvents') ) {
+    if (this.widgetData && this.widgetData.context && (this.widgetData.context.pageSection === 'todaysevents'
+      || this.widgetData.context.pageSection === 'liveEvents' || this.widgetData.context.pageSection === 'keySpeakersEvents')) {
       if (this.widgetData.content) {
         const eventDate = this.events.customDateFormat(this.widgetData.content.event.startDate, this.widgetData.content.event.startTime)
         const eventendDate = this.events.customDateFormat(this.widgetData.content.event.endDate, this.widgetData.content.event.endTime)

@@ -8,10 +8,11 @@
 
   </div>
   <div class="right_container flex flex-col py-8">
-    <div class="langdiv" *ngIf="isMultiLangEnabled">
+    <!-- AFTER NLW NEED TO ENABLE -->
+    <!-- <div class="langdiv" *ngIf="isMultiLangEnabled">
       <mat-form-field class="custom-lang float-right margin-right-xl">
         <img src="/assets/icons/top-nav/translate_icon.svg" alt="Language" class="margin-right-xs">
-        <mat-select matNativeControl panelClass="custom-langselect" [ngModel]="selectedLanguage"
+        <mat-select matNativeControl panelClass="custom-langselect" [ngModel]="selectedLanguage" disabled="true"
           (ngModelChange)="selectLanguage($event)">
 
           <span *ngFor="let lang of multiLang">
@@ -20,7 +21,7 @@
           </span>
         </mat-select>
       </mat-form-field>
-    </div>
+    </div> -->
     <!-- <div class="zoho-form-box">
       <a (click)="getZohoForm()" class="help-icon" id="help-icon">
         <img src="/assets/icons/top-nav/help_icon.svg" alt="Need Help">
@@ -86,8 +87,7 @@
                   <div class="label required">{{ 'publicsignup.ministry' | translate }}</div>
                   <mat-form-field appearance="outline" class="margin-top-s w-full required-select">
                     <mat-select #ministry formControlName="ministry" placeholder="Select ministry"
-                      (closed)="onMinistryDropdownClosed()" panelClass="search-panel-ministry"
-                      (openedChange)="setupScrollListenerForMinistry($event)"
+                      panelClass="search-panel-ministry" (openedChange)="setupScrollListenerForMinistry($event)"
                       (selectionChange)="onMinistryChange($event)">
 
                       <!-- Sticky search input container -->
@@ -137,8 +137,8 @@
                   <div class="label required">{{ 'publicsignup.state' | translate }}</div>
                   <mat-form-field appearance="outline" class="margin-top-s w-full required-select">
                     <mat-select #state formControlName="state" placeholder="Select state"
-                      (closed)="onStateDropdownClosed()" panelClass="search-panel-state"
-                      (openedChange)="setupScrollListenerForState($event)" (selectionChange)="onStateChanged($event)">
+                      panelClass="search-panel-state" (openedChange)="setupScrollListenerForState($event)"
+                      (selectionChange)="onStateChanged($event)">
 
                       <!-- Sticky search input container -->
                       <div class="sticky-search-container" (click)="$event.stopPropagation()"
@@ -187,8 +187,7 @@
                   <div class="label required">{{ 'publicsignup.department' | translate }}</div>
                   <mat-form-field appearance="outline" class="margin-top-s w-full required-select">
                     <mat-select #department formControlName="department" placeholder="Select department"
-                      (closed)="onDepartmentDropdownClosed()" panelClass="search-panel-department"
-                      (openedChange)="setupScrollListenerForDepartment($event)"
+                      panelClass="search-panel-department" (openedChange)="setupScrollListenerForDepartment($event)"
                       (selectionChange)="onDepartmentChange($event)">
 
                       <!-- Sticky search input container -->
@@ -238,8 +237,7 @@
                   <div class="label required">{{ 'publicsignup.organisation' | translate }}</div>
                   <mat-form-field appearance="outline" class="margin-top-s w-full required-select">
                     <mat-select #organisation formControlName="organisation" placeholder="Select organisation"
-                      (closed)="onOrganisationDropdownClosed()" panelClass="search-panel-organisation"
-                      (openedChange)="setupScrollListenerForOrganisation($event)"
+                      panelClass="search-panel-organisation" (openedChange)="setupScrollListenerForOrganisation($event)"
                       (selectionChange)="onOrganisationChanged($event)">
 
                       <!-- Sticky search input container -->

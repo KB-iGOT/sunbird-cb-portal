@@ -2,7 +2,7 @@
 <viewer-overview *ngIf="viewState === 'initial'" [learningObjective]="learningObjective"
   [complexityLevel]="complexityLevel" [duration]="duration" [timeLimit]="getTimeLimit"
   [primaryCategory]="primaryCategory" [canAttempt]="canAttempt" [noOfQuestions]="noOfQuestions"
-  (userSelection)="getSections($event)" [coursePrimaryCategory]="coursePrimaryCategory"
+  (userSelection)="getSections($event)" [coursePrimaryCategory]="coursePrimaryCategory" [courseCategory]="courseCategory"
   [instructionAssessment]="instructionAssessment" [quizData]="quizData"
   [selectedAssessmentCompatibilityLevel]="selectedAssessmentCompatibilityLevel" [forPreview]="forPreview">
 </viewer-overview>
@@ -50,24 +50,25 @@
           <div>
             <div class="flex flex-1 flex-row-reverse butto_box end">
               <ng-container
-                *ngIf="!allSecAttempted.full && allSecAttempted.next && ((currentQuestionIndex+1) === totalQCount)">
+                *ngIf="!allSecAttempted.full && allSecAttempted.next && ((currentQuestionIndex+1) === totalQCount) && !hasNextSet">
                 <button class="text-white ws-mat-primary-background margin-xs quest_btn" mat-raised-button
                   (click)="nextSection(allSecAttempted.next)" i18n="button quiz submit">
                   {{ 'practiceoverview.nextSection' | translate }}
                 </button>
               </ng-container>
-              <a *ngIf="(currentQuestionIndex+1) !== totalQCount"
+              <a *ngIf="(currentQuestionIndex+1) !== totalQCount || hasNextSet"
                 class="text-white ws-mat-primary-background margin-xs quest_btn" mat-button
                 (click)="getNextQuestion(currentQuestionIndex + 1)">
                 <ng-container *ngIf="!isXsmall">{{ 'playerbrief.next' | translate }}</ng-container>
               </a>
               &nbsp;&nbsp;
-              <a *ngIf="(currentQuestionIndex + 1) === totalQCount && !forCreatorMode"
+              <a *ngIf="(currentQuestionIndex + 1) === totalQCount && !hasNextSet && !forCreatorMode"
                 class="text-white ws-mat-primary-background margin-xs quest_btn" mat-button (click)="proceedToSubmit()">
                 <ng-container *ngIf="!isXsmall">{{ 'playerbrief.submit' | translate }}</ng-container>
               </a>
               &nbsp;&nbsp;
-              <a *ngIf="currentQuestionIndex !== 0" class="ws-mat-accent-border margin-xs quest_btn prev" mat-button
+              <a *ngIf="currentQuestionIndex !== 0 || hasPreviousSet"
+                class="ws-mat-accent-border margin-xs quest_btn prev" mat-button
                 (click)="getNextQuestion(currentQuestionIndex - 1)">
                 <ng-container *ngIf="!isXsmall">{{ 'playerbrief.previous' | translate }}</ng-container>
               </a>
@@ -89,8 +90,9 @@
           <ng-container *ngIf="current_Question && !process">
             <viewer-question #questionsReference [id]="'question' + (currentQuestionIndex + 1)"
               [markedQuestions]="markedQuestions" [artifactUrl]="artifactUrl"
-              [questionNumber]="currentQuestionIndex + 1" [total]="secQuestions.length" [viewState]="viewState"
-              [question]="current_Question" [itemSelectedList]="questionAnswerHash[(current_Question?.questionId)]"
+              [questionNumber]="getSelectedQuestionNumber(currentQuestionIndex)" [total]="secQuestions.length"
+              [viewState]="viewState" [question]="current_Question"
+              [itemSelectedList]="questionAnswerHash[(current_Question?.questionId)]"
               [primaryCategory]="primaryCategory" [ePrimaryCategory]="ePrimaryCategory" [totalQCount]="totalQCount"
               (itemSelected)="fillSelectedItems(current_Question, $event)" [showAnswer]="showAnswer"
               [currentQuestion]="current_Question"
@@ -107,7 +109,7 @@
             </button>
           </ng-container> -->
             <div class="flex flex-1 flex-row-reverse margin-right-m butto_box end">
-              <ng-container *ngIf="!allSecAttempted.full && allSecAttempted.next && ((currentQuestionIndex+1) === totalQCount) &&
+              <ng-container *ngIf="!allSecAttempted.full && allSecAttempted.next && ((currentQuestionIndex+1) === totalQCount) && !hasNextSet &&
               allSecAttempted.next">
                 <button class="text-white ws-mat-primary-background margin-xs quest_btn" mat-raised-button
                   (click)="nextSection(allSecAttempted.next)" i18n="button quiz submit">
@@ -339,10 +341,11 @@
 
     <div id="quiz-end"></div>
     <ng-container *ngIf="isSubmitted && (viewState === 'answer' || viewState === 'review')">
-      <viewer-result [quizCategory]="primaryCategory" [quizResponse]="finalResponse" [percentage]="result"
+      <ng-container [ngTemplateOutlet]="caresult"></ng-container>
+      <!-- <viewer-result [quizCategory]="primaryCategory" [quizResponse]="finalResponse" [percentage]="result"
         [canAttempt]="canAttempt" [isPassed]="finalResponse?.pass" (userSelection)="action($event)"
         (fetchResult)="getQuizResult()" [selectedAssessmentCompatibilityLevel]="selectedAssessmentCompatibilityLevel">
-      </viewer-result>
+      </viewer-result> -->
     </ng-container>
     <!-- </div> -->
     <div *ngIf="viewState === 'detail'" class="flex flex-1 flex-column">
@@ -648,8 +651,9 @@
             <ng-container *ngIf="current_Question && !process">
               <viewer-question #questionsReference [id]="'question' + (currentQuestionIndex + 1)"
                 [markedQuestions]="markedQuestions" [artifactUrl]="artifactUrl"
-                [questionNumber]="currentQuestionIndex + 1" [total]="secQuestions.length" [viewState]="viewState"
-                [question]="current_Question" [itemSelectedList]="questionAnswerHash[(current_Question?.questionId)]"
+                [questionNumber]="getSelectedQuestionNumber(currentQuestionIndex)" [total]="secQuestions.length"
+                [viewState]="viewState" [question]="current_Question"
+                [itemSelectedList]="questionAnswerHash[(current_Question?.questionId)]"
                 [primaryCategory]="primaryCategory" (itemSelected)="fillSelectedItems(current_Question, $event)"
                 [ePrimaryCategory]="ePrimaryCategory" [totalQCount]="totalQCount" [showAnswer]="showAnswer"
                 [currentQuestion]="current_Question" [showOnlyQuestion]="false" [mobileQuestionSetExpand]="!expandFalse"
@@ -667,7 +671,7 @@
               </ng-container> -->
               <div class="flex flex-1 flex-row-reverse margin-right-m butto_box end">
                 <ng-container
-                  *ngIf="!allSecAttempted.full && allSecAttempted.next && ((currentQuestionIndex+1) === totalQCount)">
+                  *ngIf="!allSecAttempted.full && allSecAttempted.next && ((currentQuestionIndex+1) === totalQCount) && !hasNextSet">
                   <button class="text-white ws-mat-primary-background margin-xs quest_btn" mat-raised-button
                     (click)="nextSection(allSecAttempted.next)" i18n="button quiz submit">
                     {{ 'practiceoverview.nextSection' | translate }}
@@ -685,24 +689,25 @@
       <div>
         <div class="flex flex-row justify-center">
           <ng-container
-            *ngIf="!allSecAttempted.full && allSecAttempted.next && ((currentQuestionIndex+1) === totalQCount)">
+            *ngIf="!allSecAttempted.full && allSecAttempted.next && ((currentQuestionIndex+1) === totalQCount) && !hasNextSet">
             <button class="text-white ws-mat-primary-background quest_btn" mat-raised-button
               (click)="nextSection(allSecAttempted.next)" i18n="button quiz submit">
               {{ 'practiceoverview.nextSection' | translate }}
             </button>
           </ng-container>
-          <a *ngIf="currentQuestionIndex !== 0" class="ws-mat-accent-border quest_btn prev" mat-button
+          <a *ngIf="currentQuestionIndex !== 0 || hasPreviousSet" class="ws-mat-accent-border quest_btn prev" mat-button
             (click)="getNextQuestion(currentQuestionIndex - 1)">
             <ng-container>{{ 'playerbrief.previous' | translate }}</ng-container>
           </a>
           &nbsp;&nbsp;
-          <a *ngIf="(currentQuestionIndex+1) !== totalQCount" class="text-white ws-mat-primary-background quest_btn"
-            [ngClass]="currentQuestionIndex === 0 ? 'first' : ''" mat-button
+          <a *ngIf="(currentQuestionIndex+1) !== totalQCount || hasNextSet"
+            class="text-white ws-mat-primary-background quest_btn"
+            [ngClass]="currentQuestionIndex === 0 && !hasPreviousSet ? 'first' : ''" mat-button
             (click)="getNextQuestion(currentQuestionIndex + 1)">
             <ng-container>{{ 'playerbrief.next' | translate }}</ng-container>
           </a>
           &nbsp;&nbsp;
-          <a *ngIf="(currentQuestionIndex + 1) === totalQCount && !forCreatorMode"
+          <a *ngIf="(currentQuestionIndex + 1) === totalQCount && !hasNextSet && !forCreatorMode"
             class="text-white ws-mat-primary-background quest_btn" mat-button (click)="proceedToSubmit()">
             <ng-container>{{ 'playerbrief.submit' | translate }}</ng-container>
           </a>
@@ -713,10 +718,11 @@
     </div>
     <div id="quiz-end"></div>
     <ng-container *ngIf="isSubmitted && (viewState === 'answer' || viewState === 'review')">
-      <viewer-result [quizCategory]="primaryCategory" [quizResponse]="finalResponse" [percentage]="result"
+      <ng-container [ngTemplateOutlet]="caresult"></ng-container>
+      <!-- <viewer-result [quizCategory]="primaryCategory" [quizResponse]="finalResponse" [percentage]="result"
         [canAttempt]="canAttempt" [isPassed]="finalResponse?.pass" (userSelection)="action($event)"
         (fetchResult)="getQuizResult()" [selectedAssessmentCompatibilityLevel]="selectedAssessmentCompatibilityLevel">
-      </viewer-result>
+      </viewer-result> -->
     </ng-container>
     <div *ngIf="viewState === 'detail'" class="flex flex-1 flex-column">
       <ng-container *ngIf="this.paperSections && this.paperSections?.length > 0">
@@ -1192,8 +1198,9 @@
           <ng-container *ngIf="current_Question && !process">
             <viewer-question #questionsReference [id]="'question' + (currentQuestionIndex + 1)"
               [markedQuestions]="markedQuestions" [artifactUrl]="artifactUrl"
-              [questionNumber]="currentQuestionIndex + 1" [total]="secQuestions.length" [viewState]="viewState"
-              [question]="current_Question" [itemSelectedList]="questionAnswerHash[(current_Question?.questionId)]"
+              [questionNumber]="getSelectedQuestionNumber(currentQuestionIndex)" [total]="secQuestions.length"
+              [viewState]="viewState" [question]="current_Question"
+              [itemSelectedList]="questionAnswerHash[(current_Question?.questionId)]"
               [primaryCategory]="primaryCategory" [ePrimaryCategory]="ePrimaryCategory" [totalQCount]="totalQCount"
               (itemSelected)="fillSelectedItems(current_Question, $event)" [showAnswer]="showAnswer"
               [currentQuestion]="current_Question" [coursePrimaryCategory]="coursePrimaryCategory"
@@ -1222,8 +1229,9 @@
 
               <viewer-question #questionsReference [id]="'question' + (currentQuestionIndex + 1)"
                 [markedQuestions]="markedQuestions" [artifactUrl]="artifactUrl"
-                [questionNumber]="currentQuestionIndex + 1" [total]="secQuestions.length" [viewState]="viewState"
-                [question]="current_Question" [itemSelectedList]="questionAnswerHash[(current_Question?.questionId)]"
+                [questionNumber]="getSelectedQuestionNumber(currentQuestionIndex)" [total]="secQuestions.length"
+                [viewState]="viewState" [question]="current_Question"
+                [itemSelectedList]="questionAnswerHash[(current_Question?.questionId)]"
                 [primaryCategory]="primaryCategory" [ePrimaryCategory]="ePrimaryCategory" [totalQCount]="totalQCount"
                 (itemSelected)="fillSelectedItems(current_Question, $event)" [showAnswer]="showAnswer"
                 [currentQuestion]="current_Question" [coursePrimaryCategory]="coursePrimaryCategory"
@@ -1338,12 +1346,12 @@
             </div>
             <ng-container>
               <div class="flex justify-end items-center mt-1 mb-4 gap-3 margin-right-s">
-                <mat-icon *ngIf="!(currentSetNumber <= 0)"
-                  [ngClass]="currentSetNumber <= 0 ? 'questions-navigate-disable' : 'questions-navigate-enable' "
-                  (click)="currentSetNumber = currentSetNumber - 1">keyboard_arrow_left</mat-icon>
+                <mat-icon *ngIf="hasPreviousSet"
+                  [ngClass]="hasPreviousSet ? 'questions-navigate-enable' : 'questions-navigate-disable' "
+                  (click)="goToPreviousSet()">keyboard_arrow_left</mat-icon>
                 <mat-icon *ngIf="hasNextSet"
                   [ngClass]="hasNextSet ? 'questions-navigate-enable' : 'questions-navigate-disable' "
-                  (click)="currentSetNumber = currentSetNumber + 1">keyboard_arrow_right</mat-icon>
+                  (click)="goToNextSet()">keyboard_arrow_right</mat-icon>
               </div>
             </ng-container>
             <div class="seperate-text-standalone">
@@ -1359,7 +1367,8 @@
                   </div>
                   <div class="flex gap-2  align-center">
                     <div class="flex justify-center items-center question-guide marked-question-standalone-background">
-                      <span class="question-guide-text-legend"></span></div>
+                      <span class="question-guide-text-legend"></span>
+                    </div>
                     <div class="question-guide-text">{{ 'practiceoverview.marked' | translate}}</div>
                   </div>
                 </div>
@@ -1391,8 +1400,9 @@
           <div>
             <viewer-question #questionsReference [id]="'question' + (currentQuestionIndex + 1)"
               [markedQuestions]="markedQuestions" [artifactUrl]="artifactUrl"
-              [questionNumber]="currentQuestionIndex + 1" [total]="secQuestions.length" [viewState]="viewState"
-              [question]="current_Question" [itemSelectedList]="questionAnswerHash[(current_Question?.questionId)]"
+              [questionNumber]="getSelectedQuestionNumber(currentQuestionIndex)" [total]="secQuestions.length"
+              [viewState]="viewState" [question]="current_Question"
+              [itemSelectedList]="questionAnswerHash[(current_Question?.questionId)]"
               [primaryCategory]="primaryCategory" [ePrimaryCategory]="ePrimaryCategory" [totalQCount]="totalQCount"
               (itemSelected)="fillSelectedItems(current_Question, $event)" [showAnswer]="showAnswer"
               [currentQuestion]="current_Question" [coursePrimaryCategory]="coursePrimaryCategory"
@@ -1415,13 +1425,14 @@
                   {{ 'practiceoverview.nextSection' | translate }}
                 </button>
               </ng-container>
-              <a *ngIf="(currentQuestionIndex+1) !== totalQCount"
+              <a *ngIf="(currentQuestionIndex+1) !== totalQCount || hasNextSet"
                 class="text-white ws-mat-primary-background margin-xs quest_btn" mat-button
                 (click)="getNextQuestion(currentQuestionIndex + 1)">
                 <ng-container *ngIf="!isXsmall">{{ 'practiceoverview.saveNext' | translate }}</ng-container>
               </a>
               &nbsp;&nbsp;
-              <a *ngIf="currentQuestionIndex !== 0" class="ws-mat-accent-border margin-xs quest_btn prev" mat-button
+              <a *ngIf="currentQuestionIndex !== 0 || hasPreviousSet"
+                class="ws-mat-accent-border margin-xs quest_btn prev" mat-button
                 (click)="getNextQuestion(currentQuestionIndex - 1)">
                 <ng-container *ngIf="!isXsmall">{{ 'playerbrief.previous' | translate }}</ng-container>
               </a>
@@ -1434,11 +1445,12 @@
     </div>
     <div id="quiz-end"></div>
     <ng-container *ngIf="isSubmitted && (viewState === 'answer' || viewState === 'review')">
-      <viewer-result [quizCategory]="primaryCategory" [quizResponse]="finalResponse" [percentage]="result"
+      <ng-container [ngTemplateOutlet]="caresult"></ng-container>
+      <!-- <viewer-result [quizCategory]="primaryCategory" [quizResponse]="finalResponse" [percentage]="result"
         [canAttempt]="canAttempt" [isPassed]="finalResponse?.pass" (userSelection)="action($event)"
         (fetchResult)="getQuizResult()" [coursePrimaryCategory]="coursePrimaryCategory"
         [selectedAssessmentCompatibilityLevel]="selectedAssessmentCompatibilityLevel">
-      </viewer-result>
+      </viewer-result> -->
     </ng-container>
     <div *ngIf="viewState === 'detail'" class="flex flex-1 flex-column">
       <ng-container *ngIf="this.paperSections && this.paperSections?.length > 0">
@@ -1786,8 +1798,9 @@
           <ng-container *ngIf="current_Question && !process">
             <viewer-question #questionsReference [id]="'question' + (currentQuestionIndex + 1)"
               [markedQuestions]="markedQuestions" [artifactUrl]="artifactUrl"
-              [questionNumber]="currentQuestionIndex + 1" [total]="secQuestions.length" [viewState]="viewState"
-              [question]="current_Question" [itemSelectedList]="questionAnswerHash[(current_Question?.questionId)]"
+              [questionNumber]="getSelectedQuestionNumber(currentQuestionIndex)" [total]="secQuestions.length"
+              [viewState]="viewState" [question]="current_Question"
+              [itemSelectedList]="questionAnswerHash[(current_Question?.questionId)]"
               [primaryCategory]="primaryCategory" [ePrimaryCategory]="ePrimaryCategory" [totalQCount]="totalQCount"
               (itemSelected)="fillSelectedItems(current_Question, $event)" [showAnswer]="showAnswer"
               [currentQuestion]="current_Question" [coursePrimaryCategory]="coursePrimaryCategory"
@@ -1893,11 +1906,12 @@
               <ng-container *ngIf="!expandFalse">
                 <ng-container>
                   <div class="flex justify-end items-center mt-1 mb-4 gap-3 margin-right-s">
-                    <mat-icon
-                      [ngClass]="currentSetNumber <= 0 ? 'questions-navigate-disable' : 'questions-navigate-enable' "
-                      (click)="currentSetNumber = currentSetNumber - 1">keyboard_arrow_left</mat-icon>
-                    <mat-icon [ngClass]="hasNextSet ? 'questions-navigate-enable' : 'questions-navigate-disable' "
-                      (click)="currentSetNumber = currentSetNumber + 1">keyboard_arrow_right</mat-icon>
+                    <mat-icon *ngIf="hasPreviousSet"
+                      [ngClass]="hasPreviousSet ? 'questions-navigate-enable' : 'questions-navigate-disable' "
+                      (click)="goToPreviousSet()">keyboard_arrow_left</mat-icon>
+                    <mat-icon *ngIf="hasNextSet"
+                      [ngClass]="hasNextSet ? 'questions-navigate-enable' : 'questions-navigate-disable' "
+                      (click)="goToNextSet()">keyboard_arrow_right</mat-icon>
                   </div>
                 </ng-container>
                 <div class="seperate-text-standalone">
@@ -1955,8 +1969,9 @@
           <ng-container *ngIf="current_Question && !process">
             <viewer-question #questionsReference [id]="'question' + (currentQuestionIndex + 1)"
               [markedQuestions]="markedQuestions" [artifactUrl]="artifactUrl"
-              [questionNumber]="currentQuestionIndex + 1" [total]="secQuestions.length" [viewState]="viewState"
-              [question]="current_Question" [itemSelectedList]="questionAnswerHash[(current_Question?.questionId)]"
+              [questionNumber]="getSelectedQuestionNumber(currentQuestionIndex)" [total]="secQuestions.length"
+              [viewState]="viewState" [question]="current_Question"
+              [itemSelectedList]="questionAnswerHash[(current_Question?.questionId)]"
               [primaryCategory]="primaryCategory" (itemSelected)="fillSelectedItems(current_Question, $event)"
               [ePrimaryCategory]="ePrimaryCategory" [totalQCount]="totalQCount" [showAnswer]="showAnswer"
               [currentQuestion]="current_Question" [showOnlyQuestion]="false"
@@ -1990,8 +2005,9 @@
           <div *ngIf="assessmentType !== 'optionalWeightage'">
             <viewer-question #questionsReference [id]="'question' + (currentQuestionIndex + 1)"
               [markedQuestions]="markedQuestions" [artifactUrl]="artifactUrl"
-              [questionNumber]="currentQuestionIndex + 1" [total]="secQuestions.length" [viewState]="viewState"
-              [question]="current_Question" [itemSelectedList]="questionAnswerHash[(current_Question?.questionId)]"
+              [questionNumber]="getSelectedQuestionNumber(currentQuestionIndex)" [total]="secQuestions.length"
+              [viewState]="viewState" [question]="current_Question"
+              [itemSelectedList]="questionAnswerHash[(current_Question?.questionId)]"
               [primaryCategory]="primaryCategory" [ePrimaryCategory]="ePrimaryCategory" [totalQCount]="totalQCount"
               (itemSelected)="fillSelectedItems(current_Question, $event)" [showAnswer]="showAnswer"
               [currentQuestion]="current_Question" [coursePrimaryCategory]="coursePrimaryCategory"
@@ -2007,13 +2023,13 @@
         <div class="flex" [ngClass]="assessmentType !== 'optionalWeightage'? 'justify-center': 'justify-right'">
           <div>
             <div class="flex justify-center flex-wrap">
-              <ng-container *ngIf="currentQuestionIndex !== 0">
+              <ng-container *ngIf="currentQuestionIndex !== 0 || hasPreviousSet">
                 <button class="ws-mat-accent-border margin-xs quest_btn prev" mat-button
                   (click)="getNextQuestion(currentQuestionIndex - 1)">
                   <ng-container>{{ 'playerbrief.previous' | translate }}</ng-container>
                 </button>
               </ng-container>
-              <ng-container *ngIf="(currentQuestionIndex+1) !== totalQCount">
+              <ng-container *ngIf="(currentQuestionIndex+1) !== totalQCount || hasNextSet">
                 <button class="text-white ws-mat-primary-background margin-xs quest_btn" mat-button
                   (click)="getNextQuestion(currentQuestionIndex + 1)">
                   <ng-container>{{ 'practiceoverview.saveNext' | translate }}</ng-container>
@@ -2035,11 +2051,12 @@
     </div>
     <div id="quiz-end"></div>
     <ng-container *ngIf="isSubmitted && (viewState === 'answer' || viewState === 'review')">
-      <viewer-result [quizCategory]="primaryCategory" [quizResponse]="finalResponse" [percentage]="result"
+      <ng-container [ngTemplateOutlet]="caresult"></ng-container>
+      <!-- <viewer-result [quizCategory]="primaryCategory" [quizResponse]="finalResponse" [percentage]="result"
         [canAttempt]="canAttempt" [isPassed]="finalResponse?.pass" (userSelection)="action($event)"
         (fetchResult)="getQuizResult()" [coursePrimaryCategory]="coursePrimaryCategory"
         [selectedAssessmentCompatibilityLevel]="selectedAssessmentCompatibilityLevel">
-      </viewer-result>
+      </viewer-result> -->
     </ng-container>
     <div *ngIf="viewState === 'detail'" class="flex flex-1 flex-column">
       <ng-container *ngIf="this.paperSections && this.paperSections?.length > 0">
@@ -2375,4 +2392,11 @@
       </form>
     </div>
   </div>
+</ng-template>
+
+
+<ng-template #caresult>
+  <viewer-ca-results-view [results]="finalResponse" [canAttempt]="canAttempt"
+    [selectedAssessmentCompatibilityLevel]="selectedAssessmentCompatibilityLevel" [v4questionSet]="v4questionSet"
+    (userSelection)="action($event)"></viewer-ca-results-view>
 </ng-template>

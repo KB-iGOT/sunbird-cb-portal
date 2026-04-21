@@ -1,7 +1,8 @@
 import { Component, OnInit, Output, EventEmitter, Input } from '@angular/core'
 import { ENTER, COMMA, SEMICOLON } from '@angular/cdk/keycodes'
 import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop'
-import { WidgetContentService } from '@sunbird-cb/collection/src/lib/_services/widget-content.service'
+import { WidgetContentService } from '@sunbird-cb/toc'
+
 @Component({
   selector: 'ws-admin-ids-request',
   templateUrl: './ids-request.component.html',

@@ -3,7 +3,7 @@ import { WidgetBaseComponent } from '@sunbird-cb/resolver/src/lib/widget-base.co
 import { NsWidgetResolver } from '@sunbird-cb/resolver/src/lib/widget-resolver.model'
 import { NsNetworkStripNewMultiple } from './network-strip-multiple.model'
 import { ContentStripNewMultipleService } from './network-strip-multiple.service'
-import { WidgetContentService } from '../_services/widget-content.service'
+import { WidgetContentService } from '@sunbird-cb/toc'
 import {
   TFetchStatus,
   LoggerService,

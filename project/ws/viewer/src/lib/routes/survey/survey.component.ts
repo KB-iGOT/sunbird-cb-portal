@@ -1,13 +1,14 @@
 import { AccessControlService } from '@ws/author'
 import { Component, OnInit, OnDestroy } from '@angular/core'
 import { Subscription } from 'rxjs'
-import { NsContent, NsDiscussionForum, WidgetContentService } from '@sunbird-cb/collection'
+import { NsContent, NsDiscussionForum } from '@sunbird-cb/collection'
 import { WsEvents, EventService, ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { ActivatedRoute } from '@angular/router'
-import { ViewerUtilService } from '../../viewer-util.service'
+import { ViewerUtilService } from '@sunbird-cb/toc'
 import * as _ from 'lodash'
 // import { environment } from 'src/environments/environment'
+import { WidgetContentService } from '@sunbird-cb/toc'
 
 @Component({
   selector: 'viewer-survey',
@@ -89,10 +90,10 @@ export class SurveyComponent implements OnInit, OnDestroy {
             }
           }
           this.widgetResolverSurveyData.widgetData.surveyUrl = this.surveyData
-          ? this.forPreview
-            ? this.viewerSvc.getAuthoringUrl(this.surveyData.artifactUrl)
-            : this.surveyData.artifactUrl
-          : ''
+            ? this.forPreview
+              ? this.viewerSvc.getAuthoringUrl(this.surveyData.artifactUrl)
+              : this.surveyData.artifactUrl
+            : ''
           this.widgetResolverSurveyData.widgetData.disableTelemetry = true
           this.isFetchingDataComplete = true
           this.widgetResolverSurveyData.widgetData.wfClientVersion = _.get(this.surveyData, 'wfClientVersion', '')
@@ -245,7 +246,7 @@ export class SurveyComponent implements OnInit, OnDestroy {
           this.activatedRoute.snapshot.queryParams.collectionId,
           this.activatedRoute.snapshot.queryParams.batchId,
           surveyId)
-        const language = this.viewerSvc.getResourceContentLanguage(surveyId) 
+        const language = this.viewerSvc.getResourceContentLanguage(surveyId)
         const req: NsContent.IContinueLearningDataReq = {
           request: {
             userId,

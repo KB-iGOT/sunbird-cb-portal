@@ -11,9 +11,11 @@ import {
 import { Subscription, fromEvent } from 'rxjs'
 import { DomSanitizer, SafeResourceUrl, SafeUrl } from '@angular/platform-browser'
 import { ValueService, ConfigurationsService, EventService } from '@sunbird-cb/utils-v2'
-import { WidgetContentService, NsContent } from '@sunbird-cb/collection'
-import { ViewerUtilService } from '../../viewer-util.service'
+import { NsContent } from '@sunbird-cb/collection'
+import { ViewerUtilService } from '@sunbird-cb/toc'
 import { ActivatedRoute } from '@angular/router'
+import { WidgetContentService } from '@sunbird-cb/toc'
+
 /* tslint:disable*/
 import * as _ from 'lodash'
 @Component({
@@ -152,12 +154,12 @@ export class WebModuleComponent implements OnInit, OnChanges, OnDestroy {
           max_size: this.slides.length,
         }
         const isPreAssessment = this.activatedRoute.snapshot.queryParams.preAssessment
-        if(isPreAssessment) {
+        if (isPreAssessment) {
           this.viewerSvc.realTimeProgressUpdateForPreAssessment(id, realTimeProgressRequest)
         } else {
           this.viewerSvc.realTimeProgressUpdate(id, realTimeProgressRequest)
         }
-        
+
       }
     }
   }
@@ -241,14 +243,14 @@ export class WebModuleComponent implements OnInit, OnChanges, OnDestroy {
           type: action,
           subType: event,
           id: this.widgetData.identifier,
-        }, 
+        },
         {
           id: this.widgetData.identifier,
         },
         {
           pageIdExt: `${_.camelCase(this.widgetData.primaryCategory)}`,
           module: _.camelCase(this.widgetData.primaryCategory),
-      })
+        })
     }
     if (event === 'scroll') {
       this.isScrolled = false

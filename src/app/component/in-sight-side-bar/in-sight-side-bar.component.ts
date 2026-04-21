@@ -1,5 +1,5 @@
 import { AUTO_STYLE, animate, state, transition, trigger, style } from '@angular/animations'
-import { Component, EventEmitter, OnInit, Output } from '@angular/core'
+import { Component, EventEmitter, OnInit, OnDestroy, Output, ChangeDetectorRef } from '@angular/core'
 import { HomePageService } from '../../services/home-page.service'
 import { ConfigurationsService, EventService, WsEvents, MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 import { HttpErrorResponse } from '@angular/common/http'
@@ -7,12 +7,15 @@ import { ActivatedRoute, Router } from '@angular/router'
 import { DiscussUtilsService } from '@ws/app/src/lib/routes/discuss/services/discuss-utils.service'
 import { TranslateService } from '@ngx-translate/core'
 import { MatLegacySnackBar as MatSnackBar } from '@angular/material/legacy-snack-bar'
+import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
 import moment from 'moment'
 import { SignupService } from '../../routes/public/public-signup/signup.service'
 import * as _ from 'lodash';
 import { ProfileV2Service } from '@ws/app/src/lib/routes/profile-v2/services/profile-v2.servive'
 import { UserProfileService } from '@ws/app/src/lib/routes/user-profile/services/user-profile.service'
 import { MatAutocompleteTrigger } from '@angular/material/autocomplete'
+import { NlwCertificateDialogComponent, NlwCertificateDialogData } from '@sunbird-cb/consumption'
+import { CommonDataService } from 'src/app/services/common-data.service'
 
 const DEFAULT_WEEKLY_DURATION = 300
 const DEFAULT_DISCUSS_DURATION = 600
@@ -61,7 +64,7 @@ const noData = {
   ],
 })
 
-export class InsightSideBarComponent implements OnInit {
+export class InsightSideBarComponent implements OnInit, OnDestroy {
   profileDataLoading = true
   homePageData: any
   noDataValue: {} | undefined
@@ -90,6 +93,8 @@ export class InsightSideBarComponent implements OnInit {
   isIgotOrg = false
   nwlConfiguration: any
   canShowNlwCard = false
+  nlwSlideIndex = 0
+  private nlwAutoSlideInterval: any = null
   slwConfiguration: any
   canShowSlwCard = false
   totalDays = 0
@@ -102,6 +107,8 @@ export class InsightSideBarComponent implements OnInit {
   desigantionUnderApproval: any
   filterDesigantionList: any = []
   isMatcompleteOpened = false
+  nlwExperience: any = null
+  isNlw2026Certified = false
   @Output() telemetryRaisedLibrary = new EventEmitter()
   
   constructor(
@@ -116,7 +123,10 @@ export class InsightSideBarComponent implements OnInit {
     private signupService: SignupService,
     private profileV2Svc: ProfileV2Service,
     private userProfileService: UserProfileService,
-    private langtranslations: MultilingualTranslationsService) {
+    private langtranslations: MultilingualTranslationsService,
+    private cdr: ChangeDetectorRef,
+    private dialog: MatDialog,
+    private commonDataSvc: CommonDataService) {
       if (localStorage.getItem('websiteLanguage')) {
         this.translate.setDefaultLang('en')
         const lang = localStorage.getItem('websiteLanguage')!
@@ -141,6 +151,10 @@ export class InsightSideBarComponent implements OnInit {
       this.surveyPopup = this.activatedRoute.snapshot.data.pageData.data.surveyPopup
       // Fetch National learning week configurations
       this.nwlConfiguration = this.activatedRoute.snapshot.data.pageData.data.nationalLearningWeek
+      this.nlwExperience = this.activatedRoute.snapshot.data.pageData.data.nlwExperience
+      this.commonDataSvc.getNlw2026CertifiedStatus().subscribe((status: boolean) => {
+        this.isNlw2026Certified = status
+      })
       this.updateDesignationCard = this.activatedRoute.snapshot.data.pageData.data.updateDesignation
       let slwConfigurationLocal:any = this.activatedRoute.snapshot.data.pageData.data &&
       this.activatedRoute.snapshot.data.pageData.data.stateLearningWeek || []
@@ -160,6 +174,7 @@ export class InsightSideBarComponent implements OnInit {
 
       if (this.nwlConfiguration && this.nwlConfiguration.enabled) {
         this.getNlwConfig()
+        this.startNlwAutoSlide()
       }
       if (this.updateDesignationCard && this.updateDesignationCard.enabled) {
         this.getMasterDesignation()
@@ -533,7 +548,7 @@ export class InsightSideBarComponent implements OnInit {
       }
     )
 
-    this.router.navigateByUrl('app/learn/karmayogi-saptah')
+    this.router.navigateByUrl(this.nwlConfiguration?.url  || 'app/learn/nlw/karmayogi-saptah')
   }
 
   navigateToStatelLearning() {
@@ -682,5 +697,118 @@ export class InsightSideBarComponent implements OnInit {
 
   raiseTelemetryInteratEvent(event: any) {
     this.telemetryRaisedLibrary.emit(event)
+  }
+
+  /**
+   * Config-driven slides.
+   * Each entry: { type: 'banner', image?: string } or { type: 'content' }
+   * Falls back to [banner, content] when slides array is absent (backward compat).
+   */
+  get nlwSlides(): any[] {
+    if (this.nwlConfiguration?.slides?.length) {
+      return this.nwlConfiguration.slides
+    }
+    // Default: banner first, then content card
+    return [
+      { type: 'banner' },
+      { type: 'content' },
+    ]
+  }
+
+  /** Start auto-slide for the NLW card — skipped when only 1 slide */
+  startNlwAutoSlide(): void {
+    if (this.nlwSlides.length <= 1) {
+      return
+    }
+    const interval = (this.nwlConfiguration?.flipInterval || 5) * 1000
+    this.nlwAutoSlideInterval = setInterval(() => {
+      this.nlwSlideIndex = (this.nlwSlideIndex + 1) % this.nlwSlides.length
+      this.cdr.detectChanges()
+    }, interval)
+  }
+
+  /** Go to a specific NLW slide */
+  goToNlwSlide(index: number): void {
+    this.nlwSlideIndex = index
+    this.cdr.detectChanges()
+    // Reset the auto-slide timer
+    if (this.nlwAutoSlideInterval) {
+      clearInterval(this.nlwAutoSlideInterval)
+    }
+    this.startNlwAutoSlide()
+  }
+
+  /** Navigate to the previous NLW slide */
+  prevNlwSlide(): void {
+    const prev = (this.nlwSlideIndex - 1 + this.nlwSlides.length) % this.nlwSlides.length
+    this.goToNlwSlide(prev)
+  }
+
+  /** Navigate to the next NLW slide */
+  nextNlwSlide(): void {
+    const next = (this.nlwSlideIndex + 1) % this.nlwSlides.length
+    this.goToNlwSlide(next)
+  }
+
+  /** Handle NLW Experience banner click */
+  onNlwBannerClick(): void {
+    if (!this.nlwExperience?.banner?.onClick) { return }
+    const onClick = this.nlwExperience.banner.onClick
+    this.raiseTelemetryForNlwExperience('nlw-experience-banner')
+    if (onClick.action === 'OPEN_POPUP') {
+      this.openNlwExperienceDialog(onClick)
+    }
+  }
+
+  /** Handle NLW Experience newsletter CTA click */
+  onNlwNewsletterCtaClick(): void {
+    if (!this.nlwExperience?.newsletter?.cta) { return }
+    const cta = this.nlwExperience.newsletter.cta
+    this.raiseTelemetryForNlwExperience('nlw-experience-newsletter')
+    if (cta.action === 'OPEN_POPUP') {
+      this.openNlwExperienceDialog(cta)
+    }
+  }
+
+  /** Open the NLW Experience dialog based on dynamic config */
+  private openNlwExperienceDialog(config: any): void {
+    const dialogData: NlwCertificateDialogData = {
+      action: config.action,
+      type: config.type,
+      url: config.url,
+      api: config.api,
+    }
+
+    let dialogWidth = '600px'
+    if (config.type === 'PDF') {
+      dialogWidth = window.innerWidth <= 768 ? '90vw' : '80vw'
+    }
+
+    this.dialog.open(NlwCertificateDialogComponent, {
+      data: dialogData,
+      panelClass: 'nlw-experience-dialog-container',
+      maxWidth: '95vw',
+      width: dialogWidth,
+      autoFocus: false,
+    })
+  }
+
+  private raiseTelemetryForNlwExperience(id: string): void {
+    this.events.raiseInteractTelemetry(
+      {
+        type: WsEvents.EnumInteractTypes.CLICK,
+        id,
+      },
+      {},
+      {
+        module: WsEvents.EnumTelemetrymodules.HOME,
+      }
+    )
+  }
+
+  ngOnDestroy(): void {
+    if (this.nlwAutoSlideInterval) {
+      clearInterval(this.nlwAutoSlideInterval)
+    }
   }
 }

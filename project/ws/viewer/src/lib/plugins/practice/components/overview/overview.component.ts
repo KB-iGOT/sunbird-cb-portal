@@ -21,6 +21,7 @@ export class OverviewComponent implements OnInit, OnChanges, OnDestroy {
   @Input() noOfQuestions = 0
   @Input() canAttempt!: NSPractice.IRetakeAssessment
   @Input() coursePrimaryCategory: any
+  @Input() courseCategory: any
   @Input() instructionAssessment: any
   @Input() selectedAssessmentCompatibilityLevel: any
   @Output() userSelection = new EventEmitter<NSPractice.TUserSelectionType>()
@@ -41,6 +42,8 @@ export class OverviewComponent implements OnInit, OnChanges, OnDestroy {
   consentGiven = false
   maxAttempPopup = false
   currentPage = 0
+  contentData: any
+
   constructor(
     public dialog: MatDialog,
     private route: ActivatedRoute,
@@ -52,9 +55,11 @@ export class OverviewComponent implements OnInit, OnChanges, OnDestroy {
 
   ngOnInit() {
     this.dataSubscription = this.route.data.subscribe(data => {
+      this.contentData = data?.content?.data
+
       if (data && data.pageData) {
         if (data && data.content && data.content.data && data.content.data.identifier) {
-          const identifier =  data.content.data.identifier
+          const identifier = data.content.data.identifier
           if (identifier && !this.forPreview) {
             this.checkForAssessmentSubmitAlready(identifier)
           }
@@ -67,7 +72,7 @@ export class OverviewComponent implements OnInit, OnChanges, OnDestroy {
   ngOnChanges() {
     if (!this.forPreview) {
       if (this.canAttempt && (this.canAttempt.attemptsMade >= this.canAttempt.attemptsAllowed) &&
-          this.questionTYP.FINAL_ASSESSMENT === this.primaryCategory) {
+        this.questionTYP.FINAL_ASSESSMENT === this.primaryCategory) {
         if (!this.maxAttempPopup && this.selectedAssessmentCompatibilityLevel > 6) {
           this.showAssessmentPopup()
         }
@@ -77,7 +82,7 @@ export class OverviewComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   showAssessmentPopup() {
-    this.maxAttempPopup = true  
+    this.maxAttempPopup = true
     const popupData = {
       headerText: 'this.resourceName',
       assessmentType: 'maxAttemptReached',
@@ -92,7 +97,7 @@ export class OverviewComponent implements OnInit, OnChanges, OnDestroy {
         },
       ],
     }
-    const dialogRef =  this.dialog.open(FinalAssessmentPopupComponent, {
+    const dialogRef = this.dialog.open(FinalAssessmentPopupComponent, {
       data: popupData,
       width: '626px',
       maxWidth: '90vw',
@@ -106,8 +111,8 @@ export class OverviewComponent implements OnInit, OnChanges, OnDestroy {
         switch (result) {
           case 'yes':
             this.maxAttempPopup = false
-          // this.submitQuiz()
-          break
+            // this.submitQuiz()
+            break
         }
 
       }
@@ -121,18 +126,67 @@ export class OverviewComponent implements OnInit, OnChanges, OnDestroy {
           if (response && response.attemptsMade > 0 && response.attemptsMade < response.attemptsAllowed) {
             this.quizSvc.checkAlreadySubmitAssessment.next(true)
           }
+          // Update canAttempt with the latest response
+          if (response) {
+            this.canAttempt = response
+          }
+        }, (err: any) => {
+          this.quizSvc.checkAlreadySubmitAssessment.next(false)
+          this.handleCanAttendError(err)
         })
       } else {
-        // this.quizSvc.canAttendV5(identifier).subscribe(response => {
-        //   if (response && response.attemptsMade > 0 && response.attemptsMade < response.attemptsAllowed) {
-        //     this.quizSvc.checkAlreadySubmitAssessment.next(true)
-        //   } else {
-        //     this.quizSvc.checkAlreadySubmitAssessment.next(false)
-        //   }
-        // })
+        this.quizSvc.canAttendV5(identifier).subscribe(response => {
+          if (response && response.attemptsMade > 0 && response.attemptsMade < response.attemptsAllowed) {
+            this.quizSvc.checkAlreadySubmitAssessment.next(true)
+          } else {
+            this.quizSvc.checkAlreadySubmitAssessment.next(false)
+          }
+          // Update canAttempt with the latest response
+          if (response) {
+            this.canAttempt = response
+          }
+        }, (err: any) => {
+          this.quizSvc.checkAlreadySubmitAssessment.next(false)
+          this.handleCanAttendError(err)
+        })
       }
     }
 
+  }
+
+  /**
+   * Handle error from canAttend/canAttendV5 API
+   * Sets canAttempt to indicate all attempts are exhausted
+   */
+  handleCanAttendError(error: any) {
+    // Extract error message from the error response
+    let errorMessage = 'Unable to load assessment. Please try again later.'
+
+    if (error && error.params && error.params.errmsg) {
+      errorMessage = error.params.errmsg
+    } else if (error && error.error && error.error.params && error.error.params.errmsg) {
+      errorMessage = error.error.params.errmsg
+    } else if (error && error.message) {
+      errorMessage = error.message
+    }
+
+    // Check if the error is about attempts being exhausted
+    const isAttemptsExhausted = errorMessage.toLowerCase().includes('attempts exhausted') ||
+      errorMessage.toLowerCase().includes('retry attempts') ||
+      errorMessage.toLowerCase().includes('maximum') ||
+      (error && error.error && error.error.responseCode === 'BAD_REQUEST')
+
+    if (isAttemptsExhausted) {
+      // Set canAttempt to indicate all attempts are used up
+      // When attemptsMade >= attemptsAllowed, the UI shows "You have exceeded the maximum allowed attempt"
+      this.canAttempt = {
+        attemptsAllowed: this.quizData?.maxAssessmentRetakeAttempts || 1,
+        attemptsMade: this.quizData?.maxAssessmentRetakeAttempts || 1, // Set equal to make it exhausted
+      }
+    }
+
+    // Show snackbar for quick notification
+    this.snackbar.open(errorMessage, 'Close', { duration: 8000 })
   }
 
   ngOnDestroy() {

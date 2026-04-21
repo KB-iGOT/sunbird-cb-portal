@@ -3,7 +3,7 @@ import { WidgetBaseComponent } from '@sunbird-cb/resolver/src/lib/widget-base.co
 import { NsWidgetResolver } from '@sunbird-cb/resolver/src/lib/widget-resolver.model'
 import { TFetchStatus } from '@sunbird-cb/utils-v2'
 import { NsContent } from '../_services/widget-content.model'
-import { WidgetContentService } from '../_services/widget-content.service'
+import { WidgetContentService } from '@sunbird-cb/toc'
 import { NsContentStripSingle } from './content-strip-single.model'
 import { ContentStripSingleService } from './content-strip-single.service'
 
@@ -65,7 +65,7 @@ export class ContentStripSingleComponent extends WidgetBaseComponent
       this.contentStripSvc.getContentStripResponseApi(this.widgetData.request.api).subscribe(results => {
         this.convertToStrip(results.contents || [])
         this.checkParentStatus('done', results.contents.length)
-      },                                                                                     () => {
+      }, () => {
         this.checkParentStatus('error', 0)
       },
       )
@@ -78,11 +78,11 @@ export class ContentStripSingleComponent extends WidgetBaseComponent
       Object.keys(this.widgetData.request.search).length
     ) {
       this.checkParentStatus('fetching', 0)
-      this.contentSvc.search(this.widgetData.request.search).subscribe(results => {
+      this.contentSvc.search(this.widgetData.request.search as any).subscribe(results => {
         this.convertToStrip(results.result || [])
         this.checkParentStatus('done', results.result.length)
       },
-                                                                       () => {
+        () => {
           this.checkParentStatus('error', 0)
         },
       )
@@ -96,12 +96,12 @@ export class ContentStripSingleComponent extends WidgetBaseComponent
     ) {
       this.checkParentStatus('fetching', 0)
       this.contentSvc
-        .searchRegionRecommendation(this.widgetData.request.searchRegionRecommendation)
+        .searchRegionRecommendation(this.widgetData.request.searchRegionRecommendation as any)
         .subscribe(results => {
           this.convertToStrip(results.contents || [])
           this.checkParentStatus('done', results.contents.length)
         },
-                   () => {
+          () => {
             this.checkParentStatus('error', 0)
           },
         )
@@ -118,7 +118,7 @@ export class ContentStripSingleComponent extends WidgetBaseComponent
         this.convertToStrip(results.result.content || [])
         this.checkParentStatus('done', results.result.content.length)
       },
-                                                                           () => {
+        () => {
           this.checkParentStatus('error', 0)
         },
       )
@@ -135,7 +135,7 @@ export class ContentStripSingleComponent extends WidgetBaseComponent
         this.convertToStrip(results || [])
         this.checkParentStatus('done', results.length)
       },
-                                                                                  () => {
+        () => {
           this.checkParentStatus('error', 0)
         },
       )
