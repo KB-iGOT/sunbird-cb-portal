@@ -2,7 +2,7 @@
   <!-- //NOSONAR -->
   <div class="chatbot-icon-container" [ngStyle]="(configSvc.updatePlatformRatingObservable$ | async)"
     *ngIf="showIcon && isHubEnable && (this.enableSupportAI || this.enableIGOTAIFlag)" (mouseover)="expanded = true" (mouseleave)="expanded = false"
-    (click)="iconClick('start')" (keyup)="iconClick('start')">
+    (focus)="expanded = true" (blur)="expanded = false" (click)="iconClick('start')" (keyup)="iconClick('start')">
     <!-- [ngClass]="{'chatbot-icon-expanded': expanded}" -->
     <div class="chatbot-icon-ai flex" *ngIf="enableIGOTAIFlag || enableSupportAI">
       <div cdkDrag #dragItem class="draggable-icon" (cdkDragEnded)="onDragEnded($event)" [cdkDragFreeDragPosition]="iconPosition"
