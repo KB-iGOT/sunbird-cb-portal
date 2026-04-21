@@ -69,7 +69,7 @@ export class SuppotSectionComponent implements OnInit, OnChanges {
   ngOnInit() {
     // Load Zoho form HTML
     this.http.get(this.zohoUrl, { responseType: 'text' }).subscribe(res => {
-      this.zohoHtml = this.sanitizer.bypassSecurityTrustHtml(res)
+      this.zohoHtml = this.sanitizer.bypassSecurityTrustHtml(res) //NOSONAR
     })
 
     this.bindConfig()

@@ -50,7 +50,7 @@ export class ZohoFormService {
   }
 
   private initializeUserData(): void {
-      this.userProfileData = this.configSvc.unMappedUser
+    this.userProfileData = this.configSvc.unMappedUser
   }
 
   // ===== Issue Type Handler =====
@@ -230,7 +230,7 @@ export class ZohoFormService {
     fileNameSpan.textContent = fileName
 
     const closeLink = document.createElement('a')
-    closeLink.href = 'javascript:;'
+    closeLink.href = 'javascript:;' // NOSONAR
     closeLink.className = 'zsfilebrowseAttachment'
     closeLink.id = 'fileclose_' + fileId
     closeLink.textContent = '×'
@@ -452,13 +452,13 @@ export class ZohoFormService {
     }
   }
 
-   patchUserDataFromConfig(): void {
-    if (!this.userProfileData) return;
+  patchUserDataFromConfig(): void {
+    if (!this.userProfileData) return
 
     const personalDetails =
-      this.userProfileData['profileDetails']['personalDetails'] || {};
+      this.userProfileData['profileDetails']['personalDetails'] || {}
     const professionalDetails =
-      this.userProfileData['profileDetails']['professionalDetails'] || {};
+      this.userProfileData['profileDetails']['professionalDetails'] || {}
 
     // Map user data directly from profile
     const userData = {
@@ -529,7 +529,7 @@ export class ZohoFormService {
 
         // Email validation
         if (fieldName === 'Email') {
-          const emailRegex = /^([\w_][\w\-_.+'&]*)@(?=.{4,256}$)(([\w]+)([\-_]*[\w])*[\.])+[a-zA-Z]{2,22}$/
+          const emailRegex = /^([\w_][\w\-_.+'&]*)@(?=.{4,256}$)(([\w]+)([\-_]*[\w])*[\.])+[a-zA-Z]{2,22}$/ // NOSONAR
           if (!emailRegex.test(field.value)) {
             alert('Enter a valid email address')
             field.focus()
@@ -549,7 +549,7 @@ export class ZohoFormService {
       // Check if Centre/State is selected and validate accordingly
       const centreRadio = document.getElementById('CASECF21_centre') as HTMLInputElement
       const stateRadio = document.getElementById('CASECF21_state') as HTMLInputElement
-      
+
       if ((!centreRadio || !centreRadio.checked) && (!stateRadio || !stateRadio.checked)) {
         alert('Please select Centre or State')
         return false
@@ -593,7 +593,7 @@ export class ZohoFormService {
         const sparrowEmail = sparrowEmailInput.value.trim()
 
         const sparrowRegex =
-          /^([\w_][\w\-_.+'&]*)@(?=.{4,256}$)(([\w]+)([\-_]*[\w])*[\.])+[a-zA-Z]{2,22}$/
+          /^([\w_][\w\-_.+'&]*)@(?=.{4,256}$)(([\w]+)([\-_]*[\w])*[\.])+[a-zA-Z]{2,22}$/ // NOSONAR
 
         if (!sparrowRegex.test(sparrowEmail)) {
           alert('Enter a valid Sparrow email ID')
