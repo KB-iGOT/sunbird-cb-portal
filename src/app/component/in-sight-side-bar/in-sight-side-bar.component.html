@@ -12,8 +12,7 @@
         </div>
     </div>
 </div>
-<div class="disigantion-master-container margin-top-l"
-    *ngIf="updateDesignationCard && designationList?.length && showUpdateDesignations">
+<div class="disigantion-master-container margin-top-l" *ngIf="updateDesignationCard && designationList?.length && showUpdateDesignations">
     <div class="flex items-center justify-center gap-2">
         <img [src]="updateDesignationCard?.imageUrl" alt="updateDesignation" />
         <div class="flex flex-col gap-2">
@@ -27,16 +26,14 @@
         <div class="flex items-center gap-3 pb-3">
             <div class="contoller">
                 <div class="flex items-center relative">
-                    <input type="text" class="input-text designation-input cursor-pointer" matInput
-                        #trigger="matAutocompleteTrigger" #autocompleteInput [(value)]="selectDesignation"
-                        placeholder="{{'updteDesignation.select' | translate }}" [matAutocomplete]="designationAuto"
-                        (input)="onInputChange($event.target.value)" />
+                    <input type="text" class="input-text designation-input cursor-pointer" matInput #trigger="matAutocompleteTrigger"
+                        #autocompleteInput [(value)]="selectDesignation" placeholder="{{'updteDesignation.select' | translate }}"
+                        [matAutocomplete]="designationAuto" (input)="onInputChange($event.target.value)" />
                     <!-- //NOSONAR --> <mat-icon class="dropdown-icon cursor-pointer"
                         (click)="openAutocomplete(trigger, autocompleteInput)">arrow_drop_down</mat-icon>
                 </div>
-                <mat-autocomplete class="mat-autocomplete" (closed)="onAutoCompleteClosed()"
-                    (opened)="onAutoCompleteOpened()" #designationAuto="matAutocomplete"
-                    (optionSelected)="onOptionSelected($event.option.value)">
+                <mat-autocomplete class="mat-autocomplete" (closed)="onAutoCompleteClosed()" (opened)="onAutoCompleteOpened()"
+                    #designationAuto="matAutocomplete" (optionSelected)="onOptionSelected($event.option.value)">
                     <ng-container *ngIf="filterDesigantionList.length > 0; else noDesignation">
                         <mat-option *ngFor="let designation of filterDesigantionList" value="{{ designation?.name }}">{{
                             designation?.name }}</mat-option>
@@ -56,7 +53,7 @@
 <ng-container *ngIf="nlwExperience?.banner?.enabled && isNlw2026Certified">
     <div class="margin-top-m nlw-experience-section">
         <!-- Banner -->
-        <div class="nlw-exp-banner" (click)="onNlwBannerClick()">
+        <div class="nlw-exp-banner" (click)="onNlwBannerClick()" (keydown)="onNlwBannerClick()">
             <img class="nlw-exp-banner-img" [src]="nlwExperience.banner.displayImage" alt="Sadhana Saptah Banner" />
         </div>
     </div>
@@ -67,7 +64,7 @@
     <div class="margin-top-m nlw-experience-section">
         <!-- Banner image mode -->
         <ng-container *ngIf="nlwExperience.newsletter.bannerURL; else newsletterTextCard">
-            <div class="nlw-exp-banner" (click)="onNlwNewsletterCtaClick()">
+            <div class="nlw-exp-banner" (click)="onNlwNewsletterCtaClick()" (keydown)="onNlwNewsletterCtaClick()">
                 <img class="nlw-exp-banner-img" [src]="nlwExperience.newsletter.bannerURL" alt="PM Newsletter Banner" />
             </div>
         </ng-container>
@@ -102,14 +99,13 @@
         <ng-container *ngFor="let slide of nlwSlides; let si = index">
             <!-- Content slide -->
             <div class="nlw-slide" *ngIf="nlwSlideIndex === si && slide.type === 'content'">
-                <div class="nlw-container cursor-pointer" (click)="navigateToNationalLearning()">
+                <div class="nlw-container cursor-pointer" (click)="navigateToNationalLearning()" (keydown)="navigateToNationalLearning()">
                     <div class="flex">
                         <div class="nlw-title gap-3">
                             {{currentLang === 'hi'? nwlConfiguration?.titleHi : nwlConfiguration?.title}}
                         </div>
                         <div class="nlw-title">
-                            <img class="nlw-animation"
-                                src="{{nwlConfiguration?.icon || 'assets/images/national-learning/nlw.gif'}}" alt="" />
+                            <img class="nlw-animation" src="{{nwlConfiguration?.icon || 'assets/images/national-learning/nlw.gif'}}" alt="" />
                         </div>
                     </div>
                     <div class="flex nlw-description">
@@ -128,8 +124,7 @@
                             <div *ngFor="let n of [].constructor(totalDays); let i = index">
                                 <div class="flex items-center">
                                     <div class="dot {{daysCompleted > i ? 'active' : ''}}"></div>
-                                    <div class="line {{daysCompleted > i ? 'active' : ''}}"
-                                        [ngStyle]="{'width': nwlConfiguration?.width}"></div>
+                                    <div class="line {{daysCompleted > i ? 'active' : ''}}" [ngStyle]="{'width': nwlConfiguration?.width}"></div>
                                     <div class="dot" *ngIf="(totalDays - 1) === i"></div>
                                 </div>
                             </div>
@@ -144,7 +139,7 @@
             </div>
             <!-- Banner slide -->
             <div class="nlw-slide" *ngIf="nlwSlideIndex === si && slide.type === 'banner'">
-                <div class="nlw-slide-banner cursor-pointer" (click)="navigateToNationalLearning()">
+                <div class="nlw-slide-banner cursor-pointer" (click)="navigateToNationalLearning()" (keydown)="navigateToNationalLearning()">
                     <img [src]="slide.image || nwlConfiguration?.flipImage || 'https://portal.igotkarmayogi.gov.in/content-store/orgStore/0133783095823810560/1774520209280_1x1 Banner_1.svg'"
                         alt="" class="nlw-slide-banner-img" />
                 </div>
@@ -159,8 +154,8 @@
                 <mat-icon>chevron_right</mat-icon>
             </button>
             <div class="nlw-slider-dots">
-                <span *ngFor="let slide of nlwSlides; let di = index" class="nlw-dot"
-                    [class.active]="nlwSlideIndex === di" (click)="goToNlwSlide(di)"></span>
+                <span *ngFor="let slide of nlwSlides; let di = index" class="nlw-dot" [class.active]="nlwSlideIndex === di" (click)="goToNlwSlide(di)"
+                    (keydown)="goToNlwSlide(di)"></span>
             </div>
         </ng-container>
     </div>
@@ -169,7 +164,7 @@
 <!-- STATE LEARNING WEEK -->
 <div class="margin-top-m" *ngIf="slwConfiguration?.enabled && canShowSlwCard">
     <!-- //NOSONAR -->
-    <div class="nlw-container cursor-pointer" (click)="navigateToStatelLearning()">
+    <div class="nlw-container cursor-pointer" (click)="navigateToStatelLearning()" (keydown)="navigateToStatelLearning()">
         <div class="flex justify-between">
             <div class="nlw-title gap-3">
                 <p class="margin-remove mat-subheading-1 {{slwConfiguration?.celebrateClass}}">{{currentLang === 'hi'?
@@ -189,8 +184,7 @@
                 <div *ngFor="let n of [].constructor(totalDays); let i = index">
                     <div class="flex items-center">
                         <div class="dot {{daysCompleted > i ? 'active' : ''}}"></div>
-                        <div class="line {{daysCompleted > i ? 'active' : ''}}"
-                            [ngStyle]="{'width': slwConfiguration?.width}"></div>
+                        <div class="line {{daysCompleted > i ? 'active' : ''}}" [ngStyle]="{'width': slwConfiguration?.width}"></div>
                         <div class="dot" *ngIf="(totalDays - 1) === i"></div>
                     </div>
                 </div>
@@ -205,34 +199,28 @@
 </div>
 
 <div class="margin-top-m">
-    <ws-widget-profile-card-stats (expandCollapse)="expandCollapse($event)" (activity)="goToActivity($event)"
-        [profileData]="homePageData.profileCard" [insightsData]="insightsData"
-        [isLoading]="profileDataLoading"></ws-widget-profile-card-stats>
+    <ws-widget-profile-card-stats (expandCollapse)="expandCollapse($event)" (activity)="goToActivity($event)" [profileData]="homePageData.profileCard"
+        [insightsData]="insightsData" [isLoading]="profileDataLoading"></ws-widget-profile-card-stats>
 </div>
 
 <section class="hidden md:block" style="position: relative;" [ngClass]="{'':!collapsed, 'margin-bottom-m': collapsed}">
-    <div class="assessment-box  collapsible" [@collapse]="collapsed"
-        [ngClass]="{'margin-bottom-remove margin-top-remove':collapsed}">
+    <div class="assessment-box  collapsible" [@collapse]="collapsed" [ngClass]="{'margin-bottom-remove margin-top-remove':collapsed}">
         <ng-container [ngTemplateOutlet]="loadNewStrips"></ng-container>
         <ng-template #loadNewStrips>
             <ng-container *ngFor="let newStrip of assessmentStrip">
                 <ng-container *ngIf="newStrip?.stripType !== 'withPils'">
-                    <sb-uic-content-strip-with-tabs [widgetData]="newStrip"
-                        (telemtryResponse)="raiseTelemetryInteratEvent($event)">
+                    <sb-uic-content-strip-with-tabs [widgetData]="newStrip" (telemtryResponse)="raiseTelemetryInteratEvent($event)">
                     </sb-uic-content-strip-with-tabs>
                 </ng-container>
                 <ng-container *ngIf="newStrip?.stripType === 'withPils'">
-                    <sb-uic-content-strip-with-tabs-pills [widgetData]="newStrip"
-                        (telemtryResponse)="raiseTelemetryInteratEvent($event)">
+                    <sb-uic-content-strip-with-tabs-pills [widgetData]="newStrip" (telemtryResponse)="raiseTelemetryInteratEvent($event)">
                     </sb-uic-content-strip-with-tabs-pills>
                 </ng-container>
             </ng-container>
         </ng-template>
     </div>
-    <section class="collapsible" [@collapse]="collapsed"
-        [ngClass]="{'padding-top-m':(!collapsed && isLeaderboardExist)}">
-        <ws-widget-user-leaderboard
-            (isLeaderboardAvailable)="checkLeaderboardData($event)"></ws-widget-user-leaderboard>
+    <section class="collapsible" [@collapse]="collapsed" [ngClass]="{'padding-top-m':(!collapsed && isLeaderboardExist)}">
+        <ws-widget-user-leaderboard (isLeaderboardAvailable)="checkLeaderboardData($event)"></ws-widget-user-leaderboard>
     </section>
     <div class="collapsible" [@collapseWeekly]="collapsed" [ngClass]="{'margin-bottom-m margin-top-m':!collapsed}">
         <ws-widget-weekly-claps [insightsData]="insightsData" [weeklyData]="homePageData.weeklyClaps"
@@ -255,10 +243,8 @@
                         <div class="flex flex-between flex-middle">
                             <p class="flex-align-start upcoming-assessment-title flex flex-middle margin-remove">
                                 Upcoming Assessment
-                                <img class="margin-left-s cursor-pointer" width="20px" height="20px" alt=""
-                                    src="assets/icons/home/help_icon.svg" #tooltip="matTooltip"
-                                    [matTooltipClass]="'below'"
-                                    matTooltip="View your Credentials and take your Assessment.">
+                                <img class="margin-left-s cursor-pointer" width="20px" height="20px" alt="" src="assets/icons/home/help_icon.svg"
+                                    #tooltip="matTooltip" [matTooltipClass]="'below'" matTooltip="View your Credentials and take your Assessment.">
                             </p>
                         </div>
                         <button
@@ -276,8 +262,7 @@
                         <span class="cred-title">{{ credMessage }}</span>
                     </div>
                     <div class="flex">
-                        <!-- //NOSONAR --><mat-icon class="ws-mat-default-text cursor-pointer"
-                            (click)="toggleCreds()">{{showCreds ?
+                        <!-- //NOSONAR --><mat-icon class="ws-mat-default-text cursor-pointer" (click)="toggleCreds()">{{showCreds ?
                             'keyboard_arrow_up' : 'keyboard_arrow_down'}}</mat-icon>
                     </div>
                 </div>
@@ -321,8 +306,7 @@
         </div>
     </section> -->
     <section class="collapsible" [@collapse]="collapsed" [ngClass]="{'padding-top-m margin-bottom-m':!collapsed}">
-        <ws-widget-pending-request [pendingRequestData]="pendingRequestData"
-            [isLoading]="pendingRequestSkeleton"></ws-widget-pending-request>
+        <ws-widget-pending-request [pendingRequestData]="pendingRequestData" [isLoading]="pendingRequestSkeleton"></ws-widget-pending-request>
     </section>
     <div class="empty-div margin-bottom-xl" *ngIf="collapsed">
         <div class="empty-div2 margin-bottom-m" *ngIf="!discussion?.error">

@@ -1039,7 +1039,7 @@ export class AppChatbotComponent implements OnInit, AfterViewChecked, OnChanges 
         this.footerClassName = 'cb-footer-with-support-ai'
       }
 
-    } else if (this.enableSupportAI) {
+    } else if (this.enableSupportAI) { //NOSONAR
       this.footerClassName = 'cb-footer-with-ai-support-only'
 
     } else {
