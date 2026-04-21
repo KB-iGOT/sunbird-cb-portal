@@ -1,7 +1,7 @@
 import { Component, OnInit, Input, OnDestroy, HostBinding, EventEmitter, Output } from '@angular/core'
 import { NsContentStripWithTabs } from './content-strip-with-tabs.model'
 // import { HttpClient } from '@angular/common/http'
-import { WidgetContentService } from '../_services/widget-content.service'
+import { WidgetContentService } from '@sunbird-cb/toc'
 import { NsContent } from '../_services/widget-content.model'
 import {
   TFetchStatus,
@@ -22,9 +22,6 @@ import { MatLegacyTabChangeEvent as MatTabChangeEvent } from '@angular/material/
 import { NsCardContent } from '../card-content-v2/card-content-v2.model'
 import { ITodayEvents } from '@ws/app/src/lib/routes/events/models/event'
 import { TranslateService } from '@ngx-translate/core'
-import { WidgetBaseComponent } from '@sunbird-cb/resolver/src/lib/widget-base.component'
-import { NsWidgetResolver } from '@sunbird-cb/resolver/src/lib/widget-resolver.model'
-
 interface IStripUnitContentData {
   key: string
   canHideStrip: boolean
@@ -449,21 +446,21 @@ export class ContentStripWithTabsComponent extends WidgetBaseComponent
   }
 
   getInprogressAndCompleted(array: NsContent.IContent[],
-                            customFilter: any,
-                            strip: NsContentStripWithTabs.IContentStripUnit) {
+    customFilter: any,
+    strip: NsContentStripWithTabs.IContentStripUnit) {
     const inprogress: any[] = []
     const completed: any[] = []
     // array.forEach((e: any, idx: number, arr: any[]) => (customFilter(e, idx, arr) ? inprogress : completed).push(e))
     array.forEach((e, idx, arr) => {
-    const status = e.status ? (e.status as string).toLowerCase() : ''
-    const statusRetired = status === 'retired'
-    if (customFilter(e, idx, arr)) {
-    if (!statusRetired) {
-      inprogress.push(e)
-    }
-   } else {
-    completed.push(e)
-   }
+      const status = e.status ? (e.status as string).toLowerCase() : ''
+      const statusRetired = status === 'retired'
+      if (customFilter(e, idx, arr)) {
+        if (!statusRetired) {
+          inprogress.push(e)
+        }
+      } else {
+        completed.push(e)
+      }
     })
     // Sort the completed array with 'Live' status first and 'Retired' status second
     completed.sort((a: any, b: any) => {
@@ -489,6 +486,7 @@ export class ContentStripWithTabsComponent extends WidgetBaseComponent
   }
 
   async fetchFromSearchV6(strip: NsContentStripWithTabs.IContentStripUnit, calculateParentStatus = true) {
+
     if (strip.request && strip.request.searchV6 && Object.keys(strip.request.searchV6).length) {
       // if (!(strip.request.searchV6.locale && strip.request.searchV6.locale.length > 0)) {
       //   if (this.configSvc.activeLocale) {
@@ -562,12 +560,30 @@ export class ContentStripWithTabsComponent extends WidgetBaseComponent
   }
 
   async searchV6Request(strip: NsContentStripWithTabs.IContentStripUnit,
-                        request: NsContentStripWithTabs.IContentStripUnit['request'],
-                        calculateParentStatus: boolean
+    request: NsContentStripWithTabs.IContentStripUnit['request'],
+    calculateParentStatus: boolean
   ): Promise<any> {
     const originalFilters: any = []
     return new Promise<any>((resolve, reject) => {
       if (request && request.searchV6) {
+        if (request.searchV6 && request.searchV6.request && request.searchV6.request.filters && request.searchV6.request.filters.contentType === 'Event') {
+          let startDateTimeInEpoch = Date.UTC(new Date().getUTCFullYear(),
+            new Date().getUTCMonth(),
+            new Date().getUTCDate(),
+            new Date().getUTCHours(),
+            new Date().getUTCMinutes(),
+            new Date().getUTCSeconds(),
+            new Date().getUTCMilliseconds())
+          let endDateTimeInEpoch = Date.UTC(new Date().getUTCFullYear(),
+            new Date().getUTCMonth(),
+            new Date().getUTCDate(),
+            new Date().getUTCHours(),
+            new Date().getUTCMinutes(),
+            new Date().getUTCSeconds(),
+            new Date().getUTCMilliseconds())
+          request.searchV6.request.filters.startDateTimeInEpoch = { "<=": [startDateTimeInEpoch] }
+          request.searchV6.request.filters.endDateTimeInEpoch = { ">=": [endDateTimeInEpoch] }
+        }
         this.contentSvc.searchV6(request.searchV6).subscribe(results => {
           const showViewMore = Boolean(
             results.result.content && results.result.content.length > 5 && strip.stripConfig && strip.stripConfig.postCardForSearch,
@@ -596,7 +612,7 @@ export class ContentStripWithTabsComponent extends WidgetBaseComponent
           //   viewMoreUrl.queryParams = viewMoreUrl.queryParams
           // }
           resolve({ results, viewMoreUrl })
-        },                                                   (error: any) => {
+        }, (error: any) => {
           this.processStrip(strip, [], 'error', calculateParentStatus, null)
           reject(error)
         },
@@ -663,8 +679,8 @@ export class ContentStripWithTabsComponent extends WidgetBaseComponent
   }
 
   async trendingSearchRequest(strip: NsContentStripWithTabs.IContentStripUnit,
-                              request: NsContentStripWithTabs.IContentStripUnit['request'],
-                              calculateParentStatus: boolean
+    request: NsContentStripWithTabs.IContentStripUnit['request'],
+    calculateParentStatus: boolean
   ): Promise<any> {
     const originalFilters: any = []
     return new Promise<any>((resolve, reject) => {
@@ -708,7 +724,7 @@ export class ContentStripWithTabsComponent extends WidgetBaseComponent
             }
             : null
           resolve({ results, viewMoreUrl })
-        },                                                                      (error: any) => {
+        }, (error: any) => {
           if (error.error && error.error.status === 400) {
             this.processStrip(strip, [], 'done', calculateParentStatus, null)
           }
@@ -769,7 +785,7 @@ export class ContentStripWithTabsComponent extends WidgetBaseComponent
     strip: NsContentStripWithTabs.IContentStripUnit,
   ) {
     this.eventSvc.setEventListData(contents)
-    let eventData = strip.key === 'liveEvents' ? this.eventSvc.todaysLiveEvents :  this.eventSvc.todaysEvents
+    let eventData = strip.key === 'liveEvents' ? this.eventSvc.todaysLiveEvents : this.eventSvc.todaysEvents
     if (strip.key === 'keySpeakersEvents') {
       eventData = this.eventSvc.keySpeakerEvents
     }
@@ -934,7 +950,7 @@ export class ContentStripWithTabsComponent extends WidgetBaseComponent
           module: WsEvents.EnumTelemetrymodules.HOME,
         }
       )
-   }
+    }
     if (stripMap && stripMap.tabs && stripMap.tabs[tabEvent.index]) {
       stripMap.tabs[tabEvent.index].fetchTabStatus = 'inprogress'
       stripMap.tabs[tabEvent.index]['tabLoading'] = true
@@ -965,11 +981,11 @@ export class ContentStripWithTabsComponent extends WidgetBaseComponent
         this.getTabDataByfilter(currentStrip, currentTabFromMap, true)
         setTimeout(() => {
           if (stripMap && stripMap.tabs && stripMap.tabs[tabEvent.index]) {
-              stripMap.tabs[tabEvent.index]['tabLoading'] = false
-              stripMap.tabs[tabEvent.index].fetchTabStatus = 'done'
-              stripMap.showOnLoader = false
+            stripMap.tabs[tabEvent.index]['tabLoading'] = false
+            stripMap.tabs[tabEvent.index].fetchTabStatus = 'done'
+            stripMap.showOnLoader = false
           }
-        },         200)
+        }, 200)
       }
     }
   }
@@ -1080,26 +1096,26 @@ export class ContentStripWithTabsComponent extends WidgetBaseComponent
       const userId: any = this.configSvc.userProfile && this.configSvc.userProfile.userId
       const response = await this.userSvc.fetchCbpPlanList(userId).toPromise()
       if (response) {
-            courses = response
-            if (strip.tabs && strip.tabs.length) {
-              tabResults = this.splitCbpTabsData(courses, strip)
-              await this.processStrip(
-                strip,
-                this.transformContentsToWidgets(courses, strip),
-                'done',
-                calculateParentStatus,
-                '',
-                tabResults
-              )
-            } else {
-              this.processStrip(
-                strip,
-                this.transformContentsToWidgets(courses, strip),
-                'done',
-                calculateParentStatus,
-                'viewMoreUrl',
-              )
-            }
+        courses = response
+        if (strip.tabs && strip.tabs.length) {
+          tabResults = this.splitCbpTabsData(courses, strip)
+          await this.processStrip(
+            strip,
+            this.transformContentsToWidgets(courses, strip),
+            'done',
+            calculateParentStatus,
+            '',
+            tabResults
+          )
+        } else {
+          this.processStrip(
+            strip,
+            this.transformContentsToWidgets(courses, strip),
+            'done',
+            calculateParentStatus,
+            'viewMoreUrl',
+          )
+        }
       }
       // this.userSvc.fetchCbpPlanList().subscribe( async  (res: any) => {
       //   if (res) {
@@ -1160,7 +1176,7 @@ export class ContentStripWithTabsComponent extends WidgetBaseComponent
   }
 
   getTabsList(array: NsContent.IContent[],
-              strip: NsContentStripWithTabs.IContentStripUnit) {
+    strip: NsContentStripWithTabs.IContentStripUnit) {
     let all: any[] = []
     let upcoming: any[] = []
     let overdue: any[] = []
@@ -1176,13 +1192,13 @@ export class ContentStripWithTabsComponent extends WidgetBaseComponent
     let allInCompleted = all.filter((allData: any) => allData.contentStatus < 2)
 
     let allCompletedOverDue = allCompleted.filter((allData: any) => allData.planDuration === NsCardContent.ACBPConst.OVERDUE)
-    const allCompletedAll = allCompleted.filter((allData: any) =>  allData.planDuration !== NsCardContent.ACBPConst.OVERDUE)
+    const allCompletedAll = allCompleted.filter((allData: any) => allData.planDuration !== NsCardContent.ACBPConst.OVERDUE)
 
     allCompletedOverDue = allCompletedOverDue.sort((a: any, b: any): any => {
       if (a.planDuration === NsCardContent.ACBPConst.OVERDUE && b.planDuration === NsCardContent.ACBPConst.OVERDUE) {
         const firstDate: any = new Date(a.endDate)
         const secondDate: any = new Date(b.endDate)
-        return  firstDate > secondDate  ? -1 : 1
+        return firstDate > secondDate ? -1 : 1
       }
     })
 
@@ -1190,7 +1206,7 @@ export class ContentStripWithTabsComponent extends WidgetBaseComponent
       if (a.planDuration === NsCardContent.ACBPConst.OVERDUE && b.planDuration === NsCardContent.ACBPConst.OVERDUE) {
         const firstDate: any = new Date(a.endDate)
         const secondDate: any = new Date(b.endDate)
-        return  firstDate > secondDate  ? -1 : 1
+        return firstDate > secondDate ? -1 : 1
       }
     })
 
@@ -1201,9 +1217,9 @@ export class ContentStripWithTabsComponent extends WidgetBaseComponent
     })
 
     overdue = overdue.sort((a: any, b: any): any => {
-        const firstDate: any = new Date(a.endDate)
-        const secondDate: any = new Date(b.endDate)
-        return  firstDate > secondDate  ? -1 : 1
+      const firstDate: any = new Date(a.endDate)
+      const secondDate: any = new Date(b.endDate)
+      return firstDate > secondDate ? -1 : 1
     })
 
     upcoming = upcoming.filter((data: any): any => {
@@ -1225,7 +1241,7 @@ export class ContentStripWithTabsComponent extends WidgetBaseComponent
         // returnValue = data[0].widgets && data[0].widgets.length > 0 ? 1 : 0
         const data = stripsResultDataMap.tabs.filter((ele: any) => ele.value === 'upcoming' || ele.value === 'overdue')
         returnValue = (data && data[0].widgets && data[0].widgets.length > 0) ? 0 :
-        (data && data[1].widgets && data[1].widgets.length > 0) ? 1 : 2
+          (data && data[1].widgets && data[1].widgets.length > 0) ? 1 : 2
       }
     }
     return returnValue

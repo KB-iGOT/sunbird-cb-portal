@@ -1,10 +1,10 @@
 import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core'
 import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
-// import { AppTocService } from '@ws/app/src/lib/routes/app-toc/services/app-toc.service'
+// import { AppTocService } from '@sunbird-cb/toc'
 import { NsContent } from '../../_services/widget-content.model'
 import { ConfirmDialogComponent } from './confirm-dialog/confirm-dialog.component'
 import { IReqMarkAsComplete } from './mark-as-complete.model'
-import { WidgetContentService } from '../../_services/widget-content.service'
+import { WidgetContentService } from '@sunbird-cb/toc'
 
 @Component({
   selector: 'ws-widget-mark-as-complete',

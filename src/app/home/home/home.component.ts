@@ -5,7 +5,6 @@ import { TranslateService } from '@ngx-translate/core'
 import { MatLegacySnackBar as MatSnackBar, MatLegacySnackBarConfig as MatSnackBarConfig } from '@angular/material/legacy-snack-bar'
 /* tslint:disable */
 import _ from 'lodash'
-import { MatLegacyDialog as MatDialog } from '@angular/material/legacy-dialog'
 
 /* tslint:enable */
 import { Subject } from 'rxjs'
@@ -14,9 +13,8 @@ import { takeUntil } from 'rxjs/operators'
 import { ConfigurationsService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
 import { MobileAppsService } from '../../services/mobile-apps.service'
 import { UserProfileService } from '@ws/app/src/lib/routes/user-profile/services/user-profile.service'
-import { BtnSettingsService } from '@sunbird-cb/collection/src/lib/btn-settings/btn-settings.service'
 // import { IUserProfileDetailsFromRegistry } from '@ws/app/src/lib/routes/user-profile/models/user-profile.model'
-import { ProfileVerificationDialogComponent } from '../../profile-verification-dialog/profile-verification-dialog.component'
+import { BtnSettingsService } from '@sunbird-cb/collection'
 
 // import { NotificationComponent } from './notification/notification.component'
 
@@ -54,7 +52,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
     private translate: TranslateService,
     private userProfileService: UserProfileService,
     private matSnackBar: MatSnackBar,
-    private events: EventService, private dialog: MatDialog,
+    private events: EventService,
   ) { }
   private destroySubject$ = new Subject()
   widgetData = {}
@@ -278,44 +276,11 @@ export class HomeComponent implements OnInit, AfterViewInit {
       const lang = localStorage.getItem('websiteLanguage')!
       this.translate.use(lang)
     }
-    this.mandatoryDetails()
+    // this.commondataSvc.mandatoryDetails()
   }
 
 
-  getOrgDetails() {
-    const request = {
-      request: { organisationId: this.rootOrgId },
-    }
-    this.userProfileService.readOrgData(request).subscribe((res: any) => {
-      const isPopupEnabled = _.get(res, 'result.response.customfieldsdata.isPopupEnabled') ? true : false
-      const customFieldsCount = _.get(res, 'result.response.customfieldsdata.customFieldsCount', 0) as number > 0 ? true : false
-      const customFieldsLength = _.get(res, 'result.response.customfieldsdata.customFieldIds', [])
-      if (isPopupEnabled && customFieldsCount && customFieldsLength.length > 0) {
-        this.readCustomattributeDetails()
-      } else {
-        this.canShowCustomAttrOpen = false
-      }
-    }, error => {
-      this.canShowCustomAttrOpen = false
-      console.error('Error fetching organization details', error)
-    })
-  }
 
-  readCustomattributeDetails() {
-    this.userProfileService.readCustomattributeDetails(this.configSvc.unMappedUser.id, this.rootOrgId).subscribe((res: any) => {
-      let customFieldValues = _.get(res, 'result.response.customFieldValues', [])
-      if (customFieldValues.length === 0) {
-        this.redirectToCustomProfile()
-        this.canShowCustomAttrOpen = true
-      } else {
-        //this.redirectToCustomProfile()
-        this.canShowCustomAttrOpen = false
-      }
-    }, error => {
-      this.canShowCustomAttrOpen = false
-      console.log('Error', error)
-    })
-  }
 
   ngAfterViewInit() {
     // Make the first few content strips visible initially
@@ -621,67 +586,4 @@ export class HomeComponent implements OnInit, AfterViewInit {
     )
   }
 
-  redirectToCustomProfile() {
-    this.router.navigate(['/app/person-profile/me'], { fragment: 'orgDetails' })
-  }
-  mandatoryDetails() {
-    let unMappedUser = this.configSvc.unMappedUser
-    let userProfileUpdateDate = unMappedUser && unMappedUser.profileDetails && unMappedUser.profileDetails.personalDetails && unMappedUser.profileDetails.personalDetails?.lastProfileVerificationPromptDate ? Number(unMappedUser.profileDetails.personalDetails.lastProfileVerificationPromptDate) : null
-    // Difference in milliseconds
-    const currentEpochTime = new Date().getTime()
-    let diffMs = 0
-    if (userProfileUpdateDate !== null) {
-      diffMs = Math.abs(currentEpochTime - userProfileUpdateDate)
-    }
-    // Convert ms → days
-    const diffDays = diffMs / (1000 * 60 * 60 * 24)
-
-    if ((diffDays && diffDays > 90) || userProfileUpdateDate === null) {
-      let userData = {
-        ...this.configSvc.userProfile,
-        mobile: this.configSvc.unMappedUser.profileDetails?.personalDetails?.mobile || '',
-        primaryEmail: this.configSvc.unMappedUser.profileDetails?.personalDetails?.primaryEmail || '',
-      }
-      let dialogRef = this.dialog.open(ProfileVerificationDialogComponent, {
-        data: {
-          userProfile: userData
-        },
-        panelClass: 'profile-verification-dialog-container',
-        disableClose: true,
-        maxWidth: '95vw',
-        width: '500px'
-      })
-      dialogRef.afterClosed().subscribe(async (res: any) => {
-        if (res && res?.action === 'update') {
-          this.router.navigate(['/app/person-profile/me'], { fragment: 'mandatorySection' })
-        } else if (res && res?.action === 'verify') {
-          this.callExtPatchProfile()
-        }
-      })
-    } else {
-      this.getOrgDetails()
-    }
-  }
-  callExtPatchProfile() {
-    const currentEpoch = new Date().getTime().toString()
-    let request = {
-      "request": {
-        "userId": this.configSvc.unMappedUser.id,
-        "profileDetails": {
-          "personalDetails": {
-            "lastProfileVerificationPromptDate": currentEpoch
-          }
-        }
-      }
-    }
-    this.userProfileService.editProfileDetails(request).subscribe((res: any) => {
-      if (res && res.result && res.result.response?.toUpperCase() === 'SUCCESS') {
-        this.matSnackBar.open('Profile verification  updated successfully', 'X', this.configSuccess)
-        if (this.configSvc?.unMappedUser?.profileDetails?.personalDetails) {
-          this.configSvc.unMappedUser.profileDetails.personalDetails.lastProfileVerificationPromptDate = currentEpoch
-        }
-      }
-      this.getOrgDetails()
-    })
-  }
 }

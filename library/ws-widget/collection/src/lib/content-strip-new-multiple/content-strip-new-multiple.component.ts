@@ -3,7 +3,7 @@ import { WidgetBaseComponent } from '@sunbird-cb/resolver/src/lib/widget-base.co
 import { NsWidgetResolver } from '@sunbird-cb/resolver/src/lib/widget-resolver.model'
 import { NsContentStripNewMultiple } from './content-strip-new-multiple.model'
 import { ContentStripNewMultipleService } from './content-strip-new-multiple.service'
-import { WidgetContentService } from '../_services/widget-content.service'
+import { WidgetContentService } from '@sunbird-cb/toc'
 import { NsContent } from '../_services/widget-content.model'
 import {
   TFetchStatus,
@@ -15,8 +15,8 @@ import {
 import { Subscription } from 'rxjs'
 import { filter } from 'rxjs/operators'
 import { WidgetUserServiceLib } from '@sunbird-cb/consumption'
- // tslint:disable-next-line
- import * as _ from 'lodash'
+// tslint:disable-next-line
+import _ from 'lodash'
 import { HttpClient } from '@angular/common/http'
 // import { SearchServService } from '../_services/search-serv.service'
 
@@ -229,7 +229,7 @@ export class ContentStripNewMultipleComponent extends WidgetBaseComponent
       } else {
         strip.request.search.locale = ['en']
       }
-      this.contentSvc.search(strip.request.search).subscribe(
+      this.contentSvc.search(strip.request.search as any).subscribe(
         results => {
           const showViewMore = Boolean(
             results.result.length > 5 && strip.stripConfig && strip.stripConfig.postCardForSearch,
@@ -269,7 +269,7 @@ export class ContentStripNewMultipleComponent extends WidgetBaseComponent
       Object.keys(strip.request.searchRegionRecommendation).length
     ) {
       this.contentSvc
-        .searchRegionRecommendation(strip.request.searchRegionRecommendation)
+        .searchRegionRecommendation(strip.request.searchRegionRecommendation as any)
         .subscribe(
           results => {
             this.processStrip(
@@ -437,14 +437,14 @@ export class ContentStripNewMultipleComponent extends WidgetBaseComponent
         const userCompetenies = this.configSvc.userProfileV2.competencies
 
         this.http
-        .get(`${strip.request.masterCompetency.request.url}/${strip.request.masterCompetency.request.filename}`)
-        .subscribe((masterCompetencies: any) => {
+          .get(`${strip.request.masterCompetency.request.url}/${strip.request.masterCompetency.request.filename}`)
+          .subscribe((masterCompetencies: any) => {
             // const competencyDiff = _.differenceWith(masterCompetencies, userCompetenies, _.isEqual)
             const competencyDiff = masterCompetencies.filter((a: any) => !userCompetenies.some((b: any) => a.name === b.name))
             const competencyDiffNames = _.map(competencyDiff, 'name')
             const originalFilters: any = strip.request &&
-            strip.request.recommendedCourses &&
-            strip.request.recommendedCourses.request.filters
+              strip.request.recommendedCourses &&
+              strip.request.recommendedCourses.request.filters
             originalFilters['competencies_v3.name'] = competencyDiffNames
             if (strip.request) {
               strip.request.recommendedCourses.request.filters = this.getFiltersFromArray(
@@ -464,18 +464,18 @@ export class ContentStripNewMultipleComponent extends WidgetBaseComponent
                     viewMoreText: (strip.viewMoreUrl && strip.viewMoreUrl.viewMoreText) || '',
                     queryParams: {
                       filtersPanel: 'hide',
-                      q: `${strip.request && strip.request.recommendedCourses && strip.request.recommendedCourses.query}` ,
+                      q: `${strip.request && strip.request.recommendedCourses && strip.request.recommendedCourses.query}`,
                       f:
-                      strip.request &&
-                        strip.request.recommendedCourses &&
-                        strip.request.recommendedCourses.request &&
-                        strip.request.recommendedCourses.request.filters
-                        ? JSON.stringify(
-                          this.transformSearchV6FiltersV2(
-                            originalFilters,
+                        strip.request &&
+                          strip.request.recommendedCourses &&
+                          strip.request.recommendedCourses.request &&
+                          strip.request.recommendedCourses.request.filters
+                          ? JSON.stringify(
+                            this.transformSearchV6FiltersV2(
+                              originalFilters,
+                            )
                           )
-                        )
-                        : {},
+                          : {},
                     },
                   }
                   : null
@@ -493,9 +493,9 @@ export class ContentStripNewMultipleComponent extends WidgetBaseComponent
                 this.processStrip(strip, [], 'error', calculateParentStatus, null)
               },
             )
-          },       () => {
-              this.processStrip(strip, [], 'error', calculateParentStatus, null)
-        })
+          }, () => {
+            this.processStrip(strip, [], 'error', calculateParentStatus, null)
+          })
       }
     }
   }

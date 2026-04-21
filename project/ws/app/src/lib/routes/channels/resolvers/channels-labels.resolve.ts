@@ -2,12 +2,11 @@ import { Injectable } from '@angular/core'
 import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router'
 import { Observable, of } from 'rxjs'
 import { map, catchError } from 'rxjs/operators'
+import { WidgetContentService } from '@sunbird-cb/toc'
 import { IResolveResponse } from '@sunbird-cb/utils-v2'
-import { WidgetContentService } from '@sunbird-cb/collection/src/lib/_services/widget-content.service'
 
 @Injectable()
-export class ChannelsLabelsResolve
-   {
+export class ChannelsLabelsResolve {
   constructor(private contentSvc: WidgetContentService) { }
 
   resolve(

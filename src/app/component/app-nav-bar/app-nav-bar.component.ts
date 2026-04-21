@@ -93,10 +93,10 @@ export class AppNavBarComponent implements OnInit, OnChanges, OnDestroy {
 
     this.router.events && this.router.events.subscribe(event => {
       if (event instanceof NavigationStart) {
-        this.isHubEnable = event.url && ((event.url.includes('/certs') || event.url.includes('/public/certs'))) ? false : true
+        this.isHubEnable = (event.url.includes('/certs') || event.url.includes('/achievements') || event.url.includes('/public/achievements') || event.url.includes('/public/certs')) ? false : true
         this.cancelTour()
       } else if (event instanceof NavigationEnd) {
-        this.isHubEnable = event.url && (event.url.includes('/certs') || event.url.includes('/public/certs')) ? false : true
+        this.isHubEnable = (event.url.includes('/certs') || event.url.includes('/achievements') || event.url.includes('/public/achievements') || event.url.includes('/public/certs')) ? false : true
         this.routeSubs(event)
         this.cancelTour()
         this.bindUrl(event.url && event.url.replace('/app/competencies/', ''))
@@ -162,7 +162,7 @@ export class AppNavBarComponent implements OnInit, OnChanges, OnDestroy {
         this.domainConfSvc.getDomainAppLogo()
       )
       this.redirectPath = this.domainConfSvc.getDomainRedirectPath()
-        
+
 
       this.appIconSecondary = this.domSanitizer.bypassSecurityTrustResourceUrl(
         this.configSvc.instanceConfig.logos.appSecondary,
@@ -259,10 +259,10 @@ export class AppNavBarComponent implements OnInit, OnChanges, OnDestroy {
     }
     if (
       e.url && (e.url.includes('/public/logout')
-      || e.url.includes('/public/home')
-      || e.url.includes('/public/sso')
-      || e.url.includes('/public/google/sso')
-      || e.url.startsWith('/viewer'))
+        || e.url.includes('/public/home')
+        || e.url.includes('/public/sso')
+        || e.url.includes('/public/google/sso')
+        || e.url.startsWith('/viewer'))
     ) {
       this.showAppNavBar = false
       if (e && e.url && e.url.includes('/public/home')) {

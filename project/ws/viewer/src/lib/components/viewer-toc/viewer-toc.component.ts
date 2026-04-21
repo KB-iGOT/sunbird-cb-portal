@@ -5,8 +5,8 @@ import { ActivatedRoute, NavigationExtras, Params } from '@angular/router'
 import {
   // ContentProgressService,
   NsContent,
-  VIEWER_ROUTE_FROM_MIME,
-  WidgetContentService,
+  VIEWER_ROUTE_FROM_MIME
+
 } from '@sunbird-cb/collection'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { WidgetUserServiceLib } from '@sunbird-cb/consumption'
@@ -21,10 +21,10 @@ import {
 import * as _ from 'lodash'
 import { of, Subscription } from 'rxjs'
 import { delay } from 'rxjs/operators'
-import { ViewerDataService } from '../../viewer-data.service'
-import { ViewerUtilService } from '../../viewer-util.service'
+import { ViewerUtilService, ViewerDataService } from '@sunbird-cb/toc'
 import { MatTreeNestedDataSource } from '@angular/material/tree'
-// import { AppTocService } from '@ws/app/src/lib/routes/app-toc/services/app-toc.service'
+import { AppTocV2Service, WidgetContentService } from '@sunbird-cb/toc'
+// import { AppTocService } from '@sunbird-cb/toc'
 export interface IViewerTocCard {
   identifier: string
   viewerUrl: string
@@ -87,7 +87,8 @@ export class ViewerTocComponent implements OnInit, OnDestroy {
     private configSvc: ConfigurationsService,
     // private contentProgressSvc: ContentProgressService,
     private userSvc: WidgetUserServiceLib,
-    public eventSvc: EventService
+    public eventSvc: EventService,
+    public tocV2Svc: AppTocV2Service
     // private tocSvc: AppTocService,
   ) {
     this.nestedTreeControl = new NestedTreeControl<IViewerTocCard>(this._getChildren)
@@ -424,8 +425,13 @@ export class ViewerTocComponent implements OnInit, OnDestroy {
             : this.contentSvc.fetchContent(collectionId, 'detail', [], _collectionType)
           ).toPromise()
         }
-        const contentData = content.result.content
-        this.collection = content.result.content
+        let contentData: any = {}
+        if (this.contentSvc?.currentContentReadMetaData?.courseCategory === NsContent.ECourseCategory.LEARNING_PATHWAY) {
+          contentData = this.tocV2Svc.constructHeirarchyData(this.contentSvc?.currentContentReadMetaData)
+        } else {
+          contentData = content.result.content
+        }
+        this.collection = contentData
         this.contentSvc.currentMetaData = contentData
         this.collectionCard = this.createCollectionCard(contentData)
         const viewerTocCardContent = this.convertContentToIViewerTocCard(contentData)

@@ -1,12 +1,16 @@
 <ng-template #competencyCard>
     <div class="flex-1 flex-col" *ngFor="let obj of competencyArray">
-        <div class="competency-passbook-theme" [ngClass]="{'behavioral': obj[compentencyKey.vCompetencyArea].toLowerCase() === TYPE_CONST.behavioral.otherValue, 'functional': obj[compentencyKey.vCompetencyArea].toLowerCase() === TYPE_CONST.functional.value, 'domain': obj[compentencyKey.vCompetencyArea].toLowerCase() === TYPE_CONST.domain.value}" ></div>
+        <div class="competency-passbook-theme"
+            [ngClass]="{'behavioral': obj[compentencyKey.vCompetencyArea].toLowerCase() === TYPE_CONST.behavioral.otherValue, 'functional': obj[compentencyKey.vCompetencyArea].toLowerCase() === TYPE_CONST.functional.value, 'domain': obj[compentencyKey.vCompetencyArea].toLowerCase() === TYPE_CONST.domain.value}">
+        </div>
         <div class="detail flex flex-col">
             <div class="flex flex-col">
-                <!-- //NOSONAR --><div class="flex flex-row justify-between p-4 cursor-pointer gap-6" (click)="handleNavigate(obj)">
+                <!-- //NOSONAR -->
+                <div class="flex flex-row justify-between p-4 cursor-pointer gap-6" (click)="handleNavigate(obj)">
                     <div class="flex flex-col gap-3 text-primary">
                         <div class="flex flex-row gap-2 align-baseline">
-                            <div class="competency-name font-semibold" [title]="obj[compentencyKey.vCompetencyTheme]" >{{ obj[compentencyKey.vCompetencyTheme] }}</div>
+                            <div class="competency-name font-semibold" [title]="obj[compentencyKey.vCompetencyTheme]">{{
+                                obj[compentencyKey.vCompetencyTheme] }}</div>
                             <div class="flex items-baseline">
                                 <img src="assets/icons/competency/cp-arrow.svg" class="arrow-img" alt="cp arrow img" />
                             </div>
@@ -17,19 +21,24 @@
                         </div>
                     </div>
                     <div class="flex items-baseline">
-                        <img src="assets/icons/competency/{{(obj[compentencyKey.vCompetencyArea].toLowerCase() === 'behavioral') ? 'behavioural' : obj[compentencyKey.vCompetencyArea].toLowerCase() }}-light.svg" alt="{{ obj[compentencyKey.vCompetencyArea].toLowerCase() }} image" />
+                        <img src="assets/icons/competency/{{(obj[compentencyKey.vCompetencyArea].toLowerCase() === 'behavioral') ? 'behavioural' : obj[compentencyKey.vCompetencyArea].toLowerCase() }}-light.svg"
+                            alt="{{ obj[compentencyKey.vCompetencyArea].toLowerCase() }} image" />
                     </div>
                 </div>
                 <div class="flex flex-wrap gap-3 p-4 chip-container">
                     <ng-container *ngFor="let child of obj?.subTheme; let i = index">
-                        <div class="chip rounded-full p-2 text-xs" [ngClass]="{'hide': (i > 1 && !obj?.viewMore), 'chip-ellipsis': !obj?.viewMore && obj?.subTheme?.length > 1 }" [title]="child" >
+                        <div class="chip rounded-full p-2 text-xs"
+                            [ngClass]="{'hide': (i > 1 && !obj?.viewMore), 'chip-ellipsis': !obj?.viewMore && obj?.subTheme?.length > 1 }"
+                            [title]="child">
                             {{ child }}
                         </div>
                     </ng-container>
-                    <!-- //NOSONAR --><div class="flex items-center text-primary underline cursor-pointer text-xs" *ngIf="obj?.subTheme?.length > 2 && !obj?.viewMore" (click)="handleViewMore(obj)" >
+                    <div class="flex items-center text-primary underline cursor-pointer text-xs"
+                        *ngIf="obj?.subTheme?.length > 2 && !obj?.viewMore" (click)="handleViewMore(obj)">
                         {{'competencyList.viewMore' | translate }}
                     </div>
-                    <!-- //NOSONAR --><div class="flex items-center text-primary underline cursor-pointer text-xs" *ngIf="obj?.viewMore" (click)="handleViewMore(obj, 'less')">
+                    <div class="flex items-center text-primary underline cursor-pointer text-xs" *ngIf="obj?.viewMore"
+                        (click)="handleViewMore(obj, 'less')">
                         {{'competencyList.viewLess' | translate }}
                     </div>
                 </div>
@@ -58,7 +67,8 @@
         <mat-tab label="{{translateLabels('All', 'competencyList')}}">
             <div class="flex flex-col">
                 <div class="py-4">
-                    <ws-competency-search (searchValue)="handleSearch($event, 'All')" (enableFilter)="handleFilter($event)"></ws-competency-search>
+                    <ws-competency-search (searchValue)="handleSearch($event, 'All')"
+                        (enableFilter)="handleFilter($event)"></ws-competency-search>
                 </div>
                 <div class="flex flex-wrap gap-6">
                     <ng-container *ngIf="competency.skeletonLoading">
@@ -73,7 +83,8 @@
         <mat-tab label="{{ translateLabels(TYPE_CONST.behavioral.capsValue, 'competencyList') }}">
             <div class="flex flex-col">
                 <div class="py-4">
-                    <ws-competency-search (searchValue)="handleSearch($event, TYPE_CONST.behavioral.capsValue)" (enableFilter)="handleFilter($event)"></ws-competency-search>
+                    <ws-competency-search (searchValue)="handleSearch($event, TYPE_CONST.behavioral.capsValue)"
+                        (enableFilter)="handleFilter($event)"></ws-competency-search>
                 </div>
                 <div class="flex flex-wrap gap-6">
                     <ng-container [ngTemplateOutlet]="competencyCard"></ng-container>
@@ -83,7 +94,8 @@
         <mat-tab label="{{ translateLabels(TYPE_CONST.functional.capsValue, 'competencyList') }}">
             <div class="flex flex-col">
                 <div class="py-4">
-                    <ws-competency-search (searchValue)="handleSearch($event, TYPE_CONST.functional.capsValue)" (enableFilter)="handleFilter($event)"></ws-competency-search>
+                    <ws-competency-search (searchValue)="handleSearch($event, TYPE_CONST.functional.capsValue)"
+                        (enableFilter)="handleFilter($event)"></ws-competency-search>
                 </div>
                 <div class="flex flex-wrap gap-6">
                     <ng-container [ngTemplateOutlet]="competencyCard"></ng-container>
@@ -93,7 +105,8 @@
         <mat-tab label="{{ translateLabels(TYPE_CONST.domain.capsValue, 'competencyList') }}">
             <div class="flex flex-col">
                 <div class="py-4">
-                    <ws-competency-search (searchValue)="handleSearch($event, TYPE_CONST.domain.capsValue)" (enableFilter)="handleFilter($event)"></ws-competency-search>
+                    <ws-competency-search (searchValue)="handleSearch($event, TYPE_CONST.domain.capsValue)"
+                        (enableFilter)="handleFilter($event)"></ws-competency-search>
                 </div>
                 <div class="flex flex-wrap gap-6">
                     <ng-container [ngTemplateOutlet]="competencyCard"></ng-container>
@@ -109,17 +122,21 @@
             <div class="flex flex-col">
                 <div class="flex flex-row justify-between p-4">
                     <div class="flex flex-col gap-2 justify-center ">
-                        <ws-widget-skeleton-loader [bindingClass]="'flex rounded w-48'" [height]="'28px'"></ws-widget-skeleton-loader>
-                        <ws-widget-skeleton-loader [bindingClass]="'flex rounded w-24'" [height]="'16px'"></ws-widget-skeleton-loader>
+                        <ws-widget-skeleton-loader [bindingClass]="'flex rounded w-48'"
+                            [height]="'28px'"></ws-widget-skeleton-loader>
+                        <ws-widget-skeleton-loader [bindingClass]="'flex rounded w-24'"
+                            [height]="'16px'"></ws-widget-skeleton-loader>
                     </div>
                     <div class="flex justify-center items-center">
-                        <ws-widget-skeleton-loader [bindingClass]="'flex rounded-full'" [width]="'72px'" [height]="'72px'"></ws-widget-skeleton-loader>
+                        <ws-widget-skeleton-loader [bindingClass]="'flex rounded-full'" [width]="'72px'"
+                            [height]="'72px'"></ws-widget-skeleton-loader>
                     </div>
                 </div>
                 <hr />
                 <div class="flex gap-4 p-3">
                     <ng-container *ngFor="let j of [1, 2, 3]">
-                        <ws-widget-skeleton-loader [bindingClass]="'flex rounded-full'" [width]="'80px'" [height]="'48px'"></ws-widget-skeleton-loader>
+                        <ws-widget-skeleton-loader [bindingClass]="'flex rounded-full'" [width]="'80px'"
+                            [height]="'48px'"></ws-widget-skeleton-loader>
                     </ng-container>
                 </div>
             </div>
@@ -128,12 +145,14 @@
 </ng-template>
 
 <div class="flex justify-center passbook-container gap-5">
-    <!-- //NOSONAR --><div class="flex flex-row items-center px-4 ws-mat-default-text gap-2" *ngIf="isMobile && showAll" (click)="handleShowAll()">
+    <!-- //NOSONAR -->
+    <div class="flex flex-row items-center px-4 ws-mat-default-text gap-2" *ngIf="isMobile && showAll"
+        (click)="handleShowAll()">
         <mat-icon>keyboard_backspace</mat-icon> Show less
     </div>
 
     <!-- left card starts here -->
-    <div class="left-container" [ngClass]="{'hide': isMobile && showAll}" >
+    <div class="left-container" [ngClass]="{'hide': isMobile && showAll}">
         <div class="flex flex-col gap-4 cp-container">
             <div class="flex flex-row gap-3">
                 <div class="flex-1 text-xl font-semibold">{{'competencyList.title' | translate }}</div>
@@ -159,10 +178,13 @@
 
             <div class="flex flex-row gap-3 p-4">
                 <div class="flex-1">
-                    <!-- //NOSONAR --><div class="flex flex-col gap-2" (click)="handleClick('all')">
-                        <div class="text-base secondary-title">{{'competencyList.CompetenciesSubTitle' | translate }}</div>
+                    <!-- //NOSONAR -->
+                    <div class="flex flex-col gap-2" (click)="handleClick('all')">
+                        <div class="text-base secondary-title">{{'competencyList.CompetenciesSubTitle' | translate }}
+                        </div>
                         <ng-container *ngIf="competency.skeletonLoading">
-                            <ws-widget-skeleton-loader [bindingClass]="'flex rounded blue-2-loader'" [width]="'60px'" [height]="'40px'"></ws-widget-skeleton-loader>
+                            <ws-widget-skeleton-loader [bindingClass]="'flex rounded blue-2-loader'" [width]="'60px'"
+                                [height]="'40px'"></ws-widget-skeleton-loader>
                         </ng-container>
                         <ng-container *ngIf="!competency.skeletonLoading">
                             <div class="text-4xl font-semibold">{{ competency.all.length }}</div>
@@ -181,7 +203,8 @@
                         <ng-container *ngIf="!competency.skeletonLoading">
                             <div class="text-base font-semibold">{{ competency?.behavioural?.length }}</div>
                         </ng-container>
-                        <!-- //NOSONAR --><div class="flex justify-center items-center" (click)="handleClick(TYPE_CONST.behavioral.value)" >
+                        <div class="flex justify-center items-center"
+                            (click)="handleClick(TYPE_CONST.behavioral.value)">
                             <div class="text-xs">{{ TYPE_CONST.behavioral.capsValue }}</div>
                             <mat-icon>navigate_next</mat-icon>
                         </div>
@@ -194,7 +217,9 @@
                         <ng-container *ngIf="!competency.skeletonLoading">
                             <div class="text-base font-semibold">{{ competency?.functional?.length }}</div>
                         </ng-container>
-                        <!-- //NOSONAR --><div class="flex justify-center items-center" (click)="handleClick(TYPE_CONST.functional.value)">
+                        <!-- //NOSONAR -->
+                        <div class="flex justify-center items-center"
+                            (click)="handleClick(TYPE_CONST.functional.value)">
                             <div class="text-xs">{{ TYPE_CONST.functional.capsValue }}</div>
                             <mat-icon>navigate_next</mat-icon>
                         </div>
@@ -207,7 +232,8 @@
                         <ng-container *ngIf="!competency.skeletonLoading">
                             <div class="text-base font-semibold">{{ competency?.domain?.length }}</div>
                         </ng-container>
-                        <!-- //NOSONAR --><div class="flex justify-center items-center" (click)="handleClick(TYPE_CONST.domain.value)">
+                        <!-- //NOSONAR -->
+                        <div class="flex justify-center items-center" (click)="handleClick(TYPE_CONST.domain.value)">
                             <div class="text-xs">{{ TYPE_CONST.domain.capsValue }}</div>
                             <mat-icon>navigate_next</mat-icon>
                         </div>
@@ -222,11 +248,11 @@
                             <div class="flex flex-col justify-center">
                                 <div class="text-sm">{{ translateLabels(elem.label, 'competencyList') }}</div>
                                 <ng-container *ngIf="competency.skeletonLoading">
-                                    <ws-widget-skeleton-loader [bindingClass]="'flex rounded blue-loader'" [width]="'40px'"
-                                        [height]="'28px'"></ws-widget-skeleton-loader>
+                                    <ws-widget-skeleton-loader [bindingClass]="'flex rounded blue-loader'"
+                                        [width]="'40px'" [height]="'28px'"></ws-widget-skeleton-loader>
                                 </ng-container>
                                 <!-- {{ elem | json }} ------ "elemmm"
-                                
+
                                 {{ competency[elem?.name] | json }}
                                 {{ competency[elem?.name].length }} //// -->
                                 <ng-container *ngIf="!competency.skeletonLoading">
@@ -247,11 +273,14 @@
                                     [height]="'28px'"></ws-widget-skeleton-loader>
                             </ng-container>
                             <ng-container *ngIf="!competency.skeletonLoading">
-                                <div class="text-base font-semibold">{{ (competency[elem?.name + 'SubTheme'] || elem['competencySubTheme']) || '0' }}</div>
+                                <div class="text-base font-semibold">{{ (competency[elem?.name + 'SubTheme'] ||
+                                    elem['competencySubTheme']) || '0' }}
+                                </div>
                             </ng-container>
                         </div>
                         <div class="flex flex-col">
-                            <div class="text-xs text-color-white">{{'competencyList.contentConsumed' | translate }}</div>
+                            <div class="text-xs text-color-white">{{'competencyList.contentConsumed' | translate }}
+                            </div>
                             <ng-container *ngIf="competency.skeletonLoading">
                                 <ws-widget-skeleton-loader [bindingClass]="'flex rounded blue-loader'" [width]="'40px'"
                                     [height]="'28px'"></ws-widget-skeleton-loader>
@@ -277,7 +306,9 @@
                     <ng-container [ngTemplateOutlet]="competencyCard"></ng-container>
                 </ng-container>
             </div>
-            <!-- //NOSONAR --><div *ngIf="!competency.skeletonLoading" class="flex ws-mat-default-text items-center justify-center mat-body-1 cursor-pointer" (click)="handleShowAll()">Show all</div>
+            <div *ngIf="!competency.skeletonLoading"
+                class="flex ws-mat-default-text items-center justify-center mat-body-1 cursor-pointer"
+                (click)="handleShowAll()">Show all</div>
         </div>
     </div>
 
@@ -287,6 +318,8 @@
 </div>
 
 <ng-container *ngIf="toggleFilter">
-    <ws-widget-cbp-filters (clearFilterObj)="handleClearFilterObj($event)" (toggleFilter)="handleFilter($event)"
-        [filterObj]="filterObjData2" (getFilterData)="handleApplyFilter($event)" [showAdditionalFilters]="false"></ws-widget-cbp-filters>
+    <ws-competency-filters [allCompetencies]="allCompetencies" [filteredCompetencyArray]="myCompetencies"
+        (toggleFilter)="handleFilter($event)" (getFilterData)="handleApplyFilter($event)"
+        (clearFilterObj)="handleClearFilterObj($event)">
+    </ws-competency-filters>
 </ng-container>

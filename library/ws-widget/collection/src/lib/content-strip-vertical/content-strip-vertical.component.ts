@@ -2,7 +2,7 @@ import { Component, OnInit, Input, OnDestroy } from '@angular/core'
 import { WidgetBaseComponent } from '@sunbird-cb/resolver/src/lib/widget-base.component'
 import { NsWidgetResolver } from '@sunbird-cb/resolver/src/lib/widget-resolver.model'
 import { ContentStripVerticalService } from './content-strip-vertical.service'
-import { WidgetContentService } from '../_services/widget-content.service'
+import { WidgetContentService } from '@sunbird-cb/toc'
 import { NsContent } from '../_services/widget-content.model'
 import {
   TFetchStatus,

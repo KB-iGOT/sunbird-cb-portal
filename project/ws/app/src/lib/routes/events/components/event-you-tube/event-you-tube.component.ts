@@ -37,7 +37,9 @@ export class EventYouTubeComponent implements OnInit, AfterViewInit, OnDestroy {
     /* tslint:enabel */
     this.eventData = this.route.snapshot.data['content'].data
     this.pageConfigData = this.route.snapshot.data['pageData'] && this.route.snapshot.data['pageData'].data || {}
-    if (this.pageConfigData && this.pageConfigData.fireUpdate) {
+    if (this.pageConfigData && this.pageConfigData.fireUpdateConfig) {
+      this.rateToFire = this.eventService.getRateToFire(this.eventData.resourceType, this.pageConfigData)
+    } else if (this.pageConfigData && this.pageConfigData.fireUpdate) {
       this.rateToFire = this.pageConfigData.fireUpdate
     }
     this.route.params.subscribe(params => {
@@ -83,6 +85,11 @@ export class EventYouTubeComponent implements OnInit, AfterViewInit, OnDestroy {
         resumeFrom = resumeFrom ? Number(resumeFrom) : 0
         if (!this.currentEvent && !this.isEnrolled) {
           resumeFrom = 0
+        }
+        if (resumeFrom > this.rateToFire && this.resumeEventStatus !== 2) {
+          this.resumeEventStatus = 2
+          const currentTime = new Date().toISOString().replace('T', ' ').replace('Z', '').split('.')[0] + ':00+0000'
+          this.updateProgress(this.eventData.duration, resumeFrom, currentTime, true)
         }
         this.initializePlayer(resumeFrom)
       } else {
@@ -316,6 +323,42 @@ export class EventYouTubeComponent implements OnInit, AfterViewInit, OnDestroy {
     }
     if (this.dispose) {
       this.dispose()
+    }
+  }
+
+  updateProgress(progress: any, timeSpent: any, lastTimeAccessed: any, normalUpdate?: boolean) {
+    let userId = ''
+    const batchId = this.getBatchId()
+    if (this.configSvc.userProfile) {
+      userId = this.configSvc.userProfile.userId || ''
+    }
+    if (this.eventData) {
+      const req = {
+        'request': {
+          'userId': userId,
+          'events': [
+            {
+              'eventId': this.eventData.identifier,
+              'batchId': batchId,
+              'status': 2,
+              'lastAccessTime': lastTimeAccessed, // data.dateAccessed
+              'progressdetails': {
+                'max_size': this.eventData.duration * 60, // complete video duration
+                'current': [ // current state
+                  progress,
+                ],
+                'duration': normalUpdate ? this.eventData.duration * 60 : timeSpent, // watch time
+                'mimeType': 'application/html',
+                'stateMetaData': timeSpent, // last state
+              },
+              'completionPercentage': Number(parseFloat('100.00').toFixed(2)),
+            },
+          ],
+        },
+      }
+      this.eventService.saveEventProgressUpdate(req).subscribe((_res: any) => {
+        this.resumeEventStatus = 2
+      })
     }
   }
 

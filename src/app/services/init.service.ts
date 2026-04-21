@@ -4,7 +4,12 @@ import { HttpClient, HttpHeaders } from '@angular/common/http'
 import { Inject, Injectable } from '@angular/core'
 import { MatIconRegistry } from '@angular/material/icon'
 import { DomSanitizer } from '@angular/platform-browser'
-
+import {
+  hasPermissions,
+  hasUnitPermission,
+  NsWidgetResolver,
+  WidgetResolverService,
+} from '@sunbird-cb/resolver'
 import {
   // AuthKeycloakService,
   // AuthKeycloakService,
@@ -28,10 +33,9 @@ import moment from 'moment'
 import { TranslateService } from '@ngx-translate/core'
 import { SbUiResolverService } from '@sunbird-cb/resolver-v2'
 import { NetCoreService } from './netcore.service'
-import { BtnSettingsService } from '@sunbird-cb/collection/src/lib/btn-settings/btn-settings.service'
-import { WidgetResolverService } from '@sunbird-cb/resolver/src/lib/widget-resolver.service'
-import { hasPermissions, hasUnitPermission } from '@sunbird-cb/resolver/src/lib/widget-resolver.permissions'
-import { NsWidgetResolver } from '@sunbird-cb/resolver/src/lib/widget-resolver.model'
+import { BtnSettingsService } from '../../../library/ws-widget/collection/src/public-api'
+import { GlobalService } from './global.service'
+import { CommonDataService } from './common-data.service'
 declare const smartech: any
 // import { of } from 'rxjs'
 /* tslint:enable */
@@ -72,7 +76,7 @@ export class InitService {
   }
 
   isAnonymousTelemetry = window.location.href.includes('/public/') || window.location.href.includes('&preview=true')
-    || window.location.href.includes('/certs') || window.location.href.includes('/crp/')
+    || window.location.href.includes('/certs') || window.location.href.includes('/achievements') || window.location.href.includes('/crp/')
 
   constructor(
     private logger: LoggerService,
@@ -88,6 +92,8 @@ export class InitService {
     private enrollSvc: WidgetEnrollService,
     private netCoreService: NetCoreService,
     // private widgetContentSvc: WidgetContentService,
+    private globalService: GlobalService,
+    private commonDataSvc: CommonDataService,
 
     @Inject(APP_BASE_HREF) private baseHref: string,
     // private router: Router,
@@ -206,8 +212,8 @@ export class InitService {
   }
 
   get isAnonymousTelemetryRequired(): boolean {
-    this.isAnonymousTelemetry = window.location.href.includes('/public/')
-      || window.location.href.includes('&preview=true') || window.location.href.includes('/certs') || window.location.href.includes('/crp/')
+    this.isAnonymousTelemetry = window.location.href.includes('/public/') || window.location.href.includes('/helpcenter')
+      || window.location.href.includes('&preview=true') || window.location.href.includes('/certs') || window.location.href.includes('/achievements') || window.location.href.includes('/crp/')
     return this.isAnonymousTelemetry
   }
 
@@ -226,6 +232,7 @@ export class InitService {
     await this.profileNudgeConfig()
     await this.themeOverrideConfig()
     await this.netCoreConfig()
+    await this.globalConfigData()
 
     // const authenticated = await this.authSvc.initAuth()
     // if (!authenticated) {
@@ -237,8 +244,8 @@ export class InitService {
     // Invalid User
     try {
       const path = window.location.pathname
-      const isPublic = window.location.href.includes('/public/')
-        || window.location.href.includes('&preview=true') || window.location.href.includes('/certs') || window.location.href.includes('/crp/')
+      const isPublic = window.location.href.includes('/public/') || window.location.href.includes('/helpcenter')
+        || window.location.href.includes('&preview=true') || window.location.href.includes('/certs') || window.location.href.includes('/achievements') || window.location.href.includes('/crp/')
       this.setTelemetrySessionId()
       if (!path.startsWith('/public') && !isPublic) {
         await this.fetchStartUpDetails()
@@ -295,7 +302,8 @@ export class InitService {
         window.location.href.includes('/public/') ||
         window.location.href.includes('/crp/') ||
         window.location.href.includes('/certs') ||
-        window.location.href.includes('/viewer')
+        window.location.href.includes('/achievements') ||
+        window.location.href.includes('/viewer') || window.location.href.includes('/helpcenter')
       )
     ) {
       this.logFirstLogin()
@@ -432,6 +440,20 @@ export class InitService {
     return publicConfig
   }
 
+  private async globalConfigData(): Promise<NsInstanceConfig.IConfig> {
+    let payload = {
+      "request": {
+        "type": "page",
+        "subType": "globalConfig",
+        "action": "page-configuration",
+        "component": "portal", "rootOrgId": "*"
+      }
+    }
+    const publicConfig: any = await this.globalService.globalConfigReadData(payload).toPromise()
+    this.configSvc.globalConfig = publicConfig.globalConfig
+    return publicConfig
+  }
+
   private async netCoreConfig(): Promise<NsInstanceConfig.IConfig> {
     // const publicConfig: any = await this.http
     //   .get<any>(`${this.baseUrl}/netcore.json`)
@@ -458,9 +480,10 @@ export class InitService {
       let userCourseEnrolmentInfo: any = {}
       let userExternalCourseEnrolmentInfo: any = {}
       if (res && res.result && res.result.userCourseEnrolmentInfo) {
-
+        let badgeCount: any = res.result.badgeCount
         userCourseEnrolmentInfo = res.result.userCourseEnrolmentInfo
         userExternalCourseEnrolmentInfo = res.result.userExternalCourseEnrolmentInfo
+        userCourseEnrolmentInfo['badgeCount'] = badgeCount
         userCourseEnrolmentInfo['karmaPoints'] = userCourseEnrolmentInfo['karmaPoints'] + (userExternalCourseEnrolmentInfo['karmaPoints'] || 0)
         userCourseEnrolmentInfo['timeSpentOnCompletedCourses'] = userCourseEnrolmentInfo['timeSpentOnCompletedCourses'] + (userExternalCourseEnrolmentInfo['timeSpentOnCompletedCourses'] || 0)
         userCourseEnrolmentInfo['certificatesIssued'] = userCourseEnrolmentInfo['certificatesIssued'] + (userExternalCourseEnrolmentInfo['certificatesIssued'] || 0)
@@ -479,6 +502,7 @@ export class InitService {
           enrolledCourseCount,
           userCourseEnrolmentInfo
         }
+        console.log('userData', userData)
         localStorage.removeItem('userEnrollmentCount')
         localStorage.setItem('userEnrollmentCount', JSON.stringify(userData))
 
@@ -489,6 +513,7 @@ export class InitService {
         if (userProfile.rootOrgId) {
           this.netCoreService.getOrgReadData(userProfile.rootOrgId).subscribe((orgData) => {
             //console.log('orgData--', orgData)
+            this.configSvc.orgReadData = orgData
             if (orgData && orgData['netcoreDisabled']) {
 
             } else {
@@ -650,6 +675,9 @@ export class InitService {
             }
           }
           localStorage.setItem('login', 'true')
+
+          // NLW 2026 certification eligibility check
+          this.commonDataSvc.checkAndCacheNlw2026Eligibility(userPidProfile)
         } else {
           // this.authSvc.force_logout()
           // await this.http.get('/apis/reset').toPromise()
