@@ -1,11 +1,12 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing'
 import { MatLegacySnackBar } from '@angular/material/legacy-snack-bar'
-import { of, throwError, Subscription } from 'rxjs'
+import { of, throwError, Subscription, BehaviorSubject } from 'rxjs'
 import * as _ from 'lodash'
 
 import { ProfileVisibilitySettingsComponent } from './profile-visibility-settings.component'
 import { SettingsService } from '../../settings.service'
-import { ConfigurationsService } from '@sunbird-cb/utils-v2'
+import { ConfigurationsService, MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
+import { TranslateService } from '@ngx-translate/core'
 
 // Mock services
 const mockSettingsService = {
@@ -23,6 +24,16 @@ const mockSnackBar = {
   open: jest.fn()
 } as any
 
+const mockTranslateService = {
+  setDefaultLang: jest.fn(),
+  use: jest.fn(),
+  instant: jest.fn((key: string) => key)
+} as any
+
+const mockMultilingualTranslationsService = {
+  languageSelectedObservable: new BehaviorSubject<any>(null)
+} as any
+
 describe('ProfileVisibilitySettingsComponent', () => {
   let component: ProfileVisibilitySettingsComponent
   let fixture: ComponentFixture<ProfileVisibilitySettingsComponent>
@@ -35,7 +46,9 @@ describe('ProfileVisibilitySettingsComponent', () => {
       providers: [
         { provide: SettingsService, useValue: mockSettingsService },
         { provide: ConfigurationsService, useValue: mockConfigurationsService },
-        { provide: MatLegacySnackBar, useValue: mockSnackBar }
+        { provide: MatLegacySnackBar, useValue: mockSnackBar },
+        { provide: TranslateService, useValue: mockTranslateService },
+        { provide: MultilingualTranslationsService, useValue: mockMultilingualTranslationsService }
       ]
     }).compileComponents()
 

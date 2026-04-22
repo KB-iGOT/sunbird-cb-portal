@@ -1,4 +1,4 @@
-import { of, throwError } from 'rxjs'
+import { of } from 'rxjs'
 import { SeeAllService } from './see-all.service'
 
 // High coverage Jest tests without Angular TestBed
