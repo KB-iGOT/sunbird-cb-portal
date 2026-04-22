@@ -8,49 +8,122 @@ describe('SettingsService', () => {
 
   const mockNotificationGroups = [
     {
-      groupId: 'group1',
-      groupName: 'Email Notifications',
-      notifications: [
+      group_id: 'group1',
+      group_name: 'Email Notifications',
+      show: true,
+      events: [
         {
-          notificationId: 'notif1',
-          notificationName: 'New Messages',
-          enabled: true,
+          event_id: 'notif1',
+          event_name: 'New Messages',
+          recipients: [
+            {
+              recipient: 'user',
+              modes: [
+                {
+                  mode_id: 'email',
+                  mode_name: 'Email',
+                  status: true,
+                },
+              ],
+            },
+          ],
         },
       ],
     },
     {
-      groupId: 'group2',
-      groupName: 'SMS Notifications',
-      notifications: [
+      group_id: 'group2',
+      group_name: 'SMS Notifications',
+      show: true,
+      events: [
         {
-          notificationId: 'notif2',
-          notificationName: 'Updates',
-          enabled: false,
+          event_id: 'notif2',
+          event_name: 'Updates',
+          recipients: [
+            {
+              recipient: 'user',
+              modes: [
+                {
+                  mode_id: 'sms',
+                  mode_name: 'SMS',
+                  status: false,
+                },
+              ],
+            },
+          ],
         },
       ],
     },
   ]
 
   const mockNotificationPreference = {
-    result: {
-      response: {
-        value: {
-          preferenceData: {
-            email: true,
-            sms: false,
-            push: true,
-          },
-        },
-      },
+    defaultNotificationDuration: {
+      day: '1',
+      occurance: 'daily',
+      time: '09:00',
     },
+    notificationPreferenceList: [
+      {
+        displayName: 'Email Notifications',
+        helpText: 'Receive email notifications',
+        id: 'email',
+        isVisible: true,
+        labelText: 'Email',
+        notificationDuration: {
+          day: '1',
+          occurance: 'daily',
+          time: '09:00',
+        },
+        status: true,
+      },
+      {
+        displayName: 'SMS Notifications',
+        helpText: 'Receive SMS notifications',
+        id: 'sms',
+        isVisible: true,
+        labelText: 'SMS',
+        notificationDuration: {
+          day: '1',
+          occurance: 'daily',
+          time: '09:00',
+        },
+        status: false,
+      },
+    ],
   }
 
   const mockProfile = {
+    id: 'user-123',
     userId: 'user-123',
-    firstName: 'John',
-    lastName: 'Doe',
-    email: 'john.doe@example.com',
+    interests: { professional: [], hobbies: [] },
+    photo: null,
+    osCreatedAt: '2024-01-01',
+    osCreatedBy: 'system',
+    osUpdatedAt: '2024-01-01',
+    osUpdatedBy: 'system',
+    osid: 'os-123',
+    personalDetails: {
+      firstname: 'John',
+      surname: 'Doe',
+      primaryEmail: 'john.doe@example.com',
+    },
+    professionalDetails: [],
+    skills: { professional: [], additionalSkills: [] },
+    result: null,
     userName: 'johndoe',
+    profileDetails: null,
+    profileImageUrl: '',
+    additionalProperties: {},
+    verifiedKarmayogi: false,
+    profileStatus: 'active',
+    cadreDetails: {
+      isCadre: false,
+      typeOfCivilService: '',
+      civilServiceName: '',
+      civilServiceType: '',
+      cadreName: '',
+      cadreBatch: '',
+      cadreControllingAuthorityName: '',
+    },
   }
 
   beforeEach(() => {
@@ -194,7 +267,7 @@ describe('SettingsService', () => {
 
       service.fetchNotificationPreference().subscribe((result) => {
         expect(result).toEqual(mockNotificationPreference)
-        expect(result.result).toBeDefined()
+        expect(result.defaultNotificationDuration).toBeDefined()
         done()
       })
     })
@@ -392,7 +465,7 @@ describe('SettingsService', () => {
       service.fetchProfile('user-123').subscribe((result) => {
         expect(result).toEqual(mockProfile)
         expect(result.userId).toBe('user-123')
-        expect(result.firstName).toBe('John')
+        expect(result.personalDetails.firstname).toBe('John')
         done()
       })
     })
@@ -569,7 +642,7 @@ describe('SettingsService', () => {
       service.fetchNotificationSettings()
 
       expect(mockHttpClient.get).toHaveBeenCalledWith(
-        expect.stringContaining('/apis/protected/v8/user/notifications/settings')
+        '/apis/protected/v8/user/notifications/settings'
       )
     })
 
@@ -579,7 +652,7 @@ describe('SettingsService', () => {
       service.fetchNotificationPreference()
 
       expect(mockHttpClient.get).toHaveBeenCalledWith(
-        expect.stringContaining('/apis/proxies/v8/data/v1/system/settings/get/notificationPreference')
+        '/apis/proxies/v8/data/v1/system/settings/get/notificationPreference'
       )
     })
 
@@ -589,7 +662,7 @@ describe('SettingsService', () => {
       service.fetchUserNotificationPreference()
 
       expect(mockHttpClient.get).toHaveBeenCalledWith(
-        expect.stringContaining('/apis/proxies/v8/user/v1/notificationPreference')
+        '/apis/proxies/v8/user/v1/notificationPreference'
       )
     })
 
@@ -599,7 +672,7 @@ describe('SettingsService', () => {
       service.getSettings()
 
       expect(mockHttpClient.get).toHaveBeenCalledWith(
-        expect.stringContaining('apis/proxies/v8/notificationSetting/read')
+        'apis/proxies/v8/notificationSetting/read'
       )
     })
 
@@ -609,8 +682,8 @@ describe('SettingsService', () => {
       service.enableNotification({})
 
       expect(mockHttpClient.post).toHaveBeenCalledWith(
-        expect.stringContaining('apis/proxies/v8/notificationSetting/upsert'),
-        expect.anything()
+        'apis/proxies/v8/notificationSetting/upsert',
+        {}
       )
     })
   })
