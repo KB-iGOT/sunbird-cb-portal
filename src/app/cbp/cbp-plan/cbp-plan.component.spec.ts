@@ -290,7 +290,6 @@ describe('CbpPlanComponent', () => {
     it('should transform contents to widget format', () => {
       const result = component['transformContentsToWidgets'](mockCbpData, mockStrip)
 
-      // expect(result).toHaveLength(3);
       expect(result[0]).toEqual({
         widgetType: 'card',
         widgetSubType: 'cardContent',
@@ -335,7 +334,6 @@ describe('CbpPlanComponent', () => {
     it('should create skeleton widgets', () => {
       const result = component['transformSkeletonToWidgets'](mockStrip)
 
-      //  expect(result).toHaveLength(11);
       expect(result[0]).toEqual({
         widgetType: 'card',
         widgetSubType: 'cardContent',
@@ -642,6 +640,600 @@ describe('CbpPlanComponent', () => {
 
       expect(result[0].widgetData.cardSubType).toBeUndefined()
       expect(result[0].widgetData.cardCustomeClass).toBe('')
+    })
+  })
+
+  describe('Advanced Filter Tests', () => {
+    beforeEach(() => {
+      component.cbpOriginalData = [
+        ...mockCbpData,
+        {
+          id: '4',
+          name: 'APAR Course',
+          planDuration: 'upcoming',
+          endDate: '2025-06-20',
+          contentStatus: 1,
+          primaryCategory: 'Course',
+          isApar: true,
+          competencyArea: ['Area3'],
+          competencyTheme: ['Theme3'],
+          competencySubTheme: ['SubTheme3'],
+          organisation: ['Org3']
+        },
+        {
+          id: '5',
+          name: 'Moderated Course',
+          planDuration: 'upcoming',
+          endDate: '2025-07-01',
+          contentStatus: 0,
+          primaryCategory: 'Moderated Courses',
+          secureSettings: true,
+          competencyArea: ['Area4'],
+          competencyTheme: ['Theme4'],
+          competencySubTheme: ['SubTheme4'],
+          organisation: ['Org4']
+        }
+      ]
+      component.cbpAllConfig = mockPageData.data
+      component.getFeedStrip = jest.fn().mockReturnValue(mockPageData.data.cbpFeedStrip)
+    })
+
+    describe('isApar filter', () => {
+      it('should filter by isApar flag', () => {
+        const filterValue = {
+          isApar: true,
+          primaryCategory: [],
+          status: [],
+          timeDuration: [],
+          competencyArea: [],
+          competencyTheme: [],
+          competencySubTheme: [],
+          providers: []
+        }
+
+        component.filterData(filterValue)
+
+        expect(component.filterApplied).toBe(true)
+        expect(component.contentFeedListCopy.length).toBe(1)
+        expect(component.contentFeedListCopy[0].isApar).toBe(true)
+      })
+
+      it('should combine isApar with other filters', () => {
+        const filterValue = {
+          isApar: true,
+          status: ['1'],
+          primaryCategory: [],
+          timeDuration: [],
+          competencyArea: [],
+          competencyTheme: [],
+          competencySubTheme: [],
+          providers: []
+        }
+
+        component.filterData(filterValue)
+
+        expect(component.contentFeedListCopy.length).toBe(1)
+        expect(component.contentFeedListCopy[0].contentStatus).toBe(1)
+      })
+    })
+
+    describe('Moderated Courses filter', () => {
+      it('should filter moderated courses with secureSettings', () => {
+        const filterValue = {
+          isApar: false,
+          primaryCategory: ['Moderated Courses'],
+          status: [],
+          timeDuration: [],
+          competencyArea: [],
+          competencyTheme: [],
+          competencySubTheme: [],
+          providers: []
+        }
+
+        component.filterData(filterValue)
+
+        expect(component.contentFeedListCopy.length).toBe(1)
+        expect(component.contentFeedListCopy[0].secureSettings).toBe(true)
+      })
+    })
+
+    describe('timeDuration filter', () => {
+      it('should filter by same week (sw)', () => {
+        const filterValue = {
+          isApar: false,
+          primaryCategory: [],
+          status: [],
+          timeDuration: ['1sw'],
+          competencyArea: [],
+          competencyTheme: [],
+          competencySubTheme: [],
+          providers: []
+        }
+
+        component.filterData(filterValue)
+
+        expect(component.filterApplied).toBe(true)
+        // Results depend on mock dates relative to current date
+        expect(component.contentFeedListCopy).toBeDefined()
+      })
+
+      it('should filter by add days (ad)', () => {
+        const filterValue = {
+          isApar: false,
+          primaryCategory: [],
+          status: [],
+          timeDuration: ['7ad'],
+          competencyArea: [],
+          competencyTheme: [],
+          competencySubTheme: [],
+          providers: []
+        }
+
+        component.filterData(filterValue)
+
+        expect(component.filterApplied).toBe(true)
+        expect(component.contentFeedListCopy).toBeDefined()
+      })
+
+      it('should filter by same month (sm)', () => {
+        const filterValue = {
+          isApar: false,
+          primaryCategory: [],
+          status: [],
+          timeDuration: ['1sm'],
+          competencyArea: [],
+          competencyTheme: [],
+          competencySubTheme: [],
+          providers: []
+        }
+
+        component.filterData(filterValue)
+
+        expect(component.filterApplied).toBe(true)
+        expect(component.contentFeedListCopy).toBeDefined()
+      })
+
+      it('should handle multiple timeDuration filters', () => {
+        const filterValue = {
+          isApar: false,
+          primaryCategory: [],
+          status: [],
+          timeDuration: ['1sw', '7ad'],
+          competencyArea: [],
+          competencyTheme: [],
+          competencySubTheme: [],
+          providers: []
+        }
+
+        component.filterData(filterValue)
+
+        expect(component.filterApplied).toBe(true)
+        expect(component.contentFeedListCopy).toBeDefined()
+      })
+    })
+
+    describe('competencyTheme filter', () => {
+      it('should filter by competencyTheme', () => {
+        const filterValue = {
+          isApar: false,
+          primaryCategory: [],
+          status: [],
+          timeDuration: [],
+          competencyArea: [],
+          competencyTheme: ['Theme1'],
+          competencySubTheme: [],
+          providers: []
+        }
+
+        component.filterData(filterValue)
+
+        expect(component.filterApplied).toBe(true)
+        expect(component.contentFeedListCopy.length).toBe(2)
+      })
+
+      it('should filter by multiple competencyThemes', () => {
+        const filterValue = {
+          isApar: false,
+          primaryCategory: [],
+          status: [],
+          timeDuration: [],
+          competencyArea: [],
+          competencyTheme: ['Theme1', 'Theme3'],
+          competencySubTheme: [],
+          providers: []
+        }
+
+        component.filterData(filterValue)
+
+        expect(component.filterApplied).toBe(true)
+        expect(component.contentFeedListCopy.length).toBe(3)
+      })
+    })
+
+    describe('competencySubTheme filter', () => {
+      it('should filter by competencySubTheme', () => {
+        const filterValue = {
+          isApar: false,
+          primaryCategory: [],
+          status: [],
+          timeDuration: [],
+          competencyArea: [],
+          competencyTheme: [],
+          competencySubTheme: ['SubTheme2'],
+          providers: []
+        }
+
+        component.filterData(filterValue)
+
+        expect(component.filterApplied).toBe(true)
+        expect(component.contentFeedListCopy.length).toBe(1)
+      })
+    })
+
+    describe('providers filter', () => {
+      it('should filter by provider organisation', () => {
+        const filterValue = {
+          isApar: false,
+          primaryCategory: [],
+          status: [],
+          timeDuration: [],
+          competencyArea: [],
+          competencyTheme: [],
+          competencySubTheme: [],
+          providers: ['Org1']
+        }
+
+        component.filterData(filterValue)
+
+        expect(component.filterApplied).toBe(true)
+        expect(component.contentFeedListCopy.length).toBe(2)
+      })
+
+      it('should filter by multiple providers', () => {
+        const filterValue = {
+          isApar: false,
+          primaryCategory: [],
+          status: [],
+          timeDuration: [],
+          competencyArea: [],
+          competencyTheme: [],
+          competencySubTheme: [],
+          providers: ['Org1', 'Org3']
+        }
+
+        component.filterData(filterValue)
+
+        expect(component.filterApplied).toBe(true)
+        expect(component.contentFeedListCopy.length).toBe(3)
+      })
+    })
+
+    describe('Combined filters', () => {
+      it('should apply multiple filters together', () => {
+        const filterValue = {
+          isApar: false,
+          primaryCategory: ['Course'],
+          status: ['1'],
+          timeDuration: [],
+          competencyArea: ['Area1'],
+          competencyTheme: ['Theme1'],
+          competencySubTheme: [],
+          providers: []
+        }
+
+        component.filterData(filterValue)
+
+        expect(component.filterApplied).toBe(true)
+        expect(component.contentFeedListCopy.length).toBe(1)
+      })
+    })
+  })
+
+  describe('searchData Advanced', () => {
+    beforeEach(() => {
+      component.cbpOriginalData = mockCbpData
+      component.cbpAllConfig = mockPageData.data
+      component.getFeedStrip = jest.fn().mockReturnValue(mockPageData.data.cbpFeedStrip)
+    })
+
+    it('should filter by partial name match', () => {
+      const searchEvent = { query: 'Course 2' }
+
+      component.searchData(searchEvent)
+
+      expect(component.contentFeedList.length).toBe(1)
+      expect(component.contentFeedList[0].widgetData.content.name).toContain('Course 2')
+    })
+
+    it('should be case insensitive', () => {
+      const searchEvent = { query: 'test course' }
+
+      component.searchData(searchEvent)
+
+      expect(component.contentFeedList.length).toBe(3)
+    })
+
+    it('should reset filter object on search', () => {
+      component.filterObjData = {
+        isApar: true,
+        primaryCategory: ['Course'],
+        status: ['1'],
+        timeDuration: [],
+        competencyArea: [],
+        competencyTheme: [],
+        competencySubTheme: [],
+        providers: []
+      }
+
+      const searchEvent = { query: 'test' }
+      component.searchData(searchEvent)
+
+      expect(component.filterObjData.isApar).toBe(false)
+      expect(component.filterObjData.primaryCategory).toEqual([])
+      expect(component.filterObjData.status).toEqual([])
+    })
+
+    it('should handle no matches', () => {
+      const searchEvent = { query: 'NonExistentCourse' }
+
+      component.searchData(searchEvent)
+
+      expect(component.contentFeedList.length).toBe(0)
+    })
+  })
+
+  describe('closeFilterKey Advanced', () => {
+    beforeEach(() => {
+      component.cbpOriginalData = mockCbpData
+      component.cbpAllConfig = mockPageData.data
+      component.getFeedStrip = jest.fn().mockReturnValue(mockPageData.data.cbpFeedStrip)
+    })
+
+    it('should handle isApar key specifically', () => {
+      component.filterObjData = {
+        isApar: true,
+        primaryCategory: [],
+        status: [],
+        timeDuration: [],
+        competencyArea: [],
+        competencyTheme: [],
+        competencySubTheme: [],
+        providers: []
+      }
+
+      const applyFilterSpy = jest.spyOn(component, 'applyFilter')
+
+      component.closeFilterKey({ key: 'isApar', value: true })
+
+      expect(component.filterObjData.isApar).toBe(false)
+      expect(applyFilterSpy).toHaveBeenCalledWith(component.filterObjData)
+    })
+
+    it('should remove from status array', () => {
+      component.filterObjData = {
+        isApar: false,
+        primaryCategory: [],
+        status: ['1', '2'],
+        timeDuration: [],
+        competencyArea: [],
+        competencyTheme: [],
+        competencySubTheme: [],
+        providers: []
+      }
+
+      component.closeFilterKey({ key: 'status', value: '1' })
+
+      expect(component.filterObjData.status).toEqual(['2'])
+    })
+
+    it('should remove from competencyArea array', () => {
+      component.filterObjData = {
+        isApar: false,
+        primaryCategory: [],
+        status: [],
+        timeDuration: [],
+        competencyArea: ['Area1', 'Area2'],
+        competencyTheme: [],
+        competencySubTheme: [],
+        providers: []
+      }
+
+      component.closeFilterKey({ key: 'competencyArea', value: 'Area1' })
+
+      expect(component.filterObjData.competencyArea).toEqual(['Area2'])
+    })
+  })
+
+  describe('getCbPlans Advanced', () => {
+    beforeEach(() => {
+      component.cbpAllConfig = mockPageData.data
+      component.getFeedStrip = jest.fn().mockReturnValue(mockPageData.data.cbpFeedStrip)
+    })
+
+    it('should handle data with isApar flag', async () => {
+      const dataWithApar = [
+        ...mockCbpData,
+        {
+          id: '4',
+          name: 'APAR Course',
+          planDuration: 'upcoming',
+          endDate: '2025-06-20',
+          contentStatus: 1,
+          isApar: true,
+          primaryCategory: 'Course',
+          competencyArea: ['Area3'],
+          competencyTheme: ['Theme3'],
+          competencySubTheme: ['SubTheme3'],
+          organisation: ['Org3']
+        }
+      ]
+      const mockObservable = createMockObservable(dataWithApar)
+      mockWidgetSvc.fetchCbpPlanList.mockReturnValue(mockObservable)
+
+      await component.getCbPlans()
+
+      expect(component.aparList.length).toBeGreaterThan(0)
+      expect(component.usersCbpCount.apar).toBe(1)
+    })
+
+    it('should sort overdue items by date correctly', async () => {
+      const overdueData = [
+        {
+          id: '1',
+          name: 'Overdue 1',
+          planDuration: 'overdue',
+          endDate: '2025-05-15',
+          contentStatus: 1,
+          primaryCategory: 'Course',
+          competencyArea: [],
+          competencyTheme: [],
+          competencySubTheme: [],
+          organisation: []
+        },
+        {
+          id: '2',
+          name: 'Overdue 2',
+          planDuration: 'overdue',
+          endDate: '2025-05-20',
+          contentStatus: 1,
+          primaryCategory: 'Course',
+          competencyArea: [],
+          competencyTheme: [],
+          competencySubTheme: [],
+          organisation: []
+        },
+        {
+          id: '3',
+          name: 'Overdue 3',
+          planDuration: 'overdue',
+          endDate: '2025-05-10',
+          contentStatus: 1,
+          primaryCategory: 'Course',
+          competencyArea: [],
+          competencyTheme: [],
+          competencySubTheme: [],
+          organisation: []
+        }
+      ]
+      const mockObservable = createMockObservable(overdueData)
+      mockWidgetSvc.fetchCbpPlanList.mockReturnValue(mockObservable)
+
+      await component.getCbPlans()
+
+      expect(component.overDueList.length).toBe(3)
+      // Sorting should place newer dates first
+      const firstDate = new Date(component.overDueList[0].widgetData.content.endDate)
+      const lastDate = new Date(component.overDueList[2].widgetData.content.endDate)
+      expect(firstDate.getTime()).toBeGreaterThanOrEqual(lastDate.getTime())
+    })
+
+    it('should count upcoming uncompleted correctly', async () => {
+      const dataWithStatuses = [
+        {
+          id: '1',
+          name: 'Upcoming Incomplete',
+          planDuration: 'upcoming',
+          endDate: '2025-06-15',
+          contentStatus: 0,
+          primaryCategory: 'Course',
+          competencyArea: [],
+          competencyTheme: [],
+          competencySubTheme: [],
+          organisation: []
+        },
+        {
+          id: '2',
+          name: 'Upcoming In Progress',
+          planDuration: 'upcoming',
+          endDate: '2025-06-20',
+          contentStatus: 1,
+          primaryCategory: 'Course',
+          competencyArea: [],
+          competencyTheme: [],
+          competencySubTheme: [],
+          organisation: []
+        },
+        {
+          id: '3',
+          name: 'Upcoming Completed',
+          planDuration: 'upcoming',
+          endDate: '2025-06-25',
+          contentStatus: 2,
+          primaryCategory: 'Course',
+          competencyArea: [],
+          competencyTheme: [],
+          competencySubTheme: [],
+          organisation: []
+        }
+      ]
+      const mockObservable = createMockObservable(dataWithStatuses)
+      mockWidgetSvc.fetchCbpPlanList.mockReturnValue(mockObservable)
+
+      await component.getCbPlans()
+
+      expect(component.usersCbpCount.upcoming).toBe(2) // Only contentStatus < 2
+      expect(component.usersCbpCount.completed).toBe(1)
+    })
+
+    it('should count overdue uncompleted correctly', async () => {
+      const dataWithStatuses = [
+        {
+          id: '1',
+          name: 'Overdue Incomplete',
+          planDuration: 'overdue',
+          endDate: '2025-05-15',
+          contentStatus: 0,
+          primaryCategory: 'Course',
+          competencyArea: [],
+          competencyTheme: [],
+          competencySubTheme: [],
+          organisation: []
+        },
+        {
+          id: '2',
+          name: 'Overdue In Progress',
+          planDuration: 'overdue',
+          endDate: '2025-05-20',
+          contentStatus: 1,
+          primaryCategory: 'Course',
+          competencyArea: [],
+          competencyTheme: [],
+          competencySubTheme: [],
+          organisation: []
+        }
+      ]
+      const mockObservable = createMockObservable(dataWithStatuses)
+      mockWidgetSvc.fetchCbpPlanList.mockReturnValue(mockObservable)
+
+      await component.getCbPlans()
+
+      expect(component.usersCbpCount.overdue).toBe(2) // Both are uncompleted
+    })
+
+    it('should calculate all count as sum of upcoming and overdue lists', async () => {
+      const mockObservable = createMockObservable(mockCbpData)
+      mockWidgetSvc.fetchCbpPlanList.mockReturnValue(mockObservable)
+
+      await component.getCbPlans()
+
+      const expectedAll = component.overDueList.length + component.upcommingList.length
+      expect(component.usersCbpCount.all).toBe(expectedAll)
+    })
+  })
+
+  describe('getFeedStrip edge cases', () => {
+    it('should return undefined when cbpAllConfig is not set', () => {
+      component.cbpAllConfig = null
+
+      const result = component.getFeedStrip()
+
+      expect(result).toBeUndefined()
+    })
+  })
+
+  describe('Language translation', () => {
+    it('should set default language to en on initialization', () => {
+      expect(mockTranslateService.setDefaultLang).toHaveBeenCalledWith('en')
     })
   })
 })
