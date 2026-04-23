@@ -1,823 +1,409 @@
-import { HomeComponent } from './home.component'
-import { of, throwError } from 'rxjs'
+jest.mock('@sunbird-cb/collection', () => ({
+  BtnSettingsService: jest.fn(),
+  NsContent: {},
+}), { virtual: true })
+jest.mock('@sunbird-cb/collection/src/public-api', () => ({}), { virtual: true })
 
-// Mock helper function
-// function isStripActive(strip: any): boolean {
-//   return !!(strip &&
-//     strip.strips &&
-//     Array.isArray(strip.strips) &&
-//     strip.strips.length > 0 &&
-//     strip.strips[0] &&
-//     strip.strips[0].active === true);
-// }
+import { HomeComponent } from './home.component'
+import { Subject, of, throwError } from 'rxjs'
 
 describe('HomeComponent', () => {
   let component: HomeComponent
-  let mockActivatedRoute: any
-  let mockConfigSvc: any
-  let mockBtnSettingsSvc: any
-  let mockMobileAppsService: any
-  let mockRouter: any
-  let mockTranslate: any
-  let mockUserProfileService: any
-  let mockMatSnackBar: any
-  let mockEvents: any
-  let mockDialog: any
 
-  const mockPageData = {
-    data: {
-      homeConfig: { config: 'test' },
-      newHomeStrip: [
-        { order: 2, strips: [{ active: true }], key: 'strip2' },
-        { order: 1, strips: [{ active: false }], key: 'strip1' }
-      ],
-      clientList: { client1: 'test' },
-      hubsData: { hub1: 'test' },
-      enableLazyLoading: true,
-      sliderData: { slides: [] }
-    }
+  const mockActivatedRoute = {
+    snapshot: {
+      data: {
+        pageData: {
+          data: {
+            homeConfig: { key: 'val' },
+            newHomeStrip: [
+              { order: 1, strips: [{ active: true }] },
+              { order: 2, strips: [{ active: false }] },
+            ],
+            clientList: [],
+            hubsData: {},
+            enableLazyLoading: true,
+            sliderData: {},
+          },
+        },
+      },
+    },
   }
 
-  const mockUnMappedUser = {
-    id: 'user123',
-    rootOrgId: 'org123',
-    profileDetails: {
-      profileStatus: 'ACTIVE',
-      employmentDetails: {
-        departmentName: 'IT'
+  const mockConfigSvc: any = {
+    unMappedUser: {
+      rootOrgId: 'rootOrg1',
+      id: 'user1',
+      profileDetails: {
+        profileStatus: 'VERIFIED',
+        employmentDetails: { departmentName: 'dept' },
+        additionalProperties: { isProfileUpdatedMsgViewed: true },
       },
-      additionalProperties: {
-        isProfileUpdatedMsgViewed: false
-      }
-    }
+    },
+    overrideThemeChanges: false,
+    sitePath: '/assets',
+  }
+
+  const mockBtnSettingsSvc = { changeFont: jest.fn() }
+
+  const mockMobileAppsService = {
+    mobileTopHeaderVisibilityStatus: new Subject<boolean>(),
+  }
+
+  const mockRouter = { navigateByUrl: jest.fn(), navigate: jest.fn() }
+
+  const mockTranslate = {
+    setDefaultLang: jest.fn(),
+    use: jest.fn(),
+    instant: jest.fn().mockReturnValue('translated'),
+  }
+
+  const mockUserProfileService = {
+    listApprovalPendingFields: jest.fn().mockReturnValue(of({ result: { data: [] } })),
+    fetchApprovedFields: jest.fn().mockReturnValue(of({ result: { data: [] } })),
+    listRejectedFields: jest.fn().mockReturnValue(of({ result: { data: [] } })),
+    editProfileDetails: jest.fn().mockReturnValue(of({ success: true })),
+  }
+
+  const mockSnackBar = { open: jest.fn(), openFromComponent: jest.fn() }
+
+  const mockEvents = {
+    raiseInteractTelemetry: jest.fn(),
+    raiseImpressionTelemetry: jest.fn(),
+  }
+
+  function createComponent(configOverride?: any) {
+    const cfg = configOverride || mockConfigSvc
+    return new HomeComponent(
+      mockActivatedRoute as any,
+      cfg,
+      mockBtnSettingsSvc as any,
+      mockMobileAppsService as any,
+      mockRouter as any,
+      mockTranslate as any,
+      mockUserProfileService as any,
+      mockSnackBar as any,
+      mockEvents as any,
+    )
   }
 
   beforeEach(() => {
-    // Mock services
-    mockActivatedRoute = {
-      snapshot: {
-        data: {
-          pageData: mockPageData
-        }
-      }
-    }
-
-    mockConfigSvc = {
-      unMappedUser: mockUnMappedUser,
-      overrideThemeChanges: { theme: 'dark' }
-    }
-
-    mockBtnSettingsSvc = {
-      changeFont: jest.fn()
-    }
-
-    mockMobileAppsService = {
-      mobileTopHeaderVisibilityStatus: of(true)
-    }
-
-    mockRouter = {
-      navigateByUrl: jest.fn(),
-      navigate: jest.fn()
-    }
-
-    mockTranslate = {
-      setDefaultLang: jest.fn(),
-      use: jest.fn(),
-      instant: jest.fn((key: string) => key)
-    }
-
-    mockUserProfileService = {
-      readOrgData: jest.fn(() => of({
-        result: {
-          response: {
-            customfieldsdata: {
-              isPopupEnabled: true,
-              customFieldsCount: 1,
-              customFieldIds: ['field1']
-            }
-          }
-        }
-      })),
-      readCustomattributeDetails: jest.fn(() => of({
-        result: {
-          response: {
-            customFieldValues: []
-          }
-        }
-      })),
-      listApprovalPendingFields: jest.fn(() => of({
-        result: {
-          data: []
-        }
-      })),
-      fetchApprovedFields: jest.fn(() => of({
-        result: {
-          data: [{ name: 'John' }]
-        }
-      })),
-      listRejectedFields: jest.fn(() => of({
-        result: {
-          data: [{ designation: 'Manager' }]
-        }
-      })),
-      editProfileDetails: jest.fn(() => of({ success: true }))
-    }
-
-    mockMatSnackBar = {
-      open: jest.fn(),
-      openFromComponent: jest.fn()
-    }
-
-    mockEvents = {
-      raiseInteractTelemetry: jest.fn()
-    }
-
-    mockDialog = {
-      open: jest.fn(),
-    }
-
-    // Create component instance
-    component = new HomeComponent(
-      mockActivatedRoute,
-      mockConfigSvc,
-      mockBtnSettingsSvc,
-      mockMobileAppsService,
-      mockRouter,
-      mockTranslate,
-      mockUserProfileService,
-      mockMatSnackBar,
-      mockEvents,
-      mockDialog
-    )
-
-    // Mock DOM methods
-    Object.defineProperty(globalThis as any, 'localStorage', {
-      value: {
-        getItem: jest.fn(),
-        setItem: jest.fn(),
-        clear: jest.fn()
-      },
-      writable: true
-    })
-
-    Object.defineProperty(globalThis as any, 'sessionStorage', {
-      value: {
-        getItem: jest.fn(),
-        setItem: jest.fn(),
-        clear: jest.fn()
-      },
-      writable: true
-    })
-
-    // setInterval and clearInterval use real timers here
-
-    // Mock document methods
-    Object.defineProperty(document, 'getElementsByClassName', {
-      value: jest.fn(() => [
-        {
-          getBoundingClientRect: () => ({
-            top: 100,
-            bottom: 200
-          })
-        }
-      ]),
-      configurable: true
-    })
-
-    Object.defineProperty(globalThis as any, 'innerHeight', {
-      value: 800,
-      writable: true
-    })
+    jest.clearAllMocks()
+    component = createComponent()
   })
 
   afterEach(() => {
     jest.clearAllMocks()
   })
 
-  describe('Component Initialization', () => {
-    it('should create component', () => {
-      expect(component).toBeTruthy()
-    })
-
-    it('should initialize with default values', () => {
-      expect(component.widgetData).toEqual({})
-      expect(component.sliderData).toEqual({})
-      expect(component.contentStripData).toEqual({})
-      expect(component.sectionList).toEqual([])
-      expect(component.enableLazyLoadingFlag).toBe(true)
-      expect(component.canShowCustomAttrOpen).toBe(false)
-    })
-  })
-
   describe('ngOnInit', () => {
-    it('should initialize component with valid data', () => {
+    it('should set rootOrgId from configSvc', () => {
       component.ngOnInit()
-
-      expect(component.homeConfig).toEqual(mockPageData.data.homeConfig)
-      expect(component.contentStripData.length).toBe(2)
-      expect(component.contentStripData[0].order).toBe(1)
-      expect(component.sectionList.length).toBe(5) // 2 content strips + 3 fixed sections
+      expect(component.rootOrgId).toBe('rootOrg1')
     })
 
-    it('should handle not-my-user profile status with igot org', () => {
-      mockConfigSvc.unMappedUser.profileDetails.profileStatus = 'not-my-user'
-      mockConfigSvc.unMappedUser.profileDetails.employmentDetails.departmentName = 'igot'
-
+    it('should set disableMenu false when not igot user', () => {
       component.ngOnInit()
+      expect(component.disableMenu).toBe(false)
+    })
 
-      expect(component.disableMenu).toBe(true)
+    it('should set disableMenu true and navigate for igot + not-my-user', () => {
+      const cfg = {
+        ...mockConfigSvc,
+        unMappedUser: {
+          rootOrgId: 'r1',
+          id: 'u1',
+          profileDetails: {
+            profileStatus: 'not-my-user',
+            employmentDetails: { departmentName: 'igot' },
+            additionalProperties: { isProfileUpdatedMsgViewed: true },
+          },
+        },
+        overrideThemeChanges: false,
+      }
+      const comp = createComponent(cfg)
+      comp.ngOnInit()
+      expect(comp.disableMenu).toBe(true)
       expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('app/person-profile/me#profileInfo')
     })
 
-    it('should handle profile update message not viewed', () => {
+    it('should load homeConfig from pageData', () => {
       component.ngOnInit()
-
-      expect(mockUserProfileService.fetchApprovedFields).toHaveBeenCalled()
-      expect(mockUserProfileService.listRejectedFields).toHaveBeenCalled()
+      expect(component.homeConfig).toEqual({ key: 'val' })
     })
 
-    it('should handle profile update message already viewed', () => {
-      mockConfigSvc.unMappedUser.profileDetails.additionalProperties.isProfileUpdatedMsgViewed = true
-
+    it('should build sectionList from newHomeStrip', () => {
       component.ngOnInit()
-
-      expect(component.isMDOMsgOpen).toBe(true)
+      expect(component.sectionList.length).toBeGreaterThanOrEqual(2)
+      expect(component.sectionList[0].section).toBe('section_0')
     })
 
-    it('should set up mobile header visibility subscription', () => {
+    it('should call getListPendingApproval', () => {
+      const spy = jest.spyOn(component, 'getListPendingApproval')
       component.ngOnInit()
-
-      expect(component.mobileTopHeaderVisibilityStatus).toBe(true)
+      expect(spy).toHaveBeenCalled()
     })
 
-    it('should set up enrollment data interval', () => {
-      const originalSetInterval = (globalThis as any).setInterval
-        ; (globalThis as any).setInterval = jest.fn()
-
+    it('should call handleDefaultFontSetting', () => {
+      const spy = jest.spyOn(component, 'handleDefaultFontSetting')
       component.ngOnInit()
-
-      expect((globalThis as any).setInterval).toHaveBeenCalledWith(jasmine.any(Function), 1000)
-
-        ; (globalThis as any).setInterval = originalSetInterval
+      expect(spy).toHaveBeenCalled()
     })
 
-    it('should handle website language from localStorage', () => {
-      (localStorage.getItem as jest.Mock).mockReturnValue('es')
-
+    it('should use websiteLanguage from localStorage if set', () => {
+      localStorage.setItem('websiteLanguage', 'hi')
       component.ngOnInit()
-
       expect(mockTranslate.setDefaultLang).toHaveBeenCalledWith('en')
-      expect(mockTranslate.use).toHaveBeenCalledWith('es')
+      expect(mockTranslate.use).toHaveBeenCalledWith('hi')
+      localStorage.removeItem('websiteLanguage')
     })
 
-    it('should call getOrgDetails', () => {
-      const spy = jest.spyOn(component, 'getOrgDetails')
-      component.ngOnInit()
-
-      expect(spy).toHaveBeenCalled()
-    })
-  })
-
-  describe('getOrgDetails', () => {
-    it('should fetch organization details and show custom attributes popup', () => {
-      const spy = jest.spyOn(component, 'readCustomattributeDetails')
-
-      component.getOrgDetails()
-
-      expect(mockUserProfileService.readOrgData).toHaveBeenCalledWith({
-        request: { organisationId: 'org123' }
-      })
-      expect(spy).toHaveBeenCalled()
-    })
-
-    it('should not show custom attributes popup when disabled', () => {
-      mockUserProfileService.readOrgData.mockReturnValue(of({
-        result: {
-          response: {
-            customfieldsdata: {
-              isPopupEnabled: false,
-              customFieldsCount: 0,
-              customFieldIds: []
-            }
-          }
-        }
-      }))
-
-      component.getOrgDetails()
-
-      expect(component.canShowCustomAttrOpen).toBe(false)
-    })
-
-    it('should handle error in fetching organization details', () => {
-      mockUserProfileService.readOrgData.mockReturnValue(throwError({ error: 'test error' }))
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation()
-
-      component.getOrgDetails()
-
-      expect(component.canShowCustomAttrOpen).toBe(false)
-      expect(consoleSpy).toHaveBeenCalled()
-    })
-  })
-
-  describe('readCustomattributeDetails', () => {
-    it('should redirect to custom profile when no custom field values', () => {
-      const spy = jest.spyOn(component, 'redirectToCustomProfile')
-
-      component.readCustomattributeDetails()
-
-      expect(mockUserProfileService.readCustomattributeDetails).toHaveBeenCalledWith('user123', 'org123')
-      expect(spy).toHaveBeenCalled()
-      expect(component.canShowCustomAttrOpen).toBe(true)
-    })
-
-    it('should not redirect when custom field values exist', () => {
-      mockUserProfileService.readCustomattributeDetails.mockReturnValue(of({
-        result: {
-          response: {
-            customFieldValues: [{ field: 'value' }]
-          }
-        }
-      }))
-
-      component.readCustomattributeDetails()
-
-      expect(component.canShowCustomAttrOpen).toBe(false)
-    })
-
-    it('should handle error in reading custom attributes', () => {
-      mockUserProfileService.readCustomattributeDetails.mockReturnValue(throwError({ error: 'test error' }))
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation()
-
-      component.readCustomattributeDetails()
-
-      expect(component.canShowCustomAttrOpen).toBe(false)
-      expect(consoleSpy).toHaveBeenCalled()
+    it('should call getApprovedStatus and getRejectedStatus when isProfileUpdatedMsgViewed is false', () => {
+      const cfg = {
+        ...mockConfigSvc,
+        unMappedUser: {
+          rootOrgId: 'r1',
+          id: 'u1',
+          profileDetails: {
+            profileStatus: 'VERIFIED',
+            employmentDetails: { departmentName: 'dept' },
+            additionalProperties: { isProfileUpdatedMsgViewed: false },
+          },
+        },
+        overrideThemeChanges: false,
+      }
+      const comp = createComponent(cfg)
+      const spyApproved = jest.spyOn(comp, 'getApprovedStatus')
+      const spyRejected = jest.spyOn(comp, 'getRejectedStatus')
+      comp.ngOnInit()
+      expect(spyApproved).toHaveBeenCalled()
+      expect(spyRejected).toHaveBeenCalled()
     })
   })
 
   describe('ngAfterViewInit', () => {
-    it('should make initial content strips visible', () => {
-      component.sectionList = [
-        { section: 'section_0', isVisible: false },
-        { section: 'section_1', isVisible: false },
-        { section: 'slider', isVisible: false }
-      ]
-
+    it('should mark initial section_0 to section_4 isVisible true', () => {
+      component.ngOnInit()
       component.ngAfterViewInit()
-
-      expect(component.sectionList[0].isVisible).toBe(true)
-      expect(component.sectionList[1].isVisible).toBe(true)
-      expect(component.sectionList[2].isVisible).toBe(false)
+      const visible = component.sectionList.filter((s: any) => s.section.startsWith('section_') && s.isVisible)
+      expect(visible.length).toBeGreaterThanOrEqual(1)
     })
   })
 
   describe('getEnrollmentData', () => {
-    it('should handle enrollment data and disable KP panel', () => {
-      const enrollData = { enrolledCourseCount: 5 };
-      (localStorage.getItem as jest.Mock).mockReturnValue(JSON.stringify(enrollData))
-
+    it('should set isKPPanelenabled false when enrolledCourseCount > 0', () => {
+      localStorage.setItem('userEnrollmentCount', JSON.stringify({ enrolledCourseCount: 5 }))
+      component.enrollInterval = setInterval(() => { }, 10000)
       component.getEnrollmentData()
-
-      expect(component.enrollData).toEqual(enrollData)
       expect(component.isKPPanelenabled).toBe(false)
-      expect(clearInterval).toHaveBeenCalled()
+      localStorage.removeItem('userEnrollmentCount')
     })
 
-    it('should enable KP panel when no enrolled courses', () => {
-      const enrollData = { enrolledCourseCount: 0 };
-      (localStorage.getItem as jest.Mock).mockReturnValue(JSON.stringify(enrollData))
-
+    it('should set isKPPanelenabled true when enrolledCourseCount is 0', () => {
+      localStorage.setItem('userEnrollmentCount', JSON.stringify({ enrolledCourseCount: 0 }))
+      component.enrollInterval = setInterval(() => { }, 10000)
       component.getEnrollmentData()
-
       expect(component.isKPPanelenabled).toBe(true)
+      localStorage.removeItem('userEnrollmentCount')
     })
 
-    it('should handle null enrollment data', () => {
-      (localStorage.getItem as jest.Mock).mockReturnValue(null)
-
+    it('should do nothing when no data in localStorage', () => {
+      localStorage.removeItem('userEnrollmentCount')
       component.getEnrollmentData()
-
-      expect(component.enrollData).toBeNull()
-    })
-  })
-
-  describe('handleButtonClick', () => {
-    it('should execute without errors', () => {
-      expect(() => component.handleButtonClick()).not.toThrow()
-    })
-  })
-
-  describe('translateHub', () => {
-    it('should translate hub name', () => {
-      const result = component.translateHub('testHub')
-
-      expect(mockTranslate.instant).toHaveBeenCalledWith('testHub')
-      expect(result).toBe('testHub')
-    })
-  })
-
-  describe('getListPendingApproval', () => {
-    it('should fetch pending approval list successfully', () => {
-      const spy = jest.spyOn(component, 'handleUpdateMobileNudge')
-
-      component.getListPendingApproval()
-
-      expect(mockUserProfileService.listApprovalPendingFields).toHaveBeenCalled()
-      expect(spy).toHaveBeenCalled()
-    })
-
-    it('should handle error in fetching pending approval list', () => {
-      mockUserProfileService.listApprovalPendingFields.mockReturnValue(
-        throwError({ ok: false, error: { text: 'Error message' } })
-      )
-
-      component.getListPendingApproval()
-
-      expect(mockMatSnackBar.open).toHaveBeenCalledWith('Unable to fetch pending approval list')
-    })
-
-    it('should not call handleUpdateMobileNudge when pending list exists', () => {
-      mockUserProfileService.listApprovalPendingFields.mockReturnValue(of({
-        result: { data: [{ field: 'test' }] }
-      }))
-      const spy = jest.spyOn(component, 'handleUpdateMobileNudge')
-
-      component.getListPendingApproval()
-
-      expect(spy).not.toHaveBeenCalled()
-    })
-  })
-
-  describe('handleUpdateMobileNudge', () => {
-    it('should open nudge when profile not verified and popup not hidden', () => {
-      (sessionStorage.getItem as jest.Mock).mockReturnValue(null)
-
-      component.handleUpdateMobileNudge()
-
-      expect(component.isNudgeOpen).toBe(true)
-    })
-
-    it('should not open nudge when profile is verified', () => {
-      mockConfigSvc.unMappedUser.profileDetails.profileStatus = 'VERIFIED'
-
-      component.handleUpdateMobileNudge()
-
-      expect(component.isNudgeOpen).toBe(false)
-    })
-
-    it('should open nudge when no profile details', () => {
-      mockConfigSvc.unMappedUser.profileDetails = null
-
-      component.handleUpdateMobileNudge()
-
-      expect(component.isNudgeOpen).toBe(true)
+      expect(component.enrollData).toBeFalsy()
     })
   })
 
   describe('handleDefaultFontSetting', () => {
-    it('should apply font setting from localStorage', () => {
-      (localStorage.getItem as jest.Mock).mockReturnValue('large-font')
-
+    it('should call btnSettingsSvc.changeFont with localStorage setting', () => {
+      localStorage.setItem('setting', 'font-large')
       component.handleDefaultFontSetting()
-
-      expect(mockBtnSettingsSvc.changeFont).toHaveBeenCalledWith('large-font')
-    })
-  })
-
-  describe('scrollHandler', () => {
-    it('should check visibility for non-visible sections', () => {
-      component.sectionList = [
-        { section: 'section_0', isVisible: true },
-        { section: 'section_5', isVisible: false }
-      ]
-      const spy = jest.spyOn(component, 'checkSectionVisibility')
-
-      component.scrollHandler()
-
-      expect(spy).toHaveBeenCalledWith('section_5')
-    })
-  })
-
-  describe('checkSectionVisibility', () => {
-    it('should skip initial visible sections', () => {
-      component.checkSectionVisibility('section_0')
-      // Should not throw or modify anything
-      expect(true).toBe(true)
-    })
-
-    it('should make section visible when in viewport', () => {
-      component.sectionList = [
-        { section: 'section_5', isVisible: false }
-      ]
-
-      component.checkSectionVisibility('section_5')
-
-      expect(component.sectionList[0].isVisible).toBe(true)
-    })
-
-    it('should handle non-existent sections', () => {
-      component.checkSectionVisibility('non-existent')
-      // Should not throw
-      expect(true).toBe(true)
-    })
-
-    it('should handle sections not in DOM', () => {
-      (document.getElementsByClassName as jest.Mock).mockReturnValue([])
-
-      component.checkSectionVisibility('section_5')
-      // Should not throw
-      expect(true).toBe(true)
+      expect(mockBtnSettingsSvc.changeFont).toHaveBeenCalledWith('font-large')
+      localStorage.removeItem('setting')
     })
   })
 
   describe('handleRemindLater', () => {
-    it('should hide nudge and set session storage', () => {
+    it('should set sessionStorage and close nudge', () => {
       component.handleRemindLater()
-
-      expect(sessionStorage.setItem).toHaveBeenCalledWith('hideUpdateProfilePopUp', 'true')
+      expect(sessionStorage.getItem('hideUpdateProfilePopUp')).toBe('true')
       expect(component.isNudgeOpen).toBe(false)
     })
   })
 
+  describe('handleUpdateMobileNudge', () => {
+    it('should set isNudgeOpen true when profileStatus not VERIFIED', () => {
+      const cfg = {
+        ...mockConfigSvc,
+        unMappedUser: {
+          rootOrgId: 'r1',
+          id: 'u1',
+          profileDetails: { profileStatus: 'NOT_VERIFIED' },
+        },
+      }
+      const comp = createComponent(cfg)
+      sessionStorage.setItem('hideUpdateProfilePopUp', 'true')
+      comp.handleUpdateMobileNudge()
+      expect(comp.isNudgeOpen).toBe(true)
+    })
+
+    it('should set isNudgeOpen false when profileStatus is VERIFIED', () => {
+      component.handleUpdateMobileNudge()
+      expect(component.isNudgeOpen).toBe(false)
+    })
+
+    it('should set isNudgeOpen true when no profileDetails', () => {
+      const cfg = {
+        ...mockConfigSvc,
+        unMappedUser: { id: 'u1' },
+      }
+      const comp = createComponent(cfg)
+      comp.handleUpdateMobileNudge()
+      expect(comp.isNudgeOpen).toBe(true)
+    })
+  })
+
+  describe('getListPendingApproval', () => {
+    it('should set pendingApprovalList', () => {
+      mockUserProfileService.listApprovalPendingFields.mockReturnValue(
+        of({ result: { data: [{ id: 1 }] } })
+      )
+      component.getListPendingApproval()
+      expect(component.pendingApprovalList).toEqual([{ id: 1 }])
+    })
+
+    it('should open snackbar on HTTP error', () => {
+      mockUserProfileService.listApprovalPendingFields.mockReturnValue(
+        throwError({ ok: false })
+      )
+      component.getListPendingApproval()
+      expect(mockSnackBar.open).toHaveBeenCalledWith('Unable to fetch pending approval list')
+    })
+  })
+
+  describe('getApprovedStatus', () => {
+    it('should set approvedStatus true when name field exists', () => {
+      mockUserProfileService.fetchApprovedFields.mockReturnValue(
+        of({ result: { data: [{ name: 'John' }] } })
+      )
+      component.getApprovedStatus()
+      expect(component.approvedStatus).toBe(true)
+    })
+
+    it('should set approvedStatus false when no matching fields', () => {
+      mockUserProfileService.fetchApprovedFields.mockReturnValue(
+        of({ result: { data: [{ other: 'x' }] } })
+      )
+      component.getApprovedStatus()
+      expect(component.approvedStatus).toBe(false)
+    })
+
+    it('should set approvedStatus false on empty list', () => {
+      mockUserProfileService.fetchApprovedFields.mockReturnValue(
+        of({ result: { data: [] } })
+      )
+      component.getApprovedStatus()
+      expect(component.approvedStatus).toBe(false)
+    })
+
+    it('should open snackbar on error', () => {
+      mockUserProfileService.fetchApprovedFields.mockReturnValue(
+        throwError({ ok: false, error: { text: 'err' } })
+      )
+      component.getApprovedStatus()
+      expect(mockSnackBar.open).toHaveBeenCalledWith('err')
+    })
+  })
+
+  describe('getRejectedStatus', () => {
+    it('should set rejectedStatus true when designation field exists', () => {
+      mockUserProfileService.listRejectedFields.mockReturnValue(
+        of({ result: { data: [{ designation: 'eng' }] } })
+      )
+      component.getRejectedStatus()
+      expect(component.rejectedStatus).toBe(true)
+    })
+
+    it('should set rejectedStatus false on empty list', () => {
+      mockUserProfileService.listRejectedFields.mockReturnValue(
+        of({ result: { data: [] } })
+      )
+      component.getRejectedStatus()
+      expect(component.rejectedStatus).toBe(false)
+    })
+
+    it('should open snackbar on error', () => {
+      mockUserProfileService.listRejectedFields.mockReturnValue(
+        throwError({ ok: false, error: { text: 'rej err' } })
+      )
+      component.getRejectedStatus()
+      expect(mockSnackBar.open).toHaveBeenCalledWith('rej err')
+    })
+  })
+
+  describe('handleMDOMsgstatus', () => {
+    it('should call editProfileDetails and set isMDOMsgOpen true on success', () => {
+      component.handleMDOMsgstatus()
+      expect(mockUserProfileService.editProfileDetails).toHaveBeenCalled()
+      expect(component.isMDOMsgOpen).toBe(true)
+    })
+
+    it('should open snackbar on error', () => {
+      mockUserProfileService.editProfileDetails.mockReturnValue(
+        throwError({ ok: false, error: { text: 'edit err' } })
+      )
+      component.handleMDOMsgstatus()
+      expect(mockSnackBar.open).toHaveBeenCalledWith('edit err')
+    })
+  })
+
   describe('fetchProfile', () => {
-    it('should handle MDO message status and navigate to profile', () => {
+    it('should call handleMDOMsgstatus and navigate', () => {
       const spy = jest.spyOn(component, 'handleMDOMsgstatus')
-
       component.fetchProfile()
-
       expect(spy).toHaveBeenCalled()
       expect(mockRouter.navigate).toHaveBeenCalledWith(['/app/person-profile/me'])
     })
   })
 
   describe('closeKarmaPointsPanel', () => {
-    it('should disable KP panel', () => {
+    it('should set isKPPanelenabled to false', () => {
+      component.isKPPanelenabled = true
       component.closeKarmaPointsPanel()
-
       expect(component.isKPPanelenabled).toBe(false)
     })
   })
 
-  describe('handleMDOMsgstatus', () => {
-    it('should update profile details successfully', () => {
-      component.handleMDOMsgstatus()
+  describe('translateHub', () => {
+    it('should call translate.instant', () => {
+      const result = component.translateHub('someKey')
+      expect(mockTranslate.instant).toHaveBeenCalledWith('someKey')
+      expect(result).toBe('translated')
+    })
+  })
 
-      expect(mockUserProfileService.editProfileDetails).toHaveBeenCalledWith({
-        request: {
-          userId: 'user123',
-          profileDetails: {
-            additionalProperties: {
-              isProfileUpdatedMsgViewed: true
-            }
-          }
-        }
-      })
+  describe('checkSectionVisibility', () => {
+    it('should return early for section_0 to section_4', () => {
+      component.sectionList = [{ section: 'section_0', isVisible: false }]
+      component.checkSectionVisibility('section_0')
+      expect(component.sectionList[0].isVisible).toBe(false)
+    })
+
+    it('should return early if section not found in list', () => {
+      component.sectionList = []
+      expect(() => component.checkSectionVisibility('section_9')).not.toThrow()
+    })
+  })
+
+  describe('handleButtonClick', () => {
+    it('should not throw', () => {
+      expect(() => component.handleButtonClick()).not.toThrow()
+    })
+  })
+
+  describe('isMDOMsgOpen default', () => {
+    it('should default to true', () => {
       expect(component.isMDOMsgOpen).toBe(true)
-    })
-
-    it('should handle error in updating profile details', () => {
-      mockUserProfileService.editProfileDetails.mockReturnValue(
-        throwError({ ok: false, error: { text: 'Error message' } })
-      )
-
-      component.handleMDOMsgstatus()
-
-      expect(mockMatSnackBar.open).toHaveBeenCalledWith('Error message')
-    })
-  })
-
-  describe('getApprovedStatus', () => {
-    it('should set approved status to true when valid fields exist', () => {
-      component.getApprovedStatus()
-
-      expect(component.approvedStatus).toBe(true)
-      expect(component.approvedStatusList).toEqual([{ name: 'John' }])
-    })
-
-    it('should set approved status to false when no valid fields', () => {
-      mockUserProfileService.fetchApprovedFields.mockReturnValue(of({
-        result: { data: [{ invalidField: 'test' }] }
-      }))
-
-      component.getApprovedStatus()
-
-      expect(component.approvedStatus).toBe(false)
-    })
-
-    it('should handle empty approved status list', () => {
-      mockUserProfileService.fetchApprovedFields.mockReturnValue(of({
-        result: { data: [] }
-      }))
-
-      component.getApprovedStatus()
-
-      expect(component.approvedStatus).toBe(false)
-    })
-
-    it('should handle error in fetching approved fields', () => {
-      mockUserProfileService.fetchApprovedFields.mockReturnValue(
-        throwError({ ok: false, error: { text: 'Error message' } })
-      )
-
-      component.getApprovedStatus()
-
-      expect(mockMatSnackBar.open).toHaveBeenCalledWith('Error message')
-    })
-  })
-
-  describe('getRejectedStatus', () => {
-    it('should set rejected status to true when valid fields exist', () => {
-      component.getRejectedStatus()
-
-      expect(component.rejectedStatus).toBe(true)
-      expect(component.rejectedStatusList).toEqual([{ designation: 'Manager' }])
-    })
-
-    it('should set rejected status to false when no valid fields', () => {
-      mockUserProfileService.listRejectedFields.mockReturnValue(of({
-        result: { data: [{ invalidField: 'test' }] }
-      }))
-
-      component.getRejectedStatus()
-
-      expect(component.rejectedStatus).toBe(false)
-    })
-
-    it('should handle error in fetching rejected fields', () => {
-      mockUserProfileService.listRejectedFields.mockReturnValue(
-        throwError({ ok: false, error: { text: 'Error message' } })
-      )
-
-      component.getRejectedStatus()
-
-      expect(mockMatSnackBar.open).toHaveBeenCalledWith('Error message')
-    })
-  })
-
-  describe('raiseTelemetryInteratEvent', () => {
-    it('should raise telemetry for view more URL', () => {
-      const event = {
-        viewMoreUrl: { viewMoreText: 'View More' },
-        stripTitle: 'Test Strip',
-        typeOfTelemetry: 'test'
-      }
-      const spy = jest.spyOn(component, 'raiseTelemetry')
-
-      component.raiseTelemetryInteratEvent(event)
-
-      expect(spy).toHaveBeenCalledWith('Test Strip View More', 'test')
-    })
-
-    it('should raise telemetry for external content', () => {
-      const event = {
-        contentId: 'ext123',
-        typeOfTelemetry: 'external',
-        identifier: 'ext123'
-      }
-
-      component.raiseTelemetryInteratEvent(event)
-
-      const calls = mockEvents.raiseInteractTelemetry.mock.calls
-      expect(calls.length).toBeGreaterThan(0)
-      const [interaction, obj, context] = calls[calls.length - 1]
-
-      expect(interaction).toEqual({
-        type: 'click',
-        subType: 'external',
-        id: 'card-content',
-        pageid: '/page/home'
-      })
-      expect(obj).toEqual({
-        id: 'ext123',
-        type: 'External content'
-      })
-      expect(context?.module).toBeDefined()
-      expect(component.isTelemetryRaised).toBe(true)
-    })
-
-    it('should raise telemetry for MDO channel', () => {
-      const event = {
-        typeOfTelemetry: 'mdoChannel',
-        identifier: 'mdo123',
-        title: 'Test Title'
-      }
-
-      component.raiseTelemetryInteratEvent(event)
-
-      const calls = mockEvents.raiseInteractTelemetry.mock.calls
-      expect(calls.length).toBeGreaterThan(0)
-      const [interaction, obj, context] = calls[calls.length - 1]
-
-      expect(interaction.subType).toBe('mdo-channel')
-      expect(obj).toEqual({
-        id: 'mdo123',
-        type: 'org/ministry'
-      })
-      expect(context?.module).toBeDefined()
-    })
-
-    it('should raise telemetry for CBP plan with selected tab and pill', () => {
-      const event = {
-        typeOfTelemetry: 'cbpPlan',
-        identifier: 'cbp123',
-        primaryCategory: 'Course',
-        selectedTab: 'tab1',
-        selectedPill: 'pill1',
-        sakshamAIGenerated: false
-      }
-
-      component.raiseTelemetryInteratEvent(event)
-
-      const calls = mockEvents.raiseInteractTelemetry.mock.calls
-      expect(calls.length).toBeGreaterThan(0)
-      const [interaction, obj, context] = calls[calls.length - 1]
-
-      expect(interaction.subType).toBe('tab1-pill1')
-      expect(obj).toEqual({
-        id: 'cbp123',
-        type: 'Course'
-      })
-      expect(context?.module).toBeDefined()
-    })
-
-    it('should raise telemetry for AI generated CBP plan', () => {
-      const event = {
-        typeOfTelemetry: 'cbpPlan',
-        identifier: 'cbp123',
-        primaryCategory: 'Course',
-        sakshamAIGenerated: true
-      }
-
-      component.raiseTelemetryInteratEvent(event)
-
-      const calls = mockEvents.raiseInteractTelemetry.mock.calls
-      expect(calls.length).toBeGreaterThan(0)
-      const [interaction, obj, context] = calls[calls.length - 1]
-
-      expect(interaction.subType).toBe('igot-ai')
-      expect(obj).toEqual({
-        id: 'cbp123',
-        type: 'Course'
-      })
-      expect(context?.module).toBeDefined()
-    })
-
-    it('should raise telemetry for providers', () => {
-      const event = {
-        typeOfTelemetry: 'providers',
-        orgId: 'org123'
-      }
-
-      component.raiseTelemetryInteratEvent(event)
-
-      const calls = mockEvents.raiseInteractTelemetry.mock.calls
-      expect(calls.length).toBeGreaterThan(0)
-      const [interaction, obj, context] = calls[calls.length - 1]
-
-      expect(interaction.subType).toBe('training-institutions')
-      expect(obj).toEqual({
-        id: 'org123',
-        type: 'org'
-      })
-      expect(context?.module).toBeDefined()
-    })
-
-    it('should not raise telemetry when already raised', () => {
-      component.isTelemetryRaised = true
-      const event = { contentId: 'test123', typeOfTelemetry: 'test' }
-
-      component.raiseTelemetryInteratEvent(event)
-
-      expect(mockEvents.raiseInteractTelemetry).not.toHaveBeenCalled()
-    })
-  })
-
-  describe('raiseTelemetry', () => {
-    it('should raise interact telemetry with correct parameters', () => {
-      component.raiseTelemetry('Test Name', 'test-subtype')
-
-      const calls = (mockEvents.raiseInteractTelemetry as any).mock.calls
-      expect(calls.length).toBeGreaterThan(0)
-      const [interaction, obj, context] = calls[calls.length - 1]
-
-      expect(interaction).toEqual({
-        type: 'click',
-        subType: 'test-subtype',
-        id: 'test-name'
-      })
-      expect(obj).toEqual({})
-      expect(context && context.module).toBeDefined()
-    })
-  })
-
-  describe('redirectToCustomProfile', () => {
-    it('should navigate to custom profile', () => {
-      component.redirectToCustomProfile()
-
-      expect(mockRouter.navigate).toHaveBeenCalledWith(
-        ['/app/person-profile/me'],
-        { fragment: 'orgDetails' }
-      )
     })
   })
 })

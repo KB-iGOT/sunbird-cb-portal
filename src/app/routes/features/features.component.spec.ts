@@ -1,472 +1,308 @@
-import {  Subject, BehaviorSubject } from 'rxjs';
-import { FeaturesComponent } from './features.component';
-import { UntypedFormControl } from '@angular/forms';
-import * as _ from 'lodash';
+jest.mock('lodash', () => {
+  const actual = jest.requireActual('lodash')
+  return { __esModule: true, default: actual, ...actual }
+})
+jest.mock('@sunbird-cb/collection/src/public-api', () => ({
+  CustomTourService: jest.fn(),
+  ROOT_WIDGET_CONFIG: { actionButton: { _type: 'actionButton', feature: 'feature' } },
+  LogoutComponent: jest.fn(),
+}), { virtual: true })
+jest.mock('@sunbird-cb/collection', () => ({
+  NsContent: {},
+  ROOT_WIDGET_CONFIG: { actionButton: { _type: 'actionButton', feature: 'feature' } },
+}), { virtual: true })
+jest.mock('../../../../project/ws/author/src/public-api', () => ({
+  AccessControlService: jest.fn().mockImplementation(() => ({
+    hasRole: jest.fn().mockReturnValue(false),
+  })),
+}))
 
-// Mock lodash
-jest.mock('lodash', () => ({
-  get: jest.fn((obj, path) => {
-    // Simple implementation for nested path access
-    if (path.includes('[') && path.includes(']')) {
-      const match = path.match(/features\[(\w+)\]\.permission/);
-      if (match && obj && obj.features && obj.features[match[1]]) {
-        return obj.features[match[1]].permission;
-      }
-    }
-    return undefined;
-  }),
-  compact: jest.fn((arr) => arr.filter(Boolean)),
-}));
+import { FeaturesComponent } from './features.component'
+import { UntypedFormControl } from '@angular/forms'
+import { Subject } from 'rxjs'
 
 describe('FeaturesComponent', () => {
-  let component: FeaturesComponent;
-  let mockDialog: any;
-  let mockRouter: any;
-  let mockActivatedRoute: any;
-  let mockConfigurationSvc: any;
-  let mockTour: any;
-  let mockRespondSvc: any;
-  let mockValueSvc: any;
-  let mockAccessService: any;
+  let component: FeaturesComponent
 
-  beforeEach(() => {
-    // Mock dependencies
-    mockDialog = {
-      open: jest.fn(),
-    };
+  const tourGuideNotifier$ = new Subject<boolean>()
+  const isXSmall$ = new Subject<boolean>()
+  const restrictedFeatures = new Set<string>()
 
-    mockRouter = {
-      navigate: jest.fn(),
-    };
-
-    mockActivatedRoute = {
-      snapshot: {
-        queryParamMap: {
-          get: jest.fn().mockReturnValue('test-query'),
-        },
+  const sampleAppsConfig = {
+    tourGuide: null,
+    groups: [
+      {
+        id: 'group1',
+        hasRole: [],
+        featureIds: ['feat1', 'feat2'],
+        name: 'Group 1',
+        description: '',
+        keywords: [],
       },
-    };
-
-    mockConfigurationSvc = {
-      pageNavBar: { background: 'primary' },
-      tourGuideNotifier: new Subject(),
-      restrictedFeatures: new Set(),
-      appsConfig: {
-        tourGuide: { steps: [] },
-        groups: [
-          {
-            id: 'group1',
-            name: 'Test Group 1',
-            hasRole: ['user'],
-            featureIds: ['feature1', 'feature2'],
-          },
-          {
-            id: 'group2',
-            name: 'Test Group 2',
-            hasRole: [],
-            featureIds: ['feature3'],
-          },
-        ],
-        features: {
-          feature1: {
-            id: 'feature1',
-            name: 'Feature 1',
-            description: 'Test feature 1',
-            keywords: ['test', 'feature'],
-            permission: ['user'],
-          },
-          feature2: {
-            id: 'feature2',
-            name: 'Feature 2',
-            description: 'Test feature 2',
-            keywords: ['another', 'test'],
-            permission: [],
-          },
-          feature3: {
-            id: 'feature3',
-            name: 'Feature 3',
-            description: 'Test feature 3',
-            keywords: ['third'],
-            permission: ['admin'],
-          },
-        },
+      {
+        id: 'group2',
+        hasRole: ['MDO_ADMIN'],
+        featureIds: ['feat3'],
+        name: 'Group 2',
+        description: '',
+        keywords: [],
       },
-    };
+    ],
+    features: {
+      feat1: {
+        name: 'Dashboard',
+        permission: [],
+        keywords: ['dash'],
+        description: 'Main dashboard',
+        url: '/app/dashboard',
+      },
+      feat2: {
+        name: 'Analytics',
+        permission: ['ANALYTICS'],
+        keywords: ['stats'],
+        description: 'Analytics page',
+        url: '/app/analytics',
+      },
+      feat3: {
+        name: 'Admin Panel',
+        permission: [],
+        keywords: ['admin'],
+        description: 'Administration',
+        url: '/app/admin',
+      },
+    },
+  }
 
-    mockTour = {
-      data: null,
-      startTour: jest.fn(),
-    };
+  const mockConfigSvc: any = {
+    appsConfig: sampleAppsConfig,
+    tourGuideNotifier: tourGuideNotifier$,
+    restrictedFeatures,
+    pageNavBar: { background: 'blue' },
+  }
 
-    mockRespondSvc = {
-      unsubscribeResponse: jest.fn(),
-    };
+  const mockAccessService: any = {
+    hasRole: jest.fn().mockReturnValue(false),
+  }
 
-    mockValueSvc = {
-      isXSmall$: new BehaviorSubject(false),
-    };
+  const mockTour: any = {
+    data: null,
+    startTour: jest.fn(),
+  }
 
-    mockAccessService = {
-      hasRole: jest.fn().mockReturnValue(true),
-    };
+  const mockRespondSvc: any = {
+    unsubscribeResponse: jest.fn(),
+  }
 
-    // Create component instance
-    component = new FeaturesComponent(
+  const mockValueSvc: any = {
+    isXSmall$: isXSmall$.asObservable(),
+  }
+
+  const mockDialog: any = {
+    open: jest.fn(),
+  }
+
+  const mockRouter: any = {
+    navigate: jest.fn(),
+  }
+
+  const mockActivateRoute: any = {
+    snapshot: {
+      queryParamMap: { get: jest.fn().mockReturnValue(null) },
+    },
+  }
+
+  function buildComponent(configSvc?: any, accessSvc?: any) {
+    return new FeaturesComponent(
       mockDialog,
       mockRouter,
-      mockActivatedRoute,
-      mockConfigurationSvc,
+      mockActivateRoute,
+      configSvc || mockConfigSvc,
       mockTour,
       mockRespondSvc,
       mockValueSvc,
-      mockAccessService
-    );
-  });
+      accessSvc || mockAccessService,
+    )
+  }
 
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
+  beforeEach(() => {
+    jest.clearAllMocks()
+    component = buildComponent()
+  })
 
-  describe('Constructor', () => {
-    it('should create component with default values', () => {
-      expect(component).toBeTruthy();
-      expect(component.queryControl).toBeDefined();
-      expect(component.queryControl.constructor.name).toBe('UntypedFormControl');
-      expect(component.featureGroups).toBeNull();
-      expect(component.isTourGuideAvailable).toBe(false);
-      expect(component.isXSmall).toBe(false);
-    });
+  it('should create', () => {
+    expect(component).toBeTruthy()
+  })
 
-    it('should initialize queryControl with query parameter from route', () => {
-      expect(component.queryControl.value).toBe('test-query');
-    });
+  it('should initialize queryControl', () => {
+    expect(component.queryControl).toBeInstanceOf(UntypedFormControl)
+  })
 
-    it('should set up tour guide when available in config', () => {
-      expect(mockTour.data).toEqual(mockConfigurationSvc.appsConfig.tourGuide);
-    });
+  it('should set isXSmall from valueSvc', () => {
+    isXSmall$.next(true)
+    expect(component.isXSmall).toBe(true)
+    isXSmall$.next(false)
+    expect(component.isXSmall).toBe(false)
+  })
 
-    it('should filter groups based on role permissions', () => {
-      mockAccessService.hasRole.mockImplementation((roles: string[]) => 
-        roles.includes('user') || roles.length === 0
-      );
+  it('should build featuresConfig from groups with no required roles', () => {
+    // group1 has hasRole:[] -> included
+    // group2 has hasRole:['MDO_ADMIN'] and accessService returns false -> excluded
+    expect(component['featuresConfig'].length).toBe(1)
+    expect(component['featuresConfig'][0].id).toBe('group1')
+  })
 
-      // const newComponent = new FeaturesComponent(
-      //   mockDialog,
-      //   mockRouter,
-      //   mockActivatedRoute,
-      //   mockConfigurationSvc,
-      //   mockTour,
-      //   mockRespondSvc,
-      //   mockValueSvc,
-      //   mockAccessService
-      // );
+  it('should include features without permissions in featuresConfig', () => {
+    const featureWidgets = component['featuresConfig'][0].featureWidgets
+    // feat1 has no permission -> included
+    // feat2 has 'ANALYTICS' permission, accessService returns false -> excluded
+    expect(featureWidgets.length).toBe(1)
+    expect((featureWidgets[0] as any).widgetData.actionBtn.name).toBe('Dashboard')
+  })
 
-      expect(mockAccessService.hasRole).toHaveBeenCalledWith(['user']);
-      expect(mockAccessService.hasRole).toHaveBeenCalledWith([]);
-      expect(_.compact).toHaveBeenCalled();
-    });
+  it('should include restricted role features when hasRole returns true', () => {
+    const comp2 = buildComponent(mockConfigSvc, { hasRole: jest.fn().mockReturnValue(true) })
+    expect(comp2['featuresConfig'].length).toBe(2)
+    const group1Widgets = comp2['featuresConfig'][0].featureWidgets
+    expect(group1Widgets.length).toBe(2)
+  })
 
-    it('should handle case when appsConfig is null', () => {
-      mockConfigurationSvc.appsConfig = null;
-
-      const newComponent = new FeaturesComponent(
-        mockDialog,
-        mockRouter,
-        mockActivatedRoute,
-        mockConfigurationSvc,
-        mockTour,
-        mockRespondSvc,
-        mockValueSvc,
-        mockAccessService
-      );
-
-      expect(newComponent).toBeTruthy();
-    });
-  });
+  it('should set tourGuide data when appsConfig has tourGuide', () => {
+    const cfg2 = { ...mockConfigSvc, appsConfig: { ...sampleAppsConfig, tourGuide: { steps: [] } } }
+    buildComponent(cfg2)
+    expect(mockTour.data).toEqual({ steps: [] })
+  })
 
   describe('ngOnInit', () => {
-    beforeEach(() => {
-      jest.spyOn(component, 'filteredFeatures').mockReturnValue([]);
-    });
+    it('should subscribe to queryControl and navigate', () => {
+      jest.useFakeTimers()
+      component.ngOnInit()
+      jest.advanceTimersByTime(600)
+      jest.useRealTimers()
+      expect(component.featureGroups).not.toBeNull()
+    })
 
-    it('should set up query control value changes subscription', () => {
-      component.ngOnInit();
+    it('should set isTourGuideAvailable when tourGuideNotifier fires and not restricted', () => {
+      component.ngOnInit()
+      tourGuideNotifier$.next(true)
+      expect(component.isTourGuideAvailable).toBe(true)
+    })
 
-      expect(mockRouter.navigate).toHaveBeenCalledWith([], { 
-        queryParams: { q: 'test-query' } 
-      });
-      expect(component.filteredFeatures).toHaveBeenCalledWith('test-query');
-    });
+    it('should NOT set isTourGuideAvailable when tourGuide is in restrictedFeatures', () => {
+      const restricted = new Set(['tourGuide'])
+      const cfg = { ...mockConfigSvc, restrictedFeatures: restricted }
+      const comp = buildComponent(cfg)
+      comp.ngOnInit()
+      tourGuideNotifier$.next(true)
+      expect(comp.isTourGuideAvailable).toBe(false)
+    })
 
-    it('should handle null query parameter', () => {
-      mockActivatedRoute.snapshot.queryParamMap.get.mockReturnValue(null);
-      component.queryControl = new UntypedFormControl(null);
+    it('should navigate with query param on valueChanges', () => {
+      jest.useFakeTimers()
+      component.ngOnInit()
+      component.queryControl.setValue('dashboard')
+      jest.advanceTimersByTime(600)
+      jest.useRealTimers()
+      expect(mockRouter.navigate).toHaveBeenCalledWith(
+        [],
+        expect.objectContaining({ queryParams: expect.objectContaining({ q: 'dashboard' }) }),
+      )
+    })
 
-      component.ngOnInit();
-
-      expect(mockRouter.navigate).toHaveBeenCalledWith([], { 
-        queryParams: { q: null } 
-      });
-    });
-
-    it('should subscribe to tour guide notifier', () => {
-      component.ngOnInit();
-
-      mockConfigurationSvc.tourGuideNotifier.next(true);
-
-      expect(component.isTourGuideAvailable).toBe(true);
-    });
-
-    it('should not enable tour guide if feature is restricted', () => {
-      mockConfigurationSvc.restrictedFeatures = new Set(['tourGuide']);
-
-      component.ngOnInit();
-      mockConfigurationSvc.tourGuideNotifier.next(true);
-
-      expect(component.isTourGuideAvailable).toBe(false);
-    });
-  });
+    it('should navigate with null when query is empty', () => {
+      jest.useFakeTimers()
+      component.ngOnInit()
+      component.queryControl.setValue('')
+      jest.advanceTimersByTime(600)
+      jest.useRealTimers()
+      expect(mockRouter.navigate).toHaveBeenCalledWith(
+        [],
+        expect.objectContaining({ queryParams: { q: null } }),
+      )
+    })
+  })
 
   describe('ngOnDestroy', () => {
-    it('should unsubscribe from query changes subscription', () => {
-      const mockSubscription = { unsubscribe: jest.fn() };
-      (component as any).queryChangeSubs = mockSubscription;
+    it('should unsubscribe queryChangeSubs', () => {
+      component.ngOnInit()
+      const unsubSpy = jest.spyOn(component['queryChangeSubs'] as any, 'unsubscribe')
+      component.ngOnDestroy()
+      expect(unsubSpy).toHaveBeenCalled()
+    })
 
-      component.ngOnDestroy();
+    it('should emit false to tourGuideNotifier', () => {
+      const emitSpy = jest.spyOn(mockConfigSvc.tourGuideNotifier, 'next')
+      component.ngOnDestroy()
+      expect(emitSpy).toHaveBeenCalledWith(false)
+    })
 
-      expect(mockSubscription.unsubscribe).toHaveBeenCalled();
-    });
-
-    it('should handle null subscription gracefully', () => {
-      (component as any).queryChangeSubs = null;
-
-      expect(() => component.ngOnDestroy()).not.toThrow();
-    });
-
-    it('should notify tour guide to hide', () => {
-      const spy = jest.spyOn(mockConfigurationSvc.tourGuideNotifier, 'next');
-
-      component.ngOnDestroy();
-
-      expect(spy).toHaveBeenCalledWith(false);
-    });
-  });
+    it('should not throw if queryChangeSubs is null', () => {
+      component['queryChangeSubs'] = null
+      expect(() => component.ngOnDestroy()).not.toThrow()
+    })
+  })
 
   describe('clear', () => {
-    it('should clear query control value', () => {
-      component.queryControl.setValue('some-query');
+    it('should reset queryControl to empty string', () => {
+      component.queryControl.setValue('something')
+      component.clear()
+      expect(component.queryControl.value).toBe('')
+    })
+  })
 
-      component.clear();
-
-      expect(component.queryControl.value).toBe('');
-    });
-  });
-
-  describe('filteredFeatures', () => {
-    beforeEach(() => {
-      (component as any).featuresConfig = [
-        {
-          id: 'group1',
-          name: 'Group 1',
-          featureWidgets: [
-            {
-              widgetData: {
-                actionBtn: {
-                  name: 'Feature One',
-                  description: 'Description one',
-                  keywords: ['keyword1', 'test'],
-                },
-              },
-            },
-            {
-              widgetData: {
-                actionBtn: {
-                  name: 'Feature Two',
-                  description: 'Description two',
-                  keywords: ['keyword2'],
-                },
-              },
-            },
-          ],
-        },
-        {
-          id: 'group2',
-          name: 'Group 2',
-          featureWidgets: [
-            {
-              widgetData: {
-                actionBtn: {
-                  name: 'Another Feature',
-                  description: 'Another description',
-                  keywords: ['different'],
-                },
-              },
-            },
-          ],
-        },
-      ];
-    });
-
-    it('should return all features when query is empty', () => {
-      const result = (component as any).filteredFeatures('');
-
-      expect(result).toEqual((component as any).featuresConfig);
-    });
-
-    it('should return empty array when featuresConfig is null', () => {
-      (component as any).featuresConfig = null;
-
-      const result = (component as any).filteredFeatures('test');
-
-      expect(result).toEqual([]);
-    });
-
-    it('should filter features by name', () => {
-      const result = (component as any).filteredFeatures('Feature One');
-
-      expect(result.length).toBe(1);
-      expect(result[0].featureWidgets.length).toBe(1);
-      expect(result[0].featureWidgets[0].widgetData.actionBtn.name).toBe('Feature One');
-    });
-
-    it('should filter features by keyword', () => {
-      const result = (component as any).filteredFeatures('test');
-
-      expect(result.length).toBe(1);
-      expect(result[0].featureWidgets.length).toBe(1);
-    });
-
-    it('should filter features by description', () => {
-      const result = (component as any).filteredFeatures('Description one');
-
-      expect(result.length).toBe(1);
-      expect(result[0].featureWidgets.length).toBe(1);
-    });
-
-    it('should filter case-insensitively', () => {
-      const result = (component as any).filteredFeatures('FEATURE ONE');
-
-      expect(result.length).toBe(1);
-      expect(result[0].featureWidgets[0].widgetData.actionBtn.name).toBe('Feature One');
-    });
-
-    it('should exclude groups with no matching features', () => {
-      const result = (component as any).filteredFeatures('nonexistent');
-
-      expect(result.length).toBe(0);
-    });
-  });
-
-  describe('queryMatchForFeature', () => {
-    const testFeature = {
-      name: 'Test Feature',
-      description: 'Test Description',
-      keywords: ['keyword1', 'keyword2'],
-    };
-
-    it('should match by name', () => {
-      const result = (component as any).queryMatchForFeature(testFeature, 'test feature');
-
-      expect(result).toBe(true);
-    });
-
-    it('should match by description', () => {
-      const result = (component as any).queryMatchForFeature(testFeature, 'test description');
-
-      expect(result).toBe(true);
-    });
-
-    it('should match by keyword', () => {
-      const result = (component as any).queryMatchForFeature(testFeature, 'keyword1');
-
-      expect(result).toBe(true);
-    });
-
-    it('should return false for no match', () => {
-      const result = (component as any).queryMatchForFeature(testFeature, 'nomatch');
-
-      expect(result).toBe(false);
-    });
-
-    it('should return false for undefined feature', () => {
-      const result = (component as any).queryMatchForFeature(undefined, 'test');
-
-      expect(result).toBe(false);
-    });
-
-    it('should handle feature without description', () => {
-      const featureWithoutDesc = {
-        name: 'Test Feature',
-        keywords: ['keyword1'],
-      };
-
-      const result = (component as any).queryMatchForFeature(featureWithoutDesc, 'test');
-
-      expect(result).toBe(true);
-    });
-  });
-
-  // describe('logout', () => {
-  //   it('should open logout dialog', () => {
-  //     component.logout();
-
-  //     expect(mockDialog.open).toHaveBeenCalledWith(expect.any(Function));
-  //   });
-  // });
+  describe('logout', () => {
+    it('should open dialog', () => {
+      component.logout()
+      expect(mockDialog.open).toHaveBeenCalled()
+    })
+  })
 
   describe('startTour', () => {
-    it('should start tour', () => {
-      component.startTour();
+    it('should call tour.startTour', () => {
+      component.startTour()
+      expect(mockTour.startTour).toHaveBeenCalled()
+    })
 
-      expect(mockTour.startTour).toHaveBeenCalled();
-    });
+    it('should unsubscribe responseSubscription if set', () => {
+      const fakeSubscription = { unsubscribe: jest.fn() }
+      component['responseSubscription'] = fakeSubscription as any
+      component.startTour()
+      expect(mockRespondSvc.unsubscribeResponse).toHaveBeenCalled()
+      expect(fakeSubscription.unsubscribe).toHaveBeenCalled()
+    })
+  })
 
-    it('should unsubscribe from response subscription if exists', () => {
-      const mockResponseSubscription = { unsubscribe: jest.fn() };
-      (component as any).responseSubscription = mockResponseSubscription;
+  describe('filteredFeatures (via private method)', () => {
+    it('should return all features when query is empty or null', () => {
+      const result = component['filteredFeatures']('')
+      expect(result).toEqual(component['featuresConfig'])
+    })
 
-      component.startTour();
+    it('should filter features matching query name', () => {
+      const result = component['filteredFeatures']('dashboard')
+      expect(result.length).toBe(1)
+    })
 
-      expect(mockRespondSvc.unsubscribeResponse).toHaveBeenCalled();
-      expect(mockResponseSubscription.unsubscribe).toHaveBeenCalled();
-    });
+    it('should filter features matching keyword', () => {
+      const result = component['filteredFeatures']('dash')
+      expect(result.length).toBe(1)
+    })
 
-    it('should handle null response subscription', () => {
-      (component as any).responseSubscription = null;
+    it('should return empty array for no match', () => {
+      const result = component['filteredFeatures']('xyznotfound')
+      expect(result).toEqual([])
+    })
 
-      expect(() => component.startTour()).not.toThrow();
-      expect(mockTour.startTour).toHaveBeenCalled();
-    });
-  });
+    it('should filter by description', () => {
+      // 'Main dashboard'.includes('dashboard') is true
+      const result = component['filteredFeatures']('dashboard')
+      expect(result.length).toBe(1)
+    })
+  })
 
-  describe('Value Service Integration', () => {
-    it('should update isXSmall when value service emits', () => {
-      expect(component.isXSmall).toBe(false);
-
-      mockValueSvc.isXSmall$.next(true);
-
-      expect(component.isXSmall).toBe(true);
-    });
-  });
-
-  describe('Query Control Debouncing', () => {
-    it('should handle rapid query changes with debouncing', (done) => {
-      jest.spyOn(component, 'filteredFeatures').mockReturnValue([]);
-      
-      component.ngOnInit();
-
-      // Simulate rapid changes
-      component.queryControl.setValue('a');
-      component.queryControl.setValue('ab');
-      component.queryControl.setValue('abc');
-
-      // Wait for debounce
-      setTimeout(() => {
-        expect(mockRouter.navigate).toHaveBeenCalledWith([], { 
-          queryParams: { q: 'abc' } 
-        });
-        done();
-      }, 600);
-    });
-  });
-});
+  describe('with no appsConfig', () => {
+    it('should not throw when appsConfig is null', () => {
+      const cfg = { ...mockConfigSvc, appsConfig: null, tourGuideNotifier: tourGuideNotifier$ }
+      expect(() => buildComponent(cfg)).not.toThrow()
+    })
+  })
+})

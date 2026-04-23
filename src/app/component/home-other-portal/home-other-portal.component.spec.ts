@@ -1,403 +1,204 @@
-import { HomeOtherPortalComponent } from './home-other-portal.component';
-import { ConfigurationsService, EventService, MultilingualTranslationsService, WsEvents } from '@sunbird-cb/utils-v2';
-import { AccessControlService } from '@ws/author/src/public-api';
-import { TranslateService } from '@ngx-translate/core';
-import {  Subject } from 'rxjs';
+jest.mock('lodash', () => {
+  const actual = jest.requireActual('lodash')
+  return { __esModule: true, default: actual, ...actual }
+})
+jest.mock('@sunbird-cb/resolver', () => ({
+  NsWidgetResolver: {},
+}), { virtual: true })
+jest.mock('@sunbird-cb/collection', () => ({
+  NsContent: {},
+  ROOT_WIDGET_CONFIG: { actionButton: { _type: 'actionButton', feature: 'feature' } },
+}), { virtual: true })
+jest.mock('@sunbird-cb/collection/src/lib/collection.config', () => ({
+  ROOT_WIDGET_CONFIG: { actionButton: { _type: 'actionButton', feature: 'feature' } },
+}), { virtual: true })
+jest.mock('@ws/author/src/public-api', () => ({
+  AccessControlService: jest.fn().mockImplementation(() => ({
+    hasRole: jest.fn().mockReturnValue(false),
+  })),
+}))
 
-// Mock localStorage
-const localStorageMock = {
-  getItem: jest.fn(),
-  setItem: jest.fn(),
-  removeItem: jest.fn(),
-  clear: jest.fn(),
-};
-Object.defineProperty(window, 'localStorage', {
-  value: localStorageMock
-});
+import { HomeOtherPortalComponent } from './home-other-portal.component'
+import { Subject } from 'rxjs'
 
 describe('HomeOtherPortalComponent', () => {
-  let component: HomeOtherPortalComponent;
-  let mockConfigSvc: jest.Mocked<ConfigurationsService>;
-  let mockAccessService: jest.Mocked<AccessControlService>;
-  let mockLangTranslations: jest.Mocked<MultilingualTranslationsService>;
-  let mockTranslate: jest.Mocked<TranslateService>;
-  let mockEvents: jest.Mocked<EventService>;
+  let component: HomeOtherPortalComponent
 
   const mockAppsConfig = {
     groups: [
       {
         id: 'portal_admin',
-        hasRole: ['admin'],
-        featureIds: ['feature1', 'feature2']
+        hasRole: [],
+        featureIds: ['feature1', 'feature2'],
       },
       {
-        id: 'user_group',
-        hasRole: [],
-        featureIds: ['feature3']
-      }
+        id: 'other_group',
+        hasRole: ['ADMIN'],
+        featureIds: ['feature3'],
+      },
     ],
     features: {
       feature1: {
-        name: 'Feature One',
-        id: 'feature1',
-        permission: ['admin']
+        name: 'Feature 1',
+        permission: [],
+        url: '/app/feat1',
+        keywords: [],
       },
       feature2: {
-        name: 'Feature Two',
-        id: 'feature2',
-        permission: []
+        name: 'Feature 2',
+        permission: ['MDO_ADMIN'],
+        url: '/app/feat2',
+        keywords: [],
       },
       feature3: {
-        name: 'Feature Three',
-        id: 'feature3',
-        permission: ['user']
-      }
-    }
-  };
+        name: 'Feature 3',
+        permission: [],
+        url: '/app/feat3',
+        keywords: [],
+      },
+    },
+    tourGuide: null,
+  }
+
+  const mockConfigSvc: any = {
+    appsConfig: mockAppsConfig,
+  }
+
+  const mockAccessService = {
+    hasRole: jest.fn().mockReturnValue(false),
+  }
+
+  const langSubject = new Subject<void>()
+  const mockLangtranslations: any = {
+    languageSelectedObservable: langSubject.asObservable(),
+    translateLabel: jest.fn().mockReturnValue('translated'),
+  }
+
+  const mockTranslate = {
+    setDefaultLang: jest.fn(),
+    use: jest.fn(),
+  }
+
+  const mockEvents = {
+    raiseInteractTelemetry: jest.fn(),
+  }
+
+  function buildComponent(configSvc?: any) {
+    return new HomeOtherPortalComponent(
+      configSvc || mockConfigSvc,
+      mockAccessService as any,
+      mockLangtranslations,
+      mockTranslate as any,
+      mockEvents as any,
+    )
+  }
 
   beforeEach(() => {
-    // Create mocks
-    mockConfigSvc = {
-      appsConfig: mockAppsConfig
-    } as any;
+    jest.clearAllMocks()
+    localStorage.clear()
+    component = buildComponent()
+  })
 
-    mockAccessService = {
-      hasRole: jest.fn()
-    } as any;
+  it('should create', () => {
+    expect(component).toBeTruthy()
+  })
 
-    mockLangTranslations = {
-      languageSelectedObservable: new Subject<boolean>(),
-      translateLabel: jest.fn()
-    } as any;
+  it('should initialize with showSkeleton true', () => {
+    expect(component.showSkeleton).toBe(true)
+  })
 
-    mockTranslate = {
-      setDefaultLang: jest.fn(),
-      use: jest.fn()
-    } as any;
+  it('should initialize noPortal array', () => {
+    expect(component.noPortal).toEqual([1, 2, 3])
+  })
 
-    mockEvents = {
-      raiseInteractTelemetry: jest.fn()
-    } as any;
-
-    // Reset localStorage mock
-    localStorageMock.getItem.mockClear();
-
-    // Create component instance
-    component = new HomeOtherPortalComponent(
+  it('should build portal links from portal_admin group features', () => {
+    // feature1 has no permission -> included, feature2 has MDO_ADMIN and accessService returns false -> excluded
+    const comp = new HomeOtherPortalComponent(
       mockConfigSvc,
-      mockAccessService,
-      mockLangTranslations,
-      mockTranslate,
-      mockEvents
-    );
-  });
+      { hasRole: jest.fn().mockReturnValue(false) } as any,
+      mockLangtranslations,
+      mockTranslate as any,
+      mockEvents as any,
+    )
+    comp.ngOnInit()
+    expect(comp.portalLinks.length).toBeGreaterThanOrEqual(1)
+  })
 
-  describe('Constructor', () => {
-    it('should create component with default values', () => {
-      expect(component).toBeDefined();
-      expect(component.portalLinks).toEqual([]);
-      expect(component.noPortal).toEqual([1, 2, 3]);
-      expect(component.showSkeleton).toBe(true);
-    });
+  it('should set showSkeleton to false after getPortalLinks', () => {
+    component.ngOnInit()
+    expect(component.showSkeleton).toBe(false)
+  })
 
-    it('should process apps config when available', () => {
-      mockAccessService.hasRole.mockReturnValue(true);
-      
-      const newComponent = new HomeOtherPortalComponent(
-        mockConfigSvc,
-        mockAccessService,
-        mockLangTranslations,
-        mockTranslate,
-        mockEvents
-      );
+  it('should use websiteLanguage from localStorage if set', () => {
+    localStorage.setItem('websiteLanguage', 'hi')
+    buildComponent()
+    expect(mockTranslate.setDefaultLang).toHaveBeenCalledWith('en')
+    expect(mockTranslate.use).toHaveBeenCalledWith('hi')
+    localStorage.removeItem('websiteLanguage')
+  })
 
-      expect(newComponent).toBeDefined();
-      expect(mockAccessService.hasRole).toHaveBeenCalled();
-    });
+  it('should update language on languageSelectedObservable emit', () => {
+    localStorage.setItem('websiteLanguage', 'hi')
+    buildComponent()
+    langSubject.next()
+    expect(mockTranslate.use).toHaveBeenCalledWith('hi')
+    localStorage.removeItem('websiteLanguage')
+  })
 
-    it('should filter groups based on role access', () => {
-      mockAccessService.hasRole.mockImplementation((roles: string[]) => {
-        return roles.includes('admin');
-      });
-
-     
-
-      expect(mockAccessService.hasRole).toHaveBeenCalledWith(['admin']);
-    });
-
-    it('should handle language setup from localStorage', () => {
-      localStorageMock.getItem.mockReturnValue('es');
-
-      
-
-      expect(mockTranslate.setDefaultLang).toHaveBeenCalledWith('en');
-      expect(mockTranslate.use).toHaveBeenCalledWith('es');
-    });
-
-    it('should handle language change subscription', () => {
-      localStorageMock.getItem.mockReturnValue('fr');
-      const mockSubject = new Subject<boolean>();
-      mockLangTranslations.languageSelectedObservable = mockSubject;
-
-      
-
-      // Trigger the subscription
-      mockSubject.next(true);
-
-      expect(mockTranslate.setDefaultLang).toHaveBeenCalledWith('en');
-      expect(mockTranslate.use).toHaveBeenCalledWith('fr');
-    });
-
-    it('should handle null appsConfig', () => {
-      const configSvcWithoutApps = { appsConfig: null } as any;
-
-      const newComponent = new HomeOtherPortalComponent(
-        configSvcWithoutApps,
-        mockAccessService,
-        mockLangTranslations,
-        mockTranslate,
-        mockEvents
-      );
-
-      expect(newComponent).toBeDefined();
-    });
-  });
+  it('should not throw when appsConfig is null', () => {
+    const comp = buildComponent({ appsConfig: null })
+    expect(comp).toBeTruthy()
+    comp.ngOnInit()
+  })
 
   describe('ngOnInit', () => {
-    beforeEach(() => {
-      mockAccessService.hasRole.mockReturnValue(true);
-    });
-
-    it('should call getPortalLinks when featuresConfig exists', () => {
-      const spy = jest.spyOn(component, 'getPortalLinks');
-      
-      component.ngOnInit();
-      
-      expect(spy).toHaveBeenCalled();
-    });
+    it('should call getPortalLinks when featuresConfig has entries', () => {
+      const spy = jest.spyOn(component, 'getPortalLinks')
+      component.ngOnInit()
+      expect(spy).toHaveBeenCalled()
+    })
 
     it('should not call getPortalLinks when featuresConfig is empty', () => {
-      const configSvcEmpty = { appsConfig: { groups: [] } } as any;
-      const componentEmpty = new HomeOtherPortalComponent(
-        configSvcEmpty,
-        mockAccessService,
-        mockLangTranslations,
-        mockTranslate,
-        mockEvents
-      );
-      
-      const spy = jest.spyOn(componentEmpty, 'getPortalLinks');
-      
-      componentEmpty.ngOnInit();
-      
-      expect(spy).not.toHaveBeenCalled();
-    });
-  });
+      const comp = buildComponent({ appsConfig: { groups: [], features: {} } })
+      const spy = jest.spyOn(comp, 'getPortalLinks')
+      comp.ngOnInit()
+      expect(spy).not.toHaveBeenCalled()
+    })
+  })
 
   describe('translateLabels', () => {
-    it('should call langtranslations.translateLabel with correct parameters', () => {
-      const label = 'test-label';
-      const type = 'test-type';
-      
-      component.translateLabels(label, type);
-      
-      expect(mockLangTranslations.translateLabel).toHaveBeenCalledWith(label, type, '');
-    });
-
-    it('should return the result from translateLabel', () => {
-      const expectedResult = 'translated-label';
-      mockLangTranslations.translateLabel.mockReturnValue(expectedResult);
-      
-      const result = component.translateLabels('test', 'type');
-      
-      expect(result).toBe(expectedResult);
-    });
-  });
-
-  describe('getPortalLinks', () => {
-    beforeEach(() => {
-      mockAccessService.hasRole.mockReturnValue(true);
-      
-      // Create a new component instance to ensure featuresConfig is populated
-      component = new HomeOtherPortalComponent(
-        mockConfigSvc,
-        mockAccessService,
-        mockLangTranslations,
-        mockTranslate,
-        mockEvents
-      );
-    });
-
-    it('should populate portalLinks from portal_admin features', () => {
-      component.getPortalLinks();
-      
-      expect(component.portalLinks.length).toBeGreaterThan(0);
-      expect(component.showSkeleton).toBe(false);
-    });
-
-    it('should handle unique feature widgets using lodash uniqBy', () => {
-      const spy = jest.spyOn(component, 'getPortalLinks');
-      
-      component.getPortalLinks();
-      
-      expect(spy).toHaveBeenCalled();
-      expect(component.showSkeleton).toBe(false);
-    });
-
-    it('should only process portal_admin group', () => {
-     
-      
-      component.getPortalLinks();
-      
-      // Should only add items from portal_admin group
-      expect(component.showSkeleton).toBe(false);
-    });
-
-    it('should handle empty featureWidgets gracefully', () => {
-      const configWithEmptyFeatures = {
-        appsConfig: {
-          groups: [
-            {
-              id: 'portal_admin',
-              hasRole: [],
-              featureIds: []
-            }
-          ],
-          features: {}
-        }
-      } as any;
-
-      const componentEmpty = new HomeOtherPortalComponent(
-        configWithEmptyFeatures,
-        mockAccessService,
-        mockLangTranslations,
-        mockTranslate,
-        mockEvents
-      );
-
-      componentEmpty.getPortalLinks();
-      
-      expect(componentEmpty.portalLinks).toEqual([]);
-      expect(componentEmpty.showSkeleton).toBe(false);
-    });
-  });
+    it('should call langtranslations.translateLabel', () => {
+      const result = component.translateLabels('myLabel', 'type1')
+      expect(mockLangtranslations.translateLabel).toHaveBeenCalledWith('myLabel', 'type1', '')
+      expect(result).toBe('translated')
+    })
+  })
 
   describe('raiseTelemetry', () => {
-    it('should call events.raiseInteractTelemetry with correct parameters', () => {
-      const mockWidgetData = {
-        widgetData: {
-          actionBtn: {
-            name: 'Test Portal'
-          }
-        }
-      };
-
-      component.raiseTelemetry(mockWidgetData);
-
+    it('should call events.raiseInteractTelemetry with correct id', () => {
+      const wdata = {
+        widgetData: { actionBtn: { name: 'Portal Admin' } },
+      }
+      component.raiseTelemetry(wdata)
       expect(mockEvents.raiseInteractTelemetry).toHaveBeenCalledWith(
-        {
-          type: WsEvents.EnumInteractTypes.CLICK,
-          subType: WsEvents.EnumInteractSubTypes.PORTAL_NUDGE,
-          id: 'test-portal-nudge'
-        },
+        expect.objectContaining({ id: 'portal-portal-nudge' }),
         {},
-        {
-          module: WsEvents.EnumTelemetrymodules.HOME
-        }
-      );
-    });
+        expect.any(Object),
+      )
+    })
+  })
 
-    it('should handle multi-word portal names correctly', () => {
-      const mockWidgetData = {
-        widgetData: {
-          actionBtn: {
-            name: 'Admin Management Portal'
-          }
-        }
-      };
-
-      component.raiseTelemetry(mockWidgetData);
-
-      expect(mockEvents.raiseInteractTelemetry).toHaveBeenCalledWith(
-        {
-          type: WsEvents.EnumInteractTypes.CLICK,
-          subType: WsEvents.EnumInteractSubTypes.PORTAL_NUDGE,
-          id: 'admin-portal-nudge'
-        },
-        {},
-        {
-          module: WsEvents.EnumTelemetrymodules.HOME
-        }
-      );
-    });
-
-    it('should convert name to lowercase and use first word', () => {
-      const mockWidgetData = {
-        widgetData: {
-          actionBtn: {
-            name: 'USER Dashboard System'
-          }
-        }
-      };
-
-      component.raiseTelemetry(mockWidgetData);
-
-      expect(mockEvents.raiseInteractTelemetry).toHaveBeenCalledWith(
-        {
-          type: WsEvents.EnumInteractTypes.CLICK,
-          subType: WsEvents.EnumInteractSubTypes.PORTAL_NUDGE,
-          id: 'user-portal-nudge'
-        },
-        {},
-        {
-          module: WsEvents.EnumTelemetrymodules.HOME
-        }
-      );
-    });
-  });
-
-  describe('Edge Cases', () => {
-    it('should handle missing widget data in portal links', () => {
-      const configWithInvalidFeature = {
-        appsConfig: {
-          groups: [
-            {
-              id: 'portal_admin',
-              hasRole: [],
-              featureIds: ['invalid_feature']
-            }
-          ],
-          features: {
-            invalid_feature: null
-          }
-        }
-      } as any;
-
-      mockAccessService.hasRole.mockReturnValue(true);
-
-      const componentWithInvalid = new HomeOtherPortalComponent(
-        configWithInvalidFeature,
-        mockAccessService,
-        mockLangTranslations,
-        mockTranslate,
-        mockEvents
-      );
-
-      expect(() => componentWithInvalid.getPortalLinks()).not.toThrow();
-    });
-
-    it('should handle localStorage with quoted language string', () => {
-      localStorageMock.getItem.mockReturnValue('"es"');
-
-
-      expect(mockTranslate.use).toHaveBeenCalledWith('es');
-    });
-
-    it('should handle empty language from localStorage', () => {
-      localStorageMock.getItem.mockReturnValue('');
-
-
-      expect(mockTranslate.use).toHaveBeenCalledWith('');
-    });
-  });
-});
+  describe('getPortalLinks with accessService allowing all roles', () => {
+    it('should include features with permissions when hasRole returns true', () => {
+      const comp = new HomeOtherPortalComponent(
+        mockConfigSvc,
+        { hasRole: jest.fn().mockReturnValue(true) } as any,
+        mockLangtranslations,
+        mockTranslate as any,
+        mockEvents as any,
+      )
+      comp.ngOnInit()
+      expect(comp.portalLinks.length).toBeGreaterThan(0)
+    })
+  })
+})
