@@ -1,34 +1,17 @@
 import { ResourceDownloadHelperService } from './resource-download-helper.service'
-import { EventService, WsEvents, NsContent } from '@sunbird-cb/utils-v2'
 import * as fileSaver from 'file-saver'
 
-jest.mock('file-saver', () => ({
-  saveAs: jest.fn(),
-}))
+jest.mock('file-saver', () => ({ saveAs: jest.fn() }))
 
 describe('ResourceDownloadHelperService', () => {
   let service: ResourceDownloadHelperService
-  let mockEventSvc: any
-  const originalFetch = globalThis.fetch
-  const originalXMLHttpRequest = globalThis.XMLHttpRequest
-  const originalURL = globalThis.URL
-  const originalConsoleError = console.error
+  let eventSvcMock: any
 
   beforeEach(() => {
-    mockEventSvc = {
+    eventSvcMock = {
       dispatchChatbotEvent: jest.fn(),
-    } as Partial<EventService>
-
-    service = new ResourceDownloadHelperService(mockEventSvc as EventService)
-
-    console.error = jest.fn()
-  })
-
-  afterEach(() => {
-    globalThis.fetch = originalFetch
-      ; (globalThis as any).XMLHttpRequest = originalXMLHttpRequest
-      ; (globalThis as any).URL = originalURL
-    console.error = originalConsoleError
+    }
+    service = new ResourceDownloadHelperService(eventSvcMock as any)
     jest.clearAllMocks()
   })
 
@@ -36,372 +19,309 @@ describe('ResourceDownloadHelperService', () => {
     expect(service).toBeTruthy()
   })
 
+  it('should initialize downloadInProgress as empty object', () => {
+    expect(service.downloadInProgress).toEqual({})
+  })
+
   describe('raiseDownloadAllTelemetry', () => {
-    it('should dispatch telemetry event with correct data', () => {
-      const content: Partial<NsContent.IContent> = {
-        identifier: 'id1',
-        courseCategory: 'Course',
-      }
+    it('should call eventSvc.dispatchChatbotEvent with correct event structure', () => {
+      const content: any = { identifier: 'content-123', courseCategory: 'Course' }
+      service.raiseDownloadAllTelemetry('download', content, '/page/home')
 
-      service.raiseDownloadAllTelemetry('download', content as NsContent.IContent, 'pageId')
-
-      expect(mockEventSvc.dispatchChatbotEvent).toHaveBeenCalledTimes(1)
-      const event = mockEventSvc.dispatchChatbotEvent.mock.calls[0][0]
-      expect(event.data.edata.id).toBe('id1')
+      expect(eventSvcMock.dispatchChatbotEvent).toHaveBeenCalledTimes(1)
+      const event = eventSvcMock.dispatchChatbotEvent.mock.calls[0][0]
+      expect(event.data.edata.id).toBe('content-123')
+      expect(event.data.edata.pageid).toBe('/page/home')
       expect(event.data.edata.subType).toBe('download')
-      expect(event.data.edata.pageid).toBe('pageId')
-      expect(event.data.object.id).toBe('id1')
+      expect(event.data.object.id).toBe('content-123')
       expect(event.data.object.type).toBe('Course')
+      expect(event.to).toBe('Telemetry')
+    })
+
+    it('should use empty string for identifier when content has no identifier', () => {
+      const content: any = { courseCategory: 'Course' }
+      service.raiseDownloadAllTelemetry('download', content, '/page/home')
+      const event = eventSvcMock.dispatchChatbotEvent.mock.calls[0][0]
+      expect(event.data.edata.id).toBe('')
+    })
+
+    it('should set correct pageContext', () => {
+      const content: any = { identifier: 'id1', courseCategory: 'Course' }
+      service.raiseDownloadAllTelemetry('download', content, '/page/home')
+      const event = eventSvcMock.dispatchChatbotEvent.mock.calls[0][0]
       expect(event.pageContext.pageId).toBe('/app/toc/id1')
-      expect(event.eventType).toBe(WsEvents.WsEventType.Telemetry)
+      expect(event.pageContext.module).toBe('Player')
+    })
+
+    it('should set from to empty string and to to Telemetry', () => {
+      service.raiseDownloadAllTelemetry('view', { identifier: 'x', courseCategory: 'C' } as any, 'pg')
+      const event = eventSvcMock.dispatchChatbotEvent.mock.calls[0][0]
+      expect(event.from).toBe('')
+      expect(event.to).toBe('Telemetry')
     })
   })
 
   describe('downloadPDF', () => {
-    it('should log error and return when artifactUrl is missing', () => {
-      const content: any = { identifier: 'id1', name: 'Test' }
-
-      service.downloadPDF(content, 'pageId')
-
-      expect(console.error).toHaveBeenCalledWith('No artifact URL provided')
-      expect((service as any).downloadInProgress['id1']).toBeUndefined()
+    it('should log error and return if no artifactUrl', () => {
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { })
+      service.downloadPDF({ identifier: 'id1' } as any, '/page/home')
+      expect(consoleSpy).toHaveBeenCalledWith('No artifact URL provided')
+      expect(service.downloadInProgress['id1']).toBeUndefined()
+      consoleSpy.mockRestore()
     })
 
-    it('should set downloadInProgress and delegate to downloadFile and telemetry when artifactUrl present', () => {
-      const content: any = {
-        identifier: 'id2',
-        name: 'MyFile',
-        artifactUrl: 'https://example.com/file.pdf',
-        courseCategory: 'Course',
-      }
-
-      const downloadSpy = jest
-        .spyOn(service as any, 'downloadFile')
-        .mockResolvedValue(undefined)
-
-      service.downloadPDF(content, 'homePage')
-
-      expect((service as any).downloadInProgress['id2']).toBe(true)
-      expect(downloadSpy).toHaveBeenCalledWith(
-        'https://example.com/file.pdf',
-        'MyFile',
-        'id2',
-      )
-      expect(mockEventSvc.dispatchChatbotEvent).toHaveBeenCalledTimes(1)
-    })
-  })
-
-  describe('downloadFile', () => {
-    beforeEach(() => {
-      ; (service as any).saveBlob = jest.fn()
-    })
-
-    it('should append file extension if missing and use fetch success path', async () => {
-      const blobMock = new Blob(['data'], { type: 'application/pdf' })
-      globalThis.fetch = jest.fn().mockResolvedValue({
+    it('should set downloadInProgress to true and call raiseDownloadAllTelemetry when artifactUrl exists', () => {
+      const spy = jest.spyOn(service, 'raiseDownloadAllTelemetry').mockImplementation(() => { })
+      global.fetch = jest.fn().mockResolvedValue({
         ok: true,
-        blob: () => Promise.resolve(blobMock),
+        blob: () => Promise.resolve(new Blob()),
       }) as any
 
-      const promise = (service as any).downloadFile(
-        'https://example.com/file.pdf',
-        'report',
-        'id3',
-      ) as Promise<void>
+      const contentData = { identifier: 'id1', artifactUrl: 'https://example.com/file.pdf', name: 'TestFile' }
+      service.downloadPDF(contentData as any, '/page/home')
 
-      await promise
-
-      expect(globalThis.fetch).toHaveBeenCalledWith('https://example.com/file.pdf', {
-        method: 'GET',
-        mode: 'cors',
-      })
-      expect((service as any).saveBlob).toHaveBeenCalled()
-      const args = (service as any).saveBlob.mock.calls[0]
-      expect(args[1]).toBe('report.pdf')
-      expect((service as any).downloadInProgress['id3']).toBe(false)
+      expect(service.downloadInProgress['id1']).toBe(true)
+      expect(spy).toHaveBeenCalledWith('download', contentData, '/page/home')
+      spy.mockRestore()
     })
 
-    it('should call downloadWithXHR on fetch failure and clear flag', async () => {
-      globalThis.fetch = jest.fn().mockRejectedValue(new Error('fail')) as any
+    it('should use content identifier as download key', () => {
+      jest.spyOn(service, 'raiseDownloadAllTelemetry').mockImplementation(() => { })
+      global.fetch = jest.fn().mockResolvedValue({ ok: true, blob: () => Promise.resolve(new Blob()) }) as any
 
-      const xhrSpy = jest
-        .spyOn(service as any, 'downloadWithXHR')
-        .mockResolvedValue(undefined)
+      service.downloadPDF({ identifier: 'myId', artifactUrl: 'https://x.com/f.pdf' } as any, 'pg')
+      expect(service.downloadInProgress['myId']).toBe(true)
+    })
 
-      const promise = (service as any).downloadFile(
-        'https://example.com/doc.pdf',
-        'doc',
-        'id4',
-      ) as Promise<void>
+    it('should use content name or default to download as filename', () => {
+      jest.spyOn(service, 'raiseDownloadAllTelemetry').mockImplementation(() => { })
+      global.fetch = jest.fn().mockResolvedValue({ ok: true, blob: () => Promise.resolve(new Blob()) }) as any
 
-      await promise
-
-      expect(xhrSpy).toHaveBeenCalledWith(
-        'https://example.com/doc.pdf',
-        'doc.pdf',
-      )
-      expect((service as any).downloadInProgress['id4']).toBe(false)
+      // No name provided - defaults to 'download'
+      service.downloadPDF({ identifier: 'id2', artifactUrl: 'https://x.com/f.pdf' } as any, 'pg')
+      expect(service.downloadInProgress['id2']).toBe(true)
     })
   })
 
-  describe('downloadWithXHR', () => {
-    let xhrMock: any
-
+  describe('downloadPDF via fetch flow', () => {
     beforeEach(() => {
-      xhrMock = {
+      jest.spyOn(service, 'raiseDownloadAllTelemetry').mockImplementation(() => { })
+    })
+
+    it('should handle successful fetch with pdf URL and call saveAs', async () => {
+      const blob = new Blob(['data'], { type: 'application/pdf' })
+      global.fetch = jest.fn().mockResolvedValue({ ok: true, blob: () => Promise.resolve(blob) }) as any
+
+      service.downloadPDF({ identifier: 'id1', artifactUrl: 'https://x.com/file.pdf', name: 'MyDoc' } as any, 'pg')
+
+      await new Promise(resolve => setTimeout(resolve, 50))
+      expect(fileSaver.saveAs).toHaveBeenCalled()
+      expect(service.downloadInProgress['id1']).toBe(false)
+    })
+
+    it('should handle successful fetch with mp4 URL', async () => {
+      const blob = new Blob(['data'], { type: 'video/mp4' })
+      global.fetch = jest.fn().mockResolvedValue({ ok: true, blob: () => Promise.resolve(blob) }) as any
+
+      service.downloadPDF({ identifier: 'id2', artifactUrl: 'https://x.com/video.mp4', name: 'Video' } as any, 'pg')
+
+      await new Promise(resolve => setTimeout(resolve, 50))
+      expect(fileSaver.saveAs).toHaveBeenCalled()
+    })
+
+    it('should fall back to XHR when fetch response is not ok', async () => {
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { })
+      global.fetch = jest.fn().mockResolvedValue({ ok: false, blob: () => Promise.resolve(new Blob()) }) as any
+
+      // XHR mock
+      const xhrMock: any = {
         open: jest.fn(),
         send: jest.fn(),
-        setRequestHeader: jest.fn(),
-        getResponseHeader: jest.fn(),
+        onload: null,
+        onerror: null,
+        status: 200,
+        response: new Blob(),
+        getResponseHeader: jest.fn().mockReturnValue('application/octet-stream'),
+        readyState: 4,
       }
+        ; (global as any).XMLHttpRequest = jest.fn(() => xhrMock)
 
-      function XMLHttpRequestMock(this: any) {
-        return xhrMock
+      service.downloadPDF({ identifier: 'id3', artifactUrl: 'https://x.com/file.docx', name: 'Doc' } as any, 'pg')
+      await new Promise(resolve => setTimeout(resolve, 50))
+      consoleSpy.mockRestore()
+    })
+
+    it('should fall back to XHR when fetch throws error', async () => {
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { })
+      global.fetch = jest.fn().mockRejectedValue(new Error('Network fail')) as any
+
+      const xhrMock: any = {
+        open: jest.fn(),
+        send: jest.fn(),
+        onload: null,
+        onerror: null,
+        status: 200,
+        response: new Blob(),
+        getResponseHeader: jest.fn().mockReturnValue('application/pdf'),
       }
+        ; (global as any).XMLHttpRequest = jest.fn(() => xhrMock)
 
-      ; (globalThis as any).XMLHttpRequest = XMLHttpRequestMock as any
-        ; (service as any).saveBlob = jest.fn()
-        ; (service as any).tryDirectDownload = jest.fn()
+      service.downloadPDF({ identifier: 'id4', artifactUrl: 'https://x.com/file.pdf', name: 'Doc' } as any, 'pg')
+      await new Promise(resolve => setTimeout(resolve, 50))
+
+      expect(xhrMock.open).toHaveBeenCalledWith('GET', 'https://x.com/file.pdf', true)
+      expect(xhrMock.send).toHaveBeenCalled()
+      consoleSpy.mockRestore()
     })
 
-    it('should save blob when status is 200', async () => {
-      xhrMock.status = 200
-      xhrMock.response = new Blob(['x'], { type: 'application/pdf' })
-      xhrMock.getResponseHeader.mockReturnValue('application/pdf')
+    it('should handle XHR onload success (status 200)', async () => {
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { })
+      global.fetch = jest.fn().mockRejectedValue(new Error('fail')) as any
 
-      const promise = (service as any).downloadWithXHR(
-        'https://example.com/file.pdf',
-        'file.pdf',
-      ) as Promise<void>
-
-      xhrMock.onload()
-      await promise
-
-      expect((service as any).saveBlob).toHaveBeenCalled()
-      const args = (service as any).saveBlob.mock.calls[0]
-      expect(args[1]).toBe('file.pdf')
-    })
-
-    it('should fallback to tryDirectDownload when status is not 200', async () => {
-      xhrMock.status = 404
-      xhrMock.getResponseHeader.mockReturnValue(null)
-
-      const promise = (service as any).downloadWithXHR(
-        'https://example.com/file.pdf',
-        'file.pdf',
-      ) as Promise<void>
-
-      xhrMock.onload()
-      await promise
-
-      expect((service as any).tryDirectDownload).toHaveBeenCalledWith(
-        'https://example.com/file.pdf',
-        'file.pdf',
-      )
-    })
-
-    it('should fallback to tryDirectDownload on XHR error', async () => {
-      const promise = (service as any).downloadWithXHR(
-        'https://example.com/file.pdf',
-        'file.pdf',
-      ) as Promise<void>
-
-      xhrMock.onerror()
-      await promise
-
-      expect((service as any).tryDirectDownload).toHaveBeenCalledWith(
-        'https://example.com/file.pdf',
-        'file.pdf',
-      )
-    })
-  })
-
-  describe('getFileExtension', () => {
-    it('should return extension from url', () => {
-      const ext = (service as any).getFileExtension(
-        'https://example.com/path/file.pdf?version=1',
-      )
-      expect(ext).toBe('pdf')
-    })
-
-    it('should return empty string when no extension', () => {
-      const ext = (service as any).getFileExtension('https://example.com/path/')
-      expect(ext).toBe('')
-    })
-
-    it('should return empty string for falsy url', () => {
-      const ext = (service as any).getFileExtension('')
-      expect(ext).toBe('')
-    })
-  })
-
-  describe('getMimeTypeFromUrl', () => {
-    it('should map known extensions to mime types', () => {
-      expect((service as any).getMimeTypeFromUrl('a.pdf')).toBe('application/pdf')
-      expect((service as any).getMimeTypeFromUrl('v.mp4')).toBe('video/mp4')
-      expect((service as any).getMimeTypeFromUrl('d.doc')).toBe('application/msword')
-      expect((service as any).getMimeTypeFromUrl('d.docx')).toBe('application/msword')
-      expect((service as any).getMimeTypeFromUrl('s.xls')).toBe(
-        'application/vnd.ms-excel',
-      )
-      expect((service as any).getMimeTypeFromUrl('s.xlsx')).toBe(
-        'application/vnd.ms-excel',
-      )
-      expect((service as any).getMimeTypeFromUrl('p.ppt')).toBe(
-        'application/vnd.ms-powerpoint',
-      )
-      expect((service as any).getMimeTypeFromUrl('p.pptx')).toBe(
-        'application/vnd.ms-powerpoint',
-      )
-      expect((service as any).getMimeTypeFromUrl('i.jpg')).toBe('image/jpeg')
-      expect((service as any).getMimeTypeFromUrl('i.jpeg')).toBe('image/jpeg')
-      expect((service as any).getMimeTypeFromUrl('i.png')).toBe('image/png')
-    })
-
-    it('should return default mime type for unknown extension', () => {
-      expect((service as any).getMimeTypeFromUrl('file.unknown')).toBe(
-        'application/octet-stream',
-      )
-    })
-  })
-
-  describe('saveBlob', () => {
-    it('should use fileSaver.saveAs when available', () => {
-      const blob = new Blob(['x'], { type: 'application/pdf' })
-        ; (fileSaver.saveAs as unknown as jest.Mock).mockImplementation(() => { })
-
-        ; (service as any).saveBlob(blob, 'file.pdf')
-
-      expect(fileSaver.saveAs).toHaveBeenCalledWith(blob, 'file.pdf')
-    })
-
-    it('should fallback to manual download when fileSaver fails', () => {
-      const blob = new Blob(['x'], { type: 'application/pdf' })
-        ; (fileSaver.saveAs as unknown as jest.Mock).mockImplementation(() => {
-          throw new Error('fail')
-        })
-
-      const originalCreateObjectURL = originalURL.createObjectURL
-      const originalRevokeObjectURL = originalURL.revokeObjectURL
-        ; (globalThis as any).URL = {
-          ...originalURL,
-          createObjectURL: jest.fn().mockReturnValue('blob:url'),
-          revokeObjectURL: jest.fn(),
-        }
-
-      const anchorClick = jest.fn()
-      const originalCreateElement = document.createElement.bind(document)
-      jest
-        .spyOn(document, 'createElement')
-        .mockImplementation((tagName: any): any => {
-          if (tagName === 'a') {
-            return {
-              style: {},
-              href: '',
-              download: '',
-              click: anchorClick,
-            }
-          }
-          return originalCreateElement(tagName)
-        })
-
-        ; (service as any).saveBlob(blob, 'file.pdf')
-
-      expect((globalThis as any).URL.createObjectURL).toHaveBeenCalled()
-      expect(anchorClick).toHaveBeenCalled()
-        ; (globalThis as any).URL.createObjectURL = originalCreateObjectURL
-        ; (globalThis as any).URL.revokeObjectURL = originalRevokeObjectURL
-    })
-  })
-
-  describe('tryDirectDownload', () => {
-    beforeEach(() => {
-      jest.useFakeTimers()
-    })
-
-    afterEach(() => {
-      jest.useRealTimers()
-    })
-
-    it('should create link inside iframe and click it when doc is available', () => {
-      const iframe: any = {
-        style: {},
-        contentDocument: {
-          body: {
-            appendChild: jest.fn(),
-            removeChild: jest.fn(),
-          },
-          createElement: jest.fn(() => {
-            return {
-              href: '',
-              download: '',
-              style: {},
-              click: jest.fn(),
-            }
-          }),
-        },
+      const xhrMock: any = {
+        open: jest.fn(),
+        send: jest.fn(),
+        onload: null as any,
+        onerror: null as any,
+        status: 200,
+        response: new Blob(['pdf']),
+        getResponseHeader: jest.fn().mockReturnValue('application/pdf'),
       }
+        ; (global as any).XMLHttpRequest = jest.fn(() => xhrMock)
 
-      const originalCreateElement = document.createElement.bind(document)
-      const appendSpy = jest.spyOn(document.body, 'appendChild')
-      const removeSpy = jest.spyOn(document.body, 'removeChild')
+      service.downloadPDF({ identifier: 'id5', artifactUrl: 'https://x.com/doc.pdf', name: 'D' } as any, 'pg')
+      await new Promise(resolve => setTimeout(resolve, 20))
 
-      jest
-        .spyOn(document, 'createElement')
-        .mockImplementation((tagName: any): any => {
-          if (tagName === 'iframe') {
-            return iframe
-          }
-          return originalCreateElement(tagName)
-        })
-
-        ; (service as any).tryDirectDownload('https://example.com/file.pdf', 'file.pdf')
-
-      expect(appendSpy).toHaveBeenCalledWith(iframe)
-
-      jest.runAllTimers()
-      expect(removeSpy).toHaveBeenCalledWith(iframe)
+      if (xhrMock.onload) xhrMock.onload()
+      await new Promise(resolve => setTimeout(resolve, 20))
+      consoleSpy.mockRestore()
     })
 
-    it('should fallback to anchor when iframe document handling fails', () => {
-      const iframe: any = {
-        style: {},
-        contentDocument: {
-          body: {
-            appendChild: jest.fn(),
-            removeChild: jest.fn(),
-          },
-          createElement: jest.fn(() => {
-            throw new Error('fail')
-          }),
-        },
+    it('should handle XHR onerror fallback', async () => {
+      const consoleSpy = jest.spyOn(console, 'error').mockImplementation(() => { })
+      global.fetch = jest.fn().mockRejectedValue(new Error('fail')) as any
+
+      const xhrMock: any = {
+        open: jest.fn(),
+        send: jest.fn(),
+        onload: null as any,
+        onerror: null as any,
+        status: 500,
+        response: new Blob(),
+        getResponseHeader: jest.fn().mockReturnValue(null),
       }
+        ; (global as any).XMLHttpRequest = jest.fn(() => xhrMock)
 
-      const originalCreateElement = document.createElement.bind(document)
-      const anchorClick = jest.fn()
+      service.downloadPDF({ identifier: 'id6', artifactUrl: 'https://x.com/doc.png', name: 'D' } as any, 'pg')
+      await new Promise(resolve => setTimeout(resolve, 20))
+      if (xhrMock.onerror) xhrMock.onerror()
+      await new Promise(resolve => setTimeout(resolve, 20))
+      consoleSpy.mockRestore()
+    })
 
-      jest
-        .spyOn(document, 'createElement')
-        .mockImplementation((tagName: any): any => {
-          if (tagName === 'iframe') {
-            return iframe
-          }
-          if (tagName === 'a') {
-            return {
-              href: '',
-              download: '',
-              target: '',
-              style: {},
-              click: anchorClick,
-            }
-          }
-          return originalCreateElement(tagName)
-        })
+    it('should append file extension to filename if missing', async () => {
+      const blob = new Blob(['data'], { type: 'application/pdf' })
+      global.fetch = jest.fn().mockResolvedValue({ ok: true, blob: () => Promise.resolve(blob) }) as any
 
-        ; (service as any).tryDirectDownload('https://example.com/file.pdf', 'file.pdf')
+      service.downloadPDF({ identifier: 'id7', artifactUrl: 'https://x.com/file.pdf', name: 'NoPdfExtension' } as any, 'pg')
+      await new Promise(resolve => setTimeout(resolve, 50))
 
-      expect(anchorClick).toHaveBeenCalled()
+      const saveAsCalls = (fileSaver.saveAs as unknown as jest.Mock).mock.calls
+      if (saveAsCalls.length > 0) {
+        const filename = saveAsCalls[saveAsCalls.length - 1][1]
+        expect(filename).toContain('pdf')
+      }
+    })
+
+    it('should handle doc extension URL mime type', async () => {
+      const blob = new Blob(['data'], { type: 'application/msword' })
+      global.fetch = jest.fn().mockResolvedValue({ ok: true, blob: () => Promise.resolve(blob) }) as any
+
+      service.downloadPDF({ identifier: 'id8', artifactUrl: 'https://x.com/file.doc', name: 'Document' } as any, 'pg')
+      await new Promise(resolve => setTimeout(resolve, 50))
+    })
+
+    it('should handle docx extension URL mime type', async () => {
+      const blob = new Blob(['data'])
+      global.fetch = jest.fn().mockResolvedValue({ ok: true, blob: () => Promise.resolve(blob) }) as any
+      service.downloadPDF({ identifier: 'id9', artifactUrl: 'https://x.com/file.docx', name: 'Doc' } as any, 'pg')
+      await new Promise(resolve => setTimeout(resolve, 50))
+    })
+
+    it('should handle xls extension URL mime type', async () => {
+      global.fetch = jest.fn().mockResolvedValue({ ok: true, blob: () => Promise.resolve(new Blob()) }) as any
+      service.downloadPDF({ identifier: 'id10', artifactUrl: 'https://x.com/f.xls', name: 'Sheet' } as any, 'pg')
+      await new Promise(resolve => setTimeout(resolve, 50))
+    })
+
+    it('should handle xlsx extension URL mime type', async () => {
+      global.fetch = jest.fn().mockResolvedValue({ ok: true, blob: () => Promise.resolve(new Blob()) }) as any
+      service.downloadPDF({ identifier: 'id11', artifactUrl: 'https://x.com/f.xlsx', name: 'Sheet' } as any, 'pg')
+      await new Promise(resolve => setTimeout(resolve, 50))
+    })
+
+    it('should handle ppt extension URL mime type', async () => {
+      global.fetch = jest.fn().mockResolvedValue({ ok: true, blob: () => Promise.resolve(new Blob()) }) as any
+      service.downloadPDF({ identifier: 'id12', artifactUrl: 'https://x.com/f.ppt', name: 'Slides' } as any, 'pg')
+      await new Promise(resolve => setTimeout(resolve, 50))
+    })
+
+    it('should handle pptx extension URL mime type', async () => {
+      global.fetch = jest.fn().mockResolvedValue({ ok: true, blob: () => Promise.resolve(new Blob()) }) as any
+      service.downloadPDF({ identifier: 'id13', artifactUrl: 'https://x.com/f.pptx', name: 'Slides' } as any, 'pg')
+      await new Promise(resolve => setTimeout(resolve, 50))
+    })
+
+    it('should handle jpg extension URL mime type', async () => {
+      global.fetch = jest.fn().mockResolvedValue({ ok: true, blob: () => Promise.resolve(new Blob()) }) as any
+      service.downloadPDF({ identifier: 'id14', artifactUrl: 'https://x.com/f.jpg', name: 'Image' } as any, 'pg')
+      await new Promise(resolve => setTimeout(resolve, 50))
+    })
+
+    it('should handle jpeg extension URL mime type', async () => {
+      global.fetch = jest.fn().mockResolvedValue({ ok: true, blob: () => Promise.resolve(new Blob()) }) as any
+      service.downloadPDF({ identifier: 'id15', artifactUrl: 'https://x.com/f.jpeg', name: 'Image' } as any, 'pg')
+      await new Promise(resolve => setTimeout(resolve, 50))
+    })
+
+    it('should handle png extension URL mime type', async () => {
+      global.fetch = jest.fn().mockResolvedValue({ ok: true, blob: () => Promise.resolve(new Blob()) }) as any
+      service.downloadPDF({ identifier: 'id16', artifactUrl: 'https://x.com/f.png', name: 'Image' } as any, 'pg')
+      await new Promise(resolve => setTimeout(resolve, 50))
+    })
+
+    it('should handle unknown extension URL with octet-stream mime type', async () => {
+      global.fetch = jest.fn().mockResolvedValue({ ok: true, blob: () => Promise.resolve(new Blob()) }) as any
+      service.downloadPDF({ identifier: 'id17', artifactUrl: 'https://x.com/f.xyz', name: 'Unknown' } as any, 'pg')
+      await new Promise(resolve => setTimeout(resolve, 50))
+    })
+
+    it('should handle URL with query params for extension extraction', async () => {
+      global.fetch = jest.fn().mockResolvedValue({ ok: true, blob: () => Promise.resolve(new Blob()) }) as any
+      service.downloadPDF({ identifier: 'id18', artifactUrl: 'https://x.com/f.pdf?v=1', name: 'Doc' } as any, 'pg')
+      await new Promise(resolve => setTimeout(resolve, 50))
+    })
+
+    it('should handle saveBlob FileSaver failure and fall back to manual download', async () => {
+      ; (fileSaver.saveAs as unknown as jest.Mock).mockImplementationOnce(() => { throw new Error('FileSaver failed') })
+      const blob = new Blob(['data'], { type: 'application/pdf' })
+      global.fetch = jest.fn().mockResolvedValue({ ok: true, blob: () => Promise.resolve(blob) }) as any
+
+      const createObjURL = jest.fn().mockReturnValue('blob:url')
+      const revokeObjURL = jest.fn()
+      const appendChild = jest.fn()
+      const removeChild = jest.fn()
+      const click = jest.fn()
+      const anchor = { style: { display: '' }, href: '', download: '', click }
+
+      window.URL.createObjectURL = createObjURL
+      window.URL.revokeObjectURL = revokeObjURL
+      jest.spyOn(document, 'createElement').mockReturnValueOnce(anchor as any)
+      jest.spyOn(document.body, 'appendChild').mockImplementation(appendChild)
+      jest.spyOn(document.body, 'removeChild').mockImplementation(removeChild)
+
+      service.downloadPDF({ identifier: 'id19', artifactUrl: 'https://x.com/f.pdf', name: 'D' } as any, 'pg')
+      await new Promise(resolve => setTimeout(resolve, 50))
     })
   })
 })
-

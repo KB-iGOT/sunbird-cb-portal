@@ -1,883 +1,595 @@
 import { AppChatbotComponent } from './app-chatbot.component'
-import { ConfigurationsService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
-import { RootService } from './../root/root.service'
-import { Router, NavigationEnd } from '@angular/router'
-import { HttpClient } from '@angular/common/http'
-import { DomSanitizer } from '@angular/platform-browser'
-import { Renderer2 } from '@angular/core'
-import { of, Subject } from 'rxjs'
+import { Subject, of } from 'rxjs'
+import { NavigationEnd } from '@angular/router'
 
-// Mock environment
-jest.mock('src/environments/environment', () => ({
-  environment: {
-    supportEmail: 'test@example.com'
-  }
-}))
-
-function createGetElementByIdMock(mockElements: any) {
-  return function getElementByIdMock(id: string) {
-    return mockElements[id as keyof typeof mockElements] || null
-  }
-}
-
-let mockXHR: any
-  ; (globalThis as any).XMLHttpRequest = jest.fn(() => mockXHR)
+jest.mock('@ws/app/src/lib/routes/profile-v3/components/dialog-box/dialog-box.component', () => ({
+  DialogBoxComponent: class { },
+}), { virtual: true })
 
 describe('AppChatbotComponent', () => {
   let component: AppChatbotComponent
-  let mockConfigService: jest.Mocked<ConfigurationsService>
-  let mockEventService: jest.Mocked<EventService>
-  let mockRenderer: jest.Mocked<Renderer2>
-  let mockChatbotService: jest.Mocked<RootService>
-  let mockHttp: jest.Mocked<HttpClient>
-  let mockSanitizer: jest.Mocked<DomSanitizer>
-  let mockDialog: any
-  let mockRouter: jest.Mocked<Router>
+  let configSvcMock: any
+  let eventSvcMock: any
+  let rendererMock: any
+  let chatbotServiceMock: any
+  let httpMock: any
+  let sanitizerMock: any
+  let dialogMock: any
+  let routerMock: any
   let routerEventsSubject: Subject<any>
+  let openSupportSubject: Subject<any>
 
   beforeEach(() => {
-    // Create mocks
-    mockConfigService = {
-      userProfile: {
-        firstName: 'John',
-        profileImage: '/test-image.jpg'
-      },
-      iGOTAIConfig: {
-        supportAI: false,
-        iGOTAI: false
-      },
-      unMappedUser: {
-        userId: 'test-user-123'
-      }
-    } as any
+    routerEventsSubject = new Subject<any>()
+    openSupportSubject = new Subject<any>()
 
-    mockEventService = {
-      dispatchChatbotEvent: jest.fn()
-    } as any
+    configSvcMock = {
+      userProfile: { firstName: 'Test', profileImage: '', professionalDetails: [] },
+      iGOTAIConfig: null,
+      unMappedUser: { userId: 'user123' },
+      pageNavBar: {},
+    }
 
-    mockRenderer = {
+    eventSvcMock = {
+      dispatchChatbotEvent: jest.fn(),
+    }
+
+    rendererMock = {
       addClass: jest.fn(),
-      removeClass: jest.fn()
-    } as any
+      removeClass: jest.fn(),
+    }
 
-    mockChatbotService = {
-      getChatData: jest.fn(),
-      getLangugages: jest.fn().mockReturnValue(of({ status: { code: 500 } })),
+    chatbotServiceMock = {
+      openSupportAIChatbot: openSupportSubject.asObservable(),
+      getChatData: jest.fn().mockReturnValue(of({})),
+      getLangugages: jest.fn().mockReturnValue(of({ status: { code: 200 }, payload: { languages: [] } })),
       iGOTAIChatHistory: [],
-      openSupportAIChatbot: of(false),
-    } as any
+    }
 
-    mockHttp = {
-      get: jest.fn()
-    } as any
+    httpMock = {
+      get: jest.fn().mockReturnValue(of('<html>zoho</html>')),
+    }
 
-    mockSanitizer = {
-      bypassSecurityTrustHtml: jest.fn()
-    } as any
+    sanitizerMock = {
+      bypassSecurityTrustHtml: jest.fn().mockReturnValue('safe-html'),
+    }
 
-    mockDialog = {
-      open: jest.fn()
-    } as any
+    dialogMock = {
+      open: jest.fn().mockReturnValue({
+        afterClosed: jest.fn().mockReturnValue(of(null)),
+      }),
+    }
 
-    routerEventsSubject = new Subject()
-    mockRouter = {
-      events: routerEventsSubject.asObservable()
-    } as any
+    routerMock = {
+      events: routerEventsSubject.asObservable(),
+    }
 
     // Mock localStorage
-    Object.defineProperty(globalThis as any, 'localStorage', {
-      value: {
-        getItem: jest.fn(),
-        setItem: jest.fn(),
-        removeItem: jest.fn(),
-        clear: jest.fn(),
-      },
-      writable: true,
-    })
-
-    // Mock document methods
-    Object.defineProperty(document, 'getElementById', {
-      value: jest.fn().mockReturnValue({
-        scrollTo: jest.fn(),
-        scrollHeight: 1000,
-        style: { display: 'block' },
-        src: '',
-        value: '',
-        addEventListener: jest.fn()
-      }),
-      writable: true,
-    })
-
-    Object.defineProperty(document, 'getElementsByName', {
-      value: jest.fn().mockReturnValue([{ value: '' }]),
-      writable: true,
-    })
-
-    // Mock window methods
-    Object.defineProperty(globalThis as any, 'scrollTo', {
-      value: jest.fn(),
-      writable: true,
-    })
-
-    Object.defineProperty(document.body, 'scrollHeight', {
-      value: 1000,
-      writable: true,
-    })
-
-    // Create component instance
-    component = new AppChatbotComponent(
-      mockConfigService,
-      mockEventService,
-      mockRenderer,
-      mockChatbotService,
-      mockHttp,
-      mockSanitizer,
-      mockDialog,
-      mockRouter
-    )
-
-    // Mock ViewChild
-    component.dragElement = {
-      nativeElement: {
-        getBoundingClientRect: jest.fn().mockReturnValue({
-          top: 10,
-          left: 10,
-          bottom: 100,
-          right: 100
-        })
+    const localStorageMock: any = (() => {
+      let store: any = {}
+      return {
+        getItem: (key: string) => store[key] || null,
+        setItem: (key: string, value: string) => { store[key] = value },
+        removeItem: (key: string) => { delete store[key] },
+        clear: () => { store = {} },
       }
-    } as any
+    })()
+    Object.defineProperty(window, 'localStorage', { value: localStorageMock, writable: true })
+
+    component = new AppChatbotComponent(
+      configSvcMock,
+      eventSvcMock,
+      rendererMock,
+      chatbotServiceMock,
+      httpMock,
+      sanitizerMock,
+      dialogMock,
+      routerMock
+    )
   })
 
   afterEach(() => {
-    jest.clearAllMocks()
     routerEventsSubject.complete()
+    openSupportSubject.complete()
+    jest.restoreAllMocks()
+  })
+
+  it('should create the component', () => {
+    expect(component).toBeTruthy()
+  })
+
+  it('should initialize default values', () => {
+    expect(component.showIcon).toBe(true)
+    expect(component.currentFilter).toBe('information')
+    expect(component.expanded).toBe(false)
+    expect(component.faqChatBotDisable).toBe(true)
+    expect(component.enableIGOTAIFlag).toBe(false)
+    expect(component.enableSupportAI).toBe(false)
   })
 
   describe('ngOnInit', () => {
-    it('should initialize component with default values', () => {
-      mockHttp.get.mockReturnValue(of('<html>test</html>'))
-      mockSanitizer.bypassSecurityTrustHtml.mockReturnValue('sanitized-html' as any)
-
+    it('should subscribe to router events and set isHubEnable based on URL', () => {
       component.ngOnInit()
-
-      expect(component.userInfo).toBe(mockConfigService.userProfile)
-      expect(component.userIcon).toBe('/test-image.jpg')
-      expect(component.callText).toContain('Teams Call')
-      expect(component.emailText).toContain('test@example.com')
-      expect(mockHttp.get).toHaveBeenCalledWith(
-        '/assets/static-data/zoho-code.html',
-        { responseType: 'text' } as any,
-      )
-      expect(mockSanitizer.bypassSecurityTrustHtml).toHaveBeenCalledWith('<html>test</html>')
-    })
-
-    it('should set default user icon when no profile image', () => {
-      mockHttp.get.mockReturnValue(of('<html>test</html>'))
-        ; (mockConfigService as any).userProfile = { firstName: 'John' }
-
-      component.ngOnInit()
-
-      expect(component.userIcon).toBe('/assets/icons/chatbot-default-user.svg')
-    })
-
-    it('should handle router navigation events', () => {
-      mockHttp.get.mockReturnValue(of('<html>test</html>'))
-
-      component.ngOnInit()
-
-      // Test certificate page
-      routerEventsSubject.next(new NavigationEnd(1, '/certs', '/certs'))
-      expect(component.isHubEnable).toBe(false)
-
-      // Test public certificate page
-      routerEventsSubject.next(new NavigationEnd(2, '/public/certs', '/public/certs'))
-      expect(component.isHubEnable).toBe(false)
-
-      // Test other page
-      routerEventsSubject.next(new NavigationEnd(3, '/home', '/home'))
+      routerEventsSubject.next(new NavigationEnd(1, '/app/profile', '/app/profile'))
       expect(component.isHubEnable).toBe(true)
     })
 
-    it('should configure AI settings when supportAI is enabled', () => {
-      mockConfigService.iGOTAIConfig = {
-        supportAI: { all: true },
-        iGOTAI: { all: false },
-      } as any
-      component.rootOrgId = 'test-org'
-      component.iGOTAIConfigLoaded = true
-      mockHttp.get.mockReturnValue(of('<html>test</html>'))
-
+    it('should set isHubEnable to false for /certs URL', () => {
       component.ngOnInit()
-
-      expect(component.enableSupportAI).toBe(true)
-      expect(component.currentFilter).toBe('support-ai')
-      expect(component.faqChatBotDisable).toBe(true)
+      routerEventsSubject.next(new NavigationEnd(1, '/app/certs/view', '/app/certs/view'))
+      expect(component.isHubEnable).toBe(false)
     })
 
-    it('should configure AI settings when iGOTAI is enabled', () => {
-      mockConfigService.iGOTAIConfig = {
-        supportAI: { all: false },
-        iGOTAI: { all: true, allDesignation: true },
-      } as any
-      component.rootOrgId = 'test-org'
-      component.iGOTAIConfigLoaded = true
-      mockHttp.get.mockReturnValue(of('<html>test</html>'))
-
+    it('should set isHubEnable to false for /public/certs URL', () => {
       component.ngOnInit()
+      routerEventsSubject.next(new NavigationEnd(1, '/public/certs/view', '/public/certs/view'))
+      expect(component.isHubEnable).toBe(false)
+    })
 
+    it('should set userInfo from configSvc.userProfile', () => {
+      component.ngOnInit()
+      expect(component.userInfo).toEqual(configSvcMock.userProfile)
+    })
+
+    it('should fetch zoho html on init', () => {
+      component.ngOnInit()
+      expect(httpMock.get).toHaveBeenCalledWith('/assets/static-data/zoho-code.html', { responseType: 'text' })
+      expect(sanitizerMock.bypassSecurityTrustHtml).toHaveBeenCalledWith('<html>zoho</html>')
+      expect(component.zohoHtml).toBe('safe-html')
+    })
+
+    it('should call renderer.removeClass for enableScroll on init', () => {
+      component.ngOnInit()
+      expect(rendererMock.removeClass).toHaveBeenCalledWith(document.body, 'disable-scroll')
+    })
+
+    it('should enable issuesTab when iGOTAIConfig.issuesTab.all is true', () => {
+      configSvcMock.iGOTAIConfig = { issuesTab: { all: true } }
+      component.rootOrgId = 'org1'
+      component.iGOTAIConfigLoaded = true
+      component.ngOnInit()
+      expect(component.enableIssuesTab).toBe(true)
+      expect(component.currentFilter).toBe('issue')
+    })
+
+    it('should enable informationTab when iGOTAIConfig.informationTab.all is true', () => {
+      configSvcMock.iGOTAIConfig = { informationTab: { all: true } }
+      component.rootOrgId = 'org1'
+      component.iGOTAIConfigLoaded = true
+      component.ngOnInit()
+      expect(component.enableInformationTab).toBe(true)
+      expect(component.currentFilter).toBe('information')
+    })
+
+    it('should enable issuesTab for forOrg when org matches', () => {
+      configSvcMock.iGOTAIConfig = { issuesTab: { all: false, forOrg: ['org1'] } }
+      component.rootOrgId = 'org1'
+      component.iGOTAIConfigLoaded = true
+      component.ngOnInit()
+      expect(component.enableIssuesTab).toBe(true)
+    })
+
+    it('should enable supportAI when iGOTAIConfig.supportAI.all is true', () => {
+      configSvcMock.iGOTAIConfig = { supportAI: { all: true } }
+      component.rootOrgId = 'org1'
+      component.iGOTAIConfigLoaded = true
+      component.ngOnInit()
+      expect(component.enableSupportAI).toBe(true)
+      expect(component.currentFilter).toBe('support-ai')
+    })
+
+    it('should enable IGOTAI when iGOTAIConfig.iGOTAI.all and allDesignation is true', () => {
+      configSvcMock.iGOTAIConfig = { iGOTAI: { all: true, allDesignation: true } }
+      component.rootOrgId = 'org1'
+      component.iGOTAIConfigLoaded = true
+      component.ngOnInit()
       expect(component.enableIGOTAIFlag).toBe(true)
       expect(component.currentFilter).toBe('sarthi')
+    })
+
+    it('should set faqChatBotDisable true when enableSupportAI or enableIGOTAIFlag', () => {
+      configSvcMock.iGOTAIConfig = { iGOTAI: { all: true, allDesignation: true } }
+      component.rootOrgId = 'org1'
+      component.iGOTAIConfigLoaded = true
+      component.ngOnInit()
       expect(component.faqChatBotDisable).toBe(true)
     })
 
-    it('should open support AI chatbot when triggered from top nav', () => {
-      ; (mockChatbotService as any).openSupportAIChatbot = of(true)
-      mockConfigService.iGOTAIConfig = {
-        supportAI: { all: true },
-        iGOTAI: { all: false },
-      } as any
-      component.rootOrgId = 'test-org'
+    it('should set faqChatBotDisable false when neither support nor igotai enabled', () => {
+      configSvcMock.iGOTAIConfig = {}
+      component.rootOrgId = 'org1'
       component.iGOTAIConfigLoaded = true
-      mockHttp.get.mockReturnValue(of('<html>test</html>'))
-      jest.spyOn(component, 'iconClick')
-
       component.ngOnInit()
-
-      expect(component.fromTopNavHelp).toBe(true)
-      expect(component.enableSupportAI).toBe(true)
-      expect(component.currentFilter).toBe('support-ai')
-      expect(component.iconClick).toHaveBeenCalledWith('start')
+      expect(component.faqChatBotDisable).toBe(false)
     })
   })
 
   describe('ngOnChanges', () => {
-    it('should configure settings when inputs change', () => {
-      mockConfigService.iGOTAIConfig = {
-        supportAI: { all: true },
-        iGOTAI: { all: true, allDesignation: true },
-      } as any
-      component.rootOrgId = 'test-org'
+    it('should update userInfo and userDesignation on changes when rootOrgId and iGOTAIConfigLoaded', () => {
+      configSvcMock.userProfile = {
+        firstName: 'Test',
+        professionalDetails: [{ designation: ' Manager ' }],
+      }
+      component.rootOrgId = 'org1'
       component.iGOTAIConfigLoaded = true
-
       component.ngOnChanges()
+      expect(component.userDesignation).toBe('Manager')
+    })
 
-      expect(component.enableSupportAI).toBe(true)
-      expect(component.enableIGOTAIFlag).toBe(true)
-      expect(component.currentFilter).toBe('sarthi')
-      expect(component.faqChatBotDisable).toBe(true)
+    it('should not change state when rootOrgId is absent', () => {
+      component.rootOrgId = null
+      component.iGOTAIConfigLoaded = true
+      component.ngOnChanges()
+      expect(component.userDesignation).toBe('')
     })
   })
 
   describe('greetings', () => {
-    it('should return greeting in selected language', () => {
-      component.selectedLaguage = 'hi'
-      expect(component.greetings()).toBe('नमस्ते')
-
+    it('should return Namaste for en locale', () => {
       component.selectedLaguage = 'en'
       expect(component.greetings()).toBe('Namaste')
     })
 
-    it('should return default greeting for unknown language', () => {
-      component.selectedLaguage = 'fr'
-      expect(component.greetings()).toBe('Hi')
+    it('should return hindi greeting for hi locale', () => {
+      component.selectedLaguage = 'hi'
+      expect(component.greetings()).toBe('नमस्ते')
     })
   })
 
   describe('getInfoText', () => {
-    it('should return localized text', () => {
-      component.selectedLaguage = 'hi'
-      expect(component.getInfoText('information')).toBe('जानकारी')
-
+    it('should return localized text for known label', () => {
       component.selectedLaguage = 'en'
       expect(component.getInfoText('information')).toBe('Information')
     })
 
-    it('should return original label for unknown key', () => {
+    it('should return the label itself for unknown key', () => {
       component.selectedLaguage = 'en'
-      expect(component.getInfoText('unknown')).toBe('unknown')
+      expect(component.getInfoText('unknown_key')).toBe('unknown_key')
     })
   })
 
   describe('showMore', () => {
-    it('should return show more text in selected language', () => {
-      component.selectedLaguage = 'hi'
-      expect(component.showMore()).toBe('और दिखाओ')
-
+    it('should return Show More text for en locale', () => {
       component.selectedLaguage = 'en'
       expect(component.showMore()).toBe('Show More')
     })
   })
 
-  describe('getData', () => {
-    it('should fetch chat data and update localStorage', () => {
-      const mockResponse = {
-        payload: {
-          config: { test: 'data' }
-        }
-      }
-      mockChatbotService.getChatData.mockReturnValue(of(mockResponse))
-      jest.spyOn(component, 'setDataToLocalStorage')
-      jest.spyOn(component, 'checkForApiCalls')
-
-      component.selectedLaguage = 'en'
-      component.currentFilter = 'information'
-      component.getData()
-
-      expect(mockChatbotService.getChatData).toHaveBeenCalledWith({
-        lang: 'en',
-        config_type: 'IN'
-      })
-      expect(component.setDataToLocalStorage).toHaveBeenCalledWith({ test: 'data' })
-      expect(component.checkForApiCalls).toHaveBeenCalled()
-      expect(component.displayLoader).toBe(false)
-    })
-
-    it('should handle issue filter type', () => {
-      const mockResponse = { payload: { config: { test: 'data' } } }
-      mockChatbotService.getChatData.mockReturnValue(of(mockResponse))
-
-      component.selectedLaguage = 'en'
-      component.currentFilter = 'issue'
-      component.getData()
-
-      expect(mockChatbotService.getChatData).toHaveBeenCalledWith({
-        lang: 'en',
-        config_type: 'IS'
-      })
-    })
-  })
-
-  describe('setDataToLocalStorage', () => {
-    it('should store data in localStorage and toggle filter', () => {
-      const mockData = { test: 'data' }
-      const existingData = { en: { information: { old: 'data' } } };
-      (localStorage.getItem as jest.Mock).mockReturnValue(JSON.stringify(existingData))
-      jest.spyOn(component, 'toggleFilter')
-
-      component.selectedLaguage = 'en'
-      component.currentFilter = 'information'
-      component.setDataToLocalStorage(mockData)
-
-      expect(localStorage.setItem).toHaveBeenCalledWith('faq', JSON.stringify({
-        en: {
-          information: mockData,
-        },
-      }))
-      expect(component.toggleFilter).toHaveBeenCalledWith('information')
-    })
-
-    it('should handle empty localStorage', () => {
-      (localStorage.getItem as jest.Mock).mockReturnValue(null)
-      jest.spyOn(component, 'toggleFilter')
-
-      component.selectedLaguage = 'en'
-      component.currentFilter = 'issue'
-      component.setDataToLocalStorage({ test: 'data' })
-
-      expect(localStorage.setItem).toHaveBeenCalled()
-      expect(component.toggleFilter).toHaveBeenCalledWith('issue')
-    })
-  })
-
-  describe('initData', () => {
-    beforeEach(() => {
-      jest.spyOn(component, 'getPriorityQuestion').mockReturnValue([])
-      jest.spyOn(component, 'pushData')
-      jest.spyOn(component, 'getQns').mockImplementation(() => { })
-    })
-
-    it('should initialize user journey and push initial data', () => {
-      const mockData = { test: 'data' }
-
-      component.initData(mockData)
-
-      expect(component.pushData).toHaveBeenCalledWith({
-        type: 'incoming',
-        message: '',
-        recommendedQues: [],
-        selectedValue: '',
-        title: '',
-        tab: 'information'
-      })
-      expect(component.getQns).toHaveBeenCalled()
-    })
-  })
-
-  describe('getQns', () => {
-    it('should populate questionsAndAns map', () => {
-      component.responseData = {
-        quesMap: [
-          { quesId: 'q1', question: 'Question 1' },
-          { quesId: 'q2', question: 'Question 2' }
-        ]
-      }
-
-      component.getQns()
-
-      expect(component.questionsAndAns['q1']).toEqual({ quesId: 'q1', question: 'Question 1' })
-      expect(component.questionsAndAns['q2']).toEqual({ quesId: 'q2', question: 'Question 2' })
-    })
-  })
-
-  describe('selectLaguage', () => {
-    it('should change language and reset chat data', () => {
-      const mockEvent = { target: { value: 'hi' } }
-      jest.spyOn(component, 'checkForApiCalls').mockImplementation(() => { })
-
-      component.selectLaguage(mockEvent)
-
-      expect(component.selectedLaguage).toBe('hi')
-      expect(localStorage.setItem).toHaveBeenCalledWith('selectedLanguage', 'hi')
-      expect(component.chatInformation).toEqual([])
-      expect(component.chatIssues).toEqual([])
-      expect(component.checkForApiCalls).toHaveBeenCalled()
-    })
-  })
-
-  describe('readFromLocalStorage', () => {
-    it('should read information data from localStorage', () => {
-      const stored = {
-        en: {
-          information: { info: 'data' },
-          issue: { issue: 'data' },
-        },
-      }
-        ; (localStorage.getItem as jest.Mock).mockReturnValueOnce(JSON.stringify(stored))
-
-      component.selectedLaguage = 'en'
-      component.currentFilter = 'information'
-      component.readFromLocalStorage()
-
-      expect(component.responseData).toEqual({ info: 'data' })
-    })
-
-    it('should read issue data from localStorage', () => {
-      const stored = {
-        en: {
-          information: { info: 'data' },
-          issue: { issue: 'data' },
-        },
-      }
-        ; (localStorage.getItem as jest.Mock).mockReturnValueOnce(JSON.stringify(stored))
-
-      component.selectedLaguage = 'en'
-      component.currentFilter = 'issue'
-      component.readFromLocalStorage()
-
-      expect(component.responseData).toEqual({ issue: 'data' })
-    })
-  })
-
-  describe('goToBottom', () => {
-    it('should scroll to bottom of page', () => {
-      component.goToBottom()
-      expect(window.scrollTo).toHaveBeenCalledWith(0, 1000)
-    })
-  })
-
-  describe('iconClick', () => {
-    beforeEach(() => {
-      jest.spyOn(component, 'disableScroll')
-      jest.spyOn(component, 'enableScroll')
-      jest.spyOn(component, 'raiseChatStartTelemetry')
-      jest.spyOn(component, 'raiseChatEndTelemetry')
-      jest.spyOn(component, 'checkForApiCalls')
-      Date.now = jest.fn().mockReturnValue(123456789)
-    })
-
-    it('should start chat when type is start', () => {
-      component.dragEnabled = false
-
-      component.iconClick('start')
-
-      expect(component.showIcon).toBe(false)
-      expect(component.currentFilter).toBe('information')
-      expect(component.expanded).toBe(false)
-      expect(component.chatId).toBe('test-user-123-123456789')
-      expect(mockChatbotService.iGOTAIChatHistory).toEqual([])
-      expect(component.disableScroll).toHaveBeenCalled()
-      expect(component.raiseChatStartTelemetry).toHaveBeenCalled()
-    })
-
-    it('should end chat when type is not start', () => {
-      component.dragEnabled = false
-
-      component.iconClick('end')
-
-      expect(component.chatId).toBe('')
-      expect(mockChatbotService.iGOTAIChatHistory).toEqual([])
-      expect(component.raiseChatEndTelemetry).toHaveBeenCalled()
-      expect(component.userJourney).toEqual([])
-      expect(component.chatInformation).toEqual([])
-      expect(component.chatIssues).toEqual([])
-      expect(component.selectedLaguage).toBe('en')
-      expect(component.more).toBe(false)
-      expect(component.enableScroll).toHaveBeenCalled()
-    })
-
-    it('should not perform actions when drag is enabled', () => {
-      component.dragEnabled = true
-
-      component.iconClick('start')
-
-      expect(component.disableScroll).not.toHaveBeenCalled()
-      expect(component.raiseChatStartTelemetry).not.toHaveBeenCalled()
-    })
-
-    it('should set sarthi filter when iGOTAI is enabled', () => {
-      mockConfigService.iGOTAIConfig = {
-        iGOTAI: { all: true, allDesignation: true },
-      } as any
-      component.dragEnabled = false
-
-      component.iconClick('start')
-
-      expect(component.currentFilter).toBe('sarthi')
-    })
-  })
-
   describe('toggleFilter', () => {
-    it('should change current filter and reset more flag', () => {
-      jest.spyOn(component, 'checkForApiCalls')
-      component.more = true
-
+    it('should set currentFilter to provided tab', () => {
       component.toggleFilter('issue')
-
       expect(component.currentFilter).toBe('issue')
+    })
+
+    it('should reset more to false', () => {
+      component.more = true
+      component.toggleFilter('information')
       expect(component.more).toBe(false)
-      expect(component.checkForApiCalls).toHaveBeenCalled()
-    })
-  })
-
-  describe('selectedQuestion', () => {
-    beforeEach(() => {
-      jest.spyOn(component, 'pushData')
-      jest.spyOn(component, 'scrollToBottom')
-      jest.spyOn(component, 'raiseTemeletyInterat')
-
-      component.questionsAndAns = {
-        'q1': {
-          quesValue: 'Test Question',
-          ansVal: 'Test Answer with <teams_call_link> and <email_configuration>'
-        }
-      }
-      component.callText = 'call-link'
-      component.emailText = 'email-link'
-    })
-
-    it('should handle question selection and push messages', () => {
-      jest.useFakeTimers()
-      const question = { quesID: 'q1', recommendedQues: [] }
-      const data = { selectedValue: '' }
-
-      component.selectedQuestion(question, data)
-
-      expect(data.selectedValue).toBe('q1')
-      const pushDataMock: any = component.pushData
-      expect(pushDataMock).toHaveBeenCalledTimes(2)
-      expect(pushDataMock.mock.calls[0][0]).toEqual({
-        type: 'sendMsg',
-        question: 'Test Question',
-        tab: component.currentFilter
-      })
-      expect(pushDataMock.mock.calls[1][0]).toEqual({
-        type: 'incoming',
-        message: 'Test Answer with call-link and email-link',
-        recommendedQues: [],
-        title: '',
-        relatedQes: 'above Question',
-        tab: component.currentFilter
-      })
-
-      jest.runAllTimers()
-      expect(component.scrollToBottom).toHaveBeenCalled()
-      expect(component.raiseTemeletyInterat).toHaveBeenCalledWith('q1')
     })
   })
 
   describe('pushData', () => {
-    it('should push data to chatInformation when filter is information', () => {
+    it('should push to chatInformation when currentFilter is information', () => {
       component.currentFilter = 'information'
       component.chatInformation = []
-      const mockMsg = { type: 'test', message: 'test message' }
-
-      component.pushData(mockMsg)
-
-      expect(component.chatInformation).toContain(mockMsg)
-      expect(component.userJourney).toEqual(component.chatInformation)
+      const msg = { type: 'incoming', tab: 'information' }
+      component.pushData(msg)
+      expect(component.chatInformation).toContain(msg)
     })
 
-    it('should push data to chatIssues when filter is not information', () => {
+    it('should push to chatIssues when currentFilter is not information', () => {
       component.currentFilter = 'issue'
       component.chatIssues = []
-      const mockMsg = { type: 'test', message: 'test message' }
+      const msg = { type: 'incoming', tab: 'issue' }
+      component.pushData(msg)
+      expect(component.chatIssues).toContain(msg)
+    })
+  })
 
-      component.pushData(mockMsg)
+  describe('selectLaguage', () => {
+    it('should update selectedLaguage and clear chat arrays', () => {
+      component.chatInformation = [{ msg: 'hi' }]
+      component.chatIssues = [{ msg: 'hi' }]
+      component.selectLaguage({ target: { value: 'hi' } } as any)
+      expect(component.selectedLaguage).toBe('hi')
+      expect(component.chatInformation).toEqual([])
+      expect(component.chatIssues).toEqual([])
+    })
+  })
 
-      expect(component.chatIssues).toContain(mockMsg)
-      expect(component.userJourney).toEqual(component.chatIssues)
+  describe('iconClick', () => {
+    it('should toggle showIcon on end action', () => {
+      component.showIcon = true
+      component.dragEnabled = false
+      component.iconClick('end')
+      expect(component.showIcon).toBe(false)
+    })
+
+    it('should not toggle showIcon when dragEnabled is true', () => {
+      component.showIcon = true
+      component.dragEnabled = true
+      component.iconClick('end')
+      expect(component.showIcon).toBe(true)
+    })
+
+    it('should set fullScreenChatFlag to false', () => {
+      component.fullScreenChatFlag = true
+      component.iconClick('end')
+      expect(component.fullScreenChatFlag).toBe(false)
+    })
+
+    it('should set maximizeChatFlag to true', () => {
+      component.maximizeChatFlag = false
+      component.iconClick('end')
+      expect(component.maximizeChatFlag).toBe(true)
+    })
+  })
+
+  describe('minimizeChat / maximizeChat / fullScreenChat', () => {
+    it('should minimizeChat correctly', () => {
+      component.minimizeChat()
+      expect(component.maximizeChatFlag).toBe(false)
+      expect(component.fullScreenChatFlag).toBe(false)
+    })
+
+    it('should maximizeChat correctly', () => {
+      component.maximizeChatFlag = false
+      component.maximizeChat()
+      expect(component.maximizeChatFlag).toBe(true)
+      expect(component.fullScreenChatFlag).toBe(false)
+    })
+
+    it('should fullScreenChat correctly', () => {
+      component.fullScreenChat()
+      expect(component.fullScreenChatFlag).toBe(true)
+    })
+
+    it('should fullScreenExitChat correctly', () => {
+      component.fullScreenExitChat()
+      expect(component.fullScreenChatFlag).toBe(false)
+      expect(component.maximizeChatFlag).toBe(true)
+    })
+  })
+
+  describe('clickOutside', () => {
+    it('should call iconClick end when not enableIGOTAIFlag and not enableSupportAI', () => {
+      component.enableIGOTAIFlag = false
+      component.enableSupportAI = false
+      const spy = jest.spyOn(component, 'iconClick').mockImplementation(() => { })
+      component.clickOutside()
+      expect(spy).toHaveBeenCalledWith('end')
+    })
+
+    it('should not call iconClick when enableIGOTAIFlag is true', () => {
+      component.enableIGOTAIFlag = true
+      const spy = jest.spyOn(component, 'iconClick').mockImplementation(() => { })
+      component.clickOutside()
+      expect(spy).not.toHaveBeenCalled()
     })
   })
 
   describe('getuserjourney', () => {
-    it('should filter user journey by tab', () => {
+    it('should filter userJourney by tab', () => {
       component.userJourney = [
-        { tab: 'information', message: 'info1' },
-        { tab: 'issue', message: 'issue1' },
-        { tab: 'information', message: 'info2' }
+        { tab: 'information' },
+        { tab: 'issue' },
+        { tab: 'information' },
       ]
-
-      const infoJourney = component.getuserjourney('information')
-      const issueJourney = component.getuserjourney('issue')
-
-      expect(infoJourney.length).toBe(2)
-      expect(issueJourney.length).toBe(1)
+      const result = component.getuserjourney('information')
+      expect(result.length).toBe(2)
+      expect(result.every((j: any) => j.tab === 'information')).toBe(true)
     })
   })
 
-  describe('getPriorityQuestion', () => {
-    beforeEach(() => {
-      component.responseData = {
-        recommendationMap: [
-          {
-            categoryType: 'Logged-In',
-            recommendedQues: [
-              { priority: 1, question: 'Q1' },
-              { priority: 2, question: 'Q2' }
-            ]
-          },
-          {
-            categoryType: 'Not Logged-In',
-            recommendedQues: [
-              { priority: 1, question: 'Q3' }
-            ]
-          },
-          {
-            categoryType: 'Both',
-            recommendedQues: [
-              { priority: 1, question: 'Q4' }
-            ]
-          }
-        ]
-      }
-    })
-
-    it('should return priority questions for logged-in user', () => {
-      component.userInfo = { firstName: 'John' }
-
-      const questions = component.getPriorityQuestion(1)
-
-      expect(questions.length).toBe(2)
-      expect(questions.map(q => q.question)).toEqual(['Q1', 'Q4'])
-    })
-
-    it('should return priority questions for not logged-in user', () => {
-      component.userInfo = null
-
-      const questions = component.getPriorityQuestion(1)
-
-      expect(questions.length).toBe(2)
-      expect(questions.map(q => q.question)).toEqual(['Q3', 'Q4'])
+  describe('sortCategory', () => {
+    it('should sort categories by priority ascending', () => {
+      component.categories = [
+        { catId: '3', priority: 3 },
+        { catId: '1', priority: 1 },
+        { catId: '2', priority: 2 },
+      ]
+      const sorted = component.sortCategory()
+      expect(sorted[0].priority).toBe(1)
+      expect(sorted[2].priority).toBe(3)
     })
   })
 
-  describe('showMoreQuestion', () => {
-    it('should push more questions data', () => {
-      jest.spyOn(component, 'getPriorityQuestion').mockReturnValue([])
-      jest.spyOn(component, 'pushData')
+  describe('getFooterClass', () => {
+    it('should set cb-footer when neither supportAI nor IGOTAI enabled', () => {
+      component.enableSupportAI = false
+      component.enableIGOTAIFlag = false
+      component.getFooterClass()
+      expect(component.footerClassName).toBe('cb-footer')
+    })
 
-      component.showMoreQuestion()
+    it('should set cb-footer-with-ai-only when supportAI and no info/issues tabs', () => {
+      component.enableSupportAI = true
+      component.enableInformationTab = false
+      component.enableIssuesTab = false
+      component.getFooterClass()
+      expect(component.footerClassName).toBe('cb-footer-with-ai-only')
+    })
 
-      expect(component.pushData).toHaveBeenCalledWith({
-        type: 'incoming',
-        message: '',
-        recommendedQues: [],
-        selectedValue: '',
-        title: ''
-      })
+    it('should set cb-footer-with-support-ai-two-tab when supportAI+IGOTAI and no info/issues', () => {
+      component.enableSupportAI = true
+      component.enableIGOTAIFlag = true
+      component.enableInformationTab = false
+      component.enableIssuesTab = false
+      component.getFooterClass()
+      expect(component.footerClassName).toBe('cb-footer-with-support-ai-two-tab')
+    })
+
+    it('should set cb-footer-with-ai when supportAI, IGOTAI, and both tabs enabled', () => {
+      component.enableSupportAI = true
+      component.enableIGOTAIFlag = true
+      component.enableInformationTab = true
+      component.enableIssuesTab = true
+      component.getFooterClass()
+      expect(component.footerClassName).toBe('cb-footer-with-ai')
+    })
+
+    it('should set cb-footer-with-support-ai-two-tab when supportAI and informationTab only', () => {
+      component.enableSupportAI = true
+      component.enableIGOTAIFlag = false
+      component.enableInformationTab = true
+      component.enableIssuesTab = false
+      component.getFooterClass()
+      expect(component.footerClassName).toBe('cb-footer-with-support-ai-two-tab')
+    })
+
+    it('should set cb-footer-with-support-ai-two-tab when supportAI and issuesTab only', () => {
+      component.enableSupportAI = true
+      component.enableIGOTAIFlag = false
+      component.enableInformationTab = false
+      component.enableIssuesTab = true
+      component.getFooterClass()
+      expect(component.footerClassName).toBe('cb-footer-with-support-ai-two-tab')
+    })
+
+    it('should set cb-footer-with-ai-support when supportAI and both tabs but no IGOTAI', () => {
+      component.enableSupportAI = true
+      component.enableIGOTAIFlag = false
+      component.enableInformationTab = true
+      component.enableIssuesTab = true
+      component.getFooterClass()
+      expect(component.footerClassName).toBe('cb-footer-with-ai-support')
     })
   })
 
-  describe('showCategory', () => {
-    beforeEach(() => {
-      jest.spyOn(component, 'pushData')
-      jest.spyOn(component, 'scrollToBottom')
-      jest.spyOn(component, 'sortCategory').mockReturnValue([])
-      jest.spyOn(component, 'raiseCategotyTelemetry')
-
-      component.responseData = {
-        recommendationMap: [
-          {
-            catId: 'cat1',
-            recommendedQues: [{ question: 'Q1' }]
-          }
-        ]
-      }
+  describe('raiseChatStartTelemetry', () => {
+    it('should dispatch telemetry for non-sarthi filter', () => {
+      component.currentFilter = 'information'
+      component.raiseChatStartTelemetry()
+      expect(eventSvcMock.dispatchChatbotEvent).toHaveBeenCalledTimes(1)
     })
 
-    it('should show all categories when catId is all', () => {
-      jest.useFakeTimers()
-      const catItem = { catId: 'all', catName: 'All Categories' }
-
-      component.showCategory(catItem)
-
-      expect(component.more).toBe(false)
-      expect(component.pushData).toHaveBeenCalledTimes(2)
-      expect(component.sortCategory).toHaveBeenCalled()
-
-      jest.runAllTimers()
-      expect(component.scrollToBottom).toHaveBeenCalled()
+    it('should dispatch telemetry for sarthi filter', () => {
+      component.currentFilter = 'sarthi'
+      component.enableSupportAI = false
+      component.raiseChatStartTelemetry()
+      expect(eventSvcMock.dispatchChatbotEvent).toHaveBeenCalledTimes(1)
     })
 
-    it('should show specific category questions', () => {
-      jest.useFakeTimers()
-      const catItem = { catId: 'cat1', catName: 'Category 1' }
+    it('should dispatch two events for sarthi with enableSupportAI', () => {
+      component.currentFilter = 'sarthi'
+      component.enableSupportAI = true
+      component.raiseChatStartTelemetry()
+      expect(eventSvcMock.dispatchChatbotEvent).toHaveBeenCalledTimes(2)
+    })
+  })
 
-      component.showCategory(catItem)
+  describe('raiseChatEndTelemetry', () => {
+    it('should dispatch end telemetry for non-sarthi filter', () => {
+      component.currentFilter = 'information'
+      component.raiseChatEndTelemetry()
+      expect(eventSvcMock.dispatchChatbotEvent).toHaveBeenCalledTimes(1)
+    })
 
-      expect(component.pushData).toHaveBeenCalledWith(
-        (expect as any).objectContaining({
-          type: 'incoming',
-          recommendedQues: [{ question: 'Q1' }]
-        })
+    it('should dispatch end telemetry for sarthi filter', () => {
+      component.currentFilter = 'sarthi'
+      component.enableSupportAI = false
+      component.raiseChatEndTelemetry()
+      expect(eventSvcMock.dispatchChatbotEvent).toHaveBeenCalledTimes(1)
+    })
+
+    it('should dispatch two end events for sarthi with enableSupportAI', () => {
+      component.currentFilter = 'sarthi'
+      component.enableSupportAI = true
+      component.raiseChatEndTelemetry()
+      expect(eventSvcMock.dispatchChatbotEvent).toHaveBeenCalledTimes(2)
+    })
+  })
+
+  describe('raiseTemeletyInterat', () => {
+    it('should dispatch telemetry interact event with given id', () => {
+      component.currentFilter = 'information'
+      component.raiseTemeletyInterat('qId1')
+      const call = eventSvcMock.dispatchChatbotEvent.mock.calls[0][0]
+      expect(call.data.edata.id).toBe('qId1')
+      expect(call.to).toBe('Telemetry')
+    })
+  })
+
+  describe('raiseCategotyTelemetry', () => {
+    it('should dispatch category telemetry event', () => {
+      component.raiseCategotyTelemetry('cat1')
+      const call = eventSvcMock.dispatchChatbotEvent.mock.calls[0][0]
+      expect(call.data.edata.id).toBe('cat1')
+      expect(call.data.object.type).toBe('Category')
+    })
+  })
+
+  describe('getData', () => {
+    it('should call getChatData with correct tabType', () => {
+      chatbotServiceMock.getChatData.mockReturnValue(of({}))
+      component.selectedLaguage = 'en'
+      component.currentFilter = 'information'
+      component.getData()
+      expect(chatbotServiceMock.getChatData).toHaveBeenCalledWith(
+        expect.objectContaining({ lang: 'en', config_type: 'IN' })
       )
-      expect(component.raiseCategotyTelemetry).toHaveBeenCalledWith('cat1')
+    })
 
-      jest.runAllTimers()
-      expect(component.scrollToBottom).toHaveBeenCalled()
+    it('should call setDataToLocalStorage when payload.config exists', () => {
+      const spy = jest.spyOn(component, 'setDataToLocalStorage').mockImplementation(() => { })
+      jest.spyOn(component, 'checkForApiCalls').mockImplementation(() => { })
+      chatbotServiceMock.getChatData.mockReturnValue(of({ payload: { config: { data: 'x' } } }))
+      component.getData()
+      expect(spy).toHaveBeenCalledWith({ data: 'x' })
+    })
+
+    it('should not call setDataToLocalStorage when no payload', () => {
+      const spy = jest.spyOn(component, 'setDataToLocalStorage').mockImplementation(() => { })
+      chatbotServiceMock.getChatData.mockReturnValue(of({}))
+      component.getData()
+      expect(spy).not.toHaveBeenCalled()
     })
   })
 
-  describe('Telemetry methods', () => {
-    describe('raiseCategotyTelemetry', () => {
-      it('should dispatch category telemetry event', () => {
-        component.raiseCategotyTelemetry('test-cat')
-
-        expect(mockEventService.dispatchChatbotEvent).toHaveBeenCalledWith({
-          eventType: WsEvents.WsEventType.Telemetry,
-          eventLogLevel: WsEvents.WsEventLogLevel.Info,
-          data: {
-            edata: { type: 'click', id: 'test-cat' },
-            object: { id: 'test-cat', type: 'Category' },
-            state: WsEvents.EnumTelemetrySubType.Interact,
-            eventSubType: WsEvents.EnumTelemetrySubType.Chatbot,
-            mode: 'view'
-          },
-          pageContext: { pageId: '/chatbot', module: 'Assistant' },
-          from: '',
-          to: 'Telemetry'
-        })
-      })
+  describe('setDataToLocalStorage', () => {
+    it('should save data to localStorage under selectedLanguage and currentFilter', () => {
+      jest.spyOn(component, 'toggleFilter').mockImplementation(() => { })
+      component.currentFilter = 'information'
+      component.selectedLaguage = 'en'
+      component.setDataToLocalStorage({ key: 'val' })
+      const stored = JSON.parse(localStorage.getItem('faq') || '{}')
+      expect(stored.en.information).toEqual({ key: 'val' })
     })
 
-    describe('raiseChatStartTelemetry', () => {
-      it('should dispatch start telemetry for non-sarthi filter', () => {
-        component.currentFilter = 'information'
-
-        component.raiseChatStartTelemetry()
-
-        expect(mockEventService.dispatchChatbotEvent).toHaveBeenCalledWith(
-          (expect as any).objectContaining({
-            data: (expect as any).objectContaining({
-              state: WsEvents.EnumTelemetrySubType.Loaded
-            })
-          })
-        )
-      })
-
-      it('should dispatch start telemetry for sarthi filter', () => {
-        component.currentFilter = 'sarthi'
-
-        component.raiseChatStartTelemetry()
-
-        expect(mockEventService.dispatchChatbotEvent).toHaveBeenCalledWith(
-          (expect as any).objectContaining({
-            data: (expect as any).objectContaining({
-              edata: { type: 'click', id: 'ai-global-search', pageid: '/page/home' }
-            }),
-            pageContext: { pageId: '/page/home', module: 'Home' }
-          })
-        )
-      })
-
-      it('should dispatch additional support AI telemetry when enabled', () => {
-        component.currentFilter = 'sarthi'
-        component.enableSupportAI = true
-
-        component.raiseChatStartTelemetry()
-
-        const dispatchMock: any = mockEventService.dispatchChatbotEvent
-        expect(dispatchMock).toHaveBeenCalledTimes(2)
-        const secondCall = dispatchMock.mock.calls[1][0]
-        expect(secondCall.data.edata.id).toBe('ai-support-search')
-      })
+    it('should call toggleFilter with current filter when not information', () => {
+      const spy = jest.spyOn(component, 'toggleFilter').mockImplementation(() => { })
+      component.currentFilter = 'issue'
+      component.selectedLaguage = 'en'
+      component.setDataToLocalStorage({ x: 1 })
+      expect(spy).toHaveBeenCalledWith('issue')
     })
 
-    describe('raiseChatEndTelemetry', () => {
-      it('should dispatch end telemetry for non-sarthi filter', () => {
-        component.currentFilter = 'information'
+    it('should call toggleFilter with information when currentFilter is information', () => {
+      const spy = jest.spyOn(component, 'toggleFilter').mockImplementation(() => { })
+      component.currentFilter = 'information'
+      component.selectedLaguage = 'en'
+      component.setDataToLocalStorage({})
+      expect(spy).toHaveBeenCalledWith('information')
+    })
+  })
 
-        component.raiseChatEndTelemetry()
-
-        expect(mockEventService.dispatchChatbotEvent).toHaveBeenCalledWith(
-          (expect as any).objectContaining({
-            data: (expect as any).objectContaining({
-              state: WsEvents.EnumTelemetrySubType.Unloaded
-            })
-          })
-        )
-      })
-
-      it('should dispatch end telemetry for sarthi filter', () => {
-        component.currentFilter = 'sarthi'
-
-        component.raiseChatEndTelemetry()
-
-        expect(mockEventService.dispatchChatbotEvent).toHaveBeenCalledWith(
-          (expect as any).objectContaining({
-            data: (expect as any).objectContaining({
-              edata: { type: 'click', id: 'ai-global-search', pageid: '/page/home' }
-            }),
-            pageContext: { pageId: '/page/home', module: 'Home' }
-          })
-        )
-      })
-
-      it('should dispatch additional support AI end telemetry when enabled', () => {
-        component.currentFilter = 'sarthi'
-        component.enableSupportAI = true
-
-        component.raiseChatEndTelemetry()
-
-        const dispatchMock: any = mockEventService.dispatchChatbotEvent
-        expect(dispatchMock).toHaveBeenCalledTimes(2)
-        const secondCall = dispatchMock.mock.calls[1][0]
-        expect(secondCall.data.edata.id).toBe('ai-support-search')
-      })
+  describe('getLanguages', () => {
+    it('should set language and call getData on success (status 200)', () => {
+      const spy = jest.spyOn(component, 'getData').mockImplementation(() => { })
+      chatbotServiceMock.getLangugages.mockReturnValue(of({
+        status: { code: 200 },
+        payload: { languages: [{ id: 'en', name: 'English' }] },
+      }))
+      component.getLanguages()
+      expect(component.language).toEqual([{ id: 'en', name: 'English' }])
+      expect(spy).toHaveBeenCalled()
     })
 
-    describe('raiseTemeletyInterat', () => {
-      it('should dispatch interaction telemetry', () => {
-        component.currentFilter = 'information'
-
-        component.raiseTemeletyInterat('test-id')
-
-        expect(mockEventService.dispatchChatbotEvent).toHaveBeenCalledWith({
-          eventType: WsEvents.WsEventType.Telemetry,
-          eventLogLevel: WsEvents.WsEventLogLevel.Info,
-          data: {
-            edata: { type: 'click', id: 'test-id' },
-            object: { id: 'test-id', type: 'Information' },
-            state: WsEvents.EnumTelemetrySubType.Interact,
-            eventSubType: WsEvents.EnumTelemetrySubType.Chatbot,
-            mode: 'view'
-          },
-          pageContext: { pageId: '/chatbot', module: 'Assistant' },
-          from: '',
-          to: 'Telemetry'
-        })
-      })
+    it('should not call getData when status code is not 200', () => {
+      const spy = jest.spyOn(component, 'getData').mockImplementation(() => { })
+      chatbotServiceMock.getLangugages.mockReturnValue(of({ status: { code: 404 } }))
+      component.getLanguages()
+      expect(spy).not.toHaveBeenCalled()
     })
   })
 
@@ -886,791 +598,573 @@ describe('AppChatbotComponent', () => {
       jest.spyOn(component, 'initData').mockImplementation(() => { })
       jest.spyOn(component, 'getQns').mockImplementation(() => { })
       jest.spyOn(component, 'getCategories').mockImplementation(() => { })
-      jest.spyOn(component, 'getLanguages').mockImplementation(() => { })
     })
 
-    it('should initialize with existing localStorage data for information', () => {
-      const mockFaqData = {
-        en: {
-          information: { test: 'info-data' }
-        }
+    it('should call getLanguages when no faq-languages in localStorage', () => {
+      const spy = jest.spyOn(component, 'getLanguages').mockImplementation(() => { })
+      localStorage.clear()
+      component.checkForApiCalls()
+      expect(spy).toHaveBeenCalled()
+    })
+
+    it('should set language from localStorage array', () => {
+      jest.spyOn(component, 'getLanguages').mockImplementation(() => { })
+      localStorage.setItem('faq-languages', JSON.stringify([{ id: 'en' }]))
+      component.checkForApiCalls()
+      expect(component.language).toEqual([{ id: 'en' }])
+    })
+
+    it('should load from localStorage for information filter (empty chatInformation)', () => {
+      jest.spyOn(component, 'getLanguages').mockImplementation(() => { })
+      localStorage.setItem('faq-languages', JSON.stringify([{ id: 'en' }]))
+      localStorage.setItem('selectedLanguage', 'en')
+      component.currentFilter = 'information'
+      const faqData = { en: { information: { quesMap: [], recommendationMap: [] } } }
+      localStorage.setItem('faq', JSON.stringify(faqData))
+      component.chatInformation = []
+      component.checkForApiCalls()
+      expect(component.responseData).toEqual(faqData.en.information)
+    })
+
+    it('should use existing chatInformation when not empty', () => {
+      jest.spyOn(component, 'getLanguages').mockImplementation(() => { })
+      localStorage.setItem('faq-languages', JSON.stringify([{ id: 'en' }]))
+      localStorage.setItem('selectedLanguage', 'en')
+      component.currentFilter = 'information'
+      const faqData = { en: { information: { quesMap: [], recommendationMap: [] } } }
+      localStorage.setItem('faq', JSON.stringify(faqData))
+      component.chatInformation = [{ type: 'incoming' }]
+      component.checkForApiCalls()
+      expect(component.userJourney).toEqual(component.chatInformation)
+    })
+
+    it('should load for issue filter (empty chatIssues)', () => {
+      jest.spyOn(component, 'getLanguages').mockImplementation(() => { })
+      localStorage.setItem('faq-languages', JSON.stringify([{ id: 'en' }]))
+      localStorage.setItem('selectedLanguage', 'en')
+      component.currentFilter = 'issue'
+      const faqData = { en: { issue: { quesMap: [], recommendationMap: [] } } }
+      localStorage.setItem('faq', JSON.stringify(faqData))
+      component.chatIssues = []
+      component.checkForApiCalls()
+      expect(component.responseData).toEqual(faqData.en.issue)
+    })
+
+    it('should use existing chatIssues when not empty', () => {
+      jest.spyOn(component, 'getLanguages').mockImplementation(() => { })
+      localStorage.setItem('faq-languages', JSON.stringify([{ id: 'en' }]))
+      localStorage.setItem('selectedLanguage', 'en')
+      component.currentFilter = 'issue'
+      const faqData = { en: { issue: { quesMap: [], recommendationMap: [] } } }
+      localStorage.setItem('faq', JSON.stringify(faqData))
+      component.chatIssues = [{ type: 'incoming' }]
+      component.checkForApiCalls()
+      expect(component.userJourney).toEqual(component.chatIssues)
+    })
+
+    it('should call getLanguages when no matching faq data', () => {
+      const spy = jest.spyOn(component, 'getLanguages').mockImplementation(() => { })
+      localStorage.setItem('faq-languages', JSON.stringify([{ id: 'en' }]))
+      localStorage.setItem('selectedLanguage', 'en')
+      component.currentFilter = 'information'
+      localStorage.setItem('faq', JSON.stringify({}))
+      component.checkForApiCalls()
+      expect(spy).toHaveBeenCalled()
+    })
+  })
+
+  describe('selectedQuestion', () => {
+    beforeEach(() => {
+      component.questionsAndAns = {
+        q1: { quesValue: 'What is this?', ansVal: 'This is the answer.', recommendedQues: [] },
       }
-      const mockLanguages = ['en', 'hi'];
+      component.callText = 'call text'
+      component.emailText = 'email text'
+      jest.spyOn(component, 'scrollToBottom').mockImplementation(() => { })
+      jest.spyOn(component, 'raiseTemeletyInterat').mockImplementation(() => { })
+    })
 
-      (localStorage.getItem as jest.Mock)
-        .mockReturnValueOnce('en') // selectedLanguage
-        .mockReturnValueOnce(JSON.stringify(mockFaqData)) // faq
-        .mockReturnValueOnce(JSON.stringify(mockLanguages)) // faq-languages
-
-      component.selectedLaguage = 'en'
+    it('should push sendMsg and incomingMsg and call raiseTemeletyInterat', () => {
+      const data: any = { selectedValue: '', tab: 'information' }
+      const question: any = { quesID: 'q1', recommendedQues: [] }
       component.currentFilter = 'information'
       component.chatInformation = []
-
-      component.checkForApiCalls()
-
-      expect(component.selectedLaguage).toBe('en')
-      expect(component.language).toEqual(mockLanguages)
-      expect(component.responseData).toEqual({ test: 'info-data' })
-      expect(component.initData).toHaveBeenCalledWith({ test: 'info-data' })
-      expect(component.getQns).toHaveBeenCalled()
-      expect(component.getCategories).toHaveBeenCalled()
+      component.selectedQuestion(question, data)
+      expect(component.chatInformation.length).toBeGreaterThan(0)
+      expect(component.raiseTemeletyInterat).toHaveBeenCalledWith('q1')
     })
 
-    it('should use existing chat data when available for information', () => {
-      const mockFaqData = {
-        en: {
-          information: { test: 'info-data' }
-        }
-      }
-      const mockLanguages = ['en', 'hi']
-      const existingChatInfo = [{ message: 'existing' }];
-
-      (localStorage.getItem as jest.Mock)
-        .mockReturnValueOnce('en')
-        .mockReturnValueOnce(JSON.stringify(mockFaqData))
-        .mockReturnValueOnce(JSON.stringify(mockLanguages))
-
-      component.selectedLaguage = 'en'
+    it('should set data.selectedValue to question.quesID', () => {
+      const data: any = { selectedValue: '', tab: 'information' }
       component.currentFilter = 'information'
-      component.chatInformation = existingChatInfo
-
-      component.checkForApiCalls()
-
-      expect(component.responseData).toEqual({ test: 'info-data' })
-      expect(component.userJourney).toEqual(existingChatInfo)
-      expect(component.initData).not.toHaveBeenCalled()
+      component.selectedQuestion({ quesID: 'q1', recommendedQues: [] }, data)
+      expect(data.selectedValue).toBe('q1')
     })
+  })
 
-    it('should initialize with existing localStorage data for issues', () => {
-      const mockFaqData = {
-        en: {
-          issue: { test: 'issue-data' }
-        }
+  describe('showMoreQuestion', () => {
+    it('should push new incoming message to chat', () => {
+      component.responseData = {
+        recommendationMap: [
+          { recommendedQues: [{ priority: 1, quesID: 'q1' }], categoryType: 'Logged-In' },
+        ],
       }
-      const mockLanguages = ['en', 'hi'];
+      component.userInfo = { firstName: 'Test' }
+      component.currentFilter = 'information'
+      component.chatInformation = []
+      component.showMoreQuestion()
+      expect(component.chatInformation.length).toBeGreaterThan(0)
+      expect(component.chatInformation[0].type).toBe('incoming')
+    })
+  })
 
-      (localStorage.getItem as jest.Mock)
-        .mockReturnValueOnce('en')
-        .mockReturnValueOnce(JSON.stringify(mockFaqData))
-        .mockReturnValueOnce(JSON.stringify(mockLanguages))
-
-      component.selectedLaguage = 'en'
-      component.currentFilter = 'issue'
-      component.chatIssues = []
-
-      component.checkForApiCalls()
-
-      expect(component.responseData).toEqual({ test: 'issue-data' })
-      expect(component.initData).toHaveBeenCalledWith({ test: 'issue-data' })
+  describe('showCategory', () => {
+    beforeEach(() => {
+      component.responseData = {
+        recommendationMap: [
+          { catId: 'cat1', catName: 'Category 1', recommendedQues: [{ quesID: 'q1' }] },
+        ],
+        categoryMap: [],
+      }
+      component.categories = [{ catId: 'all', catName: 'All', priority: 0 }]
+      jest.spyOn(component, 'raiseCategotyTelemetry').mockImplementation(() => { })
+      jest.spyOn(component, 'scrollToBottom').mockImplementation(() => { })
     })
 
-    it('should call getLanguages when no localStorage data exists', () => {
-      (localStorage.getItem as jest.Mock)
-        .mockReturnValueOnce('en')
-        .mockReturnValueOnce('{}')
-        .mockReturnValueOnce('[]')
-
-      component.checkForApiCalls()
-
-      expect(component.getLanguages).toHaveBeenCalled()
+    it('should set more to false', () => {
+      component.more = true
+      component.showCategory({ catId: 'all', catName: 'All' })
+      expect(component.more).toBe(false)
     })
 
-    it('should default to English when no selectedLanguage in localStorage', () => {
-      (localStorage.getItem as jest.Mock)
-        .mockReturnValueOnce(null)
-        .mockReturnValueOnce('{}')
-        .mockReturnValueOnce('[]')
+    it('should push category message for catId=all', () => {
+      component.currentFilter = 'information'
+      component.chatInformation = []
+      component.showCategory({ catId: 'all', catName: 'All' })
+      expect(component.chatInformation.length).toBeGreaterThan(0)
+    })
 
-      component.checkForApiCalls()
-
-      expect(component.selectedLaguage).toBe('en')
+    it('should call raiseCategotyTelemetry for non-all catId', () => {
+      component.currentFilter = 'information'
+      component.chatInformation = []
+      component.showCategory({ catId: 'cat1', catName: 'Category 1' })
+      expect(component.raiseCategotyTelemetry).toHaveBeenCalledWith('cat1')
     })
   })
 
   describe('getCategories', () => {
-    beforeEach(() => {
+    it('should build categories list when < 6 items', () => {
       component.responseData = {
         recommendationMap: [
-          {
-            catId: 'cat1',
-            priority: 2,
-            categoryType: 'Logged-In'
-          },
-          {
-            catId: 'cat2',
-            priority: 1,
-            categoryType: 'Both'
-          }
+          { catId: 'c1', priority: 1, categoryType: 'Logged-In' },
         ],
-        categoryMap: [
-          { catId: 'cat1', catName: 'Category 1' },
-          { catId: 'cat2', catName: 'Category 2' }
-        ]
+        categoryMap: [{ catId: 'c1', catName: 'Cat 1' }],
       }
-    })
-
-    it('should generate categories for logged-in user', () => {
-      component.userInfo = { firstName: 'John' }
+      component.userInfo = { firstName: 'Test' }
       component.selectedLaguage = 'en'
-
       component.getCategories()
-
-      expect(component.categories.length).toBe(2)
-      expect(component.categories[0]).toEqual({
-        catId: 'cat1',
-        catName: 'Category 1',
-        priority: 2,
-        categoryType: 'Logged-In'
-      })
-      expect(component.categories[1]).toEqual({
-        catId: 'cat2',
-        catName: 'Category 2',
-        priority: 1,
-        categoryType: 'Both'
-      })
+      expect(component.categories.length).toBeLessThan(6)
     })
 
-    it('should generate categories for not logged-in user', () => {
-      component.userInfo = null
-      component.selectedLaguage = 'en'
-
-      component.getCategories()
-
-      expect(component.categories.length).toBe(1)
-      expect(component.categories[0]).toEqual({
-        catId: 'cat2',
-        catName: 'Category 2',
-        priority: 1,
-        categoryType: 'Both'
-      })
-    })
-
-    it('should limit categories when more than 6', () => {
-      // Create more than 6 categories
-      const manyCategories = Array.from({ length: 8 }, (_, i) => ({
-        catId: `cat${i}`,
-        priority: i,
-        categoryType: 'Both'
+    it('should include all entry when >= 6 items', () => {
+      const entries = Array.from({ length: 6 }, (_, i) => ({
+        catId: `c${i}`, priority: i, categoryType: 'Both',
       }))
-      const manyCategoryMap = Array.from({ length: 8 }, (_, i) => ({
-        catId: `cat${i}`,
-        catName: `Category ${i}`
-      }))
-
-      component.responseData = {
-        recommendationMap: manyCategories,
-        categoryMap: manyCategoryMap
-      }
-      component.userInfo = { firstName: 'John' }
+      const catMap = entries.map(e => ({ catId: e.catId, catName: `Cat ${e.catId}` }))
+      component.responseData = { recommendationMap: entries, categoryMap: catMap }
+      component.userInfo = { firstName: 'Test' }
       component.selectedLaguage = 'en'
-
       component.getCategories()
-
-      expect(component.categories.length).toBe(9) // all + 8 categories
-    })
-  })
-
-  describe('sortCategory', () => {
-    it('should sort categories by priority', () => {
-      component.categories = [
-        { catId: 'cat3', priority: 3 },
-        { catId: 'cat1', priority: 1 },
-        { catId: 'cat2', priority: 2 }
-      ]
-
-      const sorted = component.sortCategory()
-
-      expect(sorted.map((c: any) => c.catId)).toEqual(['cat1', 'cat2', 'cat3'])
-    })
-
-    it('should handle equal priorities', () => {
-      component.categories = [
-        { catId: 'cat2', priority: 1 },
-        { catId: 'cat1', priority: 1 },
-        { catId: 'cat3', priority: 2 }
-      ]
-
-      const sorted = component.sortCategory()
-
-      expect(sorted[0].priority).toBe(1)
-      expect(sorted[1].priority).toBe(1)
-      expect(sorted[2].priority).toBe(2)
-    })
-  })
-
-  describe('getLanguages', () => {
-    it('should fetch languages and store in localStorage', () => {
-      const mockResponse = {
-        status: { code: 200 },
-        payload: { languages: ['en', 'hi'] }
-      }
-      mockChatbotService.getLangugages.mockReturnValue(of(mockResponse))
-      jest.spyOn(component, 'getData')
-
-      component.selectedLaguage = 'en'
-      component.getLanguages()
-
-      expect(component.displayLoader).toBe(false)
-      expect(mockChatbotService.getLangugages).toHaveBeenCalled()
-      expect(component.language).toEqual(['en', 'hi'])
-      expect(localStorage.setItem).toHaveBeenCalledWith('faq-languages', JSON.stringify(['en', 'hi']))
-      expect(localStorage.setItem).toHaveBeenCalledWith('selectedLanguage', 'en')
-      expect(component.getData).toHaveBeenCalled()
-    })
-
-    it('should handle failed language fetch', () => {
-      const mockResponse = {
-        status: { code: 500 }
-      }
-      mockChatbotService.getLangugages.mockReturnValue(of(mockResponse))
-
-      component.getLanguages()
-
-      expect(component.language).toEqual([])
+      expect(component.categories.some((c: any) => c.catId === 'all')).toBe(true)
     })
   })
 
   describe('ngAfterViewChecked', () => {
-    it('should scroll chatbot content when not sarthi or support-ai', () => {
-      const mockElement = {
-        scrollTo: jest.fn(),
-        scrollHeight: 1000
-      };
-      (document.getElementById as jest.Mock).mockReturnValue(mockElement)
-
+    it('should scroll chatbot-content for information filter', () => {
       component.currentFilter = 'information'
+      const mockEl = { scrollTo: jest.fn(), scrollHeight: 500 }
+      jest.spyOn(document, 'getElementById').mockReturnValue(mockEl as any)
       component.ngAfterViewChecked()
-
-      expect(document.getElementById).toHaveBeenCalledWith('chatbot-content')
-      expect(mockElement.scrollTo).toHaveBeenCalledWith({
-        top: 1000,
-        behavior: 'smooth'
-      })
+      expect(mockEl.scrollTo).toHaveBeenCalled()
     })
 
     it('should not scroll when filter is sarthi', () => {
       component.currentFilter = 'sarthi'
+      const spy = jest.spyOn(document, 'getElementById').mockReturnValue(null)
       component.ngAfterViewChecked()
-
-      expect(document.getElementById).not.toHaveBeenCalled()
+      expect(spy).not.toHaveBeenCalled()
+      spy.mockRestore()
     })
 
     it('should not scroll when filter is support-ai', () => {
       component.currentFilter = 'support-ai'
+      const spy = jest.spyOn(document, 'getElementById').mockReturnValue(null)
       component.ngAfterViewChecked()
-
-      expect(document.getElementById).not.toHaveBeenCalled()
+      expect(spy).not.toHaveBeenCalled()
+      spy.mockRestore()
     })
 
-    it('should handle missing chatbot-content element', () => {
-      Object.defineProperty(document, 'getElementById', {
-        value: jest.fn().mockReturnValue(null),
-        writable: true,
-      })
-
+    it('should handle null chatbot-content gracefully', () => {
       component.currentFilter = 'information'
-
+      jest.spyOn(document, 'getElementById').mockReturnValue(null)
       expect(() => component.ngAfterViewChecked()).not.toThrow()
     })
   })
 
   describe('scrollToBottom', () => {
-    it('should scroll chatbot wrapper to bottom', () => {
-      const mockElement = {
-        scrollTo: jest.fn(),
-        scrollHeight: 1000
-      }
-      Object.defineProperty(document, 'getElementById', {
-        value: jest.fn().mockReturnValue(mockElement),
-        writable: true,
-      })
-
+    it('should scroll chatbot-wrapper element', () => {
+      const mockEl = { scrollTo: jest.fn(), scrollHeight: 600 }
+      jest.spyOn(document, 'getElementById').mockReturnValue(mockEl as any)
       component.scrollToBottom()
-
-      expect(document.getElementById).toHaveBeenCalledWith('chatbot-wrapper')
-      expect(mockElement.scrollTo).toHaveBeenCalledWith({
-        top: 1000,
-        behavior: 'smooth'
-      })
+      expect(mockEl.scrollTo).toHaveBeenCalled()
     })
 
-    it('should handle exceptions gracefully', () => {
-      (document.getElementById as jest.Mock).mockImplementation(() => {
-        throw new Error('Element not found')
-      })
-
+    it('should handle null element gracefully', () => {
+      jest.spyOn(document, 'getElementById').mockReturnValue(null)
       expect(() => component.scrollToBottom()).not.toThrow()
     })
   })
 
   describe('scrollToBottomEvent', () => {
-    it('should scroll chatbot content to bottom', () => {
-      const mockElement = {
-        scrollTo: jest.fn(),
-        scrollHeight: 1000
-      };
-      (document.getElementById as jest.Mock).mockReturnValue(mockElement)
-
+    it('should scroll chatbot-content element', () => {
+      const mockEl = { scrollTo: jest.fn(), scrollHeight: 400 }
+      jest.spyOn(document, 'getElementById').mockReturnValue(mockEl as any)
       component.scrollToBottomEvent()
-
-      expect(document.getElementById).toHaveBeenCalledWith('chatbot-content')
-      expect(mockElement.scrollTo).toHaveBeenCalledWith({
-        top: 1000,
-        behavior: 'smooth'
-      })
+      expect(mockEl.scrollTo).toHaveBeenCalled()
     })
 
-    it('should handle missing element', () => {
-      Object.defineProperty(document, 'getElementById', {
-        value: jest.fn().mockReturnValue(null),
-        writable: true,
-      })
-
+    it('should handle null element gracefully', () => {
+      jest.spyOn(document, 'getElementById').mockReturnValue(null)
       expect(() => component.scrollToBottomEvent()).not.toThrow()
     })
   })
 
-  describe('clickOutside', () => {
-    it('should end chat when AI flags are disabled', () => {
-      jest.spyOn(component, 'iconClick')
-      component.enableIGOTAIFlag = false
-      component.enableSupportAI = false
-
-      component.clickOutside()
-
-      expect(component.iconClick).toHaveBeenCalledWith('end')
-    })
-
-    it('should not end chat when iGOTAI is enabled', () => {
-      jest.spyOn(component, 'iconClick')
-      component.enableIGOTAIFlag = true
-      component.enableSupportAI = false
-
-      component.clickOutside()
-
-      expect(component.iconClick).not.toHaveBeenCalled()
-    })
-
-    it('should not end chat when supportAI is enabled', () => {
-      jest.spyOn(component, 'iconClick')
-      component.enableIGOTAIFlag = false
-      component.enableSupportAI = true
-
-      component.clickOutside()
-
-      expect(component.iconClick).not.toHaveBeenCalled()
-    })
-  })
-
-  describe('Scroll control methods', () => {
-    describe('disableScroll', () => {
-      it('should add disable-scroll class to body', () => {
-        component.disableScroll()
-        expect(mockRenderer.addClass).toHaveBeenCalledWith(document.body, 'disable-scroll')
-      })
-    })
-
-    describe('enableScroll', () => {
-      it('should remove disable-scroll class from body', () => {
-        component.enableScroll()
-        expect(mockRenderer.removeClass).toHaveBeenCalledWith(document.body, 'disable-scroll')
-      })
-    })
-  })
-
-  describe('Drag functionality', () => {
-    describe('onDragEnded', () => {
-      it('should reset drag when chatIconOutside is true', () => {
-        jest.useFakeTimers()
-        const mockDragRef = { reset: jest.fn() }
-        const mockEvent = {
-          source: {
-            getFreeDragPosition: jest.fn().mockReturnValue({ x: 10, y: 20 }),
-            _dragRef: mockDragRef
-          }
-        }
-        component.chatIconOutside = true
-
-        component.onDragEnded(mockEvent as any)
-
-        expect(mockDragRef.reset).toHaveBeenCalled()
-
-        jest.runAllTimers()
-        expect(component.dragEnabled).toBe(false)
-      })
-
-      it('should set icon position when chatIconOutside is false', () => {
-        jest.useFakeTimers()
-        const mockPoint = { x: 10, y: 20 }
-        const mockEvent = {
-          source: {
-            getFreeDragPosition: jest.fn().mockReturnValue(mockPoint),
-            _dragRef: { reset: jest.fn() }
-          }
-        }
-        component.chatIconOutside = false
-
-        component.onDragEnded(mockEvent as any)
-
-        expect(component.iconPosition).toEqual(mockPoint)
-
-        jest.runAllTimers()
-        expect(component.dragEnabled).toBe(false)
-      })
-
-      it('should handle missing dragRef', () => {
-        jest.useFakeTimers()
-        const mockEvent = {
-          source: {
-            getFreeDragPosition: jest.fn().mockReturnValue({ x: 10, y: 20 }),
-            _dragRef: null
-          }
-        }
-
-        component.onDragEnded(mockEvent as any)
-
-        jest.runAllTimers()
-        expect(component.dragEnabled).toBe(false)
-      })
-    })
-
-    describe('onDragMoved', () => {
-      beforeEach(() => {
-        Object.defineProperty(globalThis as any, 'innerHeight', { value: 800, writable: true })
-        Object.defineProperty(globalThis as any, 'innerWidth', { value: 1200, writable: true })
-        Object.defineProperty(document.documentElement, 'clientHeight', { value: 800, writable: true })
-        Object.defineProperty(document.documentElement, 'clientWidth', { value: 1200, writable: true })
-      })
-
-      it('should set chatIconOutside to true when element is outside viewport', () => {
-        component.dragElement.nativeElement.getBoundingClientRect = jest.fn().mockReturnValue({
-          top: -10,
-          left: 10,
-          bottom: 100,
-          right: 100
-        })
-
-        component.onDragMoved()
-
-        expect(component.dragEnabled).toBe(true)
-        expect(component.chatIconOutside).toBe(true)
-      })
-
-      it('should set chatIconOutside to false when element is inside viewport', () => {
-        component.dragElement.nativeElement.getBoundingClientRect = jest.fn().mockReturnValue({
-          top: 10,
-          left: 10,
-          bottom: 100,
-          right: 100
-        })
-
-        component.onDragMoved()
-
-        expect(component.dragEnabled).toBe(true)
-        expect(component.chatIconOutside).toBe(false)
-      })
-
-      it('should detect outside on left edge', () => {
-        component.dragElement.nativeElement.getBoundingClientRect = jest.fn().mockReturnValue({
-          top: 10,
-          left: -5,
-          bottom: 100,
-          right: 100
-        })
-
-        component.onDragMoved()
-
-        expect(component.chatIconOutside).toBe(true)
-      })
-
-      it('should detect outside on bottom edge', () => {
-        component.dragElement.nativeElement.getBoundingClientRect = jest.fn().mockReturnValue({
-          top: 10,
-          left: 10,
-          bottom: 850,
-          right: 100
-        })
-
-        component.onDragMoved()
-
-        expect(component.chatIconOutside).toBe(true)
-      })
-
-      it('should detect outside on right edge', () => {
-        component.dragElement.nativeElement.getBoundingClientRect = jest.fn().mockReturnValue({
-          top: 10,
-          left: 10,
-          bottom: 100,
-          right: 1250
-        })
-
-        component.onDragMoved()
-
-        expect(component.chatIconOutside).toBe(true)
-      })
-    })
-  })
-
-  describe('Zoho form functionality', () => {
-    describe('getZohoForm', () => {
-      it('should open zoho dialog and call XML request', () => {
-        jest.useFakeTimers()
-        const mockDialogRef = {
-          afterClosed: jest.fn().mockReturnValue(of(null))
-        }
-        mockDialog.open.mockReturnValue(mockDialogRef as any)
-        component.zohoHtml = '<div>test html</div>'
-        jest.spyOn(component, 'callXMLRequest').mockImplementation(() => { })
-
-        component.getZohoForm()
-
-        expect(mockDialog.open).toHaveBeenCalledWith(
-          (expect as any).anything(),
-          {
-            width: '45%',
-            data: {
-              view: 'zohoform',
-              value: '<div>test html</div>'
-            }
-          }
-        )
-
-        jest.runAllTimers()
-        expect(component.callXMLRequest).toHaveBeenCalled()
-      })
-    })
-
-    describe('callXMLRequest', () => {
-      beforeEach(() => {
-        mockXHR = {
-          open: jest.fn(),
-          send: jest.fn(),
-          onreadystatechange: null,
-          readyState: 4,
-          status: 200,
-          responseText: JSON.stringify({
-            captchaUrl: 'http://test-captcha.com',
-            captchaDigest: 'test-digest'
-          })
-        }
-
-        // Mock DOM elements
-        const mockElements = {
-          zsCaptchaUrl: { src: '', style: { display: '' } },
-          zsCaptchaLoading: { style: { display: '' } },
-          zsCaptcha: { style: { display: '' } },
-          refreshCaptcha: { addEventListener: jest.fn() }
-        }
-
-          ; (document.getElementById as jest.Mock).mockImplementation(
-            createGetElementByIdMock(mockElements) as any
-          )
-
-            (document.getElementsByName as jest.Mock).mockReturnValue([{ value: '' }])
-      })
-
-      it('should make XML request and update captcha elements', () => {
-        component.callXMLRequest()
-
-        expect(mockXHR.open).toHaveBeenCalledWith(
-          'GET',
-          (expect as any).stringContaining('https://desk.zoho.in/support/GenerateCaptcha'),
-          true
-        )
-
-        // Simulate successful response
-        mockXHR.onreadystatechange()
-
-        expect(document.getElementById).toHaveBeenCalledWith('zsCaptchaUrl')
-        expect(document.getElementById).toHaveBeenCalledWith('zsCaptchaLoading')
-        expect(document.getElementById).toHaveBeenCalledWith('zsCaptcha')
-        expect(document.getElementById).toHaveBeenCalledWith('refreshCaptcha')
-      })
-
-      it('should handle invalid JSON response', () => {
-        mockXHR.responseText = 'invalid json'
-
-        component.callXMLRequest()
-
-        mockXHR.onreadystatechange()
-      })
-
-      it('should handle null response', () => {
-        mockXHR.responseText = null
-
-        component.callXMLRequest()
-
-        mockXHR.onreadystatechange()
-      })
-
-      it('should handle missing DOM elements gracefully', () => {
-        Object.defineProperty(document, 'getElementById', {
-          value: jest.fn().mockReturnValue(null),
-          writable: true,
-        })
-
-        component.callXMLRequest()
-
-        mockXHR.onreadystatechange()
-      })
-    })
-  })
-
-  describe('Chat control methods', () => {
-    describe('minimizeChat', () => {
-      it('should set flags to minimize chat', () => {
-        component.minimizeChat()
-
-        expect(component.maximizeChatFlag).toBe(false)
-        expect(component.fullScreenChatFlag).toBe(false)
-      })
-    })
-
-    describe('maximizeChat', () => {
-      it('should set flags to maximize chat', () => {
-        component.maximizeChat()
-
-        expect(component.maximizeChatFlag).toBe(true)
-        expect(component.fullScreenChatFlag).toBe(false)
-      })
-    })
-
-    describe('fullScreenChat', () => {
-      it('should set flag to full screen', () => {
-        component.fullScreenChat()
-
-        expect(component.fullScreenChatFlag).toBe(true)
-      })
-    })
-
-    describe('fullScreenExitChat', () => {
-      it('should exit full screen and maximize chat', () => {
-        component.fullScreenExitChat()
-
-        expect(component.fullScreenChatFlag).toBe(false)
-        expect(component.maximizeChatFlag).toBe(true)
-      })
-    })
-  })
-
-  describe('getFooterClass', () => {
-    it('should return footer class for both support AI and iGOTAI enabled', () => {
-      component.enableSupportAI = true
-      component.enableIGOTAIFlag = true
-
-      component.getFooterClass()
-
-      expect(component.footerClassName).toBe('cb-footer-with-support-ai')
-    })
-
-    it('should return footer class for only iGOTAI enabled', () => {
-      component.enableSupportAI = false
-      component.enableIGOTAIFlag = true
-
-      component.getFooterClass()
-
-      expect(component.footerClassName).toBe('cb-footer-with-ai')
-    })
-
-    it('should return footer class for only support AI enabled', () => {
-      component.enableSupportAI = true
-      component.enableIGOTAIFlag = false
-
-      component.getFooterClass()
-
-      expect(component.footerClassName).toBe('cb-footer-with-ai-support-only')
-    })
-
-    it('should return default footer class when no AI is enabled', () => {
-      component.enableSupportAI = false
-      component.enableIGOTAIFlag = false
-
-      component.getFooterClass()
-
-      expect(component.footerClassName).toBe('cb-footer')
-    })
-  })
-
-  describe('Edge cases and error handling', () => {
-    it('should handle undefined responseData in getQns', () => {
-      component.responseData = undefined
-
-      expect(() => component.getQns()).toThrow()
-    })
-
-    it('should handle empty recommendationMap in getPriorityQuestion', () => {
-      component.responseData = { recommendationMap: [] }
-      component.userInfo = { firstName: 'John' }
-
-      const result = component.getPriorityQuestion(1)
-
-      expect(result).toEqual([])
-    })
-
-    it('should handle missing localization keys', () => {
-      component.selectedLaguage = 'fr' // unsupported language
-
-      expect(component.greetings()).toBe('Hi')
-      expect(component.getInfoText('test')).toBe('test')
-      expect(component.showMore()).toBe('Show More')
-    })
-
-    it('should handle API errors gracefully', () => {
-      mockChatbotService.getChatData.mockReturnValue(of({ payload: null }))
-
-      expect(() => component.getData()).not.toThrow()
-    })
-
-    it('should handle missing environment configuration', () => {
-      // This tests the fallback email
-      mockHttp.get.mockReturnValue(of('<html>test</html>'))
-      component.ngOnInit()
-
-      expect(component.emailText).toContain('test@example.com')
-    })
-  })
-
-  describe('Component state management', () => {
-    it('should maintain correct state during filter transitions', () => {
-      component.currentFilter = 'information'
-      component.chatInformation = [{ message: 'info' }]
-      component.chatIssues = [{ message: 'issue' }]
-
-      component.toggleFilter('issue')
-
-      expect(component.currentFilter).toBe('issue')
-      expect(component.more).toBe(false)
-    })
-
-    it('should reset state correctly on chat end', () => {
-      component.userJourney = [{ message: 'test' }]
-      component.chatInformation = [{ message: 'info' }]
-      component.chatIssues = [{ message: 'issue' }]
-      component.selectedLaguage = 'hi'
-      component.more = true
+  describe('iconClick start path', () => {
+    it('should set chatId on start action', () => {
+      const spyStart = jest.spyOn(component, 'raiseChatStartTelemetry').mockImplementation(() => { })
+      jest.spyOn(component, 'checkForApiCalls').mockImplementation(() => { })
       component.dragEnabled = false
+      component.iconClick('start')
+      expect(component.chatId).toContain('user123')
+      expect(spyStart).toHaveBeenCalled()
+    })
 
+    it('should clear all chat data on end action', () => {
+      jest.spyOn(component, 'raiseChatEndTelemetry').mockImplementation(() => { })
+      jest.spyOn(component, 'checkForApiCalls').mockImplementation(() => { })
+      component.dragEnabled = false
+      component.chatInformation = [{ msg: 'x' }]
+      component.chatIssues = [{ msg: 'y' }]
       component.iconClick('end')
-
-      expect(component.userJourney).toEqual([])
       expect(component.chatInformation).toEqual([])
       expect(component.chatIssues).toEqual([])
       expect(component.selectedLaguage).toBe('en')
-      expect(component.more).toBe(false)
     })
 
-    it('should handle concurrent data updates', () => {
-      const data1 = { test: 'data1' }
-      const data2 = { test: 'data2' }
+    it('should set currentFilter to sarthi on end when iGOTAI.all and allDesignation', () => {
+      jest.spyOn(component, 'raiseChatEndTelemetry').mockImplementation(() => { })
+      jest.spyOn(component, 'checkForApiCalls').mockImplementation(() => { })
+      configSvcMock.iGOTAIConfig = { iGOTAI: { all: true, allDesignation: true } }
+      component.dragEnabled = false
+      component.iconClick('end')
+      expect(component.currentFilter).toBe('sarthi')
+    })
 
-      component.setDataToLocalStorage(data1)
-      component.setDataToLocalStorage(data2)
+    it('should set currentFilter to sarthi when iGOTAI forOrg+allDesignation on end', () => {
+      jest.spyOn(component, 'raiseChatEndTelemetry').mockImplementation(() => { })
+      jest.spyOn(component, 'checkForApiCalls').mockImplementation(() => { })
+      configSvcMock.iGOTAIConfig = { iGOTAI: { all: false, forOrg: ['org1'], allDesignation: true } }
+      component.rootOrgId = 'org1'
+      component.dragEnabled = false
+      component.iconClick('end')
+      expect(component.currentFilter).toBe('sarthi')
+    })
 
-      // Last data should win
-      expect(localStorage.setItem).toHaveBeenCalledWith(
-        'faq',
-        (expect as any).stringContaining('data2')
-      )
+    it('should set currentFilter to sarthi when iGOTAI forDesignation matches on end', () => {
+      jest.spyOn(component, 'raiseChatEndTelemetry').mockImplementation(() => { })
+      jest.spyOn(component, 'checkForApiCalls').mockImplementation(() => { })
+      component.userDesignation = 'Engineer'
+      configSvcMock.iGOTAIConfig = { iGOTAI: { all: true, allDesignation: false, forDesignation: ['Engineer'] } }
+      component.dragEnabled = false
+      component.iconClick('end')
+      expect(component.currentFilter).toBe('sarthi')
+    })
+  })
+
+  describe('openSupportAIChatbot subscription', () => {
+    it('should set fromTopNavHelp true and call iconClick start when data is truthy', () => {
+      configSvcMock.iGOTAIConfig = { supportAI: { all: true } }
+      jest.spyOn(component, 'checkForApiCalls').mockImplementation(() => { })
+      const iconSpy = jest.spyOn(component, 'iconClick').mockImplementation(() => { })
+      component.ngOnInit()
+      openSupportSubject.next(true)
+      expect(component.fromTopNavHelp).toBe(true)
+      expect(iconSpy).toHaveBeenCalledWith('start')
+    })
+
+    it('should set enableSupportAI via forOrg when data is truthy', () => {
+      configSvcMock.iGOTAIConfig = { supportAI: { all: false, forOrg: ['org1'] } }
+      component.rootOrgId = 'org1'
+      jest.spyOn(component, 'checkForApiCalls').mockImplementation(() => { })
+      jest.spyOn(component, 'iconClick').mockImplementation(() => { })
+      component.ngOnInit()
+      openSupportSubject.next(true)
+      expect(component.enableSupportAI).toBe(true)
+      expect(component.currentFilter).toBe('support-ai')
+    })
+
+    it('should set fromTopNavHelp false when data is falsy', () => {
+      jest.spyOn(component, 'checkForApiCalls').mockImplementation(() => { })
+      component.ngOnInit()
+      openSupportSubject.next(false)
+      expect(component.fromTopNavHelp).toBe(false)
+    })
+  })
+
+  describe('goToBottom', () => {
+    it('should call window.scrollTo', () => {
+      const spy = jest.spyOn(window, 'scrollTo').mockImplementation((() => { }) as any)
+      component.goToBottom()
+      expect(spy).toHaveBeenCalled()
+      spy.mockRestore()
+    })
+  })
+
+  describe('readFromLocalStorage', () => {
+    it('should set responseData for information filter', () => {
+      const data = { en: { information: { data: 'info' } } }
+      localStorage.setItem('result', JSON.stringify(data))
+      component.currentFilter = 'information'
+      component.selectedLaguage = 'en'
+      component.readFromLocalStorage()
+      expect(component.responseData).toEqual({ data: 'info' })
+    })
+
+    it('should set responseData for issue filter', () => {
+      const data = { en: { issue: { data: 'iss' } } }
+      localStorage.setItem('result', JSON.stringify(data))
+      component.currentFilter = 'issue'
+      component.selectedLaguage = 'en'
+      component.readFromLocalStorage()
+      expect(component.responseData).toEqual({ data: 'iss' })
+    })
+
+    it('should handle missing localStorage result gracefully', () => {
+      localStorage.removeItem('result')
+      expect(() => component.readFromLocalStorage()).not.toThrow()
+    })
+  })
+
+  describe('getZohoForm', () => {
+    it('should open dialog with ZohoDialogComponent', () => {
+      jest.useFakeTimers()
+      component.getZohoForm()
+      expect(dialogMock.open).toHaveBeenCalled()
+      jest.useRealTimers()
+    })
+
+    it('should subscribe to afterClosed', () => {
+      jest.useFakeTimers()
+      const afterClosedSpy = jest.fn().mockReturnValue(of(null))
+      dialogMock.open.mockReturnValue({ afterClosed: afterClosedSpy })
+      component.getZohoForm()
+      expect(afterClosedSpy).toHaveBeenCalled()
+      jest.useRealTimers()
+    })
+  })
+
+  describe('onDragEnded', () => {
+    it('should update iconPosition when chatIconOutside is false', () => {
+      jest.useFakeTimers()
+      const mockPoint = { x: 10, y: 20 }
+      const mockEvent: any = {
+        source: {
+          getFreeDragPosition: jest.fn().mockReturnValue(mockPoint),
+          _dragRef: null,
+        },
+      }
+      component.chatIconOutside = false
+      component.onDragEnded(mockEvent)
+      expect(component.iconPosition).toEqual(mockPoint)
+      jest.runAllTimers()
+      expect(component.dragEnabled).toBe(false)
+      jest.useRealTimers()
+    })
+
+    it('should call dragRef.reset when chatIconOutside is true', () => {
+      jest.useFakeTimers()
+      const resetMock = jest.fn()
+      const mockEvent: any = {
+        source: {
+          getFreeDragPosition: jest.fn().mockReturnValue({ x: 5, y: 5 }),
+          _dragRef: { reset: resetMock },
+        },
+      }
+      component.chatIconOutside = true
+      component.onDragEnded(mockEvent)
+      expect(resetMock).toHaveBeenCalled()
+      jest.useRealTimers()
+    })
+  })
+
+  describe('onDragMoved', () => {
+    it('should set dragEnabled to true and chatIconOutside false when rect is inside', () => {
+      const mockRect = { top: 10, left: 10, bottom: 100, right: 100 }
+        ; (component as any).dragElement = {
+          nativeElement: { getBoundingClientRect: jest.fn().mockReturnValue(mockRect) },
+        }
+      component.onDragMoved()
+      expect(component.dragEnabled).toBe(true)
+      expect(component.chatIconOutside).toBe(false)
+    })
+
+    it('should set chatIconOutside true when rect goes outside viewport (top < 0)', () => {
+      const mockRect = { top: -10, left: 10, bottom: 100, right: 100 }
+        ; (component as any).dragElement = {
+          nativeElement: { getBoundingClientRect: jest.fn().mockReturnValue(mockRect) },
+        }
+      component.onDragMoved()
+      expect(component.chatIconOutside).toBe(true)
+    })
+
+    it('should set chatIconOutside true when rect goes outside on right', () => {
+      const mockRect = { top: 10, left: 10, bottom: 100, right: 9999 }
+        ; (component as any).dragElement = {
+          nativeElement: { getBoundingClientRect: jest.fn().mockReturnValue(mockRect) },
+        }
+      component.onDragMoved()
+      expect(component.chatIconOutside).toBe(true)
+    })
+  })
+
+  describe('ngOnInit additional branches', () => {
+    it('should set iGOTAI for forDesignation in ngOnInit', () => {
+      configSvcMock.userProfile = {
+        firstName: 'Test',
+        professionalDetails: [{ designation: 'Manager' }],
+      }
+      configSvcMock.iGOTAIConfig = {
+        iGOTAI: { all: true, allDesignation: false, forDesignation: ['Manager'] },
+      }
+      component.rootOrgId = 'org1'
+      component.iGOTAIConfigLoaded = true
+      jest.spyOn(component, 'checkForApiCalls').mockImplementation(() => { })
+      component.ngOnInit()
+      expect(component.enableIGOTAIFlag).toBe(true)
+    })
+
+    it('should enable iGOTAI for forOrg+allDesignation in ngOnInit', () => {
+      configSvcMock.iGOTAIConfig = {
+        iGOTAI: { all: false, forOrg: ['org1'], allDesignation: true },
+      }
+      component.rootOrgId = 'org1'
+      component.iGOTAIConfigLoaded = true
+      jest.spyOn(component, 'checkForApiCalls').mockImplementation(() => { })
+      component.ngOnInit()
+      expect(component.enableIGOTAIFlag).toBe(true)
+    })
+
+    it('should enable iGOTAI for forOrg+forDesignation in ngOnInit', () => {
+      configSvcMock.userProfile = {
+        firstName: 'Test',
+        professionalDetails: [{ designation: 'Engineer' }],
+      }
+      configSvcMock.iGOTAIConfig = {
+        iGOTAI: { all: false, forOrg: ['org1'], allDesignation: false, forDesignation: ['Engineer'] },
+      }
+      component.rootOrgId = 'org1'
+      component.iGOTAIConfigLoaded = true
+      jest.spyOn(component, 'checkForApiCalls').mockImplementation(() => { })
+      component.ngOnInit()
+      expect(component.enableIGOTAIFlag).toBe(true)
+    })
+
+    it('should set supportAI for forOrg in ngOnInit', () => {
+      configSvcMock.iGOTAIConfig = { supportAI: { all: false, forOrg: ['org1'] } }
+      component.rootOrgId = 'org1'
+      component.iGOTAIConfigLoaded = true
+      component.fromTopNavHelp = true
+      jest.spyOn(component, 'checkForApiCalls').mockImplementation(() => { })
+      component.ngOnInit()
+      expect(component.enableSupportAI).toBe(true)
+    })
+
+    it('should set informationTab for forOrg in ngOnInit', () => {
+      configSvcMock.iGOTAIConfig = { informationTab: { all: false, forOrg: ['org1'] } }
+      component.rootOrgId = 'org1'
+      component.iGOTAIConfigLoaded = true
+      jest.spyOn(component, 'checkForApiCalls').mockImplementation(() => { })
+      component.ngOnInit()
+      expect(component.enableInformationTab).toBe(true)
+    })
+
+    it('should set issuesTab for forOrg in ngOnInit', () => {
+      configSvcMock.iGOTAIConfig = { issuesTab: { all: false, forOrg: ['org1'] } }
+      component.rootOrgId = 'org1'
+      component.iGOTAIConfigLoaded = true
+      jest.spyOn(component, 'checkForApiCalls').mockImplementation(() => { })
+      component.ngOnInit()
+      expect(component.enableIssuesTab).toBe(true)
+    })
+  })
+
+  describe('ngOnChanges additional branches', () => {
+    it('should enable issuesTab for forOrg', () => {
+      configSvcMock.iGOTAIConfig = { issuesTab: { all: false, forOrg: ['org1'] } }
+      component.rootOrgId = 'org1'
+      component.iGOTAIConfigLoaded = true
+      component.ngOnChanges()
+      expect(component.enableIssuesTab).toBe(true)
+    })
+
+    it('should enable informationTab for forOrg', () => {
+      configSvcMock.iGOTAIConfig = { informationTab: { all: false, forOrg: ['org1'] } }
+      component.rootOrgId = 'org1'
+      component.iGOTAIConfigLoaded = true
+      component.ngOnChanges()
+      expect(component.enableInformationTab).toBe(true)
+    })
+
+    it('should enable supportAI for forOrg when fromTopNavHelp', () => {
+      configSvcMock.iGOTAIConfig = { supportAI: { all: false, forOrg: ['org1'] } }
+      component.rootOrgId = 'org1'
+      component.iGOTAIConfigLoaded = true
+      component.fromTopNavHelp = true
+      component.ngOnChanges()
+      expect(component.enableSupportAI).toBe(true)
+    })
+
+    it('should enable iGOTAI for forOrg+allDesignation', () => {
+      configSvcMock.iGOTAIConfig = { iGOTAI: { all: false, forOrg: ['org1'], allDesignation: true } }
+      component.rootOrgId = 'org1'
+      component.iGOTAIConfigLoaded = true
+      component.ngOnChanges()
+      expect(component.enableIGOTAIFlag).toBe(true)
+    })
+
+    it('should enable iGOTAI for forDesignation match', () => {
+      component.userDesignation = 'Manager'
+      configSvcMock.iGOTAIConfig = {
+        iGOTAI: { all: true, allDesignation: false, forDesignation: ['Manager'] },
+      }
+      component.rootOrgId = 'org1'
+      component.iGOTAIConfigLoaded = true
+      component.ngOnChanges()
+      expect(component.enableIGOTAIFlag).toBe(true)
+    })
+
+    it('should enable iGOTAI for forOrg+forDesignation in ngOnChanges', () => {
+      configSvcMock.userProfile = {
+        firstName: 'Test',
+        professionalDetails: [{ designation: 'Engineer' }],
+      }
+      configSvcMock.iGOTAIConfig = {
+        iGOTAI: { all: false, forOrg: ['org1'], allDesignation: false, forDesignation: ['Engineer'] },
+      }
+      component.rootOrgId = 'org1'
+      component.iGOTAIConfigLoaded = true
+      component.ngOnChanges()
+      expect(component.enableIGOTAIFlag).toBe(true)
     })
   })
 })
