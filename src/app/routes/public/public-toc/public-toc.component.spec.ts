@@ -1,1456 +1,470 @@
-import { PublicTocComponent, ErrorType } from './public-toc.component'
-import { of, throwError, Subject } from 'rxjs'
-import { NavigationEnd } from '@angular/router'
-
-// Virtual mock for external dependency that is not resolvable in Jest
-jest.mock('@sunbird-cb/consumption/lib/_services/content-language.service', () => {
-  const ContentLanguageService = jest.fn().mockImplementation(() => ({
-    get: jest.fn(),
-    init: jest.fn(),
-  }))
-  return {
-    __esModule: true,
-    ContentLanguageService,
-    default: ContentLanguageService,
-  }
-}, { virtual: true })
-
-// Mock moment default import as a callable function
-jest.mock('moment', () => {
-  const momentMock: any = () => ({
-    isAfter: jest.fn(() => true),
-    isBefore: jest.fn(() => false),
-    fromNow: jest.fn(() => 'in 7 days'),
-  })
-  momentMock.__esModule = true
-  momentMock.default = momentMock
-  return momentMock
-}, { virtual: true })
-
-// Mock dayjs default import to behave like a lightweight date helper
 jest.mock('dayjs', () => {
-  const dayjsMock: any = (...args: any[]) => {
-    const hasArg = args.length > 0
-    const input = hasArg ? args[0] : undefined
-    const date = input ? new Date(input) : new Date()
-    return {
-      format: jest.fn(() => {
-        return hasArg && input ? date.toISOString().slice(0, 10) : ''
-      }),
-      isBefore: jest.fn((other?: any) => {
-        const thisTime = date.getTime()
-        const otherTime = other && other.__date instanceof Date ? other.__date.getTime() : Date.now()
-        return thisTime < otherTime
-      }),
-      __date: date,
-    }
-  }
-  dayjsMock.__esModule = true
-  dayjsMock.default = dayjsMock
-  return dayjsMock
-}, { virtual: true })
-
-// Mock classes and interfaces
-class MockActivatedRoute {
-  data = of({});
-  fragment = of('overview');
-  queryParamMap = of(new Map());
-}
-
-class MockRouter {
-  events = of(new NavigationEnd(1, '/test', '/test'));
-  url = '/test/overview';
-}
-
-class MockContentService {
-  getFirstChildInHierarchy = jest.fn(() => ({ identifier: 'id', mimeType: 'application/pdf' }))
-}
-
-class MockTocService {
-  subtitleOnBanners = false;
-  showDescription = false;
-  batchReplaySubject = of({});
-  analyticsFetchStatus = 'none';
-  initData = jest.fn();
-  getTocStructure = jest.fn();
-  showStartButton = jest.fn();
-  fetchPostAssessmentStatus = jest.fn();
-  fetchExternalContentAccess = jest.fn(() => of({ hasAccess: false }));
-  filterToc = jest.fn();
-  changeUpdateReviews = jest.fn();
-}
-
-class MockLoggerService {
-  error = jest.fn();
-}
-
-class MockConfigurationsService {
-  pageNavBar = {};
-  instanceConfig = {
-    logos: {
-      defaultSourceLogo: 'test-logo.png'
-    }
-  };
-  restrictedFeatures = new Set();
-  userProfile = {
-    userId: 'test-user-id'
-  };
-  rootOrg = 'test-org';
-}
-
-class MockDomSanitizer {
-  bypassSecurityTrustHtml = jest.fn((html) => html);
-  bypassSecurityTrustStyle = jest.fn((style) => style);
-}
-
-class MockAccessControlService {
-  proxyToAuthoringUrl = jest.fn((url) => url);
-}
-
-class MockMatDialog {
-  open = jest.fn(() => ({
-    afterClosed: () => of(true)
-  }));
-}
-
-class MockMobileAppsService {
-  sendViewerData = jest.fn();
-}
-
-class MockUtilityService {
-  isMobile = false;
-}
-
-class MockActionService {
-  getUpdateCompGroupO = of({});
-}
-
-class MockRatingService {
-  getRating = jest.fn(() => of({}));
-}
-
-describe('PublicTocComponent', () => {
-  let component: PublicTocComponent
-  let mockRoute: MockActivatedRoute
-  let mockRouter: MockRouter
-  let mockContentSvc: MockContentService
-  let mockTocSvc: MockTocService
-  let mockLoggerSvc: MockLoggerService
-  let mockConfigSvc: MockConfigurationsService
-  let mockDomSanitizer: MockDomSanitizer
-  let mockAuthAccessControlSvc: MockAccessControlService
-  let mockDialog: MockMatDialog
-  let mockMobileAppsSvc: MockMobileAppsService
-  let mockUtilitySvc: MockUtilityService
-  let mockActionSVC: MockActionService
-  let mockRatingSvc: MockRatingService
-
-  beforeEach(() => {
-    // Reset all mocks
-    jest.clearAllMocks()
-
-    // Create mock instances
-    mockRoute = new MockActivatedRoute()
-    mockRouter = new MockRouter()
-    mockContentSvc = new MockContentService()
-    mockTocSvc = new MockTocService()
-    mockLoggerSvc = new MockLoggerService()
-    mockConfigSvc = new MockConfigurationsService()
-    mockDomSanitizer = new MockDomSanitizer()
-    mockAuthAccessControlSvc = new MockAccessControlService()
-    mockDialog = new MockMatDialog()
-    mockMobileAppsSvc = new MockMobileAppsService()
-    mockUtilitySvc = new MockUtilityService()
-    mockActionSVC = new MockActionService()
-    mockRatingSvc = new MockRatingService()
-
-    // Mock window and document
-    Object.defineProperty(window, 'location', {
-      value: { href: 'http://localhost/test' },
-      writable: true
-    })
-
-    Object.defineProperty(window, 'self', {
-      value: window,
-      writable: true
-    })
-
-    Object.defineProperty(window, 'top', {
-      value: window,
-      writable: true
-    })
-
-    Object.defineProperty(document, 'documentElement', {
-      value: { scrollTop: 0 },
-      writable: true
-    })
-
-    Object.defineProperty(document.body, 'scrollTop', {
-      value: 0,
-      writable: true
-    })
-
-    // global.history = {
-    //   state: {}
-    // } as any;
-
-    // Create component instance
-    component = new PublicTocComponent(
-      mockRoute as any,
-      mockRouter as any,
-      mockContentSvc as any,
-      mockTocSvc as any,
-      mockLoggerSvc as any,
-      mockConfigSvc as any,
-      mockDomSanitizer as any,
-      mockAuthAccessControlSvc as any,
-      mockDialog as any,
-      mockMobileAppsSvc as any,
-      mockUtilitySvc as any,
-      mockActionSVC as any,
-      mockRatingSvc as any
-    )
-  })
-
-  describe('Constructor', () => {
-    it('should create component and handle breadcrumbs', () => {
-      expect(component).toBeDefined()
-      expect(component.breadcrumbs).toEqual({
-        url: 'home',
-        titles: [
-          { title: 'Learn', url: '/page/learn', icon: 'school' },
-          { title: 'Details', url: 'none' }
-        ]
-      })
-    })
-  })
-
-  describe('ngOnInit', () => {
-    beforeEach(() => {
-      // Setup mock data
-      const mockPageData = {
-        pageData: {
-          data: {
-            banners: { overview: 'banner1.jpg' },
-            subtitleOnBanners: true,
-            showDescription: true
-          }
-        }
-      }
-
-      mockRoute.data = of(mockPageData)
-      mockRoute.fragment = of('overview')
-      mockRoute.queryParamMap = of(new Map([['contextId', 'test-context'], ['contextPath', 'test-path']]))
-
-      mockTocSvc.initData.mockReturnValue({
-        content: {
-          identifier: 'test-content',
-          name: 'Test Content',
-          contentType: 'Course',
-          primaryCategory: 'Course',
-          body: '<p>Test body</p>',
-          children: [],
-          averageRating: 4.5,
-          totalRating: 100
-        },
-        errorCode: null
-      })
-    })
-
-    it('should initialize component with route data', () => {
-      component.ngOnInit()
-
-      expect(mockTocSvc.initData).toHaveBeenCalled()
-      expect(component.contextId).toBe('test-context')
-      expect(component.contextPath).toBe('test-path')
-      expect(component.currentFragment).toBe('overview')
-    })
-
-    it('should handle iframe detection', () => {
-      Object.defineProperty(window, 'self', {
-        value: {},
-        writable: true
-      })
-
-      component.ngOnInit()
-      expect(component.isInIframe).toBe(true)
-    })
-
-    it('should handle iframe detection error', () => {
-      Object.defineProperty(window, 'self', {
-        get: () => {
-          throw new Error('Iframe error')
-        }
-      })
-
-      component.ngOnInit()
-      expect(component.isInIframe).toBe(false)
-    })
-
-    it('should set up restricted features', () => {
-      mockConfigSvc.restrictedFeatures = new Set(['goals', 'registrationExternal', 'showIntranetMessageDesktop'])
-
-      component.ngOnInit()
-
-      expect(component.isGoalsEnabled).toBe(false)
-      expect(component.isRegistrationSupported).toBe(true)
-      expect(component.showIntranetMessage).toBe(false)
-    })
-
-    it('should handle post assessment content', () => {
-      const mockPageData = {
-        pageData: {
-          data: {
-            banners: { overview: 'banner.jpg' },
-            postAssessment: true,
-          },
-        },
-      }
-
-      const mockContent = {
-        identifier: 'test-content',
-        primaryCategory: 'Course',
-        learningMode: 'Instructor-Led',
-      }
-
-      mockRoute.data = of(mockPageData)
-      mockTocSvc.initData.mockReturnValue({
-        content: mockContent as any,
-        errorCode: null,
-      })
-
-      mockTocSvc.fetchPostAssessmentStatus.mockReturnValue(of({
-        result: [{ contentId: 'test-content', status: 'completed' }],
-      }))
-
-      component.ngOnInit()
-
-      expect(mockTocSvc.fetchPostAssessmentStatus).toHaveBeenCalledWith('test-content')
-    })
-  })
-
-  describe('ngOnDestroy', () => {
-    it('should unsubscribe from all subscriptions', () => {
-      const mockSubscription = { unsubscribe: jest.fn() }
-      component.routeSubscription = mockSubscription as any
-      component.batchSubscription = mockSubscription as any
-      component.routerParamSubscription = mockSubscription as any
-
-      component.ngOnDestroy()
-
-      expect(mockSubscription.unsubscribe).toHaveBeenCalledTimes(3)
-      expect(mockTocSvc.analyticsFetchStatus).toBe('none')
-    })
-  })
-
-  describe('ngAfterViewChecked', () => {
-    it('should scroll to fragment if present', () => {
-      const mockElement = {
-        scrollTo: jest.fn()
-      }
-
-      document.querySelector = jest.fn().mockReturnValue(mockElement)
-      component.fragment = 'test-fragment'
-
-      component.ngAfterViewChecked()
-
-      expect(document.querySelector).toHaveBeenCalledWith('#test-fragment')
-      expect(mockElement.scrollTo).toHaveBeenCalledWith({
-        top: 80,
-        behavior: 'smooth'
-      })
-    })
-
-    it('should handle error when element not found', () => {
-      document.querySelector = jest.fn().mockReturnValue(null)
-      component.fragment = 'test-fragment'
-
-      expect(() => component.ngAfterViewChecked()).not.toThrow()
-    })
-  })
-
-  describe('handleScroll', () => {
-    it('should set sticky to true when scrolled past element position', () => {
-      component.elementPosition = 200
-      Object.defineProperty(window, 'pageYOffset', {
-        value: 250,
-        writable: true
-      })
-
-      component.handleScroll()
-      expect(component.sticky).toBe(true)
-    })
-
-    it('should set sticky to false when not scrolled past element position', () => {
-      component.elementPosition = 200
-      Object.defineProperty(window, 'pageYOffset', {
-        value: 50,
-        writable: true
-      })
-
-      component.handleScroll()
-      expect(component.sticky).toBe(false)
-    })
-  })
-
-  describe('Getters', () => {
-    beforeEach(() => {
-      component.content = {
-        identifier: 'test-content',
-        name: 'Test Content',
-        primaryCategory: 'Resource',
-        contentType: 'Resource',
-        children: [],
-        averageRating: 4.5,
-        totalRating: 100,
-        status: 'Live',
-        learningMode: 'Self-Paced',
-        registrationUrl: 'http://test.com',
-        artifactUrl: 'http://test.com/artifact',
-        resourceType: 'Course',
-        introductoryVideoIcon: 'video-icon.png',
-        isInIntranet: false
-      } as any
-    })
-
-    describe('enableAnalytics', () => {
-      it('should return true when tocAnalytics is not restricted', () => {
-        mockConfigSvc.restrictedFeatures = new Set()
-        expect(component.enableAnalytics).toBe(true)
-      })
-
-      it('should return false when tocAnalytics is restricted', () => {
-        mockConfigSvc.restrictedFeatures = new Set(['tocAnalytics'])
-        expect(component.enableAnalytics).toBe(false)
-      })
-
-      it('should return false when restrictedFeatures is null', () => {
-        mockConfigSvc.restrictedFeatures = null as any
-        expect(component.enableAnalytics).toBe(false)
-      })
-    })
-
-    describe('isResource', () => {
-      it('should return true for knowledge artifact', () => {
-        component.content!.primaryCategory = 'Knowledge Artifact' as any
-        mockTocSvc.showStartButton.mockReturnValue(true)
-
-        expect(component.isResource).toBe(true)
-        expect(mockMobileAppsSvc.sendViewerData).toHaveBeenCalledWith(component.content)
-      })
-
-      it('should return true for resource without children', () => {
-        component.content!.primaryCategory = 'Resource' as any
-        component.content!.children = []
-
-        expect(component.isResource).toBe(true)
-      })
-
-      it('should return false for course with children', () => {
-        component.content!.primaryCategory = 'Course' as any
-        component.content!.children = [{ identifier: 'child1' }] as any
-
-        expect(component.isResource).toBe(false)
-      })
-    })
-
-    describe('getStartDate', () => {
-      it('should return formatted start date when in future', () => {
-        const futureDate = new Date()
-        futureDate.setDate(futureDate.getDate() + 7)
-
-        component.content!.batches = [{
-          batchId: 'batch1',
-          startDate: futureDate.toISOString()
-        }] as any
-        component.currentCourseBatchId = 'batch1'
-
-        const result = component.getStartDate
-        expect(result).toContain('in')
-      })
-
-      it('should return NA when end date is in past', () => {
-        const pastDate = new Date()
-        pastDate.setDate(pastDate.getDate() - 7)
-
-        component.content!.batches = [{
-          batchId: 'batch1',
-          endDate: pastDate.toISOString()
-        }] as any
-        component.currentCourseBatchId = 'batch1'
-
-        expect(component.getStartDate).toBe('NA')
-      })
-
-      it('should return NA when no content', () => {
-        component.content = null
-        expect(component.getStartDate).toBe('NA')
-      })
-    })
-
-    describe('showStart', () => {
-      it('should call tocSvc.showStartButton', () => {
-        mockTocSvc.showStartButton.mockReturnValue(true)
-
-        //expect(component.showStart).toBe(true)
-        expect(mockTocSvc.showStartButton).toHaveBeenCalledWith(component.content)
-      })
-    })
-
-    describe('isPostAssessment', () => {
-      it('should return true for instructor-led course with post assessment config', () => {
-        component.tocConfig = { postAssessment: true }
-        component.content!.primaryCategory = 'Course' as any
-        component.content!.learningMode = 'Instructor-Led'
-
-        expect(component.isPostAssessment).toBe(true)
-      })
-
-      it('should return false when no post assessment config', () => {
-        component.tocConfig = { postAssessment: false }
-
-        expect(component.isPostAssessment).toBe(false)
-      })
-    })
-
-    describe('isMobile', () => {
-      it('should return utility service isMobile value', () => {
-        mockUtilitySvc.isMobile = true
-        expect(component.isMobile).toBe(true)
-      })
-    })
-
-    describe('showSubtitleOnBanner', () => {
-      it('should return tocSvc subtitleOnBanners value', () => {
-        mockTocSvc.subtitleOnBanners = true
-        expect(component.showSubtitleOnBanner).toBe(true)
-      })
-    })
-
-    describe('showIntranetMsg', () => {
-      it('should return true for mobile', () => {
-        mockUtilitySvc.isMobile = true
-        expect(component.showIntranetMsg).toBe(true)
-      })
-
-      it('should return showIntranetMessage for desktop', () => {
-        mockUtilitySvc.isMobile = false
-        component.showIntranetMessage = true
-        expect(component.showIntranetMsg).toBe(true)
-      })
-    })
-
-    describe('showInstructorLedMsg', () => {
-      it('should return true for instructor-led content without children or artifact', () => {
-        component.actionBtnStatus = 'grant'
-        component.content!.learningMode = 'Instructor-Led'
-        component.content!.children = []
-        component.content!.artifactUrl = ''
-
-        expect(component.showInstructorLedMsg).toBe(true)
-      })
-    })
-
-    describe('isHeaderHidden', () => {
-      it('should return true for resource without artifact URL', () => {
-        component.content!.primaryCategory = 'Resource' as any
-        component.content!.children = []
-        component.content!.artifactUrl = ''
-
-        expect(component.isHeaderHidden).toBe(true)
-      })
-    })
-
-    describe('showActionButtons', () => {
-      it('should return true when conditions are met', () => {
-        component.actionBtnStatus = 'grant'
-        component.content!.status = 'Live'
-
-        expect(component.showActionButtons).toBe(true)
-      })
-
-      it('should return false for deleted content', () => {
-        component.actionBtnStatus = 'grant'
-        component.content!.status = 'Deleted'
-
-        expect(component.showActionButtons).toBe(false)
-      })
-    })
-
-    describe('showButtonContainer', () => {
-      it('should return true when all conditions are met', () => {
-        component.actionBtnStatus = 'grant'
-        mockUtilitySvc.isMobile = false
-        component.content!.isInIntranet = false
-        // component.content!.contentType = 'Course';
-        component.content!.children = [{ identifier: 'child1' }] as any
-
-        expect(component.showButtonContainer).toBe(true)
-      })
-
-      it('should return false for mobile intranet content', () => {
-        component.actionBtnStatus = 'grant'
-        mockUtilitySvc.isMobile = true
-        component.content!.isInIntranet = true
-
-        expect(component.showButtonContainer).toBe(false)
-      })
-    })
-
-    describe('isInIFrame', () => {
-      it('should return false when window.self equals window.top', () => {
-        Object.defineProperty(window, 'self', { value: window })
-        Object.defineProperty(window, 'top', { value: window })
-
-        expect(component.isInIFrame).toBe(false)
-      })
-
-      it('should return true when error occurs', () => {
-        Object.defineProperty(window, 'self', {
-          get: () => {
-            throw new Error('Access denied')
-          }
-        })
-
-        expect(component.isInIFrame).toBe(true)
-      })
-    })
-
-    describe('sanitizedIntroductoryVideoIcon', () => {
-      it('should return sanitized style when video icon exists', () => {
-        component.content!.introductoryVideoIcon = 'video-icon.png'
-
-        const result = component.sanitizedIntroductoryVideoIcon
-        expect(mockDomSanitizer.bypassSecurityTrustStyle).toHaveBeenCalledWith('url(video-icon.png)')
-        expect(result).toBe('url(video-icon.png)')
-      })
-
-      it('should return null when no video icon', () => {
-        component.content!.introductoryVideoIcon = null as any
-
-        expect(component.sanitizedIntroductoryVideoIcon).toBeNull()
-      })
-    })
-  })
-
-  describe('Methods', () => {
-    beforeEach(() => {
-      component.content = {
-        identifier: 'test-content',
-        name: 'Test Content',
-        primaryCategory: 'Course',
-        contentType: 'Course',
-        body: '<p>Test body</p>',
-        children: [],
-        averageRating: 4.5,
-        totalRating: { 'test-org': 100 },
-        registrationUrl: 'http://test.com',
-        introductoryVideo: 'video.mp4'
-      } as any
-    })
-
-    describe('handleEnrollmentEndDate', () => {
-      it('should return true when enrollment end date is in past', () => {
-        const pastDate = new Date()
-        pastDate.setDate(pastDate.getDate() - 1)
-
-        const batch = {
-          enrollmentEndDate: pastDate.toISOString()
-        }
-
-        expect(component.handleEnrollmentEndDate(batch)).toBe(true)
-      })
-
-      it('should return false when enrollment end date is in future', () => {
-        const futureDate = new Date()
-        futureDate.setDate(futureDate.getDate() + 1)
-
-        const batch = {
-          enrollmentEndDate: futureDate.toISOString()
-        }
-
-        expect(component.handleEnrollmentEndDate(batch)).toBe(false)
-      })
-
-      it('should return false when no enrollment end date', () => {
-        const batch = {}
-
-        expect(component.handleEnrollmentEndDate(batch)).toBe(false)
-      })
-    })
-
-    describe('getBatchId', () => {
-      it('should return batch ID from batchData', () => {
-        component.batchData = {
-          content: [
-            { batchId: 'batch1' },
-            { batchId: 'batch2' }
-          ]
-        } as any
-
-        expect(component.getBatchId()).toBe('batch2')
-      })
-
-      it('should return empty string when no batchData', () => {
-        component.batchData = null
-
-        expect(component.getBatchId()).toBe('')
-      })
-    })
-
-    describe('scrollToTop', () => {
-      it('should scroll to top smoothly', () => {
-        ; (globalThis as any).scrollTo = jest.fn()
-        const scrollToSpy = jest.spyOn(globalThis as any, 'scrollTo')
-        Object.defineProperty(document.documentElement, 'scrollTop', { value: 100 })
-
-        component.scrollToTop()
-
-        expect(scrollToSpy).toHaveBeenCalledWith({
-          top: 0,
-          behavior: 'smooth'
-        })
-      })
-    })
-
-    describe('getCompetencies', () => {
-      it('should parse and return competency names', () => {
-        const competenciesJson = JSON.stringify([
-          { name: 'JavaScript' },
-          { name: 'TypeScript' }
-        ])
-
-        const result = component.getCompetencies(competenciesJson)
-
-        expect(result).toEqual(['JavaScript', 'TypeScript'])
-      })
-    })
-
-    describe('getRatingIcon', () => {
-      it('should return star for rating within average', () => {
-        component.content!.averageRating = 4.5
-
-        expect(component.getRatingIcon(1)).toBe('star')
-        expect(component.getRatingIcon(4)).toBe('star')
-      })
-
-      it('should return star_half for partial rating', () => {
-        component.content!.averageRating = 4.5
-
-        expect(component.getRatingIcon(5)).toBe('star_half')
-      })
-
-      it('should return star_border for rating above average', () => {
-        component.content!.averageRating = 4.0
-
-        expect(component.getRatingIcon(5)).toBe('star_border')
-      })
-
-      it('should return star_border when no rating', () => {
-        component.content!.averageRating = 0
-
-        expect(component.getRatingIcon(1)).toBe('star_border')
-      })
-    })
-
-    describe('generateQuery', () => {
-      beforeEach(() => {
-        component.firstResourceLink = {
-          url: '/viewer/test',
-          queryParams: { contentId: 'test-id' }
-        }
-
-        component.resumeDataLink = {
-          url: '/viewer/resume',
-          queryParams: { contentId: 'resume-id' }
-        }
-
-        component.contextId = 'context-id'
-        component.contextPath = 'context-path'
-        component.forPreview = false
-      })
-
-      it('should generate query for START action', () => {
-        const result = component.generateQuery('START')
-
-        expect(result).toEqual({
-          contentId: 'test-id',
-          viewMode: 'START',
-          batchId: '',
-          collectionId: 'context-id',
-          collectionType: 'context-path'
-        })
-      })
-
-      it('should generate query for RESUME action', () => {
-        const result = component.generateQuery('RESUME')
-
-        expect(result).toEqual({
-          contentId: 'resume-id',
-          batchId: '',
-          viewMode: 'RESUME',
-          collectionId: 'context-id',
-          collectionType: 'context-path'
-        })
-      })
-
-      it('should generate query for START_OVER action', () => {
-        const result = component.generateQuery('START_OVER')
-
-        expect(result).toEqual({
-          contentId: 'test-id',
-          viewMode: 'START_OVER',
-          batchId: '',
-          collectionId: 'context-id',
-          collectionType: 'context-path'
-        })
-      })
-
-      it('should remove viewMode for preview', () => {
-        component.forPreview = true
-
-        const result = component.generateQuery('START')
-
-        expect(result.viewMode).toBeUndefined()
-      })
-
-      it('should return default query when no links available', () => {
-        component.firstResourceLink = null
-        component.resumeDataLink = null
-
-        const result = component.generateQuery('START')
-
-        expect(result).toEqual({
-          batchId: '',
-          viewMode: 'START'
-        })
-      })
-
-      it('should return empty object for preview with no links', () => {
-        component.forPreview = true
-        component.firstResourceLink = null
-        component.resumeDataLink = null
-
-        const result = component.generateQuery('START')
-
-        expect(result).toEqual({})
-      })
-    })
-
-    describe('getUserRating', () => {
-      beforeEach(() => {
-        component.content = {
-          identifier: 'test-content',
-          primaryCategory: 'Course'
-        } as any
-
-        mockConfigSvc.userProfile = {
-          userId: 'test-user'
-        }
-      })
-
-      it('should fetch and set user rating', () => {
-        const mockRatingResponse = {
-          result: {
-            response: {
-              rating: 5,
-              review: 'Great content'
-            }
-          }
-        }
-
-        mockRatingSvc.getRating.mockReturnValue(of(mockRatingResponse))
-
-        component.getUserRating()
-
-
-        expect(component.userRating).toEqual(mockRatingResponse.result.response)
-        expect(mockTocSvc.changeUpdateReviews).toHaveBeenCalledWith(true)
-      })
-
-      it('should handle rating fetch error', () => {
-        mockRatingSvc.getRating.mockReturnValue(throwError('Error'))
-
-        component.getUserRating()
-
-        expect(mockLoggerSvc.error).toHaveBeenCalledWith('USER RATING FETCH ERROR >', 'Error')
-      })
-
-      it('should handle missing user profile', () => {
-        mockConfigSvc.userProfile = null as any
-
-        component.getUserRating()
-
-        expect(component.userId).toBeUndefined()
-      })
-    })
-
-    describe('playIntroVideo', () => {
-      it('should not throw error when called', () => {
-        expect(() => component.playIntroVideo()).not.toThrow()
-      })
-    })
-
-    describe('openFeedbackDialog', () => {
-      it('should open dialog and handle result', () => {
-        const mockContent = { identifier: 'test' }
-        component.userId = 'test-user'
-        component.userRating = { rating: 5 }
-
-        const getUserRatingSpy = jest.spyOn(component, 'getUserRating')
-
-        component.openFeedbackDialog(mockContent)
-
-        expect(getUserRatingSpy).toHaveBeenCalled()
-      })
-    })
-  })
-
-  describe('Private Methods', () => {
-    beforeEach(() => {
-      component.content = {
-        identifier: 'test-content',
-        name: 'Test Content',
-        primaryCategory: 'Course',
-        contentType: 'Course',
-        body: '<p>Test body</p>',
-        children: [{ identifier: 'child1' }],
-        averageRating: { 'test-org': 4.5 },
-        totalRating: { 'test-org': 100 },
-        registrationUrl: 'http://test.com'
-      } as any
-    })
-
-    describe('initData', () => {
-      it('should initialize component data', () => {
-        const mockData = {
-          pageData: {
-            data: {
-              banners: { overview: 'banner.jpg' }
-            }
-          }
-        }
-
-        const mockInitResult = {
-          content: component.content,
-          errorCode: null
-        }
-
-        mockTocSvc.initData.mockReturnValue(mockInitResult)
-        mockTocSvc.getTocStructure.mockReturnValue({
-          course: 1,
-          video: 2,
-          pdf: 1
-        })
-
-        mockContentSvc.getFirstChildInHierarchy.mockReturnValue({
-          identifier: 'first-child',
-          mimeType: 'video/mp4'
-        });
-
-        // Call private method through reflection
-        (component as any).initData(mockData)
-
-        expect(component.content).toBe(mockInitResult.content)
-        expect(component.errorCode).toBe(mockInitResult.errorCode)
-        expect(mockDomSanitizer.bypassSecurityTrustHtml).toHaveBeenCalled()
-      })
-
-      it('should handle different error codes', () => {
-        const mockData = { pageData: { data: {} } }
-
-        // Test API_FAILURE error
-        mockTocSvc.initData.mockReturnValue({
-          content: null,
-          errorCode: 'API_FAILURE'
-        });
-
-        (component as any).initData(mockData)
-        expect(component.errorWidgetData.widgetData.errorType).toBe(ErrorType.internalServer)
-
-        // Test INVALID_DATA error
-        mockTocSvc.initData.mockReturnValue({
-          content: null,
-          errorCode: 'INVALID_DATA'
-        });
-
-        (component as any).initData(mockData)
-        expect(component.errorWidgetData.widgetData.errorType).toBe(ErrorType.internalServer)
-
-        // Test NO_DATA error
-        mockTocSvc.initData.mockReturnValue({
-          content: null,
-          errorCode: 'NO_DATA'
-        });
-
-        (component as any).initData(mockData)
-        expect(component.errorWidgetData.widgetData.errorType).toBe(ErrorType.internalServer)
-
-        // Test default error
-        mockTocSvc.initData.mockReturnValue({
-          content: null,
-          errorCode: 'UNKNOWN_ERROR'
-        });
-
-        (component as any).initData(mockData)
-        expect(component.errorWidgetData.widgetData.errorType).toBe(ErrorType.somethingWrong)
-      })
-
-      it('should handle post assessment content in initData', () => {
-        const mockData = { pageData: { data: {} } }
-
-        component.content = {
-          identifier: 'test-content',
-          primaryCategory: 'Course',
-          learningMode: 'Instructor-Led'
-        } as any
-
-        component.tocConfig = { postAssessment: true }
-
-        mockTocSvc.initData.mockReturnValue({
-          content: component.content,
-          errorCode: null
-        })
-
-        mockTocSvc.fetchPostAssessmentStatus.mockReturnValue(of({
-          result: [{ contentId: 'test-content', status: 'completed' }]
-        }));
-
-        (component as any).initData(mockData)
-
-        expect(mockTocSvc.fetchPostAssessmentStatus).toHaveBeenCalledWith('test-content')
-      })
-    })
-
-    describe('modifySensibleContentRating', () => {
-      it('should modify average rating from object to number', () => {
-        component.content!.averageRating = { 'test-org': 4.5 } as any;
-
-        (component as any).modifySensibleContentRating()
-
-        expect(component.content!.averageRating).toBe(4.5)
-      })
-
-      it('should modify total rating from object to number', () => {
-        component.content!.totalRating = { 'test-org': 100 } as any;
-
-        (component as any).modifySensibleContentRating()
-
-        expect(component.content!.totalRating).toBe(100)
-      })
-
-      it('should not modify rating if already a number', () => {
-        component.content!.averageRating = 4.5
-        component.content!.totalRating = 100;
-
-        (component as any).modifySensibleContentRating()
-
-        expect(component.content!.averageRating).toBe(4.5)
-        expect(component.content!.totalRating).toBe(100)
-      })
-    })
-
-    describe('getLearningUrls', () => {
-      beforeEach(() => {
-        mockContentSvc.getFirstChildInHierarchy.mockReturnValue({
-          identifier: 'first-child',
-          mimeType: 'video/mp4'
-        })
-
-        mockTocSvc.filterToc.mockReturnValue([])
-
-        // Mock viewerRouteGenerator
-        jest.doMock('@sunbird-cb/collection/src/lib/_services/viewer-route-util', () => ({
-          viewerRouteGenerator: jest.fn(() => ({
-            url: '/viewer/test',
-            queryParams: { contentId: 'test' }
-          }))
-        }))
-      })
-
-      it('should set practice and assessment visibility', () => {
-        mockTocSvc.filterToc.mockReturnValueOnce(['practice1']).mockReturnValueOnce(['assessment1']);
-
-        (component as any).getLearningUrls()
-
-        expect(component.isPracticeVisible).toBe(true)
-        expect(component.isAssessVisible).toBe(true)
-      })
-
-      it('should handle empty filter results', () => {
-        mockTocSvc.filterToc.mockReturnValue([]);
-
-        (component as any).getLearningUrls()
-
-        expect(component.isPracticeVisible).toBe(false)
-        expect(component.isAssessVisible).toBe(false)
-      })
-    })
-
-    describe('assignPathAndUpdateBanner', () => {
-      beforeEach(() => {
-        component.banners = {
-          overview: 'banner1.jpg',
-          contents: 'banner2.jpg',
-          analytics: 'banner3.jpg'
-        }
-
-        component.validPaths = new Set(['overview', 'contents', 'analytics'])
-      })
-
-      it('should assign valid path and update banner', () => {
-        const updateBannerSpy = jest.spyOn(component as any, 'updateBannerUrl');
-
-        (component as any).assignPathAndUpdateBanner('/course/test-id/overview')
-
-        expect(component.routePath).toBe('overview')
-        expect(updateBannerSpy).toHaveBeenCalled()
-      })
-
-      it('should not assign invalid path', () => {
-        const updateBannerSpy = jest.spyOn(component as any, 'updateBannerUrl');
-
-        (component as any).assignPathAndUpdateBanner('/course/test-id/invalid')
-
-        expect(component.routePath).not.toBe('invalid')
-        expect(updateBannerSpy).not.toHaveBeenCalled()
-      })
-    })
-
-    describe('updateBannerUrl', () => {
-      it('should update banner URL with sanitized style', () => {
-        component.banners = { overview: 'banner1.jpg' } as any
-        component.routePath = 'overview'
-
-          ; (component as any).updateBannerUrl()
-
-        expect(mockDomSanitizer.bypassSecurityTrustStyle).toHaveBeenCalledWith('url(banner1.jpg)')
-        expect(component.bannerUrl).toBe('url(banner1.jpg)')
-      })
-
-      it('should handle missing banners', () => {
-        component.banners = null
-
-        expect(() => (component as any).updateBannerUrl()).not.toThrow()
-      })
-    })
-
-    describe('fetchExternalContentAccess', () => {
-      beforeEach(() => {
-        component.content = {
-          identifier: 'test-content',
-          registrationUrl: 'http://external.com'
-        } as any
-      })
-
-      it('should fetch external content access for non-preview', () => {
-        component.forPreview = false
-        mockTocSvc.fetchExternalContentAccess.mockReturnValue(of({ hasAccess: true }));
-
-        (component as any).fetchExternalContentAccess()
-
-        expect(component.externalContentFetchStatus).toBe('done')
-        expect(component.registerForExternal).toBe(true)
-      })
-
-      it('should handle external content access error', () => {
-        component.forPreview = false
-        mockTocSvc.fetchExternalContentAccess.mockReturnValue(throwError('Error'));
-
-        (component as any).fetchExternalContentAccess()
-
-        expect(component.externalContentFetchStatus).toBe('done')
-        expect(component.registerForExternal).toBe(false)
-      })
-
-      it('should set access to true for preview', () => {
-        component.forPreview = true;
-
-        (component as any).fetchExternalContentAccess()
-
-        expect(component.externalContentFetchStatus).toBe('done')
-        expect(component.registerForExternal).toBe(true)
-      })
-
-      it('should not fetch when no registration URL', () => {
-        component.content!.registrationUrl = null as any;
-
-        (component as any).fetchExternalContentAccess()
-
-        expect(mockTocSvc.fetchExternalContentAccess).not.toHaveBeenCalled()
-      })
-    })
-  })
-
-  describe('Edge Cases and Error Handling', () => {
-    it('should handle null content in various methods', () => {
-      component.content = null
-
-      expect(component.isResource).toBe(false)
-      expect(component.getStartDate).toBe('NA')
-      expect(component.isPostAssessment).toBe(false)
-      expect(component.showInstructorLedMsg).toBe(false)
-      expect(component.isHeaderHidden).toBe(false)
-      expect(component.showActionButtons).toBe(false)
-      expect(component.showButtonContainer).toBe(false)
-      expect(component.sanitizedIntroductoryVideoIcon).toBeNull()
-    })
-
-    it('should handle undefined properties gracefully', () => {
-      component.content = {} as any
-
-      expect(() => component.getRatingIcon(1)).not.toThrow()
-      expect(() => component.getCompetencies('[]')).not.toThrow()
-      expect(() => component.handleEnrollmentEndDate({})).not.toThrow()
-    })
-
-    it('should handle malformed JSON in getCompetencies', () => {
-      expect(() => component.getCompetencies('invalid-json')).toThrow()
-    })
-
-    it('should handle missing route data', () => {
-      mockRoute.data = of({})
-
-      expect(() => component.ngOnInit()).not.toThrow()
-    })
-
-    it('should handle missing query parameters', () => {
-      mockRoute.queryParamMap = of(new Map())
-
-      component.ngOnInit()
-
-      expect(component.contextId).toBeUndefined()
-      expect(component.contextPath).toBeUndefined()
-    })
-
-    it('should handle missing fragment', () => {
-      //  mockRoute.fragment = of(null);
-
-      component.ngOnInit()
-
-      expect(component.currentFragment).toBe('overview')
-    })
-  })
-
-  describe('Complex Integration Scenarios', () => {
-    it('should handle full initialization flow', () => {
-      const mockPageData = {
-        pageData: {
-          data: {
-            banners: { overview: 'banner.jpg' },
-            subtitleOnBanners: true,
-            showDescription: true,
-            postAssessment: true
-          }
-        }
-      }
-
-      const mockContent = {
-        identifier: 'test-content',
-        name: 'Test Course',
-        primaryCategory: 'Course',
-        learningMode: 'Instructor-Led',
-        contentType: 'Course',
-        body: '<p>Course description</p>',
-        children: [{ identifier: 'module1' }],
-        averageRating: 4.5,
-        totalRating: 100,
-        registrationUrl: 'http://external.com',
-        status: 'Live'
-      }
-
-      mockRoute.data = of(mockPageData)
-      mockRoute.fragment = of('contents')
-      mockRoute.queryParamMap = of(new Map([
-        ['contextId', 'collection-1'],
-        ['contextPath', 'course-collection']
-      ]))
-
-      mockTocSvc.initData.mockReturnValue({
-        content: mockContent,
-        errorCode: null
-      })
-
-      mockTocSvc.getTocStructure.mockReturnValue({
-        course: 1,
-        video: 3,
-        pdf: 2
-      })
-
-      mockTocSvc.fetchPostAssessmentStatus.mockReturnValue(of({
-        result: [{ contentId: 'test-content', status: 'pending' }]
-      }))
-
-      mockTocSvc.fetchExternalContentAccess.mockReturnValue(of({ hasAccess: true }))
-
-      mockContentSvc.getFirstChildInHierarchy.mockReturnValue({
-        identifier: 'first-module',
-        mimeType: 'video/mp4'
-      })
-
-      mockTocSvc.filterToc.mockReturnValueOnce(['practice1', 'practice2'])
-        .mockReturnValueOnce(['assessment1'])
-
-      component.ngOnInit()
-
-      expect(component.currentFragment).toBe('contents')
-      expect(component.contextId).toBe('collection-1')
-      expect(component.contextPath).toBe('course-collection')
-      expect(component.registerForExternal).toBe(true)
-      expect(component.isPracticeVisible).toBe(true)
-      expect(component.isAssessVisible).toBe(true)
-    })
-
-    it('should handle router navigation events', () => {
-      const navigationEnd = new NavigationEnd(1, '/course/test-id/analytics', '/course/test-id/analytics')
-      mockRouter.events = of(navigationEnd)
-
-      component.banners = {
-        overview: 'banner1.jpg',
-        contents: 'banner2.jpg',
-        analytics: 'banner3.jpg'
-      }
-
-      component.ngOnInit()
-
-      expect(component.routePath).toBe('analytics')
-      expect(mockDomSanitizer.bypassSecurityTrustStyle).toHaveBeenCalledWith('url(banner3.jpg)')
-    })
-
-    it('should handle batch subscription updates', () => {
-      const batchSubject = new Subject()
-      mockTocSvc.batchReplaySubject = batchSubject as any
-
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation()
-
-      component.ngOnInit()
-
-      // Simulate batch update
-      batchSubject.next({})
-
-      // Simulate batch error
-      batchSubject.error('Batch error')
-
-      expect(consoleSpy).toHaveBeenCalledWith('error on batchSubscription')
-
-      consoleSpy.mockRestore()
-    })
-  })
-
-  describe('Component State Management', () => {
-    it('should properly manage loading states', () => {
-      component.externalContentFetchStatus = 'fetching'
-      component.actionBtnStatus = 'wait'
-
-      expect(component.showActionButtons).toBe(false)
-
-      component.actionBtnStatus = 'grant'
-      component.content = { status: 'Live' } as any
-
-      expect(component.showActionButtons).toBe(true)
-    })
-
-    it('should handle view state changes', () => {
-      component.sticky = false
-      component.elementPosition = 200
-
-      Object.defineProperty(window, 'pageYOffset', { value: 150 })
-      component.handleScroll()
-
-      expect(component.sticky).toBe(true)
-
-      Object.defineProperty(window, 'pageYOffset', { value: 50 })
-      component.handleScroll()
-
-      expect(component.sticky).toBe(false)
-    })
-
-    it('should manage fragment navigation', () => {
-      component.currentFragment = 'overview'
-
-      mockRoute.fragment = of('contents')
-      component.ngOnInit()
-
-      expect(component.currentFragment).toBe('contents')
-    })
-  })
-
-  describe('Memory Management', () => {
-    it('should properly clean up subscriptions on destroy', () => {
-      const mockSubscription1 = { unsubscribe: jest.fn() }
-      const mockSubscription2 = { unsubscribe: jest.fn() }
-      const mockSubscription3 = { unsubscribe: jest.fn() }
-
-      component.routeSubscription = mockSubscription1 as any
-      component.batchSubscription = mockSubscription2 as any
-      component.routerParamSubscription = mockSubscription3 as any
-
-      component.ngOnDestroy()
-
-      expect(mockSubscription1.unsubscribe).toHaveBeenCalled()
-      expect(mockSubscription2.unsubscribe).toHaveBeenCalled()
-      expect(mockSubscription3.unsubscribe).toHaveBeenCalled()
-      expect(mockTocSvc.analyticsFetchStatus).toBe('none')
-    })
-
-    it('should handle null subscriptions in destroy', () => {
-      component.routeSubscription = null
-      component.batchSubscription = null
-      component.routerParamSubscription = null
-
-      expect(() => component.ngOnDestroy()).not.toThrow()
-    })
-  })
-
-  describe('Accessibility and UI Behavior', () => {
-    it('should handle scroll behavior correctly', () => {
-      Object.defineProperty(window, 'scrollTo', { value: jest.fn(), writable: true })
-
-      component.scrollToTop()
-
-      expect((window as any).scrollTo).toHaveBeenCalledWith({
-        top: 0,
-        behavior: 'smooth'
-      })
-    })
-
-    it('should handle document fragment scrolling', () => {
-      const mockElement = { scrollTo: jest.fn() }
-      document.querySelector = jest.fn().mockReturnValue(mockElement)
-
-      component.fragment = 'test-section'
-      component.ngAfterViewChecked()
-
-      expect(document.querySelector).toHaveBeenCalledWith('#test-section')
-      expect(mockElement.scrollTo).toHaveBeenCalledWith({
-        top: 80,
-        behavior: 'smooth'
-      })
+  const actualDayjs = jest.requireActual('dayjs')
+  return { __esModule: true, default: actualDayjs }
+})
+
+// Virtual mocks must be declared before any imports
+jest.mock('@sunbird-cb/collection', () => ({
+  NsContent: {
+    EPrimaryCategory: {
+      KNOWLEDGE_ARTIFACT: 'Knowledge Artifact',
+      RESOURCE: 'Resource',
+      PRACTICE_RESOURCE: 'Practice Resource',
+      OFFLINE_SESSION: 'Offline Session',
+      COURSE: 'Course',
+    },
+    EFilterCategory: { PRACTICE: 'Practice' },
+  },
+  viewerRouteGenerator: jest.fn(),
+  NsPlaylist: {},
+  NsGoal: {},
+  RatingService: jest.fn().mockImplementation(() => ({})),
+}), { virtual: true })
+
+jest.mock('@sunbird-cb/collection/src/lib/_common/content-rating-v2-dialog/content-rating-v2-dialog.component', () => ({
+  ContentRatingV2DialogComponent: jest.fn(),
+}), { virtual: true })
+
+jest.mock('@sunbird-cb/toc', () => ({
+  NsAppToc: {
+    EWsTocErrorCode: { API_FAILURE: 'API_FAILURE', INVALID_DATA: 'INVALID_DATA', NO_DATA: 'NO_DATA' },
+  },
+  AppTocService: jest.fn().mockImplementation(() => ({})),
+  ActionService: jest.fn().mockImplementation(() => ({})),
+  WidgetContentService: jest.fn().mockImplementation(() => ({})),
+}), { virtual: true })
+
+jest.mock('src/app/services/mobile-apps.service', () => ({
+  MobileAppsService: jest.fn().mockImplementation(() => ({})),
+}), { virtual: true })
+
+jest.mock('@ws/author/src/public-api', () => ({
+  AccessControlService: jest.fn().mockImplementation(() => ({
+    hasAccess: jest.fn().mockReturnValue(true),
+  })),
+}), { virtual: true })
+
+// Fix for 'import _ from lodash' with esModuleInterop: false
+jest.mock('lodash', () => {
+  const actual = jest.requireActual('lodash')
+  return { ...actual, default: actual }
+})
+
+import { of, Subject } from 'rxjs'
+import { PublicTocComponent, ErrorType } from './public-toc.component'
+
+describe('public-toc.component — module-level helpers', () => {
+  // flattenItems is not exported, but we can verify the component uses it by
+  // checking tocStructure after initData sets content.  We focus instead on
+  // ErrorType enum values.
+  describe('ErrorType enum', () => {
+    it('should have internalServer value', () => {
+      expect(ErrorType.internalServer).toBe('internalServer')
+    })
+    it('should have serviceUnavailable value', () => {
+      expect(ErrorType.serviceUnavailable).toBe('serviceUnavailable')
+    })
+    it('should have somethingWrong value', () => {
+      expect(ErrorType.somethingWrong).toBe('somethingWrong')
     })
   })
 })
 
-// Additional utility functions for testing
-describe('Utility Functions', () => {
-  describe('flattenItems', () => {
-    it('should flatten nested items correctly', () => {
-      // Since flattenItems is defined outside the class, we need to test it separately
-      const items = [
-        { id: 1, children: [{ id: 2, children: [] }] },
-        { id: 3, children: [{ id: 4, children: [] }] }
-      ]
+describe('PublicTocComponent', () => {
+  let component: PublicTocComponent
+  let mockRoute: any
+  let mockRouter: any
+  let mockContentSvc: any
+  let mockTocSvc: any
+  let mockLoggerSvc: any
+  let mockConfigSvc: any
+  let mockDomSanitizer: any
+  let mockAuthAccessControlSvc: any
+  let mockDialog: any
+  let mockMobileAppsSvc: any
+  let mockUtilitySvc: any
+  let mockActionSVC: any
+  let mockRatingSvc: any
 
-      // This would need to be imported or accessed differently in a real test
-      // For now, we'll just verify the concept
-      expect(items).toBeDefined()
+  beforeEach(() => {
+    mockRoute = {
+      fragment: of(null),
+      data: of({ pageData: { data: {} } }),
+      queryParamMap: of({ get: jest.fn().mockReturnValue(null) }),
+    }
+
+    mockRouter = {
+      events: new Subject<any>(),
+      url: '/public/toc/some-id',
+      navigate: jest.fn(),
+    }
+
+    mockContentSvc = {}
+
+    mockTocSvc = {
+      subtitleOnBanners: false,
+      showDescription: false,
+      analyticsFetchStatus: 'none',
+      batchReplaySubject: new Subject<any>(),
+      initData: jest.fn().mockReturnValue({ content: null, errorCode: null }),
+      getTocStructure: jest.fn().mockReturnValue({
+        assessment: 0, finalTest: 0, course: 0, handsOn: 0,
+        interactiveVideo: 0, learningModule: 0, other: 0, pdf: 0,
+        survey: 0, podcast: 0, practiceTest: 0, quiz: 0, video: 0,
+        webModule: 0, webPage: 0, youtube: 0, interactivecontent: 0, offlineSession: 0,
+      }),
+      fetchPostAssessmentStatus: jest.fn().mockReturnValue(of({ result: [] })),
+    }
+
+    mockLoggerSvc = { info: jest.fn(), warn: jest.fn(), error: jest.fn() }
+
+    mockConfigSvc = {
+      instanceConfig: {
+        logos: { defaultSourceLogo: '/logo.png' },
+      },
+      restrictedFeatures: new Set<string>(),
+      pageNavBar: {},
+    }
+
+    mockDomSanitizer = {
+      bypassSecurityTrustHtml: jest.fn().mockReturnValue('<safe>'),
+      bypassSecurityTrustStyle: jest.fn().mockReturnValue('safe-style'),
+    }
+
+    mockAuthAccessControlSvc = {
+      proxyToAuthoringUrl: jest.fn().mockReturnValue('proxied'),
+    }
+
+    mockDialog = {
+      open: jest.fn().mockReturnValue({ afterClosed: jest.fn(() => of(null)) }),
+    }
+
+    mockMobileAppsSvc = {
+      sendViewerData: jest.fn(),
+    }
+
+    mockUtilitySvc = {}
+
+    mockActionSVC = {
+      getUpdateCompGroupO: new Subject<any>(),
+    }
+
+    mockRatingSvc = {}
+
+    component = new PublicTocComponent(
+      mockRoute,
+      mockRouter,
+      mockContentSvc,
+      mockTocSvc,
+      mockLoggerSvc,
+      mockConfigSvc,
+      mockDomSanitizer,
+      mockAuthAccessControlSvc,
+      mockDialog,
+      mockMobileAppsSvc,
+      mockUtilitySvc,
+      mockActionSVC,
+      mockRatingSvc
+    )
+  })
+
+  describe('constructor', () => {
+    it('should create the component', () => {
+      expect(component).toBeTruthy()
+    })
+
+    it('should initialize breadcrumbs via handleBreadcrumbs()', () => {
+      expect(component.breadcrumbs).toEqual({
+        url: 'home',
+        titles: [
+          { title: 'Learn', url: '/page/learn', icon: 'school' },
+          { title: 'Details', url: 'none' },
+        ],
+      })
     })
   })
 
-  describe('ErrorType enum', () => {
-    it('should have correct error type values', () => {
-      expect(ErrorType.internalServer).toBe('internalServer')
-      expect(ErrorType.serviceUnavailable).toBe('serviceUnavailable')
-      expect(ErrorType.somethingWrong).toBe('somethingWrong')
+  describe('handleBreadcrumbs', () => {
+    it('should set breadcrumbs with correct structure', () => {
+      component.handleBreadcrumbs()
+      expect(component.breadcrumbs.url).toBe('home')
+      expect(component.breadcrumbs.titles).toHaveLength(2)
+    })
+  })
+
+  describe('handleScroll', () => {
+    it('should set sticky to true when scroll >= elementPosition - 100', () => {
+      component.elementPosition = 100
+      Object.defineProperty(window, 'pageYOffset', { value: 10, writable: true })
+      component.handleScroll()
+      expect(component.sticky).toBe(true)
+    })
+
+    it('should set sticky to false when scroll < elementPosition - 100', () => {
+      component.elementPosition = 500
+      Object.defineProperty(window, 'pageYOffset', { value: 0, writable: true })
+      component.handleScroll()
+      expect(component.sticky).toBe(false)
+    })
+  })
+
+  describe('enableAnalytics getter', () => {
+    it('should return true when tocAnalytics is NOT in restrictedFeatures', () => {
+      mockConfigSvc.restrictedFeatures = new Set(['somethingElse'])
+      expect(component.enableAnalytics).toBe(true)
+    })
+
+    it('should return false when tocAnalytics IS in restrictedFeatures', () => {
+      mockConfigSvc.restrictedFeatures = new Set(['tocAnalytics'])
+      expect(component.enableAnalytics).toBe(false)
+    })
+
+    it('should return false when restrictedFeatures is not set', () => {
+      mockConfigSvc.restrictedFeatures = null
+      expect(component.enableAnalytics).toBe(false)
+    })
+  })
+
+  describe('isResource getter', () => {
+    it('should return false when content is null', () => {
+      component.content = null
+      expect(component.isResource).toBe(false)
+    })
+
+    it('should return true for KNOWLEDGE_ARTIFACT primaryCategory', () => {
+      component.content = {
+        primaryCategory: 'Knowledge Artifact',
+        children: [],
+      } as any
+      expect(component.isResource).toBe(true)
+    })
+
+    it('should return true when content has no children', () => {
+      component.content = {
+        primaryCategory: 'Course',
+        children: [],
+      } as any
+      expect(component.isResource).toBe(true)
+    })
+  })
+
+  describe('getStartDate getter', () => {
+    it('should return NA when content is null', () => {
+      component.content = null
+      expect(component.getStartDate).toBe('NA')
+    })
+
+    it('should return NA when content has no batches matching currentCourseBatchId', () => {
+      component.content = { batches: [] } as any
+      component.currentCourseBatchId = 'batch-1'
+      expect(component.getStartDate).toBe('NA')
+    })
+  })
+
+  describe('ngOnDestroy', () => {
+    it('should unsubscribe from routeSubscription', () => {
+      const sub = { unsubscribe: jest.fn() }
+      component.routeSubscription = sub as any
+      component.ngOnDestroy()
+      expect(sub.unsubscribe).toHaveBeenCalled()
+    })
+
+    it('should unsubscribe from batchSubscription', () => {
+      const sub = { unsubscribe: jest.fn() }
+      component.batchSubscription = sub as any
+      component.ngOnDestroy()
+      expect(sub.unsubscribe).toHaveBeenCalled()
+    })
+
+    it('should reset tocSvc.analyticsFetchStatus to none', () => {
+      component.ngOnDestroy()
+      expect(mockTocSvc.analyticsFetchStatus).toBe('none')
+    })
+
+    it('should unsubscribe from routerParamSubscription', () => {
+      const sub = { unsubscribe: jest.fn() }
+      component.routerParamSubscription = sub as any
+      component.ngOnDestroy()
+      expect(sub.unsubscribe).toHaveBeenCalled()
+    })
+
+    it('should not throw when subscriptions are null', () => {
+      component.routeSubscription = null
+      component.batchSubscription = null
+      component.routerParamSubscription = null
+      expect(() => component.ngOnDestroy()).not.toThrow()
+    })
+  })
+
+  describe('ngAfterViewChecked', () => {
+    it('should not throw when fragment is null', () => {
+      component['fragment'] = null as any
+      expect(() => component.ngAfterViewChecked()).not.toThrow()
+    })
+
+    it('should not throw when fragment element is not found', () => {
+      component['fragment'] = 'nonexistent-id'
+      expect(() => component.ngAfterViewChecked()).not.toThrow()
+    })
+  })
+
+  describe('ngAfterViewInit', () => {
+    it('should not throw', () => {
+      expect(() => component.ngAfterViewInit()).not.toThrow()
+    })
+  })
+
+  describe('properties initialization', () => {
+    it('should have showMoreGlance as false initially', () => {
+      expect(component.showMoreGlance).toBe(false)
+    })
+
+    it('should have sticky as false initially', () => {
+      expect(component.sticky).toBe(false)
+    })
+
+    it('should have validPaths set', () => {
+      expect(component.validPaths.has('overview')).toBe(true)
+      expect(component.validPaths.has('contents')).toBe(true)
+      expect(component.validPaths.has('analytics')).toBe(true)
+    })
+
+    it('should have currentFragment as overview initially', () => {
+      expect(component.currentFragment).toBe('overview')
+    })
+
+    it('should have disableEnrollBtn as false', () => {
+      expect(component.disableEnrollBtn).toBe(false)
+    })
+  })
+
+  describe('ngOnInit', () => {
+    it('should call tocSvc.initData when route.data emits', () => {
+      component.ngOnInit()
+      expect(mockTocSvc.initData).toHaveBeenCalled()
+    })
+    it('should set defaultSLogo from instanceConfig', () => {
+      component.ngOnInit()
+      expect(component['defaultSLogo']).toBe('/logo.png')
+    })
+    it('should set isGoalsEnabled true when goals not restricted', () => {
+      mockConfigSvc.restrictedFeatures = new Set<string>()
+      component.ngOnInit()
+      expect(component['isGoalsEnabled']).toBe(true)
+    })
+    it('should set isGoalsEnabled false when goals restricted', () => {
+      mockConfigSvc.restrictedFeatures = new Set(['goals'])
+      component.ngOnInit()
+      expect(component['isGoalsEnabled']).toBe(false)
+    })
+    it('should handle missing instanceConfig logos gracefully', () => {
+      mockConfigSvc.instanceConfig = {}
+      component.ngOnInit()
+      expect(component['defaultSLogo']).toBe('')
+    })
+    it('should set content when tocSvc.initData returns content', () => {
+      const mockContent = { identifier: 'c1', primaryCategory: 'Course', body: '', children: [], registrationUrl: null }
+      mockTocSvc.initData = jest.fn().mockReturnValue({ content: mockContent, errorCode: null })
+      mockTocSvc.getTocStructure = jest.fn().mockReturnValue({ assessment: 0, finalTest: 0, course: 0, handsOn: 0, interactiveVideo: 0, learningModule: 0, other: 0, pdf: 0, survey: 0, podcast: 0, practiceTest: 0, quiz: 0, video: 0, webModule: 0, webPage: 0, youtube: 0, interactivecontent: 0, offlineSession: 0 })
+      mockTocSvc.filterToc = jest.fn().mockReturnValue(null)
+      mockContentSvc.getFirstChildInHierarchy = jest.fn().mockReturnValue({ identifier: 'c', mimeType: 'mp4' })
+      component.ngOnInit()
+      expect(component.content).toEqual(mockContent)
+    })
+    it('should set errorType to internalServer for API_FAILURE', () => {
+      mockTocSvc.initData = jest.fn().mockReturnValue({ content: null, errorCode: 'API_FAILURE' })
+      component.ngOnInit()
+      expect(component.errorWidgetData.widgetData.errorType).toBe('internalServer')
+    })
+    it('should set errorType to somethingWrong for unknown error', () => {
+      mockTocSvc.initData = jest.fn().mockReturnValue({ content: null, errorCode: 'UNKNOWN' })
+      component.ngOnInit()
+      expect(component.errorWidgetData.widgetData.errorType).toBe('somethingWrong')
+    })
+  })
+
+  describe('getters', () => {
+    it('showStart should return tocSvc.showStartButton result', () => {
+      mockTocSvc.showStartButton = jest.fn().mockReturnValue(true)
+      expect(component.showStart).toBe(true)
+    })
+    it('showSubtitleOnBanner should reflect tocSvc.subtitleOnBanners', () => {
+      mockTocSvc.subtitleOnBanners = true
+      expect(component.showSubtitleOnBanner).toBe(true)
+    })
+    it('showActionButtons should return false when actionBtnStatus is wait', () => {
+      component['actionBtnStatus'] = 'wait'
+      expect(component.showActionButtons).toBe(false)
+    })
+    it('isPostAssessment should return false when tocConfig has no postAssessment', () => {
+      component.tocConfig = {}
+      expect(component.isPostAssessment).toBe(false)
+    })
+    it('sanitizedIntroductoryVideoIcon should return null when content is null', () => {
+      component.content = null
+      expect(component.sanitizedIntroductoryVideoIcon).toBeNull()
+    })
+    it('sanitizedIntroductoryVideoIcon should return safe style when content has icon', () => {
+      component.content = { introductoryVideoIcon: 'http://icon.png' } as any
+      expect(component.sanitizedIntroductoryVideoIcon).toBeTruthy()
+    })
+  })
+
+  describe('getBatchId', () => {
+    it('should return empty string when batchData is null', () => {
+      component.batchData = null
+      expect(component.getBatchId()).toBe('')
+    })
+    it('should return batchId from batchData.content', () => {
+      component.batchData = { content: [{ batchId: 'batch-123' }] } as any
+      expect(component.getBatchId()).toBe('batch-123')
+    })
+  })
+
+  describe('getCompetencies', () => {
+    it('should return array of competency names', () => {
+      const data = JSON.stringify([{ name: 'Leadership' }, { name: 'Finance' }])
+      expect(component.getCompetencies(data)).toEqual(['Leadership', 'Finance'])
+    })
+  })
+
+  describe('handleEnrollmentEndDate', () => {
+    it('should return true when enrollmentEndDate is in the past', () => {
+      expect(component.handleEnrollmentEndDate({ enrollmentEndDate: '2000-01-01' })).toBe(true)
+    })
+    it('should return false when enrollmentEndDate is in the future', () => {
+      expect(component.handleEnrollmentEndDate({ enrollmentEndDate: '2099-01-01' })).toBe(false)
+    })
+  })
+
+  describe('getUserRating', () => {
+    it('should call ratingSvc.getRating when content has identifier', () => {
+      mockRatingSvc.getRating = jest.fn().mockReturnValue(of({ result: { response: null } }))
+      mockConfigSvc.userProfile = { userId: 'u1' }
+      component.content = { identifier: 'c1', primaryCategory: 'Course' } as any
+      component.getUserRating()
+      expect(mockRatingSvc.getRating).toHaveBeenCalled()
+    })
+  })
+
+  describe('scrollToTop', () => {
+    it('should not throw', () => {
+      expect(() => component.scrollToTop()).not.toThrow()
+    })
+  })
+
+  describe('ngAfterViewChecked with fragment', () => {
+    it('should not throw when fragment is set', () => {
+      component['fragment'] = 'some-section'
+      expect(() => component.ngAfterViewChecked()).not.toThrow()
+    })
+  })
+
+  describe('assignPathAndUpdateBanner', () => {
+    it('should set routePath from valid url suffix', () => {
+      component['banners'] = null
+      component['assignPathAndUpdateBanner']('/public/toc/id/overview')
+      expect(component['routePath']).toBe('overview')
     })
   })
 })

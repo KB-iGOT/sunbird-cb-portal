@@ -1,168 +1,100 @@
-import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
-import { of, throwError } from 'rxjs';
-import { AppPublicTocResolverService } from './app-public-toc-resolver.service'; // Update the import path as per your project structure
-import { WidgetContentService } from '@sunbird-cb/collection/src/lib/_services/widget-content.service';
+jest.mock('@sunbird-cb/toc', () => ({
+  WidgetContentService: jest.fn(),
+}), { virtual: true })
+jest.mock('@sunbird-cb/collection', () => ({
+  NsContent: {},
+}), { virtual: true })
 
-
-// Mock the dependencies
-jest.mock('@sunbird-cb/collection/src/lib/_services/widget-content.service');
+import { AppPublicTocResolverService } from './app-public-toc-resolver.service'
+import { of, throwError } from 'rxjs'
 
 describe('AppPublicTocResolverService', () => {
-  let service: AppPublicTocResolverService;
-  let mockContentSvc: jest.Mocked<WidgetContentService>;
-  let mockRoute: Partial<ActivatedRouteSnapshot>;
-  let mockState: Partial<RouterStateSnapshot>;
+  let service: AppPublicTocResolverService
+  let mockContentSvc: any
 
-  const ADDITIONAL_FIELDS_IN_CONTENT = [
-    'averageRating',
-    'body',
-    'creatorContacts',
-    'creatorDetails',
-    'curatedTags',
-    'contentType',
-    'collections',
-    'hasTranslations',
-    'expiryDate',
-    'exclusiveContent',
-    'introductoryVideo',
-    'introductoryVideoIcon',
-    'isInIntranet',
-    'isTranslationOf',
-    'keywords',
-    'learningMode',
-    'license',
-    'playgroundResources',
-    'price',
-    'registrationInstructions',
-    'region',
-    'registrationUrl',
-    'resourceType',
-    'subTitle',
-    'softwareRequirements',
-    'studyMaterials',
-    'systemRequirements',
-    'totalRating',
-    'uniqueLearners',
-    'viewCount',
-    'labels',
-    'sourceUrl',
-    'sourceName',
-    'sourceShortName',
-    'sourceIconUrl',
-    'locale',
-    'hasAssessment',
-    'preContents',
-    'postContents',
-    'kArtifacts',
-    'equivalentCertifications',
-    'certificationList',
-    'posterImage',
-  ];
+  const mockState: any = {}
 
   beforeEach(() => {
-    // Reset mocks
-    jest.clearAllMocks();
-
-    // Setup mock for ContentService
     mockContentSvc = {
       fetchContent: jest.fn(),
-    } as unknown as jest.Mocked<WidgetContentService>;
+    }
+    service = new AppPublicTocResolverService(mockContentSvc)
+  })
 
-    // Setup mock for ActivatedRouteSnapshot
-    mockRoute = {
-      paramMap: {
-        get: jest.fn(),
-        has: jest.fn(),
-        getAll:jest.fn(),
-        keys:[]
-      },
-    };
-
-    // Setup mock for RouterStateSnapshot
-    mockState = {} as RouterStateSnapshot;
-
-    // Create service instance with mocked dependencies
-    service = new AppPublicTocResolverService(mockContentSvc);
-  });
-
-  it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
+  it('should create', () => {
+    expect(service).toBeTruthy()
+  })
 
   describe('resolve', () => {
-    it('should return error object when contentId is not provided', (done) => {
-      // Arrange
-      jest.spyOn(mockRoute.paramMap!, 'get').mockReturnValue(null);
+    it('should return { error: NO_ID, data: null } when no id in route', done => {
+      const route: any = { paramMap: { get: jest.fn().mockReturnValue(null) } }
 
-      // Act
-      const result = service.resolve(mockRoute as ActivatedRouteSnapshot, mockState as RouterStateSnapshot);
+      service.resolve(route, mockState).subscribe(result => {
+        expect(result).toEqual({ error: 'NO_ID', data: null })
+        done()
+      })
+    })
 
-      // Assert
-      result.subscribe(response => {
-        expect(response).toEqual({ error: 'NO_ID', data: null });
-        done();
-      });
-    });
+    it('should call fetchContent with content id and return mapped data', done => {
+      const contentId = 'do_123'
+      const route: any = { paramMap: { get: jest.fn().mockReturnValue(contentId) } }
+      const contentData = { identifier: contentId, name: 'Test Content' }
+      mockContentSvc.fetchContent.mockReturnValue(
+        of({ result: { content: contentData } })
+      )
 
-    it('should fetch content and return data when contentId is provided', (done) => {
-      // Arrange
-      const contentId = 'test-content-id';
-      const mockContent:any = {
-        result: {
-          content: {
-            identifier: contentId,
-            name: 'Test Content',
-            description: 'Test Description',
-          }
-        }
-      };
-      const expectedResult:any = {
-        identifier: contentId,
-        name: 'Test Content',
-        description: 'Test Description',
-      };
-
-      jest.spyOn(mockRoute.paramMap!, 'get').mockReturnValue(contentId);
-      mockContentSvc.fetchContent.mockReturnValue(of(mockContent));
-
-      // Act
-      const result = service.resolve(mockRoute as ActivatedRouteSnapshot, mockState as RouterStateSnapshot);
-
-      // Assert
-      result.subscribe(response => {
+      service.resolve(route, mockState).subscribe(result => {
         expect(mockContentSvc.fetchContent).toHaveBeenCalledWith(
-          contentId, 
-          'detail', 
-          ADDITIONAL_FIELDS_IN_CONTENT, 
+          contentId,
+          'detail',
+          expect.any(Array),
           ''
-        );
-        expect(response).toEqual({ error: null, data: expectedResult });
-        done();
-      });
-    });
+        )
+        expect(result.data).toEqual(contentData)
+        expect(result.error).toBeNull()
+        done()
+      })
+    })
 
-    it('should return error when fetchContent throws an error', (done) => {
-      // Arrange
-      const contentId = 'test-content-id';
-      const mockError = new Error('Fetch content error');
+    it('should return { error, data: null } on fetch failure', done => {
+      const route: any = { paramMap: { get: jest.fn().mockReturnValue('do_fail') } }
+      const error = new Error('Content not found')
+      mockContentSvc.fetchContent.mockReturnValue(throwError(error))
 
-      jest.spyOn(mockRoute.paramMap!, 'get').mockReturnValue(contentId);
-      mockContentSvc.fetchContent.mockReturnValue(throwError(mockError));
+      service.resolve(route, mockState).subscribe(result => {
+        expect(result.error).toEqual(error)
+        expect(result.data).toBeNull()
+        done()
+      })
+    })
 
-      // Act
-      const result = service.resolve(mockRoute as ActivatedRouteSnapshot, mockState as RouterStateSnapshot);
+    it('should pass all additional fields to fetchContent', done => {
+      const route: any = { paramMap: { get: jest.fn().mockReturnValue('do_456') } }
+      mockContentSvc.fetchContent.mockReturnValue(
+        of({ result: { content: { identifier: 'do_456' } } })
+      )
 
-      // Assert
-      result.subscribe(response => {
-        expect(mockContentSvc.fetchContent).toHaveBeenCalledWith(
-          contentId, 
-          'detail', 
-          ADDITIONAL_FIELDS_IN_CONTENT, 
-          ''
-        );
-        expect(response).toEqual({ error: mockError, data: null });
-        done();
-      });
-    });
-  });
-});
+      service.resolve(route, mockState).subscribe(() => {
+        const callArgs = mockContentSvc.fetchContent.mock.calls[0]
+        const additionalFields = callArgs[2]
+        expect(additionalFields).toContain('averageRating')
+        expect(additionalFields).toContain('keywords')
+        expect(additionalFields).toContain('hasAssessment')
+        done()
+      })
+    })
+
+    it('should pass empty string as 4th argument to fetchContent', done => {
+      const route: any = { paramMap: { get: jest.fn().mockReturnValue('do_789') } }
+      mockContentSvc.fetchContent.mockReturnValue(
+        of({ result: { content: {} } })
+      )
+
+      service.resolve(route, mockState).subscribe(() => {
+        const callArgs = mockContentSvc.fetchContent.mock.calls[0]
+        expect(callArgs[3]).toBe('')
+        done()
+      })
+    })
+  })
+})

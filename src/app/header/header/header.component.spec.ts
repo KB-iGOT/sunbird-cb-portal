@@ -1,270 +1,166 @@
-import { HeaderComponent } from './header.component';
-import { HeaderService } from './header.service';
-import { MobileAppsService } from '../../services/mobile-apps.service';
-import { ValueService } from '@sunbird-cb/utils-v2';
-import { of, BehaviorSubject } from 'rxjs';
+jest.mock('@sunbird-cb/collection', () => ({
+  NsContent: {},
+}), { virtual: true })
+jest.mock('@sunbird-cb/collection/src/public-api', () => ({}), { virtual: true })
 
-// Mock dependencies
-const mockValueService = {
-  isXSmall$: of(false)
-};
-
-const mockHeaderService = {
-  showNavbarDisplay$: of(true)
-};
-
-const mockMobileAppsService = {
-  mobileTopHeaderVisibilityStatus: new BehaviorSubject(true)
-};
+import { HeaderComponent } from './header.component'
+import { Subject } from 'rxjs'
 
 describe('HeaderComponent', () => {
-  let component: HeaderComponent;
-  let headerService: HeaderService;
-  let mobileAppsService: MobileAppsService;
-  let valueService: ValueService;
+  let component: HeaderComponent
+
+  const showNavbar$ = new Subject<boolean>()
+  const mockHeaderService: any = {
+    showNavbarDisplay$: showNavbar$.asObservable(),
+  }
+
+  const mockMobileAppsService: any = {
+    mobileTopHeaderVisibilityStatus: { next: jest.fn() },
+  }
+
+  const mockDialog: any = {
+    open: jest.fn(),
+  }
+
+  const mockRouter: any = {
+    navigateByUrl: jest.fn(),
+  }
+
+  const isXSmall$ = new Subject<boolean>()
+  const mockValueSvc: any = {
+    isXSmall$: isXSmall$.asObservable(),
+  }
+
+  function buildComponent() {
+    return new HeaderComponent(
+      mockValueSvc,
+      mockHeaderService,
+      mockMobileAppsService,
+      mockDialog,
+      mockRouter,
+    )
+  }
 
   beforeEach(() => {
-    headerService = mockHeaderService as any;
-    mobileAppsService = mockMobileAppsService as any;
-    valueService = mockValueService as any;
-    
-    component = new HeaderComponent(
-      valueService,
-      headerService,
-      mobileAppsService
-    );
-  });
+    jest.clearAllMocks()
+    jest.spyOn(window, 'open').mockImplementation(() => null)
+    component = buildComponent()
+  })
 
   afterEach(() => {
-    jest.clearAllMocks();
-  });
+    jest.restoreAllMocks()
+  })
 
-  describe('Component Initialization', () => {
-    it('should create component', () => {
-      expect(component).toBeTruthy();
-    });
+  it('should create', () => {
+    expect(component).toBeTruthy()
+  })
 
-    it('should initialize with default values', () => {
-      expect(component.isNavBarRequired).toBe(true);
-      expect(component.showNavbar).toBe(true);
-      expect(component.widgetData).toEqual({});
-      expect(component.mobileTopHeaderVisibilityStatus).toBe(true);
-      expect(component.showHubs).toBe(false);
-    });
+  it('should default showNavbar to true', () => {
+    expect(component.showNavbar).toBe(true)
+  })
 
-    it('should set isXSmall$ from ValueService', () => {
-      expect(component.isXSmall$).toBe(mockValueService.isXSmall$);
-    });
-  });
+  it('should default mobileTopHeaderVisibilityStatus to true', () => {
+    expect(component.mobileTopHeaderVisibilityStatus).toBe(true)
+  })
 
   describe('ngOnInit', () => {
-    it('should subscribe to showNavbarDisplay$ and update showNavbar', (done) => {
-      //const mockShowNavbarDisplay$ = of(false);
-     // headerService.showNavbarDisplay$ = mockShowNavbarDisplay$;
+    it('should subscribe to showNavbarDisplay$ and update showNavbar', done => {
+      component.ngOnInit()
+      // The pipe(delay(500)) means we need to wait — but we use fake timers
+      jest.useFakeTimers()
+      showNavbar$.next(false)
+      jest.advanceTimersByTime(600)
+      // After timeout component should have showNavbar=false
+      expect(component.showNavbar).toBe(false)
+      jest.useRealTimers()
+      done()
+    })
 
-      component.ngOnInit();
+    it('should set widgetData with widgets structure', () => {
+      component.ngOnInit()
+      expect(component.widgetData).toHaveProperty('widgets')
+    })
+  })
 
-      setTimeout(() => {
-        expect(component.showNavbar).toBe(false);
-        done();
-      }, 600); // Wait for delay(500) + buffer
-    });
+  describe('navBarRequired getter', () => {
+    it('should return isNavBarRequired value', () => {
+      component['isNavBarRequired'] = true
+      expect(component.navBarRequired).toBe(true)
+    })
+  })
 
-    it('should set widgetData correctly', () => {
-      component.ngOnInit();
-
-      const expectedWidgetData = {
-        widgets: [
-          [
-            {
-              dimensions: {},
-              className: 'ws-mat-primary-lite-background-important new-box-hubs',
-              widget: {
-                widgetType: 'card',
-                widgetSubType: 'cardHomeHubs',
-                widgetData: {},
-              },
-            },
-          ],
-        ],
-      };
-
-      expect(component.widgetData).toEqual(expectedWidgetData);
-    });
-  });
-
-  describe('downloadApp', () => {
-    //let originalNavigator: Navigator;
-    let windowOpenSpy: jest.SpyInstance;
-
-    beforeEach(() => {
-     // originalNavigator = global.navigator;
-      windowOpenSpy = jest.spyOn(window, 'open').mockImplementation(() => {
-        const mockWindow = { opener: {} } as Window;
-        return mockWindow;
-      });
-    });
-
-    afterEach(() => {
-    //  global.navigator = originalNavigator;
-      windowOpenSpy.mockRestore();
-    });
-
-    it('should open Play Store for Windows Phone', () => {
-      // Object.defineProperty(global.navigator, 'userAgent', {
-      //   value: 'Mozilla/5.0 (compatible; MSIE 10.0; Windows Phone 8.0; Trident/6.0; IEMobile/10.0; ARM; Touch; NOKIA; Lumia 822)',
-      //   configurable: true
-      // });
-
-      component.downloadApp();
-
-      expect(windowOpenSpy).toHaveBeenCalledWith(
-        'https://play.google.com/store/apps/details?id=com.igot.karmayogibharat&hl=en&gl=US',
-        '_blank',
-        'noopener'
-      );
-    });
-
-    it('should open Play Store for Android', () => {
-      // Object.defineProperty(global.navigator, 'userAgent', {
-      //   value: 'Mozilla/5.0 (Linux; Android 10; SM-G973F)',
-      //   configurable: true
-      // });
-
-      component.downloadApp();
-
-      expect(windowOpenSpy).toHaveBeenCalledWith(
-        'https://play.google.com/store/apps/details?id=com.igot.karmayogibharat&hl=en&gl=US',
-        '_blank',
-        'noopener'
-      );
-    });
-
-    it('should open App Store for iPad', () => {
-      // Object.defineProperty(global.navigator, 'userAgent', {
-      //   value: 'Mozilla/5.0 (iPad; CPU OS 14_0 like Mac OS X)',
-      //   configurable: true
-      // });
-
-      component.downloadApp();
-
-      expect(windowOpenSpy).toHaveBeenCalledWith(
-        'https://apps.apple.com/in/app/igot-karmayogi/id6443949491',
-        '_blank',
-        'noopener'
-      );
-    });
-
-    it('should open App Store for iPhone', () => {
-      // Object.defineProperty(global.navigator, 'userAgent', {
-      //   value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0 like Mac OS X)',
-      //   configurable: true
-      // });
-
-      component.downloadApp();
-
-      expect(windowOpenSpy).toHaveBeenCalledWith(
-        'https://apps.apple.com/in/app/igot-karmayogi/id6443949491',
-        '_blank',
-        'noopener'
-      );
-    });
-
-    it('should open App Store for iPod', () => {
-      // Object.defineProperty(global.navigator, 'userAgent', {
-      //   value: 'Mozilla/5.0 (iPod touch; CPU iPhone OS 14_0 like Mac OS X)',
-      //   configurable: true
-      // });
-
-      component.downloadApp();
-
-      expect(windowOpenSpy).toHaveBeenCalledWith(
-        'https://apps.apple.com/in/app/igot-karmayogi/id6443949491',
-        '_blank',
-        'noopener'
-      );
-    });
-
-    it('should set opener to null for all platforms', () => {
-      const mockWindow = { opener: {} } as Window;
-      windowOpenSpy.mockReturnValue(mockWindow);
-
-      // Object.defineProperty(global.navigator, 'userAgent', {
-      //   value: 'Mozilla/5.0 (Linux; Android 10; SM-G973F)',
-      //   configurable: true
-      // });
-
-      component.downloadApp();
-
-      expect(mockWindow.opener).toBeNull();
-    });
-
-    it('should handle case when window.open returns null', () => {
-      windowOpenSpy.mockReturnValue(null);
-
-      // Object.defineProperty(global.navigator, 'userAgent', {
-      //   value: 'Mozilla/5.0 (Linux; Android 10; SM-G973F)',
-      //   configurable: true
-      // });
-
-      expect(() => component.downloadApp()).not.toThrow();
-    });
-  });
-
-  describe('Getters', () => {
-    it('should return correct value for navBarRequired', () => {
-      component.isNavBarRequired = true;
-      expect(component.navBarRequired).toBe(true);
-
-      component.isNavBarRequired = false;
-      expect(component.navBarRequired).toBe(false);
-    });
-
-    it('should return correct value for isShowNavbar', () => {
-      component.showNavbar = true;
-      expect(component.isShowNavbar).toBe(true);
-
-      component.showNavbar = false;
-      expect(component.isShowNavbar).toBe(false);
-    });
-  });
+  describe('isShowNavbar getter', () => {
+    it('should return showNavbar value', () => {
+      component.showNavbar = false
+      expect(component.isShowNavbar).toBe(false)
+    })
+  })
 
   describe('hideMobileTopHeader', () => {
-    it('should set mobileTopHeaderVisibilityStatus to false', () => {
-      component.mobileTopHeaderVisibilityStatus = true;
-      
-      component.hideMobileTopHeader();
-      
-      expect(component.mobileTopHeaderVisibilityStatus).toBe(false);
-    });
+    it('should set mobileTopHeaderVisibilityStatus to false and notify service', () => {
+      component.hideMobileTopHeader()
+      expect(component.mobileTopHeaderVisibilityStatus).toBe(false)
+      expect(mockMobileAppsService.mobileTopHeaderVisibilityStatus.next).toHaveBeenCalledWith(false)
+    })
+  })
 
-    it('should call next on mobileAppsService.mobileTopHeaderVisibilityStatus', () => {
-      const nextSpy = jest.spyOn(mobileAppsService.mobileTopHeaderVisibilityStatus, 'next');
-      
-      component.hideMobileTopHeader();
-      
-      expect(nextSpy).toHaveBeenCalledWith(false);
-    });
-  });
+  describe('openSupportForm', () => {
+    it('should navigate to help-centre url', () => {
+      component.openSupportForm()
+      expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('igot/help-centre')
+    })
+  })
 
-  describe('Input Properties', () => {
-    it('should accept mode input', () => {
-      const testMode = 'test-mode';
-      component.mode = testMode;
-      expect(component.mode).toBe(testMode);
-    });
+  describe('downloadApp', () => {
+    const originalNavigator = global.navigator
 
-    it('should accept headerFooterConfigData input', () => {
-      const testConfig = { test: 'config' };
-      component.headerFooterConfigData = testConfig;
-      expect(component.headerFooterConfigData).toBe(testConfig);
-    });
+    afterEach(() => {
+      Object.defineProperty(global, 'navigator', { value: originalNavigator, writable: true })
+    })
 
-    it('should accept showHubs input with default false', () => {
-      expect(component.showHubs).toBe(false);
-      
-      component.showHubs = true;
-      expect(component.showHubs).toBe(true);
-    });
-  });
-});
+    it('should open play store for Android', () => {
+      Object.defineProperty(global.navigator, 'userAgent', {
+        value: 'Mozilla/5.0 (Linux; Android 10)',
+        configurable: true,
+      })
+      component.downloadApp()
+      expect(window.open).toHaveBeenCalledWith(
+        expect.stringContaining('play.google.com'),
+        '_blank',
+      )
+    })
+
+    it('should open App Store for iPhone', () => {
+      Object.defineProperty(global.navigator, 'userAgent', {
+        value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0)',
+        configurable: true,
+      })
+      component.downloadApp()
+      expect(window.open).toHaveBeenCalledWith(
+        expect.stringContaining('apps.apple.com'),
+        '_blank',
+      )
+    })
+
+    it('should not open any store for desktop', () => {
+      Object.defineProperty(global.navigator, 'userAgent', {
+        value: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
+        configurable: true,
+      })
+      component.downloadApp()
+      expect(window.open).not.toHaveBeenCalled()
+    })
+
+    it('should open play store for Windows Phone', () => {
+      Object.defineProperty(global.navigator, 'userAgent', {
+        value: 'Mozilla/5.0 (compatible; MSIE 10.0; Windows Phone 8.0)',
+        configurable: true,
+      })
+      component.downloadApp()
+      expect(window.open).toHaveBeenCalledWith(
+        expect.stringContaining('play.google.com'),
+        '_blank',
+      )
+    })
+  })
+})

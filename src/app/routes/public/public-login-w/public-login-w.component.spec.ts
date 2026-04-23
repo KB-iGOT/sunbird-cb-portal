@@ -1,133 +1,96 @@
-import { PublicLoginWComponent } from './public-login-w.component';
-import { of } from 'rxjs';
+jest.mock('lodash', () => {
+  const actual = jest.requireActual('lodash')
+  return { ...actual, default: actual }
+})
+
+import { PublicLoginWComponent } from './public-login-w.component'
+import { Subject } from 'rxjs'
+import { of } from 'rxjs'
 
 describe('PublicLoginWComponent', () => {
-  let component: PublicLoginWComponent;
-  let activatedRouteMock: any;
-  let httpClientMock: any;
-  let queryParamMapSpy: any;
+  let component: PublicLoginWComponent
+  let activateRouteMock: any
+  let httpClientMock: any
+  let queryParamSubject: Subject<any>
 
   beforeEach(() => {
-    // Create mocks for dependencies
-    queryParamMapSpy = jest.fn();
-    
-    activatedRouteMock = {
-      queryParamMap: {
-        subscribe: queryParamMapSpy
-      }
-    };
-    
+    queryParamSubject = new Subject<any>()
+
+    activateRouteMock = {
+      queryParamMap: queryParamSubject.asObservable(),
+    }
+
     httpClientMock = {
-      get: jest.fn()
-    };
+      get: jest.fn().mockReturnValue(of({ status: 'success' })),
+    }
 
-    // Setup spies
-    queryParamMapSpy.mockReturnValue(of({ params: {} }));
-    httpClientMock.get.mockReturnValue(of({}));
-
-    // Initialize component with mocked dependencies
-    component = new PublicLoginWComponent(
-      activatedRouteMock as any,
-      httpClientMock
-    );
-  });
+    component = new PublicLoginWComponent(activateRouteMock, httpClientMock)
+  })
 
   afterEach(() => {
-    jest.clearAllMocks();
-  });
+    queryParamSubject.complete()
+  })
 
   it('should create the component', () => {
-    expect(component).toBeTruthy();
-  });
+    expect(component).toBeTruthy()
+  })
+
+  it('should initialize default values', () => {
+    expect(component.userMail).toBe('')
+    expect(component.platform).toBe('Learner')
+    expect(component.data).toBeUndefined()
+  })
 
   describe('ngOnInit', () => {
     it('should subscribe to queryParamMap', () => {
-      // Arrange
-      const params = { params: { code: 'test-code', state: 'test-state' } };
-      queryParamMapSpy.mockReturnValue(of(params));
-      
-      // Act
-      component.ngOnInit();
-      
-      // Assert
-      expect(queryParamMapSpy).toHaveBeenCalled();
-      expect(component.data).toEqual(params.params);
-    });
+      component.ngOnInit()
+      queryParamSubject.next({ params: {} })
+      expect(component.data).toEqual({})
+    })
 
-    it('should call parichay callback API when code is present', () => {
-      // Arrange
-      const params = { params: { code: 'test-code', state: 'test-state' } };
-      queryParamMapSpy.mockReturnValue(of(params));
-      
-      // Act
-      component.ngOnInit();
-      
-      // Assert
+    it('should call httpClient.get with callback URL when code param exists', () => {
+      component.ngOnInit()
+      queryParamSubject.next({ params: { code: 'auth-code-123', state: 'state-abc' } })
       expect(httpClientMock.get).toHaveBeenCalledWith(
         '/apis/public/v8/parichay/callback',
-        { params: { code: 'test-code', state: 'test-state' } }
-      );
-    });
+        { params: { code: 'auth-code-123', state: 'state-abc' } }
+      )
+    })
 
-    it('should not call API when code is not present', () => {
-      // Arrange
-      const params = { params: { state: 'test-state' } };
-      queryParamMapSpy.mockReturnValue(of(params));
-      
-      // Act
-      component.ngOnInit();
-      
-      // Assert
-      expect(httpClientMock.get).not.toHaveBeenCalled();
-    });
-  });
+    it('should not call httpClient.get when code param is absent', () => {
+      component.ngOnInit()
+      queryParamSubject.next({ params: { state: 'state-only' } })
+      expect(httpClientMock.get).not.toHaveBeenCalled()
+    })
+
+    it('should not call httpClient.get when code is empty string', () => {
+      component.ngOnInit()
+      queryParamSubject.next({ params: { code: '', state: '' } })
+      expect(httpClientMock.get).not.toHaveBeenCalled()
+    })
+  })
 
   describe('ngOnDestroy', () => {
-    it('should unsubscribe from subscriptionContact when not null', () => {
-      // Arrange
-      component.ngOnInit();
-      //const unsubscribeSpy = jest.spyOn(component['subscriptionContact'] as any, 'unsubscribe');
-      
-      // Act
-     // component.ngOnDestroy();
-      
-      // Assert
-     // expect(unsubscribeSpy).toHaveBeenCalled();
-    });
+    it('should unsubscribe without errors after ngOnInit', () => {
+      component.ngOnInit()
+      expect(() => component.ngOnDestroy()).not.toThrow()
+    })
 
-    it('should not throw error when subscriptionContact is null', () => {
-      // Arrange
-      component['subscriptionContact'] = null;
-      
-      // Act & Assert
-      expect(() => component.ngOnDestroy()).not.toThrow();
-    });
-  });
+    it('should handle ngOnDestroy when subscription is null', () => {
+      expect(() => component.ngOnDestroy()).not.toThrow()
+    })
+  })
 
   describe('login', () => {
-    it('should redirect to the resource page', () => {
-      // Arrange
-      Object.defineProperty(window, 'location', {
-        value: {
-          href: '',
-          origin: 'http://test-origin.com'
-        },
-        writable: true
-      });
-      
-      // Act
-      component.login();
-      
-      // Assert
-      expect(window.location.href).toBe('http://test-origin.com/protected/v8/resource');
-    });
-  });
+    it('should set window.location.href to resource URL', () => {
+      const originalLocation = window.location
+      delete (window as any).location
+        ; (window as any).location = { origin: 'https://example.com', href: '' }
 
-  describe('Component Properties', () => {
-    it('should initialize with default values', () => {
-      expect(component.userMail).toBe('');
-      expect(component.platform).toBe('Learner');
-      expect(component.data).toBeUndefined();
-    });
-  });
-});
+      component.login()
+
+      expect(window.location.href).toBe('https://example.com/protected/v8/resource')
+        ; (window as any).location = originalLocation
+    })
+  })
+})

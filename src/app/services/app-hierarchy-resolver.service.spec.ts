@@ -1,275 +1,144 @@
+jest.mock('@sunbird-cb/toc', () => ({
+  WidgetContentService: jest.fn(),
+}), { virtual: true })
+
 import { AppHierarchyResolverService } from './app-hierarchy-resolver.service'
-import { WidgetContentService } from '@sunbird-cb/collection/src/lib/_services/widget-content.service'
-import { ActivatedRouteSnapshot, RouterStateSnapshot, Params } from '@angular/router'
 import { of, throwError } from 'rxjs'
 
 describe('AppHierarchyResolverService', () => {
   let service: AppHierarchyResolverService
-  let mockContentService: jest.Mocked<WidgetContentService>
-  let mockRoute: ActivatedRouteSnapshot
-  let mockState: RouterStateSnapshot
+  let mockContentSvc: any
+
+  const mockState: any = {}
 
   beforeEach(() => {
-    // Create mock for WidgetContentService
-    mockContentService = {
+    mockContentSvc = {
       fetchContent: jest.fn(),
-      autoEnrollLP: jest.fn()
-    } as any
-
-    // Create mock for ActivatedRouteSnapshot
-    mockRoute = {
-      queryParams: {}
-    } as ActivatedRouteSnapshot
-
-    // Create mock for RouterStateSnapshot
-    mockState = {} as RouterStateSnapshot
-
-    // Initialize service with mocked dependencies
-    service = new AppHierarchyResolverService(mockContentService)
+    }
+    service = new AppHierarchyResolverService(mockContentSvc)
   })
 
-  afterEach(() => {
-    jest.clearAllMocks()
+  it('should create', () => {
+    expect(service).toBeTruthy()
   })
 
   describe('resolve', () => {
-    it('should return error when no collectionId is provided', (done) => {
-      // Arrange
-      mockRoute.queryParams = {}
+    it('should return { error: No Collectionid, data: null } when no collectionId', done => {
+      const route: any = { queryParams: {} }
 
-      // Act
-      const result$ = service.resolve(mockRoute, mockState)
-
-      // Assert
-      result$.subscribe(response => {
-        expect(response).toEqual({
-          error: 'No Collectionid',
-          data: null
-        })
-        expect(mockContentService.fetchContent).not.toHaveBeenCalled()
+      service.resolve(route, mockState).subscribe(result => {
+        expect(result).toEqual({ error: 'No Collectionid', data: null })
         done()
       })
     })
 
-    it('should return error when collectionId is empty string', (done) => {
-      // Arrange
-      mockRoute.queryParams = { collectionId: '' }
+    it('should return { error: No Collectionid, data: null } when queryParams is null', done => {
+      const route: any = { queryParams: null }
 
-      // Act
-      const result$ = service.resolve(mockRoute, mockState)
-
-      // Assert
-      result$.subscribe(response => {
-        expect(response).toEqual({
-          error: 'No Collectionid',
-          data: null
-        })
-        expect(mockContentService.fetchContent).not.toHaveBeenCalled()
+      service.resolve(route, mockState).subscribe(result => {
+        expect(result).toEqual({ error: 'No Collectionid', data: null })
         done()
       })
     })
 
-    it('should fetch content successfully with collectionId only', (done) => {
-      // Arrange
-      const mockCollectionId = 'test-collection-id'
-      const mockResponseData = {
-        result: {
-          content: {
-            id: mockCollectionId,
-            name: 'Test Content'
-          }
-        }
+    it('should use collectionId from queryParams and call fetchContent', done => {
+      const route: any = {
+        queryParams: { collectionId: 'coll_123', _collectionType: 'Course' },
       }
+      const rawData = { result: { content: { identifier: 'coll_123' } } }
+      mockContentSvc.fetchContent.mockReturnValue(of(rawData))
 
-      mockRoute.queryParams = { collectionId: mockCollectionId }
-      mockContentService.fetchContent.mockReturnValue(of(mockResponseData as any))
-
-      // Act
-      const result$ = service.resolve(mockRoute, mockState)
-
-      // Assert
-      result$.subscribe(response => {
-        expect(mockContentService.fetchContent).toHaveBeenCalledWith(
-          mockCollectionId,
+      service.resolve(route, mockState).subscribe(result => {
+        expect(mockContentSvc.fetchContent).toHaveBeenCalledWith(
+          'coll_123',
           'detail',
           [],
-          ''
+          'Course',
         )
-        expect(response).toEqual({
-          data: mockResponseData,
-          error: null
-        })
+        expect(result.data).toEqual(rawData)
+        expect(result.error).toBeNull()
         done()
       })
     })
 
-    it('should fetch content successfully with collectionId and collectionType', (done) => {
-      // Arrange
-      const mockCollectionId = 'test-collection-id'
-      const mockCollectionType = 'test-collection-type'
-      const mockResponseData = {
-        result: {
-          content: {
-            id: mockCollectionId,
-            name: 'Test Content'
-          }
-        }
+    it('should use MLId as collectionId when MLId differs from collectionId', done => {
+      const route: any = {
+        queryParams: { collectionId: 'coll_123', _collectionType: '', MLId: 'ml_456' },
       }
+      const rawData = { result: { content: { identifier: 'ml_456' } } }
+      mockContentSvc.fetchContent.mockReturnValue(of(rawData))
 
-      mockRoute.queryParams = {
-        collectionId: mockCollectionId,
-        collectionType: mockCollectionType
-      }
-      mockContentService.fetchContent.mockReturnValue(of(mockResponseData as any))
-
-      // Act
-      const result$ = service.resolve(mockRoute, mockState)
-
-      // Assert
-      result$.subscribe(response => {
-        expect(mockContentService.fetchContent).toHaveBeenCalledWith(
-          mockCollectionId,
+      service.resolve(route, mockState).subscribe(result => {
+        expect(mockContentSvc.fetchContent).toHaveBeenCalledWith(
+          'ml_456',
           'detail',
           [],
-          mockCollectionType
+          '',
         )
-        expect(response).toEqual({
-          data: mockResponseData,
-          error: null
-        })
+        expect(result.error).toBeNull()
         done()
       })
     })
 
-    it('should handle fetchContent error gracefully', (done) => {
-      // Arrange
-      const mockCollectionId = 'test-collection-id'
-      const mockError = new Error('API Error')
-
-      mockRoute.queryParams = { collectionId: mockCollectionId }
-      mockContentService.fetchContent.mockReturnValue(throwError(mockError))
-
-      // Act
-      const result$ = service.resolve(mockRoute, mockState)
-
-      // Assert
-      result$.subscribe(response => {
-        expect(mockContentService.fetchContent).toHaveBeenCalledWith(
-          mockCollectionId,
-          'detail',
-          [],
-          ''
-        )
-        expect(response).toEqual({
-          error: mockError,
-          data: null
-        })
-        done()
-      })
-    })
-
-    it('should handle null queryParams', (done) => {
-      // Arrange
-      mockRoute.queryParams = {} as Params // Use empty object instead of null
-
-      // Act
-      const result$ = service.resolve(mockRoute, mockState)
-
-      // Assert
-      result$.subscribe(response => {
-        expect(response).toEqual({
-          error: 'No Collectionid',
-          data: null
-        })
-        expect(mockContentService.fetchContent).not.toHaveBeenCalled()
-        done()
-      })
-    })
-
-    it('should handle queryParams without collectionId property', (done) => {
-      // Arrange
-      mockRoute.queryParams = { someOtherParam: 'value' } as Params
-
-      // Act
-      const result$ = service.resolve(mockRoute, mockState)
-
-      // Assert
-      result$.subscribe(response => {
-        expect(response).toEqual({
-          error: 'No Collectionid',
-          data: null
-        })
-        expect(mockContentService.fetchContent).not.toHaveBeenCalled()
-        done()
-      })
-    })
-
-    it('should use empty string as default for collectionType when not provided', (done) => {
-      // Arrange
-      const mockCollectionId = 'test-collection-id'
-      const mockResponseData = {
-        result: {
-          content: {
-            id: mockCollectionId,
-            name: 'Test Content'
-          }
-        }
+    it('should NOT use MLId when MLId equals collectionId', done => {
+      const route: any = {
+        queryParams: { collectionId: 'coll_123', _collectionType: '', MLId: 'coll_123' },
       }
+      mockContentSvc.fetchContent.mockReturnValue(of({ result: {} }))
 
-      mockRoute.queryParams = { collectionId: mockCollectionId }
-      mockContentService.fetchContent.mockReturnValue(of(mockResponseData as any))
-
-      // Act
-      const result$ = service.resolve(mockRoute, mockState)
-
-      // Assert
-      result$.subscribe(() => {
-        expect(mockContentService.fetchContent).toHaveBeenCalledWith(
-          mockCollectionId,
+      service.resolve(route, mockState).subscribe(() => {
+        expect(mockContentSvc.fetchContent).toHaveBeenCalledWith(
+          'coll_123',
           'detail',
           [],
-          '' // Default empty string for collectionType
+          '',
         )
         done()
       })
     })
 
-    it('should handle complex response data structure', (done) => {
-      // Arrange
-      const mockCollectionId = 'test-collection-id'
-      const complexResponseData = {
-        result: {
-          content: {
-            id: mockCollectionId,
-            name: 'Test Content',
-            children: [
-              { id: 'child1', name: 'Child 1' },
-              { id: 'child2', name: 'Child 2' }
-            ]
-          }
-        },
-        responseData: ['item1', 'item2']
+    it('should return { error, data: null } on fetchContent failure', done => {
+      const route: any = {
+        queryParams: { collectionId: 'coll_error', _collectionType: '' },
       }
+      const error = new Error('Server error')
+      mockContentSvc.fetchContent.mockReturnValue(throwError(error))
 
-      mockRoute.queryParams = { collectionId: mockCollectionId }
-      mockContentService.fetchContent.mockReturnValue(of(complexResponseData as any))
-
-      // Act
-      const result$ = service.resolve(mockRoute, mockState)
-
-      // Assert
-      result$.subscribe(response => {
-        expect(response.data).toEqual(complexResponseData)
-        expect(response.error).toBeNull()
+      service.resolve(route, mockState).subscribe(result => {
+        expect(result.error).toEqual(error)
+        expect(result.data).toBeNull()
         done()
       })
     })
-  })
 
-  describe('constructor', () => {
-    it('should create service instance with injected dependencies', () => {
-      // Assert
-      expect(service).toBeDefined()
+    it('should use empty string for collectionType when _collectionType is absent', done => {
+      const route: any = {
+        queryParams: { collectionId: 'coll_789' },
+      }
+      mockContentSvc.fetchContent.mockReturnValue(of({}))
+
+      service.resolve(route, mockState).subscribe(() => {
+        expect(mockContentSvc.fetchContent).toHaveBeenCalledWith(
+          'coll_789',
+          'detail',
+          [],
+          '',
+        )
+        done()
+      })
+    })
+
+    it('should pass empty array as additional fields to fetchContent', done => {
+      const route: any = {
+        queryParams: { collectionId: 'coll_001', _collectionType: 'Program' },
+      }
+      mockContentSvc.fetchContent.mockReturnValue(of({}))
+
+      service.resolve(route, mockState).subscribe(() => {
+        const callArgs = mockContentSvc.fetchContent.mock.calls[0]
+        expect(callArgs[2]).toEqual([])
+        done()
+      })
     })
   })
 })
