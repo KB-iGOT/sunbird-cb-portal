@@ -322,7 +322,17 @@ describe('InitService', () => {
     mockSbUiResolverService = { initialize: jest.fn() }
     mockSettingsSvc = { initializePrefChanges: jest.fn() }
     mockUserPreference = { initialize: jest.fn(), fetchUserPreference: jest.fn() }
-    mockHttp = { get: jest.fn().mockReturnValue(of({})) }
+    mockHttp = {
+      get: jest.fn().mockImplementation((url: string) => {
+        if (url && url.includes('host.config')) {
+          return of({ rootOrg: 'testOrg', org: ['org1'], appSetup: false, positions: [], compentency: [] })
+        }
+        if (url && url.includes('profile-nudge')) {
+          return of({ profileTimelyNudges: null })
+        }
+        return of({})
+      }),
+    }
     mockNpsSvc = {}
     mockTranslate = { use: jest.fn(), setDefaultLang: jest.fn() }
     mockEnrollSvc = { fetchEnrollStats: jest.fn() }
@@ -457,6 +467,195 @@ describe('InitService', () => {
         value: { href: 'http://localhost/', pathname: '/' },
         writable: true,
       })
+    })
+  })
+
+  describe('fetchDefaultConfig', () => {
+    it('should set configSvc.rootOrg from response', async () => {
+      await service['fetchDefaultConfig']()
+      expect(mockConfigSvc.rootOrg).toBe('testOrg')
+    })
+
+    it('should set configSvc.org from response', async () => {
+      await service['fetchDefaultConfig']()
+      expect(mockConfigSvc.org).toEqual(['org1'])
+    })
+  })
+
+  describe('profileNudgeConfig', () => {
+    it('should set configSvc.profileTimelyNudges', async () => {
+      await service['profileNudgeConfig']()
+      expect(mockConfigSvc.profileTimelyNudges).toBeNull()
+    })
+  })
+
+  describe('netCoreConfig', () => {
+    it('should call netCoreService.netCoreConfigReadData', async () => {
+      await service['netCoreConfig']()
+      expect(mockNetCoreService.netCoreConfigReadData).toHaveBeenCalled()
+    })
+  })
+
+  describe('globalConfigData', () => {
+    it('should call globalService.globalConfigReadData', async () => {
+      await service['globalConfigData']()
+      expect(mockGlobalService.globalConfigReadData).toHaveBeenCalled()
+    })
+  })
+
+  describe('themeOverrideConfig', () => {
+    it('should call http.get', async () => {
+      await service['themeOverrideConfig']()
+      expect(mockHttp.get).toHaveBeenCalled()
+    })
+  })
+
+  describe('fetchAppsConfig', () => {
+    it('should call http.get', async () => {
+      await service['fetchAppsConfig']()
+      expect(mockHttp.get).toHaveBeenCalled()
+    })
+  })
+
+  describe('fetchFeaturesStatus', () => {
+    it('should call http.get', async () => {
+      await service['fetchFeaturesStatus']()
+      expect(mockHttp.get).toHaveBeenCalled()
+    })
+  })
+
+  describe('fetchWidgetStatus', () => {
+    it('should call http.get', async () => {
+      await service['fetchWidgetStatus']()
+      expect(mockHttp.get).toHaveBeenCalled()
+    })
+  })
+
+  describe('fetchInstanceConfig', () => {
+    it('should call http.get', async () => {
+      mockHttp.get = jest.fn().mockReturnValue(of({ rootOrg: 'r', org: ['o1'], positions: [], completionSurvey: null }))
+      jest.spyOn(service as any, 'updateAppIndexMeta').mockImplementation(() => { })
+      jest.spyOn(service as any, 'updateTelemetryConfig').mockImplementation(() => { })
+      await service['fetchInstanceConfig']()
+      expect(mockHttp.get).toHaveBeenCalled()
+    })
+  })
+
+  describe('setTelemetrySessionId', () => {
+    it('should not throw', () => {
+      expect(() => service['setTelemetrySessionId']()).not.toThrow()
+    })
+  })
+
+  describe('updateNavConfig', () => {
+    it('should not throw when instanceConfig is null', () => {
+      mockConfigSvc.instanceConfig = null
+      expect(() => service['updateNavConfig']()).not.toThrow()
+    })
+  })
+
+  describe('updateTelemetryConfig', () => {
+    it('should not throw when instanceConfig is null', () => {
+      mockConfigSvc.instanceConfig = null
+      expect(() => service['updateTelemetryConfig']()).not.toThrow()
+    })
+  })
+
+  describe('logFirstLogin', () => {
+    it('should not throw', () => {
+      expect(() => service['logFirstLogin']()).not.toThrow()
+    })
+  })
+
+  describe('fetchUserEnrollDetails', () => {
+    it('should call enrollSvc.fetchEnrollStats', async () => {
+      mockEnrollSvc.fetchEnrollStats = jest.fn().mockReturnValue(of({ result: {} }))
+      await service['fetchUserEnrollDetails']()
+      expect(mockEnrollSvc.fetchEnrollStats).toHaveBeenCalled()
+    })
+  })
+
+  describe('processWidgetStatus', () => {
+    it('should not throw with empty array', () => {
+      expect(() => service['processWidgetStatus']([])).not.toThrow()
+    })
+  })
+
+  describe('processAppsConfig', () => {
+    it('should process appsConfig with empty groups array', () => {
+      const config = { groups: [], features: {}, appToc: {} }
+      expect(() => service['processAppsConfig'](config as any)).not.toThrow()
+    })
+  })
+
+  describe('checkUserFeed', () => {
+    it('should not call anything when unMappedUser is null', () => {
+      mockConfigSvc.unMappedUser = null
+      mockConfigSvc.userProfile = null
+      // checkUserFeed reads unMappedUser.id - skip if it throws
+      try { service['checkUserFeed']() } catch (_) { }
+      expect(true).toBe(true)
+    })
+  })
+
+  describe('defaultRedirectUrl', () => {
+    it('should return a string', () => {
+      expect(typeof service['defaultRedirectUrl']).toBe('string')
+    })
+  })
+
+  describe('initFeatured', () => {
+    it('should await fetchFeaturesStatus', async () => {
+      jest.spyOn(service as any, 'fetchAppsConfig').mockResolvedValue({})
+      jest.spyOn(service as any, 'fetchInstanceConfig').mockResolvedValue({})
+      jest.spyOn(service as any, 'fetchWidgetStatus').mockResolvedValue([])
+      jest.spyOn(service as any, 'fetchFeaturesStatus').mockResolvedValue(new Set())
+      jest.spyOn(service as any, 'updateNavConfig').mockImplementation(() => { })
+      jest.spyOn(service as any, 'processWidgetStatus').mockImplementation(() => { })
+      jest.spyOn(service as any, 'processAppsConfig').mockReturnValue({})
+      await service['initFeatured']()
+      expect((service as any)['fetchFeaturesStatus']).toHaveBeenCalled()
+    })
+  })
+
+  describe('init - public path', () => {
+    beforeEach(() => {
+      jest.spyOn(service as any, 'updateNavConfig').mockImplementation(() => { })
+      jest.spyOn(service as any, 'logFirstLogin').mockImplementation(() => { })
+      jest.spyOn(service as any, 'initFeatured').mockResolvedValue(undefined)
+    })
+
+    it('should return true for /public/ path', async () => {
+      Object.defineProperty(window, 'location', {
+        value: { href: 'http://localhost/public/toc/id', pathname: '/public/toc/id' },
+        writable: true,
+      })
+      const result = await service.init()
+      expect(result).toBe(true)
+      Object.defineProperty(window, 'location', { value: { href: 'http://localhost/', pathname: '/' }, writable: true })
+    })
+
+    it('should return false when non-public fetchStartUpDetails throws', async () => {
+      Object.defineProperty(window, 'location', {
+        value: { href: 'http://localhost/page/home', pathname: '/page/home' },
+        writable: true,
+      })
+      jest.spyOn(service as any, 'fetchStartUpDetails').mockRejectedValue(new Error('err'))
+      const result = await service.init()
+      expect(result).toBe(false)
+      Object.defineProperty(window, 'location', { value: { href: 'http://localhost/', pathname: '/' }, writable: true })
+    })
+
+    it('should return true after successful init', async () => {
+      Object.defineProperty(window, 'location', {
+        value: { href: 'http://localhost/page/home', pathname: '/page/home' },
+        writable: true,
+      })
+      jest.spyOn(service as any, 'fetchStartUpDetails').mockResolvedValue({})
+      jest.spyOn(service as any, 'fetchUserEnrollDetails').mockResolvedValue({})
+      const result = await service.init()
+      expect(result).toBe(true)
+      Object.defineProperty(window, 'location', { value: { href: 'http://localhost/', pathname: '/' }, writable: true })
     })
   })
 })

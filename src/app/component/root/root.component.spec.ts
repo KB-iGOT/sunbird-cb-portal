@@ -376,6 +376,96 @@ describe('RootComponent', () => {
       component.ngOnInit()
       expect(mockBtnBackSvc.initialize).toHaveBeenCalled()
     })
+
+    it('should set isHomePage based on router events', () => {
+      // spy on changeBg methods to prevent DOM errors
+      jest.spyOn(component as any, 'changeBg26Jan').mockImplementation(() => { })
+      jest.spyOn(component as any, 'removeBg26Jan').mockImplementation(() => { })
+      mockEventSvc.dispatchEvent = jest.fn()
+      mockTelemetrySvc.impression = jest.fn()
+      mockRoute.snapshot = { fragment: null, queryParams: {}, root: { firstChild: null } }
+      mockUtilitySvc.routeData = { pageId: null, module: null }
+      const { NavigationEnd } = jest.requireActual('@angular/router')
+      component.ngOnInit()
+      mockRouter.events.next(new NavigationEnd(1, '/page/home', '/page/home'))
+      // homePage depends on the clearGlobalSearchForHomePage call
+      expect(mockMobileAppsSvc.clearGlobalSearchForHomePage.next).toHaveBeenCalled()
+    })
+
+    it('should set isNavBarRequired false for preview urls', () => {
+      jest.spyOn(component as any, 'changeBg26Jan').mockImplementation(() => { })
+      jest.spyOn(component as any, 'removeBg26Jan').mockImplementation(() => { })
+      const { NavigationStart } = jest.requireActual('@angular/router')
+      component.ngOnInit()
+      mockRouter.events.next(new NavigationStart(1, '/preview/some-content'))
+      expect(component['isNavBarRequired']).toBe(false)
+    })
+  })
+
+  describe('getChildRouteData', () => {
+    it('should push firstChild data into currentRouteData', () => {
+      const snapshot = {} as any
+      const child: any = { data: { pageId: 'test' }, firstChild: null }
+      component.getChildRouteData(snapshot, child)
+      expect(component['currentRouteData']).toContainEqual({ pageId: 'test' })
+    })
+
+    it('should handle nested children recursively', () => {
+      const snapshot = {} as any
+      const grandchild: any = { data: { pageId: 'grand' }, firstChild: null }
+      const child: any = { data: { pageId: 'child' }, firstChild: grandchild }
+      component.getChildRouteData(snapshot, child)
+      expect(component['currentRouteData'].length).toBe(2)
+    })
+
+    it('should not crash when firstChild is null', () => {
+      expect(() => component.getChildRouteData({} as any, null)).not.toThrow()
+    })
+  })
+
+  describe('raiseAppStartTelemetry', () => {
+    it('should set appStartRaised to true after first call', () => {
+      mockEventSvc.dispatchEvent = jest.fn()
+      component['appStartRaised'] = false
+      component.raiseAppStartTelemetry()
+      expect(component['appStartRaised']).toBe(true)
+    })
+
+    it('should not dispatch event if appStartRaised is already true', () => {
+      mockEventSvc.dispatchEvent = jest.fn()
+      component['appStartRaised'] = true
+      component.raiseAppStartTelemetry()
+      expect(mockEventSvc.dispatchEvent).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('getTourGuide', () => {
+    it('should return showTour value from updateTourGuide observable', () => {
+      const subj = new Subject()
+      mockConfigSvc.updateTourGuide = subj
+      subj.next(true)
+      const result = component.getTourGuide()
+      expect(typeof result).toBe('boolean')
+    })
+  })
+
+  describe('loggedinUser getter', () => {
+    it('should be true when userProfile has userId', () => {
+      expect(component.loggedinUser).toBe(true)
+    })
+  })
+
+  describe('isInIframe', () => {
+    it('should be false initially', () => {
+      expect(component['isInIframe']).toBe(false)
+    })
+  })
+
+  describe('hideHeaderAndFooter', () => {
+    it('should be false for normal path', () => {
+      expect(component.hideHeaderAndFooter).toBe(false)
+    })
   })
 })
+
 

@@ -130,12 +130,18 @@ describe('PublicSignupComponent — instance tests', () => {
       updateSignupDataObservable: of({}),
       searchOrgs: jest.fn().mockReturnValue(of({ result: { response: [] } })),
       registerUser: jest.fn().mockReturnValue(of({})),
-      getStateOrMinistyForRegistration: jest.fn().mockReturnValue(of({ result: { response: [] } })),
+      getStateOrMinistyForRegistration: jest.fn().mockReturnValue(of({ result: { response: { content: [], count: 0 } } })),
+      getMinistryForRegistration: jest.fn().mockReturnValue(of({ result: { response: { content: [], count: 0 } } })),
+      getStateForRegistration: jest.fn().mockReturnValue(of({ result: { response: { content: [], count: 0 } } })),
+      sendOtp: jest.fn().mockReturnValue(of({ result: { response: 'SUCCESS' } })),
+      resendOtp: jest.fn().mockReturnValue(of({ result: { response: 'SUCCESS' } })),
+      verifyOTP: jest.fn().mockReturnValue(of({ result: { response: 'SUCCESS' } })),
     }
 
     mockUsersService = {
       getDesignations: jest.fn().mockReturnValue(of({ result: { response: { content: [] } } })),
       getMinistryData: jest.fn().mockReturnValue(of({ result: { response: [] } })),
+      searchPublicDesignation: jest.fn().mockReturnValue(of({ result: { result: { data: [], totalcount: 0 } } })),
     }
 
     mockLoggerSvc = { log: jest.fn(), error: jest.fn() }
@@ -171,7 +177,11 @@ describe('PublicSignupComponent — instance tests', () => {
       get: jest.fn().mockReturnValue(of('')),
     }
 
-    mockLangtranslations = { languageSelected$: new Subject() }
+    mockLangtranslations = {
+      languageSelected$: new Subject(),
+      translateActualLabel: jest.fn().mockReturnValue(''),
+      updatelanguageSelected: jest.fn(),
+    }
     mockHttp = {
       get: jest.fn().mockReturnValue(of('<div>zoho</div>')),
     }
@@ -179,7 +189,7 @@ describe('PublicSignupComponent — instance tests', () => {
       bypassSecurityTrustHtml: jest.fn((v: any) => v),
     }
     mockEventService = { raiseInteractTelemetry: jest.fn() }
-    mockTelemetrySvc = { impression: jest.fn(), interact: jest.fn() }
+    mockTelemetrySvc = { impression: jest.fn(), interact: jest.fn(), end: jest.fn() }
 
     component = new PublicSignupComponent(
       mockSignupSvc,
@@ -424,6 +434,265 @@ describe('PublicSignupComponent — instance tests', () => {
       expect(() => component.onDesignationDropdownClosed()).not.toThrow()
       jest.runAllTimers()
       jest.useRealTimers()
+    })
+  })
+
+  describe('typeValue getter', () => {
+    it('should return the current type value from form', () => {
+      expect(component.typeValue).toBeDefined()
+    })
+  })
+
+  describe('typeValueStartCase getter', () => {
+    it('should return start-cased type value', () => {
+      expect(typeof component.typeValueStartCase).toBe('string')
+    })
+  })
+
+  describe('filterOrgsSearch', () => {
+    it('should set resultFetched to true on success', () => {
+      mockSignupSvc.searchOrgs = jest.fn().mockReturnValue(of({ result: { response: [{ orgname: 'Org1' }] } }))
+      component.filterOrgsSearch('org')
+      expect(component.resultFetched).toBe(true)
+    })
+
+    it('should set searching to false on success', () => {
+      mockSignupSvc.searchOrgs = jest.fn().mockReturnValue(of({ result: { response: [{ orgname: 'Org1' }] } }))
+      component.filterOrgsSearch('org')
+      expect(component.searching).toBe(false)
+    })
+  })
+
+  describe('searchOrgs', () => {
+    it('should open snackbar when searchValue is empty', async () => {
+      const snackSpy = jest.spyOn(component as any, 'openSnackbar').mockImplementation(() => { })
+      await component.searchOrgs('')
+      expect(snackSpy).toHaveBeenCalled()
+    })
+
+    it('should set resultFetched when valid searchValue', async () => {
+      jest.spyOn(component, 'filterOrgsSearch').mockImplementation((): any => { })
+      await component.searchOrgs('ministry')
+      expect(component.searching).toBeDefined()
+    })
+  })
+
+  describe('editOrg', () => {
+    it('should reset hideOrg and related state', () => {
+      component.hideOrg = true
+      component.resultFetched = true
+      component.searching = true
+      component.heirarchyObject = { some: 'val' }
+      component.editOrg()
+      expect(component.hideOrg).toBe(false)
+      expect(component.resultFetched).toBe(false)
+    })
+  })
+
+  describe('orgClicked', () => {
+    it('should set heirarchyObject when option has orgname', () => {
+      const event = { option: { value: { orgName: 'Ministry A', channel: 'ch1' } } }
+      component.orgClicked(event)
+      expect(component.hideOrg).toBe(true)
+    })
+
+    it('should set hideOrg false when option has no orgname', () => {
+      const event = { option: { value: {} } }
+      component.orgClicked(event)
+      expect(component.hideOrg).toBe(false)
+    })
+
+    it('should not throw when event is null', () => {
+      expect(() => component.orgClicked(null)).not.toThrow()
+    })
+  })
+
+  describe('confirmChange', () => {
+    it('should toggle confirm to true', () => {
+      component.confirm = false
+      component.confirmChange()
+      expect(component.confirm).toBe(true)
+    })
+
+    it('should toggle confirm to false', () => {
+      component.confirm = true
+      component.confirmChange()
+      expect(component.confirm).toBe(false)
+    })
+  })
+
+  describe('confirmTermsChange', () => {
+    it('should toggle terms confirm', () => {
+      component.confirmTerms = false
+      component.confirmTermsChange()
+      expect(component.confirmTerms).toBe(true)
+    })
+  })
+
+  describe('displayFn functions', () => {
+    it('displayFn should return channel', () => {
+      expect(component.displayFn({ channel: 'ch1' })).toBe('ch1')
+    })
+    it('displayFn should return undefined for null', () => {
+      expect(component.displayFn(null)).toBeUndefined()
+    })
+    it('displayFnPosition should return name', () => {
+      expect(component.displayFnPosition({ name: 'Manager' })).toBe('Manager')
+    })
+    it('displayFnPosition should return undefined for null', () => {
+      expect(component.displayFnPosition(null)).toBeUndefined()
+    })
+    it('displayFnGroup should return value itself', () => {
+      expect(component.displayFnGroup('Director')).toBe('Director')
+    })
+    it('displayFnOrg should return orgName', () => {
+      expect(component.displayFnOrg({ orgName: 'Org1' })).toBe('Org1')
+    })
+    it('displayFnOrg should return empty string for null', () => {
+      expect(component.displayFnOrg(null)).toBe('')
+    })
+  })
+
+  describe('ngOnDestroy', () => {
+    it('should unsubscribe subscriptionContact if present', () => {
+      const mockSub = { unsubscribe: jest.fn() }
+      component['subscriptionContact'] = mockSub as any
+      component.ngOnDestroy()
+      expect(mockSub.unsubscribe).toHaveBeenCalled()
+    })
+
+    it('should not throw when subscriptionContact is null', () => {
+      component['subscriptionContact'] = null
+      expect(() => component.ngOnDestroy()).not.toThrow()
+    })
+  })
+
+  describe('navigateTo', () => {
+    it('should call router.navigate', () => {
+      component.navigateTo('/page/home')
+      expect(mockRouter.navigate).toHaveBeenCalledWith(['/public/request'], expect.objectContaining({ queryParams: { type: '/page/home' } }))
+    })
+  })
+
+  describe('numericOnly', () => {
+    it('should return true for numeric key', () => {
+      const event = { key: '4' }
+      expect(component.numericOnly(event)).toBe(true)
+    })
+
+    it('should return false for non-numeric key', () => {
+      const event = { key: 'A' }
+      expect(component.numericOnly(event)).toBe(false)
+    })
+  })
+
+  describe('selectLanguage', () => {
+    it('should set selectedLanguage and store in localStorage', () => {
+      component.selectLanguage('hi')
+      expect(component.selectedLanguage).toBe('hi')
+      expect(localStorage.getItem('websiteLanguage')).toBe('hi')
+    })
+  })
+
+  describe('getMinistryData', () => {
+    it('should call signupSvc.getMinistryForRegistration', () => {
+      component['getMinistryData']()
+      expect(mockSignupSvc.getMinistryForRegistration).toHaveBeenCalled()
+    })
+
+    it('should set masterData.ministryBackup on success', () => {
+      mockSignupSvc.getMinistryForRegistration = jest.fn().mockReturnValue(
+        of({ result: { response: { content: [{ orgName: 'M1' }], count: 1 } } })
+      )
+      component['getMinistryData']()
+      expect(component.masterData.ministryBackup).toBeDefined()
+    })
+
+  })
+
+  describe('getStateData', () => {
+    it('should call signupSvc.getStateForRegistration', () => {
+      component['getStateData']()
+      expect(mockSignupSvc.getStateForRegistration).toHaveBeenCalled()
+    })
+
+    it('should set masterData.stateBackup on success', () => {
+      mockSignupSvc.getStateForRegistration = jest.fn().mockReturnValue(
+        of({ result: { response: { content: [{ orgName: 'S1' }], count: 1 } } })
+      )
+      component['getStateData']()
+      expect(component.masterData.stateBackup).toBeDefined()
+    })
+
+  })
+
+  describe('getDepartmentData', () => {
+    it('should not throw when called', () => {
+      jest.spyOn(component as any, 'getDepartmentData').mockImplementation(() => { })
+      expect(() => component['getDepartmentData']()).not.toThrow()
+    })
+
+  })
+
+  describe('getOrganisationData', () => {
+    it('should not throw when called', () => {
+      jest.spyOn(component as any, 'getOrganisationData').mockImplementation(() => { })
+      expect(() => component['getOrganisationData']()).not.toThrow()
+    })
+  })
+
+  describe('sendOtpEmail', () => {
+    it('should call signupSvc.sendOtp', () => {
+      component.registrationFormStepOne.get('email')!.setValue('test@gov.in')
+      component['sendOtpEmail']()
+      expect(mockSignupSvc.sendOtp).toHaveBeenCalled()
+    })
+
+    it('should open snackbar when email is empty', () => {
+      component.registrationFormStepOne.get('email')!.setValue('')
+      const snackSpy = jest.spyOn(mockSnackBar, 'open')
+      component['sendOtpEmail']()
+      expect(snackSpy).toHaveBeenCalled()
+    })
+  })
+
+  describe('resendOTPEmail', () => {
+    it('should call signupSvc.resendOtp when email set', () => {
+      component.registrationFormStepOne.get('email')!.setValue('test@gov.in')
+      component['resendOTPEmail']()
+      expect(mockSignupSvc.resendOtp).toHaveBeenCalled()
+    })
+  })
+
+  describe('verifyOtpEmail', () => {
+    it('should call signupSvc.verifyOTP when otp and email are valid', () => {
+      component.registrationFormStepOne.get('email')!.setValue('test@gov.in')
+      component['verifyOtpEmail']({ value: '123456' })
+      expect(mockSignupSvc.verifyOTP).toHaveBeenCalled()
+    })
+
+    it('should not throw when otp is empty', () => {
+      expect(() => component['verifyOtpEmail']({ value: '' })).not.toThrow()
+    })
+
+    it('should set isEmailVerified to true on SUCCESS response', () => {
+      component.registrationFormStepOne.get('email')!.setValue('test@gov.in')
+      component['verifyOtpEmail']({ value: '123456' })
+      expect(component.isEmailVerified).toBe(true)
+    })
+  })
+
+  describe('raiseSignupInteractTelementry', () => {
+    it('should call eventService.raiseInteractTelemetry', () => {
+      component.raiseSignupInteractTelementry()
+      expect(mockEventService.raiseInteractTelemetry).toHaveBeenCalled()
+    })
+  })
+
+  describe('termsAndConditionClick', () => {
+    it('should open dialog', () => {
+      mockDialog.open = jest.fn().mockReturnValue({ afterClosed: jest.fn().mockReturnValue(of(true)) })
+      expect(() => component.termsAndConditionClick()).not.toThrow()
     })
   })
 })

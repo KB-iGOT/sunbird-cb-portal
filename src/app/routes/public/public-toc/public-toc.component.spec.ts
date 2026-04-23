@@ -1,3 +1,8 @@
+jest.mock('dayjs', () => {
+  const actualDayjs = jest.requireActual('dayjs')
+  return { __esModule: true, default: actualDayjs }
+})
+
 // Virtual mocks must be declared before any imports
 jest.mock('@sunbird-cb/collection', () => ({
   NsContent: {
@@ -21,7 +26,9 @@ jest.mock('@sunbird-cb/collection/src/lib/_common/content-rating-v2-dialog/conte
 }), { virtual: true })
 
 jest.mock('@sunbird-cb/toc', () => ({
-  NsAppToc: {},
+  NsAppToc: {
+    EWsTocErrorCode: { API_FAILURE: 'API_FAILURE', INVALID_DATA: 'INVALID_DATA', NO_DATA: 'NO_DATA' },
+  },
   AppTocService: jest.fn().mockImplementation(() => ({})),
   ActionService: jest.fn().mockImplementation(() => ({})),
   WidgetContentService: jest.fn().mockImplementation(() => ({})),
@@ -328,6 +335,136 @@ describe('PublicTocComponent', () => {
 
     it('should have disableEnrollBtn as false', () => {
       expect(component.disableEnrollBtn).toBe(false)
+    })
+  })
+
+  describe('ngOnInit', () => {
+    it('should call tocSvc.initData when route.data emits', () => {
+      component.ngOnInit()
+      expect(mockTocSvc.initData).toHaveBeenCalled()
+    })
+    it('should set defaultSLogo from instanceConfig', () => {
+      component.ngOnInit()
+      expect(component['defaultSLogo']).toBe('/logo.png')
+    })
+    it('should set isGoalsEnabled true when goals not restricted', () => {
+      mockConfigSvc.restrictedFeatures = new Set<string>()
+      component.ngOnInit()
+      expect(component['isGoalsEnabled']).toBe(true)
+    })
+    it('should set isGoalsEnabled false when goals restricted', () => {
+      mockConfigSvc.restrictedFeatures = new Set(['goals'])
+      component.ngOnInit()
+      expect(component['isGoalsEnabled']).toBe(false)
+    })
+    it('should handle missing instanceConfig logos gracefully', () => {
+      mockConfigSvc.instanceConfig = {}
+      component.ngOnInit()
+      expect(component['defaultSLogo']).toBe('')
+    })
+    it('should set content when tocSvc.initData returns content', () => {
+      const mockContent = { identifier: 'c1', primaryCategory: 'Course', body: '', children: [], registrationUrl: null }
+      mockTocSvc.initData = jest.fn().mockReturnValue({ content: mockContent, errorCode: null })
+      mockTocSvc.getTocStructure = jest.fn().mockReturnValue({ assessment: 0, finalTest: 0, course: 0, handsOn: 0, interactiveVideo: 0, learningModule: 0, other: 0, pdf: 0, survey: 0, podcast: 0, practiceTest: 0, quiz: 0, video: 0, webModule: 0, webPage: 0, youtube: 0, interactivecontent: 0, offlineSession: 0 })
+      mockTocSvc.filterToc = jest.fn().mockReturnValue(null)
+      mockContentSvc.getFirstChildInHierarchy = jest.fn().mockReturnValue({ identifier: 'c', mimeType: 'mp4' })
+      component.ngOnInit()
+      expect(component.content).toEqual(mockContent)
+    })
+    it('should set errorType to internalServer for API_FAILURE', () => {
+      mockTocSvc.initData = jest.fn().mockReturnValue({ content: null, errorCode: 'API_FAILURE' })
+      component.ngOnInit()
+      expect(component.errorWidgetData.widgetData.errorType).toBe('internalServer')
+    })
+    it('should set errorType to somethingWrong for unknown error', () => {
+      mockTocSvc.initData = jest.fn().mockReturnValue({ content: null, errorCode: 'UNKNOWN' })
+      component.ngOnInit()
+      expect(component.errorWidgetData.widgetData.errorType).toBe('somethingWrong')
+    })
+  })
+
+  describe('getters', () => {
+    it('showStart should return tocSvc.showStartButton result', () => {
+      mockTocSvc.showStartButton = jest.fn().mockReturnValue(true)
+      expect(component.showStart).toBe(true)
+    })
+    it('showSubtitleOnBanner should reflect tocSvc.subtitleOnBanners', () => {
+      mockTocSvc.subtitleOnBanners = true
+      expect(component.showSubtitleOnBanner).toBe(true)
+    })
+    it('showActionButtons should return false when actionBtnStatus is wait', () => {
+      component['actionBtnStatus'] = 'wait'
+      expect(component.showActionButtons).toBe(false)
+    })
+    it('isPostAssessment should return false when tocConfig has no postAssessment', () => {
+      component.tocConfig = {}
+      expect(component.isPostAssessment).toBe(false)
+    })
+    it('sanitizedIntroductoryVideoIcon should return null when content is null', () => {
+      component.content = null
+      expect(component.sanitizedIntroductoryVideoIcon).toBeNull()
+    })
+    it('sanitizedIntroductoryVideoIcon should return safe style when content has icon', () => {
+      component.content = { introductoryVideoIcon: 'http://icon.png' } as any
+      expect(component.sanitizedIntroductoryVideoIcon).toBeTruthy()
+    })
+  })
+
+  describe('getBatchId', () => {
+    it('should return empty string when batchData is null', () => {
+      component.batchData = null
+      expect(component.getBatchId()).toBe('')
+    })
+    it('should return batchId from batchData.content', () => {
+      component.batchData = { content: [{ batchId: 'batch-123' }] } as any
+      expect(component.getBatchId()).toBe('batch-123')
+    })
+  })
+
+  describe('getCompetencies', () => {
+    it('should return array of competency names', () => {
+      const data = JSON.stringify([{ name: 'Leadership' }, { name: 'Finance' }])
+      expect(component.getCompetencies(data)).toEqual(['Leadership', 'Finance'])
+    })
+  })
+
+  describe('handleEnrollmentEndDate', () => {
+    it('should return true when enrollmentEndDate is in the past', () => {
+      expect(component.handleEnrollmentEndDate({ enrollmentEndDate: '2000-01-01' })).toBe(true)
+    })
+    it('should return false when enrollmentEndDate is in the future', () => {
+      expect(component.handleEnrollmentEndDate({ enrollmentEndDate: '2099-01-01' })).toBe(false)
+    })
+  })
+
+  describe('getUserRating', () => {
+    it('should call ratingSvc.getRating when content has identifier', () => {
+      mockRatingSvc.getRating = jest.fn().mockReturnValue(of({ result: { response: null } }))
+      mockConfigSvc.userProfile = { userId: 'u1' }
+      component.content = { identifier: 'c1', primaryCategory: 'Course' } as any
+      component.getUserRating()
+      expect(mockRatingSvc.getRating).toHaveBeenCalled()
+    })
+  })
+
+  describe('scrollToTop', () => {
+    it('should not throw', () => {
+      expect(() => component.scrollToTop()).not.toThrow()
+    })
+  })
+
+  describe('ngAfterViewChecked with fragment', () => {
+    it('should not throw when fragment is set', () => {
+      component['fragment'] = 'some-section'
+      expect(() => component.ngAfterViewChecked()).not.toThrow()
+    })
+  })
+
+  describe('assignPathAndUpdateBanner', () => {
+    it('should set routePath from valid url suffix', () => {
+      component['banners'] = null
+      component['assignPathAndUpdateBanner']('/public/toc/id/overview')
+      expect(component['routePath']).toBe('overview')
     })
   })
 })

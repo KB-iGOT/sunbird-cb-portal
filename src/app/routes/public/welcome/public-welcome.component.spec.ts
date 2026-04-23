@@ -334,4 +334,121 @@ describe('PublicWelcomeComponent', () => {
       expect(() => component.ngOnDestroy()).not.toThrow()
     })
   })
+
+  describe('typeValue getter', () => {
+    it('should return form type value', () => {
+      component.init()
+      expect(component.typeValue).toBe('ministry')
+    })
+  })
+
+  describe('typeValueStartCase getter', () => {
+    it('should return start-cased type value', () => {
+      component.init()
+      expect(component.typeValueStartCase).toBe('Ministry')
+    })
+  })
+
+  describe('displayFn', () => {
+    it('should return channel when value has channel', () => {
+      expect(component.displayFn({ channel: 'ch1' })).toBe('ch1')
+    })
+    it('should return undefined when value is falsy', () => {
+      expect(component.displayFn(null)).toBeUndefined()
+    })
+  })
+
+  describe('displayFnGroup', () => {
+    it('should return value itself', () => {
+      expect(component.displayFnGroup('Director')).toBe('Director')
+    })
+    it('should return undefined when value is falsy', () => {
+      expect(component.displayFnGroup(null)).toBeUndefined()
+    })
+  })
+
+  describe('displayFnState', () => {
+    it('should return orgName when value has orgName', () => {
+      expect(component.displayFnState({ orgName: 'Ministry X' })).toBe('Ministry X')
+    })
+    it('should return undefined when value is falsy', () => {
+      expect(component.displayFnState(null)).toBeUndefined()
+    })
+  })
+
+  describe('clearValues', () => {
+    it('should set organisation to empty string and heirarchyObject to null', () => {
+      component.init()
+      component.heirarchyObject = { orgName: 'Some org' }
+      component['clearValues']()
+      expect(component.registrationForm.get('organisation')!.value).toBe('')
+      expect(component.heirarchyObject).toBeNull()
+    })
+  })
+
+  describe('filterOrgsSearch', () => {
+    it('should set resultFetched to true on success', () => {
+      component.init()
+      mockSignupSvc.searchOrgs = jest.fn().mockReturnValue(of({ result: { response: [{ orgName: 'Org1' }] } }))
+      component.filterOrgsSearch('org')
+      expect(component.resultFetched).toBe(true)
+    })
+
+    it('should set searching to false on success', () => {
+      component.init()
+      mockSignupSvc.searchOrgs = jest.fn().mockReturnValue(of({ result: { response: [{ orgName: 'Org1' }] } }))
+      component.filterOrgsSearch('org')
+      expect(component.searching).toBe(false)
+    })
+  })
+
+  describe('searchOrgs', () => {
+    it('should call openSnackbar when searchValue is empty', async () => {
+      component.init()
+      const snackSpy = jest.spyOn(component as any, 'openSnackbar').mockImplementation(() => { })
+      await component.searchOrgs('')
+      expect(snackSpy).toHaveBeenCalled()
+    })
+
+    it('should set searching to true then call filterOrgsSearch when value given', async () => {
+      component.init()
+      mockSignupSvc.searchOrgs = jest.fn().mockReturnValue(of({ result: { response: [] } }))
+      await component.searchOrgs('ministry')
+      expect(component.resultFetched).toBe(true)
+    })
+  })
+
+  describe('ngOnInit', () => {
+    it('should set groupsOriginal from route data after init', () => {
+      component.init()
+      component.ngOnInit()
+      expect(component.groupsOriginal).toContain('Engineer')
+    })
+
+    it('should set telemetryConfig from instanceConfig', () => {
+      component.init()
+      component.ngOnInit()
+      expect(component.telemetryConfig).not.toBeNull()
+    })
+
+    it('should handle missing group.data gracefully', () => {
+      mockActivatedRoute.snapshot.data.group = {}
+      component = new PublicWelcomeComponent(
+        mockWelcomeSignupSvc, mockSignupSvc, mockLoggerSvc,
+        mockConfigSvc, mockSnackBar, mockActivatedRoute,
+        mockRouter, mockInitSvc
+      )
+      component.init()
+      expect(() => component.ngOnInit()).not.toThrow()
+    })
+  })
+
+  describe('startCountDown', () => {
+    it('should set timeLeftforOTP to OTP_TIMER value', () => {
+      component.init()
+      component.OTP_TIMER = 0 // avoid interval
+      component.startCountDown()
+      expect(component.timeLeftforOTP).toBe(0)
+    })
+  })
 })
