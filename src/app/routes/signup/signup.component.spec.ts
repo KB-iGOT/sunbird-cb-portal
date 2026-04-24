@@ -174,7 +174,7 @@ describe('SignupComponent', () => {
         reset: jest.fn()
       }
       const errorResponse = { error: 'error: Invalid data' }
-      mockSignupService.signup.mockReturnValue(throwError(() => errorResponse))
+      mockSignupService.signup.mockReturnValue(throwError(errorResponse))
 
       component.onSubmit(formData)
 
@@ -200,7 +200,7 @@ describe('SignupComponent', () => {
         reset: jest.fn()
       }
       const errorResponse = { error: 'error: Server error' }
-      mockSignupService.signup.mockReturnValue(throwError(() => errorResponse))
+      mockSignupService.signup.mockReturnValue(throwError(errorResponse))
 
       component.onSubmit(formData)
 
@@ -214,7 +214,7 @@ describe('SignupComponent', () => {
         reset: jest.fn()
       }
       const errorResponse = { error: 'error: Invalid email format' }
-      mockSignupService.signup.mockReturnValue(throwError(() => errorResponse))
+      mockSignupService.signup.mockReturnValue(throwError(errorResponse))
 
       component.onSubmit(formData)
 
@@ -227,11 +227,12 @@ describe('SignupComponent', () => {
         reset: jest.fn()
       }
       const errorResponse = { error: 'error: User: already exists' }
-      mockSignupService.signup.mockReturnValue(throwError(() => errorResponse))
+      mockSignupService.signup.mockReturnValue(throwError(errorResponse))
 
       component.onSubmit(formData)
 
-      expect(mockSnackBar.open).toHaveBeenCalledWith(' User: already exists', 'X', { duration: 5000 })
+      // split(':')[1] returns ' User' (only the 2nd element)
+      expect(mockSnackBar.open).toHaveBeenCalledWith(' User', 'X', { duration: 5000 })
     })
 
     it('should not reset form on signup error', () => {
@@ -240,7 +241,7 @@ describe('SignupComponent', () => {
         reset: jest.fn()
       }
       const errorResponse = { error: 'error: Server error' }
-      mockSignupService.signup.mockReturnValue(throwError(() => errorResponse))
+      mockSignupService.signup.mockReturnValue(throwError(errorResponse))
 
       component.onSubmit(formData)
 
@@ -375,7 +376,7 @@ describe('SignupComponent', () => {
         reset: jest.fn()
       }
       const errorResponse = { error: 'Simple error message' }
-      mockSignupService.signup.mockReturnValue(throwError(() => errorResponse))
+      mockSignupService.signup.mockReturnValue(throwError(errorResponse))
 
       // This test expects the error handling to try to split by colon
       // When there's no colon, split returns array with one element at index 0

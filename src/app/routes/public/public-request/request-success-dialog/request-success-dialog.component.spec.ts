@@ -34,9 +34,9 @@ describe('RequestSuccessDialogComponent', () => {
   })
 
   afterEach(() => {
-    jest.clearAllMocks();
-    jest.resetAllMocks();
-  });
+    jest.clearAllMocks()
+    jest.resetAllMocks()
+  })
 
   it('should create the component', () => {
     expect(component).toBeTruthy()
@@ -79,6 +79,25 @@ describe('RequestSuccessDialogComponent', () => {
 
     expect(component.headerMessage).toBe('This domain is rejected')
     expect(component.body).toBe('The domain you are requesting approval for, is rejected.')
+  })
+
+  it('should set the correct headerMessage and body for DOMAIN_REQUEST_ALREADY_RAISED', () => {
+    data.apiResponse.result.msgCode = 'DOMAIN_REQUEST_ALREADY_RAISED'
+    component = new RequestSuccessDialogComponent(dialogRefMock, data, routerMock)
+    component.ngOnInit()
+
+    expect(component.headerMessage).toBe('This domain is already requested')
+    expect(component.body).toContain('already pending for approval')
+  })
+
+  it('should leave headerMessage empty when domain reqType has no apiResponse result msgCode', () => {
+    data.requestType = 'domain'
+    data.apiResponse = null
+    component = new RequestSuccessDialogComponent(dialogRefMock, data, routerMock)
+    component.ngOnInit()
+
+    // no msgCode → inner if is false → headerMessage stays ''
+    expect(component.headerMessage).toBe('')
   })
 
   it('should set the correct headerMessage and body for other request types', () => {

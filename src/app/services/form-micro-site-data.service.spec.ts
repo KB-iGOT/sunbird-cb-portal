@@ -80,6 +80,14 @@ describe('FormMicroSiteDataService', () => {
     expect(localStorage.getItem('microSiteRedirectionData')).toBeNull()
   })
 
+  it('should return error when userRootOrg has keys but unknown ministryOrStateType', () => {
+    mockConfigSvc.userProfile = {
+      userRootOrg: { someKey: 'value' }, // keys exist but no ministryOrStateType
+    }
+    const result = service.resolve({} as any, {} as any)
+    expect(result).toEqual({ data: null, error: 'Root Organization ID is required' })
+  })
+
   it('should set rootOrgId from ministry or state and call API', done => {
     mockConfigSvc.userProfile = {
       userRootOrg: {
@@ -206,6 +214,55 @@ describe('FormMicroSiteDataService', () => {
         localStorage.getItem('microSiteRedirectionData') || '{}',
       )
       expect(stored.enabled).toBe(false)
+      done()
+    })
+  })
+
+  it('should invoke router.navigateByUrl after setTimeout fires when localData enabled is true', () => {
+    jest.useFakeTimers()
+    const localData = { enabled: true, channelName: 'testChannel', orgId: 'testOrg' }
+    localStorage.setItem('microSiteRedirectionData', JSON.stringify(localData))
+
+    service.resolve({} as any, {} as any)
+    expect(mockRouter.navigateByUrl).not.toHaveBeenCalled()
+
+    jest.runAllTimers()
+    expect(mockRouter.navigateByUrl).toHaveBeenCalledWith(
+      '/app/learn/mdo-channels/testChannel/testOrg/v3/micro-sites',
+    )
+    jest.useRealTimers()
+  })
+
+  it('should invoke router.navigateByUrl after setTimeout fires when API returns enabled=true', done => {
+    jest.useFakeTimers()
+    mockConfigSvc.userProfile = {
+      userRootOrg: {
+        ministryOrStateType: 'state',
+        ministryOrStateId: 'm2',
+      },
+    }
+    const apiResponse = {
+      result: {
+        form: {
+          data: {
+            userRedirectionData: {
+              enabled: true,
+              channelName: 'apiChannel',
+              orgId: 'apiOrg',
+            },
+          },
+        },
+      },
+    }
+      ; (mockFormSvc.formReadData as jest.Mock).mockReturnValue(of(apiResponse))
+
+    const obs: any = service.resolve({} as any, {} as any)
+    obs.subscribe((_res: any) => {
+      jest.runAllTimers()
+      expect(mockRouter.navigateByUrl).toHaveBeenCalledWith(
+        '/app/learn/mdo-channels/apiChannel/apiOrg/v3/micro-sites',
+      )
+      jest.useRealTimers()
       done()
     })
   })
