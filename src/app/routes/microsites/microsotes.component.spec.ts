@@ -183,5 +183,52 @@ describe('MicrosotesComponent', () => {
       const req = component.formRequest()
       expect(req.request.query).toBe('')
     })
+
+    it('should spread addFilter into filters when provided', () => {
+      const req = component.formRequest('test', { primaryCategory: 'Program' })
+      expect(req.request.filters.primaryCategory).toBe('Program')
+    })
+  })
+
+  describe('getNavitems branch coverage', () => {
+    it('should filter out items where enabled is false', () => {
+      component.sectionList = [
+        { active: true, enabled: false, key: 'row1', navigation: true, navOrder: 1 },
+        { active: true, enabled: true, key: 'row2', navigation: true, navOrder: 2 },
+      ] as any
+      component.getNavitems()
+      expect(component.navList.length).toBe(1)
+      expect(component.navList[0].key).toBe('row2')
+    })
+
+    it('should filter out items where navigation is falsy', () => {
+      component.sectionList = [
+        { active: true, enabled: true, key: 'row1', navigation: false, navOrder: 1 },
+        { active: true, enabled: true, key: 'row2', navigation: true, navOrder: 2 },
+      ] as any
+      component.getNavitems()
+      expect(component.navList.length).toBe(1)
+    })
+  })
+
+  describe('loadCardSkeletonLoader branch coverage', () => {
+    it('should not set contentDataList when sectionList has no contentSearch key', () => {
+      component.sectionList = [
+        { active: true, enabled: true, key: 'other', column: [] },
+      ] as any
+      component.contentDataList = []
+      component.loadCardSkeletonLoader()
+      // contentDataList remains unchanged since no contentSearch section found
+      expect(component.contentDataList).toEqual([])
+    })
+  })
+
+  describe('getDataFromSearch error handling', () => {
+    it('should handle fetchFromSearchV6 rejection gracefully (catch block)', async () => {
+      const { throwError } = require('rxjs')
+      contentSvcMock.searchV6.mockReturnValue(throwError(new Error('search error')))
+      // Should not throw - catch block handles the error
+      await expect(component.getDataFromSearch()).resolves.not.toThrow()
+    })
   })
 })

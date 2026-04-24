@@ -160,7 +160,19 @@ describe('HeaderComponent', () => {
       expect(window.open).toHaveBeenCalledWith(
         expect.stringContaining('play.google.com'),
         '_blank',
+        'noopener',
       )
+    })
+
+    it('should set opener to null when window.open returns a non-null window object', () => {
+      Object.defineProperty(global.navigator, 'userAgent', {
+        value: 'Mozilla/5.0 (compatible; MSIE 10.0; Windows Phone 8.0)',
+        configurable: true,
+      })
+      const mockNewWindow: any = { opener: 'something' }
+      jest.spyOn(window, 'open').mockImplementation(() => mockNewWindow)
+      component.downloadApp()
+      expect(mockNewWindow.opener).toBeNull()
     })
   })
 })

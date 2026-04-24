@@ -297,6 +297,39 @@ describe('FeaturesComponent', () => {
       const result = component['filteredFeatures']('dashboard')
       expect(result.length).toBe(1)
     })
+
+    it('should return empty array when featuresConfig is null', () => {
+      Object.defineProperty(component, 'featuresConfig', { value: null, configurable: true })
+      const result = component['filteredFeatures']('something')
+      expect(result).toEqual([])
+    })
+  })
+
+  describe('queryMatchForFeature', () => {
+    it('should return false when feature is undefined', () => {
+      expect(component.queryMatchForFeature(undefined, 'query')).toBe(false)
+    })
+
+    it('should return true when feature name matches query (case-sensitive direct call)', () => {
+      // queryMatchForFeature is case-sensitive; filteredFeatures lowercases before calling
+      const feature: any = { name: 'dashboard', keywords: [], description: '' }
+      expect(component.queryMatchForFeature(feature, 'dashboard')).toBe(true)
+    })
+
+    it('should return true when keyword matches query', () => {
+      const feature: any = { name: 'Feature', keywords: ['analytics'], description: '' }
+      expect(component.queryMatchForFeature(feature, 'analytics')).toBe(true)
+    })
+
+    it('should return true when description matches query', () => {
+      const feature: any = { name: 'Feature', keywords: [], description: 'main dashboard page' }
+      expect(component.queryMatchForFeature(feature, 'dashboard')).toBe(true)
+    })
+
+    it('should return false when no match', () => {
+      const feature: any = { name: 'Feature', keywords: [], description: '' }
+      expect(component.queryMatchForFeature(feature, 'xyznotfound')).toBe(false)
+    })
   })
 
   describe('with no appsConfig', () => {

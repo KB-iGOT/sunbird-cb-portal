@@ -656,4 +656,54 @@ describe('CompetencyFiltersComponent', () => {
       })
     })
   })
+
+  describe('optional chaining null branch coverage', () => {
+    it('should handle null appliedFilter in restoreAppliedFilters', () => {
+      component.appliedFilter = null as any
+      expect(() => component.restoreAppliedFilters()).not.toThrow()
+    })
+
+    it('should handle null allCompetencies with null ref (?.length null branch)', () => {
+      component.allCompetencies = null as any
+      expect(() => component.buildFilterData()).not.toThrow()
+      expect(component.competencyAreas).toEqual([])
+    })
+
+    it('should handle filteredCompetencyArray as null in rebuildThemes', () => {
+      component.filteredCompetencyArray = null as any
+      component.competencyAreas = [{ name: 'Tech', refId: '1', selected: true }]
+      expect(() => component.rebuildThemes()).not.toThrow()
+    })
+
+    it('should handle filteredCompetencyArray as null in rebuildSubThemes', () => {
+      component.filteredCompetencyArray = null as any
+      component.allThemes = [{ name: 'T', refId: '1', selected: true, areaName: 'A' }]
+      expect(() => component.rebuildSubThemes()).not.toThrow()
+    })
+
+    it('should handle themes with null subThemes in rebuildSubThemes', () => {
+      component.filteredCompetencyArray = [
+        {
+          name: 'Tech',
+          themes: [{ id: 'theme-1', name: 'T1', subThemes: null }],
+        },
+      ]
+      component.competencyAreas = [{ name: 'Tech', refId: '1', selected: true }]
+      component.rebuildThemes()
+      component.allThemes = [{ name: 'T1', refId: 'theme-1', selected: true, areaName: 'Tech' }]
+      expect(() => component.rebuildSubThemes()).not.toThrow()
+      expect(component.allSubThemes).toEqual([])
+    })
+
+    it('should handle undefined subThemes in rebuildSubThemes', () => {
+      component.filteredCompetencyArray = [
+        {
+          name: 'Tech',
+          themes: [{ id: 'theme-1', name: 'T1' }], // no subThemes property
+        },
+      ]
+      component.allThemes = [{ name: 'T1', refId: 'theme-1', selected: true, areaName: 'Tech' }]
+      expect(() => component.rebuildSubThemes()).not.toThrow()
+    })
+  })
 })
