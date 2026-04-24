@@ -32,24 +32,24 @@ describe('TncRendererComponent', () => {
       isAccepted: false,
       termsAndConditions: [
         {
-            name: 'Generic T&C', isAccepted: false,
-            acceptedDate: new Date(),
-            acceptedLanguage: '',
-            acceptedVersion: '',
-            availableLanguages: [],
-            content: '',
-            language: '',
-            version: ''
+          name: 'Generic T&C', isAccepted: false,
+          acceptedDate: new Date(),
+          acceptedLanguage: '',
+          acceptedVersion: '',
+          availableLanguages: [],
+          content: '',
+          language: '',
+          version: ''
         },
         {
-            name: 'Data Privacy', isAccepted: false,
-            acceptedDate: new Date(),
-            acceptedLanguage: '',
-            acceptedVersion: '',
-            availableLanguages: [],
-            content: '',
-            language: '',
-            version: ''
+          name: 'Data Privacy', isAccepted: false,
+          acceptedDate: new Date(),
+          acceptedLanguage: '',
+          acceptedVersion: '',
+          availableLanguages: [],
+          content: '',
+          language: '',
+          version: ''
         }
       ]
     }
@@ -57,40 +57,40 @@ describe('TncRendererComponent', () => {
     //const spyAssignGeneralAndDp = jest.spyOn(component, 'assignGeneralAndDp')
     component.tncData = mockTncData
     component.ngOnChanges()
-    
-   // expect(spyAssignGeneralAndDp).toHaveBeenCalled()
+
+    // expect(spyAssignGeneralAndDp).toHaveBeenCalled()
   })
 
-  it('should set currentPanel to dp if dpTnc is not accepted', () => {
+  it('should set currentPanel to dp if dpTnc is not accepted and generalTnc is accepted', () => {
     const mockTncData: NsTnc.ITnc = {
       isAccepted: false,
       termsAndConditions: [
         {
-            name: 'Generic T&C', isAccepted: false,
-            acceptedDate: new Date(),
-            acceptedLanguage: '',
-            acceptedVersion: '',
-            availableLanguages: [],
-            content: '',
-            language: '',
-            version: ''
+          name: 'Generic T&C', isAccepted: true, // generalTnc is accepted → won't override to 'tnc'
+          acceptedDate: new Date(),
+          acceptedLanguage: '',
+          acceptedVersion: '',
+          availableLanguages: [],
+          content: '',
+          language: '',
+          version: ''
         },
         {
-            name: 'Data Privacy', isAccepted: false,
-            acceptedDate: new Date(),
-            acceptedLanguage: '',
-            acceptedVersion: '',
-            availableLanguages: [],
-            content: '',
-            language: '',
-            version: ''
+          name: 'Data Privacy', isAccepted: false,
+          acceptedDate: new Date(),
+          acceptedLanguage: '',
+          acceptedVersion: '',
+          availableLanguages: [],
+          content: '',
+          language: '',
+          version: ''
         }
       ]
     }
 
     component.tncData = mockTncData
     component.ngOnInit()
-    
+
     expect(component.currentPanel).toBe('dp')
   })
 
@@ -123,24 +123,24 @@ describe('TncRendererComponent', () => {
       isAccepted: false,
       termsAndConditions: [
         {
-            name: 'Generic T&C', isAccepted: false,
-            acceptedDate: new Date(),
-            acceptedLanguage: '',
-            acceptedVersion: '',
-            availableLanguages: [],
-            content: '',
-            language: '',
-            version: ''
+          name: 'Generic T&C', isAccepted: false,
+          acceptedDate: new Date(),
+          acceptedLanguage: '',
+          acceptedVersion: '',
+          availableLanguages: [],
+          content: '',
+          language: '',
+          version: ''
         },
         {
-            name: 'Data Privacy', isAccepted: false,
-            acceptedDate: new Date(),
-            acceptedLanguage: '',
-            acceptedVersion: '',
-            availableLanguages: [],
-            content: '',
-            language: '',
-            version: ''
+          name: 'Data Privacy', isAccepted: false,
+          acceptedDate: new Date(),
+          acceptedLanguage: '',
+          acceptedVersion: '',
+          availableLanguages: [],
+          content: '',
+          language: '',
+          version: ''
         }
       ]
     }
