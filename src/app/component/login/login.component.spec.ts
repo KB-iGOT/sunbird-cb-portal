@@ -71,11 +71,17 @@ describe('LoginComponent', () => {
   })
 
   it('should unsubscribe from the subscription on ngOnDestroy', () => {
-    // const unsubscribeSpy = jest.spyOn(component.subscriptionLogin!, 'unsubscribe')
+    component.ngOnInit()
+    const sub = (component as any).subscriptionLogin
+    const unsubscribeSpy = jest.spyOn(sub, 'unsubscribe')
 
-    // component.ngOnDestroy()
+    component.ngOnDestroy()
 
-    // expect(unsubscribeSpy).toHaveBeenCalled()
+    expect(unsubscribeSpy).toHaveBeenCalled()
+  })
+
+  it('should not throw when subscriptionLogin is null on ngOnDestroy', () => {
+    expect(() => component.ngOnDestroy()).not.toThrow()
   })
 
   it('should handle null instanceConfig gracefully', () => {
