@@ -1,0 +1,409 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testExecutions version="1">
+  <file path="/home/srikanthmutte/Downloads/sunbird/sunbird-cb-portal/src/app/help-center/help-center/help-center/help-center.component.spec.ts">
+    <testCase name="HelpCenterComponent creates with defaults" duration="14"/>
+    <testCase name="HelpCenterComponent ngOnInit loads help center config" duration="5"/>
+    <testCase name="HelpCenterComponent ngOnInit sets enabledSections" duration="3"/>
+    <testCase name="HelpCenterComponent ngOnInit handles null config" duration="2"/>
+    <testCase name="HelpCenterComponent isSectionEnabled returns true for enabled section" duration="1"/>
+    <testCase name="HelpCenterComponent isSectionEnabled returns false for disabled section" duration="2"/>
+    <testCase name="HelpCenterComponent isSectionEnabled returns true for unknown section (not explicitly false)" duration="1"/>
+    <testCase name="HelpCenterComponent filteredVideos returns all when no search query" duration="1"/>
+    <testCase name="HelpCenterComponent filteredVideos filters by category" duration="2"/>
+    <testCase name="HelpCenterComponent filteredVideos filters by search query" duration="1"/>
+    <testCase name="HelpCenterComponent filteredVideos returns empty when no match" duration="1"/>
+    <testCase name="HelpCenterComponent filteredGuides returns all when no search" duration="1"/>
+    <testCase name="HelpCenterComponent filteredGuides filters by title" duration="1"/>
+    <testCase name="HelpCenterComponent filteredGuides filters by titleHindi" duration="1"/>
+    <testCase name="HelpCenterComponent filteredGuides filters by description" duration="1"/>
+    <testCase name="HelpCenterComponent filteredGuides returns empty when no match" duration="1"/>
+    <testCase name="HelpCenterComponent filteredGuides filters by category" duration="1"/>
+    <testCase name="HelpCenterComponent filteredFaqs returns all when no search" duration="1"/>
+    <testCase name="HelpCenterComponent filteredFaqs filters by question" duration="1"/>
+    <testCase name="HelpCenterComponent filteredFaqs filters by answer" duration="5"/>
+    <testCase name="HelpCenterComponent filteredFaqs filters by category" duration="1"/>
+    <testCase name="HelpCenterComponent showVideos / showGuides / showFaqs showVideos is true when tab is all" duration="2"/>
+    <testCase name="HelpCenterComponent showVideos / showGuides / showFaqs showVideos is false when tab is faqs and no search" duration="1"/>
+    <testCase name="HelpCenterComponent showVideos / showGuides / showFaqs showVideos is true when search matches videos" duration="1"/>
+    <testCase name="HelpCenterComponent showVideos / showGuides / showFaqs showFaqs is true when tab is faqs" duration="2"/>
+    <testCase name="HelpCenterComponent showVideos / showGuides / showFaqs showGuides is true when tab is guides" duration="2"/>
+    <testCase name="HelpCenterComponent setRoleTab sets activeRoleTab and resets state" duration="1"/>
+    <testCase name="HelpCenterComponent setContentTab sets activeContentTab" duration="1"/>
+    <testCase name="HelpCenterComponent setContentTab sets sections open for guides tab" duration="1"/>
+    <testCase name="HelpCenterComponent setContentTab sets sections open for faqs tab" duration="1"/>
+    <testCase name="HelpCenterComponent toggleSection toggles videoSectionOpen" duration="1"/>
+    <testCase name="HelpCenterComponent toggleSection toggles guidesSectionOpen" duration="1"/>
+    <testCase name="HelpCenterComponent toggleSection toggles faqSectionOpen" duration="1"/>
+    <testCase name="HelpCenterComponent toggleFaq toggles faq.isOpen" duration="1"/>
+    <testCase name="HelpCenterComponent onSearch sets searchQuery from input event" duration="3"/>
+    <testCase name="HelpCenterComponent clearSearch clears searchQuery" duration="1"/>
+    <testCase name="HelpCenterComponent getVideoCount / getGuideCount / getFaqCount getVideoCount returns total for all" duration="1"/>
+    <testCase name="HelpCenterComponent getVideoCount / getGuideCount / getFaqCount getVideoCount filters by category" duration="1"/>
+    <testCase name="HelpCenterComponent getVideoCount / getGuideCount / getFaqCount getVideoCount filters by search" duration="1"/>
+    <testCase name="HelpCenterComponent getVideoCount / getGuideCount / getFaqCount getGuideCount returns total for all" duration="1"/>
+    <testCase name="HelpCenterComponent getVideoCount / getGuideCount / getFaqCount getGuideCount filters by search" duration="0"/>
+    <testCase name="HelpCenterComponent getVideoCount / getGuideCount / getFaqCount getFaqCount returns total for all" duration="0"/>
+    <testCase name="HelpCenterComponent getVideoCount / getGuideCount / getFaqCount getFaqCount filters by search" duration="1"/>
+    <testCase name="HelpCenterComponent allVideos / allGuides / allFaqs getters returns empty array when helpCenterData is null" duration="2"/>
+    <testCase name="HelpCenterComponent allVideos / allGuides / allFaqs getters returns data for active role tab" duration="1"/>
+    <testCase name="HelpCenterComponent videoCategories / guideCategories / faqCategories returns videoCategories for active tab" duration="0"/>
+    <testCase name="HelpCenterComponent videoCategories / guideCategories / faqCategories returns guideCategories for active tab" duration="1"/>
+    <testCase name="HelpCenterComponent videoCategories / guideCategories / faqCategories returns faqCategories for active tab" duration="1"/>
+    <testCase name="HelpCenterComponent hasAnySearchResult returns true when no search query" duration="1"/>
+    <testCase name="HelpCenterComponent hasAnySearchResult returns true when results exist" duration="0"/>
+    <testCase name="HelpCenterComponent hasAnySearchResult returns false when no results match" duration="1"/>
+    <testCase name="HelpCenterComponent openVideo / openPDF opens youtube URL" duration="1"/>
+    <testCase name="HelpCenterComponent openVideo / openPDF does not open when no youtubeUrl" duration="1"/>
+    <testCase name="HelpCenterComponent openVideo / openPDF opens PDF URL" duration="1"/>
+    <testCase name="HelpCenterComponent openVideo / openPDF does not open PDF when pdf is null" duration="1"/>
+    <testCase name="HelpCenterComponent getYoutubeThumbnail returns thumbnail for watch URL" duration="1"/>
+    <testCase name="HelpCenterComponent getYoutubeThumbnail returns thumbnail for youtu.be URL" duration="1"/>
+    <testCase name="HelpCenterComponent getYoutubeThumbnail returns empty string for empty URL" duration="4"/>
+    <testCase name="HelpCenterComponent getYoutubeThumbnail returns empty string for non-youtube URL" duration="1"/>
+  </file>
+  <file path="/home/srikanthmutte/Downloads/sunbird/sunbird-cb-portal/src/app/competency-passbook/competency-list/competency-list.component.spec.ts">
+    <testCase name="CompetencyListComponent creates" duration="9"/>
+    <testCase name="CompetencyListComponent sets isMobile based on innerWidth" duration="2"/>
+    <testCase name="CompetencyListComponent reads websiteLanguage from localStorage" duration="2"/>
+    <testCase name="CompetencyListComponent ngOnInit sets compentencyKey from configSvc.compentency" duration="6"/>
+    <testCase name="CompetencyListComponent ngOnInit calls getUserEnrollmentList" duration="2"/>
+    <testCase name="CompetencyListComponent ngOnInit initializes filterObjData with compentency keys" duration="1"/>
+    <testCase name="CompetencyListComponent mapEnrollmentData returns empty object when courseData is null" duration="1"/>
+    <testCase name="CompetencyListComponent mapEnrollmentData returns empty object when no courses" duration="1"/>
+    <testCase name="CompetencyListComponent mapEnrollmentData maps courseId to data" duration="2"/>
+    <testCase name="CompetencyListComponent mapEnrollmentData uses collectionId when courseId is missing" duration="2"/>
+    <testCase name="CompetencyListComponent getUserEnrollmentList sets skeletonLoading to false on success" duration="1"/>
+    <testCase name="CompetencyListComponent getUserEnrollmentList processes courses with competency data" duration="3"/>
+    <testCase name="CompetencyListComponent getUserEnrollmentList handles error from enrollment service" duration="1"/>
+    <testCase name="CompetencyListComponent getUserEnrollmentList skips courses with status !== 2" duration="1"/>
+    <testCase name="CompetencyListComponent getUserEnrollmentList sets behavioural for behavioral area" duration="1"/>
+    <testCase name="CompetencyListComponent handleLeftFilter sets showFilterIndicator" duration="1"/>
+    <testCase name="CompetencyListComponent handleTabChange updates tabValue from event label" duration="2"/>
+    <testCase name="CompetencyListComponent handleShowAll toggles showAll" duration="2"/>
+    <testCase name="CompetencyListComponent handleClick sets competencyArray from param" duration="2"/>
+    <testCase name="CompetencyListComponent handleViewMore sets viewMore to true by default" duration="1"/>
+    <testCase name="CompetencyListComponent handleViewMore sets viewMore to false when flag is provided" duration="1"/>
+    <testCase name="CompetencyListComponent handleNavigate saves to localStorage and navigates" duration="5"/>
+    <testCase name="CompetencyListComponent handleSearch returns all results for empty search" duration="1"/>
+    <testCase name="CompetencyListComponent handleSearch filters by theme name" duration="2"/>
+    <testCase name="CompetencyListComponent handleSearch returns empty for no match" duration="2"/>
+    <testCase name="CompetencyListComponent handleSearch does nothing when competency is empty" duration="2"/>
+    <testCase name="CompetencyListComponent handleFilter adds overflow-hidden class when event is true" duration="5"/>
+    <testCase name="CompetencyListComponent handleFilter removes overflow-hidden class when event is false" duration="2"/>
+    <testCase name="CompetencyListComponent handleFilter sets toggleFilter" duration="2"/>
+    <testCase name="CompetencyListComponent handleApplyFilter closes filter and calls filterData" duration="3"/>
+    <testCase name="CompetencyListComponent handleClearFilterObj calls filterData and resets array" duration="1"/>
+    <testCase name="CompetencyListComponent filterData does nothing when all filters are empty" duration="1"/>
+    <testCase name="CompetencyListComponent filterData filters by competency area" duration="1"/>
+    <testCase name="CompetencyListComponent filterData filters by competency theme" duration="1"/>
+    <testCase name="CompetencyListComponent filterData filters by subTheme" duration="1"/>
+    <testCase name="CompetencyListComponent translateLabels calls translateLabel" duration="1"/>
+    <testCase name="CompetencyListComponent ngOnDestroy does not throw" duration="2"/>
+  </file>
+  <file path="/home/srikanthmutte/Downloads/sunbird/sunbird-cb-portal/src/app/component/app-footer/footer-section/footer-section.component.spec.ts">
+    <testCase name="FooterSectionComponent creates" duration="13"/>
+    <testCase name="FooterSectionComponent footerSectionConfig has 4 items by default" duration="3"/>
+    <testCase name="FooterSectionComponent ngOnInit calls updateFooterConfig" duration="3"/>
+    <testCase name="FooterSectionComponent ngOnChanges calls updateFooterConfig when headerFooterConfigData changes" duration="2"/>
+    <testCase name="FooterSectionComponent ngOnChanges does not call updateFooterConfig for other input changes" duration="1"/>
+    <testCase name="FooterSectionComponent updateFooterConfig updates footerSectionConfig from headerFooterConfigData" duration="1"/>
+    <testCase name="FooterSectionComponent updateFooterConfig sorts footerSectionConfig by order" duration="1"/>
+    <testCase name="FooterSectionComponent updateFooterConfig filters portals without public/allowed roles" duration="2"/>
+    <testCase name="FooterSectionComponent updateFooterConfig removes Related Links section when no portals" duration="1"/>
+    <testCase name="FooterSectionComponent navigate sets discuss config and navigates" duration="3"/>
+    <testCase name="FooterSectionComponent isAllowed returns true when no roles defined" duration="2"/>
+    <testCase name="FooterSectionComponent isAllowed returns true when user has required role" duration="1"/>
+    <testCase name="FooterSectionComponent isAllowed returns false when user lacks required role" duration="1"/>
+    <testCase name="FooterSectionComponent hasRole returns true for matching role (lowercase)" duration="1"/>
+    <testCase name="FooterSectionComponent hasRole returns false for non-matching role" duration="1"/>
+    <testCase name="FooterSectionComponent onClick toggles open class on parentElement" duration="6"/>
+    <testCase name="FooterSectionComponent translateLabels calls translateLabelWithoutspace" duration="1"/>
+    <testCase name="FooterSectionComponent translateLabelsWithSpace calls translateLabel" duration="1"/>
+  </file>
+  <file path="/home/srikanthmutte/Downloads/sunbird/sunbird-cb-portal/src/app/competency-passbook/competency-card-details-v2/competency-card-details-v2.component.spec.ts">
+    <testCase name="CompetencyCardDetailsV2Component creates" duration="14"/>
+    <testCase name="CompetencyCardDetailsV2Component reads detailsData from localStorage" duration="5"/>
+    <testCase name="CompetencyCardDetailsV2Component handles websiteLanguage from localStorage on language change" duration="3"/>
+    <testCase name="CompetencyCardDetailsV2Component ngOnInit calls getMyCompetencyList" duration="4"/>
+    <testCase name="CompetencyCardDetailsV2Component getMyCompetencyList sets myCompetencyList from response" duration="4"/>
+    <testCase name="CompetencyCardDetailsV2Component getMyCompetencyList handles error from service" duration="3"/>
+    <testCase name="CompetencyCardDetailsV2Component getMyCompetencyList calls filterCompetenciesBySubThemes when competencies exist" duration="2"/>
+    <testCase name="CompetencyCardDetailsV2Component filterCompetenciesBySubThemes does nothing when myCompetencyList is empty" duration="2"/>
+    <testCase name="CompetencyCardDetailsV2Component filterCompetenciesBySubThemes does nothing when subThemes is empty" duration="2"/>
+    <testCase name="CompetencyCardDetailsV2Component filterCompetenciesBySubThemes processes competencies with iGOTCourses" duration="3"/>
+    <testCase name="CompetencyCardDetailsV2Component filterCompetenciesBySubThemes sets activeTab to iGOTCourses when filteredIGOTCourses exists" duration="2"/>
+    <testCase name="CompetencyCardDetailsV2Component filterCompetenciesBySubThemes sets activeTab to extCourses when only extCourses" duration="2"/>
+    <testCase name="CompetencyCardDetailsV2Component filterCompetenciesBySubThemes merges subtheme names for duplicate courses" duration="2"/>
+    <testCase name="CompetencyCardDetailsV2Component fetchIGOTCourseDetails updates filteredIGOTCourses with names from response" duration="2"/>
+    <testCase name="CompetencyCardDetailsV2Component fetchIGOTCourseDetails handles error" duration="1"/>
+    <testCase name="CompetencyCardDetailsV2Component fetchSelfAchievementCourseDetails updates filteredSelfAchievements with names from response" duration="1"/>
+    <testCase name="CompetencyCardDetailsV2Component fetchSelfAchievementCourseDetails handles error" duration="1"/>
+    <testCase name="CompetencyCardDetailsV2Component fetchExtCourseDetails updates filteredExtCourses with names" duration="1"/>
+    <testCase name="CompetencyCardDetailsV2Component fetchExtCourseDetails handles error" duration="1"/>
+    <testCase name="CompetencyCardDetailsV2Component fetchExternalTrainingDetails updates filteredexternalTrainings with names" duration="1"/>
+    <testCase name="CompetencyCardDetailsV2Component fetchExternalTrainingDetails handles error" duration="5"/>
+    <testCase name="CompetencyCardDetailsV2Component viewCertificate opens CertificateDialogComponent" duration="2"/>
+    <testCase name="CompetencyCardDetailsV2Component viewCertificate handles error" duration="1"/>
+    <testCase name="CompetencyCardDetailsV2Component getCertificateSVG calls handleDownloadCertificatePDF when printURI exists and type is DOWNLOAD" duration="2"/>
+    <testCase name="CompetencyCardDetailsV2Component getCertificateSVG calls shareCertificate when type is SHARE" duration="2"/>
+    <testCase name="CompetencyCardDetailsV2Component getCertificateSVG fetches cert when no printURI" duration="1"/>
+    <testCase name="CompetencyCardDetailsV2Component getCertificateSVG handles error when fetching cert" duration="1"/>
+    <testCase name="CompetencyCardDetailsV2Component shareCertificate opens linkedin URL" duration="2"/>
+    <testCase name="CompetencyCardDetailsV2Component handleNavigate navigates to ext course URL" duration="1"/>
+    <testCase name="CompetencyCardDetailsV2Component handleNavigate navigates to iGOT course URL" duration="1"/>
+    <testCase name="CompetencyCardDetailsV2Component handleNavigate does not navigate for selfAchievement" duration="1"/>
+    <testCase name="CompetencyCardDetailsV2Component handleViewMore sets viewMore to true by default" duration="1"/>
+    <testCase name="CompetencyCardDetailsV2Component handleViewMore sets viewMore to false when flag provided" duration="0"/>
+    <testCase name="CompetencyCardDetailsV2Component raiseShareIntreactTelemetry calls raiseInteractTelemetry" duration="1"/>
+    <testCase name="CompetencyCardDetailsV2Component raiseShareIntreactTelemetry works without optional params" duration="1"/>
+    <testCase name="CompetencyCardDetailsV2Component assignData assigns filteredIGOTCourses" duration="1"/>
+    <testCase name="CompetencyCardDetailsV2Component assignData assigns filteredExtCourses" duration="1"/>
+    <testCase name="CompetencyCardDetailsV2Component assignData assigns filteredSelfAchievements" duration="1"/>
+    <testCase name="CompetencyCardDetailsV2Component assignData assigns filteredexternalTrainings" duration="1"/>
+    <testCase name="CompetencyCardDetailsV2Component handleActiveTab resets viewMore and sets activeTab" duration="1"/>
+    <testCase name="CompetencyCardDetailsV2Component getUrl returns URL as-is for non-google-storage URL" duration="1"/>
+    <testCase name="CompetencyCardDetailsV2Component getUrl transforms google storage URL" duration="2"/>
+    <testCase name="CompetencyCardDetailsV2Component handleView opens cert URL in new tab" duration="1"/>
+    <testCase name="CompetencyCardDetailsV2Component openDocument opens CertificateViewPopupComponent when URL provided" duration="1"/>
+    <testCase name="CompetencyCardDetailsV2Component openDocument does not open dialog when URL is empty" duration="1"/>
+    <testCase name="CompetencyCardDetailsV2Component ngOnDestroy does not throw" duration="1"/>
+  </file>
+  <file path="/home/srikanthmutte/Downloads/sunbird/sunbird-cb-portal/src/app/component/top-right-nav-bar/top-right-nav-bar.component.spec.ts">
+    <testCase name="TopRightNavBarComponent creates" duration="14"/>
+    <testCase name="TopRightNavBarComponent reads language from localStorage in constructor" duration="3"/>
+    <testCase name="TopRightNavBarComponent ngOnInit sets multiLang from instanceConfig" duration="3"/>
+    <testCase name="TopRightNavBarComponent ngOnInit handles closeDialogPop event" duration="3"/>
+    <testCase name="TopRightNavBarComponent ngOnInit loads zohoHtml" duration="2"/>
+    <testCase name="TopRightNavBarComponent ngOnInit adjusts rightNavConfig from topRightNavConfig" duration="2"/>
+    <testCase name="TopRightNavBarComponent ngOnChanges updates rightNavConfig from topRightNavConfig" duration="2"/>
+    <testCase name="TopRightNavBarComponent ngOnChanges keeps rightNavConfig as-is without topRightNavConfig" duration="1"/>
+    <testCase name="TopRightNavBarComponent translateLabels calls translateLabel" duration="2"/>
+    <testCase name="TopRightNavBarComponent onBellClick resets notificationsCount when &gt; 0" duration="1"/>
+    <testCase name="TopRightNavBarComponent onBellClick sets showDropdown true after timeout" duration="3"/>
+    <testCase name="TopRightNavBarComponent onBellClick handles error from resetNotificationsCount" duration="12"/>
+    <testCase name="TopRightNavBarComponent onMenuClosed sets showDropdown false" duration="0"/>
+    <testCase name="TopRightNavBarComponent selectLanguage updates selectedLanguage and localStorage" duration="1"/>
+    <testCase name="TopRightNavBarComponent formatDate formats valid date string" duration="1"/>
+    <testCase name="TopRightNavBarComponent formatDate returns empty for empty string" duration="1"/>
+    <testCase name="TopRightNavBarComponent formatDate returns original for invalid date" duration="1"/>
+    <testCase name="TopRightNavBarComponent openDialog opens DialogBoxComponent" duration="1"/>
+    <testCase name="TopRightNavBarComponent getZohoForm opens ZohoDialogComponent" duration="53"/>
+    <testCase name="TopRightNavBarComponent reCountNotifications calls nofificationsCount.next" duration="1"/>
+    <testCase name="TopRightNavBarComponent calculateCount does not throw" duration="2"/>
+    <testCase name="TopRightNavBarComponent viewAllClick navigates to notifications for non-peer event string" duration="1"/>
+    <testCase name="TopRightNavBarComponent viewAllClick calls handleRedirection for regular category event" duration="4"/>
+    <testCase name="TopRightNavBarComponent viewAllClick opens verification popup for PEER_REVIEW_ASSIGNED" duration="0"/>
+    <testCase name="TopRightNavBarComponent viewAllClick opens survey popup for other PEER_VALIDATION" duration="0"/>
+    <testCase name="TopRightNavBarComponent openSurveypopup shows snack when status is SUBMITTED" duration="1"/>
+    <testCase name="TopRightNavBarComponent openSurveypopup shows snack when status is IGNORED" duration="1"/>
+    <testCase name="TopRightNavBarComponent openSurveypopup shows snack when survey end date passed" duration="1"/>
+    <testCase name="TopRightNavBarComponent openSurveypopup opens dialog for valid notification" duration="1"/>
+    <testCase name="TopRightNavBarComponent openSurveypopup sets status to IGNORED when dialog closes with ignored" duration="0"/>
+    <testCase name="TopRightNavBarComponent openVerificationPopup shows snack when status is APPROVED" duration="2"/>
+    <testCase name="TopRightNavBarComponent openVerificationPopup shows snack when status is REJECTED" duration="0"/>
+    <testCase name="TopRightNavBarComponent openVerificationPopup shows snack when status is IGNORED" duration="1"/>
+    <testCase name="TopRightNavBarComponent openVerificationPopup opens dialog for valid notification" duration="1"/>
+    <testCase name="TopRightNavBarComponent openVerificationPopup sets status to IGNORED when dialog closes with ignored" duration="1"/>
+    <testCase name="TopRightNavBarComponent showDialog opens confirm dialog and opens URL on confirm" duration="1"/>
+    <testCase name="TopRightNavBarComponent showDialog does not open URL when dialog returns false" duration="1"/>
+    <testCase name="TopRightNavBarComponent raiseTelemetryEventForNotification calls raiseInteractTelemetry" duration="1"/>
+    <testCase name="TopRightNavBarComponent openSupportChatBot calls getZohoForm when no iGOTAIConfig" duration="0"/>
+    <testCase name="TopRightNavBarComponent openSupportChatBot enables support AI when supportAI.all is true" duration="1"/>
+    <testCase name="TopRightNavBarComponent openSupportChatBot enables support AI when org matches forOrg list" duration="0"/>
+    <testCase name="TopRightNavBarComponent constructor languageSelectedObservable callback updates language when observable fires and localStorage has language" duration="0"/>
+    <testCase name="TopRightNavBarComponent constructor languageSelectedObservable callback does not update language when localStorage is empty" duration="1"/>
+    <testCase name="TopRightNavBarComponent callXMLRequest runs without throwing" duration="1"/>
+    <testCase name="TopRightNavBarComponent callXMLRequest processes 200 response in onreadystatechange" duration="1"/>
+    <testCase name="TopRightNavBarComponent openSurveypopup edge cases shows snack when notification.survey_end_date has passed" duration="1"/>
+    <testCase name="TopRightNavBarComponent openSurveypopup edge cases sets status to IGNORED when dialog closes with ignored" duration="1"/>
+  </file>
+  <file path="/home/srikanthmutte/Downloads/sunbird/sunbird-cb-portal/src/app/component/app-nav-bar/app-nav-bar.component.spec.ts">
+    <testCase name="AppNavBarComponent creates" duration="11"/>
+    <testCase name="AppNavBarComponent sets isHelpMenuRestricted from restrictedFeatures" duration="2"/>
+    <testCase name="AppNavBarComponent reads websiteLanguage from localStorage" duration="3"/>
+    <testCase name="AppNavBarComponent ngOnInit sets logoDisplayTime and calls displayLogo" duration="2"/>
+    <testCase name="AppNavBarComponent ngOnInit sets isLoggedIn when userProfile.userId exists" duration="2"/>
+    <testCase name="AppNavBarComponent ngOnInit sets appIcon from domainConfSvc" duration="2"/>
+    <testCase name="AppNavBarComponent ngOnInit sets featureApps from appsConfig" duration="2"/>
+    <testCase name="AppNavBarComponent ngOnInit sets instanceVal from rootOrg" duration="2"/>
+    <testCase name="AppNavBarComponent ngOnInit disableMenu set true for not-my-user igot org" duration="2"/>
+    <testCase name="AppNavBarComponent ngOnInit handles NavigationEnd router event for /page/home" duration="2"/>
+    <testCase name="AppNavBarComponent ngOnInit handles NavigationEnd for /page/explore" duration="2"/>
+    <testCase name="AppNavBarComponent ngOnInit handles NavigationEnd for search" duration="1"/>
+    <testCase name="AppNavBarComponent ngOnInit handles NavigationEnd for careers" duration="1"/>
+    <testCase name="AppNavBarComponent routeSubs sets isSetUpPage for /app/setup" duration="1"/>
+    <testCase name="AppNavBarComponent routeSubs hides navBar for /public/logout" duration="1"/>
+    <testCase name="AppNavBarComponent routeSubs sets isPublicHomePage for /public/home" duration="1"/>
+    <testCase name="AppNavBarComponent routeSubs shows navBar for /page/home" duration="1"/>
+    <testCase name="AppNavBarComponent routeSubs hides navBar for viewer URL" duration="0"/>
+    <testCase name="AppNavBarComponent ngOnChanges sets showTitle when mode is bottom" duration="1"/>
+    <testCase name="AppNavBarComponent ngOnChanges removes showTitle when mode is top" duration="1"/>
+    <testCase name="AppNavBarComponent cancelTour calls tourService.cancelPopupTour when popupTour exists" duration="1"/>
+    <testCase name="AppNavBarComponent cancelTour does not throw when popupTour is null" duration="1"/>
+    <testCase name="AppNavBarComponent bindUrl sets currentRoute when path is not /app/competencies" duration="1"/>
+    <testCase name="AppNavBarComponent bindUrl does not change currentRoute for /app/competencies" duration="1"/>
+    <testCase name="AppNavBarComponent bindUrl does not change currentRoute for empty path" duration="1"/>
+    <testCase name="AppNavBarComponent getters sShowAppNavBar returns showAppNavBar" duration="1"/>
+    <testCase name="AppNavBarComponent getters needToHide returns true for assessment path" duration="1"/>
+    <testCase name="AppNavBarComponent getters needToHide returns false for non-assessment path" duration="1"/>
+    <testCase name="AppNavBarComponent getters isforPreview returns boolean" duration="1"/>
+    <testCase name="AppNavBarComponent getters isenableLang returns boolean" duration="0"/>
+    <testCase name="AppNavBarComponent getters isThisSetUpPage returns boolean" duration="4"/>
+    <testCase name="AppNavBarComponent getters stillOnHomePage returns boolean" duration="1"/>
+    <testCase name="AppNavBarComponent getters fullMenuDispaly returns boolean" duration="1"/>
+    <testCase name="AppNavBarComponent translateLabels calls translateLabelWithoutspace" duration="1"/>
+    <testCase name="AppNavBarComponent redirectToPath navigates with key when pathConfig has key" duration="1"/>
+    <testCase name="AppNavBarComponent redirectToPath navigates without key when no pathConfig.key" duration="1"/>
+    <testCase name="AppNavBarComponent openExploreMenu sets activeRoute to explore" duration="2"/>
+    <testCase name="AppNavBarComponent getKarmaCount reads from localStorage if set" duration="1"/>
+    <testCase name="AppNavBarComponent getKarmaCount handles missing localStorage gracefully" duration="1"/>
+    <testCase name="AppNavBarComponent viewKarmapoints returns false and does not navigate when disableMenu is true" duration="1"/>
+    <testCase name="AppNavBarComponent viewKarmapoints navigates to karma-points when disableMenu is false" duration="1"/>
+    <testCase name="AppNavBarComponent handleNavigateBack navigates home for toc URL" duration="1"/>
+    <testCase name="AppNavBarComponent handleNavigateBack navigates home for pdf viewer URL" duration="1"/>
+    <testCase name="AppNavBarComponent handleNavigateBack does not navigate for other URLs" duration="1"/>
+    <testCase name="AppNavBarComponent getItem returns item with forPreview and enableLang merged" duration="1"/>
+    <testCase name="AppNavBarComponent getMyCount sets notificationsCount from API" duration="0"/>
+    <testCase name="AppNavBarComponent getMyCount handles API error" duration="8"/>
+    <testCase name="AppNavBarComponent ngOnDestroy does not throw when subscription is undefined" duration="1"/>
+    <testCase name="AppNavBarComponent ngOnDestroy unsubscribes myNotificationsSubscription" duration="1"/>
+    <testCase name="AppNavBarComponent constructor NavigationStart handler updates isHubEnable on NavigationStart" duration="1"/>
+    <testCase name="AppNavBarComponent constructor NavigationStart handler sets isHubEnable true for non-cert URL on NavigationStart" duration="1"/>
+    <testCase name="AppNavBarComponent constructor NavigationEnd handler calls routeSubs on NavigationEnd" duration="1"/>
+    <testCase name="AppNavBarComponent constructor NavigationEnd handler calls bindUrl on NavigationEnd" duration="1"/>
+    <testCase name="AppNavBarComponent constructor websiteLanguage calls translate.use when websiteLanguage in localStorage" duration="1"/>
+    <testCase name="AppNavBarComponent ngOnInit NavigationEnd seeAll sets activeRoute to my learnings for seeAll URL" duration="1"/>
+    <testCase name="AppNavBarComponent ngOnInit NavigationEnd seeAll sets activeRoute from localStorage for NavigationEnd" duration="1"/>
+  </file>
+  <file path="/home/srikanthmutte/Downloads/sunbird/sunbird-cb-portal/src/app/services/resource-download-helper.service.spec.ts">
+    <testCase name="ResourceDownloadHelperService creates" duration="7"/>
+    <testCase name="ResourceDownloadHelperService raiseDownloadAllTelemetry dispatches telemetry event" duration="3"/>
+    <testCase name="ResourceDownloadHelperService raiseDownloadAllTelemetry handles missing identifier gracefully" duration="2"/>
+    <testCase name="ResourceDownloadHelperService downloadPDF returns early when no artifactUrl" duration="5"/>
+    <testCase name="ResourceDownloadHelperService downloadPDF sets downloadInProgress and dispatches telemetry" duration="3"/>
+    <testCase name="ResourceDownloadHelperService downloadPDF calls fileSaver.saveAs on fetch success" duration="52"/>
+    <testCase name="ResourceDownloadHelperService downloadPDF falls back to XHR on fetch reject" duration="53"/>
+    <testCase name="ResourceDownloadHelperService downloadPDF falls back when fetch returns !ok" duration="52"/>
+    <testCase name="ResourceDownloadHelperService downloadPDF appends file extension when missing from name" duration="51"/>
+    <testCase name="ResourceDownloadHelperService downloadPDF does not re-append extension when already present" duration="51"/>
+    <testCase name="ResourceDownloadHelperService MIME type mapping maps pdf → application/pdf" duration="2"/>
+    <testCase name="ResourceDownloadHelperService MIME type mapping maps mp4 → video/mp4" duration="2"/>
+    <testCase name="ResourceDownloadHelperService MIME type mapping maps doc → application/msword" duration="2"/>
+    <testCase name="ResourceDownloadHelperService MIME type mapping maps docx → application/msword" duration="2"/>
+    <testCase name="ResourceDownloadHelperService MIME type mapping maps xls → application/vnd.ms-excel" duration="2"/>
+    <testCase name="ResourceDownloadHelperService MIME type mapping maps xlsx → application/vnd.ms-excel" duration="1"/>
+    <testCase name="ResourceDownloadHelperService MIME type mapping maps ppt → application/vnd.ms-powerpoint" duration="1"/>
+    <testCase name="ResourceDownloadHelperService MIME type mapping maps pptx → application/vnd.ms-powerpoint" duration="3"/>
+    <testCase name="ResourceDownloadHelperService MIME type mapping maps jpg → image/jpeg" duration="2"/>
+    <testCase name="ResourceDownloadHelperService MIME type mapping maps jpeg → image/jpeg" duration="2"/>
+    <testCase name="ResourceDownloadHelperService MIME type mapping maps png → image/png" duration="2"/>
+    <testCase name="ResourceDownloadHelperService MIME type mapping maps bin → application/octet-stream" duration="1"/>
+    <testCase name="ResourceDownloadHelperService XHR onload/onerror handlers onload status=200 calls saveAs" duration="51"/>
+    <testCase name="ResourceDownloadHelperService XHR onload/onerror handlers onload non-200 calls tryDirectDownload (no throw)" duration="78"/>
+    <testCase name="ResourceDownloadHelperService XHR onload/onerror handlers onerror calls tryDirectDownload (no throw)" duration="72"/>
+    <testCase name="ResourceDownloadHelperService saveBlob fallback falls back to anchor when fileSaver.saveAs throws" duration="4"/>
+    <testCase name="ResourceDownloadHelperService tryDirectDownload runs without throwing when called directly" duration="16"/>
+    <testCase name="ResourceDownloadHelperService tryDirectDownload falls back to anchor when iframe throws" duration="4"/>
+  </file>
+  <file path="/home/srikanthmutte/Downloads/sunbird/sunbird-cb-portal/src/app/routes/public/public-signup/public-signup.component.spec.ts">
+    <testCase name="forbiddenNamesValidator returns null when optionsArray is null" duration="13"/>
+    <testCase name="forbiddenNamesValidator returns null when control value is null" duration="1"/>
+    <testCase name="forbiddenNamesValidator returns null when orgname is found in array" duration="2"/>
+    <testCase name="forbiddenNamesValidator returns forbiddenNames error when orgname not in array" duration="2"/>
+    <testCase name="forbiddenNamesValidator returns forbiddenNames error when optionsArray is empty" duration="2"/>
+    <testCase name="forbiddenNamesValidator handles undefined optionsArray" duration="1"/>
+    <testCase name="forbiddenNamesValidator handles control with empty string value" duration="1"/>
+    <testCase name="forbiddenNamesValidatorNonEmpty returns null when optionsArray is null" duration="1"/>
+    <testCase name="forbiddenNamesValidatorNonEmpty returns null when orgname is found in array" duration="1"/>
+    <testCase name="forbiddenNamesValidatorNonEmpty returns forbiddenNames error when orgname not in array" duration="1"/>
+    <testCase name="forbiddenNamesValidatorNonEmpty returns forbiddenNames error when array is empty" duration="1"/>
+    <testCase name="forbiddenNamesValidatorNonEmpty handles undefined optionsArray" duration="0"/>
+    <testCase name="forbiddenNamesValidatorNonEmpty throws when control value is null (orgname access on null)" duration="7"/>
+    <testCase name="forbiddenNamesValidatorNonEmpty returns error when org not found in multi-item array" duration="1"/>
+    <testCase name="forbiddenNamesValidatorNonEmpty returns null when org found in multi-item array" duration="1"/>
+    <testCase name="PublicSignupComponent creates" duration="17"/>
+    <testCase name="PublicSignupComponent sets websiteLanguage from localStorage in constructor" duration="7"/>
+    <testCase name="PublicSignupComponent defaults to en language when not set" duration="6"/>
+    <testCase name="PublicSignupComponent ngOnInit sets positionsOriginal from route data" duration="10"/>
+    <testCase name="PublicSignupComponent ngOnInit filters out Others from groupsOriginal" duration="4"/>
+    <testCase name="PublicSignupComponent ngOnInit sets telemetryConfig from instanceConfig" duration="4"/>
+    <testCase name="PublicSignupComponent ngOnInit sets multiLang from websitelanguages" duration="6"/>
+    <testCase name="PublicSignupComponent ngOnInit handles null instanceConfig" duration="3"/>
+    <testCase name="PublicSignupComponent ngOnInit handles null group data" duration="3"/>
+    <testCase name="PublicSignupComponent typeValueStartCase getter returns start-cased type value" duration="7"/>
+    <testCase name="PublicSignupComponent typeValue getter returns current type value" duration="3"/>
+    <testCase name="PublicSignupComponent emailVerification sets emailLengthVal false for valid email" duration="3"/>
+    <testCase name="PublicSignupComponent emailVerification sets emailLengthVal true for too-long local part" duration="2"/>
+    <testCase name="PublicSignupComponent emailVerification handles empty emailId" duration="3"/>
+    <testCase name="PublicSignupComponent emailVerification handles email without @ sign" duration="3"/>
+    <testCase name="PublicSignupComponent clearValues clears organisation and heirarchyObject" duration="4"/>
+    <testCase name="PublicSignupComponent resetOrganisationBackup sets default N/A organisation" duration="2"/>
+    <testCase name="PublicSignupComponent editOrg resets org state" duration="3"/>
+    <testCase name="PublicSignupComponent orgClicked sets org value and heirarchyObject when event has option" duration="3"/>
+    <testCase name="PublicSignupComponent orgClicked sets hideOrg false when event has no orgName" duration="2"/>
+    <testCase name="PublicSignupComponent orgClicked does nothing when event is falsy" duration="3"/>
+    <testCase name="PublicSignupComponent sendOtp calls signupSvc.sendOtp with valid mobile" duration="31"/>
+    <testCase name="PublicSignupComponent sendOtp shows snackBar for invalid mobile" duration="3"/>
+    <testCase name="PublicSignupComponent sendOtp shows snackBar on sendOtp error" duration="3"/>
+    <testCase name="PublicSignupComponent sendOtpEmail calls signupSvc.sendOtp with valid email" duration="6"/>
+    <testCase name="PublicSignupComponent sendOtpEmail shows snackBar for invalid email" duration="3"/>
+    <testCase name="PublicSignupComponent sendOtpEmail shows snackBar on sendOtpEmail error" duration="2"/>
+    <testCase name="PublicSignupComponent sendOtpEmail shows specific domain error when errmsg is present" duration="4"/>
+    <testCase name="PublicSignupComponent resendOTP calls signupSvc.resendOtp for valid mobile" duration="5"/>
+    <testCase name="PublicSignupComponent resendOTP shows snackBar for invalid mobile" duration="2"/>
+    <testCase name="PublicSignupComponent resendOTPEmail calls signupSvc.resendOtp for valid email" duration="5"/>
+    <testCase name="PublicSignupComponent resendOTPEmail shows snackBar for invalid email" duration="2"/>
+    <testCase name="PublicSignupComponent verifyOtp verifies mobile OTP on success" duration="3"/>
+    <testCase name="PublicSignupComponent verifyOtp shows snackBar for short OTP" duration="2"/>
+    <testCase name="PublicSignupComponent verifyOtp shows snackBar when otp is null" duration="2"/>
+    <testCase name="PublicSignupComponent verifyOtp shows snackBar on verifyOTP error" duration="2"/>
+    <testCase name="PublicSignupComponent verifyOtp disables verify button on 0 remaining attempts" duration="2"/>
+    <testCase name="PublicSignupComponent verifyOtpEmail verifies email OTP on success" duration="8"/>
+    <testCase name="PublicSignupComponent verifyOtpEmail shows snackBar for short OTP" duration="2"/>
+    <testCase name="PublicSignupComponent verifyOtpEmail shows snackBar when otp is null" duration="1"/>
+    <testCase name="PublicSignupComponent openDialog opens SignupSuccessDialogueComponent" duration="2"/>
+    <testCase name="PublicSignupComponent termsAndConditionClick opens TermsAndConditionComponent" duration="1"/>
+    <testCase name="PublicSignupComponent termsAndConditionClick sets confirmTerms when dialog returns value" duration="2"/>
+    <testCase name="PublicSignupComponent translateLabels calls translateActualLabel" duration="2"/>
+    <testCase name="PublicSignupComponent selectLanguage updates selectedLanguage and localStorage" duration="2"/>
+    <testCase name="PublicSignupComponent navigateTo navigates to /public/request with param" duration="3"/>
+    <testCase name="PublicSignupComponent numericOnly returns true for digit key" duration="1"/>
+    <testCase name="PublicSignupComponent numericOnly returns false for non-digit key" duration="1"/>
+    <testCase name="PublicSignupComponent getZohoForm opens ZohoDialogComponent" duration="69"/>
+    <testCase name="PublicSignupComponent displayFn helpers displayFn returns channel" duration="2"/>
+    <testCase name="PublicSignupComponent displayFn helpers displayFn returns undefined for null" duration="2"/>
+    <testCase name="PublicSignupComponent displayFn helpers displayFnPosition returns name" duration="2"/>
+    <testCase name="PublicSignupComponent displayFn helpers displayFnGroup returns value" duration="2"/>
+    <testCase name="PublicSignupComponent displayFn helpers displayFnOrg returns orgName" duration="3"/>
+    <testCase name="PublicSignupComponent displayFn helpers displayFnOrg returns empty string for null" duration="1"/>
+    <testCase name="PublicSignupComponent filterOrgsSearch sets filteredOrgList from search result" duration="2"/>
+    <testCase name="PublicSignupComponent filterOrgsSearch shows snackBar on filterOrgs error" duration="2"/>
+    <testCase name="PublicSignupComponent ngOnDestroy does not throw" duration="2"/>
+    <testCase name="PublicSignupComponent ngOnDestroy removes cs-recaptcha class in browser" duration="2"/>
+    <testCase name="PublicSignupComponent ngOnDestroy does not throw in non-browser platform" duration="3"/>
+    <testCase name="PublicSignupComponent startCountDown decrements timeLeftforOTP" duration="4"/>
+    <testCase name="PublicSignupComponent startCountDownEmail decrements timeLeftforOTPEmail" duration="2"/>
+    <testCase name="PublicSignupComponent getDesignation calls searchPublicDesignation" duration="3"/>
+    <testCase name="PublicSignupComponent getDesignation handles error from searchPublicDesignation" duration="2"/>
+    <testCase name="PublicSignupComponent checkCurrentDesignationPresent adds missing designation to list" duration="2"/>
+    <testCase name="PublicSignupComponent checkCurrentDesignationPresent does nothing when designation already present" duration="2"/>
+    <testCase name="PublicSignupComponent confirmChange toggles confirm flag" duration="3"/>
+    <testCase name="PublicSignupComponent confirmTermsChange toggles confirmTerms flag" duration="2"/>
+    <testCase name="PublicSignupComponent signup calls recaptchaV3Service.execute" duration="7"/>
+    <testCase name="PublicSignupComponent signup shows snackBar on recaptcha error" duration="5"/>
+    <testCase name="PublicSignupComponent signup handles signup register error" duration="3"/>
+    <testCase name="PublicSignupComponent signup handles N/A org for ministry type" duration="3"/>
+    <testCase name="PublicSignupComponent signup handles state type with N/A org and no department" duration="2"/>
+    <testCase name="PublicSignupComponent mdoRedirect sets window.location.href" duration="6"/>
+    <testCase name="PublicSignupComponent designationSearch calls getDesignation for non-empty search" duration="5"/>
+    <testCase name="PublicSignupComponent designationSearch resets designations for empty search" duration="3"/>
+    <testCase name="PublicSignupComponent designationSearch returns early when loading" duration="3"/>
+    <testCase name="PublicSignupComponent onDesignationDropdownClosed does not throw" duration="3"/>
+    <testCase name="PublicSignupComponent getDesignation with loaded data appends to designationBackup on second page load" duration="3"/>
+    <testCase name="PublicSignupComponent getDesignation with loaded data sets noMoreLegacyDesignations when all loaded" duration="4"/>
+    <testCase name="PublicSignupComponent getDesignation with loaded data sets noMoreLegacyDesignations when empty result" duration="3"/>
+  </file>
+  <file path="/home/srikanthmutte/Downloads/sunbird/sunbird-cb-portal/src/app/competency-passbook/base-competency-list/base-competency-list.component.spec.ts">
+    <testCase name="BaseCompetencyListComponent should create" duration="426"/>
+  </file>
+</testExecutions>

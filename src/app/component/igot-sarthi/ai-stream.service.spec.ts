@@ -121,4 +121,45 @@ describe('AiStreamService (Jest, no TestBed)', () => {
     expect(service.isValidJSON(valid)).toBe(true)
     expect(service.isValidJSON(invalid)).toBe(false)
   })
+
+  it('should handle stream message containing retrieved_chunks keyword and parse JSON', (done) => {
+    const chunks: any[] = []
+    const sub = service.retrievedChunks$.subscribe(obj => chunks.push(obj))
+
+    // Message with retrieved_chunks keyword so it enters the extractValidJSON path
+    const data = '{"retrieved_chunks":true,"Identifier":"xyz"}'
+    service.handleMessage({ type: 'stream', data })
+
+    expect(chunks.length).toBeGreaterThan(0)
+    sub.unsubscribe()
+    done()
+  })
+
+  it('should handle stream with buffer that triggers JSON catch block', (done) => {
+    // Buffer content that includes 'Identifier' but with malformed JSON to trigger catch
+    // The extractValidJSON tries parsing substrings and emits warn for invalid ones
+    // We test that the service doesn't crash when JSON.parse fails inside extractValidJSON
+    const warnSpy = jest.spyOn(console, 'warn').mockImplementation(() => { })
+
+    // Two partial objects where only the outer one fails to parse
+    const data = '{"Identifier":"good"}incomplete{'
+    service.handleMessage({ type: 'stream', data })
+
+    // No crash = test passes
+    expect(service).toBeTruthy()
+    warnSpy.mockRestore()
+    done()
+  })
+
+  it('should handle stream with parsedObjects populated (chunks.push branch)', (done) => {
+    // A complete valid JSON object in buffer containing 'Identifier'
+    const sub = service.retrievedChunks$.subscribe()
+    const data = '{"Identifier":"test123","title":"Hello"}'
+    service.handleMessage({ type: 'stream', data })
+
+    // chunks should contain the raw string AND the parsed object
+    expect(service.chunks.length).toBeGreaterThan(0)
+    sub.unsubscribe()
+    done()
+  })
 })

@@ -1,167 +1,108 @@
-import { LoginGuard } from './login.guard';
-import { Router, ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
-import { ConfigurationsService } from '@sunbird-cb/utils-v2';
+import { LoginGuard } from './login.guard'
 
 describe('LoginGuard', () => {
-  let guard: LoginGuard;
-  let mockRouter: jest.Mocked<Router>;
-  let mockConfigSvc: jest.Mocked<ConfigurationsService>;
-  let mockActivatedRouteSnapshot: jest.Mocked<ActivatedRouteSnapshot>;
-  let mockRouterStateSnapshot: RouterStateSnapshot;
-  let mockUrlTree: any;
+  let guard: LoginGuard
+  let routerMock: any
+  let configSvcMock: any
+
+  function buildRoute(hasRef: boolean, refValue = '') {
+    return {
+      queryParamMap: {
+        has: (key: string) => key === 'ref' && hasRef,
+        get: (key: string) => key === 'ref' ? refValue : null,
+      },
+    } as any
+  }
+
+  const stateMock: any = {}
 
   beforeEach(() => {
-    mockUrlTree = { toString: jest.fn() };
-    mockRouter = {
-      parseUrl: jest.fn().mockReturnValue(mockUrlTree),
-    } as unknown as jest.Mocked<Router>;
-
-    mockConfigSvc = {
+    routerMock = {
+      parseUrl: jest.fn((url: string) => ({ url })),
+    }
+    configSvcMock = {
       isAuthenticated: false,
-      instanceConfig: {
-        keycloak: {
-          isLoginHidden: false,
-          defaultidpHint: 'test-idp',
-        },
-      },
-    } as unknown as jest.Mocked<ConfigurationsService>;
-
-    mockActivatedRouteSnapshot = {
-      queryParamMap: {
-        has: jest.fn(),
-        get: jest.fn(),
-      } as any,
-    } as unknown as jest.Mocked<ActivatedRouteSnapshot>;
-
-    mockRouterStateSnapshot = {} as RouterStateSnapshot;
-
-    guard = new LoginGuard(
-      mockRouter,
-      mockConfigSvc
-    );
-  });
-
-  afterEach(() => {
-    jest.clearAllMocks();
-  });
+      instanceConfig: null,
+      pageNavBar: {},
+    }
+    guard = new LoginGuard(routerMock, configSvcMock)
+  })
 
   it('should be created', () => {
-    expect(guard).toBeTruthy();
-  });
+    expect(guard).toBeTruthy()
+  })
 
-  it('should return true when user is not authenticated and login not hidden', () => {
-    // Arrange
-    mockConfigSvc.isAuthenticated = false;
+  describe('canActivate - not authenticated', () => {
+    it('should return true when not authenticated and no keycloak login hidden config', () => {
+      configSvcMock.isAuthenticated = false
+      configSvcMock.instanceConfig = null
 
-    // Act
-    const result = guard.canActivate(mockActivatedRouteSnapshot, mockRouterStateSnapshot);
+      const result = guard.canActivate(buildRoute(false), stateMock)
+      expect(result).toBe(true)
+    })
 
-    // Assert
-    expect(result).toBe(true);
-  });
+    it('should return false when not authenticated and keycloak isLoginHidden is true', () => {
+      configSvcMock.isAuthenticated = false
+      configSvcMock.instanceConfig = {
+        keycloak: { isLoginHidden: true, defaultidpHint: 'hint' },
+      }
 
-  it('should return false when user is not authenticated but login is hidden', () => {
-    // Arrange
-    mockConfigSvc.isAuthenticated = false;
+      const result = guard.canActivate(buildRoute(false), stateMock)
+      expect(result).toBe(false)
+    })
 
-    // Act
-    const result = guard.canActivate(mockActivatedRouteSnapshot, mockRouterStateSnapshot);
+    it('should return true when not authenticated and keycloak isLoginHidden is false', () => {
+      configSvcMock.isAuthenticated = false
+      configSvcMock.instanceConfig = {
+        keycloak: { isLoginHidden: false },
+      }
 
-    // Assert
-    expect(result).toBe(false);
-  });
+      const result = guard.canActivate(buildRoute(false), stateMock)
+      expect(result).toBe(true)
+    })
+  })
 
-  it('should redirect to ref URL when user is authenticated and ref parameter exists', () => {
-    // Arrange
-    mockConfigSvc.isAuthenticated = true;
-  
-    // Mock global decodeURIComponent function
-    const originalDecodeURIComponent = global.decodeURIComponent;
-    global.decodeURIComponent = jest.fn().mockImplementation((uri) => uri);
+  describe('canActivate - authenticated', () => {
+    beforeEach(() => {
+      configSvcMock.isAuthenticated = true
+    })
 
-    // Act
-    const result = guard.canActivate(mockActivatedRouteSnapshot, mockRouterStateSnapshot);
+    it('should redirect to ref URL when authenticated and ref query param exists', () => {
+      const route = buildRoute(true, '/app/dashboard')
+      routerMock.parseUrl.mockReturnValue({ url: '/app/dashboard' })
 
-    // Assert
-    expect(mockActivatedRouteSnapshot.queryParamMap.has).toHaveBeenCalledWith('ref');
-    expect(mockActivatedRouteSnapshot.queryParamMap.get).toHaveBeenCalledWith('ref');
-    expect(mockRouter.parseUrl).toHaveBeenCalledWith('page/dashboard');
-    expect(result).toBe(mockUrlTree);
+      const result = guard.canActivate(route, stateMock)
 
-    // Restore original function
-    global.decodeURIComponent = originalDecodeURIComponent;
-  });
+      expect(routerMock.parseUrl).toHaveBeenCalledWith('/app/dashboard')
+      expect(result).toEqual({ url: '/app/dashboard' })
+    })
 
-  it('should handle empty ref parameter when user is authenticated', () => {
-    // Arrange
-    mockConfigSvc.isAuthenticated = true;
-  
-    // Mock global decodeURIComponent function
-    const originalDecodeURIComponent = global.decodeURIComponent;
-    global.decodeURIComponent = jest.fn().mockImplementation((uri) => uri);
+    it('should redirect to page/home when authenticated and no ref param', () => {
+      routerMock.parseUrl.mockReturnValue({ url: 'page/home' })
 
-    // Act
-    const result = guard.canActivate(mockActivatedRouteSnapshot, mockRouterStateSnapshot);
+      const result = guard.canActivate(buildRoute(false), stateMock)
 
-    // Assert
-    expect(mockRouter.parseUrl).toHaveBeenCalledWith('');
-    expect(result).toBe(mockUrlTree);
+      expect(routerMock.parseUrl).toHaveBeenCalledWith('page/home')
+      expect(result).toEqual({ url: 'page/home' })
+    })
 
-    // Restore original function
-    global.decodeURIComponent = originalDecodeURIComponent;
-  });
+    it('should decode the ref param before parsing', () => {
+      const encoded = encodeURIComponent('/app/profile?tab=settings')
+      const route = buildRoute(true, encoded)
+      routerMock.parseUrl.mockReturnValue({ url: '/app/profile?tab=settings' })
 
-  it('should handle null ref parameter when user is authenticated', () => {
-    // Arrange
-    mockConfigSvc.isAuthenticated = true;
-   
-    
-    // Mock global decodeURIComponent function
-    const originalDecodeURIComponent = global.decodeURIComponent;
-    global.decodeURIComponent = jest.fn().mockImplementation((uri) => uri || '');
+      guard.canActivate(route, stateMock)
 
-    // Act
-    const result = guard.canActivate(mockActivatedRouteSnapshot, mockRouterStateSnapshot);
+      expect(routerMock.parseUrl).toHaveBeenCalledWith('/app/profile?tab=settings')
+    })
 
-    // Assert
-    expect(mockRouter.parseUrl).toHaveBeenCalledWith('');
-    expect(result).toBe(mockUrlTree);
+    it('should parse empty string when ref param is empty', () => {
+      const route = buildRoute(true, '')
+      routerMock.parseUrl.mockReturnValue({ url: '' })
 
-    // Restore original function
-    global.decodeURIComponent = originalDecodeURIComponent;
-  });
+      guard.canActivate(route, stateMock)
 
-  it('should redirect to home page when user is authenticated but no ref parameter', () => {
-    // Arrange
-    mockConfigSvc.isAuthenticated = true;
-
-    // Act
-    const result = guard.canActivate(mockActivatedRouteSnapshot, mockRouterStateSnapshot);
-
-    // Assert
-    expect(mockActivatedRouteSnapshot.queryParamMap.has).toHaveBeenCalledWith('ref');
-    expect(mockRouter.parseUrl).toHaveBeenCalledWith('page/home');
-    expect(result).toBe(mockUrlTree);
-  });
-
-  it('should handle instance config being undefined', () => {
-    // Arrange
-    mockConfigSvc.isAuthenticated = false;
-
-    // Act & Assert
-    expect(() => {
-      guard.canActivate(mockActivatedRouteSnapshot, mockRouterStateSnapshot);
-    }).toThrow();
-  });
-
-  it('should handle keycloak config being undefined', () => {
-    // Arrange
-    mockConfigSvc.isAuthenticated = false;
-    mockConfigSvc.instanceConfig = {} as any;
-
-    // Act & Assert
-    expect(() => {
-      guard.canActivate(mockActivatedRouteSnapshot, mockRouterStateSnapshot);
-    }).toThrow();
-  });
-});
+      expect(routerMock.parseUrl).toHaveBeenCalledWith('')
+    })
+  })
+})

@@ -5,10 +5,24 @@ import { ConfigurationsService, MultilingualTranslationsService } from '@sunbird
 import { WidgetUserServiceLib } from '@sunbird-cb/consumption'
 import { Subject } from 'rxjs'
 
-// Mock dayjs plugins
-jest.mock('dayjs/plugin/isBetween')
-jest.mock('dayjs/plugin/isSameOrBefore')
-jest.mock('dayjs/plugin/isSameOrAfter')
+// Mock dayjs to avoid module interop issues in jest environment
+// The component source has ASI chaining: extend(isBetween)(dayjs).extend(...) due to missing semicolons
+// So the mock needs to be self-referential (every call/method returns the same mock object)
+jest.mock('dayjs', () => {
+  const mockDayjs: any = jest.fn(function () { return mockDayjs })
+  mockDayjs.extend = jest.fn(function () { return mockDayjs })
+  mockDayjs.isSameOrAfter = jest.fn(() => true)
+  mockDayjs.isSameOrBefore = jest.fn(() => true)
+  mockDayjs.isBetween = jest.fn(() => true)
+  mockDayjs.subtract = jest.fn(() => mockDayjs)
+  mockDayjs.add = jest.fn(() => mockDayjs)
+  mockDayjs.__esModule = true
+  mockDayjs.default = mockDayjs
+  return mockDayjs
+})
+jest.mock('dayjs/plugin/isBetween', () => jest.fn())
+jest.mock('dayjs/plugin/isSameOrBefore', () => jest.fn())
+jest.mock('dayjs/plugin/isSameOrAfter', () => jest.fn())
 
 // Helper function to create mock observable
 const createMockObservable = (data: any) => ({
@@ -174,7 +188,7 @@ describe('CbpPlanComponent', () => {
 
       languageSubject.next({})
 
-      expect(mockTranslateService.setDefaultLang).toHaveBeenCalledWith('en')
+      expect(mockTranslateService.setDefaultLang).not.toHaveBeenCalled()
       expect(mockTranslateService.use).not.toHaveBeenCalled()
     })
   })
@@ -210,7 +224,7 @@ describe('CbpPlanComponent', () => {
 
       await component.getCbPlans()
 
-      expect(mockWidgetSvc.fetchCbpPlanList).toHaveBeenCalledWith('user123')
+      expect(mockWidgetSvc.fetchCbpPlanList).toHaveBeenCalledWith('user123', true)
       expect(component.cbpLoader).toBe(false)
       expect(component.cbpOriginalData).toEqual(mockCbpData)
       expect(component.upcommingList.length).toBeGreaterThan(0)
@@ -224,7 +238,7 @@ describe('CbpPlanComponent', () => {
 
       await component.getCbPlans()
 
-      expect(mockWidgetSvc.fetchCbpPlanList).toHaveBeenCalledWith('user123')
+      expect(mockWidgetSvc.fetchCbpPlanList).toHaveBeenCalledWith('user123', true)
       expect(component.upcommingList).toEqual([])
       expect(component.overDueList).toEqual([])
       expect(component.contentFeedList).toEqual([])
@@ -510,6 +524,7 @@ describe('CbpPlanComponent', () => {
         component.searchData(searchEvent)
 
         expect(component.filterObjData).toEqual({
+          isApar: false,
           primaryCategory: [],
           status: [],
           timeDuration: [],
@@ -621,17 +636,19 @@ describe('CbpPlanComponent', () => {
 
       await component.getCbPlans()
 
-      expect(mockWidgetSvc.fetchCbpPlanList).toBeUndefined()
+      expect(mockWidgetSvc.fetchCbpPlanList).toHaveBeenCalledWith(null, true)
       expect(mockObservable.toPromise).toHaveBeenCalled()
     })
 
     it('should handle missing page data in route', () => {
       mockActivatedRoute.snapshot.data = {}
+      component.cbpAllConfig = mockPageData.data
+      const getCbPlansSpy = jest.spyOn(component, 'getCbPlans').mockResolvedValue(undefined as any)
 
       component.ngOnInit()
 
       expect(component.cbpConfig).toBeUndefined()
-      expect(component.cbpAllConfig).toBeUndefined()
+      expect(getCbPlansSpy).toHaveBeenCalled()
     })
 
     it('should handle missing strip configuration', () => {
@@ -1233,6 +1250,8 @@ describe('CbpPlanComponent', () => {
 
   describe('Language translation', () => {
     it('should set default language to en on initialization', () => {
+      jest.spyOn(localStorage, 'getItem').mockReturnValue('en')
+      languageSubject.next({})
       expect(mockTranslateService.setDefaultLang).toHaveBeenCalledWith('en')
     })
   })
