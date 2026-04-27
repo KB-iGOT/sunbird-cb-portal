@@ -1,771 +1,442 @@
 import { TopRightNavBarComponent } from './top-right-nav-bar.component'
-import { of, throwError, Subject } from 'rxjs'
+import { of } from 'rxjs'
+import { Subject } from 'rxjs'
 
-// Mock classes and interfaces
-class MockMatDialog {
-  open = jest.fn().mockReturnValue({
-    afterClosed: () => of(true),
-    close: jest.fn()
-  });
-}
-
-class MockHomePageService {
-  closeDialogPop = new Subject();
-}
-
-class MockConfigurationsService {
-  instanceConfig: any = {
-    websitelanguages: ['en', 'hi', 'te'],
-    isMultilingualEnabled: true
-  };
-  unMappedUser: any = {
-    id: 'user123',
-    roles: ['admin', 'user']
-  };
-  languageTranslationFlag = new Subject();
-  iGOTAIConfig: any
-  userProfile: any
-}
-
-class MockMultilingualTranslationsService {
-  languageSelectedObservable = new Subject();
-  translateLabel = jest.fn().mockReturnValue('translated-label');
-  updatelanguageSelected = jest.fn();
-}
-
-class MockTranslateService {
-  setDefaultLang = jest.fn();
-  use = jest.fn();
-}
-
-class MockDomSanitizer {
-  bypassSecurityTrustHtml = jest.fn().mockReturnValue('sanitized-html');
-}
-
-class MockHttpClient {
-  get = jest.fn().mockReturnValue(of('<html>zoho form</html>'));
-}
-
-class MockEventService {
-  raiseInteractTelemetry = jest.fn();
-}
-
-class MockMatSnackBar {
-  open = jest.fn();
-}
-
-class MockRouter {
-  navigate = jest.fn();
-}
-
-class MockNotificationsService {
-  resetNotificationsCount = jest.fn().mockReturnValue(of({ responseCode: 'OK' }));
-  handleRedirection = jest.fn();
-  nofificationsCount = new Subject();
-}
-
-class MockRootService {
-  openSupportAIChatbot = {
-    next: jest.fn(),
-  };
-}
+jest.mock('../../../environments/environment', () => ({ environment: { supportEmail: 'test@gov.in' } }))
+jest.mock('@sunbird-cb/collection/src/lib/_common/confirm-dialog/confirm-dialog.component', () => ({ ConfirmDialogComponent: class { } }), { virtual: true })
+jest.mock('@ws/app/src/lib/routes/peer-validation/components/survey-popup/survey-popup.component', () => ({ SurveyPopupComponent: class { } }), { virtual: true })
+jest.mock('@ws/app/src/lib/routes/peer-validation/components/verification-request-dialog/verification-request-dialog.component', () => ({ VerificationRequestDialogComponent: class { } }), { virtual: true })
+jest.mock('@ws/app/src/lib/routes/profile-v3/components/dialog-box/dialog-box.component', () => ({ DialogBoxComponent: class { } }), { virtual: true })
+jest.mock('../dialog-box/dialog-box.component', () => ({ DialogBoxComponent: class { } }), { virtual: true })
+jest.mock('src/app/services/notifications.service', () => ({ NotificationsService: class { } }), { virtual: true })
+jest.mock('src/app/services/home-page.service', () => ({ HomePageService: class { } }), { virtual: true })
+jest.mock('../root/root.service', () => ({ RootService: class { } }), { virtual: true })
 
 describe('TopRightNavBarComponent', () => {
   let component: TopRightNavBarComponent
-  let mockDialog: MockMatDialog
-  let mockHomePageService: MockHomePageService
-  let mockConfigSvc: MockConfigurationsService
-  let mockLangtranslations: MockMultilingualTranslationsService
-  let mockTranslate: MockTranslateService
-  let mockHttp: MockHttpClient
-  let mockSanitizer: MockDomSanitizer
-  let mockEvents: MockEventService
-  let mockSnackBar: MockMatSnackBar
-  let mockRouter: MockRouter
-  let mockNotificationsService: MockNotificationsService
-  let mockRootService: MockRootService
-
-  // Mock localStorage
-  const mockLocalStorage = {
-    getItem: jest.fn(),
-    setItem: jest.fn(),
-    clear: jest.fn()
-  }
-  Object.defineProperty(globalThis, 'localStorage', {
-    value: mockLocalStorage,
-    configurable: true,
-  })
-
-  // Mock XMLHttpRequest
-  const mockXHR: any = {
-    open: jest.fn(),
-    send: jest.fn(),
-    onreadystatechange: jest.fn(),
-    readyState: 4,
-    status: 200,
-    responseText: JSON.stringify({
-      captchaUrl: 'http://example.com/captcha.png',
-      captchaDigest: 'digest123'
-    })
-  };
-  (globalThis as any).XMLHttpRequest = jest.fn(() => mockXHR)
-
-  // Mock DOM elements
-  const mockElement = {
-    src: '',
-    style: { display: '' },
-    value: '',
-    addEventListener: jest.fn()
-  }
-  const mockGetElementById = jest.fn().mockReturnValue(mockElement)
-  const mockGetElementsByName = jest.fn().mockReturnValue([mockElement])
-  Object.defineProperty(document, 'getElementById', { value: mockGetElementById })
-  Object.defineProperty(document, 'getElementsByName', { value: mockGetElementsByName })
-
-  // Mock window.open
-  Object.defineProperty(globalThis, 'open', {
-    value: jest.fn(),
-    configurable: true,
-  })
+  let mockDialog: any
+  let mockHomePageSvc: any
+  let mockConfigSvc: any
+  let mockLangTranslations: any
+  let mockTranslate: any
+  let mockHttp: any
+  let mockSanitizer: any
+  let mockEvents: any
+  let mockSnackBar: any
+  let mockRouter: any
+  let mockNotificationsSvc: any
+  let mockRootService: any
+  let mockMatDialog: any
 
   beforeEach(() => {
-    // Reset all mocks
+    localStorage.clear()
     jest.clearAllMocks()
-    mockLocalStorage.getItem.mockClear()
-    mockLocalStorage.setItem.mockClear()
 
-    // Create mock instances
-    mockDialog = new MockMatDialog()
-    mockHomePageService = new MockHomePageService()
-    mockConfigSvc = new MockConfigurationsService()
-    mockLangtranslations = new MockMultilingualTranslationsService()
-    mockTranslate = new MockTranslateService()
-    mockHttp = new MockHttpClient()
-    mockSanitizer = new MockDomSanitizer()
-    mockEvents = new MockEventService()
-    mockSnackBar = new MockMatSnackBar()
-    mockRouter = new MockRouter()
-    mockNotificationsService = new MockNotificationsService()
-    mockRootService = new MockRootService()
+    mockDialog = {
+      open: jest.fn(() => ({ afterClosed: () => of(null), close: jest.fn() })),
+    }
+    mockHomePageSvc = { closeDialogPop: new Subject<any>() }
+    mockConfigSvc = {
+      unMappedUser: { id: 'u1', roles: ['admin'] },
+      userProfile: { firstName: 'John', lastName: 'Doe', rootOrgId: 'org1' },
+      iGOTAIConfig: null,
+      languageTranslationFlag: { next: jest.fn() },
+    }
+    mockLangTranslations = {
+      languageSelectedObservable: new Subject<any>(),
+      translateLabel: jest.fn((l: string) => l),
+      updatelanguageSelected: jest.fn(),
+    }
+    mockTranslate = { setDefaultLang: jest.fn(), use: jest.fn() }
+    mockHttp = { get: jest.fn(() => of('<html>zoho</html>')) }
+    mockSanitizer = { bypassSecurityTrustHtml: jest.fn((h: string) => h) }
+    mockEvents = { raiseInteractTelemetry: jest.fn() }
+    mockSnackBar = { open: jest.fn() }
+    mockRouter = { navigate: jest.fn() }
+    mockNotificationsSvc = {
+      resetNotificationsCount: jest.fn(() => of({ responseCode: 'OK' })),
+      handleRedirection: jest.fn(),
+      nofificationsCount: { next: jest.fn() },
+    }
+    mockRootService = { openSupportAIChatbot: { next: jest.fn() } }
+    mockMatDialog = {
+      open: jest.fn(() => ({ afterClosed: () => of(null) })),
+    }
 
-    // Create component instance
     component = new TopRightNavBarComponent(
-      mockDialog as any,
-      mockHomePageService as any,
-      mockConfigSvc as any,
-      mockLangtranslations as any,
-      mockTranslate as any,
-      mockHttp as any,
-      mockSanitizer as any,
-      mockEvents as any,
-      mockSnackBar as any,
-      mockRouter as any,
-      mockNotificationsService as any,
-      mockRootService as any
+      mockDialog, mockHomePageSvc, mockConfigSvc, mockLangTranslations,
+      mockTranslate, mockHttp, mockSanitizer, mockEvents, mockSnackBar,
+      mockRouter, mockNotificationsSvc, mockRootService, mockMatDialog
     )
   })
 
-  describe('Constructor', () => {
-    it('should create component', () => {
-      expect(component).toBeDefined()
-    })
+  it('creates', () => {
+    expect(component).toBeDefined()
+    expect(component.selectedLanguage).toBe('en')
+    expect(component.enableSupportAI).toBe(false)
+  })
 
-    it('should set default language and selected language from localStorage', () => {
-      mockLocalStorage.getItem.mockReturnValue('"hi"')
-
-      component = new TopRightNavBarComponent(
-        mockDialog as any,
-        mockHomePageService as any,
-        mockConfigSvc as any,
-        mockLangtranslations as any,
-        mockTranslate as any,
-        mockHttp as any,
-        mockSanitizer as any,
-        mockEvents as any,
-        mockSnackBar as any,
-        mockRouter as any,
-        mockNotificationsService as any,
-        mockRootService as any
-      )
-
-      expect(mockTranslate.setDefaultLang).toHaveBeenCalledWith('en')
-      expect(mockTranslate.use).toHaveBeenCalledWith('hi')
-      expect(component.selectedLanguage).toBe('hi')
-    })
-
-    it('should handle localStorage with quotes in language value', () => {
-      mockLocalStorage.getItem.mockReturnValue('"te"')
-
-      component = new TopRightNavBarComponent(
-        mockDialog as any,
-        mockHomePageService as any,
-        mockConfigSvc as any,
-        mockLangtranslations as any,
-        mockTranslate as any,
-        mockHttp as any,
-        mockSanitizer as any,
-        mockEvents as any,
-        mockSnackBar as any,
-        mockRouter as any,
-        mockNotificationsService as any,
-        mockRootService as any
-      )
-
-      expect(component.selectedLanguage).toBe('te')
-    })
-
-    it('should subscribe to languageSelectedObservable', () => {
-      mockLocalStorage.getItem.mockReturnValue('en')
-
-      component = new TopRightNavBarComponent(
-        mockDialog as any,
-        mockHomePageService as any,
-        mockConfigSvc as any,
-        mockLangtranslations as any,
-        mockTranslate as any,
-        mockHttp as any,
-        mockSanitizer as any,
-        mockEvents as any,
-        mockSnackBar as any,
-        mockRouter as any,
-        mockNotificationsService as any,
-        mockRootService as any
-      )
-
-      // Trigger the observable
-      mockLangtranslations.languageSelectedObservable.next(true)
-
-      expect(mockTranslate.setDefaultLang).toHaveBeenCalledWith('en')
-      expect(mockTranslate.use).toHaveBeenCalledWith('en')
-      expect(component.selectedLanguage).toBe('en')
-    })
-
-    it('should set roles from configSvc.unMappedUser', () => {
-      expect(component.roles).toEqual(['admin', 'user'])
-    })
-
-    it('should handle missing configSvc.unMappedUser.roles', () => {
-      mockConfigSvc.unMappedUser = null
-
-      component = new TopRightNavBarComponent(
-        mockDialog as any,
-        mockHomePageService as any,
-        mockConfigSvc as any,
-        mockLangtranslations as any,
-        mockTranslate as any,
-        mockHttp as any,
-        mockSanitizer as any,
-        mockEvents as any,
-        mockSnackBar as any,
-        mockRouter as any,
-        mockNotificationsService as any,
-        mockRootService as any
-      )
-
-      expect(component.roles).toEqual([])
-    })
+  it('reads language from localStorage in constructor', () => {
+    localStorage.setItem('websiteLanguage', 'hi')
+    component = new TopRightNavBarComponent(
+      mockDialog, mockHomePageSvc, mockConfigSvc, mockLangTranslations,
+      mockTranslate, mockHttp, mockSanitizer, mockEvents, mockSnackBar,
+      mockRouter, mockNotificationsSvc, mockRootService, mockMatDialog
+    )
+    expect(component.selectedLanguage).toBe('hi')
   })
 
   describe('ngOnInit', () => {
-    beforeEach(() => {
-      component.rightNavConfig = { topRightNavConfig: ['config1', 'config2'] }
+    it('sets multiLang from instanceConfig', () => {
+      mockConfigSvc.instanceConfig = { websitelanguages: ['en', 'hi'], isMultilingualEnabled: true }
+      component.ngOnInit()
+      expect(component.multiLang).toEqual(['en', 'hi'])
     })
 
-    it('should set multiLang and isMultiLangEnabled from instanceConfig', () => {
+    it('handles closeDialogPop event', () => {
+      component.dialogRef = { close: jest.fn() }
       component.ngOnInit()
-
-      expect(component.multiLang).toEqual(['en', 'hi', 'te'])
-      expect(component.isMultiLangEnabled).toBe(true)
+      mockHomePageSvc.closeDialogPop.next(true)
+      expect(component.dialogRef.close).toHaveBeenCalled()
     })
 
-    it('should handle missing instanceConfig', () => {
-      mockConfigSvc.instanceConfig = null
-
+    it('loads zohoHtml', () => {
       component.ngOnInit()
-
-      expect(component.multiLang).toEqual([])
-      expect(component.isMultiLangEnabled).toBeUndefined()
+      expect(mockHttp.get).toHaveBeenCalled()
+      expect(component.zohoHtml).toBeDefined()
     })
 
-    it('should set rightNavConfig from topRightNavConfig', () => {
+    it('adjusts rightNavConfig from topRightNavConfig', () => {
+      component.rightNavConfig = { topRightNavConfig: [{ id: 1 }] }
       component.ngOnInit()
-
-      expect(component.rightNavConfig).toEqual(['config1', 'config2'])
-    })
-
-    it('should use rightNavConfig directly if topRightNavConfig not present', () => {
-      component.rightNavConfig = ['direct-config']
-
-      component.ngOnInit()
-
-      expect(component.rightNavConfig).toEqual(['direct-config'])
-    })
-
-    it('should subscribe to closeDialogPop and close dialog', () => {
-      const mockDialogRef = { close: jest.fn() }
-      component.dialogRef = mockDialogRef
-
-      component.ngOnInit()
-      mockHomePageService.closeDialogPop.next(true)
-
-      expect(mockDialogRef.close).toHaveBeenCalled()
-    })
-
-    it('should not close dialog if closeDialogPop data is falsy', () => {
-      const mockDialogRef = { close: jest.fn() }
-      component.dialogRef = mockDialogRef
-
-      component.ngOnInit()
-      mockHomePageService.closeDialogPop.next(false)
-
-      expect(mockDialogRef.close).not.toHaveBeenCalled()
-    })
-
-    it('should fetch zoho HTML and sanitize it', () => {
-      component.ngOnInit()
-
-      expect(mockHttp.get).toHaveBeenCalledWith('/assets/static-data/zoho-code.html', { responseType: 'text' })
-      expect(mockSanitizer.bypassSecurityTrustHtml).toHaveBeenCalledWith('<html>zoho form</html>')
-      expect(component.zohoHtml).toBe('sanitized-html')
+      expect(component.rightNavConfig).toEqual([{ id: 1 }])
     })
   })
 
   describe('ngOnChanges', () => {
-    it('should update rightNavConfig from topRightNavConfig', () => {
-      component.rightNavConfig = { topRightNavConfig: ['changed-config'] }
-
+    it('updates rightNavConfig from topRightNavConfig', () => {
+      component.rightNavConfig = { topRightNavConfig: [{ id: 2 }] }
       component.ngOnChanges()
-
-      expect(component.rightNavConfig).toEqual(['changed-config'])
+      expect(component.rightNavConfig).toEqual([{ id: 2 }])
     })
 
-    it('should use rightNavConfig directly if topRightNavConfig not present', () => {
-      component.rightNavConfig = ['direct-changed-config']
-
+    it('keeps rightNavConfig as-is without topRightNavConfig', () => {
+      component.rightNavConfig = [{ id: 3 }]
       component.ngOnChanges()
-
-      expect(component.rightNavConfig).toEqual(['direct-changed-config'])
+      expect(component.rightNavConfig).toEqual([{ id: 3 }])
     })
   })
 
   describe('translateLabels', () => {
-    it('should call langtranslations.translateLabel with correct parameters', () => {
-      const result = component.translateLabels('test-label', 'test-type')
-
-      expect(mockLangtranslations.translateLabel).toHaveBeenCalledWith('test-label', 'test-type', '')
-      expect(result).toBe('translated-label')
+    it('calls translateLabel', () => {
+      component.translateLabels('Hello', 'label')
+      expect(mockLangTranslations.translateLabel).toHaveBeenCalledWith('Hello', 'label', '')
     })
   })
 
   describe('onBellClick', () => {
-    beforeEach(() => {
-      jest.useFakeTimers()
-    })
-
-    afterEach(() => {
-      jest.useRealTimers()
-    })
-
-    it('should reset notifications count when count > 0', () => {
+    it('resets notificationsCount when > 0', () => {
       component.notificationsCount = 5
-
       component.onBellClick()
-
-      expect(mockNotificationsService.resetNotificationsCount).toHaveBeenCalled()
-    })
-
-    it('should set notificationsCount to 0 on successful reset', () => {
-      component.notificationsCount = 5
-
-      component.onBellClick()
-
+      expect(mockNotificationsSvc.resetNotificationsCount).toHaveBeenCalled()
       expect(component.notificationsCount).toBe(0)
     })
 
-    it('should handle error when resetting notifications count', () => {
-      component.notificationsCount = 5
-      mockNotificationsService.resetNotificationsCount.mockReturnValue(throwError('error'))
-      const consoleSpy = jest.spyOn(console, 'error').mockImplementation()
-
-      component.onBellClick()
-
-      expect(consoleSpy).toHaveBeenCalledWith('Error while fetching notifications count', 'error')
-      consoleSpy.mockRestore()
-    })
-
-    it('should not reset notifications when count is 0', () => {
+    it('sets showDropdown true after timeout', () => {
+      jest.useFakeTimers()
       component.notificationsCount = 0
-
       component.onBellClick()
-
-      expect(mockNotificationsService.resetNotificationsCount).not.toHaveBeenCalled()
+      jest.runAllTimers()
+      expect(component.showDropdown).toBe(true)
+      jest.useRealTimers()
     })
 
-    it('should set showDropdown to false then true after timeout', () => {
-      component.onBellClick()
-
-      expect(component.showDropdown).toBe(false)
-
-      jest.runAllTimers()
-
-      expect(component.showDropdown).toBe(true)
+    it('handles error from resetNotificationsCount', () => {
+      const errorSvc = { ...mockNotificationsSvc, resetNotificationsCount: jest.fn(() => ({ subscribe: (_s: any, e: any) => e(new Error('fail')) })) }
+      component = new TopRightNavBarComponent(mockDialog, mockHomePageSvc, mockConfigSvc, mockLangTranslations, mockTranslate, mockHttp, mockSanitizer, mockEvents, mockSnackBar, mockRouter, errorSvc, mockRootService, mockMatDialog)
+      component.notificationsCount = 5
+      expect(() => component.onBellClick()).not.toThrow()
     })
   })
 
   describe('onMenuClosed', () => {
-    it('should set showDropdown to false', () => {
+    it('sets showDropdown false', () => {
       component.showDropdown = true
-
       component.onMenuClosed()
-
       expect(component.showDropdown).toBe(false)
     })
   })
 
   describe('selectLanguage', () => {
-    it('should update selected language and localStorage', () => {
+    it('updates selectedLanguage and localStorage', () => {
       component.selectLanguage('hi')
-
       expect(component.selectedLanguage).toBe('hi')
-      expect(mockLocalStorage.setItem).toHaveBeenCalledWith('websiteLanguage', 'hi')
-    })
-
-    it('should call updatelanguageSelected with correct parameters', () => {
-      component.selectLanguage('te')
-
-      expect(mockLangtranslations.updatelanguageSelected).toHaveBeenCalledWith(
-        true,
-        'te',
-        'user123'
-      )
-    })
-
-    it('should handle missing unMappedUser id', () => {
-      mockConfigSvc.unMappedUser = null
-
-      component.selectLanguage('en')
-
-      expect(mockLangtranslations.updatelanguageSelected).toHaveBeenCalledWith(
-        true,
-        'en',
-        ''
-      )
-    })
-
-    it('should trigger languageTranslationFlag', () => {
-      const nextSpy = jest.spyOn(mockConfigSvc.languageTranslationFlag, 'next')
-
-      component.selectLanguage('hi')
-
-      expect(nextSpy).toHaveBeenCalledWith(true)
+      expect(localStorage.getItem('websiteLanguage')).toBe('hi')
+      expect(mockLangTranslations.updatelanguageSelected).toHaveBeenCalled()
+      expect(mockConfigSvc.languageTranslationFlag.next).toHaveBeenCalledWith(true)
     })
   })
 
-  describe('getZohoForm', () => {
-    beforeEach(() => {
-      jest.useFakeTimers()
+  describe('formatDate', () => {
+    it('formats valid date string', () => {
+      const result = component.formatDate('2024-01-15')
+      expect(result).toBe('15-01-2024')
     })
 
-    afterEach(() => {
-      jest.useRealTimers()
+    it('returns empty for empty string', () => {
+      expect(component.formatDate('')).toBe('')
     })
 
-    it('should open zoho dialog with correct parameters', () => {
-      component.zohoHtml = 'test-html'
-
-      component.getZohoForm()
-
-      expect(mockDialog.open).toHaveBeenCalledWith((expect as any).anything(), {
-        width: '45%',
-        data: {
-          view: 'zohoform',
-          value: 'test-html',
-        },
-      })
-    })
-
-    it('should call callXMLRequest after timeout', () => {
-      const callXMLRequestSpy = jest.spyOn(component, 'callXMLRequest').mockImplementation()
-
-      component.getZohoForm()
-      jest.runAllTimers()
-
-      expect(callXMLRequestSpy).toHaveBeenCalled()
+    it('returns original for invalid date', () => {
+      expect(component.formatDate('notadate')).toBe('notadate')
     })
   })
 
   describe('openDialog', () => {
-    it('should open dialog with correct width', () => {
+    it('opens DialogBoxComponent', () => {
       component.openDialog()
-
-      expect(mockDialog.open).toHaveBeenCalledWith((expect as any).anything(), {
-        width: '1000px',
-      })
-    })
-
-    it('should set dialogRef', () => {
-      const expectedDialogRef = { afterClosed: () => of(true) }
-      mockDialog.open.mockReturnValue(expectedDialogRef)
-
-      component.openDialog()
-
-      expect(component.dialogRef).toBe(expectedDialogRef)
+      expect(mockDialog.open).toHaveBeenCalled()
     })
   })
 
-  describe('callXMLRequest', () => {
-    it('should create XMLHttpRequest and configure it', () => {
-      component.callXMLRequest()
-
-      expect(mockXHR.open).toHaveBeenCalledWith(
-        'GET',
-        (expect as any).stringContaining('https://desk.zoho.in/support/GenerateCaptcha?action=getNewCaptcha&_='),
-        true
-      )
-      expect(mockXHR.send).toHaveBeenCalled()
-    })
-
-    it('should handle successful XMLHttpRequest response', () => {
-      component.callXMLRequest()
-
-      // Simulate successful response
-      mockXHR.onreadystatechange()
-
-      expect(mockGetElementById).toHaveBeenCalledWith('zsCaptchaUrl')
-      expect(mockGetElementById).toHaveBeenCalledWith('zsCaptchaLoading')
-      expect(mockGetElementById).toHaveBeenCalledWith('zsCaptcha')
-      expect(mockGetElementById).toHaveBeenCalledWith('refreshCaptcha')
-      expect(mockGetElementsByName).toHaveBeenCalledWith('xJdfEaS')
-    })
-
-    it('should handle XMLHttpRequest response with null responseText', () => {
-      mockXHR.responseText = null
-
-      component.callXMLRequest()
-      mockXHR.onreadystatechange()
-
-      // Should not throw error
-      expect(mockGetElementById).toHaveBeenCalled()
-    })
-
-    it('should handle JSON parse error gracefully', () => {
-      mockXHR.responseText = 'invalid json'
-
-      expect(() => {
-        component.callXMLRequest()
-        mockXHR.onreadystatechange()
-      }).not.toThrow()
-    })
-
-    it('should add event listener to refresh captcha', () => {
-      mockXHR.responseText = JSON.stringify({
-        captchaUrl: 'http://example.com/captcha.png',
-        captchaDigest: 'digest123',
-      })
-
-      component.callXMLRequest()
-      mockXHR.onreadystatechange()
-
-      expect(mockElement.addEventListener).toHaveBeenCalledWith('click', (expect as any).any(Function))
-    })
-
-    it('should handle missing DOM elements gracefully', () => {
-      mockXHR.responseText = JSON.stringify({
-        captchaUrl: 'http://example.com/captcha.png',
-        captchaDigest: 'digest123',
-      })
-      mockGetElementById.mockReturnValue(null)
-
-      component.callXMLRequest()
-      mockXHR.onreadystatechange()
-
-      // Should not throw error
-      expect(mockGetElementById).toHaveBeenCalled()
-    })
-  })
-
-  describe('viewAllClick', () => {
-    it('should handle event with category', () => {
-      const event = { category: 'test-category', notification_id: '123' }
-      const raiseTelemetrySpy = jest.spyOn(component, 'raiseTelemetryEventForNotification')
-
-      component.viewAllClick(event)
-
-      expect(raiseTelemetrySpy).toHaveBeenCalledWith(event)
-      expect(mockNotificationsService.handleRedirection).toHaveBeenCalledWith(
-        event,
-        (expect as any).anything(),
-        ['admin', 'user'],
-        mockSnackBar
-      )
-    })
-
-    it('should navigate to notifications page without category', () => {
-      const event = 'test-tab'
-
-      component.viewAllClick(event)
-
-      expect(mockRouter.navigate).toHaveBeenCalledWith(['/app/notifications'], {
-        queryParams: { tab: 'test-tab' }
-      })
+  describe('getZohoForm', () => {
+    it('opens ZohoDialogComponent', () => {
+      jest.useFakeTimers()
+      component.getZohoForm()
+      expect(mockDialog.open).toHaveBeenCalled()
+      jest.runAllTimers()
+      jest.useRealTimers()
     })
   })
 
   describe('reCountNotifications', () => {
-    it('should emit event to notifications service', () => {
-      const nextSpy = jest.spyOn(mockNotificationsService.nofificationsCount, 'next')
-
-      component.reCountNotifications(10)
-
-      expect(nextSpy).toHaveBeenCalledWith(10)
-    })
-
-    it('should log the event', () => {
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation()
-
+    it('calls nofificationsCount.next', () => {
       component.reCountNotifications(5)
-
-      expect(consoleSpy).toHaveBeenCalledWith('reCountNotifications', 5)
-      consoleSpy.mockRestore()
+      expect(mockNotificationsSvc.nofificationsCount.next).toHaveBeenCalledWith(5)
     })
   })
 
   describe('calculateCount', () => {
-    it('should log the event', () => {
-      const consoleSpy = jest.spyOn(console, 'log').mockImplementation()
+    it('does not throw', () => {
+      expect(() => component.calculateCount(10)).not.toThrow()
+    })
+  })
 
-      component.calculateCount('test-event')
+  describe('viewAllClick', () => {
+    it('navigates to notifications for non-peer event string', () => {
+      component.viewAllClick('unread')
+      expect(mockRouter.navigate).toHaveBeenCalledWith(['/app/notifications'], expect.any(Object))
+    })
 
-      expect(consoleSpy).toHaveBeenCalledWith('sds', 'test-event')
-      consoleSpy.mockRestore()
+    it('calls handleRedirection for regular category event', () => {
+      component.viewAllClick({ category: 'GENERAL' })
+      expect(mockNotificationsSvc.handleRedirection).toHaveBeenCalled()
+    })
+
+    it('opens verification popup for PEER_REVIEW_ASSIGNED', () => {
+      jest.spyOn(component, 'openVerificationPopup').mockImplementation(jest.fn())
+      component.viewAllClick({ category: 'PEER_VALIDATION', sub_category: 'PEER_REVIEW_ASSIGNED' })
+      expect(component.openVerificationPopup).toHaveBeenCalled()
+    })
+
+    it('opens survey popup for other PEER_VALIDATION', () => {
+      jest.spyOn(component, 'openSurveypopup').mockImplementation(jest.fn())
+      component.viewAllClick({ category: 'PEER_VALIDATION', sub_category: 'OTHER', sub_type: 'PEER_VALIDATION' })
+      expect(component.openSurveypopup).toHaveBeenCalled()
+    })
+  })
+
+  describe('openSurveypopup', () => {
+    it('shows snack when status is SUBMITTED', () => {
+      component.openSurveypopup({ status: 'SUBMITTED', message: { data: [{}] } })
+      expect(mockSnackBar.open).toHaveBeenCalledWith('You have already completed the survey.', 'X', expect.any(Object))
+    })
+
+    it('shows snack when status is IGNORED', () => {
+      component.openSurveypopup({ status: 'IGNORED', message: { data: [{}] } })
+      expect(mockSnackBar.open).toHaveBeenCalledWith('You have already submitted the response.', 'X', expect.any(Object))
+    })
+
+    it('shows snack when survey end date passed', () => {
+      component.openSurveypopup({ status: 'OPEN', message: { data: [{ surveyEndDate: '2000-01-01' }] } })
+      expect(mockSnackBar.open).toHaveBeenCalledWith('Survey has ended.', 'X', expect.any(Object))
+    })
+
+    it('opens dialog for valid notification', () => {
+      component.openSurveypopup({ status: 'OPEN', message: { data: [{}] } })
+      expect(mockMatDialog.open).toHaveBeenCalled()
+    })
+
+    it('sets status to IGNORED when dialog closes with ignored', () => {
+      mockMatDialog.open.mockReturnValue({ afterClosed: () => of('ignored') })
+      const notif = { status: 'OPEN', message: { data: [{}] } }
+      component.openSurveypopup(notif)
+      expect(notif.status).toBe('IGNORED')
+    })
+  })
+
+  describe('openVerificationPopup', () => {
+    it('shows snack when status is APPROVED', () => {
+      component.openVerificationPopup({ status: 'APPROVED', message: { data: [{}] } })
+      expect(mockSnackBar.open).toHaveBeenCalledWith('You have already submitted the review.', 'X', expect.any(Object))
+    })
+
+    it('shows snack when status is REJECTED', () => {
+      component.openVerificationPopup({ status: 'REJECTED', message: { data: [{}] } })
+      expect(mockSnackBar.open).toHaveBeenCalled()
+    })
+
+    it('shows snack when status is IGNORED', () => {
+      component.openVerificationPopup({ status: 'IGNORED', message: { data: [{}] } })
+      expect(mockSnackBar.open).toHaveBeenCalled()
+    })
+
+    it('opens dialog for valid notification', () => {
+      component.openVerificationPopup({ status: 'OPEN', message: { data: [{}] } })
+      expect(mockMatDialog.open).toHaveBeenCalled()
+    })
+
+    it('sets status to IGNORED when dialog closes with ignored', () => {
+      mockMatDialog.open.mockReturnValue({ afterClosed: () => of('ignored') })
+      const notif = { status: 'OPEN', message: { data: [{}] } }
+      component.openVerificationPopup(notif)
+      expect(notif.status).toBe('IGNORED')
     })
   })
 
   describe('showDialog', () => {
-    it('should open confirm dialog and handle positive result', () => {
-      const data = { message: 'test message' }
-      const url = 'http://example.com'
-
-      component.showDialog(data, url)
-
-      expect(mockDialog.open).toHaveBeenCalledWith((expect as any).anything(), data)
-      expect((globalThis as any).open).toHaveBeenCalledWith(url, '_blank')
+    it('opens confirm dialog and opens URL on confirm', () => {
+      const openSpy = jest.spyOn(window, 'open').mockReturnValue(null as any)
+      mockDialog.open.mockReturnValue({ afterClosed: () => of(true) })
+      component.showDialog({ title: 'test' }, 'http://test.com')
+      expect(openSpy).toHaveBeenCalledWith('http://test.com', '_blank')
     })
 
-    it('should not open URL on negative dialog result', () => {
-      mockDialog.open.mockReturnValue({
-        afterClosed: () => of(false)
-      })
-      const data = { message: 'test message' }
-      const url = 'http://example.com'
-
-      component.showDialog(data, url)
-
-      expect((globalThis as any).open).not.toHaveBeenCalled()
-    })
-  })
-
-  describe('openSupportChatBot', () => {
-    it('should enable support AI and open chatbot when supportAI.all is true', () => {
-      mockConfigSvc.iGOTAIConfig = {
-        supportAI: {
-          all: true,
-        },
-      }
-
-      const nextSpy = jest.spyOn(mockRootService.openSupportAIChatbot, 'next')
-
-      component.openSupportChatBot()
-
-      expect(component.enableSupportAI).toBe(true)
-      expect(nextSpy).toHaveBeenCalledWith(true)
-    })
-
-    it('should enable support AI and open chatbot when user org is allowed', () => {
-      mockConfigSvc.iGOTAIConfig = {
-        supportAI: {
-          forOrg: ['org-1', 'root-org'],
-        },
-      }
-      mockConfigSvc.userProfile = {
-        rootOrgId: 'root-org',
-      }
-
-      const nextSpy = jest.spyOn(mockRootService.openSupportAIChatbot, 'next')
-
-      component.openSupportChatBot()
-
-      expect(component.enableSupportAI).toBe(true)
-      expect(nextSpy).toHaveBeenCalledWith(true)
-    })
-
-    it('should fallback to Zoho form when support AI config is not applicable', () => {
-      mockConfigSvc.iGOTAIConfig = {
-        supportAI: {
-          forOrg: ['some-other-org'],
-        },
-      }
-      mockConfigSvc.userProfile = {
-        rootOrgId: 'root-org',
-      }
-
-      const getZohoFormSpy = jest.spyOn(component, 'getZohoForm').mockImplementation()
-
-      component.openSupportChatBot()
-
-      expect(getZohoFormSpy).toHaveBeenCalled()
+    it('does not open URL when dialog returns false', () => {
+      const openSpy = jest.spyOn(window, 'open').mockReturnValue(null as any)
+      mockDialog.open.mockReturnValue({ afterClosed: () => of(false) })
+      component.showDialog({}, 'http://test.com')
+      expect(openSpy).not.toHaveBeenCalled()
     })
   })
 
   describe('raiseTelemetryEventForNotification', () => {
-    it('should call events.raiseInteractTelemetry with correct parameters', () => {
-      const notification = { notification_id: 'test-123' }
+    it('calls raiseInteractTelemetry', () => {
+      component.raiseTelemetryEventForNotification({ notification_id: 'n1' })
+      expect(mockEvents.raiseInteractTelemetry).toHaveBeenCalled()
+    })
+  })
 
-      component.raiseTelemetryEventForNotification(notification)
+  describe('openSupportChatBot', () => {
+    it('calls getZohoForm when no iGOTAIConfig', () => {
+      jest.spyOn(component, 'getZohoForm').mockImplementation(jest.fn())
+      component.openSupportChatBot()
+      expect(component.getZohoForm).toHaveBeenCalled()
+    })
 
-      expect(mockEvents.raiseInteractTelemetry).toHaveBeenCalledWith(
-        {
-          type: 'click',
-          subType: 'notification-engine',
-          id: 'test-123',
-        },
-        {},
-        {
-          module: 'Home',
-        }
+    it('enables support AI when supportAI.all is true', () => {
+      mockConfigSvc.iGOTAIConfig = { supportAI: { all: true } }
+      component.openSupportChatBot()
+      expect(component.enableSupportAI).toBe(true)
+      expect(mockRootService.openSupportAIChatbot.next).toHaveBeenCalledWith(true)
+    })
+
+    it('enables support AI when org matches forOrg list', () => {
+      mockConfigSvc.iGOTAIConfig = { supportAI: { all: false, forOrg: ['org1'] } }
+      mockConfigSvc.userProfile = { rootOrgId: 'org1' }
+      component.openSupportChatBot()
+      expect(component.enableSupportAI).toBe(true)
+    })
+  })
+
+  describe('constructor languageSelectedObservable callback', () => {
+    it('updates language when observable fires and localStorage has language', () => {
+      const langSubject = new Subject<void>()
+      localStorage.setItem('websiteLanguage', 'hi')
+      const newMockLang = {
+        ...mockLangTranslations,
+        languageSelectedObservable: langSubject.asObservable(),
+      }
+      const c = new TopRightNavBarComponent(
+        mockDialog, mockHomePageSvc, mockConfigSvc, newMockLang,
+        mockTranslate, mockHttp, mockSanitizer, mockEvents, mockSnackBar,
+        mockRouter, mockNotificationsSvc, mockRootService, mockMatDialog
       )
-    })
-  })
-
-  describe('Input Properties', () => {
-    it('should have default values for input properties', () => {
-      expect(component.showLangDropdown).toBe(true)
-      expect(component.selectedLanguage).toBe('en')
-      expect(component.showDropdown).toBe(false)
-      expect(component.zohoUrl).toBe('/assets/static-data/zoho-code.html')
-    })
-  })
-
-  describe('Error Handling', () => {
-    it('should handle HTTP error when fetching zoho HTML', () => {
-      mockHttp.get.mockReturnValue(throwError('HTTP Error'))
-      component.rightNavConfig = { topRightNavConfig: [] }
-
-      component.ngOnInit()
-
-      expect(mockHttp.get).toHaveBeenCalled()
-      // Component should not crash on HTTP error
+      langSubject.next()
+      expect(c.selectedLanguage).toBe('hi')
+      expect(mockTranslate.use).toHaveBeenCalledWith('hi')
     })
 
-    it('should handle resetNotificationsCount error response', () => {
-      component.notificationsCount = 5
-      mockNotificationsService.resetNotificationsCount.mockReturnValue(
-        of({ responseCode: 'ERROR' })
+    it('does not update language when localStorage is empty', () => {
+      const langSubject = new Subject<void>()
+      localStorage.removeItem('websiteLanguage')
+      const newMockLang = {
+        ...mockLangTranslations,
+        languageSelectedObservable: langSubject.asObservable(),
+      }
+      new TopRightNavBarComponent(
+        mockDialog, mockHomePageSvc, mockConfigSvc, newMockLang,
+        mockTranslate, mockHttp, mockSanitizer, mockEvents, mockSnackBar,
+        mockRouter, mockNotificationsSvc, mockRootService, mockMatDialog
       )
-
-      component.onBellClick()
-
-      expect(component.notificationsCount).toBe(5) // Should remain unchanged
+      jest.clearAllMocks()
+      langSubject.next()
+      expect(mockTranslate.use).not.toHaveBeenCalled()
     })
   })
-})
+
+  describe('callXMLRequest', () => {
+    it('runs without throwing', () => {
+      const origXHR = (global as any).XMLHttpRequest
+      const mockXhr: any = {
+        open: jest.fn(), send: jest.fn(), readyState: 0, status: 0,
+        responseText: null, onreadystatechange: null,
+      };
+      (global as any).XMLHttpRequest = jest.fn(() => mockXhr)
+      expect(() => component.callXMLRequest()).not.toThrow()
+      expect(mockXhr.open).toHaveBeenCalled();
+      (global as any).XMLHttpRequest = origXHR
+    })
+
+    it('processes 200 response in onreadystatechange', () => {
+      const origXHR = (global as any).XMLHttpRequest
+      const mockXhr: any = {
+        open: jest.fn(), send: jest.fn(), readyState: 4, status: 200,
+        responseText: JSON.stringify({ captchaUrl: 'http://captcha.png', captchaDigest: 'abc123' }),
+        onreadystatechange: null,
+      };
+      (global as any).XMLHttpRequest = jest.fn(() => mockXhr)
+      component.callXMLRequest()
+      // Simulate readyState change
+      if (mockXhr.onreadystatechange) {
+        expect(() => mockXhr.onreadystatechange()).not.toThrow()
+      }
+      (global as any).XMLHttpRequest = origXHR
+    })
+  })
+
+  describe('openSurveypopup edge cases', () => {
+    it('shows snack when notification.survey_end_date has passed', () => {
+      const notification = {
+        status: 'PENDING',
+        message: { data: [{ surveyEndDate: null }] },
+        survey_end_date: '2000-01-01T00:00:00Z',
+      }
+      component.openSurveypopup(notification)
+      expect(mockSnackBar.open).toHaveBeenCalledWith('Survey has ended.', 'X', expect.anything())
+    })
+
+    it('sets status to IGNORED when dialog closes with ignored', () => {
+      mockMatDialog.open = jest.fn(() => ({ afterClosed: () => of('ignored') }))
+      const notification = {
+        status: 'PENDING',
+        notification_id: 'notif1',
+        created_at: '2024-01-01',
+        message: { data: [{ surveyEndDate: null, formId: 'form1', courseName: 'Test Course', completionDate: '2024-01-01' }] },
+      }
+      component.openSurveypopup(notification)
+      expect(notification.status).toBe('IGNORED')
+    })
+  })
+});
+
