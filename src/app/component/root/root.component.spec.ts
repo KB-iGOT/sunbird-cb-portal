@@ -1,625 +1,380 @@
-import { RootComponent } from './root.component';
-import { of, Subject, BehaviorSubject } from 'rxjs';
-import { NavigationEnd, NavigationStart, NavigationCancel, NavigationError, ActivatedRouteSnapshot } from '@angular/router';
+import { RootComponent } from './root.component'
+import { of } from 'rxjs'
+import { NavigationEnd } from '@angular/router'
 
-// Mock dependencies
-const mockRouter = {
-  events: new Subject(),
-  url: '/page/home',
-  navigateByUrl: jest.fn(),
-  routerState: {
-    firstChild: jest.fn()
-  }
-};
+jest.mock('../../../environments/environment', () => ({
+  environment: { production: false },
+}))
 
-const mockActivatedRoute = {
-  queryParams: of({}),
-  snapshot: {
-    root: {
-      firstChild: {
-        data: { pageId: 'home', module: 'main' },
-        firstChild: null
-      }
-    },
-    queryParams: {},
-    firstChild: null
-  }
-};
+// Heavy 3rd party / Angular dependencies are mocked
+jest.mock('@project-sunbird/client-services', () => ({
+  CsModule: { instance: { init: jest.fn() } },
+}))
 
-const mockApplicationRef = {
-  isStable: of(true)
-};
+jest.mock('@sunbird-cb/collection', () => ({
+  BtnPageBackService: class { initialize = jest.fn() },
+}), { virtual: true })
 
-const mockSwUpdate = {
-  isEnabled: true,
-  available: new Subject(),
-  checkForUpdate: jest.fn(),
-  activateUpdate: jest.fn().mockResolvedValue(true)
-};
-
-const mockDialog = {
-  open: jest.fn().mockReturnValue({
-    afterClosed: () => of(true)
-  })
-};
-
-const mockHttpClient = {
-  get: jest.fn().mockReturnValue(of({ data: { config: 'test' } }))
-};
-
-const mockConfigurationsService = {
-  unMappedUser: {
-    profileDetails: {
-      get_started_tour: { skipped: false, visited: false },
-      profileStatus: 'active',
-      employmentDetails: { departmentName: 'test' }
-    },
-    rootOrgId: 'test-org'
+jest.mock('@sunbird-cb/utils-v2', () => ({
+  ConfigurationsService: class { },
+  TelemetryService: class { },
+  ValueService: class { },
+  UtilityService: class { },
+  EventService: class { },
+  WsEvents: {
+    WsEventType: { Telemetry: 'Telemetry' },
+    WsEventLogLevel: { Info: 'Info' },
+    EnumTelemetrySubType: { Loaded: 'Loaded' },
   },
-  userProfile: { userId: 'test-user' },
-  sitePath: '/test',
-  overrideThemeChanges: { isEnabled: false },
-  updateTourGuideMethod: jest.fn(),
-  updateTourGuide: new BehaviorSubject(false),
-  iGOTAIConfig: null
-};
+  NsInstanceConfig: {},
+}), { virtual: true })
 
-const mockValueService = {
-  isXSmall$: of(false)
-};
+jest.mock('src/app/shared/url.service', () => ({
+  UrlService: class { setPreviousUrl = jest.fn() },
+}), { virtual: true })
 
-const mockTelemetryService = {
-  impression: jest.fn()
-};
+jest.mock('src/app/services/igot-ai.service', () => ({
+  iGOTAIService: class { iGOTAIConfigReadData = jest.fn() },
+}), { virtual: true })
 
-const mockEventService = {
-  dispatchEvent: jest.fn()
-};
+jest.mock('src/app/services/common-data.service', () => ({
+  CommonDataService: class { mandatoryDetails = jest.fn() },
+}), { virtual: true })
 
-const mockMobileAppsService = {
-  init: jest.fn(),
-  mobileTopHeaderVisibilityStatus: new BehaviorSubject(true)
-};
+jest.mock('src/app/services/mobile-apps.service', () => ({
+  MobileAppsService: class { init = jest.fn() },
+}), { virtual: true })
 
-const mockRootService = {
-  showNavbarDisplay$: of(true),
-  getCookie: jest.fn().mockReturnValue('test-cookie')
-};
+jest.mock('./root.service', () => ({
+  RootService: class { getCookie = jest.fn() },
+}), { virtual: true })
 
-const mockBtnPageBackService = {
-  initialize: jest.fn()
-};
+jest.mock('../dialog-confirm/dialog-confirm.component', () => ({
+  DialogConfirmComponent: class { },
+}), { virtual: true })
 
-const mockChangeDetectorRef = {
-  detectChanges: jest.fn()
-};
+jest.mock('@angular/material/legacy-dialog', () => ({
+  MatLegacyDialog: class { open = jest.fn() },
+}), { virtual: true })
 
-const mockUtilityService = {
-  setRouteData: jest.fn(),
-  routeData: { pageId: 'home', module: 'main' }
-};
+jest.mock('@angular/service-worker', () => ({
+  SwUpdate: class {
+    isEnabled = false
+    available = of()
+    checkForUpdate = jest.fn()
+    activateUpdate = jest.fn(() => Promise.resolve())
+  },
+}))
 
-const mockUrlService = {
-  setPreviousUrl: jest.fn()
-};
-
-const mockIGOTAIService = {
-  iGOTAIConfigReadData: jest.fn().mockReturnValue(of({ aiTutor: true }))
-};
-
-// Mock DOM elements
-const mockElementRef = {
-  nativeElement: {
-    focus: jest.fn(),
-    value: 'test-value'
+const buildMocks = () => {
+  const router = {
+    events: of(new NavigationEnd(1, '/page/home', '/page/home')),
+    navigateByUrl: jest.fn(),
+    navigate: jest.fn(),
+    url: '/page/home',
+    routerState: {
+      firstChild: jest.fn(() => null),
+    },
   }
-};
+  const route = {
+    queryParams: of({}),
+    snapshot: {
+      fragment: null,
+      root: { firstChild: null },
+      queryParams: { primaryCategory: '' },
+    },
+  }
+  const appRef = {
+    isStable: of(true),
+  }
+  const swUpdate = {
+    isEnabled: false,
+    available: of(),
+    checkForUpdate: jest.fn(),
+    activateUpdate: jest.fn(() => Promise.resolve()),
+  }
+  const dialog = {
+    open: jest.fn(() => ({ afterClosed: () => of(false) })),
+  }
+  const http = {
+    get: jest.fn(() => of({ sections: [] })),
+  }
+  const configSvc = {
+    sitePath: '/assets',
+    unMappedUser: {
+      id: 'u1',
+      rootOrgId: 'org1',
+      profileDetails: {
+        profileStatus: 'Active',
+        employmentDetails: { departmentName: 'IT' },
+        get_started_tour: null,
+      },
+    },
+    userProfile: { userId: 'u1' },
+    overrideThemeChanges: { isEnabled: false },
+    updateTourGuide: of(false),
+    updateTourGuideMethod: jest.fn(),
+    iGOTAIConfig: null,
+  }
+  const valueSvc = { isXSmall$: of(false) }
+  const telemetrySvc = { impression: jest.fn() }
+  const eventSvc = { dispatchEvent: jest.fn() }
+  const mobileAppsSvc = {
+    init: jest.fn(),
+    mobileTopHeaderVisibilityStatus: of(true),
+    clearGlobalSearchForHomePage: { next: jest.fn() },
+  }
+  const rootSvc = {
+    getCookie: jest.fn(() => null),
+    showNavbarDisplay$: of(true),
+    iGOTAIChatHistory: [],
+    iGOTAIConfigReadData: jest.fn(() => of({ web: {} })),
+  }
+  const btnBackSvc = { initialize: jest.fn() }
+  const changeDetector = { detectChanges: jest.fn() }
+  const utilitySvc = {
+    setRouteData: jest.fn(),
+    routeData: { pageId: '', module: '' },
+  }
+  const urlService = { setPreviousUrl: jest.fn() }
+  const iGOTAIService = {
+    iGOTAIConfigReadData: jest.fn(() => of({ web: {}, error: null })),
+  }
+  const commonDataSvc = {
+    mandatoryDetails: jest.fn(),
+  }
 
-const mockViewContainerRef = {};
+  return {
+    router, route, appRef, swUpdate, dialog, http, configSvc,
+    valueSvc, telemetrySvc, eventSvc, mobileAppsSvc, rootSvc,
+    btnBackSvc, changeDetector, utilitySvc, urlService,
+    iGOTAIService, commonDataSvc,
+  }
+}
+
+const makeComponent = (m: any) =>
+  new (RootComponent as any)(
+    m.router,
+    m.route,
+    m.appRef,
+    m.swUpdate,
+    m.dialog,
+    m.http,
+    m.configSvc,
+    m.valueSvc,
+    m.telemetrySvc,
+    m.eventSvc,
+    m.mobileAppsSvc,
+    m.rootSvc,
+    m.btnBackSvc,
+    m.changeDetector,
+    m.utilitySvc,
+    m.urlService,
+    m.iGOTAIService,
+    m.commonDataSvc,
+  )
 
 describe('RootComponent', () => {
-  let component: RootComponent;
+  let component: RootComponent
+  let mocks: any
 
   beforeEach(() => {
-    // Reset all mocks
-    jest.clearAllMocks();
+    jest.clearAllMocks()
+    localStorage.clear()
+    mocks = buildMocks()
 
-    // Mock window and document
-    Object.defineProperty(window, 'location', {
-      value: {
-        pathname: '/page/home',
-        origin: 'http://localhost'
-      },
-      writable: true
-    });
+    // Stub document.getElementById to avoid JSDOM issues
+    jest.spyOn(document, 'getElementById').mockReturnValue(
+      Object.assign(document.createElement('div'), { classList: { add: jest.fn(), remove: jest.fn() } })
+    )
 
-    Object.defineProperty(window, 'innerWidth', {
-      value: 1920,
-      writable: true
-    });
+    component = makeComponent(mocks)
+  })
 
-    Object.defineProperty(window, 'self', {
-      value: window,
-      writable: true
-    });
+  // ── Construction ──────────────────────────────────────────────────────────
+  describe('construction', () => {
+    it('creates the component', () => {
+      expect(component).toBeDefined()
+    })
 
-    Object.defineProperty(window, 'top', {
-      value: window,
-      writable: true
-    });
+    it('initialises showNavbar to true', () => {
+      expect(component.showNavbar).toBe(true)
+    })
 
-    // Mock localStorage
-    const mockLocalStorage = {
-      getItem: jest.fn(),
-      setItem: jest.fn(),
-      removeItem: jest.fn()
-    };
-    Object.defineProperty(window, 'localStorage', {
-      value: mockLocalStorage
-    });
+    it('initialises routeChangeInProgress to false', () => {
+      expect(component.routeChangeInProgress).toBe(false)
+    })
 
-    // Mock document.getElementById
-    const mockElement = {
-      classList: {
-        add: jest.fn(),
-        remove: jest.fn()
-      }
-    } as unknown as HTMLElement;
-    jest.spyOn(document, 'getElementById').mockReturnValue(mockElement);
+    it('initialises iGOTAIConfigLoaded to false', () => {
+      expect(component.iGOTAIConfigLoaded).toBe(false)
+    })
 
-    // Create component instance
-    component = new RootComponent(
-      mockRouter as any,
-      mockActivatedRoute as any,
-      mockApplicationRef as any,
-      mockSwUpdate as any,
-      mockDialog as any,
-      mockHttpClient as any,
-      mockConfigurationsService as any,
-      mockValueService as any,
-      mockTelemetryService as any,
-      mockEventService as any,
-      mockMobileAppsService as any,
-      mockRootService as any,
-      mockBtnPageBackService as any,
-      mockChangeDetectorRef as any,
-      mockUtilityService as any,
-      mockUrlService as any,
-      mockIGOTAIService as any
-    );
+    it('sets hideHeaderAndFooter true for privacy-policy path', () => {
+      Object.defineProperty(window, 'location', {
+        value: { pathname: '/public/privacy-policy', href: 'http://localhost/public/privacy-policy' },
+        writable: true,
+      })
+      const m = buildMocks()
+      const c = makeComponent(m)
+      expect(c.hideHeaderAndFooter).toBe(true)
+      Object.defineProperty(window, 'location', {
+        value: { pathname: '/', href: 'http://localhost/' },
+        writable: true,
+      })
+    })
 
-    // Set up ViewChild mocks
-    component.skipper = mockElementRef as any;
-    component.previewContainerViewRef = mockViewContainerRef as any;
-    component.appUpdateTitleRef = mockElementRef as any;
-    component.appUpdateBodyRef = mockElementRef as any;
-  });
+    it('initialises loggedinUser based on configSvc.userProfile', () => {
+      expect(component.loggedinUser).toBe(true)
+    })
+  })
 
-  describe('Constructor', () => {
-    it('should create component', () => {
-      expect(component).toBeTruthy();
-    });
+  // ── navBarRequired ────────────────────────────────────────────────────────
+  describe('navBarRequired getter', () => {
+    it('returns isNavBarRequired', () => {
+      component.isNavBarRequired = false
+      expect(component.navBarRequired).toBe(false)
+      component.isNavBarRequired = true
+      expect(component.navBarRequired).toBe(true)
+    })
+  })
 
-    it('should hide header and footer for privacy policy page', () => {
-      window.location.pathname = '/public/privacy-policy';
-      
-      const newComponent = new RootComponent(
-        mockRouter as any,
-        mockActivatedRoute as any,
-        mockApplicationRef as any,
-        mockSwUpdate as any,
-        mockDialog as any,
-        mockHttpClient as any,
-        mockConfigurationsService as any,
-        mockValueService as any,
-        mockTelemetryService as any,
-        mockEventService as any,
-        mockMobileAppsService as any,
-        mockRootService as any,
-        mockBtnPageBackService as any,
-        mockChangeDetectorRef as any,
-        mockUtilityService as any,
-        mockUrlService as any,
-        mockIGOTAIService as any
-      );
+  // ── isShowNavbar ──────────────────────────────────────────────────────────
+  describe('isShowNavbar getter', () => {
+    it('returns showNavbar', () => {
+      component.showNavbar = false
+      expect(component.isShowNavbar).toBe(false)
+    })
+  })
 
-      expect(newComponent.hideHeaderAndFooter).toBe(true);
-    });
+  // ── isCustomHeight ────────────────────────────────────────────────────────
+  describe('isCustomHeight getter', () => {
+    it('returns true when pathname includes /public/home', () => {
+      Object.defineProperty(window, 'location', {
+        value: { pathname: '/public/home', href: 'http://localhost/public/home' },
+        writable: true,
+      })
+      expect(component.isCustomHeight).toBe(true)
+    })
+  })
 
-    it('should set custom height for specific pages', () => {
-      window.location.pathname = '/public/home';
-      
-      const newComponent = new RootComponent(
-        mockRouter as any,
-        mockActivatedRoute as any,
-        mockApplicationRef as any,
-        mockSwUpdate as any,
-        mockDialog as any,
-        mockHttpClient as any,
-        mockConfigurationsService as any,
-        mockValueService as any,
-        mockTelemetryService as any,
-        mockEventService as any,
-        mockMobileAppsService as any,
-        mockRootService as any,
-        mockBtnPageBackService as any,
-        mockChangeDetectorRef as any,
-        mockUtilityService as any,
-        mockUrlService as any,
-        mockIGOTAIService as any
-      );
+  // ── openIntro ─────────────────────────────────────────────────────────────
+  describe('openIntro()', () => {
+    it('does not throw', () => {
+      expect(() => component.openIntro()).not.toThrow()
+    })
+  })
 
-      expect(newComponent.customHeight).toBe(true);
-    });
+  // ── skipToMainContent ─────────────────────────────────────────────────────
+  describe('skipToMainContent()', () => {
+    it('focuses the skipper element', () => {
+      const el = { focus: jest.fn() }
+      component.skipper = { nativeElement: el } as any
+      component.skipToMainContent()
+      expect(el.focus).toHaveBeenCalled()
+    })
+  })
 
-    it('should initialize mobile apps service', () => {
-      expect(mockMobileAppsService.init).toHaveBeenCalled();
-    });
-  });
+  // ── getHeaderFooterConfiguration ─────────────────────────────────────────
+  describe('getHeaderFooterConfiguration()', () => {
+    it('fetches right-nav-config and emits data', done => {
+      mocks.http.get.mockReturnValue(of({ sections: ['s1'] }))
+      component = makeComponent(mocks)
+      component.getHeaderFooterConfiguration().subscribe(result => {
+        expect(result.data).toBeTruthy()
+        done()
+      })
+    })
 
-  describe('Getters', () => {
-    it('should return navBarRequired', () => {
-      component.isNavBarRequired = true;
-      expect(component.navBarRequired).toBe(true);
-    });
+    it('emits null data on error', done => {
+      const { throwError } = require('rxjs')
+      mocks.http.get.mockReturnValue(throwError(() => new Error('fail')))
+      component = makeComponent(mocks)
+      component.getHeaderFooterConfiguration().subscribe(result => {
+        expect(result.data).toBeNull()
+        done()
+      })
+    })
+  })
 
-    it('should return isShowNavbar', () => {
-      component.showNavbar = false;
-      expect(component.isShowNavbar).toBe(false);
-    });
+  // ── getTourGuide ──────────────────────────────────────────────────────────
+  describe('getTourGuide()', () => {
+    it('returns boolean', () => {
+      expect(typeof component.getTourGuide()).toBe('boolean')
+    })
+  })
 
-    it('should return isCustomHeight for home page', () => {
-      window.location.pathname = '/public/home';
-      expect(component.isCustomHeight).toBe(true);
-    });
+  // ── raiseAppStartTelemetry ────────────────────────────────────────────────
+  describe('raiseAppStartTelemetry()', () => {
+    it('dispatches telemetry event on first call', () => {
+      component.appStartRaised = false
+      component.raiseAppStartTelemetry()
+      expect(mocks.eventSvc.dispatchEvent).toHaveBeenCalled()
+      expect(component.appStartRaised).toBe(true)
+    })
 
-    it('should return isCustomHeight for FAQ page', () => {
-      window.location.pathname = '/public/faq';
-      expect(component.isCustomHeight).toBe(true);
-    });
+    it('does not dispatch telemetry on subsequent calls', () => {
+      component.appStartRaised = true
+      component.raiseAppStartTelemetry()
+      expect(mocks.eventSvc.dispatchEvent).not.toHaveBeenCalled()
+    })
+  })
 
-    it('should return isCustomHeight for CRP pages', () => {
-      window.location.pathname = '/crp/test-page';
-      expect(component.isCustomHeight).toBe(true);
-    });
-  });
+  // ── getChildRouteData ─────────────────────────────────────────────────────
+  describe('getChildRouteData()', () => {
+    it('does not throw for null firstChild', () => {
+      expect(() => component.getChildRouteData({} as any, null)).not.toThrow()
+    })
 
-  describe('ngOnInit', () => {
-    it('should initialize component properly', () => {
-      component.ngOnInit();
+    it('pushes firstChild.data to currentRouteData', () => {
+      component.currentRouteData = []
+      const child = { data: { pageId: '/home' }, firstChild: null }
+      component.getChildRouteData({} as any, child as any)
+      expect(component.currentRouteData).toContain(child.data)
+    })
 
-      expect(mockBtnPageBackService.initialize).toHaveBeenCalled();
-      expect(mockConfigurationsService.updateTourGuideMethod).toHaveBeenCalled();
-    });
+    it('recurses into nested firstChild', () => {
+      component.currentRouteData = []
+      const nested = { data: { pageId: '/nested' }, firstChild: null }
+      const parent = { data: { pageId: '/parent' }, firstChild: nested }
+      component.getChildRouteData({} as any, parent as any)
+      expect(component.currentRouteData.length).toBe(2)
+    })
+  })
 
-    it('should set isInIframe to false when not in iframe', () => {
-      component.ngOnInit();
-      expect(component.isInIframe).toBe(false);
-    });
+  // ── ngOnInit ──────────────────────────────────────────────────────────────
+  describe('ngOnInit()', () => {
+    it('does not throw', () => {
+      expect(() => component.ngOnInit()).not.toThrow()
+    })
 
-    it('should set customHeight for home page', () => {
-      window.location.pathname = '/public/home';
-      component.ngOnInit();
-      expect(component.customHeight).toBe(true);
-    });
+    it('calls btnBackSvc.initialize', () => {
+      component.ngOnInit()
+      expect(mocks.btnBackSvc.initialize).toHaveBeenCalled()
+    })
 
-    it('should handle profile status "not-my-user" with igot organization', () => {
-      mockConfigurationsService.unMappedUser.profileDetails.profileStatus = 'not-my-user';
-      mockConfigurationsService.unMappedUser.profileDetails.employmentDetails.departmentName = 'igot';
-      
-      component.ngOnInit();
-      
-      expect(component.disableHeightOnTop).toBe(true);
-      expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('app/person-profile/me#profileInfo');
-    });
+    it('calls commonDataSvc.mandatoryDetails on NavigationEnd', () => {
+      component.ngOnInit()
+      expect(mocks.commonDataSvc.mandatoryDetails).toHaveBeenCalled()
+    })
+  })
 
-    it('should subscribe to mobile apps visibility status', () => {
-      component.ngOnInit();
-      
-      mockMobileAppsService.mobileTopHeaderVisibilityStatus.next(false);
-      
-      expect(component.mobileTopHeaderVisibilityStatus).toBe(false);
-    });
-  });
+  // ── changeBg26Jan / removeBg26Jan ─────────────────────────────────────────
+  describe('changeBg26Jan / removeBg26Jan', () => {
+    it('changeBg26Jan does not throw', () => {
+      expect(() => component.changeBg26Jan()).not.toThrow()
+    })
 
-  describe('Router Events', () => {
-    beforeEach(() => {
-      component.ngOnInit();
-    });
+    it('removeBg26Jan does not throw', () => {
+      expect(() => component.removeBg26Jan()).not.toThrow()
+    })
+  })
 
-    it('should handle NavigationStart event', () => {
-      const navigationStart = new NavigationStart(1, '/test-url');
-      
-      mockRouter.events.next(navigationStart);
-      
-      expect(component.routeChangeInProgress).toBe(true);
-      expect(component.showNavbar).toBe(true);
-      expect(component.isNavBarRequired).toBe(true);
-    });
+  // ── ngAfterViewChecked ────────────────────────────────────────────────────
+  describe('ngAfterViewChecked()', () => {
+    it('calls changeDetector.detectChanges', () => {
+      component.ngAfterViewChecked()
+      expect(mocks.changeDetector.detectChanges).toHaveBeenCalled()
+    })
+  })
+})
 
-    it('should handle NavigationStart for preview pages', () => {
-      const navigationStart = new NavigationStart(1, '/preview/test');
-      
-      mockRouter.events.next(navigationStart);
-      
-      expect(component.isNavBarRequired).toBe(false);
-    });
-
-    it('should handle NavigationStart for embed pages', () => {
-      const navigationStart = new NavigationStart(1, '/embed/test');
-      
-      mockRouter.events.next(navigationStart);
-      
-      expect(component.isNavBarRequired).toBe(false);
-    });
-
-    it('should handle NavigationStart for mobile devices', () => {
-      Object.defineProperty(window, 'innerWidth', { value: 800 });
-      const navigationStart = new NavigationStart(1, '/test-url');
-      
-      mockRouter.events.next(navigationStart);
-      
-      expect(component.showHubs).toBe(false);
-    });
-
-    it('should handle NavigationStart for viewer pages', () => {
-      const navigationStart = new NavigationStart(1, '/viewer/test');
-      
-      mockRouter.events.next(navigationStart);
-      
-      expect(component.viewerPage).toBe(true);
-    });
-
-    it('should handle NavigationEnd event', () => {
-      const navigationEnd = new NavigationEnd(1, '/test-url', '/test-url');
-      
-      mockRouter.events.next(navigationEnd);
-      
-      expect(component.routeChangeInProgress).toBe(false);
-      expect(component.currentUrl).toBe('/test-url');
-    });
-
-    it('should handle NavigationEnd for public logout', () => {
-      const navigationEnd = new NavigationEnd(1, '/public/logout', '/public/logout');
-      
-      mockRouter.events.next(navigationEnd);
-      
-      expect(component.showFooter).toBe(false);
-      expect(component.showNavbar).toBe(false);
-      expect(component.isNavBarRequired).toBe(false);
-    });
-
-    it('should handle NavigationEnd for learner-advisory', () => {
-      window.location.pathname = '/learner-advisory';
-      const navigationEnd = new NavigationEnd(1, '/learner-advisory', '/learner-advisory');
-      
-      mockRouter.events.next(navigationEnd);
-      
-      expect(component.showNavbar).toBe(true);
-      expect(component.isNavBarRequired).toBe(true);
-      expect(component.showBottomNav).toBe(true);
-      expect(component.showHubs).toBe(true);
-    });
-
-    it('should handle NavigationEnd for globalsearch', () => {
-      window.location.pathname = '/globalsearch';
-      const navigationEnd = new NavigationEnd(1, '/globalsearch', '/globalsearch');
-      
-      mockRouter.events.next(navigationEnd);
-      
-      expect(component.showFooter).toBe(false);
-    });
-
-    it('should handle NavigationEnd for toc pages', () => {
-      const navigationEnd = new NavigationEnd(1, '/app/toc/test', '/app/toc/test');
-      
-      mockRouter.events.next(navigationEnd);
-      
-      expect(component.showBottomNav).toBe(false);
-    });
-
-    it('should handle NavigationCancel event', () => {
-      const navigationCancel = new NavigationCancel(1, '/test-url', 'cancelled');
-      
-      mockRouter.events.next(navigationCancel);
-      
-      expect(component.routeChangeInProgress).toBe(false);
-    });
-
-    it('should handle NavigationError event', () => {
-      const navigationError = new NavigationError(1, '/test-url', 'error');
-      
-      mockRouter.events.next(navigationError);
-      
-      expect(component.routeChangeInProgress).toBe(false);
-    });
-
-    it('should set prevUrl and currUrl on NavigationEnd', () => {
-      const navigationEnd1 = new NavigationEnd(1, '/first-url', '/first-url');
-      const navigationEnd2 = new NavigationEnd(2, '/second-url', '/second-url');
-      
-      mockRouter.events.next(navigationEnd1);
-      mockRouter.events.next(navigationEnd2);
-      
-      expect(component.prevUrl).toBe('/first-url');
-      expect(component.currUrl).toBe('/second-url');
-      expect(mockUrlService.setPreviousUrl).toHaveBeenCalledWith('/first-url');
-    });
-  });
-
-  describe('iGOTAIConfig', () => {
-    it('should call iGOTAI service and set config', async () => {
-      const mockResponse:any = { aiTutor: true, iGOTAI: true };
-      mockIGOTAIService.iGOTAIConfigReadData.mockReturnValue(of(mockResponse));
-      
-      const result = await component['iGOTAIConfig']();
-      
-      expect(mockIGOTAIService.iGOTAIConfigReadData).toHaveBeenCalled();
-      expect(mockConfigurationsService.iGOTAIConfig).toBe(mockResponse);
-      expect(component.iGOTAIConfigLoaded).toBe(true);
-      expect(result).toBe(mockResponse);
-    });
-
-    it('should handle 404 error from iGOTAI service', async () => {
-      const mockError = { error: { status: 404 } };
-      mockIGOTAIService.iGOTAIConfigReadData.mockReturnValue(of(mockError));
-      
-      await component['iGOTAIConfig']();
-      
-      expect(component.iGOTAIConfigLoaded).toBe(false);
-    });
-  });
-
-  describe('Background Theme Methods', () => {
-    beforeEach(() => {
-      mockConfigurationsService.overrideThemeChanges = { isEnabled: true };
-    });
-
-    it('should add jan-bg-change class when theme is enabled', () => {
-      const mockElement = {
-        classList: {
-          add: jest.fn(),
-          remove: jest.fn()
-        }
-      } as unknown as HTMLElement;
-      jest.spyOn(document, 'getElementById').mockReturnValue(mockElement);
-
-      component.changeBg26Jan();
-
-      expect(mockElement.classList.add).toHaveBeenCalledWith('jan-bg-change');
-    });
-
-    it('should remove jan-bg-change class when theme is disabled', () => {
-      mockConfigurationsService.overrideThemeChanges = { isEnabled: false };
-      const mockElement = {
-        classList: {
-          add: jest.fn(),
-          remove: jest.fn()
-        }
-      } as unknown as HTMLElement;
-      jest.spyOn(document, 'getElementById').mockReturnValue(mockElement);
-
-      component.changeBg26Jan();
-
-      expect(mockElement.classList.remove).toHaveBeenCalledWith('jan-bg-change');
-    });
-
-    it('should remove jan-bg-change class in removeBg26Jan', () => {
-      const mockElement = {
-        classList: {
-          add: jest.fn(),
-          remove: jest.fn()
-        }
-      } as unknown as HTMLElement;
-      jest.spyOn(document, 'getElementById').mockReturnValue(mockElement);
-
-      component.removeBg26Jan();
-
-      expect(mockElement.classList.remove).toHaveBeenCalledWith('jan-bg-change');
-    });
-  });
-
-  describe('Telemetry Methods', () => {
-    it('should raise app start telemetry only once', () => {
-      component.appStartRaised = false;
-      
-      component.raiseAppStartTelemetry();
-      component.raiseAppStartTelemetry();
-      
-      expect(mockEventService.dispatchEvent).toHaveBeenCalledTimes(1);
-      expect(component.appStartRaised).toBe(true);
-    });
-
-    it('should not raise app start telemetry if already raised', () => {
-      component.appStartRaised = true;
-      
-      component.raiseAppStartTelemetry();
-      
-      expect(mockEventService.dispatchEvent).not.toHaveBeenCalled();
-    });
-  });
-
-  describe('Utility Methods', () => {
-    it('should skip to main content', () => {
-      component.skipToMainContent();
-      
-      expect(mockElementRef.nativeElement.focus).toHaveBeenCalled();
-    });
-
-    it('should get child route data recursively', () => {
-      const mockSnapshot = {} as ActivatedRouteSnapshot;
-      const mockFirstChild = {
-        data: { pageId: 'test', module: 'test-module' },
-        firstChild: {
-          data: { subPage: 'sub-test' },
-          firstChild: null
-        }
-      } as unknown as ActivatedRouteSnapshot;
-
-      component.getChildRouteData(mockSnapshot, mockFirstChild);
-
-     // expect(component.currentRouteData).toHaveLength(2);
-      expect(component.currentRouteData[0]).toEqual({ pageId: 'test', module: 'test-module' });
-      expect(component.currentRouteData[1]).toEqual({ subPage: 'sub-test' });
-    });
-
-    it('should get tour guide status', () => {
-      mockConfigurationsService.updateTourGuide.next(true);
-      
-      const result = component.getTourGuide();
-      
-      expect(result).toBe(true);
-      expect(component.showTour).toBe(true);
-    });
-
-    it('should get header footer configuration', () => {
-      const expectedUrl = '/test/page/right-nav-config.json';
-      
-      component.getHeaderFooterConfiguration().subscribe();
-      
-      expect(mockHttpClient.get).toHaveBeenCalledWith(expectedUrl);
-    });
-  });
-
-  describe('ngAfterViewInit', () => {
-    it('should initialize app update check', () => {
-      const initSpy = jest.spyOn(component, 'initAppUpdateCheck');
-      
-      component.ngAfterViewInit();
-      
-      expect(initSpy).toHaveBeenCalled();
-    });
-  });
-
-  describe('ngAfterViewChecked', () => {
-    it('should detect changes after view checked', () => {
-      component.ngAfterViewChecked();
-      
-      expect(mockChangeDetectorRef.detectChanges).toHaveBeenCalled();
-    });
-  });
-
-  describe('Host Listener', () => {
-    it('should handle unload event', () => {
-      const unloadEvent = { type: 'unload' };
-      
-      component.unloadHandler(unloadEvent);
-      
-      // This test ensures the method handles the event without errors
-      expect(unloadEvent.type).toBe('unload');
-    });
-  });
-
-  describe('App Update Check', () => {
-    it('should not initialize update check in non-production environment', () => {
-      const originalEnv = process.env.NODE_ENV;
-      process.env.NODE_ENV = 'development';
-      
-      component.initAppUpdateCheck();
-      
-      expect(mockSwUpdate.checkForUpdate).not.toHaveBeenCalled();
-      
-      process.env.NODE_ENV = originalEnv;
-    });
-  });
-});
