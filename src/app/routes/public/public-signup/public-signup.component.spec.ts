@@ -1,488 +1,335 @@
-import {
-  forbiddenNamesValidator,
-  forbiddenNamesValidatorNonEmpty,
-  PublicSignupComponent,
-} from './public-signup.component'
+import { forbiddenNamesValidator, forbiddenNamesValidatorNonEmpty, PublicSignupComponent } from './public-signup.component'
 import { UntypedFormControl } from '@angular/forms'
-import { of, Subject } from 'rxjs'
+import { of, Subject, throwError } from 'rxjs'
 
-// Fix for 'import _ from lodash' with esModuleInterop: false
+jest.mock('ng-recaptcha', () => ({ ReCaptchaV3Service: class { } }), { virtual: true })
+jest.mock('./signup.service', () => ({ SignupService: class { } }), { virtual: true })
+jest.mock('./signup-success-dialogue/signup-success-dialogue/signup-success-dialogue.component', () => ({ SignupSuccessDialogueComponent: class { } }), { virtual: true })
+jest.mock('./terms-and-condition/terms-and-condition.component', () => ({ TermsAndConditionComponent: class { } }), { virtual: true })
+jest.mock('@ws/app/src/lib/routes/user-profile/services/user-profile.service', () => ({ UserProfileService: class { } }), { virtual: true })
+jest.mock('@ws/app/src/lib/routes/profile-v3/components/dialog-box/dialog-box.component', () => ({ DialogBoxComponent: class { } }), { virtual: true })
+jest.mock('src/environments/environment', () => ({ environment: { zohoUrl: '', resendOTPTIme: 3000, sitePath: 'test.igot.gov.in' } }), { virtual: true })
+
 jest.mock('lodash', () => {
-  const actual = jest.requireActual('lodash')
-  return { ...actual, default: actual }
+  const get = (obj: any, path: string, def?: any) => {
+    if (!obj) return def
+    const r = path.split('.').reduce((o: any, k: string) => (o != null ? o[k] : undefined), obj)
+    return r !== undefined ? r : def
+  }
+  return {
+    __esModule: true,
+    default: {
+      get,
+      uniqBy: (arr: any[], fn: any) => {
+        const seen = new Set()
+        return arr.filter(item => { const k = fn(item); if (seen.has(k)) return false; seen.add(k); return true })
+      },
+      startCase: (s: string) => s ? s.replace(/(\w)(\w*)/g, (_, f, r) => f.toUpperCase() + r.toLowerCase()) : '',
+    },
+    get,
+    startCase: (s: string) => s ? s.replace(/(\w)(\w*)/g, (_, f, r) => f.toUpperCase() + r.toLowerCase()) : '',
+  }
 })
 
-describe('public-signup.component — exported validators', () => {
-  // ─── forbiddenNamesValidator ─────────────────────────────────────────────
-  describe('forbiddenNamesValidator', () => {
-    it('should return null when optionsArray is falsy', () => {
-      const validator = forbiddenNamesValidator(null)
-      const control = new UntypedFormControl('anything')
-      expect(validator(control)).toBeNull()
-    })
+// ─── Validator tests ───────────────────────────────────────────────────────────
 
-    it('should return null when control value is empty/falsy', () => {
-      const options = [{ orgname: 'Ministry of Finance' }]
-      const validator = forbiddenNamesValidator(options)
-      const control = new UntypedFormControl(null)
-      expect(validator(control)).toBeNull()
-    })
-
-    it('should return null when control value.orgname is found in options', () => {
-      const options = [{ orgname: 'Ministry of Finance' }]
-      const validator = forbiddenNamesValidator(options)
-      const control = new UntypedFormControl({ orgname: 'Ministry of Finance' })
-      expect(validator(control)).toBeNull()
-    })
-
-    it('should return forbiddenNames error when control value.orgname is NOT in options', () => {
-      const options = [{ orgname: 'Ministry of Finance' }]
-      const validator = forbiddenNamesValidator(options)
-      const control = new UntypedFormControl({ orgname: 'Unknown Org' })
-      const result = validator(control)
-      expect(result).not.toBeNull()
-      expect(result!['forbiddenNames']).toEqual({ value: 'Unknown Org' })
-    })
-
-    it('should return null when options array is empty and control value is set', () => {
-      const validator = forbiddenNamesValidator([])
-      const control = new UntypedFormControl({ orgname: 'Ministry' })
-      const result = validator(control)
-      expect(result).not.toBeNull()
-      expect(result!['forbiddenNames']).toBeDefined()
-    })
-
-    it('should match correctly with multiple options', () => {
-      const options = [
-        { orgname: 'Ministry A' },
-        { orgname: 'Ministry B' },
-        { orgname: 'Ministry C' },
-      ]
-      const validator = forbiddenNamesValidator(options)
-      const control = new UntypedFormControl({ orgname: 'Ministry B' })
-      expect(validator(control)).toBeNull()
-    })
+describe('forbiddenNamesValidator', () => {
+  it('returns null when optionsArray is null', () => {
+    const validator = forbiddenNamesValidator(null)
+    const ctrl = new UntypedFormControl({ orgname: 'Test' })
+    expect(validator(ctrl)).toBeNull()
   })
 
-  // ─── forbiddenNamesValidatorNonEmpty ────────────────────────────────────
-  describe('forbiddenNamesValidatorNonEmpty', () => {
-    it('should return null when optionsArray is falsy', () => {
-      const validator = forbiddenNamesValidatorNonEmpty(null)
-      const control = new UntypedFormControl({ orgname: 'Any' })
-      expect(validator(control)).toBeNull()
-    })
+  it('returns null when control value is null', () => {
+    const validator = forbiddenNamesValidator([{ orgname: 'Test Org' }])
+    const ctrl = new UntypedFormControl(null)
+    expect(validator(ctrl)).toBeNull()
+  })
 
-    it('should return null when control value.orgname exists in options', () => {
-      const options = [{ orgname: 'DOPT' }]
-      const validator = forbiddenNamesValidatorNonEmpty(options)
-      const control = new UntypedFormControl({ orgname: 'DOPT' })
-      expect(validator(control)).toBeNull()
-    })
+  it('returns null when orgname is found in array', () => {
+    const validator = forbiddenNamesValidator([{ orgname: 'Test Org' }])
+    const ctrl = new UntypedFormControl({ orgname: 'Test Org' })
+    expect(validator(ctrl)).toBeNull()
+  })
 
-    it('should return forbiddenNames error when orgname NOT in options', () => {
-      const options = [{ orgname: 'DOPT' }]
-      const validator = forbiddenNamesValidatorNonEmpty(options)
-      const control = new UntypedFormControl({ orgname: 'UnknownOrg' })
-      const result = validator(control)
-      expect(result!['forbiddenNames']).toEqual({ value: 'UnknownOrg' })
-    })
+  it('returns forbiddenNames error when orgname not in array', () => {
+    const validator = forbiddenNamesValidator([{ orgname: 'Test Org' }])
+    const ctrl = new UntypedFormControl({ orgname: 'Unknown Org' })
+    const result = validator(ctrl)
+    expect(result).not.toBeNull()
+    expect(result!['forbiddenNames']).toBeDefined()
+  })
 
-    it('should return error when options is empty array', () => {
-      const validator = forbiddenNamesValidatorNonEmpty([])
-      const control = new UntypedFormControl({ orgname: 'SomeOrg' })
-      const result = validator(control)
-      expect(result).not.toBeNull()
-    })
+  it('returns forbiddenNames error when optionsArray is empty', () => {
+    const validator = forbiddenNamesValidator([])
+    const ctrl = new UntypedFormControl({ orgname: 'Some Org' })
+    const result = validator(ctrl)
+    expect(result).not.toBeNull()
+  })
 
-    it('should validate second option correctly', () => {
-      const options = [{ orgname: 'Org1' }, { orgname: 'Org2' }]
-      const validator = forbiddenNamesValidatorNonEmpty(options)
-      const control = new UntypedFormControl({ orgname: 'Org2' })
-      expect(validator(control)).toBeNull()
-    })
+  it('handles undefined optionsArray', () => {
+    const validator = forbiddenNamesValidator(undefined)
+    const ctrl = new UntypedFormControl({ orgname: 'Test' })
+    expect(validator(ctrl)).toBeNull()
+  })
+
+  it('handles control with empty string value', () => {
+    const validator = forbiddenNamesValidator([{ orgname: 'Test' }])
+    const ctrl = new UntypedFormControl('')
+    expect(validator(ctrl)).toBeNull()
   })
 })
 
-describe('PublicSignupComponent — instance tests', () => {
+describe('forbiddenNamesValidatorNonEmpty', () => {
+  it('returns null when optionsArray is null', () => {
+    const validator = forbiddenNamesValidatorNonEmpty(null)
+    const ctrl = new UntypedFormControl({ orgname: 'Test' })
+    expect(validator(ctrl)).toBeNull()
+  })
+
+  it('returns null when orgname is found in array', () => {
+    const validator = forbiddenNamesValidatorNonEmpty([{ orgname: 'Test Org' }])
+    const ctrl = new UntypedFormControl({ orgname: 'Test Org' })
+    expect(validator(ctrl)).toBeNull()
+  })
+
+  it('returns forbiddenNames error when orgname not in array', () => {
+    const validator = forbiddenNamesValidatorNonEmpty([{ orgname: 'Test Org' }])
+    const ctrl = new UntypedFormControl({ orgname: 'Unknown Org' })
+    const result = validator(ctrl)
+    expect(result).not.toBeNull()
+    expect(result!['forbiddenNames']).toBeDefined()
+  })
+
+  it('returns forbiddenNames error when array is empty', () => {
+    const validator = forbiddenNamesValidatorNonEmpty([])
+    const ctrl = new UntypedFormControl({ orgname: 'Org' })
+    expect(validator(ctrl)).not.toBeNull()
+  })
+
+  it('handles undefined optionsArray', () => {
+    const validator = forbiddenNamesValidatorNonEmpty(undefined)
+    const ctrl = new UntypedFormControl({ orgname: 'Test' })
+    expect(validator(ctrl)).toBeNull()
+  })
+
+  it('throws when control value is null (orgname access on null)', () => {
+    const validator = forbiddenNamesValidatorNonEmpty([{ orgname: undefined }])
+    const ctrl = new UntypedFormControl(null)
+    expect(() => validator(ctrl)).toThrow()
+  })
+
+  it('returns error when org not found in multi-item array', () => {
+    const validator = forbiddenNamesValidatorNonEmpty([{ orgname: 'A' }, { orgname: 'B' }, { orgname: 'C' }])
+    const ctrl = new UntypedFormControl({ orgname: 'D' })
+    expect(validator(ctrl)).not.toBeNull()
+  })
+
+  it('returns null when org found in multi-item array', () => {
+    const validator = forbiddenNamesValidatorNonEmpty([{ orgname: 'A' }, { orgname: 'B' }, { orgname: 'C' }])
+    const ctrl = new UntypedFormControl({ orgname: 'B' })
+    expect(validator(ctrl)).toBeNull()
+  })
+})
+
+// ─── Component tests ───────────────────────────────────────────────────────────
+
+const signupDataSubject = new Subject<any>()
+
+const makeSignupComponent = (platformId = 'browser', overrides: any = {}) => {
+  const signupSvc: any = {
+    updateSignupDataObservable: signupDataSubject.asObservable(),
+    searchOrgs: jest.fn(() => of({ result: { response: [] } })),
+    sendOtp: jest.fn(() => of({})),
+    resendOtp: jest.fn(() => of({ result: { response: 'SUCCESS' } })),
+    verifyOTP: jest.fn(() => of({ result: { response: 'SUCCESS' } })),
+    getMinistryForRegistration: jest.fn(() => of({ result: { result: { data: [], totalcount: 0 } } })),
+    getStateForRegistration: jest.fn(() => of({ result: { result: { data: [], totalcount: 0 } } })),
+    getStateOrMinistyForRegistration: jest.fn(() => of({ result: { result: { data: [], totalcount: 0 } } })),
+    ...overrides.signupSvc,
+  }
+  const usersService: any = {
+    searchPublicDesignation: jest.fn(() => of({ result: { result: { data: [], totalcount: 0 } } })),
+    ...overrides.usersService,
+  }
+  const loggerSvc: any = { error: jest.fn(), warn: jest.fn() }
+  const configSvc: any = {
+    instanceConfig: {
+      telemetryConfig: { pdata: { id: 'test-portal' } },
+      websitelanguages: ['en', 'hi'],
+      isMultilingualEnabled: true,
+    },
+    ...overrides.configSvc,
+  }
+  const snackBar: any = { open: jest.fn() }
+  const dialog: any = {
+    open: jest.fn(() => ({ afterClosed: () => of(null), close: jest.fn() })),
+  }
+  const activatedRoute: any = {
+    snapshot: {
+      data: {
+        positions: { data: [{ name: 'Manager' }] },
+        group: { data: ['Group1', 'Group2', 'Others'] },
+      },
+    },
+  }
+  const recaptchaV3Service: any = { execute: jest.fn(() => of('token123')) }
+  const router: any = { navigate: jest.fn() }
+  const _document = document
+  const translate: any = { setDefaultLang: jest.fn(), use: jest.fn() }
+  const langtranslations: any = {
+    updatelanguageSelected: jest.fn(),
+    translateActualLabel: jest.fn((l: string) => l),
+  }
+  const http: any = { get: jest.fn(() => of('<html>zoho</html>')) }
+  const sanitizer: any = { bypassSecurityTrustHtml: jest.fn((h: string) => h) }
+  const eventService: any = { raiseInteractTelemetry: jest.fn(), raiseImpressionTelemetry: jest.fn() }
+  const telemetrySvc: any = { impression: jest.fn() }
+
+  return new PublicSignupComponent(
+    signupSvc, usersService, loggerSvc, configSvc, snackBar, dialog,
+    activatedRoute, recaptchaV3Service, router, _document, platformId,
+    translate, langtranslations, http, sanitizer, eventService, telemetrySvc
+  )
+}
+
+describe('PublicSignupComponent', () => {
   let component: PublicSignupComponent
-  let mockSignupSvc: any
-  let mockUsersService: any
-  let mockLoggerSvc: any
-  let mockConfigSvc: any
-  let mockSnackBar: any
-  let mockDialog: any
-  let mockActivatedRoute: any
-  let mockRecaptchaV3Service: any
-  let mockRouter: any
-  let mockDocument: any
-  let mockPlatformId: any
-  let mockTranslate: any
-  let mockLangtranslations: any
-  let mockHttp: any
-  let mockSanitizer: any
-  let mockEventService: any
-  let mockTelemetrySvc: any
+  let signupSvc: any
+  let snackBar: any
+  let dialog: any
+  let router: any
 
   beforeEach(() => {
     localStorage.clear()
+    jest.useFakeTimers()
+    jest.clearAllMocks()
 
-    mockSignupSvc = {
-      updateSignupDataObservable: of({}),
-      searchOrgs: jest.fn().mockReturnValue(of({ result: { response: [] } })),
-      registerUser: jest.fn().mockReturnValue(of({})),
-      getStateOrMinistyForRegistration: jest.fn().mockReturnValue(of({ result: { response: { content: [], count: 0 } } })),
-      getMinistryForRegistration: jest.fn().mockReturnValue(of({ result: { response: { content: [], count: 0 } } })),
-      getStateForRegistration: jest.fn().mockReturnValue(of({ result: { response: { content: [], count: 0 } } })),
-      sendOtp: jest.fn().mockReturnValue(of({ result: { response: 'SUCCESS' } })),
-      resendOtp: jest.fn().mockReturnValue(of({ result: { response: 'SUCCESS' } })),
-      verifyOTP: jest.fn().mockReturnValue(of({ result: { response: 'SUCCESS' } })),
-    }
-
-    mockUsersService = {
-      getDesignations: jest.fn().mockReturnValue(of({ result: { response: { content: [] } } })),
-      getMinistryData: jest.fn().mockReturnValue(of({ result: { response: [] } })),
-      searchPublicDesignation: jest.fn().mockReturnValue(of({ result: { result: { data: [], totalcount: 0 } } })),
-    }
-
-    mockLoggerSvc = { log: jest.fn(), error: jest.fn() }
-
-    mockConfigSvc = {
-      instanceConfig: {
-        isMultilingualEnabled: false,
-        telemetryConfig: { pdata: { id: 'test-portal' } },
-        websitelanguages: [],
-      },
-    }
-
-    mockSnackBar = { open: jest.fn() }
-    mockDialog = { open: jest.fn() }
-
-    mockActivatedRoute = {
-      snapshot: {
-        data: {
-          positions: { data: [] },
-          group: { data: ['Leadership', 'Management', 'Others'] },
-        },
-      },
-    }
-
-    mockRecaptchaV3Service = { execute: jest.fn().mockReturnValue(of('token')) }
-    mockRouter = { navigate: jest.fn() }
-    mockDocument = { body: { classList: { add: jest.fn(), remove: jest.fn() } } }
-    mockPlatformId = 'browser'
-
-    mockTranslate = {
-      setDefaultLang: jest.fn(),
-      use: jest.fn(),
-      get: jest.fn().mockReturnValue(of('')),
-    }
-
-    mockLangtranslations = {
-      languageSelected$: new Subject(),
-      translateActualLabel: jest.fn().mockReturnValue(''),
-      updatelanguageSelected: jest.fn(),
-    }
-    mockHttp = {
-      get: jest.fn().mockReturnValue(of('<div>zoho</div>')),
-    }
-    mockSanitizer = {
-      bypassSecurityTrustHtml: jest.fn((v: any) => v),
-    }
-    mockEventService = { raiseInteractTelemetry: jest.fn() }
-    mockTelemetrySvc = { impression: jest.fn(), interact: jest.fn(), end: jest.fn() }
-
-    component = new PublicSignupComponent(
-      mockSignupSvc,
-      mockUsersService,
-      mockLoggerSvc,
-      mockConfigSvc,
-      mockSnackBar,
-      mockDialog,
-      mockActivatedRoute,
-      mockRecaptchaV3Service,
-      mockRouter,
-      mockDocument,
-      mockPlatformId,
-      mockTranslate,
-      mockLangtranslations,
-      mockHttp,
-      mockSanitizer,
-      mockEventService,
-      mockTelemetrySvc,
-    )
+    component = makeSignupComponent()
+    signupSvc = (component as any).signupSvc
+    snackBar = (component as any).snackBar
+    dialog = (component as any).dialog
+    router = (component as any).router
   })
 
   afterEach(() => {
-    localStorage.clear()
+    jest.useRealTimers()
+    try { component.ngOnDestroy() } catch { }
   })
 
-  describe('constructor', () => {
-    it('should create the component', () => {
-      expect(component).toBeTruthy()
+  it('creates', () => {
+    expect(component).toBeDefined()
+    expect(component.registrationFormStepOne).toBeDefined()
+    expect(component.registrationFormStepTwo).toBeDefined()
+  })
+
+  it('sets websiteLanguage from localStorage in constructor', () => {
+    localStorage.setItem('websiteLanguage', 'hi')
+    const c = makeSignupComponent()
+    expect(c.selectedLanguage).toBe('hi')
+    c.ngOnDestroy()
+  })
+
+  it('defaults to en language when not set', () => {
+    localStorage.removeItem('websiteLanguage')
+    const c = makeSignupComponent()
+    expect(localStorage.getItem('websiteLanguage')).toBe('en')
+    c.ngOnDestroy()
+  })
+
+  describe('ngOnInit', () => {
+    it('sets positionsOriginal from route data', () => {
+      component.ngOnInit()
+      expect(component.positionsOriginal).toHaveLength(1)
     })
 
-    it('should initialize currentStep to step1', () => {
-      expect(component.currentStep).toBe('step1')
+    it('filters out Others from groupsOriginal', () => {
+      component.ngOnInit()
+      expect(component.groupsOriginal).not.toContain('Others')
+      expect(component.groupsOriginal).toContain('Group1')
     })
 
-    it('should initialize registrationFormStepOne', () => {
-      expect(component.registrationFormStepOne).toBeTruthy()
+    it('sets telemetryConfig from instanceConfig', () => {
+      component.ngOnInit()
+      expect(component.portalID).toBe('test-portal')
     })
 
-    it('should initialize registrationFormStepTwo', () => {
-      expect(component.registrationFormStepTwo).toBeTruthy()
+    it('sets multiLang from websitelanguages', () => {
+      component.ngOnInit()
+      expect(component.multiLang).toEqual(['en', 'hi'])
     })
 
-    it('should set selectedLanguage from localStorage', () => {
-      localStorage.setItem('websiteLanguage', 'hi')
-      const comp = new PublicSignupComponent(
-        mockSignupSvc, mockUsersService, mockLoggerSvc, mockConfigSvc, mockSnackBar,
-        mockDialog, mockActivatedRoute, mockRecaptchaV3Service, mockRouter, mockDocument,
-        mockPlatformId, mockTranslate, mockLangtranslations, mockHttp, mockSanitizer,
-        mockEventService, mockTelemetrySvc
-      )
-      expect(comp.selectedLanguage).toBe('hi')
+    it('handles null instanceConfig', () => {
+      (component as any).configSvc.instanceConfig = null
+      expect(() => component.ngOnInit()).not.toThrow()
     })
 
-    it('should set websiteLanguage in localStorage when not set', () => {
-      localStorage.removeItem('websiteLanguage')
-      new PublicSignupComponent(
-        mockSignupSvc, mockUsersService, mockLoggerSvc, mockConfigSvc, mockSnackBar,
-        mockDialog, mockActivatedRoute, mockRecaptchaV3Service, mockRouter, mockDocument,
-        mockPlatformId, mockTranslate, mockLangtranslations, mockHttp, mockSanitizer,
-        mockEventService, mockTelemetrySvc
-      )
-      expect(localStorage.getItem('websiteLanguage')).toBe('en')
+    it('handles null group data', () => {
+      (component as any).activatedRoute.snapshot.data.group.data = null
+      component.ngOnInit()
+      expect(component.groupsOriginal).toEqual([])
+    })
+  })
+
+  describe('typeValueStartCase getter', () => {
+    it('returns start-cased type value', () => {
+      component.registrationFormStepOne.get('type')!.setValue('ministry')
+      const result = component.typeValueStartCase
+      expect(typeof result).toBe('string')
+    })
+  })
+
+  describe('typeValue getter', () => {
+    it('returns current type value', () => {
+      component.registrationFormStepOne.get('type')!.setValue('state')
+      expect(component.typeValue).toBe('state')
     })
   })
 
   describe('emailVerification', () => {
-    it('should set emailLengthVal to false for normal email', () => {
-      component.emailVerification('user@example.com')
+    it('sets emailLengthVal false for valid email', () => {
+      component.emailVerification('test@gov.in')
       expect(component.emailLengthVal).toBe(false)
     })
 
-    it('should set emailLengthVal to false when emailId is empty', () => {
+    it('sets emailLengthVal true for too-long local part', () => {
+      const longLocal = 'a'.repeat(65)
+      component.emailVerification(`${longLocal}@gov.in`)
+      expect(component.emailLengthVal).toBe(true)
+    })
+
+    it('handles empty emailId', () => {
       component.emailVerification('')
       expect(component.emailLengthVal).toBe(false)
     })
 
-    it('should set emailLengthVal to true when local part exceeds 64 chars', () => {
-      const longLocal = 'a'.repeat(65)
-      component.emailVerification(`${longLocal}@example.com`)
-      expect(component.emailLengthVal).toBe(true)
-    })
-
-    it('should set emailLengthVal to true when domain exceeds 255 chars', () => {
-      const longDomain = 'b'.repeat(256)
-      component.emailVerification(`user@${longDomain}`)
-      expect(component.emailLengthVal).toBe(true)
-    })
-
-    it('should set emailLengthVal to false when emailId has no @ sign', () => {
-      component.emailVerification('invalidemail')
+    it('handles email without @ sign', () => {
+      component.emailVerification('notanemail')
       expect(component.emailLengthVal).toBe(false)
     })
   })
 
-  describe('goToPrevStep', () => {
-    it('should set currentStep back to step1', () => {
-      component.currentStep = 'step2'
-      component.goToPrevStep()
-      expect(component.currentStep).toBe('step1')
-    })
-  })
-
   describe('clearValues', () => {
-    it('should clear organisation form value', () => {
-      component.registrationFormStepOne.get('organisation')!.setValue('some org')
+    it('clears organisation and heirarchyObject', () => {
+      component.registrationFormStepOne.get('organisation')!.setValue('SomeOrg')
+      component.heirarchyObject = { orgName: 'test' }
       component.clearValues()
       expect(component.registrationFormStepOne.get('organisation')!.value).toBe('')
-    })
-
-    it('should set heirarchyObject to null', () => {
-      component.heirarchyObject = { some: 'data' }
-      component.clearValues()
       expect(component.heirarchyObject).toBeNull()
     })
   })
 
   describe('resetOrganisationBackup', () => {
-    it('should set organisationBackup with N/A entry', () => {
+    it('sets default N/A organisation', () => {
       component.resetOrganisationBackup()
-      expect(component.masterData.organisationBackup).toBeDefined()
-      expect(component.masterData.organisationBackup[0].identifier).toBe('-1')
-    })
-  })
-
-  describe('onOrganisationChanged', () => {
-    it('should set heirarchyObject when event value matches', () => {
-      component.masterData.organisation = [{ identifier: 'org-1', orgName: 'Org One' }]
-      component.onOrganisationChanged({ value: 'org-1' })
-      expect(component.heirarchyObject).toEqual({ identifier: 'org-1', orgName: 'Org One' })
-    })
-
-    it('should set heirarchyObject to undefined when no match', () => {
-      component.masterData.organisation = [{ identifier: 'org-2', orgName: 'Org Two' }]
-      component.onOrganisationChanged({ value: 'unknown' })
-      expect(component.heirarchyObject).toBeUndefined()
-    })
-  })
-
-  describe('onMinistryChange', () => {
-    it('should set currentMinistry when ministry found in backup', () => {
-      component.masterData.ministryBackup = [{ identifier: 'm-1', orgName: 'Ministry One' }]
-      component.masterData.organisationBackup = []
-      jest.spyOn(component as any, 'getOrganisationData').mockImplementation(() => { })
-      component.onMinistryChange({ value: 'm-1' })
-      expect(component.currentMinistry).toEqual({ identifier: 'm-1', orgName: 'Ministry One' })
-    })
-
-    it('should clear organisation value', () => {
-      component.registrationFormStepOne.get('organisation')!.setValue('something')
-      component.masterData.ministryBackup = []
-      component.masterData.organisationBackup = []
-      jest.spyOn(component as any, 'getOrganisationData').mockImplementation(() => { })
-      component.onMinistryChange({ value: 'm-1' })
-      expect(component.registrationFormStepOne.get('organisation')!.value).toBe('')
-    })
-  })
-
-  describe('onStateChanged', () => {
-    it('should set currentMinistry from stateBackup when found', () => {
-      component.masterData.stateBackup = [{ identifier: 's-1', stateName: 'State One' }]
-      jest.spyOn(component as any, 'getDepartmentData').mockImplementation(() => { })
-      component.onStateChanged({ value: 's-1' })
-      expect(component.currentMinistry).toEqual({ identifier: 's-1', stateName: 'State One' })
-    })
-
-    it('should reset departmentBackup to empty array', () => {
-      component.masterData.stateBackup = []
-      jest.spyOn(component as any, 'getDepartmentData').mockImplementation(() => { })
-      component.onStateChanged({ value: null })
-      expect(component.masterData.departmentBackup).toEqual([])
-    })
-  })
-
-  describe('onDepartmentChange', () => {
-    it('should set currentMinistry from departmentBackup', () => {
-      component.masterData.departmentBackup = [{ identifier: 'd-1', deptName: 'Dept One' }]
-      jest.spyOn(component as any, 'getOrganisationData').mockImplementation(() => { })
-      component.onDepartmentChange({ value: 'd-1' })
-      expect(component.currentMinistry).toEqual({ identifier: 'd-1', deptName: 'Dept One' })
-    })
-
-    it('should not set currentMinistry when value is -1', () => {
-      component.masterData.departmentBackup = [{ identifier: '-1', deptName: 'NA' }]
-      component.currentMinistry = {}
-      jest.spyOn(component as any, 'getOrganisationData').mockImplementation(() => { })
-      component.onDepartmentChange({ value: '-1' })
-      expect(component.currentMinistry).toEqual({})
-    })
-  })
-
-  describe('onTypeChange', () => {
-    it('should adjust validators for state type', () => {
-      jest.spyOn(component as any, 'getStateData').mockImplementation(() => { })
-      jest.spyOn(component as any, 'getMinistryData').mockImplementation(() => { })
-      component.onTypeChange({ value: 'state' })
-      const stateControl = component.registrationFormStepOne.get('state')
-      expect(stateControl?.hasValidator).toBeDefined()
-    })
-
-    it('should adjust validators for ministry type', () => {
-      jest.spyOn(component as any, 'getStateData').mockImplementation(() => { })
-      jest.spyOn(component as any, 'getMinistryData').mockImplementation(() => { })
-      component.onTypeChange({ value: 'ministry' })
-      const ministryControl = component.registrationFormStepOne.get('ministry')
-      expect(ministryControl?.hasValidator).toBeDefined()
-    })
-
-    it('should clear organisation field', () => {
-      component.registrationFormStepOne.get('organisation')!.setValue('org')
-      jest.spyOn(component as any, 'getMinistryData').mockImplementation(() => { })
-      component.onTypeChange({ value: 'ministry' })
-      expect(component.registrationFormStepOne.get('organisation')!.value).toBe('')
-    })
-  })
-
-  describe('designationSearch', () => {
-    it('should set designationSearchText when text provided', () => {
-      jest.spyOn(component as any, 'getDesignation').mockImplementation(() => { })
-      component.isLoadingMoreDesignations = false
-      component.designationSearch({ target: { value: 'manager' } })
-      expect(component.designationSearchText).toBe('manager')
-    })
-
-    it('should return early when isLoadingMoreDesignations is true', () => {
-      component.isLoadingMoreDesignations = true
-      component.designationSearch({ target: { value: 'manager' } })
-      expect(component.designationSearchText).toBe('')
-    })
-
-    it('should reset to backup when text is empty', () => {
-      component.isLoadingMoreDesignations = false
-      component.masterData.designationBackup = [{ name: 'Manager' }, { name: 'Director' }]
-      component.designationSearch({ target: { value: '' } })
-      expect(component.desigantionFilterEnable).toBe(false)
-    })
-  })
-
-  describe('onDesignationDropdownClosed', () => {
-    it('should not throw when called', () => {
-      jest.useFakeTimers()
-      expect(() => component.onDesignationDropdownClosed()).not.toThrow()
-      jest.runAllTimers()
-      jest.useRealTimers()
-    })
-  })
-
-  describe('typeValue getter', () => {
-    it('should return the current type value from form', () => {
-      expect(component.typeValue).toBeDefined()
-    })
-  })
-
-  describe('typeValueStartCase getter', () => {
-    it('should return start-cased type value', () => {
-      expect(typeof component.typeValueStartCase).toBe('string')
-    })
-  })
-
-  describe('filterOrgsSearch', () => {
-    it('should set resultFetched to true on success', () => {
-      mockSignupSvc.searchOrgs = jest.fn().mockReturnValue(of({ result: { response: [{ orgname: 'Org1' }] } }))
-      component.filterOrgsSearch('org')
-      expect(component.resultFetched).toBe(true)
-    })
-
-    it('should set searching to false on success', () => {
-      mockSignupSvc.searchOrgs = jest.fn().mockReturnValue(of({ result: { response: [{ orgname: 'Org1' }] } }))
-      component.filterOrgsSearch('org')
-      expect(component.searching).toBe(false)
-    })
-  })
-
-  describe('searchOrgs', () => {
-    it('should open snackbar when searchValue is empty', async () => {
-      const snackSpy = jest.spyOn(component as any, 'openSnackbar').mockImplementation(() => { })
-      await component.searchOrgs('')
-      expect(snackSpy).toHaveBeenCalled()
-    })
-
-    it('should set resultFetched when valid searchValue', async () => {
-      jest.spyOn(component, 'filterOrgsSearch').mockImplementation((): any => { })
-      await component.searchOrgs('ministry')
-      expect(component.searching).toBeDefined()
+      expect((component as any).masterData.organisationBackup[0].orgName).toBe('N/A')
     })
   })
 
   describe('editOrg', () => {
-    it('should reset hideOrg and related state', () => {
+    it('resets org state', () => {
       component.hideOrg = true
       component.resultFetched = true
-      component.searching = true
-      component.heirarchyObject = { some: 'val' }
       component.editOrg()
       expect(component.hideOrg).toBe(false)
       expect(component.resultFetched).toBe(false)
@@ -490,209 +337,460 @@ describe('PublicSignupComponent — instance tests', () => {
   })
 
   describe('orgClicked', () => {
-    it('should set heirarchyObject when option has orgname', () => {
-      const event = { option: { value: { orgName: 'Ministry A', channel: 'ch1' } } }
+    it('sets org value and heirarchyObject when event has option', () => {
+      const event = { option: { value: { orgName: 'TestOrg', channel: 'tc' } } }
       component.orgClicked(event)
       expect(component.hideOrg).toBe(true)
+      expect(component.registrationFormStepOne.get('organisation')!.value).toBe('TestOrg')
     })
 
-    it('should set hideOrg false when option has no orgname', () => {
+    it('sets hideOrg false when event has no orgName', () => {
       const event = { option: { value: {} } }
       component.orgClicked(event)
       expect(component.hideOrg).toBe(false)
     })
 
-    it('should not throw when event is null', () => {
+    it('does nothing when event is falsy', () => {
       expect(() => component.orgClicked(null)).not.toThrow()
     })
   })
 
-  describe('confirmChange', () => {
-    it('should toggle confirm to true', () => {
-      component.confirm = false
-      component.confirmChange()
-      expect(component.confirm).toBe(true)
+  describe('sendOtp', () => {
+    it('calls signupSvc.sendOtp with valid mobile', () => {
+      component.registrationFormStepTwo.get('mobile')!.setValue('9876543210')
+      component.sendOtp()
+      expect(signupSvc.sendOtp).toHaveBeenCalledWith('9876543210', 'phone')
     })
 
-    it('should toggle confirm to false', () => {
-      component.confirm = true
-      component.confirmChange()
-      expect(component.confirm).toBe(false)
+    it('shows snackBar for invalid mobile', () => {
+      component.registrationFormStepTwo.get('mobile')!.setValue('')
+      component.sendOtp()
+      expect(snackBar.open).toHaveBeenCalled()
+    })
+
+    it('shows snackBar on sendOtp error', () => {
+      signupSvc.sendOtp.mockReturnValue(throwError({ error: { params: { errmsg: 'OTP failed' } } }))
+      component.registrationFormStepTwo.get('mobile')!.setValue('9876543210')
+      component.sendOtp()
+      expect(snackBar.open).toHaveBeenCalled()
     })
   })
 
-  describe('confirmTermsChange', () => {
-    it('should toggle terms confirm', () => {
-      component.confirmTerms = false
-      component.confirmTermsChange()
+  describe('sendOtpEmail', () => {
+    it('calls signupSvc.sendOtp with valid email', () => {
+      component.registrationFormStepOne.get('email')!.setValue('test@gov.in')
+      component.sendOtpEmail()
+      expect(signupSvc.sendOtp).toHaveBeenCalledWith('test@gov.in', 'email')
+    })
+
+    it('shows snackBar for invalid email', () => {
+      component.registrationFormStepOne.get('email')!.setValue('')
+      component.sendOtpEmail()
+      expect(snackBar.open).toHaveBeenCalled()
+    })
+
+    it('shows snackBar on sendOtpEmail error', () => {
+      signupSvc.sendOtp.mockReturnValue(throwError({ error: { params: { errmsg: 'OTP failed' } } }))
+      component.registrationFormStepOne.get('email')!.setValue('test@gov.in')
+      component.sendOtpEmail()
+      expect(snackBar.open).toHaveBeenCalled()
+    })
+
+    it('shows specific domain error when errmsg is present', () => {
+      signupSvc.sendOtp.mockReturnValue(throwError({ error: { params: { errmsg: 'domain not found' } } }))
+      component.registrationFormStepOne.get('email')!.setValue('test@gov.in')
+      component.sendOtpEmail()
+      expect(snackBar.open).toHaveBeenCalledWith(expect.stringContaining('department'))
+    })
+  })
+
+  describe('resendOTP', () => {
+    it('calls signupSvc.resendOtp for valid mobile', () => {
+      component.registrationFormStepTwo.get('mobile')!.setValue('9876543210')
+      component.resendOTP()
+      expect(signupSvc.resendOtp).toHaveBeenCalled()
+    })
+
+    it('shows snackBar for invalid mobile', () => {
+      component.registrationFormStepTwo.get('mobile')!.setValue('')
+      component.resendOTP()
+      expect(snackBar.open).toHaveBeenCalled()
+    })
+  })
+
+  describe('resendOTPEmail', () => {
+    it('calls signupSvc.resendOtp for valid email', () => {
+      component.registrationFormStepOne.get('email')!.setValue('test@gov.in')
+      component.resendOTPEmail()
+      expect(signupSvc.resendOtp).toHaveBeenCalled()
+    })
+
+    it('shows snackBar for invalid email', () => {
+      component.registrationFormStepOne.get('email')!.setValue('')
+      component.resendOTPEmail()
+      expect(snackBar.open).toHaveBeenCalled()
+    })
+  })
+
+  describe('verifyOtp', () => {
+    beforeEach(() => {
+      component.registrationFormStepTwo.get('mobile')!.setValue('9876543210')
+    })
+
+    it('verifies mobile OTP on success', () => {
+      const otp = { value: '1234' }
+      component.verifyOtp(otp)
+      expect(signupSvc.verifyOTP).toHaveBeenCalledWith('1234', '9876543210', 'phone')
+      expect(component.isMobileVerified).toBe(true)
+    })
+
+    it('shows snackBar for short OTP', () => {
+      component.verifyOtp({ value: '12' })
+      expect(snackBar.open).toHaveBeenCalled()
+    })
+
+    it('shows snackBar when otp is null', () => {
+      component.verifyOtp({ value: null })
+      expect(snackBar.open).toHaveBeenCalled()
+    })
+
+    it('shows snackBar on verifyOTP error', () => {
+      signupSvc.verifyOTP.mockReturnValue(throwError({ error: { params: { errmsg: 'Invalid OTP' } } }))
+      component.verifyOtp({ value: '1234' })
+      expect(snackBar.open).toHaveBeenCalled()
+    })
+
+    it('disables verify button on 0 remaining attempts', () => {
+      signupSvc.verifyOTP.mockReturnValue(throwError({ error: { result: { remainingAttempt: 0 } } }))
+      component.verifyOtp({ value: '1234' })
+      expect(component.disableVerifyBtn).toBe(true)
+    })
+  })
+
+  describe('verifyOtpEmail', () => {
+    beforeEach(() => {
+      component.registrationFormStepOne.get('email')!.setValue('test@gov.in')
+    })
+
+    it('verifies email OTP on success', () => {
+      const otp = { value: '5678' }
+      component.verifyOtpEmail(otp)
+      expect(signupSvc.verifyOTP).toHaveBeenCalledWith('5678', 'test@gov.in', 'email')
+      expect(component.isEmailVerified).toBe(true)
+    })
+
+    it('shows snackBar for short OTP', () => {
+      component.verifyOtpEmail({ value: '12' })
+      expect(snackBar.open).toHaveBeenCalled()
+    })
+
+    it('shows snackBar when otp is null', () => {
+      component.verifyOtpEmail({ value: null })
+      expect(snackBar.open).toHaveBeenCalled()
+    })
+  })
+
+  describe('openDialog', () => {
+    it('opens SignupSuccessDialogueComponent', () => {
+      component.openDialog()
+      expect(dialog.open).toHaveBeenCalled()
+    })
+  })
+
+  describe('termsAndConditionClick', () => {
+    it('opens TermsAndConditionComponent', () => {
+      component.termsAndConditionClick()
+      expect(dialog.open).toHaveBeenCalled()
+    })
+
+    it('sets confirmTerms when dialog returns value', () => {
+      dialog.open.mockReturnValue({ afterClosed: () => of(true) })
+      component.termsAndConditionClick()
       expect(component.confirmTerms).toBe(true)
     })
   })
 
-  describe('displayFn functions', () => {
-    it('displayFn should return channel', () => {
-      expect(component.displayFn({ channel: 'ch1' })).toBe('ch1')
-    })
-    it('displayFn should return undefined for null', () => {
-      expect(component.displayFn(null)).toBeUndefined()
-    })
-    it('displayFnPosition should return name', () => {
-      expect(component.displayFnPosition({ name: 'Manager' })).toBe('Manager')
-    })
-    it('displayFnPosition should return undefined for null', () => {
-      expect(component.displayFnPosition(null)).toBeUndefined()
-    })
-    it('displayFnGroup should return value itself', () => {
-      expect(component.displayFnGroup('Director')).toBe('Director')
-    })
-    it('displayFnOrg should return orgName', () => {
-      expect(component.displayFnOrg({ orgName: 'Org1' })).toBe('Org1')
-    })
-    it('displayFnOrg should return empty string for null', () => {
-      expect(component.displayFnOrg(null)).toBe('')
-    })
-  })
-
-  describe('ngOnDestroy', () => {
-    it('should unsubscribe subscriptionContact if present', () => {
-      const mockSub = { unsubscribe: jest.fn() }
-      component['subscriptionContact'] = mockSub as any
-      component.ngOnDestroy()
-      expect(mockSub.unsubscribe).toHaveBeenCalled()
-    })
-
-    it('should not throw when subscriptionContact is null', () => {
-      component['subscriptionContact'] = null
-      expect(() => component.ngOnDestroy()).not.toThrow()
-    })
-  })
-
-  describe('navigateTo', () => {
-    it('should call router.navigate', () => {
-      component.navigateTo('/page/home')
-      expect(mockRouter.navigate).toHaveBeenCalledWith(['/public/request'], expect.objectContaining({ queryParams: { type: '/page/home' } }))
-    })
-  })
-
-  describe('numericOnly', () => {
-    it('should return true for numeric key', () => {
-      const event = { key: '4' }
-      expect(component.numericOnly(event)).toBe(true)
-    })
-
-    it('should return false for non-numeric key', () => {
-      const event = { key: 'A' }
-      expect(component.numericOnly(event)).toBe(false)
+  describe('translateLabels', () => {
+    it('calls translateActualLabel', () => {
+      const result = component.translateLabels('testKey', 'common')
+      expect(result).toBe('testKey')
     })
   })
 
   describe('selectLanguage', () => {
-    it('should set selectedLanguage and store in localStorage', () => {
+    it('updates selectedLanguage and localStorage', () => {
       component.selectLanguage('hi')
       expect(component.selectedLanguage).toBe('hi')
       expect(localStorage.getItem('websiteLanguage')).toBe('hi')
     })
   })
 
-  describe('getMinistryData', () => {
-    it('should call signupSvc.getMinistryForRegistration', () => {
-      component['getMinistryData']()
-      expect(mockSignupSvc.getMinistryForRegistration).toHaveBeenCalled()
-    })
-
-    it('should set masterData.ministryBackup on success', () => {
-      mockSignupSvc.getMinistryForRegistration = jest.fn().mockReturnValue(
-        of({ result: { response: { content: [{ orgName: 'M1' }], count: 1 } } })
+  describe('navigateTo', () => {
+    it('navigates to /public/request with param', () => {
+      component.navigateTo('ministry')
+      expect(router.navigate).toHaveBeenCalledWith(
+        ['/public/request'],
+        expect.objectContaining({ queryParams: { type: 'ministry' } })
       )
-      component['getMinistryData']()
-      expect(component.masterData.ministryBackup).toBeDefined()
-    })
-
-  })
-
-  describe('getStateData', () => {
-    it('should call signupSvc.getStateForRegistration', () => {
-      component['getStateData']()
-      expect(mockSignupSvc.getStateForRegistration).toHaveBeenCalled()
-    })
-
-    it('should set masterData.stateBackup on success', () => {
-      mockSignupSvc.getStateForRegistration = jest.fn().mockReturnValue(
-        of({ result: { response: { content: [{ orgName: 'S1' }], count: 1 } } })
-      )
-      component['getStateData']()
-      expect(component.masterData.stateBackup).toBeDefined()
-    })
-
-  })
-
-  describe('getDepartmentData', () => {
-    it('should not throw when called', () => {
-      jest.spyOn(component as any, 'getDepartmentData').mockImplementation(() => { })
-      expect(() => component['getDepartmentData']()).not.toThrow()
-    })
-
-  })
-
-  describe('getOrganisationData', () => {
-    it('should not throw when called', () => {
-      jest.spyOn(component as any, 'getOrganisationData').mockImplementation(() => { })
-      expect(() => component['getOrganisationData']()).not.toThrow()
     })
   })
 
-  describe('sendOtpEmail', () => {
-    it('should call signupSvc.sendOtp', () => {
-      component.registrationFormStepOne.get('email')!.setValue('test@gov.in')
-      component['sendOtpEmail']()
-      expect(mockSignupSvc.sendOtp).toHaveBeenCalled()
+  describe('numericOnly', () => {
+    it('returns true for digit key', () => {
+      expect(component.numericOnly({ key: '5' })).toBe(true)
     })
 
-    it('should open snackbar when email is empty', () => {
-      component.registrationFormStepOne.get('email')!.setValue('')
-      const snackSpy = jest.spyOn(mockSnackBar, 'open')
-      component['sendOtpEmail']()
-      expect(snackSpy).toHaveBeenCalled()
+    it('returns false for non-digit key', () => {
+      expect(component.numericOnly({ key: 'a' })).toBe(false)
     })
   })
 
-  describe('resendOTPEmail', () => {
-    it('should call signupSvc.resendOtp when email set', () => {
-      component.registrationFormStepOne.get('email')!.setValue('test@gov.in')
-      component['resendOTPEmail']()
-      expect(mockSignupSvc.resendOtp).toHaveBeenCalled()
+  describe('getZohoForm', () => {
+    it('opens ZohoDialogComponent', () => {
+      component.getZohoForm()
+      expect(dialog.open).toHaveBeenCalled()
+      jest.runAllTimers()
     })
   })
 
-  describe('verifyOtpEmail', () => {
-    it('should call signupSvc.verifyOTP when otp and email are valid', () => {
-      component.registrationFormStepOne.get('email')!.setValue('test@gov.in')
-      component['verifyOtpEmail']({ value: '123456' })
-      expect(mockSignupSvc.verifyOTP).toHaveBeenCalled()
+  describe('displayFn helpers', () => {
+    it('displayFn returns channel', () => {
+      expect((component as any).displayFn({ channel: 'TestCh' })).toBe('TestCh')
     })
 
-    it('should not throw when otp is empty', () => {
-      expect(() => component['verifyOtpEmail']({ value: '' })).not.toThrow()
+    it('displayFn returns undefined for null', () => {
+      expect((component as any).displayFn(null)).toBeUndefined()
     })
 
-    it('should set isEmailVerified to true on SUCCESS response', () => {
-      component.registrationFormStepOne.get('email')!.setValue('test@gov.in')
-      component['verifyOtpEmail']({ value: '123456' })
-      expect(component.isEmailVerified).toBe(true)
+    it('displayFnPosition returns name', () => {
+      expect((component as any).displayFnPosition({ name: 'Manager' })).toBe('Manager')
+    })
+
+    it('displayFnGroup returns value', () => {
+      expect((component as any).displayFnGroup('GroupA')).toBe('GroupA')
+    })
+
+    it('displayFnOrg returns orgName', () => {
+      expect((component as any).displayFnOrg({ orgName: 'MyOrg' })).toBe('MyOrg')
+    })
+
+    it('displayFnOrg returns empty string for null', () => {
+      expect((component as any).displayFnOrg(null)).toBe('')
     })
   })
 
-  describe('raiseSignupInteractTelementry', () => {
-    it('should call eventService.raiseInteractTelemetry', () => {
-      component.raiseSignupInteractTelementry()
-      expect(mockEventService.raiseInteractTelemetry).toHaveBeenCalled()
+  describe('filterOrgsSearch', () => {
+    it('sets filteredOrgList from search result', () => {
+      signupSvc.searchOrgs = jest.fn(() => of({
+        result: { response: [{ orgName: 'TestOrg' }, { orgName: 'AnotherOrg' }] },
+      }));
+      (component as any).signupSvc = signupSvc
+      component.filterOrgsSearch('test')
+      expect(component.resultFetched).toBe(true)
+    })
+
+    it('shows snackBar on filterOrgs error', () => {
+      signupSvc.searchOrgs = jest.fn(() => throwError({ error: { params: { errmsg: 'Search failed' } } }));
+      (component as any).signupSvc = signupSvc
+      component.filterOrgsSearch('test')
+      expect(snackBar.open).toHaveBeenCalled()
     })
   })
 
-  describe('termsAndConditionClick', () => {
-    it('should open dialog', () => {
-      mockDialog.open = jest.fn().mockReturnValue({ afterClosed: jest.fn().mockReturnValue(of(true)) })
-      expect(() => component.termsAndConditionClick()).not.toThrow()
+  describe('ngOnDestroy', () => {
+    it('does not throw', () => {
+      component.ngOnInit()
+      expect(() => component.ngOnDestroy()).not.toThrow()
+    })
+
+    it('removes cs-recaptcha class in browser', () => {
+      document.body.classList.add('cs-recaptcha')
+      component.ngOnDestroy()
+      expect(document.body.classList.contains('cs-recaptcha')).toBe(false)
+    })
+
+    it('does not throw in non-browser platform', () => {
+      const c = makeSignupComponent('server')
+      expect(() => c.ngOnDestroy()).not.toThrow()
+    })
+  })
+
+  describe('startCountDown', () => {
+    it('decrements timeLeftforOTP', () => {
+      component.OTP_TIMER = 3
+      component.startCountDown()
+      expect(component.timeLeftforOTP).toBe(3)
+      jest.advanceTimersByTime(1000)
+      expect(component.timeLeftforOTP).toBe(2)
+      if (component.timerSubscription) component.timerSubscription.unsubscribe()
+    })
+  })
+
+  describe('startCountDownEmail', () => {
+    it('decrements timeLeftforOTPEmail', () => {
+      component.OTP_TIMER_EMAIL = 3
+      component.startCountDownEmail()
+      expect(component.timeLeftforOTPEmail).toBe(3)
+      jest.advanceTimersByTime(1000)
+      if (component.timerSubscriptionEmail) component.timerSubscriptionEmail.unsubscribe()
+    })
+  })
+
+  describe('getDesignation', () => {
+    it('calls searchPublicDesignation', () => {
+      component.ngOnInit()
+      expect((component as any).usersService.searchPublicDesignation).toHaveBeenCalled()
+    })
+
+    it('handles error from searchPublicDesignation', () => {
+      (component as any).usersService.searchPublicDesignation = jest.fn(() => throwError({ error: 'failed' }));
+      (component as any).designationInitInProgress = false;
+      (component as any).isLoadingMoreDesignations = false
+      expect(() => component.getDesignation()).not.toThrow()
+    })
+  })
+
+  describe('checkCurrentDesignationPresent', () => {
+    it('adds missing designation to list', () => {
+      (component as any).masterData.designation = [{ name: 'Manager' }]
+      component.registrationFormStepOne.get('position')!.setValue('Director')
+      component.checkCurrentDesignationPresent()
+      expect((component as any).masterData.designation.some((d: any) => d.name === 'Director')).toBe(true)
+    })
+
+    it('does nothing when designation already present', () => {
+      (component as any).masterData.designation = [{ name: 'Manager' }]
+      component.registrationFormStepOne.get('position')!.setValue('Manager')
+      component.checkCurrentDesignationPresent()
+      expect((component as any).masterData.designation).toHaveLength(1)
+    })
+  })
+
+  describe('confirmChange', () => {
+    it('toggles confirm flag', () => {
+      component.confirm = false;
+      (component as any).confirmChange()
+      expect(component.confirm).toBe(true)
+    })
+  })
+
+  describe('confirmTermsChange', () => {
+    it('toggles confirmTerms flag', () => {
+      component.confirmTerms = false;
+      (component as any).confirmTermsChange()
+      expect(component.confirmTerms).toBe(true)
+    })
+  })
+
+  describe('signup', () => {
+    it('calls recaptchaV3Service.execute', () => {
+      signupSvc.register = jest.fn(() => of({}))
+      component.registrationFormStepOne.get('type')!.setValue('ministry')
+      component.heirarchyObject = { identifier: 'org1', orgName: 'TestOrg', channel: 'ch', sbOrgType: 'MINISTRY', sbOrgSubType: '' }
+      component.signup()
+      expect(signupSvc.register).toHaveBeenCalled()
+    })
+
+    it('shows snackBar on recaptcha error', () => {
+      (component as any).recaptchaV3Service.execute = jest.fn(() => throwError(new Error('recaptcha failed')))
+      component.heirarchyObject = { identifier: 'org1', orgName: 'TestOrg', channel: 'ch', sbOrgType: 'MINISTRY', sbOrgSubType: '' }
+      component.signup()
+      expect(snackBar.open).toHaveBeenCalled()
+    })
+
+    it('handles signup register error', () => {
+      signupSvc.register = jest.fn(() => throwError({ error: { params: { errmsg: 'Signup error' } } }))
+      component.registrationFormStepOne.get('type')!.setValue('ministry')
+      component.heirarchyObject = { identifier: 'org1', orgName: 'TestOrg', channel: 'ch', sbOrgType: 'MINISTRY', sbOrgSubType: '' }
+      component.signup()
+      expect(snackBar.open).toHaveBeenCalled()
+    })
+
+    it('handles N/A org for ministry type', () => {
+      signupSvc.register = jest.fn(() => of({}))
+      component.registrationFormStepOne.get('type')!.setValue('ministry')
+      component.registrationFormStepOne.get('ministry')!.setValue('min1')
+      component.heirarchyObject = { orgName: 'N/A' };
+      (component as any).currentMinistry = { orgName: 'Govt', channel: 'gov', sbOrgType: 'MINISTRY', sbOrgSubType: '' }
+      component.signup()
+      expect(signupSvc.register).toHaveBeenCalled()
+    })
+
+    it('handles state type with N/A org and no department', () => {
+      signupSvc.register = jest.fn(() => of({}))
+      component.registrationFormStepOne.get('type')!.setValue('state')
+      component.registrationFormStepOne.get('state')!.setValue('state1')
+      component.registrationFormStepOne.get('department')!.setValue('-1')
+      component.heirarchyObject = { orgName: 'N/A' };
+      (component as any).currentMinistry = { orgName: 'StateGov', channel: 'stgov', sbOrgType: 'STATE', sbOrgSubType: '' }
+      component.signup()
+      expect(signupSvc.register).toHaveBeenCalled()
+    })
+  })
+
+  describe('mdoRedirect', () => {
+    it('sets window.location.href', () => {
+      const originalHref = window.location.href
+      Object.defineProperty(window, 'location', { writable: true, value: { href: '' } })
+      component.mdoRedirect()
+      expect(window.location.href).toContain('mdoList')
+      Object.defineProperty(window, 'location', { writable: true, value: { href: originalHref } })
+    })
+  })
+
+  describe('designationSearch', () => {
+    it('calls getDesignation for non-empty search', () => {
+      jest.spyOn(component, 'getDesignation').mockImplementation(jest.fn())
+      component.designationSearch({ target: { value: 'manager' } })
+      expect(component.getDesignation).toHaveBeenCalledWith('manager', 0)
+    })
+
+    it('resets designations for empty search', () => {
+      (component as any).masterData.designationBackup = [{ name: 'A' }, { name: 'B' }]
+      jest.spyOn(component, 'checkCurrentDesignationPresent').mockImplementation(jest.fn())
+      component.designationSearch({ target: { value: '' } })
+      expect(component.checkCurrentDesignationPresent).toHaveBeenCalled()
+    })
+
+    it('returns early when loading', () => {
+      jest.spyOn(component, 'getDesignation').mockImplementation(jest.fn());
+      (component as any).isLoadingMoreDesignations = true
+      component.designationSearch({ target: { value: 'test' } })
+      expect(component.getDesignation).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('onDesignationDropdownClosed', () => {
+    it('does not throw', () => {
+      expect(() => component.onDesignationDropdownClosed()).not.toThrow()
+      jest.runAllTimers()
+    })
+  })
+
+  describe('getDesignation with loaded data', () => {
+    it('appends to designationBackup on second page load', () => {
+      (component as any).masterData.designationBackup = [{ name: 'Manager', status: 'Active' }];
+      (component as any).usersService.searchPublicDesignation = jest.fn(() => of({
+        result: { result: { data: [{ designation: 'Director', status: 'Active' }], totalcount: 5 } }
+      }))
+      component.getDesignation(undefined, 10)
+      expect((component as any).masterData.designationBackup.length).toBeGreaterThan(0)
+    })
+
+    it('sets noMoreLegacyDesignations when all loaded', () => {
+      (component as any).usersService.searchPublicDesignation = jest.fn(() => of({
+        result: { result: { data: [{ designation: 'Manager', status: 'Active' }], totalcount: 1 } }
+      }))
+      component.getDesignation(undefined, 0)
+      expect((component as any).noMoreLegacyDesignations).toBe(true)
+    })
+
+    it('sets noMoreLegacyDesignations when empty result', () => {
+      (component as any).usersService.searchPublicDesignation = jest.fn(() => of({
+        result: { result: { data: [], totalcount: 5 } }
+      }))
+      component.getDesignation(undefined, 0)
+      expect((component as any).noMoreLegacyDesignations).toBe(true)
     })
   })
 })

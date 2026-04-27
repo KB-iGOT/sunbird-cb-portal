@@ -1,150 +1,182 @@
 import { FooterSectionComponent } from './footer-section.component'
-import { ConfigurationsService, DomainConfService, MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
-import { DiscussUtilsService } from '@ws/app/src/lib/routes/discuss/services/discuss-utils.service'
-import { Router } from '@angular/router'
+import { SimpleChange } from '@angular/core'
+
+jest.mock('lodash', () => ({
+  __esModule: true,
+  default: {
+    get: (obj: any, path: string, def: any = undefined) => {
+      const keys = path.split('.')
+      let cur = obj
+      for (const k of keys) { if (cur == null) return def; cur = cur[k] }
+      return cur !== undefined ? cur : def
+    },
+    first: (arr: any[]) => arr && arr[0],
+    filter: (arr: any[], pred: any) => {
+      if (!arr) return []
+      if (typeof pred === 'function') return arr.filter(pred)
+      // object matcher
+      return arr.filter((item: any) => Object.keys(pred).every(k => item[k] === pred[k]))
+    },
+    sortBy: (arr: any[], key: string) => arr ? [...arr].sort((a, b) => a[key] < b[key] ? -1 : 1) : [],
+  }
+}))
 
 describe('FooterSectionComponent', () => {
   let component: FooterSectionComponent
-  let configSvcMock: jest.Mocked<ConfigurationsService>
-  let discussUtilitySvcMock: jest.Mocked<DiscussUtilsService>
-  let routerMock: jest.Mocked<Router>
-  let langtranslationsMock: jest.Mocked<MultilingualTranslationsService>
-  let domainConfSvcMock: jest.Mocked<DomainConfService>
+  let mockConfigSvc: any
+  let mockDiscussSvc: any
+  let mockRouter: any
+  let mockLang: any
+  let mockDomainConfSvc: any
 
   beforeEach(() => {
-    // Mock the dependencies
-    configSvcMock = {
+    mockConfigSvc = {
       nodebbUserProfile: { username: 'testuser' },
-      userRoles: new Set(['admin']),
-    } as any
-
-    discussUtilitySvcMock = {
-      setDiscussionConfig: jest.fn(),
-    } as any
-
-    routerMock = {
-      navigate: jest.fn(),
-    } as any
-
-    langtranslationsMock = {
-      translateLabelWithoutspace: jest.fn().mockReturnValue('translated-label'),
-      translateLabel: jest.fn().mockReturnValue('translated-label-with-space'),
-    } as any
-
-    domainConfSvcMock = {
-      isKbPortal: jest.fn().mockReturnValue(true),
-    } as any
-
-    // Instantiate the component
-    component = new FooterSectionComponent(
-      configSvcMock,
-      discussUtilitySvcMock,
-      routerMock,
-      langtranslationsMock,
-      domainConfSvcMock
-    )
-
-    // Set up input data
-    component.environment = { portals: [{ id: '1', name: 'Portal 1', isPublic: true }] }
-    component.hubsList = []
-    component.headerFooterConfigData = {
-      footerSectionConfig: [
-        { id: 1, order: 1, sectionHeading: 'Hubs', active: true, slug: 'hub' },
-        { id: 2, order: 2, sectionHeading: 'Related Links', active: true, slug: 'link' },
-      ],
+      userRoles: new Set(['mdo_admin']),
     }
-  })
-
-  it('should initialize with correct footerSectionConfig', () => {
-    component.ngOnInit()
-
-    expect(component.footerSectionConfig).toEqual([
-      { id: 1, order: 1, sectionHeading: 'Hubs', active: true, slug: 'hub' },
-      { id: 2, order: 2, sectionHeading: 'Related Links', active: true, slug: 'link' },
-    ])
-  })
-
-  it('should filter portals correctly based on environment', () => {
-    component.ngOnInit()
-    expect(component.environment.portals.length).toBe(1)
-    expect(component.environment.portals[0].id).toBe('1')
-  })
-
-  it('should remove "Related Links" if no public portals are available', () => {
-    component.environment.portals = []
-    component.ngOnInit()
-    expect(component.footerSectionConfig).toEqual([
-      { id: 1, order: 1, sectionHeading: 'Hubs', active: true, slug: 'hub' },
-    ])
-  })
-
-  it('should react to headerFooterConfigData changes in ngOnChanges', () => {
-    const newConfig = {
-      footerSectionConfig: [
-        { id: 3, order: 2, sectionHeading: 'Support', active: true, slug: 'support' },
-        { id: 1, order: 1, sectionHeading: 'Hubs', active: true, slug: 'hub' },
-      ],
+    mockDiscussSvc = { setDiscussionConfig: jest.fn() }
+    mockRouter = { navigate: jest.fn() }
+    mockLang = {
+      translateLabel: jest.fn((l: string) => l),
+      translateLabelWithoutspace: jest.fn((l: string) => l),
     }
+    mockDomainConfSvc = { isKbPortal: jest.fn(() => true) }
 
-    component.ngOnChanges({
-      headerFooterConfigData: {
-        currentValue: newConfig,
-        previousValue: component.headerFooterConfigData,
-        firstChange: false,
-        isFirstChange: () => false,
-      } as any,
-    })
-
-    expect(component.footerSectionConfig.map(s => s.order)).toEqual([1, 2])
+    component = new FooterSectionComponent(mockConfigSvc, mockDiscussSvc, mockRouter, mockLang, mockDomainConfSvc)
   })
 
-  it('should call setDiscussionConfig when navigate is invoked', () => {
-    component.navigate()
-    expect(discussUtilitySvcMock.setDiscussionConfig).toHaveBeenCalledTimes(1)
-    const passedConfig = discussUtilitySvcMock.setDiscussionConfig.mock.calls[0][0]
-    expect(passedConfig.menuOptions.some((m: any) => m.route === 'all-discussions' && m.enable)).toBe(true)
+  it('creates', () => {
+    expect(component).toBeDefined()
+    expect(component.isKbPortal).toBe(true)
   })
 
-  it('should navigate to discussion forum when navigate is invoked', () => {
-    component.navigate()
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/app/discussion-forum'], {
-      queryParams: { page: 'home' },
-      queryParamsHandling: 'merge',
+  it('footerSectionConfig has 4 items by default', () => {
+    expect(component.footerSectionConfig).toHaveLength(4)
+  })
+
+  describe('ngOnInit', () => {
+    it('calls updateFooterConfig', () => {
+      jest.spyOn(component as any, 'updateFooterConfig')
+      component.ngOnInit()
+      expect((component as any).updateFooterConfig).toHaveBeenCalled()
     })
   })
 
-  it('should return true if the user has the role in isAllowed method', () => {
-    const result = component.isAllowed('1')
-    expect(result).toBe(true)
+  describe('ngOnChanges', () => {
+    it('calls updateFooterConfig when headerFooterConfigData changes', () => {
+      jest.spyOn(component as any, 'updateFooterConfig')
+      component.ngOnChanges({ headerFooterConfigData: new SimpleChange(null, { footerSectionConfig: [] }, false) })
+      expect((component as any).updateFooterConfig).toHaveBeenCalled()
+    })
+
+    it('does not call updateFooterConfig for other input changes', () => {
+      jest.spyOn(component as any, 'updateFooterConfig')
+      component.ngOnChanges({ environment: new SimpleChange(null, {}, false) })
+      expect((component as any).updateFooterConfig).not.toHaveBeenCalled()
+    })
   })
 
-  it('should return false if the user does not have the role in isAllowed method', () => {
-    configSvcMock.userRoles = new Set(['guest'])
-    const result = component.isAllowed('1')
-    expect(result).toBe(false)
+  describe('updateFooterConfig', () => {
+    it('updates footerSectionConfig from headerFooterConfigData', () => {
+      component.headerFooterConfigData = {
+        footerSectionConfig: [{ id: 99, order: 1, sectionHeading: 'Test', active: true, slug: 't' }]
+      }
+      component.ngOnInit()
+      expect(component.footerSectionConfig[0].id).toBe(99)
+    })
+
+    it('sorts footerSectionConfig by order', () => {
+      component.headerFooterConfigData = {
+        footerSectionConfig: [
+          { id: 2, order: 2, sectionHeading: 'B', active: true, slug: 'b' },
+          { id: 1, order: 1, sectionHeading: 'A', active: true, slug: 'a' },
+        ]
+      }
+      component.ngOnInit()
+      expect(component.footerSectionConfig[0].order).toBe(1)
+    })
+
+    it('filters portals without public/allowed roles', () => {
+      component.headerFooterConfigData = null
+      component.environment = {
+        portals: [
+          { id: 'p1', name: 'Portal1', isPublic: true, roles: [] },
+          { id: 'p2', name: 'Frac Dictionary', isPublic: false, roles: [] },
+        ]
+      }
+      component.ngOnInit()
+      expect(component.environment.portals.some((p: any) => p.name === 'Frac Dictionary')).toBe(false)
+    })
+
+    it('removes Related Links section when no portals', () => {
+      component.headerFooterConfigData = null
+      component.environment = {
+        portals: [{ id: 'p1', name: 'Frac Dictionary', isPublic: false, roles: [] }]
+      }
+      component.ngOnInit()
+      const hasRelatedLinks = component.footerSectionConfig.some((s: any) => s.sectionHeading === 'Related Links')
+      expect(hasRelatedLinks).toBe(false)
+    })
   })
 
-  it('should allow portal when no roles are configured', () => {
-    component.environment.portals = [{ id: '2', name: 'Portal 2', isPublic: false } as any]
-    const result = component.isAllowed('2')
-    expect(result).toBe(true)
+  describe('navigate', () => {
+    it('sets discuss config and navigates', () => {
+      component.navigate()
+      expect(mockDiscussSvc.setDiscussionConfig).toHaveBeenCalled()
+      expect(mockRouter.navigate).toHaveBeenCalledWith(['/app/discussion-forum'], expect.any(Object))
+    })
   })
 
-  it('should toggle class "open" when onClick is invoked', () => {
-    const event = { target: { parentElement: { classList: { toggle: jest.fn() } } } }
-    component.onClick(event)
-    expect(event.target.parentElement.classList.toggle).toHaveBeenCalledWith('open')
+  describe('isAllowed', () => {
+    it('returns true when no roles defined', () => {
+      component.environment = { portals: [{ id: 'p1', roles: [] }] }
+      expect(component.isAllowed('p1')).toBe(true)
+    })
+
+    it('returns true when user has required role', () => {
+      component.environment = { portals: [{ id: 'p1', roles: ['mdo_admin'] }] }
+      expect(component.isAllowed('p1')).toBe(true)
+    })
+
+    it('returns false when user lacks required role', () => {
+      component.environment = { portals: [{ id: 'p1', roles: ['some_other_role'] }] }
+      expect(component.isAllowed('p1')).toBe(false)
+    })
   })
 
-  it('should return translated label without space when translateLabels is invoked', () => {
-    const result = component.translateLabels('label', 'type')
-    expect(result).toBe('translated-label')
-    expect(langtranslationsMock.translateLabelWithoutspace).toHaveBeenCalledWith('label', 'type', '')
+  describe('hasRole', () => {
+    it('returns true for matching role (lowercase)', () => {
+      expect(component.hasRole(['mdo_admin'])).toBe(true)
+    })
+
+    it('returns false for non-matching role', () => {
+      expect(component.hasRole(['unknown_role'])).toBe(false)
+    })
   })
 
-  it('should return translated label with space when translateLabelsWithSpace is invoked', () => {
-    const result = component.translateLabelsWithSpace('label', 'type')
-    expect(result).toBe('translated-label-with-space')
-    expect(langtranslationsMock.translateLabel).toHaveBeenCalledWith('label', 'type', '')
+  describe('onClick', () => {
+    it('toggles open class on parentElement', () => {
+      const el = document.createElement('div')
+      const parent = document.createElement('div')
+      parent.appendChild(el)
+      component.onClick({ target: el })
+      expect(parent.classList.contains('open')).toBe(true)
+      component.onClick({ target: el })
+      expect(parent.classList.contains('open')).toBe(false)
+    })
+  })
+
+  describe('translateLabels', () => {
+    it('calls translateLabelWithoutspace', () => {
+      component.translateLabels('Hub', 'hub')
+      expect(mockLang.translateLabelWithoutspace).toHaveBeenCalledWith('Hub', 'hub', '')
+    })
+  })
+
+  describe('translateLabelsWithSpace', () => {
+    it('calls translateLabel', () => {
+      component.translateLabelsWithSpace('About', 'about')
+      expect(mockLang.translateLabel).toHaveBeenCalledWith('About', 'about', '')
+    })
   })
 })

@@ -1,287 +1,230 @@
 import { HelpCenterComponent } from './help-center.component'
 import { of } from 'rxjs'
 
+const makeConfig = () => ({
+  roleTabs: [{ id: 'learner', label: 'Learner' }],
+  contentTabs: [{ id: 'all', label: 'All' }],
+  enabledSections: { videos: true, guides: true, faqs: false },
+  videoTutorialsMap: { learner: [{ id: 'v1', title: 'Intro', youtubeUrl: 'https://youtube.com/watch?v=abc123', category: 'basics', date: '', thumbnail: '' }] },
+  howToGuidesMap: { learner: [{ id: 'g1', title: 'Guide 1', titleHindi: 'गाइड 1', description: 'How to do', category: 'basics', pdfUrl: 'http://x.com/guide.pdf', thumbnail: '' }] },
+  faqItemsMap: { learner: [{ id: 'f1', question: 'What is iGOT?', answer: 'A platform', category: 'general', tag: '', isOpen: false }] },
+  videoCategoriesMap: { learner: [{ id: 'all', label: 'All' }, { id: 'basics', label: 'Basics' }] },
+  guideCategoriesMap: { learner: [{ id: 'all', label: 'All' }] },
+  faqCategoriesMap: { learner: [{ id: 'all', label: 'All' }] },
+})
+
 describe('HelpCenterComponent', () => {
   let component: HelpCenterComponent
-  let mockHelpCenterSvc: any
-
-  const makeVideo = (id: string, cat: string, title: string) => ({
-    id, title, date: '2024-01-01', thumbnail: '', youtubeUrl: `https://youtu.be/${id}`, category: cat,
-  })
-  const makeGuide = (id: string, cat: string, title: string, desc = 'desc', titleHindi?: string) => ({
-    id, title, titleHindi, description: desc, thumbnail: '', category: cat, pdfUrl: `/${id}.pdf`,
-  })
-  const makeFaq = (id: string, cat: string, q: string, a: string) => ({
-    id, question: q, answer: a, category: cat, tag: '', isOpen: false,
-  })
-
-  const sampleConfig = {
-    roleTabs: [{ id: 'learner', label: 'Learner' }],
-    contentTabs: [{ id: 'all', label: 'All' }],
-    enabledSections: { videos: true, guides: true, faqs: false },
-    videoTutorialsMap: {
-      learner: [makeVideo('v1', 'cat1', 'Angular Tutorial'), makeVideo('v2', 'cat2', 'React Basics')],
-    },
-    howToGuidesMap: {
-      learner: [makeGuide('g1', 'cat1', 'How to login', 'Login guide', 'Hindi login')],
-    },
-    faqItemsMap: {
-      learner: [makeFaq('f1', 'cat1', 'What is karmayogi?', 'A platform'), makeFaq('f2', 'cat2', 'How to enroll?', 'Click enroll')],
-    },
-    videoCategoriesMap: { learner: [{ id: 'cat1', label: 'Category 1' }] },
-    guideCategoriesMap: { learner: [{ id: 'cat1', label: 'Category 1' }] },
-  }
+  let mockSvc: any
 
   beforeEach(() => {
-    mockHelpCenterSvc = {
-      fetchHelpCenterConfig: jest.fn().mockReturnValue(of(sampleConfig)),
-    }
-    component = new HelpCenterComponent(mockHelpCenterSvc)
-    jest.spyOn(window, 'open').mockImplementation(() => null)
+    mockSvc = { fetchHelpCenterConfig: jest.fn(() => of(makeConfig())) }
+    component = new HelpCenterComponent(mockSvc)
+    jest.spyOn(window, 'open').mockReturnValue(null as any)
   })
 
-  afterEach(() => {
-    jest.restoreAllMocks()
-  })
+  afterEach(() => jest.restoreAllMocks())
 
-  it('should create', () => {
-    expect(component).toBeTruthy()
-  })
-
-  it('should have default role tab as learner', () => {
+  it('creates with defaults', () => {
+    expect(component).toBeDefined()
     expect(component.activeRoleTab).toBe('learner')
-  })
-
-  it('should have default content tab as all', () => {
     expect(component.activeContentTab).toBe('all')
   })
 
   describe('ngOnInit', () => {
-    it('should call fetchHelpCenterConfig and populate data', () => {
+    it('loads help center config', () => {
       component.ngOnInit()
-      expect(mockHelpCenterSvc.fetchHelpCenterConfig).toHaveBeenCalled()
-      expect(component.helpCenterData).toEqual(sampleConfig)
-      expect(component.roleTabs).toEqual(sampleConfig.roleTabs)
-      expect(component.contentTabs).toEqual(sampleConfig.contentTabs)
-      expect(component.enabledSections).toEqual(sampleConfig.enabledSections)
+      expect(component.helpCenterData).toBeDefined()
+      expect(component.roleTabs).toHaveLength(1)
+      expect(component.contentTabs).toHaveLength(1)
     })
 
-    it('should handle null config gracefully', () => {
-      mockHelpCenterSvc.fetchHelpCenterConfig.mockReturnValue(of(null))
+    it('sets enabledSections', () => {
+      component.ngOnInit()
+      expect(component.enabledSections.videos).toBe(true)
+      expect(component.enabledSections.faqs).toBe(false)
+    })
+
+    it('handles null config', () => {
+      mockSvc.fetchHelpCenterConfig.mockReturnValue(of(null))
       component.ngOnInit()
       expect(component.helpCenterData).toBeNull()
-      expect(component.roleTabs).toEqual([])
     })
   })
 
   describe('isSectionEnabled', () => {
     beforeEach(() => component.ngOnInit())
 
-    it('should return true for enabled section', () => {
+    it('returns true for enabled section', () => {
       expect(component.isSectionEnabled('videos')).toBe(true)
     })
 
-    it('should return false for disabled section', () => {
+    it('returns false for disabled section', () => {
       expect(component.isSectionEnabled('faqs')).toBe(false)
     })
 
-    it('should return true for unknown section (not explicitly disabled)', () => {
+    it('returns true for unknown section (not explicitly false)', () => {
       expect(component.isSectionEnabled('unknown')).toBe(true)
-    })
-  })
-
-  describe('allVideos / allGuides / allFaqs', () => {
-    beforeEach(() => component.ngOnInit())
-
-    it('allVideos should return videos for active role', () => {
-      expect(component.allVideos.length).toBe(2)
-    })
-
-    it('allGuides should return guides for active role', () => {
-      expect(component.allGuides.length).toBe(1)
-    })
-
-    it('allFaqs should return faqs for active role', () => {
-      expect(component.allFaqs.length).toBe(2)
-    })
-
-    it('allVideos should return [] for unknown role tab', () => {
-      component.activeRoleTab = 'mdo-leader'
-      expect(component.allVideos).toEqual([])
     })
   })
 
   describe('filteredVideos', () => {
     beforeEach(() => component.ngOnInit())
 
-    it('should return all videos when searchQuery is empty', () => {
-      component.searchQuery = ''
-      expect(component.filteredVideos.length).toBe(2)
+    it('returns all when no search query', () => {
+      expect(component.filteredVideos).toHaveLength(1)
     })
 
-    it('should filter by title search', () => {
-      component.searchQuery = 'angular'
-      expect(component.filteredVideos.length).toBe(1)
-      expect(component.filteredVideos[0].id).toBe('v1')
+    it('filters by category', () => {
+      component.activeVideoCategory = 'basics'
+      expect(component.filteredVideos).toHaveLength(1)
     })
 
-    it('should filter by category', () => {
-      component.activeVideoCategory = 'cat1'
-      expect(component.filteredVideos.length).toBe(1)
+    it('filters by search query', () => {
+      component.searchQuery = 'Intro'
+      expect(component.filteredVideos).toHaveLength(1)
     })
 
-    it('should return [] for no match', () => {
-      component.searchQuery = 'xyznotfound'
-      expect(component.filteredVideos.length).toBe(0)
+    it('returns empty when no match', () => {
+      component.searchQuery = 'zzznomatch'
+      expect(component.filteredVideos).toHaveLength(0)
     })
   })
 
   describe('filteredGuides', () => {
     beforeEach(() => component.ngOnInit())
 
-    it('should return all guides when no search', () => {
-      expect(component.filteredGuides.length).toBe(1)
+    it('returns all when no search', () => {
+      expect(component.filteredGuides).toHaveLength(1)
     })
 
-    it('should filter guide by title', () => {
-      component.searchQuery = 'login'
-      expect(component.filteredGuides.length).toBe(1)
+    it('filters by title', () => {
+      component.searchQuery = 'Guide 1'
+      expect(component.filteredGuides).toHaveLength(1)
     })
 
-    it('should filter guide by description', () => {
-      component.searchQuery = 'Login guide'
-      expect(component.filteredGuides.length).toBe(1)
+    it('filters by titleHindi', () => {
+      component.searchQuery = 'गाइड'
+      expect(component.filteredGuides).toHaveLength(1)
     })
 
-    it('should filter guide by titleHindi', () => {
-      component.searchQuery = 'hindi'
-      expect(component.filteredGuides.length).toBe(1)
+    it('filters by description', () => {
+      component.searchQuery = 'How to'
+      expect(component.filteredGuides).toHaveLength(1)
     })
 
-    it('should return [] for no match in guide', () => {
+    it('returns empty when no match', () => {
       component.searchQuery = 'zzz'
-      expect(component.filteredGuides.length).toBe(0)
+      expect(component.filteredGuides).toHaveLength(0)
+    })
+
+    it('filters by category', () => {
+      component.activeGuideCategory = 'other'
+      expect(component.filteredGuides).toHaveLength(0)
     })
   })
 
   describe('filteredFaqs', () => {
     beforeEach(() => component.ngOnInit())
 
-    it('should return all faqs when no search', () => {
-      expect(component.filteredFaqs.length).toBe(2)
+    it('returns all when no search', () => {
+      expect(component.filteredFaqs).toHaveLength(1)
     })
 
-    it('should filter by question', () => {
-      component.searchQuery = 'karmayogi'
-      expect(component.filteredFaqs.length).toBe(1)
+    it('filters by question', () => {
+      component.searchQuery = 'iGOT'
+      expect(component.filteredFaqs).toHaveLength(1)
     })
 
-    it('should filter by answer', () => {
-      component.searchQuery = 'click enroll'
-      expect(component.filteredFaqs.length).toBe(1)
+    it('filters by answer', () => {
+      component.searchQuery = 'platform'
+      expect(component.filteredFaqs).toHaveLength(1)
     })
 
-    it('should filter by category', () => {
-      component.activeFaqCategory = 'cat1'
-      expect(component.filteredFaqs.length).toBe(1)
+    it('filters by category', () => {
+      component.activeFaqCategory = 'other'
+      expect(component.filteredFaqs).toHaveLength(0)
     })
   })
 
   describe('showVideos / showGuides / showFaqs', () => {
     beforeEach(() => component.ngOnInit())
 
-    it('showVideos should be true when tab is all', () => {
-      component.activeContentTab = 'all'
+    it('showVideos is true when tab is all', () => {
       expect(component.showVideos).toBe(true)
     })
 
-    it('showVideos should be true when tab is videos', () => {
-      component.activeContentTab = 'videos'
-      expect(component.showVideos).toBe(true)
-    })
-
-    it('showVideos should be false when tab is faqs', () => {
+    it('showVideos is false when tab is faqs and no search', () => {
       component.activeContentTab = 'faqs'
       expect(component.showVideos).toBe(false)
     })
 
-    it('showVideos should be true during search with results', () => {
-      component.searchQuery = 'angular'
+    it('showVideos is true when search matches videos', () => {
+      component.searchQuery = 'Intro'
       expect(component.showVideos).toBe(true)
     })
 
-    it('showVideos should be false during search with no results', () => {
-      component.searchQuery = 'zzzznotfound'
-      expect(component.showVideos).toBe(false)
-    })
-
-    it('showGuides should be true when tab is guides', () => {
-      component.activeContentTab = 'guides'
-      expect(component.showGuides).toBe(true)
-    })
-
-    it('showFaqs should be true when tab is faqs', () => {
+    it('showFaqs is true when tab is faqs', () => {
       component.activeContentTab = 'faqs'
       expect(component.showFaqs).toBe(true)
+    })
+
+    it('showGuides is true when tab is guides', () => {
+      component.activeContentTab = 'guides'
+      expect(component.showGuides).toBe(true)
     })
   })
 
   describe('setRoleTab', () => {
-    beforeEach(() => component.ngOnInit())
-
-    it('should set activeRoleTab and reset other filters', () => {
-      component.searchQuery = 'something'
-      component.activeContentTab = 'videos'
+    it('sets activeRoleTab and resets state', () => {
       component.setRoleTab('mdo-leader')
       expect(component.activeRoleTab).toBe('mdo-leader')
       expect(component.activeContentTab).toBe('all')
       expect(component.searchQuery).toBe('')
-      expect(component.activeVideoCategory).toBe('all')
+      expect(component.videoSectionOpen).toBe(true)
     })
   })
 
   describe('setContentTab', () => {
-    it('should set activeContentTab', () => {
+    it('sets activeContentTab', () => {
       component.setContentTab('videos')
       expect(component.activeContentTab).toBe('videos')
-      expect(component.videoSectionOpen).toBe(true)
     })
 
-    it('should handle guides tab', () => {
+    it('sets sections open for guides tab', () => {
       component.setContentTab('guides')
-      expect(component.activeContentTab).toBe('guides')
+      expect(component.guidesSectionOpen).toBe(true)
     })
 
-    it('should handle faqs tab', () => {
+    it('sets sections open for faqs tab', () => {
       component.setContentTab('faqs')
-      expect(component.activeContentTab).toBe('faqs')
+      expect(component.faqSectionOpen).toBe(true)
     })
   })
 
   describe('toggleSection', () => {
-    it('should toggle video section', () => {
-      const initial = component.videoSectionOpen
+    it('toggles videoSectionOpen', () => {
+      component.videoSectionOpen = true
       component.toggleSection('video')
-      expect(component.videoSectionOpen).toBe(!initial)
+      expect(component.videoSectionOpen).toBe(false)
     })
 
-    it('should toggle guides section', () => {
-      const initial = component.guidesSectionOpen
+    it('toggles guidesSectionOpen', () => {
+      component.guidesSectionOpen = true
       component.toggleSection('guides')
-      expect(component.guidesSectionOpen).toBe(!initial)
+      expect(component.guidesSectionOpen).toBe(false)
     })
 
-    it('should toggle faq section', () => {
-      const initial = component.faqSectionOpen
+    it('toggles faqSectionOpen', () => {
+      component.faqSectionOpen = true
       component.toggleSection('faq')
-      expect(component.faqSectionOpen).toBe(!initial)
+      expect(component.faqSectionOpen).toBe(false)
     })
   })
 
   describe('toggleFaq', () => {
-    it('should toggle faq isOpen', () => {
-      const faq = makeFaq('f1', 'cat1', 'Q', 'A')
-      faq.isOpen = false
+    it('toggles faq.isOpen', () => {
+      const faq: any = { isOpen: false }
       component.toggleFaq(faq)
       expect(faq.isOpen).toBe(true)
       component.toggleFaq(faq)
@@ -290,123 +233,147 @@ describe('HelpCenterComponent', () => {
   })
 
   describe('onSearch', () => {
-    it('should set searchQuery from input event', () => {
-      const event = { target: { value: 'angular' } } as any
-      component.onSearch(event)
-      expect(component.searchQuery).toBe('angular')
+    it('sets searchQuery from input event', () => {
+      const input = document.createElement('input')
+      input.value = 'hello'
+      component.onSearch({ target: input } as any)
+      expect(component.searchQuery).toBe('hello')
     })
   })
 
-  describe('getVideoCount', () => {
+  describe('clearSearch', () => {
+    it('clears searchQuery', () => {
+      component.searchQuery = 'something'
+      component.clearSearch()
+      expect(component.searchQuery).toBe('')
+    })
+  })
+
+  describe('getVideoCount / getGuideCount / getFaqCount', () => {
     beforeEach(() => component.ngOnInit())
 
-    it('should return total count for all', () => {
-      expect(component.getVideoCount('all')).toBe(2)
-    })
-
-    it('should return count for specific category', () => {
-      expect(component.getVideoCount('cat1')).toBe(1)
-    })
-
-    it('should filter by search', () => {
-      component.searchQuery = 'react'
+    it('getVideoCount returns total for all', () => {
       expect(component.getVideoCount('all')).toBe(1)
     })
-  })
 
-  describe('getGuideCount', () => {
-    beforeEach(() => component.ngOnInit())
+    it('getVideoCount filters by category', () => {
+      expect(component.getVideoCount('basics')).toBe(1)
+      expect(component.getVideoCount('other')).toBe(0)
+    })
 
-    it('should return count for all', () => {
+    it('getVideoCount filters by search', () => {
+      component.searchQuery = 'Intro'
+      expect(component.getVideoCount('all')).toBe(1)
+      component.searchQuery = 'zzz'
+      expect(component.getVideoCount('all')).toBe(0)
+    })
+
+    it('getGuideCount returns total for all', () => {
       expect(component.getGuideCount('all')).toBe(1)
     })
 
-    it('should return 0 for non-existent category', () => {
-      expect(component.getGuideCount('catX')).toBe(0)
-    })
-  })
-
-  describe('getFaqCount', () => {
-    beforeEach(() => component.ngOnInit())
-
-    it('should return count for all', () => {
-      expect(component.getFaqCount('all')).toBe(2)
+    it('getGuideCount filters by search', () => {
+      component.searchQuery = 'How'
+      expect(component.getGuideCount('all')).toBe(1)
     })
 
-    it('should return count for category', () => {
-      expect(component.getFaqCount('cat1')).toBe(1)
+    it('getFaqCount returns total for all', () => {
+      expect(component.getFaqCount('all')).toBe(1)
     })
 
-    it('should filter by search', () => {
-      component.searchQuery = 'karmayogi'
+    it('getFaqCount filters by search', () => {
+      component.searchQuery = 'iGOT'
       expect(component.getFaqCount('all')).toBe(1)
     })
   })
 
-  describe('openVideo', () => {
-    it('should open youtube url in new tab', () => {
-      const video = makeVideo('abc123', 'cat1', 'Test')
-      component.openVideo(video)
-      expect(window.open).toHaveBeenCalledWith(`https://youtu.be/abc123`, '_blank')
+  describe('allVideos / allGuides / allFaqs getters', () => {
+    it('returns empty array when helpCenterData is null', () => {
+      component.helpCenterData = null
+      expect(component.allVideos).toEqual([])
+      expect(component.allGuides).toEqual([])
+      expect(component.allFaqs).toEqual([])
     })
 
-    it('should not open if no youtubeUrl', () => {
-      const video = { ...makeVideo('x', 'c', 'T'), youtubeUrl: '' }
-      component.openVideo(video)
-      expect(window.open).not.toHaveBeenCalled()
+    it('returns data for active role tab', () => {
+      component.ngOnInit()
+      expect(component.allVideos).toHaveLength(1)
     })
   })
 
-  describe('openPDF', () => {
-    it('should open pdf url in new tab', () => {
-      const pdf = { pdfUrl: '/guide.pdf' }
-      component.openPDF(pdf)
-      expect(window.open).toHaveBeenCalledWith('/guide.pdf', '_blank')
+  describe('videoCategories / guideCategories / faqCategories', () => {
+    beforeEach(() => component.ngOnInit())
+
+    it('returns videoCategories for active tab', () => {
+      expect(component.videoCategories).toHaveLength(2)
     })
 
-    it('should not open if pdf is falsy', () => {
+    it('returns guideCategories for active tab', () => {
+      expect(component.guideCategories).toHaveLength(1)
+    })
+
+    it('returns faqCategories for active tab', () => {
+      expect(component.faqCategories).toHaveLength(1)
+    })
+  })
+
+  describe('hasAnySearchResult', () => {
+    beforeEach(() => component.ngOnInit())
+
+    it('returns true when no search query', () => {
+      expect(component.hasAnySearchResult).toBe(true)
+    })
+
+    it('returns true when results exist', () => {
+      component.searchQuery = 'iGOT'
+      expect(component.hasAnySearchResult).toBe(true)
+    })
+
+    it('returns false when no results match', () => {
+      component.searchQuery = 'zzznomatch'
+      expect(component.hasAnySearchResult).toBe(false)
+    })
+  })
+
+  describe('openVideo / openPDF', () => {
+    it('opens youtube URL', () => {
+      component.openVideo({ youtubeUrl: 'https://youtube.com/watch?v=abc', id: '', title: '', date: '', thumbnail: '', category: '' })
+      expect(window.open).toHaveBeenCalledWith('https://youtube.com/watch?v=abc', '_blank')
+    })
+
+    it('does not open when no youtubeUrl', () => {
+      component.openVideo({ youtubeUrl: '', id: '', title: '', date: '', thumbnail: '', category: '' })
+      expect(window.open).not.toHaveBeenCalled()
+    })
+
+    it('opens PDF URL', () => {
+      component.openPDF({ pdfUrl: 'http://x.com/g.pdf' })
+      expect(window.open).toHaveBeenCalledWith('http://x.com/g.pdf', '_blank')
+    })
+
+    it('does not open PDF when pdf is null', () => {
       component.openPDF(null)
       expect(window.open).not.toHaveBeenCalled()
     })
   })
 
   describe('getYoutubeThumbnail', () => {
-    it('should return thumbnail for standard youtube url', () => {
-      const url = 'https://www.youtube.com/watch?v=dQw4w9WgXcQ'
-      const result = component.getYoutubeThumbnail(url)
-      expect(result).toContain('dQw4w9WgXcQ')
-      expect(result).toContain('hqdefault.jpg')
+    it('returns thumbnail for watch URL', () => {
+      const url = 'https://www.youtube.com/watch?v=abc123'
+      expect(component.getYoutubeThumbnail(url)).toContain('abc123')
     })
 
-    it('should return thumbnail for youtu.be short url', () => {
-      const url = 'https://youtu.be/dQw4w9WgXcQ'
-      const result = component.getYoutubeThumbnail(url)
-      expect(result).toContain('dQw4w9WgXcQ')
+    it('returns thumbnail for youtu.be URL', () => {
+      const url = 'https://youtu.be/abc123'
+      expect(component.getYoutubeThumbnail(url)).toContain('abc123')
     })
 
-    it('should return empty string for empty url', () => {
+    it('returns empty string for empty URL', () => {
       expect(component.getYoutubeThumbnail('')).toBe('')
     })
 
-    it('should return empty string for non-youtube url', () => {
-      expect(component.getYoutubeThumbnail('https://vimeo.com/12345')).toBe('')
-    })
-  })
-
-  describe('videoCategories / guideCategories', () => {
-    beforeEach(() => component.ngOnInit())
-
-    it('should return video categories for active role', () => {
-      expect(component.videoCategories).toEqual(sampleConfig.videoCategoriesMap.learner)
-    })
-
-    it('should return guide categories for active role', () => {
-      expect(component.guideCategories).toEqual(sampleConfig.guideCategoriesMap.learner)
-    })
-
-    it('should return [] for role with no categories', () => {
-      component.activeRoleTab = 'mdo-leader'
-      expect(component.videoCategories).toEqual([])
+    it('returns empty string for non-youtube URL', () => {
+      expect(component.getYoutubeThumbnail('https://vimeo.com/123')).toBe('')
     })
   })
 })

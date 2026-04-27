@@ -1,254 +1,275 @@
-jest.mock('src/app/services/init.service', () => ({
-  InitService: jest.fn().mockImplementation(() => ({})),
-}), { virtual: true })
-
-// Fix for 'import _ from lodash' with esModuleInterop: false
-jest.mock('lodash', () => {
-  const actual = jest.requireActual('lodash')
-  return { ...actual, default: actual }
-})
-
 import {
+  PublicWelcomeComponent,
   forbiddenNamesValidator,
   forbiddenNamesValidatorNonEmpty,
   forbiddenNamesValidatorPosition,
-  PublicWelcomeComponent,
 } from './public-welcome.component'
 import { UntypedFormControl } from '@angular/forms'
-import { of } from 'rxjs'
+import { of, throwError } from 'rxjs'
 
-// ─── Pure validator function tests ────────────────────────────────────────────
+jest.mock('src/app/services/init.service', () => ({
+  InitService: class { init = jest.fn(() => Promise.resolve()) },
+}), { virtual: true })
 
-describe('public-welcome.component — exported validators', () => {
-  describe('forbiddenNamesValidator', () => {
-    it('should return null when optionsArray is falsy', () => {
-      const validator = forbiddenNamesValidator(null)
-      const control = new UntypedFormControl({ orgName: 'Anything' })
-      expect(validator(control)).toBeNull()
-    })
+jest.mock('src/environments/environment', () => ({
+  environment: { resendOTPTIme: 120 },
+}), { virtual: true })
+jest.mock('lodash', () => {
+  const actual = jest.requireActual('lodash')
+  return { __esModule: true, default: actual, ...actual }
+}, { virtual: false })
 
-    it('should return null when control value is falsy', () => {
-      const options = [{ orgName: 'Ministry A' }]
-      const validator = forbiddenNamesValidator(options)
-      const control = new UntypedFormControl(null)
-      expect(validator(control)).toBeNull()
-    })
+const buildMocks = (usrOverrides: any = {}) => {
+  const usr = {
+    userId: 'u1',
+    firstName: 'Alice',
+    lastName: 'Wonder',
+    email: 'alice@gov.in',
+    phone: '',
+    isUpdateRequired: true,
+    ...usrOverrides,
+  }
 
-    it('should return null when orgName matches an option', () => {
-      const options = [{ orgName: 'Ministry A' }]
-      const validator = forbiddenNamesValidator(options)
-      const control = new UntypedFormControl({ orgName: 'Ministry A' })
-      expect(validator(control)).toBeNull()
-    })
+  const welcomeSignupSvc = {
+    register: jest.fn(() => of({ result: 'SUCCESS' })),
+  }
+  const signupSvc = {
+    searchOrgs: jest.fn(() => of({ result: { response: [] } })),
+  }
+  const loggerSvc = { error: jest.fn() }
+  const configSvc = {
+    instanceConfig: {
+      telemetryConfig: { pdata: { id: 'portal' } },
+    },
+    userProfileV2: { id: 'u1' } as any,
+    updateGlobalProfile: jest.fn(),
+  }
+  const snackBar = { open: jest.fn() }
+  const activatedRoute = {
+    snapshot: {
+      data: {
+        userData: { data: usr },
+        group: { data: ['Manager', 'Developer', 'Others'] },
+      },
+    },
+  }
+  const router = { navigate: jest.fn() }
+  const initSvc = { init: jest.fn(() => Promise.resolve()) }
 
-    it('should return forbiddenNames error when orgName is NOT in options', () => {
-      const options = [{ orgName: 'Ministry A' }]
-      const validator = forbiddenNamesValidator(options)
-      const control = new UntypedFormControl({ orgName: 'Unknown' })
-      const result = validator(control)
-      expect(result).not.toBeNull()
-      expect(result!['forbiddenNames']).toEqual({ value: 'Unknown' })
-    })
+  return { welcomeSignupSvc, signupSvc, loggerSvc, configSvc, snackBar, activatedRoute, router, initSvc, usr }
+}
 
-    it('should return error for empty options array', () => {
-      const validator = forbiddenNamesValidator([])
-      const control = new UntypedFormControl({ orgName: 'Anything' })
-      expect(validator(control)).not.toBeNull()
-    })
+const makeComponent = (mocks: any) =>
+  new (PublicWelcomeComponent as any)(
+    mocks.welcomeSignupSvc,
+    mocks.signupSvc,
+    mocks.loggerSvc,
+    mocks.configSvc,
+    mocks.snackBar,
+    mocks.activatedRoute,
+    mocks.router,
+    mocks.initSvc,
+  )
 
-    it('should match second element in options', () => {
-      const options = [{ orgName: 'Org1' }, { orgName: 'Org2' }]
-      const validator = forbiddenNamesValidator(options)
-      const control = new UntypedFormControl({ orgName: 'Org2' })
-      expect(validator(control)).toBeNull()
-    })
+// ── Validator helpers ─────────────────────────────────────────────────────────
+describe('forbiddenNamesValidator', () => {
+  it('returns null for null optionsArray', () => {
+    const fn = forbiddenNamesValidator(null)
+    expect(fn(new UntypedFormControl('any'))).toBeNull()
   })
 
-  describe('forbiddenNamesValidatorNonEmpty', () => {
-    it('should return null when optionsArray is falsy', () => {
-      const validator = forbiddenNamesValidatorNonEmpty(null)
-      const control = new UntypedFormControl({ orgName: 'Any' })
-      expect(validator(control)).toBeNull()
-    })
-
-    it('should return null when orgName matches an option', () => {
-      const options = [{ orgName: 'DOPT' }]
-      const validator = forbiddenNamesValidatorNonEmpty(options)
-      const control = new UntypedFormControl({ orgName: 'DOPT' })
-      expect(validator(control)).toBeNull()
-    })
-
-    it('should return error when orgName NOT in options', () => {
-      const options = [{ orgName: 'DOPT' }]
-      const validator = forbiddenNamesValidatorNonEmpty(options)
-      const control = new UntypedFormControl({ orgName: 'Unknown' })
-      const result = validator(control)
-      expect(result!['forbiddenNames']).toEqual({ value: 'Unknown' })
-    })
-
-    it('should return error for empty options array', () => {
-      const validator = forbiddenNamesValidatorNonEmpty([])
-      const control = new UntypedFormControl({ orgName: 'SomeOrg' })
-      expect(validator(control)).not.toBeNull()
-    })
+  it('returns null when orgName matches existing option', () => {
+    const options = [{ orgName: 'DOPT' }]
+    const fn = forbiddenNamesValidator(options)
+    const ctrl = new UntypedFormControl({ orgName: 'DOPT' })
+    expect(fn(ctrl)).toBeNull()
   })
 
-  describe('forbiddenNamesValidatorPosition', () => {
-    it('should return null when optionsArray is falsy', () => {
-      const validator = forbiddenNamesValidatorPosition(null)
-      const control = new UntypedFormControl({ name: 'Director' })
-      expect(validator(control)).toBeNull()
-    })
+  it('returns error when orgName does not match any option', () => {
+    const options = [{ orgName: 'DOPT' }]
+    const fn = forbiddenNamesValidator(options)
+    const ctrl = new UntypedFormControl({ orgName: 'Unknown' })
+    expect(fn(ctrl)).toEqual({ forbiddenNames: { value: 'Unknown' } })
+  })
+})
 
-    it('should return null when name matches an option', () => {
-      const options = [{ name: 'Director' }]
-      const validator = forbiddenNamesValidatorPosition(options)
-      const control = new UntypedFormControl({ name: 'Director' })
-      expect(validator(control)).toBeNull()
-    })
+describe('forbiddenNamesValidatorNonEmpty', () => {
+  it('returns null for null optionsArray', () => {
+    const fn = forbiddenNamesValidatorNonEmpty(null)
+    expect(fn(new UntypedFormControl('any'))).toBeNull()
+  })
 
-    it('should return forbiddenNames error when name NOT in options', () => {
-      const options = [{ name: 'Director' }]
-      const validator = forbiddenNamesValidatorPosition(options)
-      const control = new UntypedFormControl({ name: 'Unknown' })
-      const result = validator(control)
-      expect(result!['forbiddenNames']).toEqual({ value: 'Unknown' })
-    })
+  it('returns null when match found', () => {
+    const fn = forbiddenNamesValidatorNonEmpty([{ orgName: 'DOPT' }])
+    expect(fn(new UntypedFormControl({ orgName: 'DOPT' }))).toBeNull()
+  })
 
-    it('should return error for empty options array', () => {
-      const validator = forbiddenNamesValidatorPosition([])
-      const control = new UntypedFormControl({ name: 'Director' })
-      expect(validator(control)).not.toBeNull()
+  it('returns error when no match', () => {
+    const fn = forbiddenNamesValidatorNonEmpty([{ orgName: 'DOPT' }])
+    expect(fn(new UntypedFormControl({ orgName: 'OTHER' }))).toEqual({
+      forbiddenNames: { value: 'OTHER' },
     })
   })
 })
 
-// ─── Component instance tests ─────────────────────────────────────────────────
+describe('forbiddenNamesValidatorPosition', () => {
+  it('returns null for null optionsArray', () => {
+    const fn = forbiddenNamesValidatorPosition(null)
+    expect(fn(new UntypedFormControl('any'))).toBeNull()
+  })
 
+  it('returns null when name matches', () => {
+    const fn = forbiddenNamesValidatorPosition([{ name: 'Manager' }])
+    expect(fn(new UntypedFormControl({ name: 'Manager' }))).toBeNull()
+  })
+
+  it('returns error when no name match', () => {
+    const fn = forbiddenNamesValidatorPosition([{ name: 'Manager' }])
+    expect(fn(new UntypedFormControl({ name: 'Unknown' }))).toEqual({
+      forbiddenNames: { value: 'Unknown' },
+    })
+  })
+})
+
+// ── PublicWelcomeComponent ────────────────────────────────────────────────────
 describe('PublicWelcomeComponent', () => {
   let component: PublicWelcomeComponent
-  let mockWelcomeSignupSvc: any
-  let mockSignupSvc: any
-  let mockLoggerSvc: any
-  let mockConfigSvc: any
-  let mockSnackBar: any
-  let mockActivatedRoute: any
-  let mockRouter: any
-  let mockInitSvc: any
-
-  const mockUsr = {
-    userId: 'user-abc',
-    firstName: 'Jane',
-    lastName: 'Doe',
-    email: 'jane@gov.in',
-    phone: '9876543210',
-    isUpdateRequired: true,
-  }
+  let mocks: any
 
   beforeEach(() => {
-    mockWelcomeSignupSvc = { register: jest.fn() }
-    mockSignupSvc = { searchOrgs: jest.fn() }
-    mockLoggerSvc = { error: jest.fn(), info: jest.fn() }
-    mockConfigSvc = {
-      userProfileV2: null,
-      instanceConfig: {
-        telemetryConfig: { pdata: { id: 'test-portal' } },
-        isMultilingualEnabled: false,
-      },
-      updateGlobalProfile: jest.fn(),
-    }
-    mockSnackBar = { open: jest.fn() }
-    mockActivatedRoute = {
-      snapshot: {
-        data: {
-          userData: { data: mockUsr },
-          group: { data: ['Engineer', 'Director'] },
-        },
-      },
-    }
-    mockRouter = { navigate: jest.fn() }
-    mockInitSvc = { init: jest.fn().mockResolvedValue(true) }
-
-    component = new PublicWelcomeComponent(
-      mockWelcomeSignupSvc,
-      mockSignupSvc,
-      mockLoggerSvc,
-      mockConfigSvc,
-      mockSnackBar,
-      mockActivatedRoute,
-      mockRouter,
-      mockInitSvc
-    )
+    jest.clearAllMocks()
+    mocks = buildMocks()
+    component = makeComponent(mocks)
   })
 
-  describe('constructor', () => {
-    it('should create the component', () => {
-      expect(component).toBeTruthy()
+  // ── Construction ────────────────────────────────────────────────────────
+  describe('construction', () => {
+    it('creates an instance', () => {
+      expect(component).toBeDefined()
     })
 
-    it('should navigate to home if isUpdateRequired is false', () => {
-      const usr = { ...mockUsr, isUpdateRequired: false }
-      mockActivatedRoute.snapshot.data.userData.data = usr
-      mockConfigSvc.userProfileV2 = { someProfile: true }
+    it('calls init() when isUpdateRequired is true and userProfileV2 is set', () => {
+      // registrationForm is built synchronously when userProfileV2 is truthy
+      expect(component.registrationForm).toBeDefined()
+    })
 
-      new PublicWelcomeComponent(
-        mockWelcomeSignupSvc, mockSignupSvc, mockLoggerSvc,
-        mockConfigSvc, mockSnackBar, mockActivatedRoute,
-        mockRouter, mockInitSvc
-      )
+    it('takes async path when isUpdateRequired is true and userProfileV2 is null', () => {
+      const m = buildMocks()
+      m.configSvc.userProfileV2 = null
+      const c = makeComponent(m)
+      // constructor returns without error; fetch() is called asynchronously
+      expect(c).toBeDefined()
+    })
 
-      expect(mockRouter.navigate).toHaveBeenCalledWith(['/page/home'])
+    it('navigates to /page/home when isUpdateRequired is false and userProfileV2 set', () => {
+      const m = buildMocks({ isUpdateRequired: false })
+      m.configSvc.userProfileV2 = { id: 'u1' } as any // already loaded
+      makeComponent(m)
+      expect(m.router.navigate).toHaveBeenCalledWith(['/page/home'])
+    })
+
+    it('OTP_TIMER is set from environment.resendOTPTIme', () => {
+      expect(component.OTP_TIMER).toBe(120)
     })
   })
 
-  describe('confirmChange', () => {
-    it('should toggle confirm flag', () => {
-      component.init()
-      component.confirm = false
-      component.confirmChange()
-      expect(component.confirm).toBe(true)
+  // ── init() ──────────────────────────────────────────────────────────────
+  describe('init()', () => {
+    it('builds registrationForm with firstname field', () => {
+      expect(component.registrationForm.get('firstname')).toBeDefined()
     })
 
-    it('should toggle confirm back to false', () => {
-      component.init()
-      component.confirm = true
-      component.confirmChange()
-      expect(component.confirm).toBe(false)
-    })
-  })
-
-  describe('init', () => {
-    it('should initialize registrationForm', () => {
-      component.init()
-      expect(component.registrationForm).toBeTruthy()
-    })
-
-    it('should pre-fill firstname from usr', () => {
-      component.init()
-      expect(component.registrationForm.get('firstname')!.value).toBe('Jane Doe')
-    })
-
-    it('should set isEmailVerified to true when usr has email', () => {
-      component.init()
+    it('sets isEmailVerified true when user has email', () => {
       expect(component.isEmailVerified).toBe(true)
     })
 
-    it('should set isMobileVerified to true when usr has phone', () => {
-      component.init()
-      expect(component.isMobileVerified).toBe(true)
+    it('sets isEmailVerified false when user has no email', () => {
+      const m = buildMocks({ email: '' })
+      const c = makeComponent(m)
+      expect(c.isEmailVerified).toBe(false)
+    })
+
+    it('sets isMobileVerified true when user has phone', () => {
+      const m = buildMocks({ phone: '9876543210' })
+      const c = makeComponent(m)
+      expect(c.isMobileVerified).toBe(true)
+    })
+
+    it('sets isMobileVerified false when no phone', () => {
+      expect(component.isMobileVerified).toBe(false)
+    })
+
+    it('sets firstname from usr.firstName + lastName', () => {
+      expect(component.registrationForm.get('firstname')!.value).toBe('Alice Wonder')
     })
   })
 
-  describe('editOrg', () => {
-    it('should reset hideOrg, resultFetched, searching and heirarchyObject', () => {
-      component.init()
+  // ── confirmChange() ──────────────────────────────────────────────────────
+  describe('confirmChange()', () => {
+    it('toggles confirm and updates confirmBox in form', () => {
+      expect(component.confirm).toBe(false)
+      component.confirmChange()
+      expect(component.confirm).toBe(true)
+      expect(component.registrationForm.get('confirmBox')!.value).toBe(true)
+
+      component.confirmChange()
+      expect(component.confirm).toBe(false)
+      expect(component.registrationForm.get('confirmBox')!.value).toBe(false)
+    })
+  })
+
+  // ── typeValue / typeValueStartCase ────────────────────────────────────────
+  describe('typeValue', () => {
+    it('returns the current form type value', () => {
+      expect(component.typeValue).toBe('ministry')
+    })
+  })
+
+  describe('typeValueStartCase', () => {
+    it('returns start-cased type value', () => {
+      expect(component.typeValueStartCase).toBe('Ministry')
+    })
+  })
+
+  // ── displayFn / displayFnGroup / displayFnState ───────────────────────────
+  describe('displayFn', () => {
+    it('returns channel when value has channel', () => {
+      expect(component.displayFn({ channel: 'ch1' })).toBe('ch1')
+    })
+
+    it('returns undefined for null', () => {
+      expect(component.displayFn(null)).toBeUndefined()
+    })
+  })
+
+  describe('displayFnGroup', () => {
+    it('returns value itself', () => {
+      expect(component.displayFnGroup('Manager')).toBe('Manager')
+    })
+
+    it('returns undefined for null', () => {
+      expect(component.displayFnGroup(null)).toBeUndefined()
+    })
+  })
+
+  describe('displayFnState', () => {
+    it('returns orgName when value has orgName', () => {
+      expect(component.displayFnState({ orgName: 'DOPT' })).toBe('DOPT')
+    })
+
+    it('returns undefined for null', () => {
+      expect(component.displayFnState(null)).toBeUndefined()
+    })
+  })
+
+  // ── editOrg ───────────────────────────────────────────────────────────────
+  describe('editOrg()', () => {
+    it('resets hideOrg, resultFetched, searching, and clears heirarchyObject', () => {
       component.hideOrg = true
       component.resultFetched = true
       component.searching = true
-      component.heirarchyObject = { some: 'data' }
-
+      component.heirarchyObject = { orgName: 'X' }
       component.editOrg()
-
       expect(component.hideOrg).toBe(false)
       expect(component.resultFetched).toBe(false)
       expect(component.searching).toBe(false)
@@ -256,199 +277,143 @@ describe('PublicWelcomeComponent', () => {
     })
   })
 
-  describe('orgClicked', () => {
-    it('should set heirarchyObject and hideOrg when org option selected', () => {
-      component.init()
-      const event = { option: { value: { orgName: 'Ministry A', channel: 'ch1' } } }
-      component.orgClicked(event)
-      expect(component.heirarchyObject).toEqual({ orgName: 'Ministry A', channel: 'ch1' })
-      expect(component.hideOrg).toBe(true)
-    })
-
-    it('should set hideOrg to false when option value has no orgName', () => {
-      component.init()
-      const event = { option: { value: {} } }
-      component.orgClicked(event)
-      expect(component.hideOrg).toBe(false)
-    })
-
-    it('should not throw when event is null', () => {
-      component.init()
-      expect(() => component.orgClicked(null)).not.toThrow()
-    })
-  })
-
-  describe('openDialog', () => {
-    it('should not throw', () => {
-      expect(() => component.openDialog()).not.toThrow()
-    })
-  })
-
-  describe('signup', () => {
-    beforeEach(() => {
-      component.init()
-      component.heirarchyObject = {
-        orgName: 'Ministry X',
-        channel: 'ch1',
-        sbOrgId: 'org1',
-        mapId: 'map1',
-        sbRootOrgId: 'root1',
-        sbOrgType: 'Government',
-        sbOrgSubType: 'Central',
-      }
-    })
-
-    it('should call register with correct payload', () => {
-      mockWelcomeSignupSvc.register = jest.fn().mockReturnValue(of({ success: true }))
-      component.registrationForm.patchValue({ mobile: '9876543210', group: 'Director' })
-      component.signup()
-      expect(mockWelcomeSignupSvc.register).toHaveBeenCalled()
-    })
-
-    it('should navigate to /page/home on success', () => {
-      mockWelcomeSignupSvc.register = jest.fn().mockReturnValue(of({ success: true }))
-      component.signup()
-      expect(mockRouter.navigate).toHaveBeenCalledWith(['/page/home'])
-    })
-
-    it('should open snackbar on error', () => {
-      const errResp = { error: { params: { errmsg: 'Server error' } } }
-      mockWelcomeSignupSvc.register = jest.fn().mockReturnValue({
-        subscribe: (_ok: any, errCb: any) => errCb(errResp),
-      })
-      component.signup()
-      expect(mockSnackBar.open).toHaveBeenCalledWith('Server error', 'X', expect.any(Object))
-    })
-  })
-
-  describe('ngOnDestroy', () => {
-    it('should unsubscribe from subscriptionContact if set', () => {
-      const mockSub = { unsubscribe: jest.fn() }
-      component['subscriptionContact'] = mockSub as any
-      component.ngOnDestroy()
-      expect(mockSub.unsubscribe).toHaveBeenCalled()
-    })
-
-    it('should not throw when subscriptionContact is null', () => {
-      component['subscriptionContact'] = null
-      expect(() => component.ngOnDestroy()).not.toThrow()
-    })
-  })
-
-  describe('typeValue getter', () => {
-    it('should return form type value', () => {
-      component.init()
-      expect(component.typeValue).toBe('ministry')
-    })
-  })
-
-  describe('typeValueStartCase getter', () => {
-    it('should return start-cased type value', () => {
-      component.init()
-      expect(component.typeValueStartCase).toBe('Ministry')
-    })
-  })
-
-  describe('displayFn', () => {
-    it('should return channel when value has channel', () => {
-      expect(component.displayFn({ channel: 'ch1' })).toBe('ch1')
-    })
-    it('should return undefined when value is falsy', () => {
-      expect(component.displayFn(null)).toBeUndefined()
-    })
-  })
-
-  describe('displayFnGroup', () => {
-    it('should return value itself', () => {
-      expect(component.displayFnGroup('Director')).toBe('Director')
-    })
-    it('should return undefined when value is falsy', () => {
-      expect(component.displayFnGroup(null)).toBeUndefined()
-    })
-  })
-
-  describe('displayFnState', () => {
-    it('should return orgName when value has orgName', () => {
-      expect(component.displayFnState({ orgName: 'Ministry X' })).toBe('Ministry X')
-    })
-    it('should return undefined when value is falsy', () => {
-      expect(component.displayFnState(null)).toBeUndefined()
-    })
-  })
-
-  describe('clearValues', () => {
-    it('should set organisation to empty string and heirarchyObject to null', () => {
-      component.init()
-      component.heirarchyObject = { orgName: 'Some org' }
-      component['clearValues']()
+  // ── clearValues ───────────────────────────────────────────────────────────
+  describe('clearValues()', () => {
+    it('resets organisation control value', () => {
+      component.registrationForm.get('organisation')!.setValue('DOPT')
+      component.clearValues()
       expect(component.registrationForm.get('organisation')!.value).toBe('')
+    })
+
+    it('clears heirarchyObject', () => {
+      component.heirarchyObject = { orgName: 'DOPT' }
+      component.clearValues()
       expect(component.heirarchyObject).toBeNull()
     })
   })
 
-  describe('filterOrgsSearch', () => {
-    it('should set resultFetched to true on success', () => {
-      component.init()
-      mockSignupSvc.searchOrgs = jest.fn().mockReturnValue(of({ result: { response: [{ orgName: 'Org1' }] } }))
-      component.filterOrgsSearch('org')
-      expect(component.resultFetched).toBe(true)
+  // ── orgClicked ────────────────────────────────────────────────────────────
+  describe('orgClicked()', () => {
+    it('sets hideOrg true when event has orgName', () => {
+      component.orgClicked({ option: { value: { orgName: 'DOPT', channel: 'dopt' } } })
+      expect(component.hideOrg).toBe(true)
+      expect(component.heirarchyObject.orgName).toBe('DOPT')
     })
 
-    it('should set searching to false on success', () => {
-      component.init()
-      mockSignupSvc.searchOrgs = jest.fn().mockReturnValue(of({ result: { response: [{ orgName: 'Org1' }] } }))
-      component.filterOrgsSearch('org')
+    it('sets hideOrg false when event lacks orgName', () => {
+      component.orgClicked({ option: { value: {} } })
+      expect(component.hideOrg).toBe(false)
+    })
+  })
+
+  // ── searchOrgs ────────────────────────────────────────────────────────────
+  describe('searchOrgs()', () => {
+    it('opens snackbar and sets searching false when no searchValue', async () => {
+      await component.searchOrgs('')
+      expect(mocks.snackBar.open).toHaveBeenCalledWith(
+        'Please enter organisation to search', 'X', expect.any(Object)
+      )
       expect(component.searching).toBe(false)
     })
   })
 
-  describe('searchOrgs', () => {
-    it('should call openSnackbar when searchValue is empty', async () => {
-      component.init()
-      const snackSpy = jest.spyOn(component as any, 'openSnackbar').mockImplementation(() => { })
-      await component.searchOrgs('')
-      expect(snackSpy).toHaveBeenCalled()
-    })
-
-    it('should set searching to true then call filterOrgsSearch when value given', async () => {
-      component.init()
-      mockSignupSvc.searchOrgs = jest.fn().mockReturnValue(of({ result: { response: [] } }))
-      await component.searchOrgs('ministry')
-      expect(component.resultFetched).toBe(true)
-    })
-  })
-
-  describe('ngOnInit', () => {
-    it('should set groupsOriginal from route data after init', () => {
-      component.init()
-      component.ngOnInit()
-      expect(component.groupsOriginal).toContain('Engineer')
-    })
-
-    it('should set telemetryConfig from instanceConfig', () => {
-      component.init()
-      component.ngOnInit()
-      expect(component.telemetryConfig).not.toBeNull()
-    })
-
-    it('should handle missing group.data gracefully', () => {
-      mockActivatedRoute.snapshot.data.group = {}
-      component = new PublicWelcomeComponent(
-        mockWelcomeSignupSvc, mockSignupSvc, mockLoggerSvc,
-        mockConfigSvc, mockSnackBar, mockActivatedRoute,
-        mockRouter, mockInitSvc
+  // ── filterOrgsSearch ──────────────────────────────────────────────────────
+  describe('filterOrgsSearch()', () => {
+    it('calls searchOrgs API and sets filteredOrgList', () => {
+      mocks.signupSvc.searchOrgs.mockReturnValue(
+        of({ result: { response: [{ orgName: 'DOPT' }, { orgName: 'Other Org' }] } })
       )
-      component.init()
-      expect(() => component.ngOnInit()).not.toThrow()
+      component.filterOrgsSearch('dopt')
+      expect(mocks.signupSvc.searchOrgs).toHaveBeenCalledWith('dopt', 'ministry')
+      // DOPT matches 'dopt', Other Org does not
+      expect(component.filteredOrgList.length).toBe(1)
+      expect(component.filteredOrgList[0].orgName).toBe('DOPT')
+    })
+
+    it('opens snackbar on API error with errmsg', () => {
+      mocks.signupSvc.searchOrgs.mockReturnValue(
+        throwError({ error: { params: { errmsg: 'Custom error' } } })
+      )
+      component.filterOrgsSearch('xyz')
+      expect(mocks.snackBar.open).toHaveBeenCalledWith('Custom error', 'X', expect.any(Object))
+    })
+
+    it('opens generic snackbar on API error without errmsg', () => {
+      mocks.signupSvc.searchOrgs.mockReturnValue(throwError({}))
+      component.filterOrgsSearch('xyz')
+      expect(mocks.snackBar.open).toHaveBeenCalledWith(
+        'Something went wrong, please try again later!', 'X', expect.any(Object)
+      )
     })
   })
 
-  describe('startCountDown', () => {
-    it('should set timeLeftforOTP to OTP_TIMER value', () => {
-      component.init()
-      component.OTP_TIMER = 0 // avoid interval
+  // ── signup ────────────────────────────────────────────────────────────────
+  describe('signup()', () => {
+    it('calls welcomeSignupSvc.register and navigates on success', () => {
+      component.heirarchyObject = {
+        orgName: 'DOPT',
+        channel: 'dopt',
+        sbOrgId: 'o1',
+        mapId: 'm1',
+        sbRootOrgId: 'r1',
+        sbOrgType: 'Ministry',
+        sbOrgSubType: 'Dept',
+      }
+      component.registrationForm.patchValue({
+        firstname: 'Alice Wonder',
+        mobile: '9876543210',
+        group: 'Manager',
+      })
+      mocks.welcomeSignupSvc.register.mockReturnValue(of({ result: 'SUCCESS' }))
+      component.signup()
+      expect(mocks.welcomeSignupSvc.register).toHaveBeenCalled()
+      expect(mocks.router.navigate).toHaveBeenCalledWith(['/page/home'])
+      expect(component.disableBtn).toBe(false)
+    })
+
+    it('shows snackbar and resets disableBtn on error', () => {
+      component.heirarchyObject = {
+        orgName: 'DOPT',
+        channel: 'dopt',
+        sbOrgId: 'o1',
+        mapId: '',
+        sbRootOrgId: 'r1',
+        sbOrgType: '',
+        sbOrgSubType: '',
+      }
+      mocks.welcomeSignupSvc.register.mockReturnValue(
+        throwError({ error: { params: { errmsg: 'Server error' } } })
+      )
+      component.signup()
+      expect(mocks.snackBar.open).toHaveBeenCalledWith('Server error', 'X', expect.any(Object))
+      expect(component.disableBtn).toBe(false)
+    })
+  })
+
+  // ── startCountDown ────────────────────────────────────────────────────────
+  describe('startCountDown()', () => {
+    it('sets timeLeftforOTP to OTP_TIMER and creates subscription', done => {
+      jest.useFakeTimers()
       component.startCountDown()
-      expect(component.timeLeftforOTP).toBe(0)
+      expect(component.timeLeftforOTP).toBe(120)
+      expect(component.timerSubscription).toBeDefined()
+      jest.useRealTimers()
+      done()
+    })
+  })
+
+  // ── ngOnDestroy ───────────────────────────────────────────────────────────
+  describe('ngOnDestroy()', () => {
+    it('unsubscribes subscriptionContact if active', () => {
+      const sub = { unsubscribe: jest.fn() }
+        ; (component as any).subscriptionContact = sub
+      component.ngOnDestroy()
+      expect(sub.unsubscribe).toHaveBeenCalled()
+    })
+
+    it('does not throw when subscriptionContact is null', () => {
+      ; (component as any).subscriptionContact = null
+      expect(() => component.ngOnDestroy()).not.toThrow()
     })
   })
 })

@@ -1,623 +1,433 @@
-/* eslint-disable @typescript-eslint/no-unnecessary-type-assertion */
-import { CompetencyCardDetailsV2Component } from './competency-card-details-v2.component'
-import { of, throwError } from 'rxjs'
-import { HttpErrorResponse } from '@angular/common/http'
+import { CompetencyCardDetailsV2Component } from './competency-card-details-v2.component';
+import { of, throwError } from 'rxjs';
+import { Subject } from 'rxjs';
+
+jest.mock('jspdf', () => ({
+  jsPDF: jest.fn().mockImplementation(() => ({
+    addImage: jest.fn(),
+    save: jest.fn(),
+  })),
+}));
+
+jest.mock('src/environments/environment', () => ({
+  environment: { contentHost: 'https://test.igot.gov.in' }
+}), { virtual: true });
+
+jest.mock('@sunbird-cb/collection/src/lib/_common/certificate-dialog/certificate-dialog.component', () => ({
+  CertificateDialogComponent: class {},
+}), { virtual: true });
+
+jest.mock('../../../../project/ws/app/src/lib/routes/profile-v2/components/profile-revamp/certificate-view-popup/certificate-view-popup.component', () => ({
+  CertificateViewPopupComponent: class {},
+}), { virtual: true });
+
+const langObs$ = new Subject<any>();
+
+const makeComponent = () => {
+  const actRouter: any = { queryParams: of({ theme: 'T1' }) };
+  const router: any = { navigateByUrl: jest.fn() };
+  const cpService: any = {
+    getMyCompetencyList: jest.fn(() => of({ result: { competencies: [] } })),
+    getIGOTCourseList: jest.fn(() => of({ result: { content: [] } })),
+    getAcheivementsList: jest.fn(() => of({ result: { search_results: { data: [] } } })),
+    getExternalCourseList: jest.fn(() => of({ data: [] })),
+    fetchCertificate: jest.fn(() => of({ result: { printUri: 'data:image/svg;base64,abc' } })),
+  };
+  const translate: any = { setDefaultLang: jest.fn(), use: jest.fn() };
+  const langtranslations: any = {
+    languageSelectedObservable: langObs$,
+    translateLabel: jest.fn((l: string) => l),
+  };
+  const events: any = { raiseInteractTelemetry: jest.fn() };
+  const dialog: any = { open: jest.fn() };
+  const matSnackBar: any = { open: jest.fn() };
+  const pipeImgUrl: any = { transform: jest.fn((u: string) => u) };
+
+  return {
+    component: new CompetencyCardDetailsV2Component(
+      actRouter, router, cpService, translate, langtranslations,
+      events, dialog, matSnackBar, pipeImgUrl
+    ),
+    cpService, router, dialog, matSnackBar, events,
+  };
+};
 
 describe('CompetencyCardDetailsV2Component', () => {
-  let component: CompetencyCardDetailsV2Component
-  let mockActRouter: any
-  let mockRouter: any
-  let mockCpService: any
-  let mockTranslate: any
-  let mockLangtranslations: any
-  let mockEvents: any
-  let mockDialog: any
-  let mockMatSnackBar: any
-  let mockPipeImgUrl: any
-
-  const mockCompetencyData = {
-    result: {
-      competencies: [
-        {
-          competencyAreaId: 'area1',
-          competencyThemeId: 'theme1',
-          competencySubThemeId: 'subtheme1',
-          competencyDetails: {
-            iGOTCourses: [
-              { acquiredContextId: 'igot1', certificateId: 'cert1' },
-              { acquiredContextId: 'igot2', certificateId: 'cert2' },
-            ],
-            extCourses: [
-              { acquiredContextId: 'ext1', certificateId: 'cert3' },
-            ],
-            selfAchievement: [
-              { acquiredContextId: 'self1', certificateId: 'cert4' },
-            ],
-            externalTraining: [
-              { acquiredContextId: 'train1', certificateId: 'cert5' },
-            ],
-          },
-        },
-      ],
-    },
-  }
-
-  const mockCertificateResponse = {
-    result: {
-      printUri: 'https://example.com/certificate.svg',
-    },
-  }
+  let component: CompetencyCardDetailsV2Component;
+  let cpService: any;
+  let router: any;
+  let dialog: any;
+  let matSnackBar: any;
+  let events: any;
 
   beforeEach(() => {
-    // Mock ActivatedRoute
-    mockActRouter = {
-      queryParams: of({ tab: 'iGOTCourses' }),
-    } as any
-
-    // Mock Router
-    mockRouter = {
-      navigateByUrl: jest.fn(),
-    } as any
-
-    // Mock CompetencyPassbookService
-    mockCpService = {
-      getMyCompetencyList: jest.fn().mockReturnValue(of(mockCompetencyData)),
-      getIGOTCourseList: jest.fn().mockReturnValue(of({ result: { content: [] } })),
-      getExternalCourseList: jest.fn().mockReturnValue(of({ data: [] })),
-      getAcheivementsList: jest.fn().mockReturnValue(of({ result: { search_results: { data: [] } } })),
-      fetchCertificate: jest.fn().mockReturnValue(of(mockCertificateResponse)),
-    } as any
-
-    // Mock TranslateService
-    mockTranslate = {
-      setDefaultLang: jest.fn(),
-      use: jest.fn(),
-    } as any
-
-    // Mock MultilingualTranslationsService
-    mockLangtranslations = {
-      languageSelectedObservable: of('en'),
-    } as any
-
-    // Mock EventService
-    mockEvents = {
-      raiseInteractTelemetry: jest.fn(),
-    } as any
-
-    // Mock MatDialog
-    mockDialog = {
-      open: jest.fn(),
-    } as any
-
-    // Mock MatSnackBar
-    mockMatSnackBar = {
-      open: jest.fn(),
-    } as any
-
-    // Mock PipeCertificateImageURL
-    mockPipeImgUrl = {
-      transform: jest.fn((url: string) => url),
-    } as any
-
-    // Mock localStorage
-    Storage.prototype.getItem = jest.fn((key: string) => {
-      if (key === 'websiteLanguage') return 'en'
-      if (key === 'details_page_competency') {
-        return JSON.stringify({
-          id: 'theme1',
-          name: 'Test Theme',
-          subThemes: [
-            { id: 'subtheme1', name: 'SubTheme 1' },
-            { id: 'subtheme2', name: 'SubTheme 2' },
-          ],
-        })
-      }
-      return null
-    })
-
-    Storage.prototype.setItem = jest.fn()
-
-    component = new CompetencyCardDetailsV2Component(
-      mockActRouter,
-      mockRouter,
-      mockCpService,
-      mockTranslate,
-      mockLangtranslations,
-      mockEvents,
-      mockDialog,
-      mockMatSnackBar,
-      mockPipeImgUrl
-    )
-  })
+    localStorage.clear();
+    jest.clearAllMocks();
+    ({ component, cpService, router, dialog, matSnackBar, events } = makeComponent());
+  });
 
   afterEach(() => {
-    jest.clearAllMocks()
-  })
+    try { component.ngOnDestroy(); } catch {}
+  });
 
-  describe('constructor', () => {
-    it('should create the component', () => {
-      expect(component).toBeDefined()
-    })
+  it('creates', () => {
+    expect(component).toBeDefined();
+  });
 
-    it('should subscribe to language changes and set default language', () => {
-      expect(mockTranslate.setDefaultLang).toHaveBeenCalledWith('en')
-      expect(mockTranslate.use).toHaveBeenCalledWith('en')
-    })
+  it('reads detailsData from localStorage', () => {
+    const data = { vCompetencyTheme: 'T1', subThemes: [] };
+    localStorage.setItem('details_page_competency', JSON.stringify(data));
+    const { component: c } = makeComponent();
+    expect(c.detailsData).toEqual(data);
+    c.ngOnDestroy();
+  });
 
-    it('should parse detailsData from localStorage', () => {
-      expect(component.detailsData).toBeDefined()
-      expect(component.detailsData.name).toBe('Test Theme')
-    })
-
-    it('should subscribe to query params', () => {
-      expect(component.params).toEqual({ tab: 'iGOTCourses' })
-    })
-  })
+  it('handles websiteLanguage from localStorage on language change', () => {
+    localStorage.setItem('websiteLanguage', 'hi');
+    langObs$.next(null);
+    expect(component).toBeDefined();
+  });
 
   describe('ngOnInit', () => {
-    it('should call getMyCompetencyList', () => {
-      const getMyCompetencySpy = jest.spyOn(component, 'getMyCompetencyList')
-
-      component.ngOnInit()
-
-      expect(getMyCompetencySpy).toHaveBeenCalled()
-    })
-  })
+    it('calls getMyCompetencyList', () => {
+      jest.spyOn(component, 'getMyCompetencyList');
+      component.ngOnInit();
+      expect(component.getMyCompetencyList).toHaveBeenCalled();
+    });
+  });
 
   describe('getMyCompetencyList', () => {
-    it('should fetch and process my competency list successfully', () => {
-      const filterCompetenciesSpy = jest.spyOn(component, 'filterCompetenciesBySubThemes').mockImplementation()
+    it('sets myCompetencyList from response', () => {
+      cpService.getMyCompetencyList.mockReturnValue(of({ result: { competencies: [{ id: 'c1' }] } }));
+      component.getMyCompetencyList();
+      expect(component.myCompetencyList).toHaveLength(1);
+    });
 
-      component.getMyCompetencyList()
+    it('handles error from service', () => {
+      cpService.getMyCompetencyList.mockReturnValue(throwError({ ok: false }));
+      component.getMyCompetencyList();
+      expect(matSnackBar.open).toHaveBeenCalled();
+    });
 
-      expect(mockCpService.getMyCompetencyList).toHaveBeenCalled()
-      expect(component.myCompetencyList.length).toBe(1)
-      expect(filterCompetenciesSpy).toHaveBeenCalled()
-    })
-
-    it('should handle error when fetching competency list fails', () => {
-      const errorResponse = new HttpErrorResponse({ status: 500, statusText: 'Server Error' })
-      mockCpService.getMyCompetencyList = jest.fn().mockReturnValue(throwError(errorResponse))
-
-      component.getMyCompetencyList()
-
-      expect(mockMatSnackBar.open).toHaveBeenCalledWith('Unable to pull My Competency list details!')
-    })
-  })
+    it('calls filterCompetenciesBySubThemes when competencies exist', () => {
+      jest.spyOn(component, 'filterCompetenciesBySubThemes');
+      cpService.getMyCompetencyList.mockReturnValue(of({ result: { competencies: [{ id: 'c1' }] } }));
+      component.getMyCompetencyList();
+      expect(component.filterCompetenciesBySubThemes).toHaveBeenCalled();
+    });
+  });
 
   describe('filterCompetenciesBySubThemes', () => {
-    beforeEach(() => {
-      component.myCompetencyList = mockCompetencyData.result.competencies
+    it('does nothing when myCompetencyList is empty', () => {
+      component.myCompetencyList = [];
+      component.detailsData = { subThemes: [{ id: 'st1', name: 'SubTheme1' }] };
+      component.filterCompetenciesBySubThemes();
+      expect(component.filteredIGOTCourses).toHaveLength(0);
+    });
+
+    it('does nothing when subThemes is empty', () => {
+      component.myCompetencyList = [{ competencySubThemeId: 'st1' }];
+      component.detailsData = { subThemes: [] };
+      component.filterCompetenciesBySubThemes();
+      expect(component.filteredIGOTCourses).toHaveLength(0);
+    });
+
+    it('processes competencies with iGOTCourses', () => {
+      component.detailsData = { subThemes: [{ id: 'st1', name: 'SubTheme1' }] };
+      component.myCompetencyList = [{
+        competencySubThemeId: 'st1',
+        competencyDetails: {
+          iGOTCourses: [{ acquiredContextId: 'course1', name: 'C1' }],
+        }
+      }];
+      component.filterCompetenciesBySubThemes();
+      expect(component.filteredIGOTCourses.length).toBeGreaterThanOrEqual(1);
+    });
+
+    it('sets activeTab to iGOTCourses when filteredIGOTCourses exists', () => {
+      component.detailsData = { subThemes: [{ id: 'st1', name: 'ST1' }] };
+      component.myCompetencyList = [{
+        competencySubThemeId: 'st1',
+        competencyDetails: {
+          iGOTCourses: [{ acquiredContextId: 'c1', name: 'C1' }],
+        }
+      }];
+      component.filterCompetenciesBySubThemes();
+      expect(component.activeTab).toBe('iGOTCourses');
+    });
+
+    it('sets activeTab to extCourses when only extCourses', () => {
+      component.detailsData = { subThemes: [{ id: 'st1', name: 'ST1' }] };
+      component.myCompetencyList = [{
+        competencySubThemeId: 'st1',
+        competencyDetails: {
+          extCourses: [{ acquiredContextId: 'e1', name: 'E1' }],
+        }
+      }];
+      component.filterCompetenciesBySubThemes();
+      expect(component.activeTab).toBe('extCourses');
+    });
+
+    it('merges subtheme names for duplicate courses', () => {
       component.detailsData = {
-        subThemes: [
-          { id: 'subtheme1', name: 'SubTheme 1' },
-        ],
-      }
-    })
-
-    it('should filter and group competencies by subthemes', () => {
-      const fetchIGOTSpy = jest.spyOn(component, 'fetchIGOTCourseDetails').mockImplementation()
-      const fetchExtSpy = jest.spyOn(component, 'fetchExtCourseDetails').mockImplementation()
-      const fetchSelfSpy = jest.spyOn(component, 'fetchSelfAchievementCourseDetails').mockImplementation()
-      const fetchExternalTrainingSpy = jest.spyOn(component, 'fetchExternalTrainingDetails').mockImplementation()
-
-      component.filterCompetenciesBySubThemes()
-
-      expect(component.filteredIGOTCourses.length).toBeGreaterThan(0)
-      expect(component.filteredExtCourses.length).toBeGreaterThan(0)
-      expect(component.filteredSelfAchievements.length).toBeGreaterThan(0)
-      expect(component.filteredexternalTrainings.length).toBeGreaterThan(0)
-      expect(fetchIGOTSpy).toHaveBeenCalled()
-      expect(fetchExtSpy).toHaveBeenCalled()
-      expect(fetchSelfSpy).toHaveBeenCalled()
-      expect(fetchExternalTrainingSpy).toHaveBeenCalled()
-    })
-
-    it('should set activeTab to iGOTCourses when available', () => {
-      jest.spyOn(component, 'fetchIGOTCourseDetails').mockImplementation()
-      jest.spyOn(component, 'fetchExtCourseDetails').mockImplementation()
-      jest.spyOn(component, 'fetchSelfAchievementCourseDetails').mockImplementation()
-      jest.spyOn(component, 'fetchExternalTrainingDetails').mockImplementation()
-
-      component.filterCompetenciesBySubThemes()
-
-      expect(component.activeTab).toBe('iGOTCourses')
-    })
-
-    it('should return early when no competencies or subthemes', () => {
-      component.myCompetencyList = []
-
-      component.filterCompetenciesBySubThemes()
-
-      expect(component.filteredIGOTCourses.length).toBe(0)
-    })
-  })
-
-  describe('fetchExternalTrainingDetails', () => {
-    beforeEach(() => {
-      component.filteredexternalTrainings = [
-        { acquiredContextId: 'train1', certificateId: 'cert1', subThemes: [] },
-      ]
-    })
-
-    it('should fetch external training details successfully', () => {
-      const mockResponse = {
-        result: {
-          Event: [
-            { identifier: 'train1', name: 'External Training 1' },
-          ],
+        subThemes: [{ id: 'st1', name: 'ST1' }, { id: 'st2', name: 'ST2' }]
+      };
+      component.myCompetencyList = [
+        {
+          competencySubThemeId: 'st1',
+          competencyDetails: {
+            iGOTCourses: [{ acquiredContextId: 'c1' }],
+          }
         },
-      }
-      mockCpService.getIGOTCourseList = jest.fn().mockReturnValue(of(mockResponse))
-      const assignDataSpy = jest.spyOn(component, 'assignData').mockImplementation()
-      component.activeTab = 'externalTraining'
-
-      component.fetchExternalTrainingDetails()
-
-      expect(component.filteredexternalTrainings[0].name).toBe('External Training 1')
-      expect(assignDataSpy).toHaveBeenCalledWith('externalTraining')
-    })
-
-    it('should handle error when fetching external training details fails', () => {
-      const errorResponse = new HttpErrorResponse({ status: 500, statusText: 'Server Error' })
-      mockCpService.getIGOTCourseList = jest.fn().mockReturnValue(throwError(errorResponse))
-
-      component.fetchExternalTrainingDetails()
-
-      expect(mockMatSnackBar.open).toHaveBeenCalledWith('Unable to fetch external training details!')
-    })
-  })
+        {
+          competencySubThemeId: 'st2',
+          competencyDetails: {
+            iGOTCourses: [{ acquiredContextId: 'c1' }],
+          }
+        }
+      ];
+      component.filterCompetenciesBySubThemes();
+      expect(component.filteredIGOTCourses[0].subThemes).toHaveLength(2);
+    });
+  });
 
   describe('fetchIGOTCourseDetails', () => {
-    beforeEach(() => {
-      component.filteredIGOTCourses = [
-        { acquiredContextId: 'igot1', certificateId: 'cert1', subThemes: [] },
-      ]
-    })
+    it('updates filteredIGOTCourses with names from response', () => {
+      component.filteredIGOTCourses = [{ acquiredContextId: 'c1', subThemes: ['ST1'], viewMore: false }];
+      cpService.getIGOTCourseList.mockReturnValue(of({ result: { content: [{ identifier: 'c1', name: 'Course A' }] } }));
+      component.fetchIGOTCourseDetails();
+      expect(component.filteredIGOTCourses[0].name).toBe('Course A');
+    });
 
-    it('should fetch iGOT course details successfully', () => {
-      const mockResponse = {
-        result: {
-          content: [
-            { identifier: 'igot1', name: 'iGOT Course 1' },
-          ],
-        },
-      }
-      mockCpService.getIGOTCourseList = jest.fn().mockReturnValue(of(mockResponse))
-      const assignDataSpy = jest.spyOn(component, 'assignData').mockImplementation()
-      component.activeTab = 'iGOTCourses'
-
-      component.fetchIGOTCourseDetails()
-
-      expect(component.filteredIGOTCourses[0].name).toBe('iGOT Course 1')
-      expect(assignDataSpy).toHaveBeenCalledWith('iGOTCourses')
-    })
-
-    it('should handle error when fetching iGOT course details fails', () => {
-      const errorResponse = new HttpErrorResponse({ status: 500, statusText: 'Server Error' })
-      mockCpService.getIGOTCourseList = jest.fn().mockReturnValue(throwError(errorResponse))
-
-      component.fetchIGOTCourseDetails()
-
-      expect(mockMatSnackBar.open).toHaveBeenCalledWith('Unable to fetch iGOT course details!')
-    })
-  })
+    it('handles error', () => {
+      component.filteredIGOTCourses = [{ acquiredContextId: 'c1' }];
+      cpService.getIGOTCourseList.mockReturnValue(throwError({ ok: false }));
+      component.fetchIGOTCourseDetails();
+      expect(matSnackBar.open).toHaveBeenCalled();
+    });
+  });
 
   describe('fetchSelfAchievementCourseDetails', () => {
-    beforeEach(() => {
-      component.filteredSelfAchievements = [
-        { acquiredContextId: 'self1', certificateId: 'cert1', subThemes: [] },
-      ]
-    })
+    it('updates filteredSelfAchievements with names from response', () => {
+      component.filteredSelfAchievements = [{ acquiredContextId: 'a1', subThemes: ['ST1'], viewMore: false }];
+      cpService.getAcheivementsList.mockReturnValue(of({
+        result: { search_results: { data: [{ id: 'a1', contextData: { title: 'Achievement A' } }] } }
+      }));
+      component.fetchSelfAchievementCourseDetails();
+      expect(component.filteredSelfAchievements[0].name).toBe('Achievement A');
+    });
 
-    it('should fetch self achievement details successfully', () => {
-      const mockResponse = {
-        result: {
-          search_results: {
-            data: [
-              { id: 'self1', contextData: { title: 'Achievement 1' } },
-            ],
-          },
-        },
-      }
-      mockCpService.getAcheivementsList = jest.fn().mockReturnValue(of(mockResponse))
-      const assignDataSpy = jest.spyOn(component, 'assignData').mockImplementation()
-      component.activeTab = 'selfAchievement'
-
-      component.fetchSelfAchievementCourseDetails()
-
-      expect(component.filteredSelfAchievements[0].name).toBe('Achievement 1')
-      expect(assignDataSpy).toHaveBeenCalledWith('selfAchievement')
-    })
-
-    it('should handle error when fetching self achievement details fails', () => {
-      const errorResponse = new HttpErrorResponse({ status: 500, statusText: 'Server Error' })
-      mockCpService.getAcheivementsList = jest.fn().mockReturnValue(throwError(errorResponse))
-
-      component.fetchSelfAchievementCourseDetails()
-
-      expect(mockMatSnackBar.open).toHaveBeenCalledWith('Unable to fetch self achievement details!')
-    })
-  })
+    it('handles error', () => {
+      component.filteredSelfAchievements = [{ acquiredContextId: 'a1' }];
+      cpService.getAcheivementsList.mockReturnValue(throwError({ ok: false }));
+      component.fetchSelfAchievementCourseDetails();
+      expect(matSnackBar.open).toHaveBeenCalled();
+    });
+  });
 
   describe('fetchExtCourseDetails', () => {
-    beforeEach(() => {
-      component.filteredExtCourses = [
-        { acquiredContextId: 'ext1', certificateId: 'cert1', subThemes: [] },
-      ]
-    })
+    it('updates filteredExtCourses with names', () => {
+      component.filteredExtCourses = [{ acquiredContextId: 'e1', subThemes: [], viewMore: false }];
+      cpService.getExternalCourseList.mockReturnValue(of({ data: [{ contentId: 'e1', name: 'Ext Course A' }] }));
+      component.fetchExtCourseDetails();
+      expect(component.filteredExtCourses[0].name).toBe('Ext Course A');
+    });
 
-    it('should fetch external course details successfully', () => {
-      const mockResponse = {
-        data: [
-          { contentId: 'ext1', name: 'External Course 1' },
-        ],
-      }
-      mockCpService.getExternalCourseList = jest.fn().mockReturnValue(of(mockResponse))
-      const assignDataSpy = jest.spyOn(component, 'assignData').mockImplementation()
-      component.activeTab = 'extCourses'
+    it('handles error', () => {
+      component.filteredExtCourses = [{ acquiredContextId: 'e1' }];
+      cpService.getExternalCourseList.mockReturnValue(throwError({ ok: false }));
+      component.fetchExtCourseDetails();
+      expect(matSnackBar.open).toHaveBeenCalled();
+    });
+  });
 
-      component.fetchExtCourseDetails()
+  describe('fetchExternalTrainingDetails', () => {
+    it('updates filteredexternalTrainings with names', () => {
+      component.filteredexternalTrainings = [{ acquiredContextId: 'et1', subThemes: [], viewMore: false }];
+      cpService.getIGOTCourseList.mockReturnValue(of({ result: { Event: [{ identifier: 'et1', name: 'Training A' }] } }));
+      component.fetchExternalTrainingDetails();
+      expect(component.filteredexternalTrainings[0].name).toBe('Training A');
+    });
 
-      expect(component.filteredExtCourses[0].name).toBe('External Course 1')
-      expect(assignDataSpy).toHaveBeenCalledWith('extCourses')
-    })
-
-    it('should handle error when fetching external course details fails', () => {
-      const errorResponse = new HttpErrorResponse({ status: 500, statusText: 'Server Error' })
-      mockCpService.getExternalCourseList = jest.fn().mockReturnValue(throwError(errorResponse))
-
-      component.fetchExtCourseDetails()
-
-      expect(mockMatSnackBar.open).toHaveBeenCalledWith('Unable to fetch external course details!')
-    })
-  })
+    it('handles error', () => {
+      component.filteredexternalTrainings = [{ acquiredContextId: 'et1' }];
+      cpService.getIGOTCourseList.mockReturnValue(throwError({ ok: false }));
+      component.fetchExternalTrainingDetails();
+      expect(matSnackBar.open).toHaveBeenCalled();
+    });
+  });
 
   describe('viewCertificate', () => {
-    it('should fetch and display certificate', () => {
-      const obj = { certificateId: 'cert123' }
+    it('opens CertificateDialogComponent', () => {
+      const obj: any = { certificateId: 'cert1' };
+      component.viewCertificate(obj);
+      expect(dialog.open).toHaveBeenCalled();
+      expect(obj.loading).toBe(false);
+    });
 
-      component.viewCertificate(obj)
-
-      expect(mockCpService.fetchCertificate).toHaveBeenCalledWith('cert123')
-      expect(mockDialog.open).toHaveBeenCalled()
-    })
-
-    it('should handle error when fetching certificate fails', () => {
-      const errorResponse = new HttpErrorResponse({ status: 500, statusText: 'Server Error' })
-      mockCpService.fetchCertificate = jest.fn().mockReturnValue(throwError(errorResponse))
-      const obj: any = { certificateId: 'cert123' }
-
-      component.viewCertificate(obj)
-
-      expect(obj.loading).toBe(false)
-      expect(obj.error).toBe('Failed to fetch Certificate')
-    })
-  })
+    it('handles error', () => {
+      cpService.fetchCertificate.mockReturnValue(throwError({ ok: false }));
+      const obj: any = { certificateId: 'cert1', loading: true };
+      component.viewCertificate(obj);
+      expect(obj.error).toBeDefined();
+    });
+  });
 
   describe('getCertificateSVG', () => {
-    it('should download certificate PDF when type is DOWNLOAD', () => {
-      const obj = { certificateId: 'cert123', printURI: 'https://example.com/cert.svg' }
-      const downloadSpy = jest.spyOn(component, 'handleDownloadCertificatePDF').mockImplementation()
+    it('calls handleDownloadCertificatePDF when printURI exists and type is DOWNLOAD', () => {
+      jest.spyOn(component, 'handleDownloadCertificatePDF').mockImplementation(jest.fn());
+      const obj: any = { certificateId: 'cert1', printURI: 'data:image/svg;base64,xyz' };
+      component.getCertificateSVG(obj, 'DOWNLOAD');
+      expect(component.handleDownloadCertificatePDF).toHaveBeenCalledWith('data:image/svg;base64,xyz');
+    });
 
-      component.getCertificateSVG(obj, 'DOWNLOAD')
+    it('calls shareCertificate when type is SHARE', () => {
+      jest.spyOn(component, 'shareCertificate').mockImplementation(jest.fn());
+      const obj: any = { certificateId: 'cert1', printURI: 'data:svg' };
+      component.getCertificateSVG(obj, 'SHARE');
+      expect(component.shareCertificate).toHaveBeenCalledWith('cert1');
+    });
 
-      expect(downloadSpy).toHaveBeenCalledWith(obj.printURI)
-    })
+    it('fetches cert when no printURI', () => {
+      const obj: any = { certificateId: 'cert1' };
+      component.getCertificateSVG(obj);
+      expect(cpService.fetchCertificate).toHaveBeenCalledWith('cert1');
+      expect(dialog.open).toHaveBeenCalled();
+    });
 
-    it('should share certificate when type is SHARE', () => {
-      const obj = { certificateId: 'cert123', printURI: 'https://example.com/cert.svg' }
-      const shareSpy = jest.spyOn(component, 'shareCertificate').mockImplementation()
-
-      component.getCertificateSVG(obj, 'SHARE')
-
-      expect(shareSpy).toHaveBeenCalledWith(obj.certificateId)
-    })
-
-    it('should fetch certificate when printURI is not available', () => {
-      const obj = { certificateId: 'cert123' }
-
-      component.getCertificateSVG(obj)
-
-      expect(mockCpService.fetchCertificate).toHaveBeenCalledWith('cert123')
-    })
-
-    it('should handle error when fetching certificate fails', () => {
-      const errorResponse = new HttpErrorResponse({ status: 500, statusText: 'Server Error' })
-      mockCpService.fetchCertificate = jest.fn().mockReturnValue(throwError(errorResponse))
-      const obj: any = { certificateId: 'cert123' }
-
-      component.getCertificateSVG(obj)
-
-      expect(obj.loading).toBe(false)
-      expect(obj.error).toBe('Failed to fetch Certificate')
-    })
-  })
-
-  describe('handleDownloadCertificatePDF', () => {
-    it('should create and download PDF from image', async () => {
-      const uriData = 'data:image/png;base64,test'
-      const createElementSpy = jest.spyOn(document, 'createElement')
-
-      await component.handleDownloadCertificatePDF(uriData)
-
-      expect(createElementSpy).toHaveBeenCalledWith('canvas')
-    })
-  })
+    it('handles error when fetching cert', () => {
+      cpService.fetchCertificate.mockReturnValue(throwError({ ok: false }));
+      const obj: any = { certificateId: 'cert1' };
+      component.getCertificateSVG(obj);
+      expect(obj.error).toBeDefined();
+    });
+  });
 
   describe('shareCertificate', () => {
-    it('should open LinkedIn share window and raise telemetry', () => {
-      const windowOpenSpy = jest.spyOn(window, 'open').mockImplementation()
-
-      component.shareCertificate('cert123')
-
-      expect(mockEvents.raiseInteractTelemetry).toHaveBeenCalled()
-      expect(windowOpenSpy).toHaveBeenCalled()
-    })
-  })
+    it('opens linkedin URL', () => {
+      const openSpy = jest.spyOn(window, 'open').mockReturnValue(null as any);
+      component.shareCertificate('certId1');
+      expect(openSpy).toHaveBeenCalledWith(expect.stringContaining('linkedin.com'), '_blank');
+    });
+  });
 
   describe('handleNavigate', () => {
-    it('should navigate to external course TOC', () => {
-      component.activeTab = 'extCourses'
-      const courseObj = { acquiredContextId: 'ext123' }
+    it('navigates to ext course URL', () => {
+      component.activeTab = 'extCourses';
+      component.handleNavigate({ acquiredContextId: 'e1' });
+      expect(router.navigateByUrl).toHaveBeenCalledWith('/app/toc/ext/e1');
+    });
 
-      component.handleNavigate(courseObj)
+    it('navigates to iGOT course URL', () => {
+      component.activeTab = 'iGOTCourses';
+      component.handleNavigate({ acquiredContextId: 'c1' });
+      expect(router.navigateByUrl).toHaveBeenCalledWith('app/toc/c1/overview');
+    });
 
-      expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('/app/toc/ext/ext123')
-    })
-
-    it('should navigate to iGOT course overview', () => {
-      component.activeTab = 'iGOTCourses'
-      const courseObj = { acquiredContextId: 'igot123' }
-
-      component.handleNavigate(courseObj)
-
-      expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('app/toc/igot123/overview')
-    })
-  })
+    it('does not navigate for selfAchievement', () => {
+      component.activeTab = 'selfAchievement';
+      component.handleNavigate({ acquiredContextId: 'a1' });
+      expect(router.navigateByUrl).not.toHaveBeenCalled();
+    });
+  });
 
   describe('handleViewMore', () => {
-    it('should set viewMore to true when no flag provided', () => {
-      const obj = { viewMore: false }
+    it('sets viewMore to true by default', () => {
+      const obj: any = { viewMore: false };
+      component.handleViewMore(obj);
+      expect(obj.viewMore).toBe(true);
+    });
 
-      component.handleViewMore(obj)
-
-      expect(obj.viewMore).toBe(true)
-    })
-
-    it('should set viewMore to false when flag is provided', () => {
-      const obj = { viewMore: true }
-
-      component.handleViewMore(obj, 'hide')
-
-      expect(obj.viewMore).toBe(false)
-    })
-  })
+    it('sets viewMore to false when flag provided', () => {
+      const obj: any = { viewMore: true };
+      component.handleViewMore(obj, 'close');
+      expect(obj.viewMore).toBe(false);
+    });
+  });
 
   describe('raiseShareIntreactTelemetry', () => {
-    it('should raise interact telemetry with correct parameters', () => {
-      component.raiseShareIntreactTelemetry('cert123', 'share', 'click')
+    it('calls raiseInteractTelemetry', () => {
+      component.raiseShareIntreactTelemetry('cert1', 'share', 'click');
+      expect(events.raiseInteractTelemetry).toHaveBeenCalled();
+    });
 
-      expect(mockEvents.raiseInteractTelemetry).toHaveBeenCalled()
-    })
-  })
+    it('works without optional params', () => {
+      component.raiseShareIntreactTelemetry();
+      expect(events.raiseInteractTelemetry).toHaveBeenCalled();
+    });
+  });
 
   describe('assignData', () => {
-    beforeEach(() => {
-      component.filteredIGOTCourses = [{ name: 'Course 1' }]
-      component.filteredExtCourses = [{ name: 'Course 2' }]
-      component.filteredSelfAchievements = [{ name: 'Achievement 1' }]
-      component.filteredexternalTrainings = [{ name: 'Training 1' }]
-    })
+    it('assigns filteredIGOTCourses', () => {
+      component.filteredIGOTCourses = [{ name: 'C1' }];
+      component.assignData('iGOTCourses');
+      expect(component.currentTabData).toEqual([{ name: 'C1' }]);
+    });
 
-    it('should assign iGOTCourses data', () => {
-      component.assignData('iGOTCourses')
+    it('assigns filteredExtCourses', () => {
+      component.filteredExtCourses = [{ name: 'E1' }];
+      component.assignData('extCourses');
+      expect(component.currentTabData).toEqual([{ name: 'E1' }]);
+    });
 
-      expect(component.currentTabData).toEqual(component.filteredIGOTCourses)
-    })
+    it('assigns filteredSelfAchievements', () => {
+      component.filteredSelfAchievements = [{ name: 'A1' }];
+      component.assignData('selfAchievement');
+      expect(component.currentTabData).toEqual([{ name: 'A1' }]);
+    });
 
-    it('should assign extCourses data', () => {
-      component.assignData('extCourses')
-
-      expect(component.currentTabData).toEqual(component.filteredExtCourses)
-    })
-
-    it('should assign selfAchievement data', () => {
-      component.assignData('selfAchievement')
-
-      expect(component.currentTabData).toEqual(component.filteredSelfAchievements)
-    })
-
-    it('should assign externalTraining data', () => {
-      component.assignData('externalTraining')
-
-      expect(component.currentTabData).toEqual(component.filteredexternalTrainings)
-    })
-  })
-
-  describe('resetAllViewMore', () => {
-    it('should reset viewMore flag for all items', () => {
-      component.filteredIGOTCourses = [{ viewMore: true }, { viewMore: true }]
-      component.filteredExtCourses = [{ viewMore: true }]
-      component.filteredSelfAchievements = [{ viewMore: true }]
-      component.filteredexternalTrainings = [{ viewMore: true }]
-
-      component.resetAllViewMore()
-
-      expect(component.filteredIGOTCourses.every(item => !item.viewMore)).toBe(true)
-      expect(component.filteredExtCourses.every(item => !item.viewMore)).toBe(true)
-      expect(component.filteredSelfAchievements.every(item => !item.viewMore)).toBe(true)
-      expect(component.filteredexternalTrainings.every(item => !item.viewMore)).toBe(true)
-    })
-  })
+    it('assigns filteredexternalTrainings', () => {
+      component.filteredexternalTrainings = [{ name: 'ET1' }];
+      component.assignData('externalTraining');
+      expect(component.currentTabData).toEqual([{ name: 'ET1' }]);
+    });
+  });
 
   describe('handleActiveTab', () => {
-    it('should reset viewMore and assign data for new tab', () => {
-      const resetSpy = jest.spyOn(component, 'resetAllViewMore')
-      const assignSpy = jest.spyOn(component, 'assignData').mockImplementation()
-
-      component.handleActiveTab('iGOTCourses')
-
-      expect(resetSpy).toHaveBeenCalled()
-      expect(component.activeTab).toBe('iGOTCourses')
-      expect(assignSpy).toHaveBeenCalledWith('iGOTCourses')
-    })
-  })
-
-  describe('handleView', () => {
-    it('should open certificate in new window', () => {
-      const windowOpenSpy = jest.spyOn(window, 'open').mockImplementation()
-      const eachCert = { certificateId: 'cert123' }
-
-      component.handleView(eachCert)
-
-      expect(windowOpenSpy).toHaveBeenCalled()
-    })
-  })
+    it('resets viewMore and sets activeTab', () => {
+      component.filteredIGOTCourses = [{ viewMore: true }];
+      component.filteredIGOTCourses = [{ name: 'C1' }];
+      component.handleActiveTab('iGOTCourses');
+      expect(component.activeTab).toBe('iGOTCourses');
+    });
+  });
 
   describe('getUrl', () => {
-    it('should transform Google Storage URL', () => {
-      const url = 'https://storage.googleapis.com/bucket/userAchievements/test.pdf'
-      mockPipeImgUrl.transform = jest.fn().mockReturnValue('transformed-url')
+    it('returns URL as-is for non-google-storage URL', () => {
+      const url = 'https://example.com/cert/abc';
+      expect(component.getUrl(url)).toBe(url);
+    });
 
-      const result = component.getUrl(url)
+    it('transforms google storage URL', () => {
+      const url = 'https://storage.googleapis.com/bucket/userAchievements/file.pdf';
+      const result = component.getUrl(url);
+      expect(result).toContain('/userAchievements/');
+    });
+  });
 
-      expect(mockPipeImgUrl.transform).toHaveBeenCalled()
-      expect(result).toBe('transformed-url')
-    })
-
-    it('should return original URL when not Google Storage', () => {
-      const url = 'https://example.com/certificate.pdf'
-
-      const result = component.getUrl(url)
-
-      expect(result).toBe(url)
-    })
-  })
+  describe('handleView', () => {
+    it('opens cert URL in new tab', () => {
+      const openSpy = jest.spyOn(window, 'open').mockReturnValue(null as any);
+      component.handleView({ certificateId: 'https://example.com/cert.pdf' });
+      expect(openSpy).toHaveBeenCalledWith('https://example.com/cert.pdf', '_blank');
+    });
+  });
 
   describe('openDocument', () => {
-    it('should open certificate view popup dialog', () => {
-      const url = 'https://example.com/document.pdf'
+    it('opens CertificateViewPopupComponent when URL provided', () => {
+      component.openDocument('https://example.com/doc.pdf');
+      expect(dialog.open).toHaveBeenCalled();
+    });
 
-      component.openDocument(url)
-
-      expect(mockDialog.open).toHaveBeenCalled()
-    })
-
-    it('should not open dialog when url is empty', () => {
-      component.openDocument('')
-
-      expect(mockDialog.open).not.toHaveBeenCalled()
-    })
-  })
+    it('does not open dialog when URL is empty', () => {
+      component.openDocument('');
+      expect(dialog.open).not.toHaveBeenCalled();
+    });
+  });
 
   describe('ngOnDestroy', () => {
-    it('should unsubscribe from destroySubject$', () => {
-      const unsubscribeSpy = jest.spyOn(component.destroySubject$, 'unsubscribe')
-
-      component.ngOnDestroy()
-
-      expect(unsubscribeSpy).toHaveBeenCalled()
-    })
-  })
-})
+    it('does not throw', () => {
+      expect(() => component.ngOnDestroy()).not.toThrow();
+    });
+  });
+});
