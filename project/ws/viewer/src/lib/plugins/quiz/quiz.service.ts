@@ -18,6 +18,7 @@ export class QuizService {
   ) { }
 
   submitQuizV2(req: NSQuiz.IQuizSubmitRequest): Observable<NSQuiz.IQuizSubmitResponse> {
+    debugger
     return this.http.post<NSQuiz.IQuizSubmitResponse>(API_END_POINTS.ASSESSMENT_SUBMIT_V2, req)
   }
 
@@ -75,7 +76,7 @@ export class QuizService {
       question.question = ''
       question.options.map(option => {
         option.hint = ''
-        option.text = question.questionType === 'fitb' || question.questionType === 'mtf' ? option.text : ''
+        option.text = question?.questionType === 'fitb' ? option?.text?.trim() : (question?.questionType === 'mtf' ? option?.text : '')
       })
     })
     return requestData
