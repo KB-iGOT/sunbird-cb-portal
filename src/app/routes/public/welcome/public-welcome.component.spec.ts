@@ -7,9 +7,21 @@ import {
 import { UntypedFormControl } from '@angular/forms'
 import { of, throwError } from 'rxjs'
 
-jest.mock('src/app/services/init.service', () => ({
+jest.mock('../../../services/init.service', () => ({
   InitService: class { init = jest.fn(() => Promise.resolve()) },
-}), { virtual: true })
+}))
+
+jest.mock('../public-signup/signup.service', () => ({
+  SignupService: class {
+    searchOrgs = jest.fn(() => ({ result: { response: [] } }))
+  },
+}))
+
+jest.mock('./public-welcome.service', () => ({
+  WelcomeUsersService: class {
+    register = jest.fn(() => ({ result: 'SUCCESS' }))
+  },
+}))
 
 jest.mock('src/environments/environment', () => ({
   environment: { resendOTPTIme: 120 },
@@ -35,6 +47,9 @@ const buildMocks = (usrOverrides: any = {}) => {
   }
   const signupSvc = {
     searchOrgs: jest.fn(() => of({ result: { response: [] } })),
+    sendOtp: jest.fn(() => of({ result: { response: 'SUCCESS' } })),
+    resendOtp: jest.fn(() => of({ result: { response: 'SUCCESS' } })),
+    verifyOTP: jest.fn(() => of({ result: { response: 'SUCCESS' } })),
   }
   const loggerSvc = { error: jest.fn() }
   const configSvc = {
@@ -387,6 +402,156 @@ describe('PublicWelcomeComponent', () => {
       component.signup()
       expect(mocks.snackBar.open).toHaveBeenCalledWith('Server error', 'X', expect.any(Object))
       expect(component.disableBtn).toBe(false)
+    })
+  })
+
+  // ── ngOnInit ──────────────────────────────────────────────────────────────
+  describe('ngOnInit()', () => {
+    it('sets up groupsOriginal and telemetryConfig from activatedRoute data', () => {
+      component.ngOnInit()
+      expect(component.groupsOriginal).toEqual(['Manager', 'Developer'])
+      expect(component.telemetryConfig).toBeDefined()
+      expect(component.portalID).toBe('portal')
+    })
+
+    it('sets groupsOriginal to empty when group data is missing', () => {
+      mocks.activatedRoute.snapshot.data.group = { data: null }
+      const c = makeComponent(mocks)
+      c.ngOnInit()
+      expect(c.groupsOriginal).toEqual([])
+    })
+  })
+
+  // ── onPhoneChange ─────────────────────────────────────────────────────────
+  describe('onPhoneChange()', () => {
+    it('resets isMobileVerified when phone value changes from non-null', () => {
+      // onPhoneChange is called by ngOnInit, so we need to set up the subscription first
+      component.ngOnInit()
+      component.isMobileVerified = true
+      component.otpSend = true
+      component.registrationForm.get('mobile')!.enable()
+      // First setValue creates [null, '9876543210'] pair - no reset (initial)
+      component.registrationForm.get('mobile')!.setValue('9876543210')
+      // Second setValue creates ['9876543210', '9876543211'] pair - resets
+      component.registrationForm.get('mobile')!.setValue('9876543211')
+      expect(component.isMobileVerified).toBe(false)
+      expect(component.otpSend).toBe(false)
+    })
+  })
+
+  // ── sendOtp ───────────────────────────────────────────────────────────────
+  describe('sendOtp()', () => {
+    it('sends OTP when mobile is valid', () => {
+      component.registrationForm.get('mobile')!.enable()
+      component.registrationForm.get('mobile')!.setValue('9876543210')
+      mocks.signupSvc.sendOtp.mockReturnValue(of({ result: { response: 'SUCCESS' } }))
+      component.sendOtp()
+      expect(mocks.signupSvc.sendOtp).toHaveBeenCalledWith('9876543210', 'phone')
+      expect(component.otpSend).toBe(true)
+    })
+
+    it('opens snackbar when mobile is invalid', () => {
+      component.registrationForm.get('mobile')!.enable()
+      component.registrationForm.get('mobile')!.setValue('')
+      component.sendOtp()
+      expect(mocks.snackBar.open).toHaveBeenCalledWith('Please enter a valid Mobile No')
+    })
+
+    it('opens snackbar on sendOtp error', () => {
+      component.registrationForm.get('mobile')!.enable()
+      component.registrationForm.get('mobile')!.setValue('9876543210')
+      mocks.signupSvc.sendOtp.mockReturnValue(
+        throwError({ error: { params: { errmsg: 'OTP error' } } })
+      )
+      component.sendOtp()
+      expect(mocks.snackBar.open).toHaveBeenCalledWith('OTP error')
+    })
+  })
+
+  // ── resendOTP ─────────────────────────────────────────────────────────────
+  describe('resendOTP()', () => {
+    it('resends OTP when mobile is valid', () => {
+      component.registrationForm.get('mobile')!.enable()
+      component.registrationForm.get('mobile')!.setValue('9876543210')
+      mocks.signupSvc.resendOtp.mockReturnValue(of({ result: { response: 'SUCCESS' } }))
+      component.resendOTP()
+      expect(mocks.signupSvc.resendOtp).toHaveBeenCalledWith('9876543210', 'phone')
+      expect(component.otpSend).toBe(true)
+    })
+
+    it('opens snackbar when mobile is invalid for resend', () => {
+      component.registrationForm.get('mobile')!.enable()
+      component.registrationForm.get('mobile')!.setValue('')
+      component.resendOTP()
+      expect(mocks.snackBar.open).toHaveBeenCalledWith('Please enter a valid Mobile No')
+    })
+  })
+
+  // ── verifyOtp ─────────────────────────────────────────────────────────────
+  describe('verifyOtp()', () => {
+    it('verifies OTP and sets isMobileVerified when valid', () => {
+      component.registrationForm.get('mobile')!.enable()
+      component.registrationForm.get('mobile')!.setValue('9876543210')
+      mocks.signupSvc.verifyOTP.mockReturnValue(of({ result: { response: 'SUCCESS' } }))
+      component.verifyOtp({ value: '123456' })
+      expect(mocks.signupSvc.verifyOTP).toHaveBeenCalledWith('123456', '9876543210', 'phone')
+      expect(component.isMobileVerified).toBe(true)
+    })
+
+    it('does not call verifyOTP when otp value is empty', () => {
+      component.verifyOtp({ value: '' })
+      expect(mocks.signupSvc.verifyOTP).not.toHaveBeenCalled()
+    })
+
+    it('opens snackbar on verifyOtp error', () => {
+      component.registrationForm.get('mobile')!.enable()
+      component.registrationForm.get('mobile')!.setValue('9876543210')
+      mocks.signupSvc.verifyOTP.mockReturnValue(
+        throwError({ error: { params: { errmsg: 'Invalid OTP' } } })
+      )
+      component.verifyOtp({ value: '000000' })
+      expect(mocks.snackBar.open).toHaveBeenCalledWith('Invalid OTP')
+    })
+  })
+
+  // ── signup - additional branch ────────────────────────────────────────────
+  describe('signup() - error without errmsg', () => {
+    it('shows generic snackbar on error without errmsg', () => {
+      component.heirarchyObject = {
+        orgName: 'DOPT', channel: 'dopt', sbOrgId: 'o1', mapId: '', sbRootOrgId: 'r1', sbOrgType: '', sbOrgSubType: ''
+      }
+      mocks.welcomeSignupSvc.register.mockReturnValue(throwError({}))
+      component.signup()
+      expect(mocks.snackBar.open).toHaveBeenCalledWith(
+        'Something went wrong, please try again later!', 'X', expect.any(Object)
+      )
+    })
+  })
+
+  // ── fetch ─────────────────────────────────────────────────────────────────
+  describe('fetch()', () => {
+    it('calls initSvc.init()', async () => {
+      await component.fetch()
+      expect(mocks.initSvc.init).toHaveBeenCalled()
+    })
+  })
+
+  // ── forbiddenNamesValidator with null control value ───────────────────────
+
+  // ── startCountDown countdown tick ────────────────────────────────────────
+  describe('startCountDown() - timer ticks', () => {
+    it('decrements timeLeftforOTP each tick', () => {
+      jest.useFakeTimers()
+      component.OTP_TIMER = 2
+      component.startCountDown()
+      expect(component.timeLeftforOTP).toBe(2)
+      jest.advanceTimersByTime(1000)
+      expect(component.timeLeftforOTP).toBe(1)
+      jest.advanceTimersByTime(1000)
+      expect(component.timeLeftforOTP).toBe(0)
+      jest.advanceTimersByTime(1000)
+      expect(component.timeLeftforOTP).toBe(0)
+      jest.useRealTimers()
     })
   })
 

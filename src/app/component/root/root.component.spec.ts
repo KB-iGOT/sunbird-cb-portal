@@ -270,9 +270,13 @@ describe('RootComponent', () => {
         value: { pathname: '/public/privacy-policy', href: 'http://localhost/public/privacy-policy' },
         writable: true,
       })
-      const m = buildMocks()
-      const c = makeComponent(m)
-      expect(c.hideHeaderAndFooter).toBe(true)
+      const testComponent = new RootComponent(
+        mockRouter, mockRoute, mockAppRef, mockSwUpdate, mockDialog, mockHttp,
+        mockConfigSvc, mockValueSvc, mockTelemetrySvc, mockEventSvc, mockMobileAppsSvc,
+        mockRootSvc, mockBtnBackSvc, mockChangeDetector, mockUtilitySvc, mockUrlService,
+        mockIGOTAIService, mockCommonDataSvc,
+      )
+      expect(testComponent.hideHeaderAndFooter).toBe(true)
       Object.defineProperty(window, 'location', {
         value: { pathname: '/', href: 'http://localhost/' },
         writable: true,
@@ -333,19 +337,17 @@ describe('RootComponent', () => {
   // ── getHeaderFooterConfiguration ─────────────────────────────────────────
   describe('getHeaderFooterConfiguration()', () => {
     it('fetches right-nav-config and emits data', done => {
-      mocks.http.get.mockReturnValue(of({ sections: ['s1'] }))
-      component = makeComponent(mocks)
-      component.getHeaderFooterConfiguration().subscribe(result => {
+      mockHttp.get.mockReturnValue(of({ sections: ['s1'] }))
+      component.getHeaderFooterConfiguration().subscribe((result: any) => {
         expect(result.data).toBeTruthy()
         done()
       })
     })
 
     it('emits null data on error', done => {
-      const { throwError } = require('rxjs')
-      mocks.http.get.mockReturnValue(throwError(() => new Error('fail')))
-      component = makeComponent(mocks)
-      component.getHeaderFooterConfiguration().subscribe(result => {
+      const { throwError } = jest.requireActual('rxjs')
+      mockHttp.get.mockReturnValue(throwError(() => new Error('fail')))
+      component.getHeaderFooterConfiguration().subscribe((result: any) => {
         expect(result.data).toBeNull()
         done()
       })
@@ -364,14 +366,15 @@ describe('RootComponent', () => {
     it('dispatches telemetry event on first call', () => {
       component.appStartRaised = false
       component.raiseAppStartTelemetry()
-      expect(mocks.eventSvc.dispatchEvent).toHaveBeenCalled()
+      expect(mockEventSvc.dispatchEvent).toHaveBeenCalled()
       expect(component.appStartRaised).toBe(true)
     })
 
     it('does not dispatch telemetry on subsequent calls', () => {
       component.appStartRaised = true
+      mockEventSvc.dispatchEvent.mockClear()
       component.raiseAppStartTelemetry()
-      expect(mocks.eventSvc.dispatchEvent).not.toHaveBeenCalled()
+      expect(mockEventSvc.dispatchEvent).not.toHaveBeenCalled()
     })
   })
 
@@ -405,22 +408,34 @@ describe('RootComponent', () => {
 
     it('calls btnBackSvc.initialize', () => {
       component.ngOnInit()
-      expect(mocks.btnBackSvc.initialize).toHaveBeenCalled()
+      expect(mockBtnBackSvc.initialize).toHaveBeenCalled()
     })
 
     it('calls commonDataSvc.mandatoryDetails on NavigationEnd', () => {
-      component.ngOnInit()
-      expect(mocks.commonDataSvc.mandatoryDetails).toHaveBeenCalled()
+      const { NavigationEnd } = jest.requireActual('@angular/router')
+      mockRouter.events = of(new NavigationEnd(1, '/page/home', '/page/home'))
+      const testComp = new RootComponent(
+        mockRouter, mockRoute, mockAppRef, mockSwUpdate, mockDialog, mockHttp,
+        mockConfigSvc, mockValueSvc, mockTelemetrySvc, mockEventSvc, mockMobileAppsSvc,
+        mockRootSvc, mockBtnBackSvc, mockChangeDetector, mockUtilitySvc, mockUrlService,
+        mockIGOTAIService, mockCommonDataSvc,
+      )
+      testComp.ngOnInit()
+      expect(mockCommonDataSvc.mandatoryDetails).toHaveBeenCalled()
     })
   })
 
   // ── changeBg26Jan / removeBg26Jan ─────────────────────────────────────────
   describe('changeBg26Jan / removeBg26Jan', () => {
     it('changeBg26Jan does not throw', () => {
+      const mockEl = { classList: { add: jest.fn(), remove: jest.fn() } }
+      jest.spyOn(document, 'getElementById').mockReturnValue(mockEl as any)
       expect(() => component.changeBg26Jan()).not.toThrow()
     })
 
     it('removeBg26Jan does not throw', () => {
+      const mockEl = { classList: { add: jest.fn(), remove: jest.fn() } }
+      jest.spyOn(document, 'getElementById').mockReturnValue(mockEl as any)
       expect(() => component.removeBg26Jan()).not.toThrow()
     })
   })
@@ -429,7 +444,7 @@ describe('RootComponent', () => {
   describe('ngAfterViewChecked()', () => {
     it('calls changeDetector.detectChanges', () => {
       component.ngAfterViewChecked()
-      expect(mocks.changeDetector.detectChanges).toHaveBeenCalled()
+      expect(mockChangeDetector.detectChanges).toHaveBeenCalled()
     })
   })
 
@@ -508,6 +523,10 @@ describe('RootComponent', () => {
 
   describe('isCustomHeight getter', () => {
     it('should return customHeight value', () => {
+      Object.defineProperty(window, 'location', {
+        value: { pathname: '/some/other/path', href: 'http://localhost/some/other/path' },
+        writable: true,
+      })
       component.customHeight = false
       expect(component.isCustomHeight).toBe(false)
     })
@@ -546,7 +565,7 @@ describe('RootComponent', () => {
 
   describe('ngAfterViewInit', () => {
     it('should call initAppUpdateCheck', () => {
-      const spy = jest.spyOn(component as any, 'initAppUpdateCheck').mockImplementation(() => {})
+      const spy = jest.spyOn(component as any, 'initAppUpdateCheck').mockImplementation(() => { })
       component.ngAfterViewInit()
       expect(spy).toHaveBeenCalled()
     })
@@ -678,6 +697,165 @@ describe('RootComponent', () => {
       mockIGOTAIService.iGOTAIConfigReadData.mockReturnValue(of({ error: { status: 404 } }))
       await (component as any).iGOTAIConfig()
       expect(component.iGOTAIConfigLoaded).toBe(false)
+    })
+  })
+
+  // ── Router events in ngOnInit ───────────────────────────────────────────
+  describe('ngOnInit router events', () => {
+    const makeComp = () => new RootComponent(
+      mockRouter, mockRoute, mockAppRef, mockSwUpdate, mockDialog, mockHttp,
+      mockConfigSvc, mockValueSvc, mockTelemetrySvc, mockEventSvc, mockMobileAppsSvc,
+      mockRootSvc, mockBtnBackSvc, mockChangeDetector, mockUtilitySvc, mockUrlService,
+      mockIGOTAIService, mockCommonDataSvc,
+    )
+
+    it('NavigationStart: sets showNavbar=true and isNavBarRequired=true for normal url', () => {
+      const { NavigationStart } = jest.requireActual('@angular/router')
+      mockRouter.events = of(new NavigationStart(1, '/page/home'))
+      const c = makeComp()
+      c.ngOnInit()
+      expect(c.showNavbar).toBe(true)
+      expect(c.isNavBarRequired).toBe(true)
+    })
+
+    it('NavigationStart: sets isNavBarRequired=false for preview url', () => {
+      const { NavigationStart } = jest.requireActual('@angular/router')
+      mockRouter.events = of(new NavigationStart(1, '/page/home?preview=1'))
+      const c = makeComp()
+      c.ngOnInit()
+      expect(c.isNavBarRequired).toBe(false)
+    })
+
+    it('NavigationStart: sets isNavBarRequired=false for embed url', () => {
+      const { NavigationStart } = jest.requireActual('@angular/router')
+      mockRouter.events = of(new NavigationStart(1, '/viewer/embed/123'))
+      const c = makeComp()
+      c.ngOnInit()
+      expect(c.isNavBarRequired).toBe(false)
+    })
+
+    it('NavigationStart: sets viewerPage=true for viewer url', () => {
+      const { NavigationStart } = jest.requireActual('@angular/router')
+      mockRouter.events = of(new NavigationStart(1, '/viewer/123'))
+      const c = makeComp()
+      c.ngOnInit()
+      expect(c.viewerPage).toBe(true)
+    })
+
+    it('NavigationStart: sets viewerPage=false for non-viewer url', () => {
+      const { NavigationStart } = jest.requireActual('@angular/router')
+      mockRouter.events = of(new NavigationStart(1, '/page/home'))
+      const c = makeComp()
+      c.ngOnInit()
+      expect(c.viewerPage).toBe(false)
+    })
+
+    it('NavigationEnd: sets routeChangeInProgress=false', () => {
+      const { NavigationEnd } = jest.requireActual('@angular/router')
+      mockRouter.events = of(new NavigationEnd(1, '/page/home', '/page/home'))
+      const c = makeComp()
+      c.ngOnInit()
+      expect(c.routeChangeInProgress).toBe(false)
+    })
+
+    it('NavigationEnd: sets customHeight=true for /public/home', () => {
+      const { NavigationEnd } = jest.requireActual('@angular/router')
+      mockRouter.events = of(new NavigationEnd(1, '/public/home', '/public/home'))
+      const c = makeComp()
+      c.ngOnInit()
+      expect(c.customHeight).toBe(true)
+    })
+
+    it('NavigationEnd: sets customHeight=false for non-public/home', () => {
+      const { NavigationEnd } = jest.requireActual('@angular/router')
+      mockRouter.events = of(new NavigationEnd(1, '/page/other', '/page/other'))
+      const c = makeComp()
+      c.ngOnInit()
+      expect(c.customHeight).toBe(false)
+    })
+
+    it('NavigationEnd: sets showNavbar=false and isNavBarRequired=false for /public/logout', () => {
+      const { NavigationEnd } = jest.requireActual('@angular/router')
+      mockRouter.events = of(new NavigationEnd(1, '/public/logout', '/public/logout'))
+      const c = makeComp()
+      c.ngOnInit()
+      expect(c.showNavbar).toBe(false)
+      expect(c.isNavBarRequired).toBe(false)
+    })
+
+    it('NavigationEnd: sets showNavbar=false for /viewer/ url', () => {
+      const { NavigationEnd } = jest.requireActual('@angular/router')
+      mockRouter.events = of(new NavigationEnd(1, '/viewer/123', '/viewer/123'))
+      const c = makeComp()
+      c.ngOnInit()
+      expect(c.showNavbar).toBe(false)
+    })
+
+    it('NavigationEnd: sets isSetupPage=true for /setup/ url', () => {
+      const { NavigationEnd } = jest.requireActual('@angular/router')
+      mockRouter.events = of(new NavigationEnd(1, '/setup/step1', '/setup/step1'))
+      const c = makeComp()
+      c.ngOnInit()
+      expect(c.isSetupPage).toBe(true)
+    })
+
+    it('NavigationEnd: sets showFooter=true for regular url', () => {
+      const { NavigationEnd } = jest.requireActual('@angular/router')
+      mockRouter.events = of(new NavigationEnd(1, '/app/home', '/app/home'))
+      const c = makeComp()
+      c.ngOnInit()
+      expect(c.showFooter).toBe(true)
+    })
+
+    it('NavigationCancel: sets routeChangeInProgress=false', () => {
+      const { NavigationCancel } = jest.requireActual('@angular/router')
+      mockRouter.events = of(new NavigationCancel(1, '/page/home', 'cancelled'))
+      const c = makeComp()
+      c.ngOnInit()
+      expect(c.routeChangeInProgress).toBe(false)
+    })
+
+    it('NavigationError: sets routeChangeInProgress=false', () => {
+      const { NavigationError } = jest.requireActual('@angular/router')
+      mockRouter.events = of(new NavigationError(1, '/page/home', new Error('err')))
+      const c = makeComp()
+      c.ngOnInit()
+      expect(c.routeChangeInProgress).toBe(false)
+    })
+
+    it('NavigationEnd: calls telemetrySvc.impression when pageId and module present', () => {
+      const { NavigationEnd } = jest.requireActual('@angular/router')
+      mockRouter.events = of(new NavigationEnd(1, '/app/home', '/app/home'))
+      mockUtilitySvc.routeData = { pageId: 'home', module: 'main' }
+      const c = makeComp()
+      c.ngOnInit()
+      expect(mockTelemetrySvc.impression).toHaveBeenCalled()
+    })
+
+    it('NavigationEnd: calls telemetrySvc.impression with no args when no pageId', () => {
+      const { NavigationEnd } = jest.requireActual('@angular/router')
+      mockRouter.events = of(new NavigationEnd(1, '/app/home', '/app/home'))
+      mockUtilitySvc.routeData = {}
+      const c = makeComp()
+      c.ngOnInit()
+      expect(mockTelemetrySvc.impression).toHaveBeenCalled()
+    })
+
+    it('NavigationStart with /public url: sets showHubs=false', () => {
+      const { NavigationStart } = jest.requireActual('@angular/router')
+      mockRouter.events = of(new NavigationStart(1, '/public/home'))
+      Object.defineProperty(window, 'innerWidth', { value: 1500, writable: true })
+      const c = makeComp()
+      c.ngOnInit()
+      expect(c.showHubs).toBe(false)
+    })
+
+    it('NavigationEnd with /app/toc/ url: sets showBottomNav=false', () => {
+      const { NavigationEnd } = jest.requireActual('@angular/router')
+      mockRouter.events = of(new NavigationEnd(1, '/app/toc/123', '/app/toc/123'))
+      const c = makeComp()
+      c.ngOnInit()
+      expect(c.showBottomNav).toBe(false)
     })
   })
 })
