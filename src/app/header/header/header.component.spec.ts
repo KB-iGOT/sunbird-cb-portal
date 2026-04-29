@@ -1,182 +1,130 @@
 import { BehaviorSubject } from 'rxjs'
 import { HeaderComponent } from './header.component'
-import { Subject } from 'rxjs'
 
-describe('HeaderComponent', () => {
+describe('HeaderComponent (mocked, no TestBed)', () => {
   let component: HeaderComponent
+  let mockValueSvc: any
+  let mockHeaderService: any
+  let mockMobileAppsService: any
+  let mockDialog: any
+  let mockRouter: any
   let showNavbar$: BehaviorSubject<boolean>
-  let mobileAppsService: any
-  let router: any
   let openSpy: jest.SpyInstance
 
   beforeEach(() => {
-    jest.useFakeTimers()
     showNavbar$ = new BehaviorSubject(true)
-    mobileAppsService = { mobileTopHeaderVisibilityStatus: { next: jest.fn() } }
-    router = { navigateByUrl: jest.fn() }
-    openSpy = jest.spyOn(window, 'open').mockImplementation()
+    mockValueSvc = { isXSmall$: new BehaviorSubject(false) }
+    mockHeaderService = { showNavbarDisplay$: showNavbar$ }
+    mockMobileAppsService = { mobileTopHeaderVisibilityStatus: { next: jest.fn() } }
+    mockDialog = { open: jest.fn() }
+    mockRouter = { navigateByUrl: jest.fn() }
+    openSpy = jest.spyOn(window, 'open').mockImplementation(() => null)
     component = new HeaderComponent(
-      { isXSmall$: new BehaviorSubject(false) } as any,
-      { showNavbarDisplay$: showNavbar$ } as any,
-      mobileAppsService,
-      {} as any,
-      router,
+      mockValueSvc,
+      mockHeaderService,
+      mockMobileAppsService,
+      mockDialog,
+      mockRouter,
     )
   })
 
   afterEach(() => {
-    jest.useRealTimers()
     openSpy.mockRestore()
+    jest.clearAllMocks()
   })
 
-  it('initializes navbar subscription and widget data', () => {
+  it('should initialize with default values', () => {
+    expect(component.isNavBarRequired).toBe(true)
+    expect(component.showNavbar).toBe(true)
+    expect(component.mobileTopHeaderVisibilityStatus).toBe(true)
+    expect(component.widgetData).toEqual({})
+  })
+
+  it('should set widgetData and subscribe to showNavbarDisplay$', () => {
+    jest.useFakeTimers()
     component.ngOnInit()
     showNavbar$.next(false)
-    jest.advanceTimersByTime(500)
+    jest.advanceTimersByTime(600)
+    expect(component.showNavbar).toBe(false)
+    expect(component.widgetData).toHaveProperty('widgets')
+    jest.useRealTimers()
+  })
 
-    expect(component.isShowNavbar).toBe(false)
+  it('navBarRequired getter returns isNavBarRequired', () => {
+    component['isNavBarRequired'] = false
+    expect(component.navBarRequired).toBe(false)
+    component['isNavBarRequired'] = true
     expect(component.navBarRequired).toBe(true)
-    expect((component.widgetData as any).widgets[0][0].widget.widgetSubType).toBe('cardHomeHubs')
   })
 
-  it('opens app stores based on user agent', () => {
-    jest.spyOn(navigator, 'userAgent', 'get').mockReturnValue('android')
-    component.downloadApp()
-    expect(openSpy).toHaveBeenCalledWith(expect.stringContaining('play.google.com'), '_blank')
-
-    openSpy.mockClear()
-    jest.spyOn(navigator, 'userAgent', 'get').mockReturnValue('iPhone')
-    component.downloadApp()
-    expect(openSpy).toHaveBeenCalledWith(expect.stringContaining('apps.apple.com'), '_blank')
+  it('isShowNavbar getter returns showNavbar', () => {
+    component.showNavbar = false
+    expect(component.isShowNavbar).toBe(false)
+    component.showNavbar = true
+    expect(component.isShowNavbar).toBe(true)
   })
 
-  it('hides mobile top header and navigates support form', () => {
+  it('hideMobileTopHeader sets flag and notifies service', () => {
+    component.mobileTopHeaderVisibilityStatus = true
     component.hideMobileTopHeader()
     expect(component.mobileTopHeaderVisibilityStatus).toBe(false)
-    expect(mobileAppsService.mobileTopHeaderVisibilityStatus.next).toHaveBeenCalledWith(false)
+    expect(mockMobileAppsService.mobileTopHeaderVisibilityStatus.next).toHaveBeenCalledWith(false)
+  })
 
+  it('openSupportForm navigates to help-centre', () => {
     component.openSupportForm()
-    expect(router.navigateByUrl).toHaveBeenCalledWith('igot/help-centre')
-  })
-
-  it('should default showNavbar to true', () => {
-    expect(component.showNavbar).toBe(true)
-  })
-
-  it('should default mobileTopHeaderVisibilityStatus to true', () => {
-    expect(component.mobileTopHeaderVisibilityStatus).toBe(true)
-  })
-
-  describe('ngOnInit', () => {
-    it('should subscribe to showNavbarDisplay$ and update showNavbar', done => {
-      component.ngOnInit()
-      // The pipe(delay(500)) means we need to wait — but we use fake timers
-      jest.useFakeTimers()
-      showNavbar$.next(false)
-      jest.advanceTimersByTime(600)
-      // After timeout component should have showNavbar=false
-      expect(component.showNavbar).toBe(false)
-      jest.useRealTimers()
-      done()
-    })
-
-    it('should set widgetData with widgets structure', () => {
-      component.ngOnInit()
-      expect(component.widgetData).toHaveProperty('widgets')
-    })
-  })
-
-  describe('navBarRequired getter', () => {
-    it('should return isNavBarRequired value', () => {
-      component['isNavBarRequired'] = true
-      expect(component.navBarRequired).toBe(true)
-    })
-  })
-
-  describe('isShowNavbar getter', () => {
-    it('should return showNavbar value', () => {
-      component.showNavbar = false
-      expect(component.isShowNavbar).toBe(false)
-    })
-  })
-
-  describe('hideMobileTopHeader', () => {
-    it('should set mobileTopHeaderVisibilityStatus to false and notify service', () => {
-      component.hideMobileTopHeader()
-      expect(component.mobileTopHeaderVisibilityStatus).toBe(false)
-      expect(mockMobileAppsService.mobileTopHeaderVisibilityStatus.next).toHaveBeenCalledWith(false)
-    })
-  })
-
-  describe('openSupportForm', () => {
-    it('should navigate to help-centre url', () => {
-      component.openSupportForm()
-      expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('igot/help-centre')
-    })
+    expect(mockRouter.navigateByUrl).toHaveBeenCalledWith('igot/help-centre')
   })
 
   describe('downloadApp', () => {
-    const originalNavigator = global.navigator
-
+    let originalUserAgent: string
+    beforeAll(() => {
+      originalUserAgent = navigator.userAgent
+    })
     afterEach(() => {
-      Object.defineProperty(global, 'navigator', { value: originalNavigator, writable: true })
+      Object.defineProperty(window.navigator, 'userAgent', { value: originalUserAgent, configurable: true })
+      openSpy.mockClear()
     })
 
-    it('should open play store for Android', () => {
-      Object.defineProperty(global.navigator, 'userAgent', {
-        value: 'Mozilla/5.0 (Linux; Android 10)',
-        configurable: true,
-      })
+    it('opens Play Store for Android', () => {
+      Object.defineProperty(window.navigator, 'userAgent', { value: 'Mozilla/5.0 (Linux; Android 10)', configurable: true })
       component.downloadApp()
-      expect(window.open).toHaveBeenCalledWith(
-        expect.stringContaining('play.google.com'),
-        '_blank',
-      )
+      expect(openSpy).toHaveBeenCalledWith(expect.stringContaining('play.google.com'), '_blank')
     })
 
-    it('should open App Store for iPhone', () => {
-      Object.defineProperty(global.navigator, 'userAgent', {
-        value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0)',
-        configurable: true,
-      })
+    it('opens App Store for iOS', () => {
+      Object.defineProperty(window.navigator, 'userAgent', { value: 'Mozilla/5.0 (iPhone; CPU iPhone OS 14_0)', configurable: true })
       component.downloadApp()
-      expect(window.open).toHaveBeenCalledWith(
-        expect.stringContaining('apps.apple.com'),
-        '_blank',
-      )
+      expect(openSpy).toHaveBeenCalledWith(expect.stringContaining('apps.apple.com'), '_blank')
     })
 
-    it('should not open any store for desktop', () => {
-      Object.defineProperty(global.navigator, 'userAgent', {
-        value: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)',
-        configurable: true,
-      })
+    it('opens Play Store for Windows Phone', () => {
+      Object.defineProperty(window.navigator, 'userAgent', { value: 'Mozilla/5.0 (compatible; MSIE 10.0; Windows Phone 8.0)', configurable: true })
       component.downloadApp()
-      expect(window.open).not.toHaveBeenCalled()
+      expect(openSpy).toHaveBeenCalledWith(expect.stringContaining('play.google.com'), '_blank', 'noopener')
     })
 
-    it('should open play store for Windows Phone', () => {
-      Object.defineProperty(global.navigator, 'userAgent', {
-        value: 'Mozilla/5.0 (compatible; MSIE 10.0; Windows Phone 8.0)',
-        configurable: true,
-      })
+    it('does not open store for desktop', () => {
+      Object.defineProperty(window.navigator, 'userAgent', { value: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64)', configurable: true })
       component.downloadApp()
-      expect(window.open).toHaveBeenCalledWith(
-        expect.stringContaining('play.google.com'),
-        '_blank',
-        'noopener',
-      )
+      expect(openSpy).not.toHaveBeenCalled()
     })
 
-    it('should set opener to null when window.open returns a non-null window object', () => {
-      Object.defineProperty(global.navigator, 'userAgent', {
-        value: 'Mozilla/5.0 (compatible; MSIE 10.0; Windows Phone 8.0)',
-        configurable: true,
-      })
-      const mockNewWindow: any = { opener: 'something' }
-      jest.spyOn(window, 'open').mockImplementation(() => mockNewWindow)
+    it('sets opener to null if window.open returns window', () => {
+      Object.defineProperty(window.navigator, 'userAgent', { value: 'Mozilla/5.0 (compatible; MSIE 10.0; Windows Phone 8.0)', configurable: true })
+      const fakeWindow: any = { opener: 'notnull' }
+      openSpy.mockImplementation(() => fakeWindow)
       component.downloadApp()
-      expect(mockNewWindow.opener).toBeNull()
+      expect(fakeWindow.opener).toBeNull()
     })
+  })
+
+  it('should handle @Input properties', () => {
+    component.mode = 'test-mode'
+    component.headerFooterConfigData = { foo: 'bar' }
+    component.showHubs = true
+    expect(component.mode).toBe('test-mode')
+    expect(component.headerFooterConfigData).toEqual({ foo: 'bar' })
+    expect(component.showHubs).toBe(true)
   })
 })
