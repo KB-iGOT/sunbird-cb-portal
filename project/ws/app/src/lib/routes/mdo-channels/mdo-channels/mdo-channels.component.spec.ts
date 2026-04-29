@@ -1,12 +1,12 @@
 import { BehaviorSubject, of } from 'rxjs'
 jest.mock('lodash', () => {
-  const get = (obj: any, path: string) => path.split('.').reduce((acc, key) => acc && acc[key], obj)
+  const get = (obj: any, path: string) => path.split('.').reduce((acc: any, key: string) => acc && acc[key], obj)
   const orderBy = (value: any[], keys: string[], orders: string[]) => [...(value || [])].sort((a, b) => {
     const av = String(get(a, keys[0]) || '')
     const bv = String(get(b, keys[0]) || '')
     return orders[0] === 'desc' ? bv.localeCompare(av) : av.localeCompare(bv)
   })
-  return { __esModule: true, default: {
+  const fns = {
     toArray: (v: any) => Array.isArray(v) ? v : Object.values(v || {}),
     pickBy: (v: any, p: any) => Object.keys(v || {}).reduce((acc: any, key: string) => {
       if (p(v[key])) acc[key] = v[key]
@@ -17,7 +17,8 @@ jest.mock('lodash', () => {
     get,
     each: (v: any, cb: any) => (v || []).forEach(cb),
     orderBy,
-  } }
+  }
+  return { __esModule: true, default: fns, ...fns }
 })
 import { MdoChannelsComponent } from './mdo-channels.component'
 

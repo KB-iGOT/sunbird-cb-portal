@@ -255,4 +255,45 @@ describe('LearningHistoryComponent', () => {
     expect(result).toBeDefined()
     expect(result.identifier).toBe('c1')
   })
+
+  it('onTabChange - does not call getUserProgress when already loaded', () => {
+    const { comp, mockLearnHstSvc } = buildComponent(false)
+    comp.ngOnInit()
+    const content = comp.lhContent[0]
+    content.fetchStatus = 'done'
+    mockLearnHstSvc.fetchContentProgress.mockClear()
+    comp.onTabChange(0)
+    expect(mockLearnHstSvc.fetchContentProgress).not.toHaveBeenCalled()
+  })
+
+  it('applyFilter - All filter sets filterType to empty string', () => {
+    const { comp } = buildComponent(true, true)
+    comp.ngOnInit()
+    comp.applyFilter('All')
+    expect(comp.filterType).toBe('')
+  })
+
+  it('getFilteredCourse index 1 with modules enabled', () => {
+    const { comp, mockAnalyticsSrv } = buildComponent(true, true)
+    comp.ngOnInit()
+    comp.enabledTabs = { courses: true, modules: true, resources: true }
+    comp.getFilteredCourse(1)
+    expect(mockAnalyticsSrv.userProgress).toHaveBeenCalled()
+  })
+
+  it('getFilteredCourse index 1 without modules but with resources', () => {
+    const { comp, mockAnalyticsSrv } = buildComponent(true, true)
+    comp.ngOnInit()
+    comp.enabledTabs = { courses: true, modules: false, resources: true }
+    comp.getFilteredCourse(1)
+    expect(mockAnalyticsSrv.userProgress).toHaveBeenCalled()
+  })
+
+  it('getFilteredCourse index 2 with modules and resources enabled', () => {
+    const { comp, mockAnalyticsSrv } = buildComponent(true, true)
+    comp.ngOnInit()
+    comp.enabledTabs = { courses: true, modules: true, resources: true }
+    comp.getFilteredCourse(2)
+    expect(mockAnalyticsSrv.userProgress).toHaveBeenCalled()
+  })
 })

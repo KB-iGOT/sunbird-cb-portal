@@ -1,3 +1,12 @@
+// BtnPageBackService is used as a type in root.component.ts but not imported there.
+// This global declaration makes it visible to all files in the TypeScript program.
+declare global {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  class BtnPageBackService {
+    initialize(): void
+  }
+}
+
 // Mock all external modules that jest cannot resolve via moduleNameMapper
 // These must use { virtual: true } since they have no jest moduleNameMapper entry
 jest.mock('@sunbird-cb/collection', () => ({

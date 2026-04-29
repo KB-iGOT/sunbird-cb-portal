@@ -9,10 +9,10 @@ jest.mock('@angular/common/http', () => ({
 }), { virtual: true })
 
 jest.mock('dayjs', () => {
-  const dayjsFn: any = () => ({ format: () => '2024-01-01', diff: () => 10 })
+  const dayjsFn: any = jest.fn(() => ({ format: jest.fn(() => '2024-01-01'), diff: jest.fn(() => 10) }))
   dayjsFn.default = dayjsFn
-  return { __esModule: true, default: dayjsFn }
-}, { virtual: true })
+  return dayjsFn
+})
 
 jest.mock('lodash', () => ({
   uniqBy: jest.fn(arr => arr),

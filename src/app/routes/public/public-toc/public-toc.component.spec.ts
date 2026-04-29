@@ -467,4 +467,302 @@ describe('PublicTocComponent', () => {
       expect(component['routePath']).toBe('overview')
     })
   })
+
+  describe('modifySensibleContentRating – direct', () => {
+    it('should convert object averageRating to number via rootOrg key', () => {
+      mockConfigSvc.rootOrg = 'igot'
+      component.content = { averageRating: { igot: 4.5 } } as any
+        ; (component as any).modifySensibleContentRating()
+      expect((component.content as any).averageRating).toBe(4.5)
+    })
+
+    it('should convert object totalRating to number via rootOrg key', () => {
+      mockConfigSvc.rootOrg = 'igot'
+      component.content = { totalRating: { igot: 10 } } as any
+        ; (component as any).modifySensibleContentRating()
+      expect((component.content as any).totalRating).toBe(10)
+    })
+
+    it('should not modify numeric averageRating', () => {
+      component.content = { averageRating: 3.0 } as any
+        ; (component as any).modifySensibleContentRating()
+      expect((component.content as any).averageRating).toBe(3.0)
+    })
+
+    it('should not throw when content is null', () => {
+      component.content = null
+      expect(() => (component as any).modifySensibleContentRating()).not.toThrow()
+    })
+  })
+
+  describe('getLearningUrls – direct', () => {
+    it('should set isPracticeVisible true when practiceItems exist', () => {
+      mockTocSvc.filterToc = jest.fn().mockReturnValue([{ id: 'p1' }])
+      mockContentSvc.getFirstChildInHierarchy = jest.fn().mockReturnValue({ identifier: 'fc1', mimeType: 'mp4' })
+      component.content = { identifier: 'c1', primaryCategory: 'Course', children: [{ id: 'ch1' }] } as any
+        ; (component as any).getLearningUrls()
+      expect(component.isPracticeVisible).toBe(true)
+    })
+
+    it('should not throw when content is null', () => {
+      component.content = null
+      expect(() => (component as any).getLearningUrls()).not.toThrow()
+    })
+  })
+
+  describe('updateBannerUrl – direct', () => {
+    it('should set bannerUrl when banners is set', () => {
+      component['banners'] = { overview: 'http://img.png', analytics: '', contents: '' }
+      component['routePath'] = 'overview'
+        ; (component as any).updateBannerUrl()
+      expect(mockDomSanitizer.bypassSecurityTrustStyle).toHaveBeenCalled()
+    })
+
+    it('should not throw when banners is null', () => {
+      component['banners'] = null
+      expect(() => (component as any).updateBannerUrl()).not.toThrow()
+    })
+  })
+
+  describe('fetchExternalContentAccess – direct', () => {
+    it('should fetch access when content has registrationUrl and not forPreview', () => {
+      mockTocSvc.fetchExternalContentAccess = jest.fn().mockReturnValue(of({ hasAccess: true }))
+      component.content = { identifier: 'c1', registrationUrl: 'http://ext.com' } as any
+      component['forPreview'] = false
+        ; (component as any).fetchExternalContentAccess()
+      expect(mockTocSvc.fetchExternalContentAccess).toHaveBeenCalledWith('c1')
+      expect(component.registerForExternal).toBe(true)
+    })
+
+    it('should handle error in fetchExternalContentAccess', () => {
+      const { throwError } = require('rxjs')
+      mockTocSvc.fetchExternalContentAccess = jest.fn().mockReturnValue(throwError(() => new Error('err')))
+      component.content = { identifier: 'c1', registrationUrl: 'http://ext.com' } as any
+      component['forPreview'] = false
+        ; (component as any).fetchExternalContentAccess()
+      expect(component.registerForExternal).toBe(false)
+    })
+
+    it('should not call fetchExternalContentAccess when forPreview is true', () => {
+      mockTocSvc.fetchExternalContentAccess = jest.fn()
+      component.content = { identifier: 'c1', registrationUrl: 'http://ext.com' } as any
+      component['forPreview'] = true
+        ; (component as any).fetchExternalContentAccess()
+      expect(mockTocSvc.fetchExternalContentAccess).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('isPostAssessment getter', () => {
+    it('should return true for Course with Instructor-Led mode and postAssessment enabled', () => {
+      component.tocConfig = { postAssessment: true }
+      component.content = { primaryCategory: 'Course', learningMode: 'Instructor-Led' } as any
+      expect(component.isPostAssessment).toBe(true)
+    })
+
+    it('should return false for Course without Instructor-Led mode', () => {
+      component.tocConfig = { postAssessment: true }
+      component.content = { primaryCategory: 'Course', learningMode: 'Self-Paced' } as any
+      expect(component.isPostAssessment).toBe(false)
+    })
+
+    it('should return false when content is null', () => {
+      component.tocConfig = { postAssessment: true }
+      component.content = null
+      expect(component.isPostAssessment).toBe(false)
+    })
+  })
+
+  describe('isMobile getter', () => {
+    it('should return utilitySvc.isMobile value', () => {
+      mockUtilitySvc.isMobile = true
+      expect(component.isMobile).toBe(true)
+      mockUtilitySvc.isMobile = false
+      expect(component.isMobile).toBe(false)
+    })
+  })
+
+  describe('showIntranetMsg getter', () => {
+    it('should return true when isMobile is true', () => {
+      mockUtilitySvc.isMobile = true
+      expect(component.showIntranetMsg).toBe(true)
+    })
+
+    it('should return showIntranetMessage when not mobile', () => {
+      mockUtilitySvc.isMobile = false
+      component.showIntranetMessage = false
+      expect(component.showIntranetMsg).toBe(false)
+      component.showIntranetMessage = true
+      expect(component.showIntranetMsg).toBe(true)
+    })
+  })
+
+  describe('showButtonContainer getter', () => {
+    it('should return true for grant status with content and children', () => {
+      component['actionBtnStatus'] = 'grant'
+      mockUtilitySvc.isMobile = false
+      component.content = {
+        status: 'Live',
+        contentType: 'Course',
+        children: [{ id: 'ch1' }],
+        artifactUrl: '',
+        isInIntranet: false,
+      } as any
+      expect(component.showButtonContainer).toBe(true)
+    })
+
+    it('should return false when actionBtnStatus is wait', () => {
+      component['actionBtnStatus'] = 'wait'
+      expect(component.showButtonContainer).toBe(false)
+    })
+
+    it('should return false when content is Course with no children and no artifactUrl', () => {
+      component['actionBtnStatus'] = 'grant'
+      mockUtilitySvc.isMobile = false
+      component.content = {
+        status: 'Live',
+        contentType: 'Course',
+        children: [],
+        artifactUrl: '',
+        isInIntranet: false,
+      } as any
+      expect(component.showButtonContainer).toBe(false)
+    })
+  })
+
+  describe('getUserRating error handler', () => {
+    it('should log error when ratingSvc.getRating fails', () => {
+      const { throwError } = require('rxjs')
+      mockRatingSvc.getRating = jest.fn().mockReturnValue(throwError(() => new Error('rating error')))
+      mockConfigSvc.userProfile = { userId: 'u1' }
+      component.content = { identifier: 'c1', primaryCategory: 'Course' } as any
+      component.getUserRating()
+      expect(mockLoggerSvc.error).toHaveBeenCalled()
+    })
+  })
+
+  describe('initData with INVALID_DATA and NO_DATA', () => {
+    it('should set errorType to internalServer for INVALID_DATA', () => {
+      mockTocSvc.initData = jest.fn().mockReturnValue({ content: null, errorCode: 'INVALID_DATA' })
+      component.ngOnInit()
+      expect(component.errorWidgetData.widgetData.errorType).toBe('internalServer')
+    })
+
+    it('should set errorType to internalServer for NO_DATA', () => {
+      mockTocSvc.initData = jest.fn().mockReturnValue({ content: null, errorCode: 'NO_DATA' })
+      component.ngOnInit()
+      expect(component.errorWidgetData.widgetData.errorType).toBe('internalServer')
+    })
+  })
+
+  describe('playIntroVideo', () => {
+    it('should not throw', () => {
+      expect(() => component.playIntroVideo()).not.toThrow()
+    })
+  })
+
+  describe('ngAfterViewChecked – with DOM element mock', () => {
+    it('should call scrollTo when fragment element exists', () => {
+      const mockEl = { scrollTo: jest.fn() }
+      jest.spyOn(document, 'querySelector').mockReturnValue(mockEl as any)
+      component['fragment'] = 'my-section'
+      component.ngAfterViewChecked()
+      expect(mockEl.scrollTo).toHaveBeenCalledWith({ top: 80, behavior: 'smooth' })
+      jest.restoreAllMocks()
+    })
+  })
+
+  describe('initData – content with body and forPreview', () => {
+    it('should call proxyToAuthoringUrl when forPreview is true and content has body', () => {
+      const mockContent = {
+        identifier: 'c1',
+        primaryCategory: 'Course',
+        body: '<p>hello</p>',
+        children: [],
+        registrationUrl: null,
+        learningMode: 'Self-Paced',
+      }
+      mockTocSvc.initData = jest.fn().mockReturnValue({ content: mockContent, errorCode: null })
+      mockTocSvc.filterToc = jest.fn().mockReturnValue([])
+      mockTocSvc.getTocStructure = jest.fn().mockReturnValue({ assessment: 0, finalTest: 0, course: 0, handsOn: 0, interactiveVideo: 0, learningModule: 0, other: 0, pdf: 0, survey: 0, podcast: 0, practiceTest: 0, quiz: 0, video: 0, webModule: 0, webPage: 0, youtube: 0, interactivecontent: 0, offlineSession: 0 })
+      mockContentSvc.getFirstChildInHierarchy = jest.fn().mockReturnValue({ identifier: 'fc', mimeType: 'mp4' })
+      component['forPreview'] = true
+      component.ngOnInit()
+      expect(mockAuthAccessControlSvc.proxyToAuthoringUrl).toHaveBeenCalledWith('<p>hello</p>')
+    })
+  })
+
+  describe('initData – content with post-assessment', () => {
+    it('should call fetchPostAssessmentStatus when content isPostAssessment', () => {
+      const mockContent = {
+        identifier: 'c1',
+        primaryCategory: 'Course',
+        body: '',
+        children: [],
+        registrationUrl: null,
+        learningMode: 'Instructor-Led',
+      }
+      // Create a fresh component with route data that has postAssessment: true
+      const localTocSvc = {
+        ...mockTocSvc,
+        initData: jest.fn().mockReturnValue({ content: mockContent, errorCode: null }),
+        filterToc: jest.fn().mockReturnValue([]),
+        getTocStructure: jest.fn().mockReturnValue({ assessment: 0, finalTest: 0, course: 0, handsOn: 0, interactiveVideo: 0, learningModule: 0, other: 0, pdf: 0, survey: 0, podcast: 0, practiceTest: 0, quiz: 0, video: 0, webModule: 0, webPage: 0, youtube: 0, interactivecontent: 0, offlineSession: 0 }),
+        fetchPostAssessmentStatus: jest.fn().mockReturnValue(of({ result: [{ contentId: 'c1' }] })),
+        batchReplaySubject: new (require('rxjs').Subject)(),
+      }
+      const localRoute = {
+        fragment: of(null),
+        data: of({ pageData: { data: { postAssessment: true } } }),
+        queryParamMap: of({ get: jest.fn().mockReturnValue(null) }),
+      }
+      const localContentSvc = {
+        getFirstChildInHierarchy: jest.fn().mockReturnValue({ identifier: 'fc', mimeType: 'mp4' }),
+      }
+      const localComp = new PublicTocComponent(
+        localRoute as any,
+        mockRouter,
+        localContentSvc as any,
+        localTocSvc as any,
+        mockLoggerSvc,
+        mockConfigSvc,
+        mockDomSanitizer,
+        mockAuthAccessControlSvc,
+        mockDialog,
+        mockMobileAppsSvc,
+        mockUtilitySvc,
+        mockActionSVC,
+        mockRatingSvc,
+      )
+      localComp.ngOnInit()
+      expect(localTocSvc.fetchPostAssessmentStatus).toHaveBeenCalledWith('c1')
+    })
+  })
+
+  describe('getCompetencies – direct', () => {
+    it('should push each competency name to array', () => {
+      const data = JSON.stringify([{ name: 'A' }, { name: 'B' }, { name: 'C' }])
+      const result = component.getCompetencies(data)
+      expect(result).toHaveLength(3)
+      expect(result[2]).toBe('C')
+    })
+  })
+
+
+  describe('showInstructorLedMsg getter', () => {
+    it('should return false when showActionButtons is false', () => {
+      component['actionBtnStatus'] = 'wait'
+      expect(component.showInstructorLedMsg).toBe(false)
+    })
+
+    it('should return true for Instructor-Led content without children', () => {
+      component['actionBtnStatus'] = 'grant'
+      component.content = {
+        status: 'Live',
+        learningMode: 'Instructor-Led',
+        children: [],
+        artifactUrl: '',
+      } as any
+      expect(component.showInstructorLedMsg).toBe(true)
+    })
+  })
 })
