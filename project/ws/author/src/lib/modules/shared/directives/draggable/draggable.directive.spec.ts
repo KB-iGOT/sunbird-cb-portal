@@ -1,8 +1,20 @@
-import { TemplateRef, ViewContainerRef } from '@angular/core';
-import {  Overlay } from '@angular/cdk/overlay';
-import { Subject } from 'rxjs';
-import { DraggableDirective } from './draggable.directive';
-import { DraggableHelperDirective } from './draggable-helper.directive';
+// Mock GlobalPositionStrategy so positionStrategy on the directive is a jest mock
+const mockPositionStrategyInstance = {
+  left: jest.fn().mockReturnThis(),
+  top: jest.fn().mockReturnThis(),
+  apply: jest.fn(),
+}
+jest.mock('@angular/cdk/overlay', () => ({
+  Overlay: jest.fn(),
+  OverlayRef: jest.fn(),
+  GlobalPositionStrategy: jest.fn().mockImplementation(() => mockPositionStrategyInstance),
+}))
+
+import { TemplateRef, ViewContainerRef } from '@angular/core'
+import { Overlay } from '@angular/cdk/overlay'
+import { Subject } from 'rxjs'
+import { DraggableDirective } from './draggable.directive'
+import { DraggableHelperDirective } from './draggable-helper.directive'
 
 // Mock dependencies
 class MockDraggableDirective {
@@ -37,40 +49,33 @@ class MockOverlayRef {
       }
     }
   };
-  
+
   hasAttached = jest.fn();
   attach = jest.fn();
   detach = jest.fn();
   dispose = jest.fn();
 }
 
-class MockTemplateRef {}
+class MockTemplateRef { }
 
-class MockViewContainerRef {}
+class MockViewContainerRef { }
 
-class MockGlobalPositionStrategy {
-  left = jest.fn().mockReturnThis();
-  top = jest.fn().mockReturnThis();
-  apply = jest.fn();
-}
 
 describe('DraggableHelperDirective', () => {
-  let directive: DraggableHelperDirective;
-  let draggable: MockDraggableDirective;
-  let overlay: MockOverlay;
-  let overlayRef: MockOverlayRef;
-  let positionStrategy: MockGlobalPositionStrategy;
-  let templateRef: MockTemplateRef;
-  let viewContainerRef: MockViewContainerRef;
+  let directive: DraggableHelperDirective
+  let draggable: MockDraggableDirective
+  let overlay: MockOverlay
+  let overlayRef: MockOverlayRef
+  let templateRef: MockTemplateRef
+  let viewContainerRef: MockViewContainerRef
 
   beforeEach(() => {
-    draggable = new MockDraggableDirective();
-    templateRef = new MockTemplateRef();
-    viewContainerRef = new MockViewContainerRef();
-    positionStrategy = new MockGlobalPositionStrategy();
-    overlayRef = new MockOverlayRef();
-    overlay = new MockOverlay();
-    overlay.create.mockReturnValue(overlayRef);
+    draggable = new MockDraggableDirective()
+    templateRef = new MockTemplateRef()
+    viewContainerRef = new MockViewContainerRef()
+    overlayRef = new MockOverlayRef()
+    overlay = new MockOverlay()
+    overlay.create.mockReturnValue(overlayRef)
 
     // We need to manually spy and replace the GlobalPositionStrategy constructor
     //jest.spyOn(global, 'GlobalPositionStrategy').mockImplementation(() => positionStrategy);
@@ -80,133 +85,135 @@ describe('DraggableHelperDirective', () => {
       templateRef as unknown as TemplateRef<any>,
       viewContainerRef as unknown as ViewContainerRef,
       overlay as unknown as Overlay
-    );
-  });
+    )
+  })
 
   afterEach(() => {
-    jest.clearAllMocks();
-  });
+    jest.clearAllMocks()
+  })
 
   it('should create', () => {
-    expect(directive).toBeTruthy();
-  });
+    expect(directive).toBeTruthy()
+  })
 
   describe('ngOnInit', () => {
     beforeEach(() => {
-      directive.ngOnInit();
-    });
+      directive.ngOnInit()
+    })
 
     it('should create overlay with position strategy', () => {
-      expect(overlay.create).toHaveBeenCalledWith({
-        positionStrategy: positionStrategy,
-      });
-    });
+      expect(overlay.create).toHaveBeenCalledWith(
+        expect.objectContaining({ positionStrategy: expect.anything() })
+      )
+    })
 
     it('should subscribe to dragStart, dragMove, and dragEnd events', () => {
-      expect(directive.subscriptions.length).toBe(3);
-    });
-  });
+      expect(directive.subscriptions.length).toBe(3)
+    })
+  })
 
   describe('ngOnDestroy', () => {
     beforeEach(() => {
-      directive.ngOnInit();
-      directive.ngOnDestroy();
-    });
+      directive.ngOnInit()
+      directive.ngOnDestroy()
+    })
 
     it('should unsubscribe from all subscriptions', () => {
-      const unsubscribeSpy = jest.spyOn(directive.subscriptions[0], 'unsubscribe');
-      directive.unSubscribeEvents();
-      expect(unsubscribeSpy).toHaveBeenCalled();
-    });
+      const unsubscribeSpy = jest.spyOn(directive.subscriptions[0], 'unsubscribe')
+      directive.unSubscribeEvents()
+      expect(unsubscribeSpy).toHaveBeenCalled()
+    })
 
     it('should dispose overlay', () => {
-      expect(overlayRef.dispose).toHaveBeenCalled();
-    });
-  });
+      expect(overlayRef.dispose).toHaveBeenCalled()
+    })
+  })
 
   describe('onDragStart', () => {
     const mockEvent = {
       clientX: 150,
       clientY: 150
-    } as PointerEvent;
+    } as PointerEvent
 
     beforeEach(() => {
-      directive.ngOnInit();
-      draggable.dragStart.next(mockEvent);
-    });
+      directive.ngOnInit()
+      draggable.dragStart.next(mockEvent)
+    })
 
     it('should calculate start position based on event and element rect', () => {
       // The private property can't be accessed directly in TypeScript, but we can check the effects
-      expect(draggable.element.nativeElement.getBoundingClientRect).toHaveBeenCalled();
-      expect(overlayRef.overlayElement.style.width).toBe('200px');
-    });
-  });
+      expect(draggable.element.nativeElement.getBoundingClientRect).toHaveBeenCalled()
+      expect(overlayRef.overlayElement.style.width).toBe('200px')
+    })
+  })
 
   describe('onDragMove', () => {
     const mockEvent = {
       clientX: 200,
       clientY: 200
-    } as PointerEvent;
+    } as PointerEvent
 
     beforeEach(() => {
-      directive.ngOnInit();
-      
+      directive.ngOnInit()
+
       // First trigger dragStart to set the startPosition
       draggable.dragStart.next({
         clientX: 150,
         clientY: 150
-      } as PointerEvent);
-      
+      } as PointerEvent)
+
       // Mock hasAttached to return false first time, true after
-      let hasAttachedCalled = false;
+      let hasAttachedCalled = false
       overlayRef.hasAttached.mockImplementation(() => {
-        const result = hasAttachedCalled;
-        hasAttachedCalled = true;
-        return result;
-      });
-      
-      draggable.dragMove.next(mockEvent);
-    });
+        const result = hasAttachedCalled
+        hasAttachedCalled = true
+        return result
+      })
+
+      draggable.dragMove.next(mockEvent)
+    })
 
     it('should attach template portal if not already attached', () => {
-      expect(overlayRef.attach).toHaveBeenCalled();
-      expect(overlayRef.overlayElement.firstChild.style.width).toBe('100%');
-      expect(overlayRef.overlayElement.firstChild.style.boxSizing).toBe('border-box');
-    });
+      expect(overlayRef.attach).toHaveBeenCalled()
+      expect(overlayRef.overlayElement.firstChild.style.width).toBe('100%')
+      expect(overlayRef.overlayElement.firstChild.style.boxSizing).toBe('border-box')
+    })
 
     it('should update position based on event and start position', () => {
-      expect(positionStrategy.left).toHaveBeenCalledWith('50px'); // 200 - (150 - 100) = 50
-      expect(positionStrategy.top).toHaveBeenCalledWith('50px');  // 200 - (150 - 100) = 50
-      expect(positionStrategy.apply).toHaveBeenCalled();
-    });
-  });
+      // startPosition.x = clientX(150) - rect.left(100) = 50
+      // left = event.clientX(200) - startPosition.x(50) = 150
+      expect(mockPositionStrategyInstance.left).toHaveBeenCalledWith('150px')
+      expect(mockPositionStrategyInstance.top).toHaveBeenCalledWith('150px')
+      expect(mockPositionStrategyInstance.apply).toHaveBeenCalled()
+    })
+  })
 
   describe('onDragEnd', () => {
     beforeEach(() => {
-      directive.ngOnInit();
-      draggable.dragEnd.next();
-    });
+      directive.ngOnInit()
+      draggable.dragEnd.next()
+    })
 
     it('should detach overlay', () => {
-      expect(overlayRef.detach).toHaveBeenCalled();
-    });
-  });
+      expect(overlayRef.detach).toHaveBeenCalled()
+    })
+  })
 
   describe('unSubscribeEvents', () => {
     beforeEach(() => {
-      directive.ngOnInit();
-    });
+      directive.ngOnInit()
+    })
 
     it('should unsubscribe from all subscriptions', () => {
-      const unsubscribeSpy1 = jest.spyOn(directive.subscriptions[0], 'unsubscribe');
-      const unsubscribeSpy2 = jest.spyOn(directive.subscriptions[1], 'unsubscribe');
-      const unsubscribeSpy3 = jest.spyOn(directive.subscriptions[2], 'unsubscribe');
-      
-      directive.unSubscribeEvents();
-      
-      expect(unsubscribeSpy1).toHaveBeenCalled();
-      expect(unsubscribeSpy2).toHaveBeenCalled();
-      expect(unsubscribeSpy3).toHaveBeenCalled();
-    });
-  });
-});
+      const unsubscribeSpy1 = jest.spyOn(directive.subscriptions[0], 'unsubscribe')
+      const unsubscribeSpy2 = jest.spyOn(directive.subscriptions[1], 'unsubscribe')
+      const unsubscribeSpy3 = jest.spyOn(directive.subscriptions[2], 'unsubscribe')
+
+      directive.unSubscribeEvents()
+
+      expect(unsubscribeSpy1).toHaveBeenCalled()
+      expect(unsubscribeSpy2).toHaveBeenCalled()
+      expect(unsubscribeSpy3).toHaveBeenCalled()
+    })
+  })
+})

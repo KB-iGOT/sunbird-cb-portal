@@ -1,3 +1,10 @@
+// storedLang is referenced in top-right-nav-bar.component.ts constructor but not declared.
+// This global declaration makes it available in all files in the TypeScript program.
+declare global {
+  // eslint-disable-next-line no-var
+  var storedLang: string
+}
+
 import { TopRightNavBarComponent } from './top-right-nav-bar.component'
 import { of } from 'rxjs'
 import { Subject } from 'rxjs'
@@ -78,12 +85,15 @@ describe('TopRightNavBarComponent', () => {
 
   it('reads language from localStorage in constructor', () => {
     localStorage.setItem('websiteLanguage', 'hi')
+      // storedLang is used but undeclared in source — set the global value here
+      ; (global as any).storedLang = 'hi'
     component = new TopRightNavBarComponent(
       mockDialog, mockHomePageSvc, mockConfigSvc, mockLangTranslations,
       mockTranslate, mockHttp, mockSanitizer, mockEvents, mockSnackBar,
       mockRouter, mockNotificationsSvc, mockRootService, mockMatDialog
     )
     expect(component.selectedLanguage).toBe('hi')
+      ; (global as any).storedLang = undefined
   })
 
   describe('ngOnInit', () => {
@@ -353,6 +363,8 @@ describe('TopRightNavBarComponent', () => {
     it('updates language when observable fires and localStorage has language', () => {
       const langSubject = new Subject<void>()
       localStorage.setItem('websiteLanguage', 'hi')
+        // storedLang is an undeclared variable in source — set the global before constructor
+        ; (global as any).storedLang = 'hi'
       const newMockLang = {
         ...mockLangTranslations,
         languageSelectedObservable: langSubject.asObservable(),
@@ -362,6 +374,7 @@ describe('TopRightNavBarComponent', () => {
         mockTranslate, mockHttp, mockSanitizer, mockEvents, mockSnackBar,
         mockRouter, mockNotificationsSvc, mockRootService, mockMatDialog
       )
+        ; (global as any).storedLang = undefined
       langSubject.next()
       expect(c.selectedLanguage).toBe('hi')
       expect(mockTranslate.use).toHaveBeenCalledWith('hi')

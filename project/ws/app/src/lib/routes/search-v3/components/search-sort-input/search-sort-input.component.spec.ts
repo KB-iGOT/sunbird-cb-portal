@@ -485,3 +485,64 @@ describe('SearchSortInputComponent Additional Tests', () => {
     }))
   })
 })
+
+describe('SearchSortInputComponent – correct enum values', () => {
+  let component: SearchSortInputComponent
+
+  beforeEach(() => {
+    component = new SearchSortInputComponent()
+    localStorage.clear()
+  })
+
+  afterEach(() => {
+    localStorage.clear()
+  })
+
+  it('should use SEARCH_SORT_PEOPLES when category is peoples', () => {
+    component.category = 'peoples' // SearchCategory.People
+    component.ngOnChanges()
+    // SEARCH_SORT_PEOPLES mock has 2 entries
+    expect(component.options.length).toBe(2)
+    expect(component.selectedOption).toBe('most_relevant')
+  })
+
+  it('should filter highest_rated when category is communities', () => {
+    component.category = 'communities' // SearchCategory.Communities
+    component.ngOnChanges()
+    const hasHighestRated = component.options.some((o: any) => o.value === 'highest_rated')
+    expect(hasHighestRated).toBe(false)
+    expect(component.selectedOption).toBe('most_relevant')
+  })
+
+  it('should filter highest_rated when category is events', () => {
+    component.category = 'events' // SearchCategory.Events
+    component.ngOnChanges()
+    const hasHighestRated = component.options.some((o: any) => o.value === 'highest_rated')
+    expect(hasHighestRated).toBe(false)
+    expect(component.selectedOption).toBe('most_relevant')
+  })
+
+  it('should filter highest_rated and most_relevant when category is external-contents', () => {
+    component.category = 'external-contents' // SearchCategory.ExternalContents
+    component.ngOnChanges()
+    const hasHighestRated = component.options.some((o: any) => o.value === 'highest_rated')
+    const hasMostRelevant = component.options.some((o: any) => o.value === 'most_relevant')
+    expect(hasHighestRated).toBe(false)
+    expect(hasMostRelevant).toBe(false)
+    expect(component.selectedOption).toBe('recently_added_newest')
+  })
+
+  it('should apply localStorage sortType when matching option exists', () => {
+    localStorage.setItem('searchSortType', 'recently_added')
+    component.category = 'default-cat'
+    component.ngOnChanges()
+    expect(component.selectedOption).toBe('recently_added')
+  })
+
+  it('should NOT apply localStorage sortType when no matching option', () => {
+    localStorage.setItem('searchSortType', 'non_existent_sort')
+    component.category = 'default-cat'
+    component.ngOnChanges()
+    expect(component.selectedOption).toBe('most_relevant')
+  })
+})
