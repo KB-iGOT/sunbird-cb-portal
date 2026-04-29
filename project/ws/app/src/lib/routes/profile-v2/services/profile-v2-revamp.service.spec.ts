@@ -848,4 +848,121 @@ describe('ProfileV2RevampService', () => {
 
 
   })
+
+  describe('configulreProfileDetails', () => {
+    it('should set profileBannerUrl when configSvc.userProfileV2 exists', () => {
+      const requestBody = { result: { response: { profileDetails: { profileBannerUrl: 'http://banner.url' } } } }
+      service.configulreProfileDetails(requestBody)
+      expect(mockConfigSvc.userProfileV2['profileBannerUrl']).toBe('http://banner.url')
+    })
+
+    it('should not throw when configSvc is null', () => {
+      service['configSvc'] = null as any
+      expect(() => service.configulreProfileDetails({})).not.toThrow()
+    })
+  })
+
+  describe('blockConnection', () => {
+    it('should block connection successfully', (done) => {
+      const payload = { userId: 'user123' }
+      const response = { success: true }
+      mockHttpClient.post.mockReturnValue(of(response))
+      service.blockConnection(payload).subscribe((result: any) => {
+        expect(result).toEqual(response)
+        done()
+      })
+    })
+  })
+
+  describe('searchDesignation', () => {
+    it('should search designations', (done) => {
+      const req = { query: 'Officer' }
+      const response = { designations: [{ name: 'Officer' }] }
+      mockHttpClient.post.mockReturnValue(of(response))
+      service.searchDesignation(req).subscribe((result: any) => {
+        expect(result).toEqual(response)
+        done()
+      })
+    })
+  })
+
+  describe('searchIgotDesignation', () => {
+    it('should search igot designations', (done) => {
+      const req = { query: 'Officer' }
+      const response = { designations: [] }
+      mockHttpClient.post.mockReturnValue(of(response))
+      service.searchIgotDesignation(req).subscribe((result: any) => {
+        expect(result).toEqual(response)
+        done()
+      })
+    })
+  })
+
+  describe('fetchNodalDetails', () => {
+    it('should fetch nodal details', (done) => {
+      const response = { content: [] }
+      mockHttpClient.post.mockReturnValue(of(response))
+      service.fetchNodalDetails('rootOrg1', 'ADMIN').subscribe((result: any) => {
+        expect(result).toEqual(response)
+        done()
+      })
+    })
+  })
+
+  describe('updateConnectionRequest', () => {
+    it('should update connection request', (done) => {
+      const formBody = { status: 'approved' }
+      const response = { success: true }
+      mockHttpClient.post.mockReturnValue(of(response))
+      service.updateConnectionRequest(formBody).subscribe((result: any) => {
+        expect(result).toEqual(response)
+        done()
+      })
+    })
+  })
+
+  describe('withDrawRequest', () => {
+    it('should withdraw request', (done) => {
+      const payload = { requestId: 'req123' }
+      const response = { success: true }
+      mockHttpClient.post.mockReturnValue(of(response))
+      service.withDrawRequest(payload).subscribe((result: any) => {
+        expect(result).toEqual(response)
+        done()
+      })
+    })
+  })
+
+  describe('handleTranslateTo', () => {
+    it('should translate menu name to key', () => {
+      mockTranslateService.instant.mockReturnValue('Translated Value')
+      const result = service.handleTranslateTo('My Profile')
+      expect(mockTranslateService.instant).toHaveBeenCalledWith('NetworkV2Profile.MyProfile')
+      expect(result).toBe('Translated Value')
+    })
+  })
+
+  describe('getInsightsData', () => {
+    it('should get insights data', (done) => {
+      const payload = { userId: 'user123' }
+      const response = { insights: [] }
+      mockHttpClient.post.mockReturnValue(of(response))
+      service.getInsightsData(payload).subscribe((result: any) => {
+        expect(result).toEqual(response)
+        done()
+      })
+    })
+  })
+
+  describe('updateProfileDetailsV3', () => {
+    it('should update profile details v3', (done) => {
+      const requestBody = { firstName: 'Jane' }
+      const response = { success: true }
+      mockHttpClient.post.mockReturnValue(of(response))
+      service.updateProfileDetailsV3(requestBody).subscribe((result: any) => {
+        expect(result).toEqual(response)
+        done()
+      })
+    })
+  })
 })

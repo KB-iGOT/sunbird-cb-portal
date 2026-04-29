@@ -210,4 +210,241 @@ describe('CompetencyDetailsComponent (v2)', () => {
     comp.ngOnInit()
     expect(() => comp.ngOnDestroy()).not.toThrow()
   })
+
+  it('searchCompetency - sets competencyData on statusCode 200', () => {
+    const { comp, mockBrowseCompServ } = buildComponent()
+    mockBrowseCompServ.searchCompetency.mockReturnValue(of({
+      statusInfo: { statusCode: 200 },
+      responseData: [{ name: 'Leadership' }],
+    }))
+    comp.competencyName = 'Leadership'
+    comp.searchCompetency()
+    expect(comp.competencyData).toEqual({ name: 'Leadership' })
+  })
+
+  it('searchCompetencyV2 - sets competencyData via filterCompetencyBySubtheme', async () => {
+    const { comp, mockBrowseCompServ } = buildComponent()
+    const content = [{
+      identifier: 'competencyarea_1',
+      displayName: 'Domain',
+      children: [{
+        identifier: 'fw_theme_1',
+        displayName: 'Leadership',
+        children: [{
+          identifier: 'subtheme_1',
+          displayName: 'Leadership',
+          description: 'Leadership Subtheme',
+          count: 5,
+        }],
+      }],
+    }]
+    mockBrowseCompServ.searchCompetency.mockReturnValue(of({ result: { content } }))
+    comp.competencyName = 'Leadership'
+    comp.searchCompetencyV2()
+    await new Promise(resolve => setTimeout(resolve, 0))
+    expect(comp.competencyData).toBeDefined()
+    expect(comp.competencyData.name).toBe('Leadership')
+  })
+
+  it('getCbps - sets courses from result.content', () => {
+    const { comp, mockBrowseCompServ } = buildComponent()
+    mockBrowseCompServ.fetchSearchData.mockReturnValue(of({ result: { content: [{ id: 'c1' }] } }))
+    comp.competencyName = 'Leadership'
+    comp.getCbps()
+    expect(comp.courses).toEqual([{ id: 'c1' }])
+  })
+
+  it('getCbps - calls getFacets when result has facets', () => {
+    const { comp, mockBrowseCompServ } = buildComponent()
+    const facets = [{ name: 'source', values: [{ name: 'IGOT' }] }]
+    mockBrowseCompServ.fetchSearchData.mockReturnValue(of({ result: { content: [], facets } }))
+    comp.facets = [{ name: 'source', values: [] }]
+    comp.getCbps()
+    expect(comp.filteroptions).toBeDefined()
+  })
+
+  it('getFacets - updates source values and marks ischecked false', () => {
+    const { comp } = buildComponent()
+    comp.facets = [{ name: 'source', values: [{ name: 'IGOT' }] }]
+    comp.userFilters = []
+    comp.getFacets([{ name: 'source', values: [{ name: 'IGOT', count: 5 }] }])
+    expect(comp.facets[0].values[0].ischecked).toBe(false)
+  })
+
+  it('getFacets - marks ischecked true when filter is in userFilters', () => {
+    const { comp } = buildComponent()
+    comp.facets = [{ name: 'source', values: [{ name: 'IGOT' }] }]
+    comp.userFilters = [{ name: 'IGOT' }]
+    comp.getFacets([{ name: 'source', values: [{ name: 'IGOT', count: 5 }] }])
+    expect(comp.facets[0].values[0].ischecked).toBe(true)
+  })
+
+  it('modifyUserFilters - adds new filter to userFilters and myFilterArray', () => {
+    const { comp, mockBrowseCompServ } = buildComponent()
+    mockBrowseCompServ.fetchSearchData.mockReturnValue(of({ result: { content: [] } }))
+    comp.userFilters = []
+    comp.myFilterArray = []
+    comp.filteroptions = [{ name: 'source', values: [{ name: 'IGOT', ischecked: false }] }]
+    comp.modifyUserFilters({ name: 'IGOT', count: 1 }, 'source')
+    expect(comp.userFilters.some((f: any) => f.name === 'IGOT')).toBe(true)
+    expect(comp.myFilterArray.some((f: any) => f.name === 'IGOT')).toBe(true)
+  })
+
+  it('modifyUserFilters - removes existing filter from userFilters', () => {
+    const { comp, mockBrowseCompServ } = buildComponent()
+    mockBrowseCompServ.fetchSearchData.mockReturnValue(of({ result: { content: [] } }))
+    comp.userFilters = [{ name: 'IGOT', count: 1 }]
+    comp.myFilterArray = [{ mainType: 'source', name: 'IGOT' }]
+    comp.filteroptions = [{ name: 'source', values: [{ name: 'IGOT', ischecked: true }] }]
+    comp.modifyUserFilters({ name: 'IGOT', count: 1 }, 'source')
+    expect(comp.userFilters.some((f: any) => f.name === 'IGOT')).toBe(false)
+  })
+
+  it('applyFilter - applies mimeType Image', () => {
+    const { comp, mockBrowseCompServ } = buildComponent()
+    mockBrowseCompServ.fetchSearchData.mockReturnValue(of({ result: { content: [] } }))
+    comp.applyFilter([{ mainType: 'mimeType', name: 'Image' }])
+    expect(comp.mimeType).toContain('image/jpeg')
+    expect(comp.mimeType).toContain('image/png')
+  })
+
+  it('applyFilter - applies mimeType Video', () => {
+    const { comp, mockBrowseCompServ } = buildComponent()
+    mockBrowseCompServ.fetchSearchData.mockReturnValue(of({ result: { content: [] } }))
+    comp.applyFilter([{ mainType: 'mimeType', name: 'Video' }])
+    expect(comp.mimeType).toContain('video/mp4')
+  })
+
+  it('applyFilter - applies mimeType Assessment', () => {
+    const { comp, mockBrowseCompServ } = buildComponent()
+    mockBrowseCompServ.fetchSearchData.mockReturnValue(of({ result: { content: [] } }))
+    comp.applyFilter([{ mainType: 'mimeType', name: 'Assessment' }])
+    expect(comp.mimeType).toContain('application/json')
+  })
+
+  it('applyFilter - applies mimeType Interactive Content', () => {
+    const { comp, mockBrowseCompServ } = buildComponent()
+    mockBrowseCompServ.fetchSearchData.mockReturnValue(of({ result: { content: [] } }))
+    comp.applyFilter([{ mainType: 'mimeType', name: 'Interactive Content' }])
+    expect(comp.mimeType).toContain('application/vnd.ekstep.html-archive')
+  })
+
+  it('applyFilter - applies source filter', () => {
+    const { comp, mockBrowseCompServ } = buildComponent()
+    mockBrowseCompServ.fetchSearchData.mockReturnValue(of({ result: { content: [] } }))
+    comp.applyFilter([{ mainType: 'source', name: 'IGOT' }])
+    expect(comp.sourceType).toContain('IGOT')
+  })
+
+  it('applyFilter - applies primaryCategory filter', () => {
+    const { comp, mockBrowseCompServ } = buildComponent()
+    mockBrowseCompServ.fetchSearchData.mockReturnValue(of({ result: { content: [] } }))
+    comp.applyFilter([{ mainType: 'primaryCategory', name: 'Course' }])
+    expect(comp.primaryCategoryType).toContain('Course')
+  })
+
+  it('applyFilter - applies contentType filter as primaryCategory', () => {
+    const { comp, mockBrowseCompServ } = buildComponent()
+    mockBrowseCompServ.fetchSearchData.mockReturnValue(of({ result: { content: [] } }))
+    comp.applyFilter([{ mainType: 'contentType', name: 'Resource' }])
+    expect(comp.primaryCategoryType).toContain('Resource')
+  })
+
+  it('applyFilter - resets and calls getCbps when filter is empty', () => {
+    const { comp, mockBrowseCompServ } = buildComponent()
+    mockBrowseCompServ.fetchSearchData.mockReturnValue(of({ result: { content: [] } }))
+    comp.applyFilter([])
+    expect(comp.myAppliedFilters).toEqual([])
+  })
+
+  it('applyFilter - applies generic mimeType', () => {
+    const { comp, mockBrowseCompServ } = buildComponent()
+    mockBrowseCompServ.fetchSearchData.mockReturnValue(of({ result: { content: [] } }))
+    comp.applyFilter([{ mainType: 'mimeType', name: 'application/pdf' }])
+    expect(comp.mimeType).toContain('application/pdf')
+  })
+
+  it('applyFilter - applies mediaType filter', () => {
+    const { comp, mockBrowseCompServ } = buildComponent()
+    mockBrowseCompServ.fetchSearchData.mockReturnValue(of({ result: { content: [] } }))
+    comp.applyFilter([{ mainType: 'mediaType', name: 'audio' }])
+    expect(comp.mediaType).toContain('audio')
+  })
+
+  it('formatFacets - maps video/mp4 to Video', () => {
+    const { comp } = buildComponent()
+    comp.facets = [{ name: 'mimeType', values: [{ name: 'video/mp4', count: 1 }] }]
+    comp.formatFacets()
+    const mimes = comp.filteroptions.find((f: any) => f.name === 'mimeType')?.values || []
+    expect(mimes.some((m: any) => m.name === 'Video')).toBe(true)
+  })
+
+  it('formatFacets - maps image/jpeg to Image', () => {
+    const { comp } = buildComponent()
+    comp.facets = [{ name: 'mimeType', values: [{ name: 'image/jpeg', count: 1 }] }]
+    comp.formatFacets()
+    const mimes = comp.filteroptions.find((f: any) => f.name === 'mimeType')?.values || []
+    expect(mimes.some((m: any) => m.name === 'Image')).toBe(true)
+  })
+
+  it('formatFacets - maps html-archive to Interactive Content', () => {
+    const { comp } = buildComponent()
+    comp.facets = [{ name: 'mimeType', values: [{ name: 'application/vnd.ekstep.html-archive' }] }]
+    comp.formatFacets()
+    const mimes = comp.filteroptions.find((f: any) => f.name === 'mimeType')?.values || []
+    expect(mimes.some((m: any) => m.name === 'Interactive Content')).toBe(true)
+  })
+
+  it('formatFacets - sorts source values alphabetically', () => {
+    const { comp } = buildComponent()
+    comp.facets = [{ name: 'source', values: [{ name: 'ZTRAIN' }, { name: 'IGOT' }] }]
+    comp.formatFacets()
+    const source = comp.filteroptions.find((f: any) => f.name === 'source')?.values || []
+    expect(source[0].name).toBe('IGOT')
+  })
+
+  it('filterCompetencyBySubtheme - resolves matching node', async () => {
+    const { comp } = buildComponent()
+    const data = [{
+      identifier: 'competencyarea_1',
+      displayName: 'Domain',
+      children: [{
+        identifier: 'fw_theme_1',
+        displayName: 'Science',
+        children: [{
+          identifier: 'subtheme_1',
+          displayName: 'Physics',
+          description: 'Physics subtheme',
+          count: 3,
+        }],
+      }],
+    }]
+    const result = await comp.filterCompetencyBySubtheme(data, 'Physics')
+    expect(result).not.toBeNull()
+    expect(result.name).toBe('Physics')
+  })
+
+  it('filterCompetencyBySubtheme - resolves null when not found', async () => {
+    const { comp } = buildComponent()
+    const data = [{
+      identifier: 'competencyarea_1',
+      displayName: 'Domain',
+      children: [{
+        identifier: 'fw_theme_1',
+        displayName: 'Science',
+        children: [{
+          identifier: 'subtheme_1',
+          displayName: 'Physics',
+          count: 3,
+        }],
+      }],
+    }]
+    const result = await comp.filterCompetencyBySubtheme(data, 'Chemistry')
+    expect(result).toBeNull()
+  })
+
+  it('getText - returns startCase of value', () => {
+    const { comp } = buildComponent()
+    expect(typeof comp.getText('hello')).toBe('string')
+  })
 })

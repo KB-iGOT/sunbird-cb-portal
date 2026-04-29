@@ -440,5 +440,335 @@ describe('InsightSideBarComponent', () => {
       expect(() => component.ngOnDestroy()).not.toThrow()
     })
   })
+
+  // ── raiseTelemetry ────────────────────────────────────────────────────────
+  describe('raiseTelemetry', () => {
+    it('calls events.raiseInteractTelemetry with the given id', () => {
+      component.raiseTelemetry('btn-1')
+      expect(mocks.events.raiseInteractTelemetry).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'btn-1' }),
+        {},
+        expect.objectContaining({ module: expect.any(String) })
+      )
+    })
+  })
+
+  // ── raiseTelemetryInteratEvent ────────────────────────────────────────────
+  describe('raiseTelemetryInteratEvent', () => {
+    it('emits event via telemetryRaisedLibrary', () => {
+      const spy = jest.spyOn(component.telemetryRaisedLibrary, 'emit')
+      component.raiseTelemetryInteratEvent({ id: 'test' })
+      expect(spy).toHaveBeenCalledWith({ id: 'test' })
+    })
+  })
+
+  // ── navigateToStateLearning ───────────────────────────────────────────────
+  describe('navigateToStateLearning', () => {
+    it('navigates to slw micro-sites url when orgName and orgId are set', () => {
+      component.slwConfiguration = { orgName: 'StateOrg', orgId: 'org2' }
+      component.navigateToStatelLearning()
+      expect(mocks.router.navigateByUrl).toHaveBeenCalledWith(
+        'app/learn/mdo-channels/StateOrg/org2/micro-sites'
+      )
+    })
+
+    it('does not navigate when slwConfiguration is null', () => {
+      component.slwConfiguration = null
+      component.navigateToStatelLearning()
+      expect(mocks.events.raiseInteractTelemetry).toHaveBeenCalled()
+      expect(mocks.router.navigateByUrl).not.toHaveBeenCalled()
+    })
+  })
+
+  // ── submitProfile ─────────────────────────────────────────────────────────
+  describe('submitProfile', () => {
+    it('calls editProfileDetails and shows snackbar on OK', () => {
+      mocks.userProfileService.editProfileDetails.mockReturnValue(of({ responseCode: 'OK' }))
+      component.selectDesignation = 'Officer'
+      component.submitProfile()
+      expect(mocks.userProfileService.editProfileDetails).toHaveBeenCalled()
+      expect(mocks.snackBar.open).toHaveBeenCalledWith('Designation updated successfully', 'X', expect.any(Object))
+    })
+
+    it('shows snackbar on error', () => {
+      const { throwError } = jest.requireActual('rxjs')
+      mocks.userProfileService.editProfileDetails.mockReturnValue(throwError(() => new Error('err')))
+      component.submitProfile()
+      expect(mocks.snackBar.open).toHaveBeenCalledWith('something went wrong!')
+    })
+  })
+
+  // ── apiCallToUpdateDesignation ────────────────────────────────────────────
+  describe('apiCallToUpdateDesignation', () => {
+    it('calls submitProfile directly when no desigantionUnderApproval', () => {
+      component.desigantionUnderApproval = undefined
+      mocks.userProfileService.editProfileDetails.mockReturnValue(of({ responseCode: 'OK' }))
+      component.selectDesignation = 'Manager'
+      component.apiCallToUpdateDesignation()
+      expect(mocks.userProfileService.editProfileDetails).toHaveBeenCalled()
+    })
+
+    it('calls withDrawApprovalRequest then submitProfile when desigantionUnderApproval set', () => {
+      component.desigantionUnderApproval = { wfId: 'wf1' }
+      mocks.profileV2Svc.withDrawApprovalRequest = jest.fn().mockReturnValue(of({ result: { message: 'ok' } }))
+      mocks.userProfileService.editProfileDetails.mockReturnValue(of({ responseCode: 'OK' }))
+      component.selectDesignation = 'Manager'
+      component.apiCallToUpdateDesignation()
+      expect(mocks.profileV2Svc.withDrawApprovalRequest).toHaveBeenCalled()
+    })
+  })
+
+  // ── onInputChange ─────────────────────────────────────────────────────────
+  describe('onInputChange', () => {
+    it('filters designationList by search value', () => {
+      component.designationList = [{ name: 'Manager' }, { name: 'Officer' }, { name: 'Developer' }]
+      component.onInputChange('man')
+      expect(component.filterDesigantionList.every((d: any) => d.name.toLowerCase().includes('man'))).toBe(true)
+    })
+
+    it('resets filterDesigantionList when search is empty', () => {
+      component.designationList = [{ name: 'Manager' }, { name: 'Officer' }]
+      component.filterDesigantionList = []
+      component.onInputChange('')
+      expect(component.filterDesigantionList).toEqual(component.designationList)
+    })
+
+    it('sets selectDesignation to empty after filtering', () => {
+      component.designationList = [{ name: 'Manager' }]
+      component.onInputChange('Man')
+      expect(component.selectDesignation).toBe('')
+    })
+  })
+
+  // ── onOptionSelected ──────────────────────────────────────────────────────
+  describe('onOptionSelected', () => {
+    it('sets selectDesignation to the chosen value', () => {
+      component.onOptionSelected('Director')
+      expect(component.selectDesignation).toBe('Director')
+    })
+  })
+
+  // ── onAutoCompleteOpened / Closed ─────────────────────────────────────────
+  describe('onAutoCompleteOpened', () => {
+    it('sets isMatcompleteOpened to true', () => {
+      component.isMatcompleteOpened = false
+      component.onAutoCompleteOpened()
+      expect(component.isMatcompleteOpened).toBe(true)
+    })
+  })
+
+  describe('onAutoCompleteClosed', () => {
+    it('sets isMatcompleteOpened to false and resets filterDesigantionList', () => {
+      component.isMatcompleteOpened = true
+      component.designationList = [{ name: 'Manager' }]
+      component.onAutoCompleteClosed()
+      expect(component.isMatcompleteOpened).toBe(false)
+      expect(component.filterDesigantionList).toEqual(component.designationList)
+    })
+  })
+
+  // ── nlwSlides getter ──────────────────────────────────────────────────────
+  describe('nlwSlides', () => {
+    it('returns custom slides when nwlConfiguration.slides is set', () => {
+      component.nwlConfiguration = { slides: [{ type: 'banner' }, { type: 'content' }, { type: 'extra' }] }
+      expect(component.nlwSlides.length).toBe(3)
+    })
+
+    it('returns default [banner, content] when no slides', () => {
+      component.nwlConfiguration = {}
+      expect(component.nlwSlides).toEqual([{ type: 'banner' }, { type: 'content' }])
+    })
+
+    it('returns default when nwlConfiguration is null', () => {
+      component.nwlConfiguration = null
+      expect(component.nlwSlides).toEqual([{ type: 'banner' }, { type: 'content' }])
+    })
+  })
+
+  // ── startNlwAutoSlide ─────────────────────────────────────────────────────
+  describe('startNlwAutoSlide', () => {
+    afterEach(() => jest.useRealTimers())
+
+    it('does nothing when only 1 slide', () => {
+      jest.useFakeTimers()
+      component.nwlConfiguration = { slides: [{ type: 'banner' }] }
+      component.startNlwAutoSlide()
+      expect((component as any).nlwAutoSlideInterval).toBeNull()
+    })
+
+    it('sets interval when multiple slides', () => {
+      jest.useFakeTimers()
+      component.nwlConfiguration = { slides: [{ type: 'banner' }, { type: 'content' }], flipInterval: 3 }
+      component.startNlwAutoSlide()
+      expect((component as any).nlwAutoSlideInterval).not.toBeNull()
+      jest.clearAllTimers()
+    })
+  })
+
+  // ── goToNlwSlide / prevNlwSlide / nextNlwSlide ────────────────────────────
+  describe('goToNlwSlide', () => {
+    it('sets nlwSlideIndex to given index', () => {
+      component.nwlConfiguration = { slides: [{ type: 'banner' }, { type: 'content' }] }
+      component.goToNlwSlide(1)
+      expect(component.nlwSlideIndex).toBe(1)
+    })
+  })
+
+  describe('prevNlwSlide', () => {
+    it('wraps around to last slide from index 0', () => {
+      component.nwlConfiguration = { slides: [{ type: 'banner' }, { type: 'content' }, { type: 'extra' }] }
+      component.nlwSlideIndex = 0
+      component.prevNlwSlide()
+      expect(component.nlwSlideIndex).toBe(2)
+    })
+  })
+
+  describe('nextNlwSlide', () => {
+    it('wraps around to 0 from last slide', () => {
+      component.nwlConfiguration = { slides: [{ type: 'banner' }, { type: 'content' }] }
+      component.nlwSlideIndex = 1
+      component.nextNlwSlide()
+      expect(component.nlwSlideIndex).toBe(0)
+    })
+  })
+
+  // ── renderUpdateDesignationCard* ──────────────────────────────────────────
+  describe('renderUpdateDesignationCardHeader', () => {
+    beforeEach(() => {
+      component.updateDesignationCard = { header: 'Update', headerHi: 'Update-Hi', headerGu: 'Update-Gu' }
+    })
+
+    it('returns header for default lang', () => {
+      component.currentLang = 'en'
+      expect(component.renderUpdateDesignationCardHeader()).toBe('Update')
+    })
+
+    it('returns headerHi for hi lang', () => {
+      component.currentLang = 'hi'
+      expect(component.renderUpdateDesignationCardHeader()).toBe('Update-Hi')
+    })
+
+    it('returns headerGu for gu lang', () => {
+      component.currentLang = 'gu'
+      expect(component.renderUpdateDesignationCardHeader()).toBe('Update-Gu')
+    })
+  })
+
+  describe('renderUpdateDesignationCardButtonText', () => {
+    beforeEach(() => {
+      component.updateDesignationCard = { buttonText: 'Submit', buttonTextHi: 'सबमिट', buttonTextGu: 'સબમિટ' }
+    })
+
+    it('returns buttonText for default lang', () => {
+      component.currentLang = 'en'
+      expect(component.renderUpdateDesignationCardButtonText()).toBe('Submit')
+    })
+
+    it('returns buttonTextHi for hi lang', () => {
+      component.currentLang = 'hi'
+      expect(component.renderUpdateDesignationCardButtonText()).toBe('सबमिट')
+    })
+  })
+
+  describe('renderUpdateDesignationCardHint', () => {
+    beforeEach(() => {
+      component.updateDesignationCard = { hintText: 'Hint', hintTextHi: 'संकेत', hintTextGu: 'સૂચન' }
+    })
+
+    it('returns hintText for default lang', () => {
+      component.currentLang = 'en'
+      expect(component.renderUpdateDesignationCardHint()).toBe('Hint')
+    })
+
+    it('returns hintTextHi for hi lang', () => {
+      component.currentLang = 'hi'
+      expect(component.renderUpdateDesignationCardHint()).toBe('संकेत')
+    })
+  })
+
+  // ── getMasterDesignation ──────────────────────────────────────────────────
+  describe('getMasterDesignation', () => {
+    it('calls signupService.getOrgReadData and getFrameworkInfo', () => {
+      mocks.signupService.getFrameworkInfo.mockReturnValue(of({
+        result: { framework: { categories: [{ code: 'org', terms: [{ children: [{ name: 'Manager' }] }] }] } },
+      }))
+      mocks.profileV2Svc.fetchApprovalDetails.mockReturnValue(of({ result: { data: [] } }))
+      component.userData = { rootOrgId: 'org1' }
+      component.getMasterDesignation()
+      expect(mocks.signupService.getOrgReadData).toHaveBeenCalled()
+      expect(mocks.signupService.getFrameworkInfo).toHaveBeenCalled()
+    })
+
+    it('sets showUpdateDesignations true when designation not in list (no approval)', () => {
+      mocks.signupService.getFrameworkInfo.mockReturnValue(of({
+        result: { framework: { categories: [] } },
+      }))
+      mocks.profileV2Svc.fetchApprovalDetails.mockReturnValue(of({ result: { data: [] } }))
+      mocks.configSvc.userProfile.professionalDetails = [{ designation: 'CustomRole' }]
+      component.userData = { rootOrgId: 'org1' }
+      component.designationList = []
+      component.getMasterDesignation()
+      expect(mocks.signupService.getOrgReadData).toHaveBeenCalled()
+    })
+
+    it('does not call getOrgReadData when userData has no rootOrgId', () => {
+      component.userData = {}
+      component.getMasterDesignation()
+      expect(mocks.signupService.getOrgReadData).not.toHaveBeenCalled()
+    })
+
+    it('handles getOrgReadData error gracefully', () => {
+      const { throwError } = jest.requireActual('rxjs')
+      mocks.signupService.getOrgReadData.mockReturnValue(throwError(() => new Error('err')))
+      component.userData = { rootOrgId: 'org1' }
+      expect(() => component.getMasterDesignation()).not.toThrow()
+    })
+  })
+
+  // ── getDiscussionsData ────────────────────────────────────────────────────
+  describe('getDiscussionsData', () => {
+    it('calls homePageSvc.getDiscussionsData and sets data on success', () => {
+      mocks.homePageSvc.getDiscussionsData.mockReturnValue(of({ latestPosts: [{ id: 'p1' }] }))
+      component.userData = { userName: 'testuser' }
+      component.getDiscussionsData()
+      expect(component.discussion.data).toEqual([{ id: 'p1' }])
+      expect(component.discussion.loadSkeleton).toBe(false)
+    })
+
+    it('sets discussion.error on HTTP error', () => {
+      const { throwError } = jest.requireActual('rxjs')
+      mocks.homePageSvc.getDiscussionsData.mockReturnValue(throwError(() => ({ ok: false })))
+      component.userData = { userName: 'testuser' }
+      component.getDiscussionsData()
+      expect(component.discussion.error).toBe(true)
+    })
+  })
+
+  // ── onNlwBannerClick / onNlwNewsletterCtaClick ────────────────────────────
+  describe('onNlwBannerClick', () => {
+    it('does nothing when nlwExperience is null', () => {
+      component.nlwExperience = null
+      expect(() => component.onNlwBannerClick()).not.toThrow()
+    })
+
+    it('opens dialog when action is OPEN_POPUP', () => {
+      component.nlwExperience = { banner: { onClick: { action: 'OPEN_POPUP', type: 'PDF', url: '/url', api: '/api' } } }
+      component.onNlwBannerClick()
+      expect(mocks.dialog.open).toHaveBeenCalled()
+    })
+  })
+
+  describe('onNlwNewsletterCtaClick', () => {
+    it('does nothing when nlwExperience newsletter is null', () => {
+      component.nlwExperience = null
+      expect(() => component.onNlwNewsletterCtaClick()).not.toThrow()
+    })
+
+    it('opens dialog when newsletter CTA action is OPEN_POPUP', () => {
+      component.nlwExperience = { newsletter: { cta: { action: 'OPEN_POPUP', type: 'VIDEO', url: '/v', api: '/api' } } }
+      component.onNlwNewsletterCtaClick()
+      expect(mocks.dialog.open).toHaveBeenCalled()
+    })
+  })
 })
 

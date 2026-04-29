@@ -1,31 +1,31 @@
 import { BehaviorSubject, of } from 'rxjs'
 jest.mock('lodash', () => {
-  const get = (obj: any, path: string) => path.split('.').reduce((acc, key) => acc && acc[key], obj)
+  const get = (obj: any, path: string) => path.split('.').reduce((acc: any, key: string) => acc && acc[key], obj)
+  const pickBy = (value: any, predicate: any) => {
+    const result: any = {}
+    Object.keys(value || {}).forEach(key => {
+      if (predicate(value[key])) result[key] = value[key]
+    })
+    return result
+  }
+  const orderBy = (value: any[], keys: string[], orders: string[]) => {
+    const key = keys[0]
+    const dir = orders[0]
+    return [...(value || [])].sort((a, b) => {
+      const av = String(get(a, key) || '')
+      const bv = String(get(b, key) || '')
+      return dir === 'desc' ? bv.localeCompare(av) : av.localeCompare(bv)
+    })
+  }
+  const toArray = (value: any) => Array.isArray(value) ? value : Object.values(value || {})
+  const includes = (value: any, search: any) => (value || '').includes(search)
+  const lowerCase = (value: any) => String(value || '').toLowerCase()
+  const each = (value: any, iteratee: any) => (value || []).forEach(iteratee)
+  const fns = { toArray, pickBy, includes, lowerCase, get, each, orderBy }
   return {
     __esModule: true,
-    default: {
-      toArray: (value: any) => Array.isArray(value) ? value : Object.values(value || {}),
-      pickBy: (value: any, predicate: any) => {
-        const result: any = {}
-        Object.keys(value || {}).forEach(key => {
-          if (predicate(value[key])) result[key] = value[key]
-        })
-        return result
-      },
-      includes: (value: any, search: any) => (value || '').includes(search),
-      lowerCase: (value: any) => String(value || '').toLowerCase(),
-      get,
-      each: (value: any, iteratee: any) => (value || []).forEach(iteratee),
-      orderBy: (value: any[], keys: string[], orders: string[]) => {
-        const key = keys[0]
-        const dir = orders[0]
-        return [...(value || [])].sort((a, b) => {
-          const av = String(get(a, key) || '')
-          const bv = String(get(b, key) || '')
-          return dir === 'desc' ? bv.localeCompare(av) : av.localeCompare(bv)
-        })
-      },
-    },
+    default: fns,
+    ...fns,
   }
 })
 import { AllProvidersComponent } from './all-providers.component'

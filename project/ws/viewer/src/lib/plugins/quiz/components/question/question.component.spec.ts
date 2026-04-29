@@ -246,7 +246,7 @@ describe('QuestionComponent', () => {
   })
 
   it('changeColor - alerts if fewer connections than options', () => {
-    const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => {})
+    const alertSpy = jest.spyOn(window, 'alert').mockImplementation(() => { })
     const { comp } = buildQuestion({ questionType: 'mtf' })
     comp.question.options = [{} as any, {} as any]
     comp.jsPlumbInstance = { getAllConnections: jest.fn().mockReturnValue([{}]) }
@@ -264,7 +264,7 @@ describe('QuestionComponent', () => {
       },
     }
     // Prevent DOM-dependent method from running
-    jest.spyOn(comp, 'ifFillInTheBlankCorrect').mockImplementation(() => {})
+    jest.spyOn(comp, 'ifFillInTheBlankCorrect').mockImplementation(() => { })
     const emitSpy = jest.spyOn(comp.itemSelected, 'emit')
     comp.onEntryInBlank('q1')
     expect(emitSpy).toHaveBeenCalled()
@@ -302,5 +302,99 @@ describe('QuestionComponent', () => {
     comp.question.question = 'Fill <input> blank'
     comp.resetBlankBorder()
     expect(mockElementRef.nativeElement.querySelector).toHaveBeenCalled()
+  })
+
+  it('ngAfterViewInit - mtf type sets up jsPlumb', () => {
+    const { comp } = buildQuestion({ questionType: 'mtf' })
+    comp.ngAfterViewInit()
+    expect(comp.jsPlumbInstance).toBeDefined()
+  })
+
+  it('ngAfterViewInit - fitb type attaches event listeners', () => {
+    const { comp, mockElementRef } = buildQuestion({ questionType: 'fitb' })
+    comp.question.question = 'Fill <input> the blank'
+    comp.ngAfterViewInit()
+    expect(mockElementRef.nativeElement.querySelector).toHaveBeenCalled()
+  })
+
+  it('onChange - calls onEntryInBlank', () => {
+    const { comp } = buildQuestion({ questionType: 'fitb' })
+    comp.question.question = 'Fill <input> blank'
+    jest.spyOn(comp, 'onEntryInBlank').mockImplementation(() => { })
+    comp.onChange('q10', {})
+    expect(comp.onEntryInBlank).toHaveBeenCalledWith('q10')
+  })
+
+  it('ifFillInTheBlankCorrect - marks correct when answer matches', () => {
+    const { comp } = buildQuestion({ questionType: 'fitb' })
+    comp.question.options = [{ optionId: 'o1', text: '2', isCorrect: true }]
+    comp.correctOption = [false]
+    comp.unTouchedBlank = [true]
+    jest.spyOn(document, 'getElementById').mockReturnValue({ value: '2' } as any)
+    comp.ifFillInTheBlankCorrect('q10')
+    expect(comp.correctOption[0]).toBe(true)
+    expect(comp.unTouchedBlank[0]).toBe(false)
+    jest.restoreAllMocks()
+  })
+
+  it('ifFillInTheBlankCorrect - marks incorrect when answer does not match', () => {
+    const { comp } = buildQuestion({ questionType: 'fitb' })
+    comp.question.options = [{ optionId: 'o1', text: '2', isCorrect: true }]
+    comp.correctOption = [true]
+    comp.unTouchedBlank = [false]
+    jest.spyOn(document, 'getElementById').mockReturnValue({ value: 'wrong' } as any)
+    comp.ifFillInTheBlankCorrect('q10')
+    expect(comp.correctOption[0]).toBe(false)
+    jest.restoreAllMocks()
+  })
+
+  it('ifFillInTheBlankCorrect - marks untouched when blank is empty', () => {
+    const { comp } = buildQuestion({ questionType: 'fitb' })
+    comp.question.options = [{ optionId: 'o1', text: '2', isCorrect: true }]
+    comp.correctOption = [false]
+    comp.unTouchedBlank = [false]
+    jest.spyOn(document, 'getElementById').mockReturnValue({ value: '' } as any)
+    comp.ifFillInTheBlankCorrect('q10')
+    expect(comp.unTouchedBlank[0]).toBe(true)
+    jest.restoreAllMocks()
+  })
+
+  it('matchShowAnswer - calls deleteEveryConnection and connect for mtf', () => {
+    const { comp } = buildQuestion({ questionType: 'mtf' })
+    const connectMock = jest.fn()
+    const getSelector = jest.fn().mockReturnValue([{ innerText: 'Match A' }])
+    const setPaintStyle = jest.fn()
+    const mockConn = { sourceId: 'src1', target: { innerHTML: 'Match A' }, setPaintStyle }
+    comp.jsPlumbInstance = {
+      deleteEveryConnection: jest.fn(),
+      connect: connectMock,
+      getSelector,
+      getAllConnections: jest.fn().mockReturnValue([mockConn]),
+    }
+    comp.question.options = [
+      { optionId: 'o1', text: 'A', isCorrect: true, match: 'Match A' },
+    ]
+    jest.spyOn(document, 'getElementById').mockReturnValue({ style: {} } as any)
+    comp.matchShowAnswer()
+    expect(comp.jsPlumbInstance.deleteEveryConnection).toHaveBeenCalled()
+    jest.restoreAllMocks()
+  })
+
+  it('changeColor - iterates connections when count matches options', () => {
+    const { comp } = buildQuestion({ questionType: 'mtf' })
+    const setPaintStyle = jest.fn()
+    const mockConn = {
+      sourceId: 'src1',
+      target: { innerHTML: 'Match A' },
+      setPaintStyle,
+    }
+    comp.jsPlumbInstance = { getAllConnections: jest.fn().mockReturnValue([mockConn]) }
+    comp.question.options = [
+      { optionId: 'o1', text: 'A', isCorrect: true, match: 'Match A' },
+    ]
+    jest.spyOn(document, 'getElementById').mockReturnValue({ style: {} } as any)
+    comp.changeColor()
+    expect(setPaintStyle).toHaveBeenCalled()
+    jest.restoreAllMocks()
   })
 })

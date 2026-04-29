@@ -10,8 +10,8 @@ jest.mock('../../../user-profile/services/user-profile.service', () => ({
   UserPreferenceService: jest.fn(),
 }), { virtual: true })
 jest.mock('@sunbird-cb/collection/src/public-api', () => ({ NsContent: {} }), { virtual: true })
-jest.mock('@sunbird-cb/collection', () => ({ NsInstanceConfig: {}, WidgetBaseComponent: class {} }), { virtual: true })
-jest.mock('@sunbird-cb/resolver', () => ({ NsWidgetResolver: {}, WidgetBaseComponent: class {} }), { virtual: true })
+jest.mock('@sunbird-cb/collection', () => ({ NsInstanceConfig: {}, WidgetBaseComponent: class { } }), { virtual: true })
+jest.mock('@sunbird-cb/resolver', () => ({ NsWidgetResolver: {}, WidgetBaseComponent: class { } }), { virtual: true })
 jest.mock('./btn-settings.service', () => ({
   BtnSettingsService: jest.fn().mockImplementation(() => ({
     prefChangeSubject: { subscribe: jest.fn() },
@@ -151,5 +151,146 @@ describe('BtnSettingsComponent', () => {
   it('activeFontClass - defaults to empty string', () => {
     const { comp } = buildComponent()
     expect(comp.activeFontClass).toBe('')
+  })
+
+  describe('ngOnInit', () => {
+    it('should set themes, fonts, and allowedLangCode from instanceConfig', () => {
+      const { comp, mockConfigSvc } = buildComponent()
+      const prefChangeSubject = new Subject<any>()
+      mockConfigSvc.prefChangeNotifier = prefChangeSubject.asObservable()
+      mockConfigSvc.isDarkMode = false
+      mockConfigSvc.isRTL = false
+      comp.ngOnInit()
+      expect(comp.themes.length).toBe(2)
+      expect(comp.fonts.length).toBe(2)
+      expect(comp.allowedLangCode['en']).toBeDefined()
+      expect(comp.allowedLangCode['hi']).toBeDefined()
+    })
+
+    it('should set isLanguageEnabled to false when only one locale', () => {
+      const { comp, mockConfigSvc } = buildComponent()
+      mockConfigSvc.instanceConfig.locals = [{ path: 'en', label: 'English' }]
+      const prefChangeSubject = new Subject<any>()
+      mockConfigSvc.prefChangeNotifier = prefChangeSubject.asObservable()
+      mockConfigSvc.isDarkMode = false
+      comp.ngOnInit()
+      expect(comp.isLanguageEnabled).toBe(false)
+    })
+
+    it('should set activeThemeClass from configSvc.activeThemeObject', () => {
+      const { comp, mockConfigSvc } = buildComponent()
+      mockConfigSvc.activeThemeObject = { themeClass: 'theme-dark' }
+      const prefChangeSubject = new Subject<any>()
+      mockConfigSvc.prefChangeNotifier = prefChangeSubject.asObservable()
+      mockConfigSvc.isDarkMode = false
+      comp.ngOnInit()
+      expect(comp.activeThemeClass).toBe('theme-dark')
+    })
+
+    it('should set activeFontClass from configSvc.activeFontObject', () => {
+      const { comp, mockConfigSvc } = buildComponent()
+      mockConfigSvc.activeFontObject = { fontClass: 'font-lg' }
+      const prefChangeSubject = new Subject<any>()
+      mockConfigSvc.prefChangeNotifier = prefChangeSubject.asObservable()
+      mockConfigSvc.isDarkMode = false
+      comp.ngOnInit()
+      expect(comp.activeFontClass).toBe('font-lg')
+    })
+
+    it('should not throw when instanceConfig is null', () => {
+      const { comp, mockConfigSvc } = buildComponent()
+      mockConfigSvc.instanceConfig = null
+      expect(() => comp.ngOnInit()).not.toThrow()
+    })
+  })
+
+  describe('ngOnDestroy with subscriptions', () => {
+    it('should unsubscribe all active subscriptions', () => {
+      const { comp } = buildComponent()
+      const mockSub = { unsubscribe: jest.fn() }
+      comp.modeChangeSubs = mockSub as any
+      comp.prefChangeSubs = mockSub as any
+      comp.dirChangeSubs = mockSub as any
+      comp.ngOnDestroy()
+      expect(mockSub.unsubscribe).toHaveBeenCalledTimes(3)
+    })
+  })
+
+  describe('isLocaleEnabled', () => {
+    it('should return true when locale is enabled', () => {
+      const { comp } = buildComponent()
+      comp.allowedLangCode = { en: { isEnabled: true, isAvailable: true, path: 'en', pinyin: {} } as any }
+      expect(comp.isLocaleEnabled('en')).toBe(true)
+    })
+
+    it('should return false when locale is not in allowedLangCode', () => {
+      const { comp } = buildComponent()
+      comp.allowedLangCode = {}
+      expect(comp.isLocaleEnabled('fr')).toBeFalsy()
+    })
+  })
+
+  describe('isLocaleAvailable', () => {
+    it('should return true when locale is available', () => {
+      const { comp } = buildComponent()
+      comp.allowedLangCode = { en: { isEnabled: true, isAvailable: true, path: 'en', pinyin: {} } as any }
+      expect(comp.isLocaleAvailable('en')).toBe(true)
+    })
+
+    it('should return false when locale is not available', () => {
+      const { comp } = buildComponent()
+      comp.allowedLangCode = { en: { isEnabled: true, isAvailable: false, path: 'en', pinyin: {} } as any }
+      expect(comp.isLocaleAvailable('en')).toBe(false)
+    })
+  })
+
+  describe('localeIcon', () => {
+    it('should return radio_button_checked for active locale', () => {
+      const { comp, mockConfigSvc } = buildComponent()
+      mockConfigSvc.activeLocale = { path: 'en' }
+      comp.allowedLangCode = { en: { isEnabled: true, isAvailable: true, path: 'en', pinyin: {} } as any }
+      expect(comp.localeIcon('en')).toBe('radio_button_checked')
+    })
+
+    it('should return radio_button_unchecked for non-active locale', () => {
+      const { comp, mockConfigSvc } = buildComponent()
+      mockConfigSvc.activeLocale = { path: 'hi' }
+      comp.allowedLangCode = { en: { isEnabled: true, isAvailable: true, path: 'en', pinyin: {} } as any }
+      expect(comp.localeIcon('en')).toBe('radio_button_unchecked')
+    })
+
+    it('should return not_interested when locale is not enabled', () => {
+      const { comp, mockConfigSvc } = buildComponent()
+      mockConfigSvc.activeLocale = { path: 'en' }
+      comp.allowedLangCode = {}
+      expect(comp.localeIcon('fr')).toBe('not_interested')
+    })
+  })
+
+  describe('updateUserLang', () => {
+    it('should call settingsSvc.updateUserLocale and redirect when valid locale', async () => {
+      const { comp, mockSettingsSvc } = buildComponent()
+      mockSettingsSvc.updateUserLocale = jest.fn().mockResolvedValue(undefined)
+      comp.allowedLangCode = {
+        en: { isEnabled: true, isAvailable: true, path: 'en', pinyin: {} } as any,
+      }
+      const originalHref = Object.getOwnPropertyDescriptor(window, 'location')
+      Object.defineProperty(window, 'location', { value: { href: '' }, writable: true })
+      await comp.updateUserLang('en')
+      expect(mockSettingsSvc.updateUserLocale).toHaveBeenCalledWith('en')
+      if (originalHref) {
+        Object.defineProperty(window, 'location', originalHref)
+      }
+    })
+
+    it('should not redirect when locale has no valid path', async () => {
+      const { comp, mockSettingsSvc } = buildComponent()
+      mockSettingsSvc.updateUserLocale = jest.fn()
+      comp.allowedLangCode = {
+        en: { isEnabled: false, isAvailable: false, path: 'en', pinyin: {} } as any,
+      }
+      await comp.updateUserLang('en')
+      expect(mockSettingsSvc.updateUserLocale).not.toHaveBeenCalled()
+    })
   })
 })

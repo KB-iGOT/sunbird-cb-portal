@@ -1,5 +1,6 @@
 import { AppChatbotComponent } from './app-chatbot.component'
 import { of, Subject } from 'rxjs'
+import { NavigationEnd } from '@angular/router'
 
 jest.mock('@sunbird-cb/utils-v2', () => ({
   ConfigurationsService: jest.fn(),
@@ -28,7 +29,7 @@ jest.mock('src/environments/environment', () => ({
 }), { virtual: true })
 
 jest.mock('@angular/router', () => ({
-  NavigationEnd: class NavigationEnd { constructor(public id: number, public url: string, public urlAfterRedirects: string) {} },
+  NavigationEnd: class NavigationEnd { constructor(public id: number, public url: string, public urlAfterRedirects: string) { } },
   Router: jest.fn(),
 }), { virtual: true })
 
@@ -347,6 +348,64 @@ describe('AppChatbotComponent', () => {
     comp.currentFilter = 'information'
     comp.checkForApiCalls()
     expect(comp.selectedLaguage).toBe('en')
+  })
+
+  // Shared component instance for the remaining test suite
+  let component: any
+  let configSvcMock: any
+  let eventSvcMock: any
+  let chatbotServiceMock: any
+  let httpMock: any
+  let sanitizerMock: any
+  let rendererMock: any
+  let openSupportSubject: Subject<any>
+  let routerEventsSubject: Subject<any>
+  let dialogMock: any
+
+  beforeEach(() => {
+    openSupportSubject = new Subject<any>()
+    routerEventsSubject = new Subject<any>()
+    configSvcMock = {
+      userProfile: { profileImage: '/img.png', professionalDetails: [{ designation: 'Officer' }] },
+      iGOTAIConfig: {
+        issuesTab: { all: true },
+        informationTab: { all: true },
+        supportAI: { all: true },
+        iGOTAI: { all: true, allDesignation: true, forDesignation: ['Officer'], forOrg: ['org1'] },
+      },
+      unMappedUser: { userId: 'user123' },
+    }
+    eventSvcMock = { dispatchChatbotEvent: jest.fn() }
+    rendererMock = {
+      listen: jest.fn(),
+      addClass: jest.fn(),
+      removeClass: jest.fn(),
+      setStyle: jest.fn(),
+      setAttribute: jest.fn(),
+      removeAttribute: jest.fn(),
+      createElement: jest.fn(),
+      appendChild: jest.fn(),
+    }
+    chatbotServiceMock = {
+      openSupportAIChatbot: openSupportSubject.asObservable(),
+      getChatData: jest.fn().mockReturnValue(of({ payload: { config: {} } })),
+      getLangugages: jest.fn().mockReturnValue(of({ languages: [] })),
+      iGOTAIChatHistory: [],
+    }
+    httpMock = { get: jest.fn().mockReturnValue(of('<html>zoho</html>')) }
+    sanitizerMock = { bypassSecurityTrustHtml: jest.fn().mockReturnValue('safe-html') }
+    dialogMock = { open: jest.fn().mockReturnValue({ afterClosed: () => of(true) }) }
+    const mockRouter: any = { events: routerEventsSubject.asObservable() }
+    component = new AppChatbotComponent(
+      configSvcMock,
+      eventSvcMock,
+      rendererMock,
+      chatbotServiceMock,
+      httpMock,
+      sanitizerMock,
+      dialogMock,
+      mockRouter,
+    )
   })
 
   it('should initialize default values', () => {
@@ -1031,6 +1090,10 @@ describe('AppChatbotComponent', () => {
   })
 
   describe('ngAfterViewChecked', () => {
+    afterEach(() => {
+      jest.restoreAllMocks()
+    })
+
     it('should scroll chatbot-content for information filter', () => {
       component.currentFilter = 'information'
       const mockEl = { scrollTo: jest.fn(), scrollHeight: 500 }
@@ -1394,6 +1457,10 @@ describe('AppChatbotComponent', () => {
     })
 
     it('should enable iGOTAI for forDesignation match', () => {
+      configSvcMock.userProfile = {
+        ...configSvcMock.userProfile,
+        professionalDetails: [{ designation: 'Manager' }],
+      }
       component.userDesignation = 'Manager'
       configSvcMock.iGOTAIConfig = {
         iGOTAI: { all: true, allDesignation: false, forDesignation: ['Manager'] },

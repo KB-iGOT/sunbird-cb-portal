@@ -240,7 +240,7 @@ describe('PublicCrpComponent', () => {
 
   it('sendOtp - valid mobile calls signup sendOtp', () => {
     const { comp, mockSignupSvc } = buildComponent()
-    jest.spyOn(window, 'alert').mockImplementation(() => {})
+    jest.spyOn(window, 'alert').mockImplementation(() => { })
     comp.registrationForm.get('mobile')!.setValue('9876543210')
     comp.sendOtp()
     expect(mockSignupSvc.sendOtp).toHaveBeenCalled()
@@ -262,7 +262,7 @@ describe('PublicCrpComponent', () => {
 
   it('resendOTP - valid mobile calls resendOtp', () => {
     const { comp, mockSignupSvc } = buildComponent()
-    jest.spyOn(window, 'alert').mockImplementation(() => {})
+    jest.spyOn(window, 'alert').mockImplementation(() => { })
     comp.registrationForm.get('mobile')!.setValue('9876543210')
     comp.resendOTP()
     expect(mockSignupSvc.resendOtp).toHaveBeenCalled()
@@ -297,7 +297,7 @@ describe('PublicCrpComponent', () => {
 
   it('sendOtpEmail - valid email calls sendOtpV2', () => {
     const { comp, mockSignupSvc } = buildComponent()
-    jest.spyOn(window, 'alert').mockImplementation(() => {})
+    jest.spyOn(window, 'alert').mockImplementation(() => { })
     comp.registrationForm.get('email')!.setValue('test@example.com')
     comp.sendOtpEmail()
     expect(mockSignupSvc.sendOtpV2).toHaveBeenCalled()
@@ -427,5 +427,226 @@ describe('PublicCrpComponent', () => {
     const { comp, mockDialog } = buildComponent()
     comp.getZohoForm()
     expect(mockDialog.open).toHaveBeenCalled()
+  })
+
+  it('clearValues - sets heirarchyObject to null', () => {
+    const { comp } = buildComponent()
+    comp['heirarchyObject'] = { id: 'org1' }
+    comp.clearValues()
+    expect(comp['heirarchyObject']).toBeNull()
+  })
+
+  it('selectLanguage - sets language in localStorage', () => {
+    const { comp, mockLang } = buildComponent()
+    comp.selectLanguage('hi')
+    expect(comp['selectedLanguage']).toBe('hi')
+    expect(localStorage.getItem('websiteLanguage')).toBe('hi')
+    expect(mockLang.updatelanguageSelected).toHaveBeenCalledWith(true, 'hi', '')
+  })
+
+  it('translateLabels - calls langtranslations', () => {
+    const { comp, mockLang } = buildComponent()
+    const result = comp.translateLabels('myLabel', 'myType')
+    expect(mockLang.translateActualLabel).toHaveBeenCalledWith('myLabel', 'myType', '')
+    expect(result).toBe('label')
+  })
+
+  it('numericOnly - returns true for digit key', () => {
+    const { comp } = buildComponent()
+    expect(comp.numericOnly({ key: '5' })).toBe(true)
+  })
+
+  it('numericOnly - returns false for letter key', () => {
+    const { comp } = buildComponent()
+    expect(comp.numericOnly({ key: 'a' })).toBe(false)
+  })
+
+  it('resendOTP - success path', () => {
+    const { comp, mockSignupSvc } = buildComponent()
+    mockSignupSvc.resendOtp.mockReturnValue(of({ result: { response: 'SUCCESS' } }))
+    jest.useFakeTimers()
+    comp.registrationForm.get('mobile')!.setValue('9876543210')
+    comp.OTP_TIMER = 30
+    comp.resendOTP()
+    expect(mockSignupSvc.resendOtp).toHaveBeenCalled()
+    expect(comp.otpSend).toBe(true)
+    jest.useRealTimers()
+  })
+
+  it('resendOTP - error path', () => {
+    const { comp, mockSignupSvc, mockSnackBar } = buildComponent()
+    const { throwError } = require('rxjs')
+    mockSignupSvc.resendOtp.mockReturnValue(throwError({ error: { params: { errmsg: 'OTP error' } } }))
+    comp.registrationForm.get('mobile')!.setValue('9876543210')
+    comp.resendOTP()
+    expect(mockSnackBar.open).toHaveBeenCalled()
+  })
+
+  it('resendOTP - invalid mobile shows snackbar', () => {
+    const { comp, mockSnackBar } = buildComponent()
+    comp.registrationForm.get('mobile')!.setValue('')
+    comp.resendOTP()
+    expect(mockSnackBar.open).toHaveBeenCalled()
+  })
+
+  it('resendOTPEmail - success path', () => {
+    const { comp, mockSignupSvc } = buildComponent()
+    mockSignupSvc.resendOtpv2.mockReturnValue(of({ result: { response: 'SUCCESS' } }))
+    jest.useFakeTimers()
+    comp.registrationForm.get('email')!.setValue('test@example.com')
+    comp.OTP_TIMER_EMAIL = 30
+    comp.resendOTPEmail()
+    expect(mockSignupSvc.resendOtpv2).toHaveBeenCalled()
+    jest.useRealTimers()
+  })
+
+  it('resendOTPEmail - invalid email shows snackbar', () => {
+    const { comp, mockSnackBar } = buildComponent()
+    comp.registrationForm.get('email')!.setValue('')
+    comp.resendOTPEmail()
+    expect(mockSnackBar.open).toHaveBeenCalled()
+  })
+
+  it('signup - error path shows snackbar', () => {
+    const { comp, mockSignupSvc, mockSnackBar } = buildComponent()
+    const { throwError } = require('rxjs')
+    mockSignupSvc.register.mockReturnValue(throwError({ error: { params: { errmsg: 'Registration failed' } } }))
+    comp['heirarchyObject'] = { orgName: 'TestOrg', channel: 'c1', sbOrgType: 't1', sbOrgSubType: 'st1', mapId: 'm1', sbRootOrgId: 'r1', sbOrgId: 'o1' }
+    comp.filteredDesignationsList = [{ name: 'Officer' }]
+    comp.registrationForm.get('designation')!.setValue('Officer')
+    comp.signup()
+    expect(mockSnackBar.open).toHaveBeenCalled()
+  })
+
+  it('signup - error without errmsg shows generic message', () => {
+    const { comp, mockSignupSvc, mockSnackBar } = buildComponent()
+    const { throwError } = require('rxjs')
+    mockSignupSvc.register.mockReturnValue(throwError({ error: {} }))
+    comp['heirarchyObject'] = { orgName: 'TestOrg', channel: 'c1' }
+    comp.filteredDesignationsList = [{ name: 'Officer' }]
+    comp.registrationForm.get('designation')!.setValue('Officer')
+    comp.signup()
+    expect(mockSnackBar.open).toHaveBeenCalled()
+  })
+
+  it('raiseSignupInteractTelementry - calls telemetrySvc', () => {
+    const { comp, mockTelemetrySvc, mockEventService } = buildComponent()
+    jest.useFakeTimers()
+    comp.raiseSignupInteractTelementry()
+    expect(mockTelemetrySvc.start).toHaveBeenCalled()
+    expect(mockEventService.raiseInteractTelemetry).toHaveBeenCalled()
+    jest.advanceTimersByTime(3000)
+    expect(mockTelemetrySvc.end).toHaveBeenCalled()
+    jest.useRealTimers()
+  })
+
+  it('raiseImpressionTelemetry - calls telemetrySvc.end after timeout', () => {
+    const { comp, mockTelemetrySvc } = buildComponent()
+    jest.useFakeTimers()
+    comp.raiseImpressionTelemetry()
+    jest.advanceTimersByTime(3000)
+    expect(mockTelemetrySvc.end).toHaveBeenCalled()
+    jest.useRealTimers()
+  })
+
+  it('onFilterDesignation - filters with value', () => {
+    const { comp } = buildComponent()
+    comp.designationsList = [{ name: 'Officer' }, { name: 'Manager' }]
+    comp.onFilterDesignation('off')
+    expect(comp.filteredDesignationsList.length).toBe(1)
+    expect(comp.desigantionFilterEnable).toBe(true)
+  })
+
+  it('onFilterDesignation - clears filter with empty string', () => {
+    const { comp } = buildComponent()
+    comp.designationsList = [{ name: 'Officer' }, { name: 'Manager' }]
+    comp.filteredDesignationsList = []
+    comp.onFilterDesignation('')
+    expect(comp.desigantionFilterEnable).toBe(false)
+  })
+
+  it('displayFn - returns option string', () => {
+    const { comp } = buildComponent()
+    expect(comp.displayFn('Officer')).toBe('Officer')
+  })
+
+  it('displayFn - returns empty string for null', () => {
+    const { comp } = buildComponent()
+    expect(comp.displayFn(null)).toBe('')
+  })
+
+  it('onFilterGroups - filters group list', () => {
+    const { comp } = buildComponent()
+    comp.masterGroup = ['GroupA', 'GroupB', 'Other']
+    comp.onFilterGroups('group')
+    expect(comp.filteredGroupsList.length).toBe(2)
+  })
+
+  it('displayFnGroups - returns option string', () => {
+    const { comp } = buildComponent()
+    expect(comp.displayFnGroups('GroupA')).toBe('GroupA')
+  })
+
+  it('displayFnGroups - returns empty string for falsy', () => {
+    const { comp } = buildComponent()
+    expect(comp.displayFnGroups('')).toBe('')
+  })
+
+  it('closedDialogandRedirect - navigates to static-home', () => {
+    const { comp, mockRouter } = buildComponent()
+    comp['dialogRef'] = { close: jest.fn() } as any
+    comp.closedDialogandRedirect()
+    expect(mockRouter.navigate).toHaveBeenCalledWith(['/static-home'])
+  })
+
+  it('onkeyDown - returns isMatcompleteOpened value', () => {
+    const { comp } = buildComponent()
+    comp.isMatcompleteOpened = true
+    expect(comp.onkeyDown({})).toBe(true)
+  })
+
+  it('onAutoCompleteOpened - sets isMatcompleteOpened to true', () => {
+    const { comp } = buildComponent()
+    comp.isMatcompleteOpened = false
+    comp.onAutoCompleteOpened()
+    expect(comp.isMatcompleteOpened).toBe(true)
+  })
+
+  it('onAutoCompleteClosed - sets isMatcompleteOpened to false', () => {
+    const { comp } = buildComponent()
+    comp.isMatcompleteOpened = true
+    comp.onAutoCompleteClosed()
+    expect(comp.isMatcompleteOpened).toBe(false)
+  })
+
+  it('setupScrollListener - sets up when opened is true', () => {
+    const { comp } = buildComponent()
+    jest.useFakeTimers()
+    comp.designationsList = [{ name: 'Officer' }]
+    comp.setupScrollListener(true)
+    expect(comp.desigantionFilterEnable).toBe(false)
+    jest.useRealTimers()
+  })
+
+  it('setupScrollListener - does nothing when opened is false', () => {
+    const { comp } = buildComponent()
+    comp.desigantionFilterEnable = true
+    comp.setupScrollListener(false)
+    expect(comp.desigantionFilterEnable).toBe(true)
+  })
+
+  it('ngOnDestroy - unsubscribes userdataSubscription if set', () => {
+    const { comp } = buildComponent()
+    const mockSub = { unsubscribe: jest.fn() }
+    comp['userdataSubscription'] = mockSub as any
+    comp.ngOnDestroy()
+    expect(mockSub.unsubscribe).toHaveBeenCalled()
+  })
+
+  it('checkIfDesignationValid - returns false for empty filteredDesignationsList', () => {
+    const { comp } = buildComponent()
+    comp.filteredDesignationsList = []
+    comp.registrationForm.get('designation')!.setValue('Officer')
+    expect(comp.checkIfDesignationValid()).toBe(false)
   })
 })
