@@ -392,9 +392,11 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
     })
     this.pageData = this.activatedRoute.parent && this.activatedRoute.parent.snapshot.data.pageData.data
     this.nlwExperience = this.pageData?.nlwExperience
-    this.commonSvc.getNlw2026CertifiedStatus().subscribe((status: boolean) => {
-      this.isNlw2026Certified = status
-    })
+    this.commonSvc.getNlw2026CertifiedStatus()
+      .pipe(takeUntil(this.destroySubject$))
+      .subscribe((status: boolean) => {
+        this.isNlw2026Certified = status
+      })
   }
 
   getConnectionStatus() {
@@ -1599,13 +1601,6 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
   }
 
   generateAchievementsFormBody(achievements: any, oldDetails: any): any {
-    if (achievements?.uploadedDocumentUrl) {
-      delete achievements['url']
-    }
-    if (achievements?.url) {
-      delete achievements['uploadedDocumentUrl']
-      delete achievements['fileName']
-    }
     const requestBody: any = {
       request: {
         contextType: "achievements",
@@ -1643,7 +1638,7 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
           setTimeout(() => {
             this.getAchievements()
           }, 500)
-          this.openSnackbar('Added Successfully')
+          this.openSnackbar('Added Successfully and this will be reflected in the Learner Passbook after 30 minutes')
         }
       },
       error: (error: HttpErrorResponse) => {
@@ -1661,7 +1656,7 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
           setTimeout(() => {
             this.getAchievements()
           }, 500)
-          this.openSnackbar('Updated Successfully')
+          this.openSnackbar('Updated Successfully and this will be reflected in the Learner Passbook after 30 minutes.')
         }
       },
       error: (error: HttpErrorResponse) => {
@@ -1969,7 +1964,7 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
     switch (header) {
       case 'Achievements':
         requestData = this.formDeleteRequest(header, entryDetails)
-        dialogTitle = 'Are you sure you want to delete this achievement?'
+        dialogTitle = `Are you sure you want to delete '${entryDetails?.contextData?.title}' achievement?`
         break
     }
 
@@ -2092,20 +2087,34 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
   openNlwCertificateDialog(): void {
     if (!this.nlwExperience?.banner?.onClick) { return }
     const onClick = this.nlwExperience.banner.onClick
+    const pdfZoom = onClick?.pdfZoom || this.nlwExperience?.banner?.pdfZoom || 'FitH'
     this.events.raiseInteractTelemetry(
       { type: WsEvents.EnumInteractTypes.CLICK, id: 'nlw-certificate-profile' },
       {},
       { module: WsEvents.EnumTelemetrymodules.PROFILE }
     )
-    const dialogData: NlwCertificateDialogData = {
-      action: onClick.action,
-      type: onClick.type,
-      title: this.nlwExperience.banner.title || 'PM Appreciation Letter',
-      url: onClick.url,
-      api: onClick.api,
+    let dialogData: NlwCertificateDialogData
+    if (onClick.api) {
+      dialogData = {
+        pdfZoom,
+        action: onClick.action,
+        type: onClick.type,
+        title: this.nlwExperience.banner.title || 'PM Appreciation Letter',
+        url: onClick.url,
+        api: onClick.api,
+      }
+    } else {
+      const url = this.commonSvc.getLanguageBasedContentUrl('appreciationletter')
+      dialogData = {
+        pdfZoom,
+        action: onClick.action,
+        type: 'PDF',
+        title: this.nlwExperience.banner.title || 'PM Appreciation Letter',
+        url: url,
+      }
     }
     let dialogWidth = '700px'
-    if (onClick.type === 'PDF') {
+    if (dialogData.type === 'PDF') {
       dialogWidth = window.innerWidth <= 768 ? '90vw' : '80vw'
     }
     this.dialog.open(NlwCertificateDialogComponent, {
