@@ -242,7 +242,7 @@ describe('ApiService', () => {
 
       service.get(url, null)
 
-      expect(mockHttpClient.get).toHaveBeenCalledWith(url, null)
+      expect(mockHttpClient.get).toHaveBeenCalledWith(url, undefined)
     })
 
     it('should handle get with query parameters in options', () => {
@@ -581,7 +581,7 @@ describe('ApiService', () => {
 
       service.delete(url, null)
 
-      expect(mockHttpClient.delete).toHaveBeenCalledWith(url, null)
+      expect(mockHttpClient.delete).toHaveBeenCalledWith(url, undefined)
     })
 
     it('should call http.delete exactly once', () => {

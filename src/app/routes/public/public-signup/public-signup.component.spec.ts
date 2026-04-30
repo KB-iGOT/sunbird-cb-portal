@@ -1446,8 +1446,9 @@ describe('PublicSignupComponent', () => {
 
   describe('checkCurrentOrganisationPresent', () => {
     it('does nothing when organisation not selected', () => {
-      component.registrationFormStepOne.get('organisation')?.setValue('');
-      (component as any).masterData.organisation = []
+      component.registrationFormStepOne.get('organisation')?.setValue('')
+      if (!(component as any).masterData) { (component as any).masterData = {} }
+      ; (component as any).masterData.organisation = []
       expect(() => component.checkCurrentOrganisationPresent()).not.toThrow()
     })
 
@@ -1516,6 +1517,173 @@ describe('PublicSignupComponent', () => {
     it('resets organisationBackup to N/A', () => {
       component.resetOrganisationBackup()
       expect((component as any).masterData.organisationBackup[0].orgName).toBe('N/A')
+    })
+  })
+
+  describe('searchDesignation valueChanges subscription (constructor)', () => {
+    it('filters designationBackup when search text entered', () => {
+      (component as any).masterData.designationBackup = [{ name: 'Manager' }, { name: 'Director' }]
+      jest.useFakeTimers()
+      component.registrationFormStepOne.get('searchDesignation')!.setValue('man')
+      jest.advanceTimersByTime(200)
+      expect((component as any).desigantionFilterEnable).toBe(true)
+      jest.useRealTimers()
+    })
+
+    it('resets designation list when search text cleared', () => {
+      (component as any).masterData.designationBackup = [{ name: 'Manager' }, { name: 'Director' }]
+      jest.useFakeTimers()
+      component.registrationFormStepOne.get('searchDesignation')!.setValue('')
+      jest.advanceTimersByTime(200)
+      expect((component as any).desigantionFilterEnable).toBe(false)
+      jest.useRealTimers()
+    })
+  })
+
+  describe('searchMinistry valueChanges subscription (constructor)', () => {
+    it('filters ministryBackup when search text entered', () => {
+      (component as any).masterData.ministryBackup = [{ identifier: 'central' }, { identifier: 'state' }]
+      jest.useFakeTimers()
+      component.registrationFormStepOne.get('searchMinistry')!.setValue('cent')
+      jest.advanceTimersByTime(200)
+      expect((component as any).ministryFilterEnable).toBe(true)
+      jest.useRealTimers()
+    })
+
+    it('resets ministry list when search text cleared', () => {
+      (component as any).masterData.ministryBackup = [{ identifier: 'central' }]
+      jest.useFakeTimers()
+      component.registrationFormStepOne.get('searchMinistry')!.setValue('')
+      jest.advanceTimersByTime(200)
+      expect((component as any).ministryFilterEnable).toBe(false)
+      jest.useRealTimers()
+    })
+  })
+
+  describe('searchState valueChanges subscription (constructor)', () => {
+    it('filters stateBackup when search text entered', () => {
+      (component as any).masterData.stateBackup = [{ identifier: 'delhi' }, { identifier: 'mumbai' }]
+      jest.useFakeTimers()
+      component.registrationFormStepOne.get('searchState')!.setValue('del')
+      jest.advanceTimersByTime(200)
+      expect((component as any).stateFilterEnable).toBe(true)
+      jest.useRealTimers()
+    })
+
+    it('resets state list when search text cleared', () => {
+      (component as any).masterData.stateBackup = [{ identifier: 'delhi' }]
+      jest.useFakeTimers()
+      component.registrationFormStepOne.get('searchState')!.setValue('')
+      jest.advanceTimersByTime(200)
+      expect((component as any).stateFilterEnable).toBe(false)
+      jest.useRealTimers()
+    })
+  })
+
+  describe('searchDepartment valueChanges subscription (constructor)', () => {
+    it('filters departmentBackup when search text entered', () => {
+      (component as any).masterData.departmentBackup = [{ identifier: 'health' }, { identifier: 'finance' }]
+      jest.useFakeTimers()
+      component.registrationFormStepOne.get('searchDepartment')!.setValue('hea')
+      jest.advanceTimersByTime(200)
+      expect((component as any).departmentFilterEnable).toBe(true)
+      jest.useRealTimers()
+    })
+
+    it('resets department list when search text cleared', () => {
+      (component as any).masterData.departmentBackup = [{ identifier: 'health' }]
+      jest.useFakeTimers()
+      component.registrationFormStepOne.get('searchDepartment')!.setValue('')
+      jest.advanceTimersByTime(200)
+      expect((component as any).departmentFilterEnable).toBe(false)
+      jest.useRealTimers()
+    })
+  })
+
+  describe('searchOrganisation valueChanges subscription (constructor)', () => {
+    it('calls performOrganisationSearch via subject after debounce', () => {
+      jest.spyOn(component, 'performOrganisationSearch').mockImplementation(jest.fn())
+      jest.useFakeTimers()
+      component.organisationSearch({ target: { value: 'railways' } })
+      jest.advanceTimersByTime(600)
+      expect(component.performOrganisationSearch).toHaveBeenCalledWith('railways')
+      jest.useRealTimers()
+    })
+  })
+
+  describe('signup state type with department = -1', () => {
+    it('uses currentMinistry as org when state type with N/A org and valid department', () => {
+      signupSvc.register = jest.fn(() => of({}))
+      component.registrationFormStepOne.get('type')!.setValue('state')
+      component.registrationFormStepOne.get('state')!.setValue('state1')
+      component.registrationFormStepOne.get('department')!.setValue('dept1')
+      component.heirarchyObject = { orgName: 'N/A' };
+      (component as any).currentMinistry = { orgName: 'StateGov', channel: 'stgov', sbOrgType: 'STATE', sbOrgSubType: '' }
+      component.signup()
+      expect(signupSvc.register).toHaveBeenCalled()
+    })
+  })
+
+  describe('setupScrollListener opened=true', () => {
+    it('calls getDesignation and resets state', () => {
+      jest.spyOn(component, 'getDesignation').mockImplementation(jest.fn())
+      jest.useFakeTimers();
+      (component as any).scrollListenerAttached = false
+      component.setupScrollListener(true)
+      jest.runAllTimers()
+      expect(component.getDesignation).toHaveBeenCalled()
+      jest.useRealTimers()
+    })
+
+    it('resets scrollListenerAttached when opened=false', () => {
+      (component as any).scrollListenerAttached = true
+      component.setupScrollListener(false)
+      expect((component as any).scrollListenerAttached).toBe(false)
+    })
+  })
+
+  describe('openSnackbar', () => {
+    it('calls snackBar.open with message', () => {
+      (component as any).openSnackbar('Test message')
+      expect(snackBar.open).toHaveBeenCalledWith('Test message', 'X', { duration: 5000 })
+    })
+  })
+
+  describe('onEmailChange', () => {
+    it('does not throw', () => {
+      component.registrationFormStepOne.get('email')!.setValue('test@gov.in')
+      expect(() => (component as any).onEmailChange()).not.toThrow()
+      jest.runAllTimers()
+    })
+  })
+
+  describe('checkCurrentOrganisationPresent pops when list full', () => {
+    it('pops last item when list length >= organisationListLoadCount', () => {
+      component.registrationFormStepOne.get('organisation')!.setValue('railways');
+      (component as any).masterData.organisation = [{ identifier: 'a' }];
+      (component as any).organisationListLoadCount = 1
+      component.checkCurrentOrganisationPresent()
+      expect((component as any).masterData.organisation[0].identifier).toBe('railways')
+    })
+  })
+
+  describe('checkCurrentMinistryPresent pops when list full', () => {
+    it('pops last item when list length >= ministryListLoadCount', () => {
+      component.registrationFormStepOne.get('ministry')!.setValue('central');
+      (component as any).masterData.ministry = [{ identifier: 'other' }];
+      (component as any).ministryListLoadCount = 1
+      component.checkCurrentMinistryPresent()
+      expect((component as any).masterData.ministry[0].identifier).toBe('central')
+    })
+  })
+
+  describe('checkCurrentStatePresent pops when list full', () => {
+    it('pops last item when list length >= stateListLoadCount', () => {
+      component.registrationFormStepOne.get('state')!.setValue('delhi');
+      (component as any).masterData.state = [{ identifier: 'other' }];
+      (component as any).stateListLoadCount = 1
+      component.checkCurrentStatePresent()
+      expect((component as any).masterData.state[0].identifier).toBe('delhi')
     })
   })
 })
