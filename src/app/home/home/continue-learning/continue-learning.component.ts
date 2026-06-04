@@ -1,9 +1,24 @@
 import { Component, OnInit, OnDestroy } from '@angular/core'
-import { ActivatedRoute, Router } from '@angular/router'
+import { Router } from '@angular/router'
 import { ConfigurationsService, EventService, WsEvents, WidgetEnrollService } from '@sunbird-cb/utils-v2'
 import { HomePageService } from '../../../services/home-page.service'
 import { Subject } from 'rxjs'
 import { takeUntil } from 'rxjs/operators'
+
+// In-progress enrollment payload — same as ContentStripWithTabsPills uses for the "In Progress" pill
+const IN_PROGRESS_PAYLOAD = {
+  request: {
+    retiredCoursesEnabled: true,
+    status: 'In-Progress',
+  },
+}
+
+// External enrollment payload for in-progress courses
+const IN_PROGRESS_EXTERNAL_PAYLOAD = {
+  request: {
+    status: 'In-Progress',
+  },
+}
 
 @Component({
   selector: 'ws-continue-learning',
@@ -22,7 +37,6 @@ export class ContinueLearningComponent implements OnInit, OnDestroy {
   private destroy$ = new Subject<void>()
 
   constructor(
-    private activatedRoute: ActivatedRoute,
     private configSvc: ConfigurationsService,
     private enrollSvc: WidgetEnrollService,
     private homePageSvc: HomePageService,
@@ -35,7 +49,7 @@ export class ContinueLearningComponent implements OnInit, OnDestroy {
     this.loadWeeklyClaps()
   }
 
-  // Same implementation as My Learning's ContentStripWithTabsPillsComponent.fetchFromInternalEnrollmentList
+  // Calls enrollment APIs directly — same as ContentStripWithTabsPillsComponent.fetchFromInternalEnrollmentList
   loadInProgressCourse() {
     const userId = this.configSvc.userProfile && this.configSvc.userProfile.userId
     if (!userId) {
@@ -43,65 +57,15 @@ export class ContinueLearningComponent implements OnInit, OnDestroy {
       return
     }
 
-    // Get page config from route resolver (same data My Learning's widgetData comes from)
-    const pageData = this.activatedRoute.snapshot.data && this.activatedRoute.snapshot.data.pageData
-    const config = pageData && pageData.data
-    const newHomeStrip: any[] = (config && config.newHomeStrip) || []
-
-    // Find the My Learning strip — structure: newHomeStrip[i].strips[0].request.enrollmentList
-    let myLearningStrip: any = null
-    for (const widget of newHomeStrip) {
-      if (widget && widget.strips && widget.strips.length) {
-        const strip = widget.strips[0]
-        if (strip && strip.request &&
-          (strip.request.enrollmentList || strip.request.enrollmentlist) &&
-          strip.tabs && strip.tabs.length) {
-          myLearningStrip = strip
-          break
-        }
-      }
-    }
-
-    if (!myLearningStrip) {
-      console.warn('[ContinueLearning] Could not find My Learning strip in config')
-      this.isInProgressLoading = false
-      return
-    }
-
-    // Get the In Progress pill's payload — same as library's fetchFromInternalEnrollmentList
-    const tab = myLearningStrip.tabs[0]
-    const pills = tab && tab.pillsData
-    if (!pills || !pills.length) {
-      this.isInProgressLoading = false
-      return
-    }
-
-    // Find In Progress pill by value, fallback to first pill
-    const inProgressPill = pills.find((p: any) =>
-      p.value && p.value.toLowerCase() === 'inprogress'
-    ) || pills[0]
-
-    const payload = inProgressPill && inProgressPill.request && inProgressPill.request.payload
-    if (!payload) {
-      this.isInProgressLoading = false
-      return
-    }
-
-    // Remove limit — same as library does: delete n.request.payload.request.limit
-    const pillPayload = JSON.parse(JSON.stringify(payload))
-    if (pillPayload && pillPayload.request && pillPayload.request.limit) {
-      delete pillPayload.request.limit
-    }
-
     // Call same APIs as My Learning: fetchInternalEnrollmentData + fetchExternalEnrollmentData
-    this.enrollSvc.fetchInternalEnrollmentData(userId, pillPayload)
+    this.enrollSvc.fetchInternalEnrollmentData(userId, IN_PROGRESS_PAYLOAD)
       .pipe(takeUntil(this.destroy$))
       .subscribe((res: any) => {
         let courses: any[] = []
         if (res && res.result && res.result.courses && res.result.courses.length) {
           courses = [...courses, ...res.result.courses]
         }
-        this.enrollSvc.fetchExternalEnrollmentData(pillPayload)
+        this.enrollSvc.fetchExternalEnrollmentData(IN_PROGRESS_EXTERNAL_PAYLOAD)
           .pipe(takeUntil(this.destroy$))
           .subscribe((extRes: any) => {
             if (extRes && extRes.result && extRes.result.courses && extRes.result.courses.length) {
@@ -115,7 +79,7 @@ export class ContinueLearningComponent implements OnInit, OnDestroy {
           })
       }, () => {
         // If internal fails, try external only (same as library)
-        this.enrollSvc.fetchExternalEnrollmentData(pillPayload)
+        this.enrollSvc.fetchExternalEnrollmentData(IN_PROGRESS_EXTERNAL_PAYLOAD)
           .pipe(takeUntil(this.destroy$))
           .subscribe((extRes: any) => {
             let courses: any[] = []
