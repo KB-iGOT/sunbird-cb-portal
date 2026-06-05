@@ -50,12 +50,35 @@ import { CommonDataService } from '../../services/common-data.service'
 import { UrlService } from '../../shared/url.service'
 import { LibNotificationsService } from '@sunbird-cb/notification'
 import { HomePageService } from '../../services/home-page.service'
+import { trigger, style, animate, transition } from '@angular/animations'
 @Component({
   selector: 'ws-root',
   templateUrl: './root.component.html',
   styleUrls: ['./root.component.scss'],
   providers: [SwUpdate],
-  standalone: false
+  standalone: false,
+  animations: [
+    trigger('slidePanel', [
+      transition(':enter', [
+        style({ left: 'calc(330px - 120px)', opacity: 0 }),
+        animate('280ms cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+          style({ left: 'calc(330px + 24px)', opacity: 1 }))
+      ]),
+      transition(':leave', [
+        animate('220ms cubic-bezier(0.55, 0.06, 0.68, 0.19)',
+          style({ left: 'calc(330px - 120px)', opacity: 0 }))
+      ])
+    ]),
+    trigger('fadeBackdrop', [
+      transition(':enter', [
+        style({ opacity: 0 }),
+        animate('200ms ease', style({ opacity: 1 }))
+      ]),
+      transition(':leave', [
+        animate('200ms ease', style({ opacity: 0 }))
+      ])
+    ])
+  ]
 })
 export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
 

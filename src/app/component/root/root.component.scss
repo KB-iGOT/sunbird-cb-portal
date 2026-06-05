@@ -38,19 +38,6 @@
   left: calc(330px + 24px);
   transform: translateY(-50%);
   z-index: 901;
-  animation: klbSlideIn 0.28s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-}
-
-@keyframes klbSlideIn {
-  from {
-    opacity: 0;
-    transform: translateY(-50%) translateX(-300px);
-  }
-
-  to {
-    opacity: 1;
-    transform: translateY(-50%) translateX(0);
-  }
 }
 
 ws-app-nav-bar {
