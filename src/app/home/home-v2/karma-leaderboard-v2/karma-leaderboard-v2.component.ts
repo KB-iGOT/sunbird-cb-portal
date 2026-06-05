@@ -1,16 +1,24 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnInit, inject } from '@angular/core'
 import { ConfigurationsService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
 import { HomePageService } from '../../../services/home-page.service'
 import { UserProfileService } from '../../../../../project/ws/app/src/lib/routes/user-profile/services/user-profile.service'
 import moment from 'moment'
+import { RouterModule } from '@angular/router'
+import { MatIconModule } from '@angular/material/icon'
+import { MatButtonModule } from '@angular/material/button'
+import { MatTooltipModule } from '@angular/material/tooltip'
+import { AvatarPhotoModule } from '@sunbird-cb/collection'
+import { TranslateModule } from '@ngx-translate/core'
+import { TitleCasePipe } from '@angular/common'
 
 @Component({
-  selector: 'ws-karma-leaderboard',
-  templateUrl: './karma-leaderboard.component.html',
-  styleUrls: ['./karma-leaderboard.component.scss'],
-  standalone: false,
+  selector: 'ws-karma-leaderboard-v2',
+  templateUrl: './karma-leaderboard-v2.component.html',
+  styleUrls: ['./karma-leaderboard-v2.component.scss'],
+  standalone: true,
+  imports: [RouterModule, MatIconModule, MatButtonModule, MatTooltipModule, AvatarPhotoModule, TranslateModule, TitleCasePipe],
 })
-export class KarmaLeaderboardComponent implements OnInit {
+export class KarmaLeaderboardV2Component implements OnInit {
 
   loading = true
   rank1: any = null
@@ -31,12 +39,10 @@ export class KarmaLeaderboardComponent implements OnInit {
   readonly tooltipText =
     'The learner leaderboard is calculated based on the Karma Points earned in a month and updated on the 1st of every month.'
 
-  constructor(
-    private homePageSvc: HomePageService,
-    private configSvc: ConfigurationsService,
-    private userProfileSvc: UserProfileService,
-    private eventSvc: EventService,
-  ) { }
+  private readonly homePageSvc = inject(HomePageService)
+  private readonly configSvc = inject(ConfigurationsService)
+  private readonly userProfileSvc = inject(UserProfileService)
+  private readonly eventSvc = inject(EventService)
 
   ngOnInit() {
     this.currentUserId = (this.configSvc.unMappedUser && this.configSvc.unMappedUser.id) || ''

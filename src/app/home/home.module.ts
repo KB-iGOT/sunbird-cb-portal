@@ -42,11 +42,12 @@ import { SurveyFormModule } from '@sunbird-cb/collection'
 import { MatButtonModule } from '@angular/material/button'
 import { SignupService } from '../routes/signup/signup.service'
 import { InSightSideBarModule } from '../component/in-sight-side-bar/in-sight-side-bar.module'
-import { CarouselBannerModule, CardsModule } from '@sunbird-cb/consumption'
-import { ContinueLearningModule } from './home/continue-learning/continue-learning.module'
-import { WelcomeGreetingModule } from './home/welcome-greeting/welcome-greeting.module'
-import { KarmaLeaderboardModule } from './home/karma-leaderboard/karma-leaderboard.module'
-import { InSpotlightModule } from './home/in-spotlight/in-spotlight.module'
+import { WsWidgetCarouselBannerV2Component, CardsModule } from '@sunbird-cb/consumption'
+import { ContinueLearningV2Module } from './home-v2/continue-learning-v2/continue-learning-v2.module'
+import { WelcomeGreetingV2Component } from './home-v2/welcome-greeting-v2/welcome-greeting-v2.component'
+import { KarmaLeaderboardV2Module } from './home-v2/karma-leaderboard-v2/karma-leaderboard-v2.module'
+import { InSpotlightV2Module } from './home-v2/in-spotlight-v2/in-spotlight-v2.module'
+import { HomeCarouselBannerV2Component } from './home-v2/home-carousel-banner-v2/home-carousel-banner-v2.component'
 @NgModule({
     declarations: [
         HomeComponent,
@@ -92,12 +93,13 @@ import { InSpotlightModule } from './home/in-spotlight/in-spotlight.module'
         InSightSideBarModule,
         HomeOtherPortalModule,
         ContetnSectionsComponent,
-        CarouselBannerModule,
-        ContinueLearningModule,
-        WelcomeGreetingModule,
+        WsWidgetCarouselBannerV2Component,
+        HomeCarouselBannerV2Component,
+        ContinueLearningV2Module,
+        WelcomeGreetingV2Component,
         CardsModule,
-        KarmaLeaderboardModule,
-        InSpotlightModule,
+        KarmaLeaderboardV2Module,
+        InSpotlightV2Module,
     ],
     exports: [
         HeaderModule,
