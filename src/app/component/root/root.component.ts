@@ -237,6 +237,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
     ]
   }
   leftNavBarIsOpen = signal(true)
+  showKarmaLeaderboard = signal(false)
   constructor(
     private router: Router,
     private route: ActivatedRoute,
@@ -424,6 +425,9 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
     // tslint: disable
   }
   ngOnInit() {
+    this.homePageSvc.showLeaderboardPanel.subscribe((show: boolean) => {
+      this.showKarmaLeaderboard.set(show)
+    })
     // let showTour = localStorage.getItem('tourGuide')? JSON.parse(localStorage.getItem('tourGuide')||''): {}
     // this.showTour = showTour && showTour.disable ? showTour.disable : false
     this.mobileAppsSvc.mobileTopHeaderVisibilityStatus.subscribe((status: any) => {
@@ -800,6 +804,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
   sidebarStateChanged(event: any) {
     if (event) {
       this.leftNavBarIsOpen.set(event.isOpen)
+      this.homePageSvc.showLeaderboardPanel.next(false)
     }
   }
 
@@ -819,6 +824,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
   }
 
   viewAllAchievements() {
+    this.homePageSvc.showLeaderboardPanel.next(true)
   }
 
   exploreContent() {

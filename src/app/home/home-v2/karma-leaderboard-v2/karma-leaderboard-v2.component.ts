@@ -1,4 +1,4 @@
-import { Component, OnInit, inject } from '@angular/core'
+import { Component, OnInit, inject, output } from '@angular/core'
 import { ConfigurationsService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
 import { HomePageService } from '../../../services/home-page.service'
 import { UserProfileService } from '../../../../../project/ws/app/src/lib/routes/user-profile/services/user-profile.service'
@@ -19,6 +19,8 @@ import { TitleCasePipe } from '@angular/common'
   imports: [RouterModule, MatIconModule, MatButtonModule, MatTooltipModule, AvatarPhotoModule, TranslateModule, TitleCasePipe],
 })
 export class KarmaLeaderboardV2Component implements OnInit {
+
+  readonly close = output<void>()
 
   loading = true
   rank1: any = null
@@ -75,6 +77,11 @@ export class KarmaLeaderboardV2Component implements OnInit {
     const s = ['th', 'st', 'nd', 'rd']
     const v = n % 100
     return n + (s[(v - 20) % 10] || s[v] || s[0])
+  }
+
+  isNotClamped(el: HTMLElement): boolean {
+    if (!el) { return true }
+    return el.scrollHeight <= el.clientHeight
   }
 
   loadLeaderboard() {
@@ -140,6 +147,7 @@ export class KarmaLeaderboardV2Component implements OnInit {
   }
 
   onNavBtnClick() {
+    this.close.emit()
     this.eventSvc.raiseInteractTelemetry(
       { id: 'karma-leaderboard-view-karma-points', type: WsEvents.EnumInteractTypes.CLICK, subType: 'view-karma-points' },
       {},

@@ -32,7 +32,6 @@ import { NetworkHubComponent } from './home/network-hub/network-hub.component'
 import { NotificationComponent } from './home/notification/notification.component'
 import { SurveyFormComponent } from '../component/app-survey/survey-form/survey-form.component'
 
-import { HomePageService } from '../services/home-page.service'
 import { PendingRequestModule } from '@sunbird-cb/collection'
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core'
 import { HttpLoaderFactory } from '../app.module'
@@ -111,7 +110,6 @@ import { HomeCarouselBannerV2Component } from './home-v2/home-carousel-banner-v2
         HomeOtherPortalModule,
     ],
     providers: [
-        HomePageService,
         SignupService,
     ],
 })

@@ -6,9 +6,34 @@
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.08);
   border: 1px solid #FFFFFF3D;
   overflow: hidden;
+  overflow-y: auto;
   width: 294px;
   max-width: 294px;
+  max-height: 80vh;
   padding: 10px 24px;
+  cursor: default;
+  user-select: none;
+
+  // Thin, subtle scrollbar
+  &::-webkit-scrollbar {
+    width: 4px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: rgba(0, 0, 0, 0.18);
+    border-radius: 4px;
+  }
+
+  scrollbar-width: thin;
+  scrollbar-color: rgba(0, 0, 0, 0.18) transparent;
+}
+
+.klb-card--no-scroll {
+  overflow-y: hidden;
 }
 
 // ── Celebration overlay ──────────────────────────────────────
@@ -165,6 +190,7 @@
   display: flex !important;
   align-items: center !important;
   justify-content: center !important;
+  cursor: pointer;
 
   mat-icon {
     font-size: 22px;
@@ -253,7 +279,7 @@
 
   // Orange: 52 % wide (179 px → h ≈ 134 px), centred, bottom = 88 px
   .klb-orange {
-    bottom: 38%;
+    top: 22%;
     left: 50%;
     transform: translateX(-50%);
     width: 53%;

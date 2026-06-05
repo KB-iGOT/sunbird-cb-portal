@@ -52,7 +52,7 @@
 
 <!-- Leaderboard card -->
 @if (!loading && rank1) {
-<div class="klb-card" role="region" aria-labelledby="klb-card-title">
+<div class="klb-card" [class.klb-card--no-scroll]="showOverlay" role="region" aria-labelledby="klb-card-title">
   <!-- ── Celebration overlay (auto-dismisses after 5 s; click to dismiss early) ── -->
   @if (showOverlay) {
   <div class="klb-overlay" role="dialog" aria-modal="true" aria-labelledby="klb-overlay-title"
@@ -71,7 +71,7 @@
     <div class="klb-top-section-header">
       <div id="klb-card-title" class="klb-top-title" role="heading" aria-level="2">{{ 'karmaLeaderboard.karmaPoints' |
         translate }}</div>
-      <button class="klb-close-btn" aria-label="Close Karma Leaderboard">
+      <button class="klb-close-btn" aria-label="Close Karma Leaderboard" (click)="close.emit()">
         <mat-icon>close</mat-icon>
       </button>
     </div>
@@ -135,7 +135,7 @@
       <ws-widget-avatar-photo [name]="rank1?.fullname" [photoUrl]="rank1?.profile_image" size="l-xs">
       </ws-widget-avatar-photo>
       <div #rank1Name class="klb-rank-name klb-rank-name-w" [matTooltip]="rank1?.fullname | titlecase"
-        [matTooltipDisabled]="rank1Name.scrollHeight <= rank1Name.clientHeight">{{ rank1?.fullname | titlecase }}</div>
+        [matTooltipDisabled]="isNotClamped(rank1Name)">{{ rank1?.fullname | titlecase }}</div>
     </div>
     <!-- karma pill floats right of rank-1 -->
     <div class="klb-pts-pill klb-pill-1" aria-hidden="true">
@@ -151,7 +151,7 @@
       <ws-widget-avatar-photo [name]="rank2?.fullname" [photoUrl]="rank2?.profile_image" size="l-xs">
       </ws-widget-avatar-photo>
       <div #rank2Name class="klb-rank-name klb-rank-name-w" [matTooltip]="rank2?.fullname | titlecase"
-        [matTooltipDisabled]="rank2Name.scrollHeight <= rank2Name.clientHeight">{{ rank2?.fullname | titlecase }}</div>
+        [matTooltipDisabled]="isNotClamped(rank2Name)">{{ rank2?.fullname | titlecase }}</div>
     </div>
     }
     <!-- karma pill floats right of rank-2 -->
@@ -166,9 +166,8 @@
     @if (rank3) {
     <div class="klb-user klb-user-3" role="listitem"
       aria-label="Rank 3: {{ rank3?.fullname | titlecase }}, {{ rank3?.total_points || 0 }} karma points">
-      <span #rank3Name class="klb-rank-name klb-rank-name-w" aria-hidden="true"
-        [matTooltip]="rank3?.fullname | titlecase"
-        [matTooltipDisabled]="rank3Name.scrollHeight <= rank3Name.clientHeight">{{ rank3?.fullname | titlecase }}</span>
+      <span #rank3Name class="klb-rank-name klb-rank-name-w" aria-hidden="true" [matTooltip]="rank3?.fullname | titlecase"
+        [matTooltipDisabled]="isNotClamped(rank3Name)">{{ rank3?.fullname | titlecase }}</span>
       <ws-widget-avatar-photo [name]="rank3?.fullname" [photoUrl]="rank3?.profile_image" size="l-xs">
       </ws-widget-avatar-photo>
       <span class="klb-rank-num" aria-hidden="true">3</span>
