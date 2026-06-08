@@ -1,12 +1,12 @@
 import { Component } from '@angular/core'
-import { NsCarouselBannerV2, WsWidgetCarouselBannerV2Component } from '@sunbird-cb/consumption'
+import { NsCarouselBannerV2, SbUicCarouselBannerV2Component } from '@sunbird-cb/consumption'
 
 @Component({
   selector: 'ws-home-carousel-banner-v2',
   templateUrl: './home-carousel-banner-v2.component.html',
   styleUrls: ['./home-carousel-banner-v2.component.scss'],
   standalone: true,
-  imports: [WsWidgetCarouselBannerV2Component],
+  imports: [SbUicCarouselBannerV2Component],
 })
 export class HomeCarouselBannerV2Component {
   // @Input() banners: NsCarouselBannerV2.IBannerItem[] = []

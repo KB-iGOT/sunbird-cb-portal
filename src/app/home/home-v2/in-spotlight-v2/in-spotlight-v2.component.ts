@@ -1,6 +1,6 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, OnDestroy, OnInit, inject } from '@angular/core'
 import { TranslateModule, TranslateService } from '@ngx-translate/core'
-import { WsWidgetSpotlightCardsV2Component } from '@sunbird-cb/consumption'
+import { SbUicSpotlightCardsV2Component } from '@sunbird-cb/consumption'
 import { Subject } from 'rxjs'
 import { takeUntil } from 'rxjs/operators'
 
@@ -9,7 +9,7 @@ import { takeUntil } from 'rxjs/operators'
   templateUrl: './in-spotlight-v2.component.html',
   changeDetection: ChangeDetectionStrategy.OnPush,
   standalone: true,
-  imports: [TranslateModule, WsWidgetSpotlightCardsV2Component],
+  imports: [TranslateModule, SbUicSpotlightCardsV2Component],
 })
 export class InSpotlightV2Component implements OnInit, OnDestroy {
 
