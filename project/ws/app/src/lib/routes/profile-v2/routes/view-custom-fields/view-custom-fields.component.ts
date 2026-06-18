@@ -7,6 +7,7 @@ import { MatDialog } from '@angular/material/dialog'
 import { CustomFieldsComponent } from '../custom-fields/custom-fields.component'
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout'
 import { ActivatedRoute } from '@angular/router'
+import { ConfigDetails } from '@sunbird-cb/consumption'
 
 @Component({
   selector: 'ws-app-view-custom-fields',
@@ -18,6 +19,7 @@ export class ViewCustomFieldsComponent {
 
   @Input() organisationSpecificDetails: any
   @Input() editConfig: any = null
+  @Input() apiConfig: any = null
 
   editCustomDetails = false
   customAttrList: any = []
@@ -63,7 +65,6 @@ export class ViewCustomFieldsComponent {
 
   ngOnInit() {
     this.currentUser = this.configService && this.configService.userProfile
-    console.log('Current User', this.currentUser)
     this.userId = this.currentUser.userId || ''
     this.orgId = this.currentUser.rootOrgId || ''
     // this.orgId = "0140788510336040962"
@@ -75,7 +76,12 @@ export class ViewCustomFieldsComponent {
     const request = {
       request: { organisationId: this.orgId },
     }
-    this.userProfileService.readOrgData(request).subscribe((res: any) => {
+    const configDetails: ConfigDetails = {
+      apiConfig: this.apiConfig,
+      urlConfigPath: 'userV1Groups',
+      defaultUrl: ''
+    }
+    this.userProfileService.readOrgData(request, configDetails).subscribe((res: any) => {
       this.customAttrListIds = _.get(res, 'result.response.customfieldsdata.customFieldIds', [])
       if (this.customAttrListIds && this.customAttrListIds.length) {
         this.getCustomAttributes()
@@ -100,7 +106,12 @@ export class ViewCustomFieldsComponent {
       orderBy: 'updatedOn',
       facets: [],
     }
-    this.userProfileService.fetchCustomFields(payload).subscribe((res: any) => {
+    const configDetails: ConfigDetails = {
+      apiConfig: this.apiConfig,
+      urlConfigPath: 'customFieldsV1Search',
+      defaultUrl: ''
+    }
+    this.userProfileService.fetchCustomFields(payload, configDetails).subscribe((res: any) => {
       this.customAttrList = _.get(res, 'result.searchResults.data', [])
       if (this.customAttrList && this.customAttrList.length > 0) {
         this.readCustomattributeDetails()
@@ -112,7 +123,12 @@ export class ViewCustomFieldsComponent {
   }
 
   readCustomattributeDetails() {
-    this.userProfileService.readCustomattributeDetails(this.userId, this.orgId).subscribe((res: any) => {
+    const configDetails: ConfigDetails = {
+      apiConfig: this.apiConfig,
+      urlConfigPath: 'profileV1GetAdditionalFields',
+      defaultUrl: ''
+    }
+    this.userProfileService.readCustomattributeDetails(this.userId, this.orgId, configDetails).subscribe((res: any) => {
       this.customFieldValues = _.get(res, 'result.response.customFieldValues', [])
       // this.commondataSvc.fetchMandatoryNotification()
     }, error => {
@@ -152,7 +168,7 @@ export class ViewCustomFieldsComponent {
       disableClose: true,
       panelClass: 'dialog_sidenav',
       autoFocus: false,
-      data: { editConfig: this.editConfig },
+      data: { editConfig: this.editConfig, apiConfig: this.apiConfig },
     })
     dialogRef.afterClosed().subscribe((result: any) => {
       if (result) {

@@ -4,11 +4,13 @@ import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, ValidatorFn,
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import * as _ from 'lodash'
-import { debounceTime, distinctUntilChanged } from 'rxjs/operators'
+import { debounceTime, distinctUntilChanged, startWith } from 'rxjs/operators'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { generateYears, URL_PATRON } from '../../models/profile-revamp.model'
 import { ProfileV2RevampService } from '../../services/profile-v2-revamp.service'
 import { NsUserProfileDetails } from '../../../user-profile/models/NsUserProfile'
+import { ConfigDetails } from '@sunbird-cb/consumption'
+import { HttpErrorResponse } from '@angular/common/http'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types & Interfaces
@@ -222,6 +224,7 @@ export class DynamicEntryEditComponent implements OnInit {
   readonly header: string = _.get(this.data, 'header', '')
   readonly entryDetails: any = _.cloneDeep(_.get(this.data, 'entryDetails', _.get(this.data, 'profileDetails', null)))
   readonly editConfig: ReadonlyArray<FieldConfig> = _.get(this.data, 'editConfig.fields', [])
+  readonly apiConfig = _.get(this.data, 'editConfig.apiConfig', null)
   readonly todayDate = new Date()
 
   /** Rows computed once at construction — config never changes after open. */
@@ -294,6 +297,8 @@ export class DynamicEntryEditComponent implements OnInit {
   readonly institutionListLoadCount = 50
   eUserGender = Object.keys(NsUserProfileDetails.EUserGender)
   eCategory = Object.keys(NsUserProfileDetails.ECategory)
+  masterLanguageBackup: any
+  isMatcompleteOpened: boolean = false
 
   // ── Lifecycle ────────────────────────────────────────────────────────
   ngOnInit(): void {
@@ -548,7 +553,8 @@ export class DynamicEntryEditComponent implements OnInit {
         sort_by: { lastUpdatedOn: 'desc', objectType: 'Term' }, facets: [],
       },
     }
-    this.profileV2RevampSvc.searchIgotDesignation(checkBody).subscribe({
+    const configDetails: ConfigDetails = this.getConfigDetails('sunbirdigotV4Search')
+    this.profileV2RevampSvc.searchIgotDesignation(checkBody, configDetails).subscribe({
       next: (res: any) => {
         const hasDesig = _.get(res, 'result.count', 0) > 0
         this.orgDesignationFlagCache[orgId] = hasDesig
@@ -599,7 +605,8 @@ export class DynamicEntryEditComponent implements OnInit {
       },
     }
     if (this.designationSearchText[field.key]) { body.request.query = this.designationSearchText[field.key] }
-    this.profileV2RevampSvc.searchIgotDesignation(body).subscribe({
+    const configDetails: ConfigDetails = this.getConfigDetails('sunbirdigotV4Search')
+    this.profileV2RevampSvc.searchIgotDesignation(body, configDetails).subscribe({
       next: (res: any) => {
         // Old profile-entry-edit returns result.Term with {name, status}
         const raw = _.get(res, 'result.Term', [])
@@ -621,7 +628,8 @@ export class DynamicEntryEditComponent implements OnInit {
       pageSize: this.designationListLoadCount,
     }
     if (this.designationSearchText[field.key]) { body.searchString = this.designationSearchText[field.key] }
-    this.profileV2RevampSvc.searchDesignation(body).subscribe({
+    const configDetails: ConfigDetails = this.getConfigDetails('v8DesignationSearch')
+    this.profileV2RevampSvc.searchDesignation(body, configDetails).subscribe({
       next: (res: any) => {
         const raw = _.get(res, 'result.result.data', [])
         const data = raw.map((item: any) => ({
@@ -821,8 +829,9 @@ export class DynamicEntryEditComponent implements OnInit {
     if (this.orgApiSubscriptions[field.key]) {
       this.orgApiSubscriptions[field.key].unsubscribe()
     }
+    const configDetails: ConfigDetails = this.getConfigDetails('orgV1Search')
     this.orgApiSubscriptions[field.key] = this.profileV2RevampSvc.getOrgSearch(
-      this.buildOrgRequest(offsetValue, searchText)
+      this.buildOrgRequest(offsetValue, searchText), configDetails
     ).subscribe({
       next: (res: any) => {
         const content = _.get(res, 'result.response.content', [])
@@ -941,16 +950,38 @@ export class DynamicEntryEditComponent implements OnInit {
         case 'eCategory':
           this.dynamicOptions[field.key] = this.eCategory.map(c => ({ label: c, value: c }))
           break
+        case 'languages':
+          this.getMasterLanguage(field)
+          const domicileMediumControl = this.entryForm.get(field.key)
+          if (domicileMediumControl) {
+            domicileMediumControl.valueChanges
+              .pipe(
+                debounceTime(250),
+                distinctUntilChanged(),
+                startWith(''),
+              )
+              .subscribe(res => {
+                if (this.masterLanguageBackup) {
+                  if (res) {
+                    this.dynamicOptions[field.key] = this.masterLanguageBackup.filter((item: any) => item.label.toLowerCase().includes(res && res.toLowerCase()))
+                  } else {
+                    this.dynamicOptions[field.key] = this.masterLanguageBackup
+                  }
+                }
+              })
+          }
+          break
 
         default:
           break
       }
     })
 
-
     stateFields.forEach(field => {
       this.dynamicOptions[field.key] = []
-      this.profileV2RevampSvc.getStatesList().subscribe({
+
+      const configDetails: ConfigDetails = this.getConfigDetails('extendedProfileListStates')
+      this.profileV2RevampSvc.getStatesList(configDetails).subscribe({
         next: (res: any) => {
           const states = _.get(res, 'result.statesList', [])
           this.dynamicOptions[field.key] = states.map((s: any) => ({
@@ -1003,10 +1034,31 @@ export class DynamicEntryEditComponent implements OnInit {
     })
   }
 
+  getMasterLanguage(field: FieldConfig): void {
+    const configDetails: ConfigDetails = this.getConfigDetails('profileRegistryGetMasterLanguages')
+    this.profileV2RevampSvc.getMasterLanguages(configDetails)
+      // .pipe(takeUntil(this.destroySubject$))
+      .subscribe((res: any) => {
+        const languages: any[] = _.get(res, 'languages', []).map((l: any) => ({ label: l.name, value: l.name }))
+        this.dynamicOptions[field.key] = languages
+        this.masterLanguageBackup = languages
+        const domicileMediumControl = this.entryForm.get(field.key)
+        if (domicileMediumControl) {
+          domicileMediumControl.patchValue(this.resolveValue(field))
+          domicileMediumControl.updateValueAndValidity()
+        }
+      }, (error: HttpErrorResponse) => {
+        if (!error.ok) {
+          this.openSnackbar(this.handleTranslateTo('unableFetchMasterLanguageData'))
+        }
+      })
+  }
+
   private loadDistrictsForField(field: FieldConfig, state: string, isFirstTime: boolean): void {
     const districtCtrl = this.entryForm.get(field.key)
     if (districtCtrl) { districtCtrl.enable() }
-    this.profileV2RevampSvc.getDistrictsList(state).subscribe({
+    const configDetails: ConfigDetails = this.getConfigDetails('extendedProfileListDistricts')
+    this.profileV2RevampSvc.getDistrictsList(configDetails, state).subscribe({
       next: (res: any) => {
         const districts: string[] = _.get(res, 'result.districtsList[0].districts', [])
         this.dynamicOptions[field.key] = districts.map((d: string) => ({ label: d, value: d }))
@@ -1102,7 +1154,8 @@ export class DynamicEntryEditComponent implements OnInit {
       delete payload.request.sortBy
       delete payload.request.orderBy
     }
-    this.profileV2RevampSvc.getEducationsQualificationsSearch(payload).subscribe({
+    const configDetails: ConfigDetails = this.getConfigDetails('masterdataV1Search')
+    this.profileV2RevampSvc.getEducationsQualificationsSearch(payload, configDetails).subscribe({
       next: (res: any) => {
         const content = _.get(res, 'result.result', []) as any[]
         const total = _.get(res, 'result.count', 0)
@@ -1630,6 +1683,30 @@ export class DynamicEntryEditComponent implements OnInit {
         Object.values((ctrl as FormGroup).controls).forEach(c => c.markAsTouched())
       }
     })
+  }
+
+  getConfigDetails(configKey: string): ConfigDetails {
+    return {
+      apiConfig: this.apiConfig,
+      urlConfigPath: configKey,
+      defaultUrl: '',
+    }
+  }
+
+  handleTranslateTo(menuName: string): string {
+    return this.profileV2RevampSvc.handleTranslateTo(menuName)
+  }
+
+  onkeyDown(_event: any) {
+    return this.isMatcompleteOpened
+  }
+
+  onAutoCompleteOpened() {
+    this.isMatcompleteOpened = true
+  }
+
+  onAutoCompleteClosed() {
+    this.isMatcompleteOpened = false
   }
 
   private openSnackbar(msg: string, duration = 5000): void {
