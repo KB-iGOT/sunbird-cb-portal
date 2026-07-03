@@ -1,12 +1,17 @@
 import { Component, HostListener, OnInit } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
 import { HttpClient } from '@angular/common/http'
-import { MatSnackBar } from '@angular/material/snack-bar'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { catchError } from 'rxjs/operators'
 import { of } from 'rxjs'
+import { NsContent, VIEWER_ROUTE_FROM_MIME } from '@sunbird-cb/collection'
 
 const ALL_WEEKS = 0
+
+interface ContentTypeTab {
+  key: string
+  label: string
+}
 
 @Component({
   selector: 'ws-app-bharat-kalp-see-all',
@@ -22,15 +27,11 @@ export class BharatKalpSeeAllComponent implements OnInit {
   currentWeek = 1
   selectedWeek: number = ALL_WEEKS
   weekDropdownOpen = false
-  private _prevWeek = ALL_WEEKS
-
   /* Status pills */
   readonly statusPills = ['All', 'In Progress', 'Completed', 'Not Started']
   selectedStatus = 'All'
 
   /* Content type tabs */
-  readonly contentTypeTabs = ['Courses', 'Programs', 'Events', 'Assessment']
-  selectedContentType = 'Courses'
   activeTabIndex = 0
 
   /* Search */
@@ -53,7 +54,6 @@ export class BharatKalpSeeAllComponent implements OnInit {
     private route: ActivatedRoute,
     private router: Router,
     private http: HttpClient,
-    private snackBar: MatSnackBar,
     private configSvc: ConfigurationsService,
   ) { }
 
@@ -88,11 +88,8 @@ export class BharatKalpSeeAllComponent implements OnInit {
     if (formData) {
       this.weekProgress = formData.individualSection?.weekProgress
       this.bkConfig = formData.bkConfig || {}
-      /* Extract weeks array from new Weeks[0].tabs format */
-      const weeksConfig = this.weekProgress?.Weeks || []
-      if (weeksConfig.length) {
-        this.weeksData = weeksConfig[0].tabs || []
-      }
+      /* Extract weeks array from the weeks.tabs format */
+      this.weeksData = this.weekProgress?.weeks?.tabs || []
     }
 
     const totalWeeks = this.weekProgress?.totalWeeks || 16
@@ -101,11 +98,7 @@ export class BharatKalpSeeAllComponent implements OnInit {
 
     const qWeek = this.route.snapshot.queryParams?.['week']
     const requestedWeek = qWeek ? +qWeek : ALL_WEEKS
-    /* Validate: if requested week hasn't started, fall back to ALL_WEEKS */
-    this.selectedWeek = (requestedWeek !== ALL_WEEKS && !this.isWeekStarted(requestedWeek))
-      ? ALL_WEEKS : requestedWeek
-    this._prevWeek = this.selectedWeek
-
+    this.selectedWeek = requestedWeek
     this._fetchContent()
   }
 
@@ -123,23 +116,44 @@ export class BharatKalpSeeAllComponent implements OnInit {
     return Math.min(Math.floor(diff / 7) + 1, this.weeks.length)
   }
 
-  isWeekStarted(week: number): boolean { return week <= this.currentWeek }
+
+  /** Content-type tabs (Courses/Programs/Events/Resources/...) present for the selected week (or across
+   *  all weeks when "All Weeks" is selected) — a key only shows up as a tab if it has at least one id */
+  get contentTypeTabs(): ContentTypeTab[] {
+    const keys = new Set<string>()
+    const weeksToScan = this.selectedWeek === ALL_WEEKS
+      ? this.weeksData
+      : this.weeksData.filter((w: any) => w.id === `week_${this.selectedWeek}`)
+
+    weeksToScan.forEach((wd: any) => {
+      Object.keys(wd?.content_ids || {}).forEach(key => {
+        if ((wd.content_ids[key] || []).length > 0) keys.add(key)
+      })
+    })
+
+    return Array.from(keys).map(key => ({ key, label: this._tabLabel(key) }))
+  }
+
+  /** Derives a display label straight from the content_ids key — e.g. "course" -> "Courses" */
+  private _tabLabel(key: string): string {
+    const capitalized = key.charAt(0).toUpperCase() + key.slice(1)
+    return capitalized.endsWith('s') ? capitalized : `${capitalized}s`
+  }
+
+  /** Resources aren't enrollable/trackable content, so the status pills (which filter by enrollment) don't apply */
+  get isActiveTabResources(): boolean {
+    return this.contentTypeTabs[this.activeTabIndex]?.key === 'resources'
+  }
 
   /* Get content_ids for current week + content type */
   private _getContentIds(): string[] {
-    const typeKey = this.selectedContentType.toLowerCase()
-    const typeMap: { [k: string]: string } = {
-      courses: 'course', programs: 'program', events: 'event', assessment: 'assessment'
-    }
-    const key = typeMap[typeKey] || 'course'
+    const key = this.contentTypeTabs[this.activeTabIndex]?.key
+    if (!key) return []
 
     if (this.selectedWeek === ALL_WEEKS) {
-      /* All weeks — only include started weeks (week number ≤ currentWeek) */
       const ids: string[] = []
       this.weeksData.forEach((wd: any) => {
-        const weekNum = parseInt((wd?.id || '').replace('week_', ''), 10)
-        if (isNaN(weekNum) || weekNum > this.currentWeek) return   /* skip locked weeks */
-        ;((wd?.content_ids?.[key]) || []).forEach((id: string) => {
+        ; ((wd?.content_ids?.[key]) || []).forEach((id: string) => {
           if (id && !ids.includes(id)) ids.push(id)
         })
       })
@@ -152,16 +166,6 @@ export class BharatKalpSeeAllComponent implements OnInit {
   }
 
   _fetchContent(): void {
-    /* Hard guard — never load content for a week that hasn't started */
-    if (this.selectedWeek !== ALL_WEEKS && !this.isWeekStarted(this.selectedWeek)) {
-      this.selectedWeek = this._prevWeek
-      this.snackBar.open('This week not started', 'Dismiss', {
-        duration: 3000,
-        panelClass: ['wp-snack'],
-      })
-      return
-    }
-
     this.currentPage = 0
     this.allCards = []
     const ids = this._getContentIds()
@@ -190,28 +194,8 @@ export class BharatKalpSeeAllComponent implements OnInit {
   }
 
   onWeekChange(event: Event): void {
-    const selectEl = event.target as HTMLSelectElement
-    const week = +selectEl.value
-
-    if (week !== ALL_WEEKS && !this.isWeekStarted(week)) {
-      const prev = this._prevWeek
-      /* Revert native DOM immediately */
-      selectEl.value = String(prev)
-      /* Revert again after Angular's change detection cycle to be safe */
-      setTimeout(() => {
-        selectEl.value = String(prev)
-        this.selectedWeek = prev
-      }, 0)
-
-      this.snackBar.open('This week not started', 'Dismiss', {
-        duration: 3000,
-        panelClass: ['wp-snack'],
-      })
-      return
-    }
-
-    this._prevWeek = week
-    this.selectedWeek = week
+    this.selectedWeek = +(event.target as HTMLSelectElement).value
+    this.activeTabIndex = 0 /* tab set can change per week — reset to the first visible tab */
     this._fetchContent()
   }
 
@@ -219,9 +203,12 @@ export class BharatKalpSeeAllComponent implements OnInit {
 
   onTabChange(index: number): void {
     this.activeTabIndex = index
-    this.selectedContentType = this.contentTypeTabs[index]
+    /* Status pills are hidden for Resources — reset so a stale filter doesn't silently hide all cards */
+    if (this.isActiveTabResources) this.selectedStatus = 'All'
     this._fetchContent()
   }
+
+  trackTabKey(_: number, tab: ContentTypeTab): string { return tab.key }
 
   onSearch(): void { this.currentPage = 0 }
 
@@ -278,6 +265,14 @@ export class BharatKalpSeeAllComponent implements OnInit {
   }
 
   onCardNavigate(content: any): void {
+    if (content?.primaryCategory === NsContent.EPrimaryCategory.RESOURCE) {
+      let url = `app/amrit-gyaan-kosh/player/${VIEWER_ROUTE_FROM_MIME(content?.mimeType)}/${content?.identifier}`
+      let queryParams = {
+        primaryCategory: content?.primaryCategory
+      }
+      history.pushState(history.state, '', this.router.url)
+      this.router.navigate([url], { queryParams:queryParams , state: { sourceUrl: this.router.url }})
+    }else{
     if (!content?.identifier) return
     const qp: any = {}
     if (content.batchId) qp['batchId'] = content.batchId
@@ -285,6 +280,7 @@ export class BharatKalpSeeAllComponent implements OnInit {
       ['/app/toc', content.identifier, 'overview'],
       { queryParams: qp, state: { sourceUrl: this.router.url } }
     )
+    }
   }
 
   goHome(): void { this.router.navigate(['/page/home']) }
@@ -293,13 +289,9 @@ export class BharatKalpSeeAllComponent implements OnInit {
   toggleWeekDropdown(): void { this.weekDropdownOpen = !this.weekDropdownOpen }
 
   selectWeekOption(week: number): void {
-    if (week !== ALL_WEEKS && !this.isWeekStarted(week)) {
-      this.snackBar.open('This week not started', 'Dismiss', { duration: 3000, panelClass: ['wp-snack'] })
-      return
-    }
-    this._prevWeek = week
     this.selectedWeek = week
     this.weekDropdownOpen = false
+    this.activeTabIndex = 0 /* tab set can change per week — reset to the first visible tab */
     this._fetchContent()
   }
 

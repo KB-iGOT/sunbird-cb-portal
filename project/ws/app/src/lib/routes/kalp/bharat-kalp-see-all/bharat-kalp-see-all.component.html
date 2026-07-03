@@ -32,10 +32,8 @@
             <span>All Weeks</span>
           </div>
           <div *ngFor="let w of weeks" class="bk-week-dd__option"
-            [class.bk-week-dd__option--active]="selectedWeek === w"
-            [class.bk-week-dd__option--locked]="!isWeekStarted(w)" (click)="selectWeekOption(w)">
+            [class.bk-week-dd__option--active]="selectedWeek === w" (click)="selectWeekOption(w)">
             <span>Week {{ w }}</span>
-            <mat-icon *ngIf="!isWeekStarted(w)" class="bk-week-dd__lock">lock</mat-icon>
           </div>
         </div>
       </div>
@@ -44,12 +42,12 @@
 
   <!-- Content type line tabs -->
   <mat-tab-group class="bk-see-all__tabs" animationDuration="0ms" [selectedIndex]="activeTabIndex"
-    (selectedIndexChange)="onTabChange($event)">
-    <mat-tab *ngFor="let tab of contentTypeTabs" [label]="tab"></mat-tab>
+    [mat-stretch-tabs]="contentTypeTabs.length > 1" (selectedIndexChange)="onTabChange($event)">
+    <mat-tab *ngFor="let tab of contentTypeTabs; trackBy: trackTabKey" [label]="tab.label"></mat-tab>
   </mat-tab-group>
 
-  <!-- Status filter pills — inside tabs area -->
-  <div class="bk-see-all__status-pills">
+  <!-- Status filter pills — inside tabs area (resources aren't enrollable/trackable, so no status filter) -->
+  <div class="bk-see-all__status-pills" *ngIf="!isActiveTabResources">
     <button *ngFor="let s of statusPills" class="bk-see-all__status-pill"
       [class.bk-see-all__status-pill--active]="selectedStatus === s" (click)="onStatusSelect(s)">
       {{ s }}
