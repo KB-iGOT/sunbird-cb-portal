@@ -4,7 +4,7 @@
     window.module = { exports: {} };
     window.exports = window.module.exports;
 
-    // 1. FIX: Mock Ajv validation engine to prevent internal framework crashes
+    // Mock Ajv validation engine to prevent internal framework crashes
     window.Ajv = window.Ajv || function() {
         return {
             compile: function() {
@@ -14,17 +14,17 @@
         };
     };
 
-    // 2. FIX: Intercept old Fingerprint component crashes
+    // Intercept old Fingerprint component crashes
     var MockFingerprint = function() {};
     MockFingerprint.prototype.get = function(cb) { if (cb) cb("mock-id", []); };
     window.Fingerprint = MockFingerprint;
     window.Fingerprint2 = MockFingerprint;
 
-    // 3. FIX: Create explicit base objects so the SDK can latch onto them
+    // Create explicit base objects so the SDK can latch onto them
     window.Telemetry = window.Telemetry || { initialized: false };
     window.telemetryInstance = window.telemetryInstance || { _globalObject: {} };
 
-    // 4. Setup your library's expected $t footprint mapping
+    // Setup your library's expected $t footprint mapping
     window.$t = window.$t || function(...args) {
         return window.Telemetry || window.EkTelemetry;
     };
@@ -42,7 +42,7 @@
         };
     });
 
-    // 5. Intercept module exports to capture the internal Telemetry classes
+    // Intercept module exports to capture the internal Telemetry classes
     Object.defineProperty(window.module, 'exports', {
         set: function(val) {
             window.EkTelemetry = val;
