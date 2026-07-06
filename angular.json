@@ -37,17 +37,7 @@
                 "input": "node_modules/pdfjs-dist/build",
                 "output": "/assets/pdfjs/"
               },
-              "src/manifest.json",
-              {
-                "glob": "telemetry-bridge.js",
-                "input": "src/",
-                "output": "./assets/js/"
-              },
-              {
-                "glob": "index.js",
-                "input": "node_modules/@project-sunbird/telemetry-sdk/",
-                "output": "./assets/js/"
-              }
+              "src/manifest.json"
             ],
             "stylePreprocessorOptions": {
               "includePaths": [
