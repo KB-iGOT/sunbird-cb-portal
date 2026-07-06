@@ -33,6 +33,11 @@
 
   <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700&display=swap"
     rel="stylesheet">
+     <!-- 1. Prepares the environment, mocks Ajv, and creates the $t wrapper -->
+  <script src="assets/js/telemetry-bridge.js" defer></script>
+
+  <!-- 2. Loads Sunbird cleanly without syntax modifications -->
+  <script src="assets/js/index.js" defer></script>
   <script rel="preload">
     (async function getData() {
       const url = "/assets/env.json"

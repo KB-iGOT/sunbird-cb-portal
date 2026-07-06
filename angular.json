@@ -37,7 +37,17 @@
                 "input": "node_modules/pdfjs-dist/build",
                 "output": "/assets/pdfjs/"
               },
-              "src/manifest.json"
+              "src/manifest.json",
+              {
+                "glob": "telemetry-bridge.js",
+                "input": "src/",
+                "output": "./assets/js/"
+              },
+              {
+                "glob": "index.js",
+                "input": "node_modules/@project-sunbird/telemetry-sdk/",
+                "output": "./assets/js/"
+              }
             ],
             "stylePreprocessorOptions": {
               "includePaths": [
@@ -65,7 +75,6 @@
             ],
             "scripts": [
               "node_modules/shepherd.js/dist/js/shepherd.min.js",
-              "node_modules/@project-sunbird/telemetry-sdk/index.js",
               "src/js/smartechclient.js"
             ],
             "aot": false,
