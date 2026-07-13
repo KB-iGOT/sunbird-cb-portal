@@ -8,7 +8,7 @@ import { ActivatedRoute, Data, Router } from '@angular/router'
     selector: 'ws-app-achievements',
     templateUrl: './achievements.component.html',
     styleUrls: ['./achievements.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class AchievementsComponent implements OnInit, OnDestroy {
   startDate = '2018-04-01'

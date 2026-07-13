@@ -19,7 +19,7 @@ import { MatSnackBar } from '@angular/material/snack-bar'
     selector: 'ws-app-playlist-card',
     templateUrl: './playlist-card.component.html',
     styleUrls: ['./playlist-card.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class PlaylistCardComponent implements OnInit {
   @Input()
@@ -37,11 +37,11 @@ export class PlaylistCardComponent implements OnInit {
   isListExpanded: { [playlistId: string]: boolean } = {}
 
   constructor(private route: ActivatedRoute,
-    private snackBar: MatSnackBar,
-    public dialog: MatDialog,
-    private playlistSvc: BtnPlaylistService,
-    public router: Router,
-    public configSvc: ConfigurationsService,
+              private snackBar: MatSnackBar,
+              public dialog: MatDialog,
+              private playlistSvc: BtnPlaylistService,
+              public router: Router,
+              public configSvc: ConfigurationsService,
 
   ) {
     const instanceConfig = this.configSvc.instanceConfig

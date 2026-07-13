@@ -6,7 +6,7 @@ import { NsWidgetResolver } from '@sunbird-cb/resolver'
     selector: 'ws-app-careers-home',
     templateUrl: './careers-home.component.html',
     styleUrls: ['./careers-home.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class CareersHomeComponent implements OnInit, OnDestroy {
   titles = [{ title: 'CAREER', url: '/app/careers/home', icon: 'work' }]

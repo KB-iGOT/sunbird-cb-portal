@@ -31,7 +31,7 @@ import { WidgetContentService } from '@sunbird-cb/toc'
     selector: 'ws-app-playlist-detail',
     templateUrl: './playlist-detail.component.html',
     styleUrls: ['./playlist-detail.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class PlaylistDetailComponent implements OnInit, OnDestroy {
   @ViewChild('playlistDeleteFailed', { static: true }) playlistDeleteFailedMessage!: ElementRef<any>

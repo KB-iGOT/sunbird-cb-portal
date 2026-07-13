@@ -8,7 +8,7 @@ import { TFetchStatus, ConfigurationsService } from '@sunbird-cb/utils-v2'
     selector: 'ws-app-playlist-share-dialog',
     templateUrl: './playlist-share-dialog.component.html',
     styleUrls: ['./playlist-share-dialog.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class PlaylistShareDialogComponent implements OnInit {
   @ViewChild('shareError', { static: true }) shareErrorMessage!: ElementRef<any>

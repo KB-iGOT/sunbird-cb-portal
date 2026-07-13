@@ -6,7 +6,7 @@ import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
     selector: 'ws-app-careers-pagination',
     templateUrl: './careers-pagination.component.html',
     styleUrls: ['./careers-pagination.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class CareersPaginationComponent implements OnInit {
 

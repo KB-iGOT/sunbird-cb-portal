@@ -26,7 +26,7 @@ export enum ErrorType {
     styleUrls: ['./competence-test.component.scss'],
     // tslint:disable-next-line
     host: { class: 'competency_main_test_wrapper' },
-    standalone: false
+    standalone: false,
 })
 export class CompetencyTestComponent implements OnInit, OnDestroy, AfterViewChecked {
   fullScreenContainer: HTMLElement | null = null

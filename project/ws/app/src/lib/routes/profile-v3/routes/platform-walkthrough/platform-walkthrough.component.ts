@@ -4,7 +4,7 @@ import { Component, OnInit } from '@angular/core'
     selector: 'ws-app-platform-walkthrough',
     templateUrl: './platform-walkthrough.component.html',
     styleUrls: ['./platform-walkthrough.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class PlatformWalkthroughComponent implements OnInit {
 

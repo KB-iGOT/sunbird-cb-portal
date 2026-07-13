@@ -10,7 +10,7 @@ import { SafeStyle, DomSanitizer } from '@angular/platform-browser'
     selector: 'ws-app-playlist-home',
     templateUrl: './playlist-home.component.html',
     styleUrls: ['./playlist-home.component.scss'],
-    standalone: false
+    standalone: false,
 })
 
 export class PlaylistHomeComponent implements OnInit, OnDestroy {

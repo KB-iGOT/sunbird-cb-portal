@@ -9,7 +9,7 @@ import { environment } from 'src/environments/environment'
   selector: 'ws-app-mentors',
   templateUrl: './mentors.component.html',
   styleUrls: ['./mentors.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class MentorsComponent implements OnInit {
   paginationSize = 12
@@ -53,17 +53,17 @@ export class MentorsComponent implements OnInit {
     }
     this.mentorsListLoading = true
     this.mentorsGetSubscription = this.networkingSvc.getRecommendedMentors(formBody).subscribe({
-      next: (response) => {
+      next:response => {
         this.mentorsListLoading = false
         this.mentorsList = _.get(response, 'result.response', [])
         this.totalItemsCount = _.get(response, 'result.count', 0)
       },
-      error: (error) => {
+      error:error => {
         this.mentorsListLoading = false
         if (error) {
           this.openSnackbar(this.handleTranslateTo('NetworkLandingPage.noMentorsFoundatTheMomentPleaseTryAgain'))
         }
-      }
+      },
     })
   }
 

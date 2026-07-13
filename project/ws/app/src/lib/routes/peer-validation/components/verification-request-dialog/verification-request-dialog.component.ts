@@ -7,7 +7,7 @@ import { PeerValidationService } from '../../services/peer-validation.service'
     selector: 'ws-app-verification-request-dialog',
     templateUrl: './verification-request-dialog.component.html',
     styleUrls: ['./verification-request-dialog.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class VerificationRequestDialogComponent {
   constructor(

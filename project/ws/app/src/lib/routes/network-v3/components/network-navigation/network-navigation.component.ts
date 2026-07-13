@@ -5,7 +5,7 @@ import { routesData } from '../../models/network-v3.model'
   selector: 'ws-app-network-navigation',
   templateUrl: './network-navigation.component.html',
   styleUrls: ['./network-navigation.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class NetworkNavigationComponent {
 

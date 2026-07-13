@@ -7,7 +7,7 @@ import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
     selector: 'ws-app-careers-card',
     templateUrl: './careers-card.component.html',
     styleUrls: ['./careers-card.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class CareersCardComponent implements OnInit {
   @Input()

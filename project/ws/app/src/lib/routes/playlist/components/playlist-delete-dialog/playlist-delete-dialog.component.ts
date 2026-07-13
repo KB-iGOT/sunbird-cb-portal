@@ -5,7 +5,7 @@ import { MatDialogRef } from '@angular/material/dialog'
     selector: 'ws-app-playlist-delete-dialog',
     templateUrl: './playlist-delete-dialog.component.html',
     styleUrls: ['./playlist-delete-dialog.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class PlaylistDeleteDialogComponent {
 

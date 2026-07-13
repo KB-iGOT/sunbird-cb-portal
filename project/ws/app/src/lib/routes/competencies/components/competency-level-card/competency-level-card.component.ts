@@ -5,7 +5,7 @@ import { NSCompetencie } from '../../models/competencies.model'
     selector: 'ws-app-competency-level-card',
     templateUrl: './competency-level-card.component.html',
     styleUrls: ['./competency-level-card.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class CompetencyLevelCardComponent implements OnInit {
   @Input()

@@ -3,10 +3,10 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser'
 
 @Component({
-    selector: 'ws-app-video-preview-dialog',
-    templateUrl: './video-preview-dialog.component.html',
-    styleUrls: ['./video-preview-dialog.component.scss'],
-    standalone: false
+  selector: 'ws-app-video-preview-dialog',
+  templateUrl: './video-preview-dialog.component.html',
+  styleUrls: ['./video-preview-dialog.component.scss'],
+  standalone: false,
 })
 export class VideoPreviewDialogComponent implements OnInit {
   @ViewChild('videoPlayer') videoPlayer!: ElementRef<HTMLVideoElement>
@@ -147,7 +147,7 @@ export class VideoPreviewDialogComponent implements OnInit {
       if (this.isPlaying) {
         this.showControls = false
       }
-    },                                    2000)
+    }, 2000)
   }
 
   formatTime(seconds: number): string {
@@ -165,11 +165,11 @@ export class VideoPreviewDialogComponent implements OnInit {
 
     if (type.includes('mp4') || name.endsWith('.mp4')) {
       return 'video/mp4'
-    }  if (type.includes('webm') || name.endsWith('.webm')) {
+    } if (type.includes('webm') || name.endsWith('.webm')) {
       return 'video/webm'
-    }  if (type.includes('m3u8') || name.endsWith('.m3u8')) {
+    } if (type.includes('m3u8') || name.endsWith('.m3u8')) {
       return 'application/x-mpegURL'
-    }  if (type.includes('ogg') || name.endsWith('.ogg')) {
+    } if (type.includes('ogg') || name.endsWith('.ogg')) {
       return 'video/ogg'
     }
     return 'video/mp4' // Default to mp4

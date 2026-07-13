@@ -5,7 +5,7 @@ import { ActivatedRoute } from '@angular/router'
     selector: 'ws-app-provider-page-v2',
     templateUrl: './provider-page-v2.component.html',
     styleUrls: ['./provider-page-v2.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ProviderPageV2Component implements OnInit {
 

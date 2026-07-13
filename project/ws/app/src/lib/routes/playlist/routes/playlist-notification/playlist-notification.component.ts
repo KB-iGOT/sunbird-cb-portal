@@ -9,7 +9,7 @@ import { TFetchStatus, ConfigurationsService, NsPage } from '@sunbird-cb/utils-v
     selector: 'ws-app-playlist-notification',
     templateUrl: './playlist-notification.component.html',
     styleUrls: ['./playlist-notification.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class PlaylistNotificationComponent implements OnInit {
   @ViewChild('errorAccept', { static: true }) errorAcceptMessage!: ElementRef<any>

@@ -4,7 +4,7 @@ import { Component, OnInit, HostBinding } from '@angular/core'
     selector: 'ws-app-competency-all-wrapper',
     templateUrl: './competency-all-wrapper.component.html',
     styleUrls: ['./competency-all-wrapper.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class CompetencyAllWrapperComponent implements OnInit {
   currentRoute = 'all'

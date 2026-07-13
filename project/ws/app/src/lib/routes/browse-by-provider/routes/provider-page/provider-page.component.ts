@@ -8,7 +8,7 @@ import * as _ from 'lodash'
     selector: 'ws-app-provider-page',
     templateUrl: './provider-page.component.html',
     styleUrls: ['./provider-page.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ProviderPageComponent implements OnInit  {
 

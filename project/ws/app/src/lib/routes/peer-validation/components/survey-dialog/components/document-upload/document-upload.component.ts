@@ -8,10 +8,10 @@ import { environment } from 'src/environments/environment'
 import { ConnectedPosition } from '@angular/cdk/overlay'
 
 @Component({
-    selector: 'ws-app-document-upload',
-    templateUrl: './document-upload.component.html',
-    styleUrls: ['./document-upload.component.scss'],
-    standalone: false
+  selector: 'ws-app-document-upload',
+  templateUrl: './document-upload.component.html',
+  styleUrls: ['./document-upload.component.scss'],
+  standalone: false,
 })
 export class DocumentUploadComponent {
   @Input() documents: NSPeerValidation.IUploadedDocument[] = []

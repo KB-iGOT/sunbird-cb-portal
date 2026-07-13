@@ -9,7 +9,7 @@ import * as _ from 'lodash'
     selector: 'ws-app-careers',
     templateUrl: './careers.component.html',
     styleUrls: ['./careers.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class CareersComponent implements OnInit {
   data!: any

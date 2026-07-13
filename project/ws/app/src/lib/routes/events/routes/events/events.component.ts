@@ -15,7 +15,7 @@ import { debounceTime, distinctUntilChanged } from 'rxjs/operators'
     selector: 'ws-app-events',
     templateUrl: './events.component.html',
     styleUrls: ['./events.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class EventsComponent implements OnInit {
   data!: any

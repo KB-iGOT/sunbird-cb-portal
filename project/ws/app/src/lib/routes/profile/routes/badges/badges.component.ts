@@ -11,7 +11,7 @@ import { debounceTime, throttleTime } from 'rxjs/operators'
     selector: 'ws-app-badges',
     templateUrl: './badges.component.html',
     styleUrls: ['./badges.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class BadgesComponent implements OnInit {
   status: TFetchStatus = 'none'

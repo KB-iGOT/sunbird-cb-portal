@@ -8,7 +8,7 @@ import { TranslateService } from '@ngx-translate/core'
     selector: 'ws-app-desiredcomptency-card',
     templateUrl: './desiredcomptency-card.component.html',
     styleUrls: ['./desiredcomptency-card.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class DesiredcomptencyCardComponent implements OnInit {
   @Input() selectedLevelId: any
