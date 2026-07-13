@@ -5,7 +5,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog'
     selector: 'ws-app-rejection-reason-popup',
     templateUrl: './rejection-reason-popup.component.html',
     styleUrls: ['./rejection-reason-popup.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class RejectionReasonPopupComponent implements OnInit {
 

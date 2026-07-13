@@ -11,7 +11,7 @@ import { ConfigDetails } from '@sunbird-cb/consumption'
   templateUrl: './service-history.component.html',
   styleUrls: ['./service-history.component.scss'],
   providers: [DatePipe],
-  standalone: false
+  standalone: false,
 })
 export class ServiceHistoryComponent implements OnInit, OnChanges {
   //#region (global variables)
@@ -59,7 +59,7 @@ export class ServiceHistoryComponent implements OnInit, OnChanges {
       const configDetails: ConfigDetails = {
         defaultUrl: '',
         urlConfigPath: 'profileV1Extended',
-        apiConfig: this.apiConfig
+        apiConfig: this.apiConfig,
       }
       this.profileV2RevampSvc.fetchProfileEntries(configDetails, this.userId, 'serviceHistory').subscribe((res: any) => {
         if (res) {
@@ -67,7 +67,7 @@ export class ServiceHistoryComponent implements OnInit, OnChanges {
           this.serviceHistoryDetails = _.get(res, 'result.response', [])
           this.formateData()
         }
-      }, (err: any) => {
+      },                                                                                                  (err: any) => {
         if (err) {
           this.openSnackbar('something went wrong while fetching service history please try again later', 5000)
         }

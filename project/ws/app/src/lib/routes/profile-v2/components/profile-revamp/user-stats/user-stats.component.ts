@@ -6,7 +6,7 @@ import { Router } from '@angular/router'
   selector: 'ws-app-user-stats',
   templateUrl: './user-stats.component.html',
   styleUrls: ['./user-stats.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class UserStatsComponent implements OnInit {
 

@@ -13,7 +13,7 @@ import { ConfigurationsService } from '@sunbird-cb/utils-v2'
     selector: 'ws-withdraw-request',
     templateUrl: './withdraw-request.component.html',
     styleUrls: ['./withdraw-request.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class WithdrawRequestComponent implements OnInit, OnDestroy {
 
@@ -43,7 +43,7 @@ export class WithdrawRequestComponent implements OnInit, OnDestroy {
             this.matSnackBar.open(this.handleTranslateTo('withdrawTransferSuccess'))
             this.handleCloseModal()
             this.enableMakeTransfer.emit(true)
-          }, (error: HttpErrorResponse) => {
+          },         (error: HttpErrorResponse) => {
             if (!error.ok) {
               this.matSnackBar.open(this.handleTranslateTo('withdrawTransferFailed'))
             }

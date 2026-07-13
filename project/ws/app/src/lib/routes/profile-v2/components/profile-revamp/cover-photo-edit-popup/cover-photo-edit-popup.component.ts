@@ -8,7 +8,7 @@ import { IMAGE_SIZE_1MB } from '../../../models/profile-revamp.model'
   selector: 'ws-app-cover-photo-edit-popup',
   templateUrl: './cover-photo-edit-popup.component.html',
   styleUrls: ['./cover-photo-edit-popup.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class CoverPhotoEditPopupComponent implements OnInit {
   //#region (global variables)
@@ -123,7 +123,7 @@ export class CoverPhotoEditPopupComponent implements OnInit {
         resolve(canvas.toDataURL('image/png'))
       }
 
-      img.onerror = (err) => {
+      img.onerror = err => {
         URL.revokeObjectURL(url)
         reject(err)
       }
@@ -179,7 +179,7 @@ export class CoverPhotoEditPopupComponent implements OnInit {
     const croppedImage = {
       isUpdated,
       coverPhotoUrl: this.coverPhotoUrl,
-      file: this.imageFile
+      file: this.imageFile,
     }
     this.dialogRef.close(croppedImage)
   }

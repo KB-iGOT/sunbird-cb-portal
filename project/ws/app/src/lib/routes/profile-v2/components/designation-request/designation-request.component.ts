@@ -14,7 +14,7 @@ import { UserProfileService } from '../../../user-profile/services/user-profile.
     selector: 'ws-designation-request',
     templateUrl: './designation-request.component.html',
     styleUrls: ['./designation-request.component.scss'],
-    standalone: false
+    standalone: false,
 })
 
 export class DesignationRequestComponent implements OnDestroy {
@@ -63,7 +63,7 @@ export class DesignationRequestComponent implements OnDestroy {
       .subscribe((_res: any) => {
         this.matSnackBar.open(this.handleTranslateTo('designationRequestSent'))
         this.handleCloseModal()
-      }, (error: HttpErrorResponse) => {
+      },         (error: HttpErrorResponse) => {
         if (!error.ok) {
           this.matSnackBar.open(this.handleTranslateTo('designationRequestFailed'))
           this.handleCloseModal()
