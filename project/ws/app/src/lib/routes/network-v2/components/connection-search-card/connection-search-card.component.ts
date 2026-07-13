@@ -9,7 +9,7 @@ import { NsUser } from '@sunbird-cb/utils-v2'
     selector: 'ws-app-connection-search-card',
     templateUrl: './connection-search-card.component.html',
     styleUrls: ['./connection-search-card.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ConnectionSearchCardComponent implements OnInit {
   @Input() user!: NSNetworkDataV2.IAutocompleteUser

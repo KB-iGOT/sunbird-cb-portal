@@ -8,18 +8,18 @@ import { NetworkingService } from '../../services/networking.service'
   selector: 'ws-app-all-recommendations',
   templateUrl: './all-recommendations.component.html',
   styleUrls: ['./all-recommendations.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class AllRecommendationsComponent implements OnInit {
 
   // recommendationType = 'peopleNearYou'
   title = 'NetworkLandingPage.peopleYouMayKnow'
   recommendationList: any[] = []
-  paginationSize = 12;
-  paginationSizeOptions = [12, 24, 36, 48];
-  paginationPage = 1;
-  totalItemsCount = 0;
-  recommendationListLoading = false;
+  paginationSize = 12
+  paginationSizeOptions = [12, 24, 36, 48]
+  paginationPage = 1
+  totalItemsCount = 0
+  recommendationListLoading = false
   apiCallSubscription: any
   defaultPaginationSize = 12
 
@@ -42,17 +42,17 @@ export class AllRecommendationsComponent implements OnInit {
     }
     this.recommendationListLoading = true
     this.apiCallSubscription = this.networkingSvc.getRecommendedUsers(formBody).subscribe({
-      next: (response) => {
+      next:response => {
         this.recommendationListLoading = false
         this.recommendationList = _.get(response, 'result.response', [])
         this.totalItemsCount = _.get(response, 'result.count', 0)
       },
-      error: (error) => {
+      error:error => {
         this.recommendationListLoading = false
         if (error) {
           this.openSnackbar(this.handleTranslateTo('NetworkLandingPage.errorWhileFetchingRecommendations'))
         }
-      }
+      },
     })
   }
 

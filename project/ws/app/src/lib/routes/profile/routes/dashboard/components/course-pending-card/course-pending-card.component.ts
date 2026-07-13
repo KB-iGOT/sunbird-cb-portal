@@ -6,7 +6,7 @@ import { Router } from '@angular/router'
     selector: 'ws-app-course-pending-card',
     templateUrl: './course-pending-card.component.html',
     styleUrls: ['./course-pending-card.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class CoursePendingCardComponent implements OnInit {
   defaultThumbnail = ''

@@ -9,7 +9,7 @@ import { SettingsService } from '../../settings.service'
   selector: 'ws-app-left-menu-item',
   templateUrl: './left-menu-item.component.html',
   styleUrls: ['./left-menu-item.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class LeftMenuItemComponent implements OnChanges {
   //#region (global variables)
@@ -45,7 +45,7 @@ export class LeftMenuItemComponent implements OnChanges {
     this.disableMenu = isNotMyUser && isIgotOrg
     if (this.disableMenu && _.get(this.item, 'name') === 'getStartedTour') {
       this.item['enabled'] = false
-      this.item['img'] = "fusion-assets/images/play_circle.svg"
+      this.item['img'] = 'fusion-assets/images/play_circle.svg'
     }
   }
 

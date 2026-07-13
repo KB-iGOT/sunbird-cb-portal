@@ -7,7 +7,7 @@ import { NSNetworkDataV2 } from '../../models/network-v2.model'
     selector: 'ws-app-my-connection-card',
     templateUrl: './my-connection-card.component.html',
     styleUrls: ['./my-connection-card.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class MyConnectionCardComponent implements OnInit {
   @Input() user!: NSNetworkDataV2.INetworkUser

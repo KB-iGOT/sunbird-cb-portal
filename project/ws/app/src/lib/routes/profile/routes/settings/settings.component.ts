@@ -29,7 +29,7 @@ import { MatTabChangeEvent } from '@angular/material/tabs'
     selector: 'ws-app-settings',
     templateUrl: './settings.component.html',
     styleUrls: ['./settings.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class SettingsComponent implements OnInit, OnDestroy {
   @ViewChild('successToast', { static: true }) successToast!: ElementRef<any>

@@ -15,11 +15,11 @@ import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 const MILLISECONDS_IN_A_DAY = 1000 * 60 * 60 * 24
 const NEW_CONTENT_THRESHOLD_DAYS = 14
 @Component({
-    selector: 'ws-app-search-event-card',
-    templateUrl: './search-event-card.component.html',
-    styleUrls: ['./search-event-card.component.scss'],
-    providers: [DatePipe],
-    standalone: false
+  selector: 'ws-app-search-event-card',
+  templateUrl: './search-event-card.component.html',
+  styleUrls: ['./search-event-card.component.scss'],
+  providers: [DatePipe],
+  standalone: false,
 })
 export class SearchEventCardComponent implements OnInit, OnChanges {
   @Input() content: any
@@ -172,9 +172,9 @@ export class SearchEventCardComponent implements OnInit, OnChanges {
     this.eventDuration = isNaN(durationInSeconds) ? '' : durationInSeconds.toString()
   }
 
-  getSubTheme(content:any) {
-    const arr:any = []
-    content.map((item:any) => {
+  getSubTheme(content: any) {
+    const arr: any = []
+    content.map((item: any) => {
       if (item?.competencySubThemeName) {
         arr.push(item?.competencySubThemeName)
       }
@@ -184,7 +184,7 @@ export class SearchEventCardComponent implements OnInit, OnChanges {
       const str = arr.toString().substring(0, 150) + '...'
       return str
     }
-      return str
+    return str
 
   }
 }

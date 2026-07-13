@@ -8,7 +8,7 @@ import {
 
 @Directive({
     selector: '[wsTooltipDirective]',
-    standalone: false
+    standalone: false,
 })
 export class TooltipDirective {
     // private tooltipId!: string

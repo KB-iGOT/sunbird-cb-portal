@@ -11,7 +11,7 @@ import * as _ from 'lodash'
   selector: 'ws-app-connection-people-card',
   templateUrl: './connection-people-card.component.html',
   styleUrls: ['./connection-people-card.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class ConnectionPeopleCardComponent implements OnInit {
   @Input() user!: NSNetworkDataV2.INetworkUser

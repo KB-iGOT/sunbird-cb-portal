@@ -12,7 +12,7 @@ import _ from 'lodash'
     selector: 'ws-app-network',
     templateUrl: './network.component.html',
     styleUrls: ['./network.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class NetworkComponent implements OnInit, OnDestroy {
   @ViewChild('stickyMenu', { static: true }) menuElement!: ElementRef

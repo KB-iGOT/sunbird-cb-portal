@@ -10,12 +10,12 @@ import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
   selector: 'ws-app-profile-visibility-settings',
   templateUrl: './profile-visibility-settings.component.html',
   styleUrls: ['./profile-visibility-settings.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class ProfileVisibilitySettingsComponent implements OnInit {
   // Holds the selected visibility value
-  selectedVisibility: 'public' | 'connections' | 'private' = 'public';
-  loadingDetails = false;
+  selectedVisibility: 'public' | 'connections' | 'private' = 'public'
+  loadingDetails = false
   updateApiSubscription: any
 
   constructor(
@@ -47,7 +47,7 @@ export class ProfileVisibilitySettingsComponent implements OnInit {
   getUserDetails() {
     const userId: any = _.get(this.configSvc, 'userProfileV2.userId')
     this.settingsService.fetchProfile(userId).subscribe({
-      next: (response) => {
+      next: response => {
         const visibilityStatus = _.get(response, 'result.response.profileDetails.profilePreference', 0)
         this.selectedVisibility = this.getMapedValues(visibilityStatus)
         this.loadingDetails = false
@@ -55,7 +55,7 @@ export class ProfileVisibilitySettingsComponent implements OnInit {
       error: () => {
         this.selectedVisibility = 'public'
         this.loadingDetails = false
-      }
+      },
     })
   }
 
@@ -91,7 +91,7 @@ export class ProfileVisibilitySettingsComponent implements OnInit {
         }
       }, error: () => {
         this.snackBar.open('Something went wrong please try again later')
-      }
+      },
     })
   }
 }

@@ -28,7 +28,7 @@ const NEW_CONTENT_THRESHOLD_DAYS = 14
   selector: 'ws-app-course-content-card',
   templateUrl: './course-content-card.component.html',
   styleUrls: ['./course-content-card.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class CourseContentCardComponent implements OnInit, OnChanges {
   @Input() content: any

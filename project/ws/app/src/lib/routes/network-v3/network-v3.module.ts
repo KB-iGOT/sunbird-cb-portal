@@ -70,6 +70,6 @@ export function NetworkV3HttpLoaderFactory(http: HttpClient) {
         deps: [HttpClient],
       },
     }),
-  ]
+  ],
 })
 export class NetworkV3Module { }
