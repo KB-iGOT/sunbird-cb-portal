@@ -5,7 +5,7 @@ import { IFeedbackThread } from '@sunbird-cb/collection'
     selector: 'ws-app-feedback-thread-item',
     templateUrl: './feedback-thread-item.component.html',
     styleUrls: ['./feedback-thread-item.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class FeedbackThreadItemComponent implements OnInit {
   @Input() threadItem!: IFeedbackThread

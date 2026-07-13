@@ -4,7 +4,7 @@ import { Component, OnInit, Input, OnChanges } from '@angular/core'
     selector: 'ws-analytics-progress-radial',
     templateUrl: './progress-radial.component.html',
     styleUrls: ['./progress-radial.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ProgressRadialComponent implements OnInit, OnChanges {
   @Input() contentId = ''

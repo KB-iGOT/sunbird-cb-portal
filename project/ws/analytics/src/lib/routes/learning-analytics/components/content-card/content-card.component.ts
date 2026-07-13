@@ -5,7 +5,7 @@ import { NsAnalytics } from '../../models/learning-analytics.model'
     selector: 'ws-analytics-content-card',
     templateUrl: './content-card.component.html',
     styleUrls: ['./content-card.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ContentCardComponent implements OnInit {
   @Input() pieData: any

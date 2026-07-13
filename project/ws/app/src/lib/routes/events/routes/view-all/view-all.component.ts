@@ -17,7 +17,7 @@ import { Subject, Subscription } from 'rxjs'
   templateUrl: './view-all.component.html',
   styleUrls: ['./view-all.component.scss'],
   providers: [DatePipe],
-  standalone: false
+  standalone: false,
 })
 export class ViewAllComponent {
 

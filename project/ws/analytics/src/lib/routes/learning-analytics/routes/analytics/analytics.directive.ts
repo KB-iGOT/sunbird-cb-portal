@@ -2,7 +2,7 @@ import { Directive, ViewContainerRef } from '@angular/core'
 
 @Directive({
     selector: '[wsAnalyticsAnalytics]',
-    standalone: false
+    standalone: false,
 })
 export class AnalyticsDirective {
 

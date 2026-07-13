@@ -6,7 +6,7 @@ import { AnalyticsService } from './analytics.service'
     selector: 'ws-analytics-analytics',
     templateUrl: './analytics.component.html',
     styleUrls: ['./analytics.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class AnalyticsComponent implements OnInit {
   @ViewChild(AnalyticsDirective, { static: true }) wsAnalyticsAnalytics!: AnalyticsDirective

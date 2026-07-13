@@ -14,7 +14,7 @@ import { TFetchStatus, ConfigurationsService } from '@sunbird-cb/utils-v2'
     selector: 'ws-app-goal-share-dialog',
     templateUrl: './goal-share-dialog.component.html',
     styleUrls: ['./goal-share-dialog.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class GoalShareDialogComponent implements OnInit {
   @ViewChild('errorShare', { static: true }) errorShareMessage!: ElementRef<

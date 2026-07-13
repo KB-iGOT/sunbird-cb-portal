@@ -5,7 +5,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog'
     selector: 'ws-app-no-access-dialog',
     templateUrl: './no-access-dialog.component.html',
     styleUrls: ['./no-access-dialog.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class NoAccessDialogComponent implements OnInit {
 

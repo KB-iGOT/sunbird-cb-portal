@@ -4,7 +4,7 @@ import { Component, OnInit } from '@angular/core'
     selector: 'ws-app-goal-create',
     templateUrl: './goal-create.component.html',
     styleUrls: ['./goal-create.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class GoalCreateComponent implements OnInit {
 

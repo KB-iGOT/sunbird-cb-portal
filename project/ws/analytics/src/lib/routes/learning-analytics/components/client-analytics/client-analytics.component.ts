@@ -13,7 +13,7 @@ import { LearningAnalyticsService } from '../../services/learning-analytics.serv
     selector: 'ws-analytics-client-analytics',
     templateUrl: './client-analytics.component.html',
     styleUrls: ['./client-analytics.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ClientAnalyticsComponent implements OnInit, OnDestroy {
   errorMessageCode: 'API_FAILURE' | 'NO_DATA' | 'INVALID_DATA' | 'NONE' = 'NONE'

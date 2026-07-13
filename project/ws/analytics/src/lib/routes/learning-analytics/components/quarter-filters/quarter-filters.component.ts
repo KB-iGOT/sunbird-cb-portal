@@ -8,7 +8,7 @@ import { QuarterServiceService } from '../../services/quarter-filter.service'
     selector: 'ws-analytics-quarter-filters',
     templateUrl: './quarter-filters.component.html',
     styleUrls: ['./quarter-filters.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class QuarterFiltersComponent implements OnInit {
   @Output() filterEvent = new EventEmitter<string>()

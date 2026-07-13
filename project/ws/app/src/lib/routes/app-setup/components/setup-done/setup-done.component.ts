@@ -13,7 +13,7 @@ import { Globals } from '../../globals'
     selector: 'ws-app-setup-done',
     templateUrl: './setup-done.component.html',
     styleUrls: ['./setup-done.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class SetupDoneComponent implements OnInit {
   appIcon: SafeUrl | null = null

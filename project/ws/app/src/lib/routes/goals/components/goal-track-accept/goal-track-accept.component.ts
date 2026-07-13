@@ -5,7 +5,7 @@ import { ActivatedRoute } from '@angular/router'
     selector: 'ws-app-goal-track-accept',
     templateUrl: './goal-track-accept.component.html',
     styleUrls: ['./goal-track-accept.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class GoalTrackAcceptComponent implements OnInit {
 

@@ -38,7 +38,7 @@ const configMap: any = {
   selector: 'ws-app-see-all-dynamic',
   templateUrl: './see-all-dynamic.component.html',
   styleUrls: ['./see-all-dynamic.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class SeeAllDynamicComponent implements OnInit, OnDestroy, AfterViewChecked {
   colors = [

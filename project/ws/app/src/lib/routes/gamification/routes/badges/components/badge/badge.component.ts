@@ -8,7 +8,7 @@ import { ConfigurationsService } from '@sunbird-cb/utils-v2'
     selector: 'ws-app-badge',
     templateUrl: './badge.component.html',
     styleUrls: ['./badge.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class BadgeComponent implements OnInit {
   disableNext: boolean

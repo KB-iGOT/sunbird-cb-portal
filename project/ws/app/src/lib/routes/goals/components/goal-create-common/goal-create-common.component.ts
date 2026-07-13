@@ -6,7 +6,7 @@ import { TFetchStatus, EventService, WsEvents } from '@sunbird-cb/utils-v2'
     selector: 'ws-app-goal-create-common',
     templateUrl: './goal-create-common.component.html',
     styleUrls: ['./goal-create-common.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class GoalCreateCommonComponent implements OnInit {
 

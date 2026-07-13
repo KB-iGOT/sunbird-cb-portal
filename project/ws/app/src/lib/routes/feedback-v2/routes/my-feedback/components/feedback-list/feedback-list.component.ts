@@ -21,7 +21,7 @@ import { FeedbackFilterDialogComponent } from '../feedback-filter-dialog/feedbac
     selector: 'ws-app-feedback-list',
     templateUrl: './feedback-list.component.html',
     styleUrls: ['./feedback-list.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class FeedbackListComponent implements OnInit, OnDestroy {
   feedbackData!: IFeedbackSearchResult
@@ -136,6 +136,6 @@ export class FeedbackListComponent implements OnInit, OnDestroy {
           this.filterObj = filterObj
           this.fetchFeedbacks()
         }
-      }, noop)
+      },         noop)
   }
 }

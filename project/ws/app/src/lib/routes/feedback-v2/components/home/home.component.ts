@@ -9,7 +9,7 @@ import { EFeedbackType } from '@sunbird-cb/collection'
     selector: 'ws-app-home',
     templateUrl: './home.component.html',
     styleUrls: ['./home.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class HomeComponent implements OnDestroy {
   pageNavbar: Partial<NsPage.INavBackground> = this.configSvc.pageNavBar

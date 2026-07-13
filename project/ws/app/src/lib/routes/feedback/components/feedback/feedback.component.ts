@@ -11,7 +11,7 @@ import { IFeedbackRequest } from '../../models/feedback.model'
     selector: 'ws-app-feedback',
     templateUrl: './feedback.component.html',
     styleUrls: ['./feedback.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class FeedbackComponent implements OnInit, OnDestroy {
   @Input() widgetType!: string

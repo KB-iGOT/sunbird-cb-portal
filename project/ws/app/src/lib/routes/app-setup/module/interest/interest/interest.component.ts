@@ -12,7 +12,7 @@ import { WidgetContentService } from '@sunbird-cb/toc'
     selector: 'ws-app-interests',
     templateUrl: './interest.component.html',
     styleUrls: ['./interest.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class InterestComponent implements OnInit {
   interestsData: any

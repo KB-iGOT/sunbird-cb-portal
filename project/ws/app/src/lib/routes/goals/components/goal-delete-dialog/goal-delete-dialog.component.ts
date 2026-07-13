@@ -8,7 +8,7 @@ import { TFetchStatus } from '@sunbird-cb/utils-v2'
     selector: 'ws-app-goal-delete-dialog',
     templateUrl: './goal-delete-dialog.component.html',
     styleUrls: ['./goal-delete-dialog.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class GoalDeleteDialogComponent {
   deleteGoalStatus: TFetchStatus = 'none'

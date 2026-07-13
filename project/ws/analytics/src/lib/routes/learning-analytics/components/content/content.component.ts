@@ -13,7 +13,7 @@ import { GraphGeneralService, IGraphWidget, ROOT_WIDGET_CONFIG } from '@sunbird-
     selector: 'ws-analytics-content',
     templateUrl: './content.component.html',
     styleUrls: ['./content.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ContentComponent implements OnInit, OnDestroy {
   searchQuery = ''

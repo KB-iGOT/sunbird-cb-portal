@@ -5,7 +5,7 @@ import { MatSelectChange } from '@angular/material/select'
     selector: 'ws-app-configurations',
     templateUrl: './configurations.component.html',
     styleUrls: ['./configurations.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ConfigurationsComponent implements OnInit {
   fetchStatus = ''
