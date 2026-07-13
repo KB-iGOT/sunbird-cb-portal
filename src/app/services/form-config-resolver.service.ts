@@ -29,7 +29,7 @@ resolve(
           'type': 'page',
           'subType': pageSubType,
           'portal': 'portal',
-          'clientVersion': 1
+          'clientVersion': 1,
       },
     }
     return this.formSvc.formConfigReadData(requestData).pipe(

@@ -6,7 +6,7 @@ import { NSSearch } from '@sunbird-cb/collection'
     selector: 'ws-conversations',
     templateUrl: './conversations.component.html',
     styleUrls: ['./conversations.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ConversationsComponent implements OnInit {
   @Input() widgetSearchRequest: NsWidgetResolver.IRenderConfigWithTypedData<

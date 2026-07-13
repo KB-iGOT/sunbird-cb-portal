@@ -10,7 +10,7 @@ import { TranslateService } from '@ngx-translate/core'
     selector: 'ws-public-contact',
     templateUrl: './public-contact.component.html',
     styleUrls: ['./public-contact.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class PublicContactComponent implements OnInit, AfterViewInit, OnDestroy {
   contactUsMail = ''

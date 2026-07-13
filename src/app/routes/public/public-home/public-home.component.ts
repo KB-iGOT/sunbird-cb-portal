@@ -14,7 +14,7 @@ import { TranslateService } from '@ngx-translate/core'
     styleUrls: ['./public-home.component.scss'],
     // tslint:disable-next-line
     encapsulation: ViewEncapsulation.None,
-    standalone: false
+    standalone: false,
 })
 export class PublicHomeComponent implements OnInit, OnDestroy {
   contactUsMail = ''

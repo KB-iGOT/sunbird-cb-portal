@@ -6,13 +6,13 @@ import { Router } from '@angular/router'
     selector: 'ws-signup-success-dialogue',
     templateUrl: './signup-success-dialogue.component.html',
     styleUrls: ['./signup-success-dialogue.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class SignupSuccessDialogueComponent implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<SignupSuccessDialogueComponent>,
-    private router: Router
+    private router: Router,
   ) { }
 
   ngOnInit() {

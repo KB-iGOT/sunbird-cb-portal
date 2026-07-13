@@ -5,7 +5,7 @@ import { IWsLeader } from '../../model/leadership.model'
     selector: 'ws-about',
     templateUrl: './about.component.html',
     styleUrls: ['./about.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class AboutComponent implements OnInit {
   @Input() about = ''

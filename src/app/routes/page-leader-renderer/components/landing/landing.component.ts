@@ -12,7 +12,7 @@ import { MatSnackBar } from '@angular/material/snack-bar'
     selector: 'ws-landing',
     templateUrl: './landing.component.html',
     styleUrls: ['./landing.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class LandingComponent implements OnInit {
   @ViewChild('followed', { static: true }) followed!: ElementRef<any>

@@ -10,7 +10,7 @@ import _ from 'lodash'
     selector: 'public-login-w',
     templateUrl: './public-login-w.component.html',
     styleUrls: ['./public-login-w.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class PublicLoginWComponent implements OnInit, OnDestroy {
     userMail = ''

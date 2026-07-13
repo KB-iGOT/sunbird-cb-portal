@@ -6,7 +6,7 @@ import { CommonMethodsService } from '@sunbird-cb/consumption'
     selector: 'ws-microsotes',
     templateUrl: './microsotes.component.html',
     styleUrls: ['./microsotes.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class MicrosotesComponent implements OnInit {
 

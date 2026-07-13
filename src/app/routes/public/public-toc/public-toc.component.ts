@@ -1,11 +1,12 @@
 import { Component, OnDestroy, OnInit, AfterViewInit, AfterViewChecked, HostListener, ElementRef, ViewChild, ViewEncapsulation } from '@angular/core'
 import { ActivatedRoute, Event, Data, Router, NavigationEnd } from '@angular/router'
 import {
-    NsContent,
-    viewerRouteGenerator,
-    NsPlaylist,
-    NsGoal,
-    RatingService,
+  NsContent,
+  viewerRouteGenerator,
+  NsPlaylist,
+  NsGoal,
+  RatingService,
+  ContentRatingV2DialogComponent,
 } from '@sunbird-cb/collection'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { ConfigurationsService, LoggerService, NsPage, TFetchStatus, UtilityService } from '@sunbird-cb/utils-v2'
@@ -18,11 +19,8 @@ import { MatDialog } from '@angular/material/dialog'
 import dayjs from 'dayjs'
 // tslint:disable-next-line
 import _ from 'lodash'
-import { ContentRatingV2DialogComponent } from '@sunbird-cb/collection'
 import moment from 'moment'
-import { NsAppToc } from '@sunbird-cb/toc'
-import { AppTocService } from '@sunbird-cb/toc'
-import { ActionService, WidgetContentService } from '@sunbird-cb/toc'
+import { ActionService, AppTocService, NsAppToc, WidgetContentService } from '@sunbird-cb/toc'
 import { MobileAppsService } from '../../../services/mobile-apps.service'
 
 export enum ErrorType {
@@ -47,7 +45,7 @@ const flattenItems = (items: any[], key: string | number) => {
     styleUrls: ['./public-toc.component.scss'],
     // tslint:disable-next-line: use-component-view-encapsulation
     encapsulation: ViewEncapsulation.None,
-    standalone: false
+    standalone: false,
 })
 export class PublicTocComponent implements OnInit, OnDestroy, AfterViewChecked, AfterViewInit {
     banners: NsAppToc.ITocBanner | null = null

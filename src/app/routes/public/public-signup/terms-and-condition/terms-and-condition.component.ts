@@ -6,13 +6,13 @@ import { TranslateService } from '@ngx-translate/core'
     selector: 'ws-terms-and-condition',
     templateUrl: './terms-and-condition.component.html',
     styleUrls: ['./terms-and-condition.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class TermsAndConditionComponent implements OnInit {
 
   constructor(
     public dialogRef: MatDialogRef<TermsAndConditionComponent>,
-    private translate: TranslateService
+    private translate: TranslateService,
   ) {
     if (localStorage.getItem('websiteLanguage')) {
       this.translate.setDefaultLang('en')

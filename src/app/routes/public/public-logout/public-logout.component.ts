@@ -8,7 +8,7 @@ import _ from 'lodash'
     selector: 'ws-public-logout',
     templateUrl: './public-logout.component.html',
     styleUrls: ['./public-logout.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class PublicLogoutComponent implements OnInit, OnDestroy {
   contactUsMail = ''
