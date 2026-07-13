@@ -5,10 +5,10 @@ import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { IUserSearchUnitFilterModel, IUserSearchRequestModel } from '@sunbird-cb/collection'
 
 @Component({
-    selector: 'ws-app-user-filter-display',
-    templateUrl: './user-filter-display.component.html',
-    styleUrls: ['./user-filter-display.component.scss'],
-    standalone: false
+  selector: 'ws-app-user-filter-display',
+  templateUrl: './user-filter-display.component.html',
+  styleUrls: ['./user-filter-display.component.scss'],
+  standalone: false,
 })
 export class UserFilterDisplayComponent implements OnInit, OnChanges {
   @Input() filterSearchRequest!: IUserSearchRequestModel

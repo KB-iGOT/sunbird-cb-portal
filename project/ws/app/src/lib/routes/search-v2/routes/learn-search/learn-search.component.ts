@@ -12,7 +12,7 @@ import { WidgetContentLibService } from '@sunbird-cb/consumption'
     selector: 'ws-app-learn-search',
     templateUrl: './learn-search.component.html',
     styleUrls: ['./learn-search.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
   @Input() param: any
@@ -229,7 +229,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
         'filters': {
           'courseCategory': [],
           'contentType': ['Course', 'Event'],
-          'status': ['Live']
+          'status': ['Live'],
         },
         'sort_by': { 'lastUpdatedOn': 'desc' },
         'facets': ['mimeType'],

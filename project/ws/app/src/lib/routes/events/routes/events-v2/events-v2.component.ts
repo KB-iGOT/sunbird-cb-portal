@@ -15,7 +15,7 @@ import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
   selector: 'ws-app-events-v2',
   templateUrl: './events-v2.component.html',
   styleUrls: ['./events-v2.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class EventsV2Component {
 

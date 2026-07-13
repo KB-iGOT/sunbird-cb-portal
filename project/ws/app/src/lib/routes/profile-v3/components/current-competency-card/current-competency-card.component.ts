@@ -7,7 +7,7 @@ import { TranslateService } from '@ngx-translate/core'
     selector: 'ws-app-current-competency-card',
     templateUrl: './current-competency-card.component.html',
     styleUrls: ['./current-competency-card.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class CurrentCompetencyCardComponent implements OnInit {
   @Input() selectedCompetency: any

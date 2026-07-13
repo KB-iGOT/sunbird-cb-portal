@@ -7,7 +7,7 @@ import { TFetchStatus, NsPage, ConfigurationsService } from '@sunbird-cb/utils-v
     selector: 'ws-app-notification',
     templateUrl: './notification.component.html',
     styleUrls: ['./notification.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class NotificationComponent implements OnInit {
   recentBadge: IUserNotification | null = null

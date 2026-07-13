@@ -11,7 +11,7 @@ import { Router } from '@angular/router'
     selector: 'ws-app-home',
     templateUrl: './home.component.html',
     styleUrls: ['./home.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class HomeComponent implements OnInit {
   showMarkAsRead = false

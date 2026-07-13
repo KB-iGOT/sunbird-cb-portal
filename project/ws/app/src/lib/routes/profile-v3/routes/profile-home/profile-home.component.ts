@@ -16,7 +16,7 @@ import { TranslateService } from '@ngx-translate/core'
     selector: 'ws-app-profile-home',
     templateUrl: './profile-home.component.html',
     styleUrls: ['./profile-home.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ProfileHomeComponent implements OnInit, OnDestroy {
   @ViewChild('stickyMenu', { static: true }) menuElement!: ElementRef

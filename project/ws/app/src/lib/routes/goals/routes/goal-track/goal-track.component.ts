@@ -7,7 +7,7 @@ import { ActivatedRoute } from '@angular/router'
     selector: 'ws-app-goal-track',
     templateUrl: './goal-track.component.html',
     styleUrls: ['./goal-track.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class GoalTrackComponent implements OnInit {
   goal: NsGoal.IGoal | undefined = undefined

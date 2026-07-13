@@ -5,7 +5,7 @@ import { TranslateService } from '@ngx-translate/core'
     selector: 'ws-app-faq',
     templateUrl: './faq.component.html',
     styleUrls: ['./faq.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class FaqComponent implements OnInit {
   showSideMenu: Boolean = true

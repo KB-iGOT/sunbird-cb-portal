@@ -5,7 +5,7 @@ import { Router } from '@angular/router'
   selector: 'ws-app-recommendations',
   templateUrl: './recommendations.component.html',
   styleUrls: ['./recommendations.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class RecommendationsComponent {
 

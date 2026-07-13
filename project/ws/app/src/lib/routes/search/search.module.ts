@@ -123,6 +123,6 @@ import { SearchV3Module } from '../search-v3/search-v3.module'
   ],
   exports: [ItemTileComponent, SearchInputComponent, SearchInputHomeComponent],
   providers: [],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA]
+  schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 export class SearchModule { }

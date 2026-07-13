@@ -12,7 +12,7 @@ import { environment } from 'src/environments/environment'
     selector: 'ws-app-gyaan-karmayogi-home',
     templateUrl: './gyaan-karmayogi-home.component.html',
     styleUrls: ['./gyaan-karmayogi-home.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class GyaanKarmayogiHomeComponent implements OnInit {
   stripData: any

@@ -104,7 +104,7 @@ export class ContentAssignmentGuard {
                     this.snackbar.open('You do not have access to this page')
                   }
                 }
-              }, err => {
+              },                                              err => {
                 if (err) {
                   observer.next(false)
                   observer.complete()

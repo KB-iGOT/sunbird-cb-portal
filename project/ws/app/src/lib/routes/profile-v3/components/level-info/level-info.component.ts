@@ -4,7 +4,7 @@ import { Component, OnInit, Input } from '@angular/core'
     selector: 'ws-app-level-info',
     templateUrl: './level-info.component.html',
     styleUrls: ['./level-info.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class LevelInfoComponent implements OnInit {
   @Input() complevel!: any

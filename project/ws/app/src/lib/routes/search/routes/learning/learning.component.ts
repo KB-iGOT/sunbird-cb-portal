@@ -11,7 +11,7 @@ import { SearchServService } from '../../services/search-serv.service'
     selector: 'ws-app-learning',
     templateUrl: './learning.component.html',
     styleUrls: ['./learning.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class LearningComponent implements OnInit, OnDestroy {
   @ViewChild(FilterDisplayComponent)

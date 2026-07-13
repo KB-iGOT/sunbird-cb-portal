@@ -4,7 +4,7 @@ import { Component } from '@angular/core'
   selector: 'ws-app-skeleton-loader-content',
   templateUrl: './skeleton-loader-content.component.html',
   styleUrls: ['./skeleton-loader-content.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class SkeletonLoaderContentComponent {
 

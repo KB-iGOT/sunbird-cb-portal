@@ -6,7 +6,7 @@ import { NsWidgetResolver } from '@sunbird-cb/resolver-v2'
     selector: 'ws-app-events-home',
     templateUrl: './events-home.component.html',
     styleUrls: ['./events-home.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class EventsHomeComponent implements OnInit, OnDestroy {
   titles = [{ title: 'EVENTS', url: '/app/event-hub/home', icon: 'event' }]

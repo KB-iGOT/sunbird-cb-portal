@@ -5,7 +5,7 @@ import { Router } from '@angular/router'
     selector: 'ws-app-community-content-card',
     templateUrl: './community-content-card.component.html',
     styleUrls: ['./community-content-card.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class CommunityContentCardComponent {
   @Input() community: any

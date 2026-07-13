@@ -15,7 +15,7 @@ import { MatSnackBar } from '@angular/material/snack-bar'
     selector: 'ws-app-topic',
     templateUrl: './topic.component.html',
     styleUrls: ['./topic.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class TopicComponent implements OnInit, OnDestroy {
 
@@ -150,7 +150,7 @@ export class TopicComponent implements OnInit, OnDestroy {
         if (res) {
           this.configSvc.updateGlobalProfile(true)
         }
-      }, (_error: any) => {
+      },                                                   (_error: any) => {
         this.snackBar.open('Server error!')
       }
       )
@@ -177,7 +177,7 @@ export class TopicComponent implements OnInit, OnDestroy {
         if (res) {
           this.configSvc.updateGlobalProfile(true)
         }
-      }, (_error: any) => {
+      },                                                  (_error: any) => {
         this.snackBar.open('Server error!')
       }
       )

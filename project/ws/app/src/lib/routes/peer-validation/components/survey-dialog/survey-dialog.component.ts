@@ -9,10 +9,10 @@ import { PeerValidationService } from '../../services/peer-validation.service'
 import { SuccessDialogComponent } from './components/success-dialog/success-dialog.component'
 
 @Component({
-    selector: 'ws-app-survey-dialog',
-    templateUrl: './survey-dialog.component.html',
-    styleUrls: ['./survey-dialog.component.scss'],
-    standalone: false
+  selector: 'ws-app-survey-dialog',
+  templateUrl: './survey-dialog.component.html',
+  styleUrls: ['./survey-dialog.component.scss'],
+  standalone: false,
 })
 export class SurveyDialogComponent implements OnInit, OnDestroy {
   @ViewChild('stepper') stepper!: MatStepper
@@ -133,13 +133,13 @@ export class SurveyDialogComponent implements OnInit, OnDestroy {
     // Wait for view update
     setTimeout(() => {
       this.stepper.next()
-    },         0)
+    }, 0)
   }
 
   isStepCompleted(index: number): boolean {
     if (index === 0) {
       return this.questionForm.valid
-    }  if (index === 1) {
+    } if (index === 1) {
       return this.isStep2Completed
     }
     return false

@@ -4,7 +4,7 @@ import { Component, OnInit } from '@angular/core'
     selector: 'ws-app-gyaan-karmayogi',
     templateUrl: './gyaan-karmayogi.component.html',
     styleUrls: ['./gyaan-karmayogi.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class GyaanKarmayogiComponent implements OnInit {
 

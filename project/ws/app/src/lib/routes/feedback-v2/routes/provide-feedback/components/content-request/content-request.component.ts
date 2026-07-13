@@ -14,7 +14,7 @@ import {
     selector: 'ws-app-content-request',
     templateUrl: './content-request.component.html',
     styleUrls: ['./content-request.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ContentRequestComponent implements OnDestroy {
   sendStatus: TSendStatus

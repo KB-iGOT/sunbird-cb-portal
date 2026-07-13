@@ -10,7 +10,7 @@ const SNACKBAR_DURATION = 3000
     selector: 'ws-app-people-connection-card',
     templateUrl: './people-connection-card.component.html',
     styleUrls: ['./people-connection-card.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class PeopleConnectionCardComponent {
   @Input() user!: any

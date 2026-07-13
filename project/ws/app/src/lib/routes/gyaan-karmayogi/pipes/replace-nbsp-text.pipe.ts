@@ -2,7 +2,7 @@ import { Pipe, PipeTransform } from '@angular/core'
 
 @Pipe({
     name: 'replaceNbspText',
-    standalone: false
+    standalone: false,
 })
 export class ReplaceNbspTextPipe implements PipeTransform {
 

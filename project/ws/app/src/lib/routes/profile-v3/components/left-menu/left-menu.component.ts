@@ -11,7 +11,7 @@ import { TranslateService } from '@ngx-translate/core'
     selector: 'ws-app-l-menu',
     templateUrl: './left-menu.component.html',
     styleUrls: ['./left-menu.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class SetupLeftMenuComponent implements OnInit, OnDestroy {
   @Input()

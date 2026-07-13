@@ -6,7 +6,7 @@ import { NsDiscussionV2 } from '@sunbird-cb/discussion-v2'
   selector: 'ws-app-community-details-home',
   templateUrl: './community-details-home.component.html',
   styleUrls: ['./community-details-home.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class CommunityDetailsHomeComponent {
   communityId: string = ''

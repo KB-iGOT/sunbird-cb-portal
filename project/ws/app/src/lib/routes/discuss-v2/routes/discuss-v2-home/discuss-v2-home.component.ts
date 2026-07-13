@@ -6,7 +6,7 @@ import { NsDiscussionV2 } from '@sunbird-cb/discussion-v2'
   selector: 'ws-app-discuss-v2-home',
   templateUrl: './discuss-v2-home.component.html',
   styleUrls: ['./discuss-v2-home.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class DiscussV2HomeComponent implements AfterViewInit, OnDestroy {
   shortCutData: any[] = [

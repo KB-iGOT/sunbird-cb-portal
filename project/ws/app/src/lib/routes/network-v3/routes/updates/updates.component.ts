@@ -4,7 +4,7 @@ import { Component } from '@angular/core'
   selector: 'ws-app-updates',
   templateUrl: './updates.component.html',
   styleUrls: ['./updates.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class UpdatesComponent {
 

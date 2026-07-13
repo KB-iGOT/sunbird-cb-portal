@@ -4,7 +4,7 @@ import { Component, OnInit } from '@angular/core'
     selector: 'ws-app-feedback',
     templateUrl: './feedback.component.html',
     styleUrls: ['./feedback.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class FeedbackComponent implements OnInit {
   // domain = 'https://rain.tarento.com/'
