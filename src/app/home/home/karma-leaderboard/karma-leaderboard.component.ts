@@ -119,9 +119,12 @@ export class KarmaLeaderboardComponent implements OnInit {
   showOverlayMessage() {
     this.showOverlay = true
     this.updateMotivationalMessagestatus()
-    setTimeout(() => {
-      this.showOverlay = false
-    }, 5000)
+    setTimeout(
+      () => {
+        this.showOverlay = false
+      },
+      5000,
+    )
   }
 
   dismissOverlay() {

@@ -28,10 +28,26 @@ export class InSpotlightV2Component implements OnInit, OnDestroy {
       'home.spotlightCards.amritGyaanKosh',
     ]).pipe(takeUntil(this.destroy$)).subscribe(t => {
       this.spotlightCards = [
-        { iconUrl: '/assets/icons/home-v2/shopping-bag.svg', label: t['home.spotlightCards.iGOTMarketplace'], redirectionUrl: '/app/seeAll?key=karmaTracks&tabSelected=Providers' },
-        { iconUrl: '/assets/icons/home-v2/books.svg', label: t['home.spotlightCards.iGOTSpecialisations'], redirectionUrl: '/app/seeAll/new?key=forYou&tabSelected=igotSpecializations&pillSelected=programs' },
-        { iconUrl: '/assets/icons/home-v2/Frame.svg', label: t['home.spotlightCards.mdoChannel'], redirectionUrl: '/app/learn/mdo-channels/all-channels' },
-        { iconUrl: '/assets/icons/home-v2/Group.svg', label: t['home.spotlightCards.amritGyaanKosh'], redirectionUrl: 'app/amrit-gyaan-kosh/all' },
+        {
+          iconUrl: '/assets/icons/home-v2/shopping-bag.svg',
+          label: t['home.spotlightCards.iGOTMarketplace'],
+          redirectionUrl: '/app/seeAll?key=karmaTracks&tabSelected=Providers',
+        },
+        {
+          iconUrl: '/assets/icons/home-v2/books.svg',
+          label: t['home.spotlightCards.iGOTSpecialisations'],
+          redirectionUrl: '/app/seeAll/new?key=forYou&tabSelected=igotSpecializations&pillSelected=programs',
+        },
+        {
+          iconUrl: '/assets/icons/home-v2/Frame.svg',
+          label: t['home.spotlightCards.mdoChannel'],
+          redirectionUrl: '/app/learn/mdo-channels/all-channels',
+        },
+        {
+          iconUrl: '/assets/icons/home-v2/Group.svg',
+          label: t['home.spotlightCards.amritGyaanKosh'],
+          redirectionUrl: 'app/amrit-gyaan-kosh/all',
+        },
       ]
       this.cdr.markForCheck()
     })

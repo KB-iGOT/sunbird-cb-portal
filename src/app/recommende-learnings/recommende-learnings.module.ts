@@ -4,11 +4,11 @@ import { RouterModule } from '@angular/router'
 import { HeaderModule } from '../header/header.module'
 import {
     GridLayoutModule, SlidersModule, ContentStripWithTabsModule, AvatarPhotoModule,
+    SkeletonLoaderModule,
+    CardContentV2Module,
 } from '@sunbird-cb/collection'
-import { SkeletonLoaderModule } from '@sunbird-cb/collection'
 import { PipeRelativeTimeModule } from '@sunbird-cb/utils-v2'
 import { SharedModule } from '../shared/shared.module'
-import { CardContentV2Module } from '@sunbird-cb/collection'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 import { FilterSearchPipeModule } from '../pipes/filter-search/filter-search.module'
 import { TranslateModule } from '@ngx-translate/core'

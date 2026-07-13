@@ -25,7 +25,7 @@ export class HomeV2ResolverService {
     }
     const baseUrl = this.configSvc.sitePath
     const homeConfig = this.http.get<any>(`${baseUrl}/page/home-v2.json`)
-    const sectionRecordsCount = this.http.get<any>(`/apis/proxies/v8/user/content/info`).pipe(
+    const sectionRecordsCount = this.http.get<any>('/apis/proxies/v8/user/content/info').pipe(
       catchError(() => of(null)),
     )
 

@@ -44,6 +44,7 @@ export class HomeCarouselBannerV2Component implements OnInit {
           .map((item: ISliderDataItem) => this.transformBannerData(item))
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error loading slider data:', error)
       this.banners = []
     }

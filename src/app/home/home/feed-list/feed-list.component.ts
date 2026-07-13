@@ -9,7 +9,7 @@ import _ from 'lodash'
     selector: 'ws-feed-list',
     templateUrl: './feed-list.component.html',
     styleUrls: ['./feed-list.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class FeedListComponent implements OnInit {
   contentStripData = {}

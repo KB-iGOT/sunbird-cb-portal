@@ -6,7 +6,7 @@ import { MAT_SNACK_BAR_DATA, MatSnackBarRef as MatSnackBarRef } from '@angular/m
     selector: 'ws-notification',
     templateUrl: './notification.component.html',
     styleUrls: ['./notification.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class NotificationComponent implements OnInit {
 
