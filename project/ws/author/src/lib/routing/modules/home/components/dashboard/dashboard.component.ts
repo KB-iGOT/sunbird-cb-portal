@@ -13,7 +13,7 @@ import { Notify } from '../../../../../constants/notificationMessage'
     selector: 'ws-auth-root-dashboard',
     templateUrl: './dashboard.component.html',
     styleUrls: ['./dashboard.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class DashboardComponent implements OnInit {
   public options = [

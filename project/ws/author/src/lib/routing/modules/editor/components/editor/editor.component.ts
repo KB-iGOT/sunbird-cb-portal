@@ -20,7 +20,7 @@ import { NotificationComponent } from '@sunbird-cb/notification/lib/notification
     templateUrl: './editor.component.html',
     styleUrls: ['./editor.component.scss'],
     providers: [EditorContentService, EditorContentV2Service],
-    standalone: false
+    standalone: false,
 })
 export class EditorComponent implements OnInit, OnDestroy {
   routerSubscription!: Subscription

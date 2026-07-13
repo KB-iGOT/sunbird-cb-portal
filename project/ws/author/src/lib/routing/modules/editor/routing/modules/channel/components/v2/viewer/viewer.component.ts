@@ -8,7 +8,7 @@ import { isNotEmptyWidget } from './viewer.function'
     selector: 'ws-auth-viewer-v2',
     templateUrl: './viewer.component.html',
     styleUrls: ['./viewer.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ViewerComponent implements OnInit {
   @Input() id = ''

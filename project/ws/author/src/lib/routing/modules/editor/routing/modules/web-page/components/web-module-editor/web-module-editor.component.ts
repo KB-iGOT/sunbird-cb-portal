@@ -11,7 +11,6 @@ import { of, Observable, Subscription, forkJoin } from 'rxjs'
 import { ActivatedRoute, Router } from '@angular/router'
 import { UntypedFormGroup } from '@angular/forms'
 
-
 import { Page, ModuleObj, WebModuleData } from '../web-module.class'
 
 import { VIEWER_ROUTE_FROM_MIME } from '@sunbird-cb/collection'
@@ -44,7 +43,7 @@ import { CommentsDialogComponent } from '../../../../../../../../modules/shared/
     providers: [{
             provide: STEPPER_GLOBAL_OPTIONS, useValue: { displayDefaultIndicatorType: false },
         }],
-    standalone: false
+    standalone: false,
 })
 
 export class WebModuleEditorComponent implements OnInit, OnDestroy {

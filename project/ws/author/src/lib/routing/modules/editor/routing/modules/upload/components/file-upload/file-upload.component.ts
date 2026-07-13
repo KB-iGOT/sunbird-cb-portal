@@ -35,7 +35,7 @@ import { CONTENT_BASE_STATIC, CONTENT_BASE_STREAM, CONTENT_BASE_WEBHOST } from '
     selector: 'ws-auth-file-upload',
     templateUrl: './file-upload.component.html',
     styleUrls: ['./file-upload.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class FileUploadComponent implements OnInit {
   @ViewChild('guideline') guideline!: TemplateRef<HTMLElement>

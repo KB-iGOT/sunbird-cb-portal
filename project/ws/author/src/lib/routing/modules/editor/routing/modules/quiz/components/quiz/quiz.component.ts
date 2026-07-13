@@ -37,7 +37,7 @@ import { CommentsDialogComponent } from '../../../../../../../../modules/shared/
     providers: [QuizResolverService, {
             provide: STEPPER_GLOBAL_OPTIONS, useValue: { displayDefaultIndicatorType: false },
         }],
-    standalone: false
+    standalone: false,
 })
 export class QuizComponent implements OnInit, OnDestroy {
 

@@ -7,7 +7,7 @@ import { UntypedFormGroup, UntypedFormBuilder, UntypedFormArray, Validators } fr
     selector: 'ws-auth-breadcrum',
     templateUrl: './breadcrum.component.html',
     styleUrls: ['./breadcrum.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class BreadcrumComponent implements OnInit {
 

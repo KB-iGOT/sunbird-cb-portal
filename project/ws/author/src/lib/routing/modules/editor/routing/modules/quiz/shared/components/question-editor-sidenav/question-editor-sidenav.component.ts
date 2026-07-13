@@ -17,7 +17,7 @@ import { ConfirmDialogComponent } from '../../../../../../../../../modules/share
     selector: 'ws-auth-question-editor-sidebar',
     templateUrl: './question-editor-sidenav.component.html',
     styleUrls: ['./question-editor-sidenav.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class QuestionEditorSidenavComponent implements OnInit, OnDestroy {
 

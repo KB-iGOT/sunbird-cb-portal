@@ -14,7 +14,7 @@ import { AUTHORING_CONTENT_BASE, CONTENT_BASE_WEBHOST_ASSETS } from '../../../..
     selector: 'ws-auth-input',
     templateUrl: './input.component.html',
     styleUrls: ['./input.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class InputComponent implements OnInit {
   widget: IWidgetAuthor

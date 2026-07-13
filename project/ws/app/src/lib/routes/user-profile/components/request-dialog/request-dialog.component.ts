@@ -30,7 +30,7 @@ export function forbiddenNamesValidatorPosition(optionsArray: any): ValidatorFn 
     selector: 'ws-app-request-dialog',
     templateUrl: './request-dialog.component.html',
     styleUrls: ['./request-dialog.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class RequestDialogComponent implements OnInit {
   requestForm!: UntypedFormGroup

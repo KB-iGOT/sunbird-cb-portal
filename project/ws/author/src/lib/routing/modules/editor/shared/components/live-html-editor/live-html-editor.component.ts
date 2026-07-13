@@ -62,7 +62,7 @@ export class LiveHtmlEditorComponent
 
   private _id = ''
 
-  private _uid = `live-html-editor-${++nextUniqueId}`
+  private _uid = `live-html-editor-${nextUniqueId += 1}`
 
   constructor(
     el: ElementRef,

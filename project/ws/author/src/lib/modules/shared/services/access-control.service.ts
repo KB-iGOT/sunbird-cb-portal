@@ -9,7 +9,7 @@ import { NSContent } from '../../../interface/content'
 import { ISearchContent } from '../../../interface/search'
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class AccessControlService {
   downloadRegex = new RegExp(`(https://.*?/content-store/.*?)(\\\)?\\\\?['"])`, 'gm')

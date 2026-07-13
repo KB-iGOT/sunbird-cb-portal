@@ -10,7 +10,7 @@ import { NotificationComponent } from '../../../../../../../../modules/shared/co
     selector: 'ws-auth-question-editor',
     templateUrl: './question-editor.component.html',
     styleUrls: ['./question-editor.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class QuestionEditorComponent implements OnInit, OnChanges, OnDestroy {
   quizIndex!: number

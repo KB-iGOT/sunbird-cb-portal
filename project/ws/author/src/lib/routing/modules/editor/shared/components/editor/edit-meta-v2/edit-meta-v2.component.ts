@@ -4,7 +4,7 @@ import { Component, OnInit } from '@angular/core'
     selector: 'ws-auth-edit-meta-v2',
     templateUrl: './edit-meta-v2.component.html',
     styleUrls: ['./edit-meta-v2.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class EditMetaV2Component implements OnInit {
   constructor() {}

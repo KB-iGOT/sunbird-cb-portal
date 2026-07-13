@@ -11,7 +11,7 @@ import { DEPTH_RUE } from '../../../../../../../../constants/depth-rule'
     selector: 'ws-auth-editor-options',
     templateUrl: './auth-editor-options.component.html',
     styleUrls: ['./auth-editor-options.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class AuthEditorOptionsComponent implements OnInit {
   @Input() node!: IContentTreeNode

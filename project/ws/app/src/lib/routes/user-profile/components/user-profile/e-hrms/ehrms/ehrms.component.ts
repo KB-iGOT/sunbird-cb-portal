@@ -6,7 +6,7 @@ import { UntypedFormControl, UntypedFormGroup } from '@angular/forms'
     selector: 'ws-app-ehrms',
     templateUrl: './ehrms.component.html',
     styleUrls: ['./ehrms.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class EhrmsComponent implements OnInit, OnChanges {
   @Input() ehrmsData: any

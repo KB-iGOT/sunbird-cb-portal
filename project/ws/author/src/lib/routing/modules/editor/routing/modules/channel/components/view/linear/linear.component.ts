@@ -6,7 +6,7 @@ import { ChannelStoreService } from './../../../services/store.service'
     selector: 'ws-auth-linear',
     templateUrl: './linear.component.html',
     styleUrls: ['./linear.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class LinearComponent implements OnInit, OnChanges {
 

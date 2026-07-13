@@ -6,7 +6,7 @@ import { NSContent } from '../../../../interface/content'
     selector: 'ws-auth-root-comments',
     templateUrl: './comments.component.html',
     styleUrls: ['./comments.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class CommentsComponent implements OnInit {
 

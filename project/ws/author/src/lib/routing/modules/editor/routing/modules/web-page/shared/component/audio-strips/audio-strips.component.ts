@@ -9,7 +9,7 @@ import { ConfirmDialogComponent } from '../../../../../../../../../modules/share
     selector: 'ws-auth-audio-strips',
     templateUrl: './audio-strips.component.html',
     styleUrls: ['./audio-strips.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class AudioStripsComponent implements OnInit, OnDestroy {
 

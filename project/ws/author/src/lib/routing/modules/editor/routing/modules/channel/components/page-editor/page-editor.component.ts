@@ -7,7 +7,7 @@ import { MatDrawer } from '@angular/material'
     selector: 'ws-auth-page-editor',
     templateUrl: './page-editor.component.html',
     styleUrls: ['./page-editor.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class PageEditorComponent implements OnInit {
   @Input() isSubmitPressed = false

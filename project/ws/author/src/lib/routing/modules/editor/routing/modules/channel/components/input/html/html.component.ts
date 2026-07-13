@@ -15,7 +15,7 @@ import { FILE_MAX_SIZE } from '../../../../../../../../../constants/upload'
     selector: 'ws-auth-html',
     templateUrl: './html.component.html',
     styleUrls: ['./html.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class HtmlComponent implements OnInit {
 

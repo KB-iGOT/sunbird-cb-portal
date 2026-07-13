@@ -24,12 +24,6 @@ export class WebSocketService {
     this.socket = new WebSocket(url)
     // console.log('this.socket', this.socket)
     this.socket.onopen = () => {
-      try {
-        console.log('WebSocket connection established')
-      } catch (error) {
-        console.log('error', error)
-      }
-
       this.startClientPing()
     }
 
@@ -58,8 +52,6 @@ export class WebSocketService {
               //         }
               //     });
               // }
-          } else if (data.type === 'error' && data.error) {
-              console.log('Server', `Error: ${data.error}`)
           } else {
               // console.log('Server', `Received: ${event.data}`);
           }
@@ -70,14 +62,11 @@ export class WebSocketService {
       // this.messageSubject.next(event.data);
     }
 
-    this.socket.onerror = error => {
+    this.socket.onerror = () => {
       // console.log('error', error)
-      console.error('WebSocket error:', error)
     }
 
-    this.socket.onclose = () => {
-      console.log('WebSocket connection closed')
-    }
+    this.socket.onclose = () => {}
   }
 
   // Send message to the WebSocket server
@@ -87,8 +76,6 @@ export class WebSocketService {
 
     if (this.socket && this.socket.readyState === WebSocket.OPEN) {
       this.socket.send(JSON.stringify(message))
-    } else {
-      console.error('WebSocket is not open')
     }
   }
 

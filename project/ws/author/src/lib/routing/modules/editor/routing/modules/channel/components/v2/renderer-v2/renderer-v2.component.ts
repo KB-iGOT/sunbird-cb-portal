@@ -22,7 +22,7 @@ interface IAuthorGrid {
     selector: 'ws-auth-renderer-v2',
     templateUrl: './renderer-v2.component.html',
     styleUrls: ['./renderer-v2.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class RendererV2Component implements OnInit, OnChanges {
   @Input() id = ''

@@ -10,7 +10,7 @@ import { Router } from '@angular/router'
     styleUrls: ['./related-discussion.component.scss'],
     // tslint:disable-next-line
     host: { class: 'margin-left-l' },
-    standalone: false
+    standalone: false,
 })
 export class RelatedDiscussionComponent implements OnInit {
   @Input()

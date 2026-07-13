@@ -5,7 +5,7 @@ import { ICustomCreateEntity } from './../../interface/create-menu'
     selector: 'ws-auth-collection-matmenu',
     templateUrl: './auth-collection-matmenu.component.html',
     styleUrls: ['./auth-collection-matmenu.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class AuthCollectionMatmenuComponent implements OnInit {
   @Output() action = new EventEmitter<{ action: string; type?: string }>()

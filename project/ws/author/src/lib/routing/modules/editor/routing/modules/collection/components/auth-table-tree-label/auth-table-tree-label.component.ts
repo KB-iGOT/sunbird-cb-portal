@@ -6,7 +6,7 @@ import { EditorContentService } from '../../../../../services/editor-content.ser
     selector: 'ws-auth-table-tree-label',
     templateUrl: './auth-table-tree-label.component.html',
     styleUrls: ['./auth-table-tree-label.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class AuthTableTreeLabelComponent implements OnInit {
   @Input() identifier!: string

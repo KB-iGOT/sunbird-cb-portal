@@ -5,7 +5,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog'
     selector: 'ws-auth-confirm-dialog',
     templateUrl: './confirm-dialog.component.html',
     styleUrls: ['./confirm-dialog.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ConfirmDialogComponent implements OnInit {
 

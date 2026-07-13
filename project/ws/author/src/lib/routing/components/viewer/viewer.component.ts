@@ -10,7 +10,7 @@ import { VIEWER_ROUTE_FROM_MIME } from '@sunbird-cb/collection'
     selector: 'ws-auth-card-viewer',
     templateUrl: './viewer.component.html',
     styleUrls: ['./viewer.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ViewerComponent implements OnInit, OnChanges, OnDestroy, AfterViewInit {
 

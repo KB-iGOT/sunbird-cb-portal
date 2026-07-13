@@ -11,7 +11,7 @@ const APP_TAXONOMY = '/app/taxonomy/'
     selector: 'app-discuss',
     templateUrl: './discuss-topics.component.html',
     styleUrls: ['./discuss-topics.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class DiscussTopicsComponent implements OnInit, OnDestroy {
   sideNavBarOpened = true
@@ -36,9 +36,9 @@ export class DiscussTopicsComponent implements OnInit, OnDestroy {
   private defaultSideNavBarOpenedSubscription: any
   isFirst = true
   constructor(private valueSvc: ValueService, private route: ActivatedRoute,
-    private router: Router,
-    private _service: TaxonomyService,
-    private loader: LoaderService) {
+              private router: Router,
+              private _service: TaxonomyService,
+              private loader: LoaderService) {
     this.unread = this.route.snapshot.data.unread
 
     this.currentTab = this.route.snapshot.url.toString().split('/').pop()

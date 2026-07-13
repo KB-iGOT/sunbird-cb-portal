@@ -9,7 +9,7 @@ import { ImageMapComponent } from './../image-map/image-map.component'
     selector: 'ws-auth-selector-responsive-v2',
     templateUrl: './selector-responsive-v2.component.html',
     styleUrls: ['./selector-responsive-v2.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class SelectorResponsiveV2Component implements OnInit {
   @Output() data = new EventEmitter<{
@@ -57,7 +57,7 @@ export class SelectorResponsiveV2Component implements OnInit {
           this.imageMapComponent.ngOnInit()
           setTimeout(() => this.imageMapComponent.ngAfterViewInit(), 100)
         }
-      }, 10)
+      },         10)
     }
   }
 

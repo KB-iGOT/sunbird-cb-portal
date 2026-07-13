@@ -37,7 +37,7 @@ import { Notify } from '../../../../../../../../constants/notificationMessage'
     selector: 'ws-auth-match-the-following',
     templateUrl: './match-the-following.component.html',
     styleUrls: ['./match-the-following.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class MatchTheFollowingComponent implements OnInit, OnChanges, OnDestroy {
   @Output() value = new EventEmitter<MatchQuiz>()
@@ -208,7 +208,7 @@ export class MatchTheFollowingComponent implements OnInit, OnChanges, OnDestroy 
       } else {
         this.colBInput.first.nativeElement.focus()
       }
-    }, 100)
+    },         100)
     this.canUpdate = false
   }
 

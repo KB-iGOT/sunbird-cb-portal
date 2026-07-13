@@ -22,7 +22,7 @@ import { AccessControlService } from '../../../../../../../../modules/shared/ser
     templateUrl: './channel.component.html',
     styleUrls: ['./channel.component.scss'],
     providers: [ChannelStoreService],
-    standalone: false
+    standalone: false,
 })
 export class ChannelComponent implements OnInit, OnDestroy {
   contents: NSContent.IContentMeta[] = []

@@ -5,7 +5,7 @@ import { IIntranetSelector } from '@sunbird-cb/collection'
     selector: 'ws-auth-intranet-selector',
     templateUrl: './intranet-selector.component.html',
     styleUrls: ['./intranet-selector.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class IntranetSelectorComponent implements OnInit, OnChanges {
 

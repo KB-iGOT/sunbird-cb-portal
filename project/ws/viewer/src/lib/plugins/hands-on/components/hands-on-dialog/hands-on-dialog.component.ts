@@ -5,7 +5,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
     selector: 'viewer-hands-on-dialog',
     templateUrl: './hands-on-dialog.component.html',
     styleUrls: ['./hands-on-dialog.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class HandsOnDialogComponent implements OnInit {
 

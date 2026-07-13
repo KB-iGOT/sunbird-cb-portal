@@ -4,7 +4,7 @@ import { Component, OnInit } from '@angular/core'
     selector: 'ws-auth-language-select-bar',
     templateUrl: './auth-language-select-bar.component.html',
     styleUrls: ['./auth-language-select-bar.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class AuthLanguageSelectBarComponent implements OnInit {
   constructor() {}

@@ -4,7 +4,7 @@ import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core'
     selector: 'ws-auth-search-template',
     templateUrl: './search-template.component.html',
     styleUrls: ['./search-template.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class SearchTemplateComponent implements OnInit {
 

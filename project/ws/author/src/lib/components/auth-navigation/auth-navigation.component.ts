@@ -9,7 +9,7 @@ import { AuthNavBarToggleService } from '../../services/auth-nav-bar-toggle.serv
     selector: 'ws-auth-root-navigation',
     templateUrl: './auth-navigation.component.html',
     styleUrls: ['./auth-navigation.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class AuthNavigationComponent implements OnInit {
 

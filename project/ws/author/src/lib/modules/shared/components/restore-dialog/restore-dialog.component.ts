@@ -20,7 +20,7 @@ import { Notify } from '../../../../constants/notificationMessage'
     selector: 'ws-auth-restore-dialog',
     templateUrl: './restore-dialog.component.html',
     styleUrls: ['./restore-dialog.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class RestoreDialogComponent implements OnInit {
   commentsForm!: UntypedFormGroup

@@ -17,7 +17,7 @@ import { NOTIFICATION_TIME } from '../../../../../../../../constants/constant'
     selector: 'ws-auth-url-upload',
     templateUrl: './url-upload.component.html',
     styleUrls: ['./url-upload.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class UrlUploadComponent implements OnInit {
   urlUploadForm!: UntypedFormGroup

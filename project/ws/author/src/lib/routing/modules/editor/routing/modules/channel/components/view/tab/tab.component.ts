@@ -6,7 +6,7 @@ import { ChannelStoreService } from './../../../services/store.service'
     selector: 'ws-auth-tab',
     templateUrl: './tab.component.html',
     styleUrls: ['./tab.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class TabComponent implements OnInit, OnChanges {
 

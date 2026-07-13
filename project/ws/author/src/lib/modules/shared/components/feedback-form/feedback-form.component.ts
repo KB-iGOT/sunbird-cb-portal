@@ -30,7 +30,7 @@ const NOTIFICATION_TIME = 5
     selector: 'ws-auth-shared-feedback',
     templateUrl: './feedback-form.component.html',
     styleUrls: ['./feedback-form.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class FeedbackFormComponent implements OnInit {
   forSelf = true

@@ -5,7 +5,7 @@ import { IAuthSteps } from '../../../../interface/auth-stepper'
     selector: 'ws-auth-editor-steps',
     templateUrl: './auth-editor-steps.component.html',
     styleUrls: ['./auth-editor-steps.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class AuthEditorStepsComponent implements OnInit {
   @Input() currentStep = 0

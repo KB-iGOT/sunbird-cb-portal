@@ -26,7 +26,7 @@ import { AuthExpiryDateConfirmComponent } from '../../../../../modules/shared/co
     selector: 'ws-auth-my-content',
     templateUrl: './my-content.component.html',
     styleUrls: ['./my-content.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class MyContentComponent implements OnInit, OnDestroy {
   public sideNavBarOpened = false

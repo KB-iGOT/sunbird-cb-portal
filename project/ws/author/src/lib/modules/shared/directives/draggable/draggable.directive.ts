@@ -9,7 +9,7 @@ import {
 
 @Directive({
     selector: '[wsAuthDraggable]',
-    standalone: false
+    standalone: false,
 })
 export class DraggableDirective {
   @Output() dragStart = new EventEmitter<PointerEvent>()

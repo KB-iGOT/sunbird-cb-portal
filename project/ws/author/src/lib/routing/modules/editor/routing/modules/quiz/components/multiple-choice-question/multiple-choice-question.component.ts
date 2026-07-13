@@ -27,7 +27,7 @@ import { ConfirmDialogComponent } from '../../../../../../../../modules/shared/c
     selector: 'ws-auth-multiple-choice-question',
     templateUrl: './multiple-choice-question.component.html',
     styleUrls: ['./multiple-choice-question.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class MultipleChoiceQuestionComponent implements OnInit, OnChanges, OnDestroy {
   @Output() value = new EventEmitter<any>()

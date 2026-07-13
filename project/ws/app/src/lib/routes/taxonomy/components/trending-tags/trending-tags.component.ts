@@ -7,7 +7,7 @@ import _ from 'lodash'
     selector: 'app-discuss-trending-tags',
     templateUrl: './trending-tags.component.html',
     styleUrls: ['./trending-tags.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class TrendingTagsComponent implements OnInit {
   @Input() tags!: NSDiscussData.ITag[]

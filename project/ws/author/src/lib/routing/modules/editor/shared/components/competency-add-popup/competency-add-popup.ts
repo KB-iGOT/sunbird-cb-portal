@@ -13,7 +13,7 @@ export interface IDialogData {
     selector: 'ws-auth-competency-add-popup',
     templateUrl: './competency-add-popup.html',
     styleUrls: ['./competency-add-popup.scss'],
-    standalone: false
+    standalone: false,
 })
 export class CompetencyAddPopUpComponent implements OnInit {
   startForm!: UntypedFormGroup

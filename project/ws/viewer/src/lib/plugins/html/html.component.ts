@@ -11,15 +11,14 @@ import _ from 'lodash'
 import { environment } from 'src/environments/environment'
 import { Subscription, timer } from 'rxjs'
 import { Storage } from './SCORMAdapter/storage'
-import { AppTocService, ViewerUtilService } from '@sunbird-cb/toc'
+import { AppTocService, ViewerUtilService, WidgetContentService } from '@sunbird-cb/toc'
 /* tslint:enable */
-import { WidgetContentService } from '@sunbird-cb/toc'
 
 @Component({
     selector: 'viewer-plugin-html',
     templateUrl: './html.component.html',
     styleUrls: ['./html.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class HtmlComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild('mobileOpenInNewTab', { read: ElementRef }) mobileOpenInNewTab !: ElementRef<HTMLAnchorElement>
@@ -136,7 +135,6 @@ export class HtmlComponent implements OnInit, OnChanges, OnDestroy {
       if (!this.forPreview && this.htmlContent && !this.progressSent) {
         const completion = this.calculateCompletionStatus(this.htmlContent)
         if (completion && completion.status === 2) {
-          console.log('Content completed, sending real-time progress based on threshold - forcefully')
           this.progressSent = true
           this.fireRealTimeProgress(this.htmlContent)
         }

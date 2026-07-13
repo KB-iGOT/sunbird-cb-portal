@@ -4,7 +4,7 @@ import { Component, OnInit, Input } from '@angular/core'
     selector: 'ws-auth-status-display',
     templateUrl: './status-display.component.html',
     styleUrls: ['./status-display.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class StatusDisplayComponent implements OnInit {
   @Input() status = ''

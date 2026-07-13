@@ -2,14 +2,12 @@ import { Component, EventEmitter, Input, OnDestroy, OnInit, Output, AfterViewIni
 import { MatDialog } from '@angular/material/dialog'
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser'
 import { ActivatedRoute, NavigationEnd, NavigationExtras, Router } from '@angular/router'
-import { WidgetContentService } from '@sunbird-cb/toc'
+import { AppTocService, ViewerDataService, ViewerUtilService, WidgetContentService } from '@sunbird-cb/toc'
 import { NsContent, VIEWER_ROUTE_FROM_MIME } from '@sunbird-cb/collection'
 import { ConfigurationsService, EventService, NsPage, ValueService, WsEvents } from '@sunbird-cb/utils-v2'
 import { Subscription } from 'rxjs'
-import { ViewerUtilService } from '@sunbird-cb/toc'
 import { CourseCompletionDialogComponent } from '../course-completion-dialog/course-completion-dialog.component'
 import { PdfScormDataService } from '../../pdf-scorm-data-service'
-import { AppTocService, ViewerDataService } from '@sunbird-cb/toc'
 import { WidgetContentLibService } from '@sunbird-cb/consumption'
 // import { WidgetContentService as WidgetContentServiceUtils } from '@sunbird-cb/utils-v2'
 
@@ -17,7 +15,7 @@ import { WidgetContentLibService } from '@sunbird-cb/consumption'
     selector: 'viewer-viewer-secondary-top-bar',
     templateUrl: './viewer-secondary-top-bar.component.html',
     styleUrls: ['./viewer-secondary-top-bar.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy, AfterViewInit {
 
@@ -125,12 +123,6 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy, AfterV
 
     // Subscribe to hashmap updates to dynamically update lock status
     this.hashmapUpdateSubscription = this.appTocSvc.hashmapUpdated$.subscribe(update => {
-      console.log('🔄 [NEXT BUTTON] Hashmap update received:', {
-        hasUpdate: !!update,
-        hasNextUrl: !!this.nextResourceUrl,
-        nextUrl: this.nextResourceUrl,
-      })
-
       if (update && this.nextResourceUrl) {
         // Extract the resource ID from the nextResourceUrl
         const urlParts = this.nextResourceUrl.split('/')
@@ -141,15 +133,7 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy, AfterV
           const previousLockState = this.isNextResourceLocked
           this.isNextResourceLocked = this.checkIfContentIsLocked(nextResourceId)
 
-          console.log('🔓 [NEXT BUTTON] Lock status check:', {
-            nextResourceId,
-            previousLockState,
-            newLockState: this.isNextResourceLocked,
-            changed: previousLockState !== this.isNextResourceLocked,
-          })
-
           if (previousLockState !== this.isNextResourceLocked) {
-            console.log('✅ [NEXT BUTTON] Lock status CHANGED - triggering UI update')
             // Trigger change detection to update UI immediately
             this.cdr.markForCheck()
             this.cdr.detectChanges()
@@ -282,7 +266,6 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy, AfterV
 
         // Check if next resource is locked from tocSvc hashmap
         this.isNextResourceLocked = this.checkIfContentIsLocked(data.nextResource.identifier)
-        console.log('📍 Initial Next Resource Locked Status:', this.isNextResourceLocked, 'for identifier:', data.nextResource.identifier)
 
         // Store next resource ID for future rechecks
         const nextResourceIdForRecheck = data.nextResource.identifier
@@ -292,11 +275,6 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy, AfterV
         setTimeout(() => {
           const recheckResult = this.checkIfContentIsLocked(nextResourceIdForRecheck)
           if (recheckResult !== this.isNextResourceLocked) {
-            console.log('⏱️ [300ms RECHECK] Next resource lock status changed:', {
-              identifier: nextResourceIdForRecheck,
-              oldStatus: this.isNextResourceLocked,
-              newStatus: recheckResult,
-            })
             this.isNextResourceLocked = recheckResult
             this.cdr.detectChanges()
           }
@@ -306,11 +284,6 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy, AfterV
         setTimeout(() => {
           const recheckResult = this.checkIfContentIsLocked(nextResourceIdForRecheck)
           if (recheckResult !== this.isNextResourceLocked) {
-            console.log('⏱️ [1000ms RECHECK] Next resource lock status changed:', {
-              identifier: nextResourceIdForRecheck,
-              oldStatus: this.isNextResourceLocked,
-              newStatus: recheckResult,
-            })
             this.isNextResourceLocked = recheckResult
             this.cdr.detectChanges()
           }
@@ -375,7 +348,6 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy, AfterV
 
       // If lock status wasn't determined and we haven't exceeded max attempts, retry
       if (!lockChecked && attempt < maxAttempts) {
-        console.log(`Retrying lock status check, attempt ${attempt + 1}/${maxAttempts}`)
         this.recheckLockStatusWithRetry(attempt + 1)
       }
     },         delay)
@@ -384,13 +356,6 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy, AfterV
   checkInitialLockStatus(): boolean {
     // Get the current resource from the viewer data service
     const currentResourceId = this.viewerDataSvc.resourceId
-
-    console.log('Checking initial lock status:', {
-      currentResourceId,
-      hasNextUrl: !!this.nextResourceUrl,
-      hasHashmap: !!this.appTocSvc.hashmap,
-      hashmapSize: this.appTocSvc.hashmap ? Object.keys(this.appTocSvc.hashmap).length : 0,
-    })
 
     // Method 1: Check using nextResourceUrl if it's already set by subscription
     if (this.nextResourceUrl && this.nextResourceUrlParams?.queryParams) {
@@ -409,11 +374,6 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy, AfterV
       const currentContent = this.appTocSvc.hashmap[currentResourceId]
 
       if (currentContent) {
-        console.log('Current content in hashmap:', {
-          id: currentResourceId,
-          hasNextResource: !!currentContent.nextResource,
-        })
-
         // Check if there's a nextResource property
         if (currentContent.nextResource) {
           this.isNextResourceLocked = this.checkIfContentIsLocked(currentContent.nextResource)
@@ -422,7 +382,6 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy, AfterV
       }
     }
 
-    console.log('Could not determine lock status yet')
     return false
   }
 
@@ -482,8 +441,7 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy, AfterV
   finishDialog() {
     if (window.location.href.includes('preAssessment=true')) {
       this.router.navigateByUrl(`app/toc/${this.collectionId}/overview`)
-    }
-    else if (!this.forPreview) {
+    } else if (!this.forPreview) {
       this.contentProgressHash = []
       this.identifier = this.activatedRoute.snapshot.queryParams.collectionId
       this.batchId = this.activatedRoute.snapshot.queryParams.batchId
@@ -511,8 +469,10 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy, AfterV
             this.contentProgressHash = data.result.contentList
             this.widgetServ.setProgramChildResumeData(this.contentProgressHash, this.identifier)
 
-            const lastIndexData = this.contentProgressHash?.length && this.contentProgressHash[this.contentProgressHash?.length - 1]
-            if (lastIndexData && lastIndexData?.completionPercentage === 100 && lastIndexData?.status === 2 && lastIndexData?.contentId === this.resourceId) {
+            const lastIndexData = this.contentProgressHash?.length
+              && this.contentProgressHash[this.contentProgressHash?.length - 1]
+            if (lastIndexData && lastIndexData?.completionPercentage === 100 && lastIndexData?.status === 2
+              && lastIndexData?.contentId === this.resourceId) {
               this.generateCertificate()
             }
 
@@ -523,7 +483,8 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy, AfterV
 
               // For Learning Pathway, check if all mandatory items are completed
               // completedCount should already reflect only mandatory items from viewer-top-bar
-              if (lastIndexData?.completionPercentage >= 100 && lastIndexData?.status === 2 && lastIndexData?.contentId === this.resourceId) {
+              if (lastIndexData?.completionPercentage >= 100 && lastIndexData?.status === 2
+                && lastIndexData?.contentId === this.resourceId) {
                 this.showCompletionPopUp()
               } else {
                 this.router.navigateByUrl(`app/toc/${this.collectionId}/overview`)

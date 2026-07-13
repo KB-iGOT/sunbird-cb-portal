@@ -23,7 +23,7 @@ const APP_TAXONOMY = '/app/taxonomy/'
             ]),
         ]),
     ],
-    standalone: false
+    standalone: false,
 })
 export class BreadcrumbsOrgComponent extends WidgetBaseComponent
   implements OnInit, NsWidgetResolver.IWidgetData<{ url: TUrl }> {

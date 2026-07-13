@@ -10,7 +10,7 @@ const APP_TAXONOMY = '/app/taxonomy/'
     selector: 'app-discuss',
     templateUrl: './discuss.component.html',
     styleUrls: ['./discuss.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class DiscussComponent implements OnInit, OnDestroy {
   sideNavBarOpened = true

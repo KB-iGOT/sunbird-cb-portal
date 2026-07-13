@@ -16,7 +16,7 @@ import { AUTHORING_CONTENT_BASE, CONTENT_BASE_WEBHOST_ASSETS } from '../../../..
     selector: 'ws-auth-image-v2',
     templateUrl: './image-v2.component.html',
     styleUrls: ['./image-v2.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ImageV2Component implements OnChanges {
   @Output() data = new EventEmitter<{ content: IWidgetElementHtml; isValid: boolean }>()

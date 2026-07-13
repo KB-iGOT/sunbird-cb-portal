@@ -11,7 +11,7 @@ const APP_TAXONOMY = '/app/taxonomy/'
     selector: 'app-explorer',
     templateUrl: './explorer.component.html',
     styleUrls: ['./explorer.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class TaxonomyExplorerComponent implements OnInit, OnDestroy {
   sideNavBarOpened = true
@@ -40,9 +40,9 @@ export class TaxonomyExplorerComponent implements OnInit, OnDestroy {
   isFirst = true
   title: any[] = []
   constructor(private valueSvc: ValueService, private route: ActivatedRoute,
-    private router: Router,
-    private _service: TaxonomyService,
-    private loader: LoaderService) {
+              private router: Router,
+              private _service: TaxonomyService,
+              private loader: LoaderService) {
     this.unread = this.route.snapshot.data.unread
 
     this.currentTab = this.route.snapshot.url.toString().split('/').pop() || ''

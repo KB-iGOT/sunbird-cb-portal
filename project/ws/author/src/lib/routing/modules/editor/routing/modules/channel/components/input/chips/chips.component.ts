@@ -23,7 +23,7 @@ import { NOTIFICATION_TIME } from '../../../../../../../../../constants/constant
     selector: 'ws-auth-chips',
     templateUrl: './chips.component.html',
     styleUrls: ['./chips.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ChipsComponent implements OnInit, OnDestroy, AfterViewInit {
   @ViewChild('copyText', { static: true }) copyText!: ElementRef<any>

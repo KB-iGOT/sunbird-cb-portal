@@ -12,7 +12,7 @@ interface IContentStripWidgetMap {
     selector: 'ws-auth-content-strip',
     templateUrl: './content-strip.component.html',
     styleUrls: ['./content-strip.component.scss'],
-    standalone: false
+    standalone: false,
 })
 
 export class ContentStripComponent implements OnInit, OnChanges {

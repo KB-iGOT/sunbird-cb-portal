@@ -7,7 +7,7 @@ import { EditorContentService } from '../../../../../../services/editor-content.
     selector: 'ws-auth-page-editor-v2',
     templateUrl: './page-editor-v2.component.html',
     styleUrls: ['./page-editor-v2.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class PageEditorV2Component implements OnInit {
   @Input() isSubmitPressed = false

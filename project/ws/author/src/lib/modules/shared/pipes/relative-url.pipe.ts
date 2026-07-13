@@ -4,7 +4,7 @@ import { AUTHORING_CONTENT_BASE } from '../../../constants/apiEndpoints'
 
 @Pipe({
     name: 'relativeUrl',
-    standalone: false
+    standalone: false,
 })
 export class RelativeUrlPipe implements PipeTransform {
 

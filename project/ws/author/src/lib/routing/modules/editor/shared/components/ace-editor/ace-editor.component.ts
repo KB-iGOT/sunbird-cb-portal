@@ -9,7 +9,7 @@ import 'brace/theme/textmate'
   selector: 'ws-auth-ace-editor',
   templateUrl: './ace-editor.component.html',
   styleUrls: ['./ace-editor.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class AceEditorComponent implements OnInit {
 
