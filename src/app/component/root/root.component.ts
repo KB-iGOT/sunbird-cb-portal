@@ -64,24 +64,28 @@ import * as _ from 'lodash'
     trigger('slidePanel', [
       transition(':enter', [
         style({ left: 'calc(330px - 120px)', opacity: 0 }),
-        animate('280ms cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-          style({ left: 'calc(330px + 24px)', opacity: 1 }))
+        animate(
+          '280ms cubic-bezier(0.25, 0.46, 0.45, 0.94)',
+          style({ left: 'calc(330px + 24px)', opacity: 1 }),
+        ),
       ]),
       transition(':leave', [
-        animate('220ms cubic-bezier(0.55, 0.06, 0.68, 0.19)',
-          style({ left: 'calc(330px - 120px)', opacity: 0 }))
-      ])
+        animate(
+          '220ms cubic-bezier(0.55, 0.06, 0.68, 0.19)',
+          style({ left: 'calc(330px - 120px)', opacity: 0 }),
+        ),
+      ]),
     ]),
     trigger('fadeBackdrop', [
       transition(':enter', [
         style({ opacity: 0 }),
-        animate('200ms ease', style({ opacity: 1 }))
+        animate('200ms ease', style({ opacity: 1 })),
       ]),
       transition(':leave', [
-        animate('200ms ease', style({ opacity: 0 }))
-      ])
-    ])
-  ]
+        animate('200ms ease', style({ opacity: 0 })),
+      ]),
+    ]),
+  ],
 })
 export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
 
@@ -489,7 +493,6 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
 
   }
 
-
   setAchivements() {
     const menuBarDetails = JSON.parse(JSON.stringify(this.menuBarDetails))
     const achievements = menuBarDetails?.navSections?.find((section: any) => section.sectionKey === 'my_achievements')
@@ -525,24 +528,26 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
         const currentUserId = this.configSvc?.unMappedUser?.id
         const rankItem = achievements?.items?.find((item: any) => item.code === 'rank' && item.enabled !== false)
         if (currentUserId && rankItem) {
-          this.homePageSvc.getLearnerLeaderboardCached().subscribe((res: any) => {
-            const results = res?.result?.result
-            if (Array.isArray(results)) {
-              const currentUserRank = results.find((entry: any) => entry.userId === currentUserId)
-              const rank = currentUserRank?.rank
+          this.homePageSvc.getLearnerLeaderboardCached().subscribe(
+            (res: any) => {
+              const results = res?.result?.result
+              if (Array.isArray(results)) {
+                const currentUserRank = results.find((entry: any) => entry.userId === currentUserId)
+                const rank = currentUserRank?.rank
 
-              if (rank != null) {
-                if (rankItem) {
-                  rankItem.value = `${this.toOrdinal(rank)} Rank`
+                if (rank != null) {
+                  if (rankItem) {
+                    rankItem.value = `${this.toOrdinal(rank)} Rank`
+                  }
                 }
+                achievements.sectionLoading = false
+                this.sendDetailsChangedEvent(achievements)
               }
+            },
+            (_error: any) => {
               achievements.sectionLoading = false
               this.sendDetailsChangedEvent(achievements)
-            }
-          }, (_error: any) => {
-            achievements.sectionLoading = false
-            this.sendDetailsChangedEvent(achievements)
-          }
+            },
           )
         } else {
           achievements.sectionLoading = false
@@ -554,7 +559,9 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
 
   setOtherPortals() {
     const menuBarDetails = JSON.parse(JSON.stringify(this.menuBarDetails))
-    const quickActionSection = menuBarDetails?.navSections?.find((section: any) => section.sectionKey === 'quick_actions' && section.enabled !== false)
+    const quickActionSection = menuBarDetails?.navSections?.find(
+      (section: any) => section.sectionKey === 'quick_actions' && section.enabled !== false,
+    )
     if (quickActionSection && quickActionSection?.items && quickActionSection.items.length > 0) {
       const otherPortalsSection = quickActionSection?.items?.filter((item: any) => item.code === 'other_portals' && item.enabled !== false)
       if (otherPortalsSection && otherPortalsSection.length > 0) {
@@ -609,7 +616,6 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
     this.menuBarDetails = JSON.parse(JSON.stringify(menuBarDetails))
     this.otherDetailsChanged.set(!this.otherDetailsChanged())
   }
-
 
   convertToHoursAndMinutes(seconds: number): string {
     const hours = Math.floor(seconds / 3600)

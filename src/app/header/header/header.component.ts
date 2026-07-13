@@ -15,7 +15,7 @@ import { Router } from '@angular/router'
     selector: 'ws-header',
     templateUrl: './header.component.html',
     styleUrls: ['./header.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class HeaderComponent implements OnInit {
   isXSmall$ = this.valueSvc.isXSmall$
@@ -127,7 +127,9 @@ export class HeaderComponent implements OnInit {
   //     (window as any).handleIssueType = (sel: any) => { this.zohoFormService.handleIssueTypeChange(sel); return true }
   //     (window as any).toggleCentreState = (sel: any) => { this.zohoFormService.toggleCentreState(sel); return true }
   //     (window as any).toggleAIS = (sel: any) => { this.zohoFormService.toggleAIS(sel); return true }
-  //     (window as any).zsRenderBrowseFileAttachment = (filePath: string, element: any) => { this.zohoFormService.handleFileAttachment(filePath, element); return true }
+  //     (window as any).zsRenderBrowseFileAttachment = (filePath: string, element: any) => {
+  //       this.zohoFormService.handleFileAttachment(filePath, element); return true
+  //     }
   //     (window as any).zsRegenerateCaptcha = () => { this.zohoFormService.loadCaptcha(); return true }
   //     (window as any).zsResetWebForm = (id: string) => { this.zohoFormService.resetForm(id); return true }
   //     (window as any).zsValidateMandatoryFields = () => { return this.zohoFormService.validateAndSubmitForm() }

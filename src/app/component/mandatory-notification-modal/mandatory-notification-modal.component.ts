@@ -29,8 +29,8 @@ export class MandatoryNotificationModalComponent {
   raiseTelemetryForShare(subType: any) {
     this.events.raiseInteractTelemetry(
       {
-        type: 'click',
         subType,
+        type: 'click',
         id: 'mandatory-notification-modal',
       },
       {

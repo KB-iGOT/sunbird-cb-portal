@@ -1,3 +1,4 @@
+/* tslint:disable:interface-name max-line-length */
 export type RoleTab = 'learner' | 'mdo-leader' | 'content-building'
 export type ContentTab = 'all' | 'videos' | 'guides' | 'faqs'
 

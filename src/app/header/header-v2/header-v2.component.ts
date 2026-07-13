@@ -18,7 +18,7 @@ import { MobileAppsService } from '../../services/mobile-apps.service'
     TranslateModule,
     MatToolbarModule,
     MatIconModule,
-    AppNavBarV2Component
+    AppNavBarV2Component,
   ],
   templateUrl: './header-v2.component.html',
   styleUrl: './header-v2.component.scss',

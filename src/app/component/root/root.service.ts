@@ -69,23 +69,13 @@ export class RootService {
     return this.http.get<any>(`${API_END_POINTS.LANGUAGES}`)
   }
 
-  aiGlobalSearch(requestBody:any, chatId:any, userID:any): Observable<any> {
+  aiGlobalSearch(requestBody: any, chatId: any, userID: any): Observable<any> {
     return this.http.post<any>(`${API_END_POINTS.AI_GLOBAL_SEARCH}?chatID=${chatId}&userID=${userID}`, requestBody).pipe(
-      catchError(error => {
-        if (error.status === 502) {
-          console.error('502 Bad Gateway from aiGlobalSearch')
-        } else if (error.status === 500) {
-          console.error('500 Internal Server Error from aiGlobalSearch')
-        } else {
-          console.error(`Unhandled error (${error.status}):`, error.message)
-        }
-        return throwError(() => error)
-      })
+      catchError(error => throwError(() => error)),
     )
   }
 
-  saveAIChatPositiveContentRating(requestBody:any, chatId:any, userID:any) {
-    console.log('chatId=', chatId, 'userID=', userID)
+  saveAIChatPositiveContentRating(requestBody: any, chatId: any, userID: any) {
     return this.http.post<any>(`${API_END_POINTS.AI_CHAT_FEEDBACK}?chatID=${chatId}&userID=${userID}`, requestBody)
   }
 

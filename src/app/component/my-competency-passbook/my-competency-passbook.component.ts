@@ -4,7 +4,7 @@ import { Component, OnInit } from '@angular/core'
     selector: 'ws-my-competency-passbook',
     templateUrl: './my-competency-passbook.component.html',
     styleUrls: ['./my-competency-passbook.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class MyCompetencyPassbookComponent implements OnInit {
 

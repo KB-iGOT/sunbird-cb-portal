@@ -7,17 +7,14 @@ import { HomePageService } from '../../services/home-page.service'
 import { ConfigurationsService, DomainConfService, EventService, MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 import { DomSanitizer } from '@angular/platform-browser'
 import { HttpClient } from '@angular/common/http'
-import { DialogBoxComponent as ZohoDialogComponent } from '@ws/app'
+import { DialogBoxComponent as ZohoDialogComponent, SurveyPopupComponent, VerificationRequestDialogComponent } from '@ws/app'
 import { Router } from '@angular/router'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { environment } from '../../../environments/environment'
-import { ConfirmDialogComponent } from '@sunbird-cb/collection'
-import { SurveyPopupComponent } from '@ws/app'
-import { VerificationRequestDialogComponent } from '@ws/app'
+import { BtnSettingsService, ConfirmDialogComponent } from '@sunbird-cb/collection'
 import { RootService } from '../root/root.service'
 import { NotificationsService } from '../../services/notifications.service'
 import { ThemeService } from '@sunbird-cb/design-system'
-import { BtnSettingsService } from '@sunbird-cb/collection'
 // const rightNavConfig = [
 //   {
 //     id: 1,
@@ -45,7 +42,7 @@ import { BtnSettingsService } from '@sunbird-cb/collection'
   selector: 'ws-top-right-nav-bar',
   templateUrl: './top-right-nav-bar.component.html',
   styleUrls: ['./top-right-nav-bar.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class TopRightNavBarComponent implements OnInit, OnChanges {
   @Input() item: any
@@ -131,13 +128,15 @@ export class TopRightNavBarComponent implements OnInit, OnChanges {
 
   onBellClick() {
     if (this.notificationsCount > 0) {
-      this.notificationsService.resetNotificationsCount().subscribe((res: any) => {
-        if (res.responseCode === 'OK') {
-          this.notificationsCount = 0
-        }
-      }, error => {
-        console.error('Error while fetching notifications count', error)
-      })
+      this.notificationsService.resetNotificationsCount().subscribe(
+        (res: any) => {
+          if (res.responseCode === 'OK') {
+            this.notificationsCount = 0
+          }
+        }, error => {
+          // eslint-disable-next-line no-console
+          console.error('Error while fetching notifications count', error)
+        })
     }
     this.showDropdown = false
     setTimeout(() => {
@@ -158,7 +157,7 @@ export class TopRightNavBarComponent implements OnInit, OnChanges {
     this.langtranslations.updatelanguageSelected(
       true,
       this.selectedLanguage,
-      this.configSvc.unMappedUser ? this.configSvc.unMappedUser.id : ''
+      this.configSvc.unMappedUser ? this.configSvc.unMappedUser.id : '',
     )
     this.configSvc.languageTranslationFlag.next(true)
   }
@@ -173,15 +172,18 @@ export class TopRightNavBarComponent implements OnInit, OnChanges {
     })
     dialogRef.afterClosed().subscribe(() => {
     })
-    setTimeout(() => {
-      this.callXMLRequest()
-    }, 0)
+    setTimeout(
+      () => {
+        this.callXMLRequest()
+      },
+      0,
+    )
   }
 
   openDialog(): void {
     this.dialogRef = this.dialog.open(DialogBoxComponent, {
       width: '1000px',
-      panelClass: 'download-app-popup-new'
+      panelClass: 'download-app-popup-new',
     })
 
     this.dialogRef.afterClosed().subscribe(() => {
@@ -259,7 +261,7 @@ export class TopRightNavBarComponent implements OnInit, OnChanges {
       this.snackBar.open('You have already submitted the response.', 'X', { duration: 3000 })
       return
     }
-    if (notification.status === "EXPIRED") {
+    if (notification.status === 'EXPIRED') {
       this.snackBar.open('Survey has ended.', 'X', { duration: 3000 })
       return
     }
@@ -305,7 +307,7 @@ export class TopRightNavBarComponent implements OnInit, OnChanges {
       this.snackBar.open('You have already submitted the response.', 'X', { duration: 3000 })
       return
     }
-    if (notification.status === "EXPIRED") {
+    if (notification.status === 'EXPIRED') {
       this.snackBar.open('Survey has ended.', 'X', { duration: 3000 })
       return
     }
@@ -347,7 +349,6 @@ export class TopRightNavBarComponent implements OnInit, OnChanges {
   }
 
   calculateCount(event: any) {
-    console.log('sds', event)
   }
 
   showDialog(data: any, url: string) {
@@ -377,7 +378,11 @@ export class TopRightNavBarComponent implements OnInit, OnChanges {
     if (this.configSvc.iGOTAIConfig && this.configSvc.iGOTAIConfig?.supportAI && this.configSvc.iGOTAIConfig?.supportAI?.all) {
       this.enableSupportAI = true
       this.rootService.openSupportAIChatbot.next(true)
-    } else if (this.configSvc.iGOTAIConfig && this.configSvc.iGOTAIConfig?.supportAI && this.configSvc.iGOTAIConfig?.supportAI?.forOrg && this.configSvc.iGOTAIConfig?.supportAI?.forOrg?.length
+    } else if (
+      this.configSvc.iGOTAIConfig &&
+      this.configSvc.iGOTAIConfig?.supportAI &&
+      this.configSvc.iGOTAIConfig?.supportAI?.forOrg &&
+      this.configSvc.iGOTAIConfig?.supportAI?.forOrg?.length
       && this.configSvc.iGOTAIConfig?.supportAI?.forOrg?.includes(this.configSvc.userProfile?.rootOrgId)
     ) {
       this.enableSupportAI = true

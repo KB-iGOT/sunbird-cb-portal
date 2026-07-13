@@ -18,14 +18,11 @@ import { Subscription } from 'rxjs'
 import { HomePageService } from '../../services/home-page.service'
 import { ConfigurationsService, EventService, MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 import { DialogBoxComponent } from './../dialog-box/dialog-box.component'
-import { DialogBoxComponent as ZohoDialogComponent } from '@ws/app'
-import { ConfirmDialogComponent } from '@sunbird-cb/collection'
-import { SurveyPopupComponent } from '@ws/app'
-import { VerificationRequestDialogComponent } from '@ws/app'
+import { DialogBoxComponent as ZohoDialogComponent, SurveyPopupComponent, VerificationRequestDialogComponent } from '@ws/app'
+import { BtnSettingsService, ConfirmDialogComponent } from '@sunbird-cb/collection'
 import { RootService } from '../root/root.service'
 import { NotificationsService } from '../../services/notifications.service'
 import { ThemeService } from '@sunbird-cb/design-system'
-import { BtnSettingsService } from '@sunbird-cb/collection'
 import { environment } from '../../../environments/environment'
 import { NotificationDropdownModule } from '@sunbird-cb/notification'
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
@@ -44,7 +41,7 @@ import { WidgetResolverModule } from '@sunbird-cb/resolver'
     MatFormFieldModule,
     TranslateModule,
     NotificationDropdownModule,
-    WidgetResolverModule
+    WidgetResolverModule,
   ],
   templateUrl: './top-right-nav-bar-v2.component.html',
   styleUrls: ['./top-right-nav-bar-v2.component.scss'],
@@ -165,6 +162,7 @@ export class TopRightNavBarV2Component implements OnInit, OnDestroy {
             this.notificationsCount.set(0)
           }
         },
+        // eslint-disable-next-line no-console
         error => console.error('Error while fetching notifications count', error)
       )
     }
@@ -182,7 +180,7 @@ export class TopRightNavBarV2Component implements OnInit, OnDestroy {
     this.langtranslations.updatelanguageSelected(
       true,
       langKey,
-      this.configSvc.unMappedUser ? this.configSvc.unMappedUser.id : ''
+      this.configSvc.unMappedUser ? this.configSvc.unMappedUser.id : '',
     )
     this.configSvc.languageTranslationFlag.next(true)
   }
@@ -203,7 +201,7 @@ export class TopRightNavBarV2Component implements OnInit, OnDestroy {
 
   callXMLRequest() {
     const webFormxhr = new XMLHttpRequest()
-    webFormxhr.open('GET', 'https://desk.zoho.in/support/GenerateCaptcha?action=getNewCaptcha&_=' + new Date().getTime(), true)
+    webFormxhr.open('GET', `https://desk.zoho.in/support/GenerateCaptcha?action=getNewCaptcha&_=${new Date().getTime()}`, true)
     webFormxhr.onreadystatechange = () => {
       if (webFormxhr.readyState === 4 && webFormxhr.status === 200) {
         try {

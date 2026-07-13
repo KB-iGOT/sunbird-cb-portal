@@ -4,7 +4,7 @@ import { Component, OnInit, Input } from '@angular/core'
     selector: 'ws-no-data',
     templateUrl: './no-data.component.html',
     styleUrls: ['./no-data.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class NoDataComponent implements OnInit {
   @Input() noDataValue: any

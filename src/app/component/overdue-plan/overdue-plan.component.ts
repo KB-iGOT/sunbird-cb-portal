@@ -4,7 +4,7 @@ import { Component, OnInit } from '@angular/core'
     selector: 'ws-overdue-plan',
     templateUrl: './overdue-plan.component.html',
     styleUrls: ['./overdue-plan.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class OverduePlanComponent implements OnInit {
 

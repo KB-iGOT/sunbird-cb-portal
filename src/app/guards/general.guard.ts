@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core'
 import {
   ActivatedRouteSnapshot, Router, RouterStateSnapshot,
   // RouterStateSnapshot,
-  UrlTree
+  UrlTree,
 } from '@angular/router'
 import { ConfigurationsService, AuthKeycloakService } from '@sunbird-cb/utils-v2'
 import { NSProfileDataV3 } from '@ws/app'

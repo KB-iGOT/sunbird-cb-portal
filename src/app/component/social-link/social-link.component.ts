@@ -37,7 +37,7 @@ import { Component, Input, OnInit } from '@angular/core'
     selector: 'ws-social-link',
     templateUrl: './social-link.component.html',
     styleUrls: ['./social-link.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class SocialLinkComponent implements OnInit {
   @Input() socialLinks: any = []
