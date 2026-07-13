@@ -12,11 +12,10 @@ export class WebSocketService {
 
   constructor() { }
 
-  // Establish a connection to the WebSocket
-  connect(url: string): void {
-    this.socket = new WebSocket(url)
-    console.log('this.socket', this.socket)
-    this.socket.onopen = () => {
+    // Establish a connection to the WebSocket
+    connect(url: string): void {
+      this.socket = new WebSocket(url)
+      this.socket.onopen = () => {
       // eslint-disable-next-line no-console
       // console.log('WebSocket connection established')
     }
@@ -25,14 +24,12 @@ export class WebSocketService {
       this.messageSubject.next(event.data)
     }
 
-    this.socket.onerror = error => {
+    this.socket.onerror = () => {
       // eslint-disable-next-line no-console
-      console.error('WebSocket error:', error)
     }
 
     this.socket.onclose = () => {
       // eslint-disable-next-line no-console
-      console.log('WebSocket connection closed')
     }
   }
 

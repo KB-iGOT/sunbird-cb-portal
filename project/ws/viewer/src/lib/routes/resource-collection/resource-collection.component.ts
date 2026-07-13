@@ -10,7 +10,7 @@ import { ViewerUtilService, WidgetContentService } from '@sunbird-cb/toc'
     selector: 'viewer-resource-collection',
     templateUrl: './resource-collection.component.html',
     styleUrls: ['./resource-collection.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ResourceCollectionComponent implements OnInit, OnDestroy {
   private dataSubscription: Subscription | null = null

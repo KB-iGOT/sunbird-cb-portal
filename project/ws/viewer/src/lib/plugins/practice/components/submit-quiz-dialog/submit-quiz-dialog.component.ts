@@ -5,7 +5,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
     selector: 'viewer-submit-quiz-dialog',
     templateUrl: './submit-quiz-dialog.component.html',
     styleUrls: ['./submit-quiz-dialog.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class SubmitQuizDialogComponent implements OnInit {
 

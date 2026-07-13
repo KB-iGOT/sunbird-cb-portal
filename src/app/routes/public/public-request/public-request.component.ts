@@ -33,10 +33,10 @@ export function forbiddenNamesValidatorPosition(optionsArray: any): ValidatorFn 
 }
 
 @Component({
-    selector: 'ws-public-request',
-    templateUrl: './public-request.component.html',
-    styleUrls: ['./public-request.component.scss'],
-    standalone: false
+  selector: 'ws-public-request',
+  templateUrl: './public-request.component.html',
+  styleUrls: ['./public-request.component.scss'],
+  standalone: false,
 })
 export class PublicRequestComponent implements OnInit {
   requestForm!: UntypedFormGroup
@@ -524,7 +524,7 @@ export class PublicRequestComponent implements OnInit {
       firstname: formData.firstname,
       mobile: formData.mobile, email: formData.email,
       isMobileVerified: this.isMobileVerified,
-      isEmailVerified: this.isEmailVerified
+      isEmailVerified: this.isEmailVerified,
     })
     this._location.back()
   }

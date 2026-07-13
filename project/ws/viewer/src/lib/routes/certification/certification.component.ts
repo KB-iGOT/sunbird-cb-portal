@@ -11,7 +11,7 @@ import { WidgetContentService } from '@sunbird-cb/toc'
     selector: 'viewer-certification',
     templateUrl: './certification.component.html',
     styleUrls: ['./certification.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class CertificationComponent implements OnInit, OnDestroy {
   private routeDataSubscription: Subscription | null = null

@@ -5,7 +5,7 @@ import { NsContent } from '@sunbird-cb/collection'
     selector: 'viewer-hands-on-container',
     templateUrl: './hands-on.component.html',
     styleUrls: ['./hands-on.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class HandsOnComponent {
   @Input() isFetchingDataComplete = false

@@ -12,9 +12,8 @@ import { Subscription, fromEvent } from 'rxjs'
 import { DomSanitizer, SafeResourceUrl, SafeUrl } from '@angular/platform-browser'
 import { ValueService, ConfigurationsService, EventService } from '@sunbird-cb/utils-v2'
 import { NsContent } from '@sunbird-cb/collection'
-import { ViewerUtilService } from '@sunbird-cb/toc'
+import { ViewerUtilService, WidgetContentService } from '@sunbird-cb/toc'
 import { ActivatedRoute } from '@angular/router'
-import { WidgetContentService } from '@sunbird-cb/toc'
 
 /* tslint:disable*/
 import _ from 'lodash'
@@ -22,7 +21,7 @@ import _ from 'lodash'
     selector: 'viewer-plugin-web-module',
     templateUrl: './web-module.component.html',
     styleUrls: ['./web-module.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class WebModuleComponent implements OnInit, OnChanges, OnDestroy {
   @Input() collectionId = ''

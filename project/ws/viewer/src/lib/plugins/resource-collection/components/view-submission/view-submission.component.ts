@@ -7,7 +7,7 @@ import { ResourceCollectionService } from 'project/ws/viewer/src/lib/plugins/res
     selector: 'viewer-view-submission',
     templateUrl: './view-submission.component.html',
     styleUrls: ['./view-submission.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ViewSubmissionComponent implements OnInit {
   submissionUrl = ''

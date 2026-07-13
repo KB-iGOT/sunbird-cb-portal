@@ -256,7 +256,7 @@ export class AiStreamService {
     // let inString = false;
     let startIndex = -1
     // console.log('buffer',buffer)
-    for (let i = 0; i < buffer.length; i++) {
+    for (let i = 0; i < buffer.length; i += 1) {
       const char = buffer[i]
 
       // Toggle inString when encountering unescaped "
@@ -282,7 +282,7 @@ export class AiStreamService {
           this.retrievedChunks$.next(parsed)
           parsedObjects.push(parsed)
         } catch (e) {
-          console.warn('Invalid JSON skipped:', jsonStr)
+          // Skip invalid JSON chunks and continue reading the stream.
         }
         startIndex = -1
         // }

@@ -95,7 +95,7 @@ export function forbiddenNamesValidatorNonEmpty(optionsArray: any): ValidatorFn 
   selector: 'ws-public-signup',
   templateUrl: './public-signup.component.html',
   styleUrls: ['./public-signup.component.scss'],
-  standalone: false
+  standalone: false,
 })
 
 export class PublicSignupComponent implements OnInit, OnDestroy {

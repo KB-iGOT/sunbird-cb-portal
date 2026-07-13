@@ -7,9 +7,9 @@ import { QuestionComponent } from './components/question/question.component'
 import { SubmitQuizDialogComponent } from './components/submit-quiz-dialog/submit-quiz-dialog.component'
 
 import { PipeDurationTransformModule, PipeLimitToModule } from '@sunbird-cb/utils-v2'
-import { SkeletonLoaderModule } from '@sunbird-cb/collection'
 import {
     BtnFullscreenModule,
+    SkeletonLoaderModule,
 } from '@sunbird-cb/collection'
 import { ResultComponent } from './components/result/result.component'
 import { FillInTheBlankComponent } from './components/question/fitb/fitb.component'
@@ -101,7 +101,7 @@ import { MatTabsModule } from '@angular/material/tabs'
         MatMenuModule,
         MatSelectModule,
         MatTabsModule,
-        NbspModule
+        NbspModule,
 
     ],
     exports: [

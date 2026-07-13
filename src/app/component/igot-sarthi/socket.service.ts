@@ -65,9 +65,7 @@ export class WebSocketService {
       // console.log('error', error)
     }
 
-    this.socket.onclose = () => {
-      console.log('WebSocket connection closed')
-    }
+    this.socket.onclose = () => {}
   }
 
   // Send message to the WebSocket server
@@ -94,7 +92,7 @@ export class WebSocketService {
         this.socket.send(JSON.stringify({ type: 'ping' })) // Send a ping message
         // console.log('Client sent ping');
       }
-    }, 60000) // Send ping every 25 seconds (slightly less than server's 30s)
+    },                                60000) // Send ping every 25 seconds (slightly less than server's 30s)
   }
 
   // Close the WebSocket connection

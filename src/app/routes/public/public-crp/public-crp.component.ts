@@ -4,7 +4,7 @@ import {
   PLATFORM_ID,
   TemplateRef,
   ViewChild,
-  DOCUMENT
+  DOCUMENT,
 } from '@angular/core'
 import {
   UntypedFormControl,
@@ -42,81 +42,81 @@ import { MobileAppsService } from '../../../services/mobile-apps.service'
 import { AppOtpReaderComponent } from '../../../component/app-otp-reader/app-otp-reader.component'
 
 @Component({
-    selector: 'ws-public-crp',
-    templateUrl: './public-crp.component.html',
-    styleUrls: ['./public-crp.component.scss'],
-    standalone: false
+  selector: 'ws-public-crp',
+  templateUrl: './public-crp.component.html',
+  styleUrls: ['./public-crp.component.scss'],
+  standalone: false,
 })
 export class PublicCrpComponent {
   registrationForm!: UntypedFormGroup
   // namePatern = /^[a-zA-Z0-9\s']+$/;
-  namePatern = /^[a-zA-Z\s.]+$/;
-  customCharsPattern = `^[a-zA-Z0-9 \\w\-\&\(\)]*$`;
+  namePatern = /^[a-zA-Z\s.]+$/
+  customCharsPattern = '^[a-zA-Z0-9 \\w\-\&\(\)]*$'
   positionsOriginal!: []
   postions!: any
   masterGroup: any
-  telemetryConfig: NsInstanceConfig.ITelemetryConfig | null = null;
-  portalID = '';
-  confirm = false;
-  confirmTerms = false;
-  disableBtn = false;
-  disableVerifyBtn = false;
-  orgRequired = false;
-  ministeries: any[] = [];
+  telemetryConfig: NsInstanceConfig.ITelemetryConfig | null = null
+  portalID = ''
+  confirm = false
+  confirmTerms = false
+  disableBtn = false
+  disableVerifyBtn = false
+  orgRequired = false
+  ministeries: any[] = []
   masterMinisteries!: Observable<any> | undefined
-  orgs: any[] = [];
+  orgs: any[] = []
   masterOrgs!: Observable<any> | undefined
-  emailLengthVal = false;
-  phoneNumberPattern = '^((\\+91-?)|0)?[0-9]{10}$';
-  isMobileVerified = false;
-  isEmailVerified = false;
-  otpSend = false;
-  otpEmailSend = false;
-  otpVerified = false;
-  OTP_TIMER = environment.resendOTPTIme;
-  timerSubscription: Subscription | null = null;
-  timeLeftforOTP = 0;
-  timeLeftforOTPEmail = 0;
-  timerSubscriptionEmail: Subscription | null = null;
-  OTP_TIMER_EMAIL = environment.resendOTPTIme;
+  emailLengthVal = false
+  phoneNumberPattern = '^((\\+91-?)|0)?[0-9]{10}$'
+  isMobileVerified = false
+  isEmailVerified = false
+  otpSend = false
+  otpEmailSend = false
+  otpVerified = false
+  OTP_TIMER = environment.resendOTPTIme
+  timerSubscription: Subscription | null = null
+  timeLeftforOTP = 0
+  timeLeftforOTPEmail = 0
+  timerSubscriptionEmail: Subscription | null = null
+  OTP_TIMER_EMAIL = environment.resendOTPTIme
   filteredOrgList!: any
   orgList: any
-  resultFetched = false;
+  resultFetched = false
   heirarchyObject: any
-  hideOrg = false;
-  emailPattern = `^[\\w\-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$`;
+  hideOrg = false
+  emailPattern = '^[\\w\-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$'
   zohoHtml: any
-  zohoUrl: any = '/assets/static-data/zoho-code.html';
-  invalidLinkMessage = '';
-  private subscriptionContact: Subscription | null = null;
+  zohoUrl: any = '/assets/static-data/zoho-code.html'
+  invalidLinkMessage = ''
+  private subscriptionContact: Subscription | null = null
   private recaptchaSubscription!: Subscription
   private userdataSubscription!: Subscription
-  searching = false;
-  groupsOriginal: any = [];
+  searching = false
+  groupsOriginal: any = []
 
-  selectedLanguage = 'en';
-  multiLang: any = [];
+  selectedLanguage = 'en'
+  multiLang: any = []
   isMultiLangEnabled: any
   dialogRef: any
-  organizationDetails: IOrganizationDetails | null = null;
+  organizationDetails: IOrganizationDetails | null = null
   frameworkDetails: any
-  organisationsList: any[] = [];
-  designationsList: any[] = [];
-  filteredDesignationsList: any[] = [];
-  filteredGroupsList: any[] = [];
-  stopExecution = 0;
+  organisationsList: any[] = []
+  designationsList: any[] = []
+  filteredDesignationsList: any[] = []
+  filteredGroupsList: any[] = []
+  stopExecution = 0
 
   designationListLoadCount = 50
   designationDefaultLoadCount = 50
-  isLoadingMoreDesignations = false;
+  isLoadingMoreDesignations = false
   desigantionFilterEnable = false
 
-  mobileTopHeaderVisibilityStatus = true;
+  mobileTopHeaderVisibilityStatus = true
   @ViewChild('invalidLinkTemplate') invalidLinkTemplateRef!: TemplateRef<any>
   @ViewChild('emailOTPComponent') emailOTPComponent!: AppOtpReaderComponent
   @ViewChild('phoneOTPComponent') phoneOTPComponent!: AppOtpReaderComponent
-  crpPath: string = '';
-  isMatcompleteOpened = false;
+  crpPath: string = ''
+  isMatcompleteOpened = false
 
   constructor(
     private signupSvc: SignupService,
@@ -173,7 +173,7 @@ export class PublicCrpComponent {
       confirmTermsBox: new UntypedFormControl(false, [Validators.required]),
       designation: new UntypedFormControl('', [Validators.required]),
       isWhatsappConsent: new UntypedFormControl(false),
-      searchDesignation: new UntypedFormControl('')
+      searchDesignation: new UntypedFormControl(''),
     })
     if (
       this.configSvc.instanceConfig &&
@@ -242,7 +242,7 @@ export class PublicCrpComponent {
           this.dialogRef = this.dialog.open(this.invalidLinkTemplateRef, {
             width: '400px',
             height: '200px',
-            data: { type: 'expiredLink', message: message },
+            data: { type: 'expiredLink', message },
             disableClose: true,
           })
         }, 200)
@@ -262,7 +262,7 @@ export class PublicCrpComponent {
     if (isPlatformBrowser(this._platformId)) {
       this._document.body.classList.add('cs-recaptcha')
     }
-    this.http.get(this.zohoUrl, { responseType: 'text' }).subscribe((res) => {
+    this.http.get(this.zohoUrl, { responseType: 'text' }).subscribe(res => {
       this.zohoHtml = this.sanitizer.bypassSecurityTrustHtml(res)
     })
   }
@@ -513,7 +513,7 @@ export class PublicCrpComponent {
     if (this.OTP_TIMER_EMAIL > 0) {
       this.timerSubscriptionEmail = interval(1000)
         .pipe(map(() => startTime + this.OTP_TIMER_EMAIL - Date.now()))
-        .subscribe((_timeRemaining) => {
+        .subscribe(_timeRemaining => {
           this.timeLeftforOTPEmail -= 1
           if (this.timeLeftforOTPEmail < 0) {
             this.timeLeftforOTPEmail = 0
@@ -605,7 +605,7 @@ export class PublicCrpComponent {
 
   checkIfDesignationValid(): boolean {
     const designation = this.filteredDesignationsList.find(
-      (designation) => designation.name === this.registrationForm.value.designation
+      designation => designation.name === this.registrationForm.value.designation
     )
     if (!designation) {
       this.openSnackbar('Invalid Designation', 4000)
@@ -775,7 +775,6 @@ export class PublicCrpComponent {
     this.mobileAppsService.mobileTopHeaderVisibilityStatus.next(this.mobileTopHeaderVisibilityStatus)
   }
 
-
   downloadApp(): void {
     const userAgent = navigator.userAgent
     // Windows Phone must come first because its UA also contains "Android"
@@ -836,11 +835,11 @@ export class PublicCrpComponent {
     setTimeout(() => {
       this.telemetrySvc.end(
         {
-          type: "view",
-          pageid: "/crp",
+          type: 'view',
+          pageid: '/crp',
           uri: this.crpPath,
         }, {}, {
-        module: "Self Registration",
+        module: 'Self Registration',
       })
     }, 2000)
   }
@@ -890,7 +889,6 @@ export class PublicCrpComponent {
   onAutoCompleteClosed() {
     this.isMatcompleteOpened = false
   }
-
 
   setupScrollListener(opened: boolean): void {
     if (opened) {
@@ -944,7 +942,6 @@ export class PublicCrpComponent {
     }
   }
 
-
   checkCurrentDesignationPresent() {
 
     // Get the current designation value
@@ -962,7 +959,7 @@ export class PublicCrpComponent {
           name: currentDesignation,
           // Add any other required properties matching your data structure
           id: 'custom-' + Date.now(),
-          status: 'Active'
+          status: 'Active',
         }
         // Make sure the custom designation appears in the filtered list
         if (this.filteredDesignationsList.length >= this.designationListLoadCount) {

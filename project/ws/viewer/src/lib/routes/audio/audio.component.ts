@@ -7,16 +7,15 @@ import {
   NsContent,
   IWidgetsPlayerMediaData,
 } from '@sunbird-cb/collection'
-import { ViewerUtilService } from '@sunbird-cb/toc'
+import { ViewerUtilService, WidgetContentService } from '@sunbird-cb/toc'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { environment } from 'src/environments/environment'
-import { WidgetContentService } from '@sunbird-cb/toc'
 
 @Component({
     selector: 'viewer-audio',
     templateUrl: './audio.component.html',
     styleUrls: ['./audio.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class AudioComponent implements OnInit, OnDestroy {
   @Input() hideUpNext = false

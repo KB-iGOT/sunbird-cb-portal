@@ -8,7 +8,7 @@ import { MatSnackBar } from '@angular/material/snack-bar'
     selector: 'viewer-dbms-concept-create',
     templateUrl: './dbms-concept-create.component.html',
     styleUrls: ['./dbms-concept-create.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class DbmsConceptCreateComponent implements OnInit {
   @Input() resourceContent: any

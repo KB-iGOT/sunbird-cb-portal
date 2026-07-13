@@ -473,7 +473,7 @@ export class CompetencyCardDetailsV2Component implements OnInit, OnDestroy {
 
   openPDF(content: any): void {
     if (content?.certificateId) {
-      let dialogData = {
+      const dialogData = {
         pdfZoom: 'FitH',
         type: 'PDF',
         action: 'view',

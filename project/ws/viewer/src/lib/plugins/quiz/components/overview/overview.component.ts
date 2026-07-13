@@ -5,7 +5,7 @@ import { NSQuiz } from '../../quiz.model'
     selector: 'viewer-overview',
     templateUrl: './overview.component.html',
     styleUrls: ['./overview.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class OverviewComponent implements OnInit {
   @Input() learningObjective = ''

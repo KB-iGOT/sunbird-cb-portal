@@ -59,14 +59,14 @@ export class RecommendeLearningsComponent implements OnInit {
   }
 
   async getRecommendeLeanings() {
-    let response = await this.seeAllSvc.fetchDesigantionsData(this.recommendedConfig.strip.request.designationsList.path).toPromise()
+    const response = await this.seeAllSvc.fetchDesigantionsData(this.recommendedConfig.strip.request.designationsList.path).toPromise()
     if (response) {
-      let request = {
-        "request": {
-          "courseId": response,
+      const request = {
+        'request': {
+          'courseId': response,
         },
       }
-      let enollData = await this.enrollSvc.fetchEnrollContentData(request).toPromise().then(async (res: any) => {
+      const enollData = await this.enrollSvc.fetchEnrollContentData(request).toPromise().then(async (res: any) => {
         if (res && res.result && res.result.courses && res.result.courses.length) {
           return res.result.courses
         }
@@ -97,9 +97,9 @@ export class RecommendeLearningsComponent implements OnInit {
   }
 
   getPilldata(courses: any, enollData: any, coursesArray: any) {
-    let avaialable: any[] = []
-    let inprogress: any[] = []
-    let completed: any[] = []
+    const avaialable: any[] = []
+    const inprogress: any[] = []
+    const completed: any[] = []
     let cbpData: any
     this.widgetSvc.getData('cbpData').subscribe((result => {
       cbpData = result

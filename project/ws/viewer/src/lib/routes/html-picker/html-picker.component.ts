@@ -4,14 +4,13 @@ import { Subscription } from 'rxjs'
 import { NsContent } from '@sunbird-cb/collection'
 import { ActivatedRoute } from '@angular/router'
 import { EventService, WsEvents } from '@sunbird-cb/utils-v2'
-import { ViewerUtilService } from '@sunbird-cb/toc'
-import { WidgetContentService } from '@sunbird-cb/toc'
+import { ViewerUtilService, WidgetContentService } from '@sunbird-cb/toc'
 
 @Component({
     selector: 'viewer-html-picker',
     templateUrl: './html-picker.component.html',
     styleUrls: ['./html-picker.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class HtmlPickerComponent implements OnInit, OnDestroy {
   private routeDataSubscription: Subscription | null = null

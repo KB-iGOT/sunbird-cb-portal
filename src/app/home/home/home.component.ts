@@ -385,7 +385,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   @HostListener('window:scroll', ['$event'])
   scrollHandler() {
     // Check visibility for sections that aren't already visible
-    for (let i = 0; i < this.sectionList.length; i++) {
+    for (let i = 0; i < this.sectionList.length; i += 1) {
       if (!this.sectionList[i]['isVisible'] &&
         !this.sectionList[i]['section'].match(new RegExp(`^section_[0-${this.initialVisibleStrips - 1}]$`))) {
         this.checkSectionVisibility(this.sectionList[i]['section'])

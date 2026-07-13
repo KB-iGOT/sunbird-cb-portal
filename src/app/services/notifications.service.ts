@@ -24,8 +24,8 @@ export class NotificationsService {
   nofificationsCount = new Subject()
   orgName: string = ''
   constructor(private http: HttpClient,
-              private router: Router,
-              private configService: ConfigurationsService,
+    private router: Router,
+    private configService: ConfigurationsService,
   ) {
     if (this.configService && this.configService.unMappedUser
       && this.configService.unMappedUser.profileDetails
@@ -125,7 +125,7 @@ export class NotificationsService {
         } else if (notification.sub_category === 'USER_TRANSFER') {
           snackBar.open('This request has been resolved or is no longer available.')
         }
-      },                                           error => {
+      }, error => {
         console.error('Error while fetching workflow search data', error)
         snackBar.open('Error while fetching approval data')
       })
@@ -141,7 +141,7 @@ export class NotificationsService {
         window.open(url, '_blank')
       } else {
         this.router.navigate([`/app/toc/${notification.message.data.id}`],
-                             {
+          {
             queryParams: {
               commentId: notification.message.data.commentId,
             },
@@ -150,7 +150,7 @@ export class NotificationsService {
     } else if (notification.sub_category === 'PROFANITY_CHECK') {
       this.router.navigate([
         `/app/discussion-forum-v2/community/${notification.message.data.communityId}/${notification.message.data.discussionId}`,
-      ],                   { queryParams: { profanity: notification.sub_category } })
+      ], { queryParams: { profanity: notification.sub_category } })
     } else {
       this.router.navigate([`/app/discussion-forum-v2/community/${notification.message.data.communityId}/${notification.message.data.discussionId}`])
     }
@@ -205,8 +205,8 @@ export class NotificationsService {
     } else if (notification.sub_category === 'CONTENT_RETIRED') {
       snackBar.open('This content is retired. You can not access it now.')
     } else if (notification.sub_category === 'RETAKE_MANDATORY_COMPREHENSIVE_ASSESSMENT_PROGRAM') {
-      this.router.navigate(['/viewer/practice/', notification.message.data.assessmentId ],
-                           {
+      this.router.navigate(['/viewer/practice/', notification.message.data.assessmentId],
+        {
           queryParams: {
             primaryCategory: notification.message.data.primaryCategory,
             collectionId: notification.message.data.collectionId,
@@ -217,7 +217,7 @@ export class NotificationsService {
       )
     } else if (notification.sub_category === 'EXTERNAL_TRAINING') {
       this.router.navigateByUrl('/page/competency-passbook/list', { skipLocationChange: true }).then(() => {
-        this.router.navigate([`/page/competency-passbook/list`])
+        this.router.navigate(['/page/competency-passbook/list'])
       })
     } else {
       this.router.navigateByUrl('/app/toc', { skipLocationChange: true }).then(() => {

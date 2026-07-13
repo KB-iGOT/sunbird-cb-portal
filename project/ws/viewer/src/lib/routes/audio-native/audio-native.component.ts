@@ -3,14 +3,13 @@ import { Subscription } from 'rxjs'
 import { ValueService, ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { ActivatedRoute } from '@angular/router'
 import { NsContent } from '@sunbird-cb/collection'
-import { ViewerUtilService } from '@sunbird-cb/toc'
-import { WidgetContentService } from '@sunbird-cb/toc'
+import { ViewerUtilService, WidgetContentService } from '@sunbird-cb/toc'
 
 @Component({
     selector: 'viewer-audio-native',
     templateUrl: './audio-native.component.html',
     styleUrls: ['./audio-native.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class AudioNativeComponent implements OnInit, OnDestroy {
   private routeDataSubscription: Subscription | null = null

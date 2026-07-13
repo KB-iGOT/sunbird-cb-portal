@@ -48,7 +48,7 @@ export class FormMicroSiteDataService implements Resolve<any> {
       // Use setTimeout to ensure localStorage is updated before navigation
       setTimeout(() => {
         this.router.navigateByUrl(redirectUrl)
-      },         0)
+      }, 0)
       return false
     }
 
@@ -76,11 +76,11 @@ export class FormMicroSiteDataService implements Resolve<any> {
           // Use setTimeout to ensure localStorage is updated before navigation
           setTimeout(() => {
             this.router.navigateByUrl(redirectUrl)
-          },         0)
+          }, 0)
           return false
         }
-          localStorage.removeItem('microSiteRedirectionData')
-          return { data: finalData?.userRedirectionData, error: null }
+        localStorage.removeItem('microSiteRedirectionData')
+        return { data: finalData?.userRedirectionData, error: null }
 
       }),
       catchError((_error: any) => {

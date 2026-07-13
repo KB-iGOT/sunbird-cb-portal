@@ -4,16 +4,15 @@ import { Subscription } from 'rxjs'
 import { NsContent } from '@sunbird-cb/collection'
 import { WsEvents, EventService, ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { ActivatedRoute } from '@angular/router'
-import { ViewerUtilService } from '@sunbird-cb/toc'
+import { ViewerUtilService, WidgetContentService } from '@sunbird-cb/toc'
 import { environment } from 'src/environments/environment'
 import { PdfScormDataService } from '../../pdf-scorm-data-service'
-import { WidgetContentService } from '@sunbird-cb/toc'
 
 @Component({
     selector: 'viewer-pdf',
     templateUrl: './pdf.component.html',
     styleUrls: ['./pdf.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class PdfComponent implements OnInit, OnDestroy {
   private dataSubscription: Subscription | null = null

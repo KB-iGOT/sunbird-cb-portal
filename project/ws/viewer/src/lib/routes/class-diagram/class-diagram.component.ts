@@ -4,14 +4,13 @@ import { Subscription } from 'rxjs'
 import { NsContent } from '@sunbird-cb/collection'
 import { ValueService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
 import { ActivatedRoute } from '@angular/router'
-import { ViewerUtilService } from '@sunbird-cb/toc'
-import { WidgetContentService } from '@sunbird-cb/toc'
+import { ViewerUtilService, WidgetContentService } from '@sunbird-cb/toc'
 
 @Component({
     selector: 'viewer-class-diagram',
     templateUrl: './class-diagram.component.html',
     styleUrls: ['./class-diagram.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ClassDiagramComponent implements OnInit, OnDestroy {
   private routeDataSubscription: Subscription | null = null

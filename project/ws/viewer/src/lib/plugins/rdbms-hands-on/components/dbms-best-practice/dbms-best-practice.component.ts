@@ -8,7 +8,7 @@ import { UntypedFormGroup, UntypedFormBuilder } from '@angular/forms'
     selector: 'viewer-dbms-best-practice',
     templateUrl: './dbms-best-practice.component.html',
     styleUrls: ['./dbms-best-practice.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class DbmsBestPracticeComponent implements OnInit {
   @Input() resourceContent: any
