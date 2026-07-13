@@ -17,7 +17,7 @@ import {
   MultilingualTranslationsService,
   NsInstanceConfig,
   NsPage,
-  WsEvents
+  WsEvents,
 } from '@sunbird-cb/utils-v2'
 
 import * as _ from 'lodash'
@@ -46,90 +46,90 @@ import { ThemeService } from '@sunbird-cb/design-system'
     SearchInputHomeV4Component,
     BtnFeatureV2Component,
     TopRightNavBarV2Component,
-    BtnProfileModule
+    BtnProfileModule,
   ],
   templateUrl: './app-nav-bar-v2.component.html',
-  styleUrl: './app-nav-bar-v2.component.scss'
+  styleUrl: './app-nav-bar-v2.component.scss',
 })
 export class AppNavBarV2Component implements OnInit, OnDestroy {
   // Inputs using Angular 20 input() signal
-  mode = input<'top' | 'bottom'>('top');
-  headerFooterConfigData = input<any>();
-  leftNavBarOpen = input<boolean>(false);
+  mode = input<'top' | 'bottom'>('top')
+  headerFooterConfigData = input<any>()
+  leftNavBarOpen = input<boolean>(false)
 
   // State signals
-  hideKPOnNav = signal(false);
-  showAppNavBar = signal(false);
-  isPublicHomePage = signal(false);
-  isSetUpPage = signal(false);
-  isLoggedIn = signal(false);
-  activeRoute = signal('');
-  countdata = signal<any>(0);
-  karmaPointLoading = signal(true);
-  notificationsCount = signal(0);
-  janDataEnable = signal(true);
-  isHubEnable = signal(true);
-  previousUrl = signal('');
-  disableMenu = signal(false);
-  showLangDropdown = signal(true);
-  isTourGuideAvailable = signal(false);
-  isTourGuideClosed = signal(false);
+  hideKPOnNav = signal(false)
+  showAppNavBar = signal(false)
+  isPublicHomePage = signal(false)
+  isSetUpPage = signal(false)
+  isLoggedIn = signal(false)
+  activeRoute = signal('')
+  countdata = signal<any>(0)
+  karmaPointLoading = signal(true)
+  notificationsCount = signal(0)
+  janDataEnable = signal(true)
+  isHubEnable = signal(true)
+  previousUrl = signal('')
+  disableMenu = signal(false)
+  showLangDropdown = signal(true)
+  isTourGuideAvailable = signal(false)
+  isTourGuideClosed = signal(false)
 
   // Computed signals replacing getters
-  isPlayerPage = computed(() => window.location.href.includes('/viewer/'));
+  isPlayerPage = computed(() => window.location.href.includes('/viewer/'))
 
   stillOnHomePage = computed(() => {
     return window.location.href.includes('/public/home')
-  });
+  })
 
   fullMenuDispaly = computed(() => {
     return !(this.isPlayerPage() || this.stillOnHomePage())
-  });
+  })
 
-  sShowAppNavBar = computed(() => this.showAppNavBar());
+  sShowAppNavBar = computed(() => this.showAppNavBar())
 
-  needToHide = computed(() => this.currentRoute().includes('all/assessment/'));
+  needToHide = computed(() => this.currentRoute().includes('all/assessment/'))
 
   isforPreview = computed(() => {
     return window.location.href.includes('/public/') ||
       window.location.href.includes('&preview=true') ||
       window.location.href.includes('/certs')
-  });
+  })
 
   isenableLang = computed(() => {
     return window.location.href.includes('/public/faq') ||
       window.location.href.includes('/public/contact')
-  });
+  })
 
   isThisSetUpPage = computed(() => {
     return window.location.pathname.includes('/app/setup')
-  });
+  })
 
   // Regular properties
   basicBtnAppsConfig: NsWidgetResolver.IRenderConfigWithTypedData<IBtnAppsConfig> = {
     widgetType: 'actionButton',
     widgetSubType: 'actionButtonApps',
     widgetData: { allListingUrl: '' },
-  };
+  }
 
   btnAppsConfig!: NsWidgetResolver.IRenderConfigWithTypedData<IBtnAppsConfig>
-  appIcon: SafeUrl | null = null;
-  appIconSecondary: SafeUrl | null = null;
+  appIcon: SafeUrl | null = null
+  appIconSecondary: SafeUrl | null = null
   appBottomIcon?: SafeUrl
-  primaryNavbarBackground: Partial<NsPage.INavBackground> | null = null;
-  primaryNavbarConfig: NsInstanceConfig.IPrimaryNavbarConfig | null = null;
-  filteredPrimaryNavbarConfig: NsInstanceConfig.IPrimaryNavbarConfig | null = null;
+  primaryNavbarBackground: Partial<NsPage.INavBackground> | null = null
+  primaryNavbarConfig: NsInstanceConfig.IPrimaryNavbarConfig | null = null
+  filteredPrimaryNavbarConfig: NsInstanceConfig.IPrimaryNavbarConfig | null = null
   // primaryNavbarConfig: any
-  pageNavbar: Partial<NsPage.INavBackground> | null = null;
-  featureApps: string[] = [];
-  isHelpMenuRestricted = false;
+  pageNavbar: Partial<NsPage.INavBackground> | null = null
+  featureApps: string[] = []
+  isHelpMenuRestricted = false
   popupTour: any
-  currentRoute = signal('page/home');
+  currentRoute = signal('page/home')
   enrollInterval: any
-  tooltipDelay = 1000;
+  tooltipDelay = 1000
   jan26Data: any
   logoDisplayTime: any
-  redirectPath = '/page/home';
+  redirectPath = '/page/home'
 
   private myNotificationsSubscription?: Subscription
 
@@ -208,10 +208,13 @@ export class AppNavBarV2Component implements OnInit, OnDestroy {
       this.jan26Data = this.configSvc.overrideThemeChanges
       this.logoDisplayTime = this.jan26Data?.desktop?.logoDisplayTime
       this.displayLogo()
-      setInterval(() => {
-        this.janDataEnable.set(true)
-        this.displayLogo()
-      }, this.logoDisplayTime)
+      setInterval(
+        () => {
+          this.janDataEnable.set(true)
+          this.displayLogo()
+        },
+        this.logoDisplayTime,
+      )
     }
 
     this.router.events.pipe(
@@ -287,9 +290,12 @@ export class AppNavBarV2Component implements OnInit, OnDestroy {
     })
 
     this.startTour()
-    this.enrollInterval = setInterval(() => {
-      this.getKarmaCount()
-    }, 1000)
+    this.enrollInterval = setInterval(
+      () => {
+        this.getKarmaCount()
+      },
+      1000,
+    )
 
     this.urlService.previousUrl$.subscribe((previousUrl: string) => {
       this.previousUrl.set(previousUrl)
@@ -493,18 +499,20 @@ export class AppNavBarV2Component implements OnInit, OnDestroy {
       (res: any) => {
         this.notificationsCount.set(_.get(res, 'result.unread', 0))
       },
-      error => {
-        console.error('Error while fetching notifications count', error)
+      () => {
         this.notificationsCount.set(0)
-      }
+      },
     )
   }
 
   displayLogo() {
     const animationDur = this.jan26Data?.desktop?.animationDuration
-    setTimeout(() => {
-      this.janDataEnable.set(false)
-    }, animationDur)
+    setTimeout(
+      () => {
+        this.janDataEnable.set(false)
+      },
+      animationDur,
+    )
   }
 
   routeSubs(e: NavigationEnd) {

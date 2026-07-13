@@ -6,16 +6,15 @@ import {
 } from '@sunbird-cb/collection'
 import { ValueService, ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { ActivatedRoute } from '@angular/router'
-import { ViewerUtilService } from '@sunbird-cb/toc'
+import { ViewerUtilService, WidgetContentService } from '@sunbird-cb/toc'
 import { Platform } from '@angular/cdk/platform'
 import { environment } from 'src/environments/environment'
-import { WidgetContentService } from '@sunbird-cb/toc'
 
 @Component({
     selector: 'viewer-video',
     templateUrl: './video.component.html',
     styleUrls: ['./video.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class VideoComponent implements OnInit, OnDestroy {
   @Input() hideUpNext = false
@@ -40,11 +39,10 @@ export class VideoComponent implements OnInit, OnDestroy {
     private contentSvc: WidgetContentService,
     private platform: Platform,
     private accessControlSvc: AccessControlService,
-    private configSvc: ConfigurationsService
+    private configSvc: ConfigurationsService,
   ) { }
 
   ngOnInit() {
-    console.log('this.videoData', this.videoData)
     this.screenSizeSubscription = this.valueSvc.isXSmall$.subscribe(data => {
       this.isScreenSizeSmall = data
     })
@@ -75,7 +73,6 @@ export class VideoComponent implements OnInit, OnDestroy {
         url = this.generateUrl(this.videoData!.artifactUrl)
         this.widgetResolverVideoData.widgetData.url = this.videoData ? url : ''
         this.widgetResolverVideoData.widgetData.disableTelemetry = false
-        console.log('this.videoData', this.videoData)
         if (this.videoData) {
           this.widgetResolverVideoData.widgetData.identifier = this.videoData.identifier
           this.widgetResolverVideoData.widgetData.mimeType = this.videoData.mimeType
@@ -299,10 +296,10 @@ export class VideoComponent implements OnInit, OnDestroy {
               }
             }
             resolve(true) // Resolve when subscription completes successfully
-          }, error => {
-            console.error('Error fetching continue learning data:', error)
+          },
+          () => {
             resolve(true) // Resolve even on error to prevent hanging
-          }
+          },
         )
       } else {
         resolve(true) // Resolve immediately if conditions not met

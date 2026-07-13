@@ -4,7 +4,7 @@ import { BtnSettingsService } from '@sunbird-cb/collection'
     selector: 'ws-font-setting',
     templateUrl: './font-setting.component.html',
     styleUrls: ['./font-setting.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class FontSettingComponent implements OnInit {
 

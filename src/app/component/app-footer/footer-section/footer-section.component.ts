@@ -8,7 +8,7 @@ import _ from 'lodash'
   selector: 'ws-footer-section',
   templateUrl: './footer-section.component.html',
   styleUrls: ['./footer-section.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class FooterSectionComponent implements OnInit, OnChanges {
   @Input() environment: any

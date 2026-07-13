@@ -4,7 +4,7 @@ import { Component, OnInit } from '@angular/core'
     selector: 'ws-dialog-box',
     templateUrl: './dialog-box.component.html',
     styleUrls: ['./dialog-box.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class DialogBoxComponent implements OnInit {
 

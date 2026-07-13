@@ -4,7 +4,7 @@ import { Component, OnInit } from '@angular/core'
     selector: 'ws-home-container',
     templateUrl: './home-container.component.html',
     styleUrls: ['./home-container.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class HomeContainerComponent implements OnInit {
 

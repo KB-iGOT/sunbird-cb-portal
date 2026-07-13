@@ -2,16 +2,21 @@ import { Component, HostListener } from '@angular/core'
 import * as _ from 'lodash'
 import { BadgeService } from '../../services/badge.service'
 import { Router } from '@angular/router'
-import {jsPDF} from 'jspdf'
+import { jsPDF } from 'jspdf'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 @Component({
     selector: 'app-badge-details',
     templateUrl: './badge-details.component.html',
     styleUrls: ['./badge-details.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class BadgeDetailsComponent {
-  constructor(private userProfileService: BadgeService, private router: Router, private badgeService: BadgeService, private configSvc: ConfigurationsService) {
+  constructor(
+    private userProfileService: BadgeService,
+    private router: Router,
+    private badgeService: BadgeService,
+    private configSvc: ConfigurationsService,
+  ) {
   }
   activeTab: 'earned' | 'inprogress' = 'earned'
   @HostListener('document:click')
@@ -67,7 +72,7 @@ export class BadgeDetailsComponent {
             icon: badge?.badgeDetails_v1?.[0]?.badgeTemplate,
             badgeTitle: `${badge?.badgeDetails_v1?.[0]?.badgeTitle}`,
             courseName: `${badge.courseName}`,
-            progress: badge.completionPercentage + '%',
+            progress: `${badge.completionPercentage}%`,
             continue: badge.completionPercentage < 100 && badge.completionPercentage > 0,
             courseId: badge?.courseId,
             endDate: badge?.badgeDetails_v1?.[0]?.badgeEarningDateTime,
@@ -75,9 +80,8 @@ export class BadgeDetailsComponent {
 
         }
 
-      }, error => {
-        console.log('Badge API Error', error)
-      }
+      },
+      _.noop,
     )
 
   }
@@ -117,12 +121,10 @@ export class BadgeDetailsComponent {
   }
 
   viewBadge(badge: any) {
-    console.log('View', badge)
     this.openMenuBadge = null
   }
 
   downloadBadge(badge: any) {
-    console.log('Download', badge)
     this.openMenuBadge = null
   }
 
@@ -209,9 +211,7 @@ export class BadgeDetailsComponent {
         a.click()
         a.remove()
       },
-      error:err => {
-        console.error('Download failed', err)
-      },
+      error: _.noop,
     })
   }
   downloadBadgePdf(badgeData: any) {

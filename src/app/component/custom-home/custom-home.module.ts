@@ -6,15 +6,14 @@ import { MatCardModule } from '@angular/material/card'
 import { MatIconModule } from '@angular/material/icon'
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
 import {
+  ProfileCardStatsModule,
   SlidersModule,
 } from '@sunbird-cb/collection'
 import { CustomHomeComponent } from './custom-home.component'
 import { CustomHomeFormResolverService } from './resolvers/custom-home-form-resolver.service'
 import { AnnouncementsModule } from '@sunbird-cb/consumption'
-import { ProfileCardStatsModule } from '@sunbird-cb/collection'
 import { EventsCalendarModule } from '@ws/app'
 import { FeedListModule } from '../../home/home/feed-list/feed-list.module'
-
 
 const routes: Routes = [
   {
@@ -28,7 +27,7 @@ const routes: Routes = [
     resolve: {
       pageData: CustomHomeFormResolverService,
     },
-  }
+  },
 ]
 
 @NgModule({
@@ -47,6 +46,6 @@ const routes: Routes = [
     EventsCalendarModule,
   ],
   exports: [CustomHomeComponent],
-  providers: [CustomHomeFormResolverService]
+  providers: [CustomHomeFormResolverService],
 })
 export class CustomHomeModule { }

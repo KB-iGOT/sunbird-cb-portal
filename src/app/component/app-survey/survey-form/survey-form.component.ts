@@ -6,7 +6,7 @@ import { ConfigurationsService } from '@sunbird-cb/utils-v2'
     selector: 'ws-survey-form',
     templateUrl: './survey-form.component.html',
     styleUrls: ['./survey-form.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class SurveyFormComponent implements OnInit {
   surveyPopupData: any

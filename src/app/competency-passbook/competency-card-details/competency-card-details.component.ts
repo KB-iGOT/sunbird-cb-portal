@@ -12,14 +12,13 @@ import { TranslateService } from '@ngx-translate/core'
 import { MultilingualTranslationsService, EventService, WsEvents, ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { environment } from 'src/environments/environment'
 import { MatDialog } from '@angular/material/dialog'
-import { CertificateDialogComponent } from '@sunbird-cb/collection'
-import { NsContent } from '@sunbird-cb/collection'
+import { CertificateDialogComponent, NsContent } from '@sunbird-cb/collection'
 
 @Component({
     selector: 'ws-competency-card-details',
     templateUrl: './competency-card-details.component.html',
     styleUrls: ['./competency-card-details.component.scss'],
-    standalone: false
+    standalone: false,
 })
 
 export class CompetencyCardDetailsComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -100,20 +99,23 @@ export class CompetencyCardDetailsComponent implements OnInit, AfterViewInit, On
     } else {
       this.cpService.fetchCertificate(obj.identifier)
         .pipe(takeUntil(this.destroySubject$))
-        .subscribe(res => {
-          // tslint: disable-next-line
-          obj['printURI'] = res.result.printUri
-          obj['loading'] = false
-          this.dialog.open(CertificateDialogComponent, {
-            width: '1200px',
-            data: { cet: res.result.printUri, certId: obj.identifier },
-          })
-        }, (error: HttpErrorResponse) => {
-          if (!error.ok) {
+        .subscribe(
+          res => {
+            // tslint: disable-next-line
+            obj['printURI'] = res.result.printUri
             obj['loading'] = false
-            obj['error'] = 'Failed to fetch Certificate'
-          }
-        })
+            this.dialog.open(CertificateDialogComponent, {
+              width: '1200px',
+              data: { cet: res.result.printUri, certId: obj.identifier },
+            })
+          },
+          (error: HttpErrorResponse) => {
+            if (!error.ok) {
+              obj['loading'] = false
+              obj['error'] = 'Failed to fetch Certificate'
+            }
+          },
+        )
     }
   }
 

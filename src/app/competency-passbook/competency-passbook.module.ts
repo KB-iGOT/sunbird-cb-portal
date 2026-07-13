@@ -1,9 +1,7 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { RouterModule } from '@angular/router'
-import { CbpFiltersModule } from '@sunbird-cb/collection'
-
-import { SkeletonLoaderModule } from '@sunbird-cb/collection'
+import { CbpFiltersModule, SkeletonLoaderModule } from '@sunbird-cb/collection'
 import { PipeSafeSanitizerModule } from '@sunbird-cb/utils-v2'
 import { CompetencyPassbookRoutingModule } from './competency-passbook-routing.module'
 

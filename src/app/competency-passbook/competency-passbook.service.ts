@@ -10,7 +10,7 @@ const API_POINTS = {
     IGOT_COURSE_LIST: 'apis/proxies/v8/sunbirdigot/v4/search',
     EXT_COURSE_LIST: 'apis/proxies/v8/cios/v1/search/content',
     ACHIEVEMENTS_LIST: 'apis/proxies/v8/learner/achievement/v2/list',
-    FETCH_MISSING_THEMES: `apis/proxies/v8/competencyTheme/search`
+    FETCH_MISSING_THEMES: 'apis/proxies/v8/competencyTheme/search',
 }
 
 @Injectable({ providedIn: 'root' })

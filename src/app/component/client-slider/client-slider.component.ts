@@ -5,7 +5,7 @@ import { TranslateService } from '@ngx-translate/core'
     selector: 'ws-client-slider',
     templateUrl: './client-slider.component.html',
     styleUrls: ['./client-slider.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ClientSliderComponent implements OnInit {
   @Input() clientList: any

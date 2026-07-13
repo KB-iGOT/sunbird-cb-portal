@@ -5,7 +5,7 @@ import { TranslateService } from '@ngx-translate/core'
     selector: 'ws-download-app',
     templateUrl: './download-app.component.html',
     styleUrls: ['./download-app.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class DownloadAppComponent implements OnInit {
   @Input() popupClass = ''

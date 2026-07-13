@@ -21,7 +21,7 @@ import { NlwCertificateDialogComponent } from '@sunbird-cb/consumption'
   templateUrl: './competency-card-details-v2.component.html',
   styleUrls: ['./competency-card-details-v2.component.scss'],
   providers: [PipeCertificateImageURL],
-  standalone: false
+  standalone: false,
 })
 
 export class CompetencyCardDetailsV2Component implements OnInit, OnDestroy {
@@ -302,20 +302,23 @@ export class CompetencyCardDetailsV2Component implements OnInit, OnDestroy {
   viewCertificate(obj: any): void {
     this.cpService.fetchCertificate(obj.certificateId)
       .pipe(takeUntil(this.destroySubject$))
-      .subscribe(res => {
-        // tslint: disable-next-line
-        obj['printURI'] = res.result.printUri
-        obj['loading'] = false
-        this.dialog.open(CertificateDialogComponent, {
-          width: '1200px',
-          data: { cet: res.result.printUri, certId: obj.certificateId },
-        })
-      }, (error: HttpErrorResponse) => {
-        if (!error.ok) {
+      .subscribe(
+        res => {
+          // tslint: disable-next-line
+          obj['printURI'] = res.result.printUri
           obj['loading'] = false
-          obj['error'] = 'Failed to fetch Certificate'
-        }
-      })
+          this.dialog.open(CertificateDialogComponent, {
+            width: '1200px',
+            data: { cet: res.result.printUri, certId: obj.certificateId },
+          })
+        },
+        (error: HttpErrorResponse) => {
+          if (!error.ok) {
+            obj['loading'] = false
+            obj['error'] = 'Failed to fetch Certificate'
+          }
+        },
+      )
   }
 
   getCertificateSVG(obj: any, type?: string): void {
@@ -332,20 +335,23 @@ export class CompetencyCardDetailsV2Component implements OnInit, OnDestroy {
     } else {
       this.cpService.fetchCertificate(obj.certificateId)
         .pipe(takeUntil(this.destroySubject$))
-        .subscribe(res => {
-          // tslint: disable-next-line
-          obj['printURI'] = res.result.printUri
-          obj['loading'] = false
-          this.dialog.open(CertificateDialogComponent, {
-            width: '1200px',
-            data: { cet: res.result.printUri, certId: obj.certificateId },
-          })
-        }, (error: HttpErrorResponse) => {
-          if (!error.ok) {
+        .subscribe(
+          res => {
+            // tslint: disable-next-line
+            obj['printURI'] = res.result.printUri
             obj['loading'] = false
-            obj['error'] = 'Failed to fetch Certificate'
-          }
-        })
+            this.dialog.open(CertificateDialogComponent, {
+              width: '1200px',
+              data: { cet: res.result.printUri, certId: obj.certificateId },
+            })
+          },
+          (error: HttpErrorResponse) => {
+            if (!error.ok) {
+              obj['loading'] = false
+              obj['error'] = 'Failed to fetch Certificate'
+            }
+          },
+        )
     }
   }
 
@@ -471,7 +477,7 @@ export class CompetencyCardDetailsV2Component implements OnInit, OnDestroy {
         pdfZoom: 'FitH',
         type: 'PDF',
         action: 'view',
-        title: content.certificateId.split("/")[-1] || content?.name || 'PDF Document',
+        title: content.certificateId.split('/')[-1] || content?.name || 'PDF Document',
         url: content.certificateId,
       }
       let dialogWidth = '700px'

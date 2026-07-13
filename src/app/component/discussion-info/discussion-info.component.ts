@@ -4,7 +4,7 @@ import { Component, OnInit, Input } from '@angular/core'
     selector: 'ws-discussion-info',
     templateUrl: './discussion-info.component.html',
     styleUrls: ['./discussion-info.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class DiscussionInfoComponent implements OnInit {
 

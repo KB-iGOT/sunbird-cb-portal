@@ -11,7 +11,7 @@ import { AppCbpPlansService } from '../../services/app-cbp-plans.service'
     selector: 'ws-app-filter',
     templateUrl: './filter.component.html',
     styleUrls: ['./filter.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class FilterComponent implements OnInit {
   @Output() toggleFilter = new EventEmitter()
@@ -47,9 +47,10 @@ export class FilterComponent implements OnInit {
   }
   searchThemeControl = new UntypedFormControl()
   @ViewChildren('checkboxes') checkboxes!: QueryList<ElementRef>
-  constructor(private appCbpPlansService: AppCbpPlansService,
+  constructor(
+    private appCbpPlansService: AppCbpPlansService,
     private translate: TranslateService,
-    private langtranslations: MultilingualTranslationsService
+    private langtranslations: MultilingualTranslationsService,
   ) {
     this.langtranslations.languageSelectedObservable.subscribe(() => {
       if (localStorage.getItem('websiteLanguage')) {

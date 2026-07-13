@@ -14,7 +14,7 @@ import { environment } from 'src/environments/environment'
   styleUrls: ['./app-footer.component.scss'],
   // tslint:disable-next-line
   encapsulation: ViewEncapsulation.None,
-  standalone: false
+  standalone: false,
 })
 export class AppFooterComponent implements OnInit {
   @Input() headerFooterConfigData: any

@@ -7,13 +7,13 @@ import { Subject } from 'rxjs'
   providedIn: 'root',
 })
 export class AiStreamService {
-   private answerBuffer = ''
- // private jsonChunkBuffer = '';
- // private objectBuffer = '';
-//  private openBraces = 0;
- // private insideObject = false;
+  private answerBuffer = ''
+  // private jsonChunkBuffer = '';
+  // private objectBuffer = '';
+  //  private openBraces = 0;
+  // private insideObject = false;
 
-// private buffer = '';
+  // private buffer = '';
   // private parsedObjects: any[] = [];
   // private openBracesCount = 0;
   // private objectBuffer = '';
@@ -25,16 +25,16 @@ export class AiStreamService {
   private buffer: string = ''
   public chunks: any[] = []
 
-  constructor() {}
+  constructor() { }
   private hasEmittedAnswer = false
 
   public resetEmittedAnswer() {
-     this.hasEmittedAnswer = false
-     this.answerBuffer = ''
-     // this.jsonChunkBuffer = '';
-     // this.objectBuffer = '';
-     // this.openBraces = 0;
-     // this.insideObject = false;
+    this.hasEmittedAnswer = false
+    this.answerBuffer = ''
+    // this.jsonChunkBuffer = '';
+    // this.objectBuffer = '';
+    // this.openBraces = 0;
+    // this.insideObject = false;
   }
   public handleMessage(raw: any): void {
     // if (!raw || !raw.data) return;
@@ -45,11 +45,11 @@ export class AiStreamService {
       this.answerBuffer += this.unescape(raw.answer)
       this.answer$.next(this.answerBuffer)
       this.hasEmittedAnswer = true
-     // return;
+      // return;
     }
 
     if (type === 'stream' && data && !this.hasEmittedAnswer) {
-     // this.buffer += data;
+      // this.buffer += data;
 
       this.handleStream(data)
 
@@ -65,38 +65,35 @@ export class AiStreamService {
       if (this.buffer.includes('retrieved_chunks') || this.buffer.includes('Identifier') || this.buffer.trim().endsWith(']}')) {
         try {
 
-        //   const fixedJson = this.extractValidJSON(this.buffer)['substring'];
+          //   const fixedJson = this.extractValidJSON(this.buffer)['substring'];
 
-        //   console.log('fixedJson', fixedJson)
-        //   if(this.isValidJSON(fixedJson)) {
-        //     console.log('fixedJson',JSON.parse(fixedJson))
-        //   }
-        //   const retriveObject = this.buffer.substring(fixedJson.startIndex, fixedJson.endIndex)
-        // //  console.log('retriveObject',retriveObject)
-        //   if(retriveObject) {
-        //     const parsed = JSON.parse(retriveObject);
-        //     console.log('parsed',parsed)
-        //     // if (Object.keys(parsed).length) {
-        //       this.chunks.push(parsed);
-        //       console.log('✅ Chunks parsed and pushed to array:', this.chunks);
+          //   console.log('fixedJson', fixedJson)
+          //   if(this.isValidJSON(fixedJson)) {
+          //     console.log('fixedJson',JSON.parse(fixedJson))
+          //   }
+          //   const retriveObject = this.buffer.substring(fixedJson.startIndex, fixedJson.endIndex)
+          // //  console.log('retriveObject',retriveObject)
+          //   if(retriveObject) {
+          //     const parsed = JSON.parse(retriveObject);
+          //     console.log('parsed',parsed)
+          //     // if (Object.keys(parsed).length) {
+          //       this.chunks.push(parsed);
+          //       console.log('✅ Chunks parsed and pushed to array:', this.chunks);
 
-        //   }
+          //   }
 
-        const { parsedObjects, remaining } = this.extractValidJSON(this.buffer)
-        // console.log('parsedObjects',parsedObjects)
-        if (parsedObjects.length) {
+          const { parsedObjects, remaining } = this.extractValidJSON(this.buffer)
+          // console.log('parsedObjects',parsedObjects)
+          if (parsedObjects.length) {
+            this.chunks.push(...parsedObjects)
+          }
 
-          this.chunks.push(...parsedObjects)
-          console.log('✅ Parsed JSON objects:', parsedObjects)
-        }
+          this.buffer = remaining
 
-        this.buffer = remaining
-
-            // Reset buffer after success
-           // this.buffer = '';
+          // Reset buffer after success
+          // this.buffer = '';
           // }
         } catch (jsonErr) {
-          console.warn('Waiting for full JSON… not ready yet.')
           // Do nothing — keep buffering
           this.buffer += data
         }
@@ -235,9 +232,9 @@ export class AiStreamService {
   private handleFinal() {
     // this.answerBuffer = '';
     // this.jsonChunkBuffer = '';
-  //  this.objectBuffer = '';
-  //  this.openBraces = 0;
-   // this.insideObject = false;
+    //  this.objectBuffer = '';
+    //  this.openBraces = 0;
+    // this.insideObject = false;
     this.final$.next()
   }
 
@@ -256,9 +253,9 @@ export class AiStreamService {
   private extractValidJSON(buffer: string): { parsedObjects: any[], remaining: string } {
     const parsedObjects: any[] = []
     const depth = 0
-   // let inString = false;
+    // let inString = false;
     let startIndex = -1
-   // console.log('buffer',buffer)
+    // console.log('buffer',buffer)
     for (let i = 0; i < buffer.length; i++) {
       const char = buffer[i]
 
@@ -268,28 +265,28 @@ export class AiStreamService {
       // }
 
       // if (!inString) {
-        if (char === '{') {
-          startIndex = i
-          // depth++;
+      if (char === '{') {
+        startIndex = i
+        // depth++;
+      }
+
+      if (char === '}') {
+        // depth--;
+        // if ( startIndex !== -1) {
+
+        const jsonStr = buffer.substring(startIndex, i + 1)
+
+        this.chunks.push(jsonStr)
+        try {
+          const parsed = JSON.parse(jsonStr)
+          this.retrievedChunks$.next(parsed)
+          parsedObjects.push(parsed)
+        } catch (e) {
+          console.warn('Invalid JSON skipped:', jsonStr)
         }
-
-        if (char === '}') {
-          // depth--;
-          // if ( startIndex !== -1) {
-
-            const jsonStr = buffer.substring(startIndex, i + 1)
-
-            this.chunks.push(jsonStr)
-            try {
-              const parsed = JSON.parse(jsonStr)
-              this.retrievedChunks$.next(parsed)
-              parsedObjects.push(parsed)
-            } catch (e) {
-              console.warn('Invalid JSON skipped:', jsonStr)
-            }
-            startIndex = -1
-          // }
-        }
+        startIndex = -1
+        // }
+      }
       // }
     }
 
@@ -331,12 +328,12 @@ export class AiStreamService {
     }
   }
 
-  isValidJSON(jsonString:any) {
+  isValidJSON(jsonString: any) {
     try {
-        JSON.parse(jsonString)
-        return true
+      JSON.parse(jsonString)
+      return true
     } catch (e) {
-        return false
+      return false
     }
-}
+  }
 }

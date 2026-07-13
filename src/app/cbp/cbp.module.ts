@@ -5,15 +5,16 @@ import { CbpRoutingModule } from './cbp-routing.module'
 import { HeaderModule } from '../header/header.module'
 import {
     GridLayoutModule, SlidersModule, ContentStripWithTabsModule, AvatarPhotoModule,
+    SkeletonLoaderModule,
+    ProfileCardStatsModule,
+    CardContentV2Module,
+    UserLeaderboardModule,
 } from '@sunbird-cb/collection'
-import { SkeletonLoaderModule } from '@sunbird-cb/collection'
-import { ProfileCardStatsModule } from '@sunbird-cb/collection'
 import { PipeRelativeTimeModule } from '@sunbird-cb/utils-v2'
 import { SharedModule } from '../shared/shared.module'
 
 import { CbpPlanComponent } from './cbp-plan/cbp-plan.component'
 import { CbpSideBarComponent } from '../component/cbp-side-bar/cbp-side-bar.component'
-import { CardContentV2Module } from '@sunbird-cb/collection'
 
 import { CbpPlanStatsComponent } from '../component/cbp-plan-stats/cbp-plan-stats.component'
 import { MyCompetencyPassbookComponent } from '../component/my-competency-passbook/my-competency-passbook.component'
@@ -24,7 +25,6 @@ import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 import { FilterComponent } from '../component/filter/filter.component'
 import { FilterSearchPipeModule } from '../pipes/filter-search/filter-search.module'
 import { TranslateModule } from '@ngx-translate/core'
-import { UserLeaderboardModule } from '@sunbird-cb/collection'
 import { MatBottomSheetModule } from '@angular/material/bottom-sheet'
 import { MatCardModule } from '@angular/material/card'
 import { MatCheckboxModule } from '@angular/material/checkbox'
