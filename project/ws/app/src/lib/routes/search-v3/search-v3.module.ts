@@ -16,7 +16,7 @@ import {
   PipeContentRouteModule,
   BtnKbAnalyticsModule,
   UserAutocompleteModule,
-  AvatarPhotoModule
+  AvatarPhotoModule,
 } from '@sunbird-cb/collection'
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
 import {
@@ -143,6 +143,6 @@ import { VolunteerSearchComponent } from './routes/volunteer-search/volunteer-se
   ],
   exports: [SearchInputHomeComponent, NumberShortenerPipe, PluralPipe],
   providers: [],
-  schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA]
+  schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA],
 })
 export class SearchV3Module { }

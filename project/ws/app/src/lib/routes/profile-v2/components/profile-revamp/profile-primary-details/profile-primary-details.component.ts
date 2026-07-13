@@ -14,7 +14,7 @@ import { ConfigDetails } from '@sunbird-cb/consumption'
   selector: 'ws-app-profile-primary-details',
   templateUrl: './profile-primary-details.component.html',
   styleUrls: ['./profile-primary-details.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class ProfilePrimaryDetailsComponent implements OnInit {
   @Input() primaryDetails: any
@@ -279,8 +279,6 @@ export class ProfilePrimaryDetailsComponent implements OnInit {
       }
     )
   }
-
-
 
   handleTranslateTo(menuName: string): string {
     return this.profileV2RevampSvc.handleTranslateTo(menuName)
