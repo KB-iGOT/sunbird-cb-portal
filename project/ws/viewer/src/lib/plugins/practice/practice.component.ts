@@ -639,7 +639,7 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
             }
           }
         },
-          (error: any) => {
+                    (error: any) => {
             this.fetchingSectionsStatus = 'error'
             // Only show specific message for 400 status code errors
             if (error.status === 400) {
@@ -701,7 +701,7 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
             }
           }
         },
-          (error: any) => {
+                    (error: any) => {
             this.fetchingSectionsStatus = 'error'
             // Only show specific message for 400 status code errors
             if (error.status === 400) {
@@ -905,10 +905,10 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
   getMultiQuestions(ids: string[]) {
     if (this.selectedAssessmentCompatibilityLevel < 7) {
       return this.quizSvc.getQuestionsV4(ids, this.identifier, this.forPreview,
-        this.viewerSvc.publicUserDetails, this.collectionId).toPromise()
+                                         this.viewerSvc.publicUserDetails, this.collectionId).toPromise()
     }
     return this.quizSvc.getQuestions(ids, this.identifier, this.forPreview,
-      this.viewerSvc.publicUserDetails, this.collectionId).toPromise()
+                                     this.viewerSvc.publicUserDetails, this.collectionId).toPromise()
   }
   getRhsValue(question: NSPractice.IQuestionV2) {
     if (question && question.qType) {
@@ -1205,7 +1205,7 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
     // status = 1 indicates started
     // status = 2 indicates completed
     const resData = this.viewerSvc.getBatchIdAndCourseId(this.activatedRoute.snapshot.queryParams.collectionId,
-      this.activatedRoute.snapshot.queryParams.batchId, this.identifier)
+                                                         this.activatedRoute.snapshot.queryParams.batchId, this.identifier)
     const collectionId = (resData && resData.courseId) ? resData.courseId : ''
     const batchId = (resData && resData.batchId) ? resData.batchId : ''
     // const collectionId = this.activatedRoute.snapshot.queryParams.collectionId ?
@@ -1238,8 +1238,8 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
           setTimeout(() => {
             this.tocSvc.hashmap[this.widgetContentService.currentMetaData?.content?.data?.parent]['completionPercentage'] = 100
             this.tocSvc.hashmap[this.widgetContentService.currentMetaData?.content?.data?.parent]['completionStatus'] = 2
-          }, 700)
-        }, 700)
+          },         700)
+        },         700)
       }
     }
   }

@@ -18,7 +18,7 @@ import { environment } from 'src/environments/environment'
     selector: 'ws-app-all-competencies',
     templateUrl: './all-competencies.component.html',
     styleUrls: ['./all-competencies.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class AllCompetenciesComponent implements OnInit, OnDestroy, OnChanges {
   private unsubscribe = new Subject<void>()

@@ -15,7 +15,7 @@ import { ActivatedRoute } from '@angular/router'
     selector: 'ws-app-all-providers',
     templateUrl: './all-providers.component.html',
     styleUrls: ['./all-providers.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class AllProvidersComponent implements OnInit {
   public displayLoader!: Observable<boolean>

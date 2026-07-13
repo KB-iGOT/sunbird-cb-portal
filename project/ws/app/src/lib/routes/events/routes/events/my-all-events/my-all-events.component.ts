@@ -11,7 +11,7 @@ import { EventService as libEventService } from '@sunbird-cb/utils-v2'
   selector: 'ws-app-my-all-events',
   templateUrl: './my-all-events.component.html',
   styleUrls: ['./my-all-events.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class MyAllEventsComponent {
   titles: any = []
@@ -70,7 +70,7 @@ export class MyAllEventsComponent {
     }
     this.isLoading = true
     if (_.get(this.configSvc, 'userProfile.userId')) {
-      let userId: any = _.get(this.configSvc, 'userProfile.userId')
+      const userId: any = _.get(this.configSvc, 'userProfile.userId')
       this.eventSvc.myEvents(userId, requestBody).subscribe((resp: any) => {
         this.response = _.get(resp, 'result.events', [])
         this.contentDataList = this.contentDataList.slice(0, -12)

@@ -18,7 +18,7 @@ import { SearchCategory, SearchConstantLocalStorage, SortType } from '../../mode
     selector: 'ws-app-search-sort-input',
     templateUrl: './search-sort-input.component.html',
     styleUrls: ['./search-sort-input.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class SearchSortInputComponent implements AfterViewInit, OnChanges {
   @Output() searchSorter = new EventEmitter()
@@ -50,8 +50,7 @@ export class SearchSortInputComponent implements AfterViewInit, OnChanges {
         this.options = SEARCH_SORT_DROPDOWN.filter(option => option.value !== SortType.HighestRated &&
           option.value !== SortType.MostRelevent)
         this.selectedOption = SortType.RecentlyAdded
-      }
-      else {
+      } else {
         this.options = SEARCH_SORT_DROPDOWN
         this.selectedOption = SortType.MostRelevent
         // this.searchSorter.emit(this.selectedOption);

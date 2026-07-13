@@ -15,7 +15,7 @@ import _ from 'lodash'
     styleUrls: ['./knowledge-all.component.scss'],
     // tslint:disable-next-line
     host: { class: 'flex flex-1 mt-6 mb-6 knowledge_right' },
-    standalone: false
+    standalone: false,
 })
 export class KnowledgeAllComponent implements OnInit, OnDestroy {
 

@@ -6,7 +6,7 @@ import { ConfigurationsService } from '@sunbird-cb/utils-v2'
     selector: 'ws-app-karmayogi-saptah',
     templateUrl: './karmayogi-saptah.component.html',
     styleUrls: ['./karmayogi-saptah.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class KarmayogiSaptahComponent implements OnInit {
 

@@ -5,7 +5,7 @@ import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
     selector: 'ws-app-provider-left-menu',
     templateUrl: './left-menu.component.html',
     styleUrls: ['./left-menu.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ProviderLeftMenuComponent implements OnInit, OnDestroy {
 

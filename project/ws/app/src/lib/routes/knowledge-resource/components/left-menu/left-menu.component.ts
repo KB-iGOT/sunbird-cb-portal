@@ -12,7 +12,7 @@ import { TranslateService } from '@ngx-translate/core'
     selector: 'ws-app-knowledge-left-menu',
     templateUrl: './left-menu.component.html',
     styleUrls: ['./left-menu.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class LeftMenuComponent implements OnInit {
   @Input()

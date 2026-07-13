@@ -13,7 +13,7 @@ import {
   CommonStripModule,
   ContentStripWithTabsLibModule,
   NationalLearningModule,
-  SlidersLibModule
+  SlidersLibModule,
 } from '@sunbird-cb/consumption'
 import { BtnPageBackModule } from '@sunbird-cb/collection'
 import { MdoChannelFormService } from '../mdo-channels/service/mdo-channel-form.service'

@@ -16,7 +16,7 @@ import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
     styleUrls: ['./knowledge-detail.component.scss'],
     // tslint:disable-next-line
     host: { class: 'flex flex-1 overflow-hidden' },
-    standalone: false
+    standalone: false,
 })
 
 export class KnowledgeDetailComponent implements OnInit {

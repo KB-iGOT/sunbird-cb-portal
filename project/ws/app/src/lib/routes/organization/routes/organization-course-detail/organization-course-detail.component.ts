@@ -5,7 +5,7 @@ import { ActivatedRoute } from '@angular/router'
     selector: 'ws-app-organization-course-detail',
     templateUrl: './organization-course-detail.component.html',
     styleUrls: ['./organization-course-detail.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class OrganizationCourseDetailComponent implements OnInit {
   coursesDetail: any

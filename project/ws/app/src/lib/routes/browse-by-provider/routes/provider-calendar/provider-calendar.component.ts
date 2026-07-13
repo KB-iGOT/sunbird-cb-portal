@@ -5,7 +5,7 @@ import { ActivatedRoute } from '@angular/router'
     selector: 'ws-app-provider-calendar',
     templateUrl: './provider-calendar.component.html',
     styleUrls: ['./provider-calendar.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ProviderCalendarComponent implements OnInit {
 

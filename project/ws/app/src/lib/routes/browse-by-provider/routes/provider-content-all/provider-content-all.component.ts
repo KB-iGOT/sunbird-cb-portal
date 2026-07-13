@@ -12,7 +12,7 @@ import { FormExtService } from '../../../../routes/services/form-ext.service'
   selector: 'ws-app-provider-content-all',
   templateUrl: './provider-content-all.component.html',
   styleUrls: ['./provider-content-all.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class ProviderContentAllComponent implements OnInit, OnDestroy {
 

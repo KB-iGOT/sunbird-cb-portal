@@ -13,7 +13,7 @@ import { FormExtService } from '../../../routes/services/form-ext.service'
   selector: 'ws-app-mdo-channels-all-content',
   templateUrl: './mdo-channels-all-content.component.html',
   styleUrls: ['./mdo-channels-all-content.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class MdoChannelsAllContentComponent implements OnInit {
 
