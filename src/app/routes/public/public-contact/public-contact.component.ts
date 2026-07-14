@@ -3,14 +3,14 @@ import { ConfigurationsService, MultilingualTranslationsService, NsPage } from '
 import { Subscription } from 'rxjs'
 import { ActivatedRoute } from '@angular/router'
 // tslint:disable-next-line: import-name
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { TranslateService } from '@ngx-translate/core'
 
 @Component({
-    selector: 'ws-public-contact',
-    templateUrl: './public-contact.component.html',
-    styleUrls: ['./public-contact.component.scss'],
-    standalone: false,
+  selector: 'ws-public-contact',
+  templateUrl: './public-contact.component.html',
+  styleUrls: ['./public-contact.component.scss'],
+  standalone: false,
 })
 export class PublicContactComponent implements OnInit, AfterViewInit, OnDestroy {
   contactUsMail = ''
@@ -39,16 +39,16 @@ export class PublicContactComponent implements OnInit, AfterViewInit, OnDestroy 
     }
   }
   constructor(private configSvc: ConfigurationsService,
-              private activateRoute: ActivatedRoute, private langtranslations: MultilingualTranslationsService,
-              private translate: TranslateService) {
-                this.langtranslations.languageSelectedObservable.subscribe(() => {
-                  if (localStorage.getItem('websiteLanguage')) {
-                    this.translate.setDefaultLang('en')
-                    const lang = localStorage.getItem('websiteLanguage')!
-                    this.translate.use(lang)
-                  }
-                })
-     }
+    private activateRoute: ActivatedRoute, private langtranslations: MultilingualTranslationsService,
+    private translate: TranslateService) {
+    this.langtranslations.languageSelectedObservable.subscribe(() => {
+      if (localStorage.getItem('websiteLanguage')) {
+        this.translate.setDefaultLang('en')
+        const lang = localStorage.getItem('websiteLanguage')!
+        this.translate.use(lang)
+      }
+    })
+  }
 
   ngOnInit() {
     this.subscriptionContact = this.activateRoute.data.subscribe(data => {
@@ -147,7 +147,7 @@ export class PublicContactComponent implements OnInit, AfterViewInit, OnDestroy 
     let htmlAnswer = '<p class=\'mat-body-2\'><ng-container>'
     const labeln = label.replace(/\s/g, '')
     // tslint:disable-next-line: prefer-template
-    const translationKey = type + '.' +  labeln
+    const translationKey = type + '.' + labeln
     // tslint:disable-next-line: prefer-template
     htmlAnswer = htmlAnswer + this.translate.instant(translationKey)
     // tslint:disable-next-line: prefer-template

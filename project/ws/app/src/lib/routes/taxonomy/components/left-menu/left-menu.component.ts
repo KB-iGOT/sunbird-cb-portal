@@ -1,12 +1,12 @@
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core'
 import { WsEvents, EventService } from '@sunbird-cb/utils-v2'
 /* tslint:disable*/
-import _ from 'lodash'
+import * as _ from 'lodash'
 @Component({
-    selector: 'app-discuss-left-menu',
-    templateUrl: './left-menu.component.html',
-    styleUrls: ['./left-menu.component.scss'],
-    standalone: false
+  selector: 'app-discuss-left-menu',
+  templateUrl: './left-menu.component.html',
+  styleUrls: ['./left-menu.component.scss'],
+  standalone: false
 })
 export class LeftMenuComponent implements OnInit {
   @Input() unseen = 0
@@ -19,7 +19,7 @@ export class LeftMenuComponent implements OnInit {
 
   ngOnInit(): void {
   }
-  
+
   onChangeTab(tab: any) {
     this.currentTab.emit(tab)
     this.events.raiseInteractTelemetry(
@@ -28,7 +28,7 @@ export class LeftMenuComponent implements OnInit {
         subType: WsEvents.EnumInteractSubTypes.SIDE_MENU,
         id: `${_.camelCase(tab.name)}-menu`,
       },
-      { },
+      {},
     )
   }
 }

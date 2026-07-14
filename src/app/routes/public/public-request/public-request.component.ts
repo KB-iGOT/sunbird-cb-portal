@@ -3,7 +3,7 @@ import { UntypedFormGroup, UntypedFormControl, Validators, AbstractControl, Vali
 import { ActivatedRoute, Router } from '@angular/router'
 import { environment } from 'src/environments/environment'
 // tslint:disable-next-line: import-name
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { Subscription, Observable, interval } from 'rxjs'
 import { map, pairwise, startWith } from 'rxjs/operators'
 import { SignupService } from '../public-signup/signup.service'

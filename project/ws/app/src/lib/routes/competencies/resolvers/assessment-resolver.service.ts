@@ -6,11 +6,10 @@ import { } from '@sunbird-cb/collection'
 import { IResolveResponse } from '@sunbird-cb/utils-v2'
 import { CompetenceAssessmentService } from '../services/comp-assessment.service'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 
 @Injectable()
-export class AssessmentResolverService
-     {
+export class AssessmentResolverService {
     constructor(private competenceSvc: CompetenceAssessmentService) { }
 
     resolve(

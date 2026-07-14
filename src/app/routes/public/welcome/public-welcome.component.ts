@@ -9,7 +9,7 @@ import { MatSnackBar } from '@angular/material/snack-bar'
 // import { ReCaptchaV3Service } from 'ng-recaptcha'
 // import { DOCUMENT, isPlatformBrowser } from '@angular/common'
 // tslint:disable-next-line: import-name
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { ActivatedRoute, Router } from '@angular/router'
 import { environment } from 'src/environments/environment'
 import { InitService } from '../../../services/init.service'
@@ -223,7 +223,7 @@ export class PublicWelcomeComponent implements OnInit, OnDestroy {
       this.filteredOrgList = res.result.response.filter((org: any) => {
         return org.orgName.toLowerCase().indexOf(filterValue) >= 0
       })
-    },                                                                      (err: any) => {
+    }, (err: any) => {
       this.searching = false
       this.loggerSvc.error('Error in fetching organisations >', err)
       if (err.error && err.error.params && err.error.params.errmsg) {

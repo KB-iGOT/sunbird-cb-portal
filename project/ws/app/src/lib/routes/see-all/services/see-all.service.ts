@@ -5,7 +5,7 @@ import { NSSearch } from '@sunbird-cb/collection'
 import { catchError, map } from 'rxjs/operators'
 
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { FormExtService } from '../../services/form-ext.service'
 // tslint:enable
 

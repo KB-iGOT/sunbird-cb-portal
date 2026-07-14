@@ -6,16 +6,16 @@ import { NSKnowledgeResource } from '../../models/knowledge-resource.models'
 import { ActivatedRoute } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 // tslint:enable
 
 @Component({
-    selector: 'ws-app-knowledge-all',
-    templateUrl: './knowledge-all.component.html',
-    styleUrls: ['./knowledge-all.component.scss'],
-    // tslint:disable-next-line
-    host: { class: 'flex flex-1 mt-6 mb-6 knowledge_right' },
-    standalone: false,
+  selector: 'ws-app-knowledge-all',
+  templateUrl: './knowledge-all.component.html',
+  styleUrls: ['./knowledge-all.component.scss'],
+  // tslint:disable-next-line
+  host: { class: 'flex flex-1 mt-6 mb-6 knowledge_right' },
+  standalone: false,
 })
 export class KnowledgeAllComponent implements OnInit, OnDestroy {
 
@@ -36,16 +36,16 @@ export class KnowledgeAllComponent implements OnInit, OnDestroy {
     private activateRoute: ActivatedRoute,
     private translate: TranslateService,
     private langtranslations: MultilingualTranslationsService,
-    ) {
-      this.allResources = _.get(this.activateRoute.snapshot, 'data.allResources.data.responseData') || []
-      this.langtranslations.languageSelectedObservable.subscribe(() => {
-        if (localStorage.getItem('websiteLanguage')) {
-          this.translate.setDefaultLang('en')
-          const lang = localStorage.getItem('websiteLanguage')!
-          this.translate.use(lang)
-        }
-      })
-     }
+  ) {
+    this.allResources = _.get(this.activateRoute.snapshot, 'data.allResources.data.responseData') || []
+    this.langtranslations.languageSelectedObservable.subscribe(() => {
+      if (localStorage.getItem('websiteLanguage')) {
+        this.translate.setDefaultLang('en')
+        const lang = localStorage.getItem('websiteLanguage')!
+        this.translate.use(lang)
+      }
+    })
+  }
 
   ngOnInit() {
     this.defaultSideNavBarOpenedSubscription = this.isLtMedium$.subscribe(isLtMedium => {
@@ -62,7 +62,7 @@ export class KnowledgeAllComponent implements OnInit, OnDestroy {
   }
 
   refresh() {
-        this.kwResources.getAllResources().subscribe((reponse: NSKnowledgeResource.IResourceResponse) => {
+    this.kwResources.getAllResources().subscribe((reponse: NSKnowledgeResource.IResourceResponse) => {
       if (reponse.statusInfo && reponse.statusInfo.statusCode === 200) {
         this.allResources = reponse.responseData
       }

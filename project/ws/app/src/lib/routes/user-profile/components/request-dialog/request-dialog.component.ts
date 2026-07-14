@@ -1,7 +1,7 @@
 import { Component, Inject, OnInit } from '@angular/core'
 import { UntypedFormGroup, UntypedFormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms'
 // tslint:disable-next-line: import-name
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { Observable } from 'rxjs'
 
 import { v4 as uuid } from 'uuid'
@@ -27,10 +27,10 @@ export function forbiddenNamesValidatorPosition(optionsArray: any): ValidatorFn 
   }
 }
 @Component({
-    selector: 'ws-app-request-dialog',
-    templateUrl: './request-dialog.component.html',
-    styleUrls: ['./request-dialog.component.scss'],
-    standalone: false,
+  selector: 'ws-app-request-dialog',
+  templateUrl: './request-dialog.component.html',
+  styleUrls: ['./request-dialog.component.scss'],
+  standalone: false,
 })
 export class RequestDialogComponent implements OnInit {
   requestForm!: UntypedFormGroup

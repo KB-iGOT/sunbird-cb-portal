@@ -2,7 +2,7 @@ import { Pipe, PipeTransform } from '@angular/core'
 
 @Pipe({
   name: 'numberShortener',
-  standalone: false
+  standalone: false,
 })
 export class NumberShortenerPipe implements PipeTransform {
   private readonly SUFFIXES = ['', 'K', 'M', 'B', 'T']
@@ -15,18 +15,18 @@ export class NumberShortenerPipe implements PipeTransform {
     if (value === 0 || value === '0') {
       return '0'
     }
-    value = Number(value)
+    const numericValue = Number(value)
 
-    if (Math.abs(value) < 1000) {
-      return value.toString()
+    if (Math.abs(numericValue) < 1000) {
+      return numericValue.toString()
     }
 
-    const isNegative = value < 0
-    const absValue = Math.abs(value)
+    const isNegative = numericValue < 0
+    const absValue = Math.abs(numericValue)
     const suffixIndex = Math.floor(Math.log10(absValue) / 3)
 
     if (suffixIndex >= this.SUFFIXES.length) {
-      return value.toString()
+      return numericValue.toString()
     }
 
     const shortValue = (absValue / Math.pow(1000, suffixIndex))

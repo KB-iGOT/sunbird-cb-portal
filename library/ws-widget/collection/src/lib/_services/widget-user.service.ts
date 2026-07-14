@@ -8,7 +8,7 @@ import dayjs from 'dayjs'
 import { environment } from 'src/environments/environment'
 import { NsCardContent } from '../card-content-v2/card-content-v2.model'
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 
 const PROTECTED_SLAG_V8 = '/apis/protected/v8'
 const API_END_POINTS = {

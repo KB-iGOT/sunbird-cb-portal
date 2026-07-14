@@ -2,14 +2,14 @@ import { Component, OnInit, OnDestroy, Input } from '@angular/core'
 import { NSNetworkDataV2 } from '../../models/network-v2.model'
 import { EventService, MultilingualTranslationsService, WsEvents } from '@sunbird-cb/utils-v2'
 /* tslint:disable*/
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { TranslateService } from '@ngx-translate/core'
 
 @Component({
-    selector: 'ws-app-left-menu',
-    templateUrl: './left-menu.component.html',
-    styleUrls: ['./left-menu.component.scss'],
-    standalone: false
+  selector: 'ws-app-left-menu',
+  templateUrl: './left-menu.component.html',
+  styleUrls: ['./left-menu.component.scss'],
+  standalone: false
 })
 export class LeftMenuComponent implements OnInit, OnDestroy {
 
@@ -25,7 +25,7 @@ export class LeftMenuComponent implements OnInit, OnDestroy {
       let lang = localStorage.getItem('websiteLanguage')!
       this.translate.use(lang)
     }
-   }
+  }
 
   ngOnInit(): void {
 
@@ -41,7 +41,7 @@ export class LeftMenuComponent implements OnInit, OnDestroy {
         subType: WsEvents.EnumInteractSubTypes.SIDE_MENU,
         id: `${_.camelCase(tab.name)}-menu`,
       },
-      { },
+      {},
     )
   }
 

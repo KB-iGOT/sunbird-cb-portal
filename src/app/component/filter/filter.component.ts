@@ -1,17 +1,17 @@
 import { Component, Input, ElementRef, EventEmitter, OnInit, Output, QueryList, ViewChildren } from '@angular/core'
 import { UntypedFormControl } from '@angular/forms'
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 import { TranslateService } from '@ngx-translate/core'
 import { AppCbpPlansService } from '../../services/app-cbp-plans.service'
 // tslint:enable
 
 @Component({
-    selector: 'ws-app-filter',
-    templateUrl: './filter.component.html',
-    styleUrls: ['./filter.component.scss'],
-    standalone: false,
+  selector: 'ws-app-filter',
+  templateUrl: './filter.component.html',
+  styleUrls: ['./filter.component.scss'],
+  standalone: false,
 })
 export class FilterComponent implements OnInit {
   @Output() toggleFilter = new EventEmitter()

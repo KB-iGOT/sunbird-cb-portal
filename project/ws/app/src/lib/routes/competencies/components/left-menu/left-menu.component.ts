@@ -3,13 +3,13 @@ import { ActivatedRoute } from '@angular/router'
 import { NSCompetencie } from '../../models/competencies.model'
 import { WsEvents, EventService } from '@sunbird-cb/utils-v2'
 /* tslint:disable*/
-import _ from 'lodash'
+import * as _ from 'lodash'
 
 @Component({
-    selector: 'app-competence-left-menu',
-    templateUrl: './left-menu.component.html',
-    styleUrls: ['./left-menu.component.scss'],
-    standalone: false
+  selector: 'app-competence-left-menu',
+  templateUrl: './left-menu.component.html',
+  styleUrls: ['./left-menu.component.scss'],
+  standalone: false
 })
 export class LeftMenuComponent implements OnInit, OnDestroy {
 
@@ -37,7 +37,7 @@ export class LeftMenuComponent implements OnInit, OnDestroy {
         subType: WsEvents.EnumInteractSubTypes.SIDE_MENU,
         id: `${_.camelCase(tab.name)}-menu`,
       },
-      { },
+      {},
     )
   }
 }

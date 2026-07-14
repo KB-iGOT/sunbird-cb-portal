@@ -33,7 +33,7 @@ import { NetCoreService } from '../../../../routes/services/netcore.service'
   templateUrl: './profile-view-v2.component.html',
   styleUrls: ['./profile-view-v2.component.scss'],
   providers: [PipeCertificateImageURL],
-  standalone: false
+  standalone: false,
 })
 export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy {
 
@@ -96,13 +96,13 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
       url: './assets/icons/checklist.svg',
       icon: '',
       id: 'basic-details',
-      key: 'basicDetails'
+      key: 'basicDetails',
     }, {
       name: 'NetworkV2Profile.serviceHistory',
       url: '',
       icon: 'history',
       id: 'service-history',
-      key: 'serviceHistory'
+      key: 'serviceHistory',
     }, {
       //   name: 'Competencies',
       //   url: '',
@@ -114,13 +114,13 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
       url: '',
       icon: 'school',
       id: 'educational-qualifications',
-      key: 'educationalQualifications'
+      key: 'educationalQualifications',
     }, {
       name: 'NetworkV2Profile.achievements',
       url: './assets/icons/trophy.svg',
       icon: '',
       id: 'achievements',
-      key: 'achievements'
+      key: 'achievements',
     },
   ]
   activeRoutId: string = 'about-me'
@@ -322,8 +322,8 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
       limit: 3,
 
       filterCriteriaMap: {
-        communityAccessLevel: "public"
-      }
+        communityAccessLevel: 'public',
+      },
     }
     this.communitySuggestionsLoading = true
     const configDetails: ConfigDetails = this.getConfigDetails('communityV1Popular')
@@ -823,6 +823,7 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
     /* tslint:disable */
     // console.log('this.content', this.portalProfile)
     /* tslint:enable */
+    /* tslint:disable */
     // smartech('contact', '2', {
     //   'pk^userid': this.configSvc.unMappedUser.identifier.trim().toLowerCase(),
     //   'FULL_NAME' : this.profileName.trim().toLowerCase(),
@@ -852,6 +853,7 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
     /* tslint:disable */
     // console.log('this.content', this.portalProfile)
     /* tslint:enable */
+    /* tslint:disable */
     // smartech('contact', '2', {
     //   'pk^userid': this.configSvc.unMappedUser.identifier.trim().toLowerCase(),
     //   'FULL_NAME' : this.profileName.trim().toLowerCase(),
@@ -879,6 +881,7 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
     /* tslint:disable */
     // console.log('this.content', this.portalProfile)
     /* tslint:enable */
+    /* tslint:disable */
     // smartech('contact', '2', {
     //   'pk^userid': this.configSvc.unMappedUser.identifier.trim().toLowerCase(),
     //   'FULL_NAME' : this.profileName.trim().toLowerCase(),
@@ -1095,7 +1098,7 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
       header,
       profileDetails: this.primaryDetails,
       primaryDetailsEditConfig: this.getEditConfig(this.profileConfig?.basicDetails?.primaryDetails?.editObjectKey),
-      apiConfig: this.apiConfig
+      apiConfig: this.apiConfig,
     }
     if (header === 'Profile') {
       dialogDetails.profileDetails = {
@@ -2245,8 +2248,6 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
     )
   }
 
-
-
   openNlwCertificateDialog(): void {
     if (!this.nlwExperience?.banner?.onClick) { return }
     const onClick = this.nlwExperience.banner.onClick
@@ -2273,7 +2274,7 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
         action: onClick.action,
         type: 'PDF',
         title: this.nlwExperience.banner.title || 'PM Appreciation Letter',
-        url: url,
+        url,
       }
     }
     let dialogWidth = '700px'

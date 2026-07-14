@@ -1,17 +1,17 @@
 import { Component, OnInit, OnDestroy, Input } from '@angular/core'
 import { EventService, WsEvents } from '@sunbird-cb/utils-v2'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { Subscription } from 'rxjs'
 import { NSProfileDataV3 } from '../../models/profile-v3.models'
 import { StepService } from '../../services/step.service'
 import { TranslateService } from '@ngx-translate/core'
 
 @Component({
-    selector: 'ws-app-l-menu',
-    templateUrl: './left-menu.component.html',
-    styleUrls: ['./left-menu.component.scss'],
-    standalone: false,
+  selector: 'ws-app-l-menu',
+  templateUrl: './left-menu.component.html',
+  styleUrls: ['./left-menu.component.scss'],
+  standalone: false,
 })
 export class SetupLeftMenuComponent implements OnInit, OnDestroy {
   @Input()

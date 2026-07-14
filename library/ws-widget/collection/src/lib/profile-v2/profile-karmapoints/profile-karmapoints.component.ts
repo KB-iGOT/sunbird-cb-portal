@@ -4,15 +4,15 @@ import { TranslateService } from '@ngx-translate/core'
 import { WidgetBaseComponent, NsWidgetResolver } from '@sunbird-cb/resolver'
 import { EventService, MultilingualTranslationsService, WsEvents } from '@sunbird-cb/utils-v2'
 /* tslint:disable */
-import _ from 'lodash'
+import * as _ from 'lodash'
 /* tslint:enable */
 @Component({
-    selector: 'ws-widget-profile-v2-karmapoints',
-    templateUrl: './profile-karmapoints.component.html',
-    styleUrls: ['./profile-karmapoints.component.scss'],
-    /* tslint:disable */
-    host: { class: 'flex flex-1' },
-    standalone: false
+  selector: 'ws-widget-profile-v2-karmapoints',
+  templateUrl: './profile-karmapoints.component.html',
+  styleUrls: ['./profile-karmapoints.component.scss'],
+  /* tslint:disable */
+  host: { class: 'flex flex-1' },
+  standalone: false
 })
 export class ProfileKarmapointsComponent extends WidgetBaseComponent implements OnInit, NsWidgetResolver.IWidgetData<any> {
   @Input() widgetData!: any
@@ -20,8 +20,8 @@ export class ProfileKarmapointsComponent extends WidgetBaseComponent implements 
   public id = 'profile-karmapoints'
 
   constructor(private router: Router, private events: EventService,
-              private langtranslations: MultilingualTranslationsService,
-              private translate: TranslateService) {
+    private langtranslations: MultilingualTranslationsService,
+    private translate: TranslateService) {
     super()
     if (localStorage.getItem('websiteLanguage')) {
       this.translate.setDefaultLang('en')
@@ -37,7 +37,7 @@ export class ProfileKarmapointsComponent extends WidgetBaseComponent implements 
     if (row && row.addinfo && row.context_type === 'Course') {
       const info = JSON.parse(row.addinfo)
       return info.COURSENAME ? info.COURSENAME : 'No course'
-    }  if (row && row.addinfo && row.context_type.toLowerCase() === 'event') {
+    } if (row && row.addinfo && row.context_type.toLowerCase() === 'event') {
       const info = JSON.parse(row.addinfo)
       return info.EVENTNAME ? info.EVENTNAME : 'No event'
     }
@@ -68,7 +68,7 @@ export class ProfileKarmapointsComponent extends WidgetBaseComponent implements 
       {
         pageIdExt: 'profileInfo',
         module: WsEvents.EnumTelemetrymodules.KARMAPOINTS,
-    })
+      })
   }
 
   getTitle(row: any) {

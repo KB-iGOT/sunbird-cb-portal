@@ -7,7 +7,7 @@ import { ConfigurationsService, EventService, LoggerService, TFetchStatus } from
 import { MobileAppsService } from '../../../../../../../src/app/services/mobile-apps.service'
 import { SCORMAdapterService, scormLMSStatus } from './SCORMAdapter/scormAdapter'
 /* tslint:disable */
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { environment } from 'src/environments/environment'
 import { Subscription, timer } from 'rxjs'
 import { Storage } from './SCORMAdapter/storage'
@@ -15,10 +15,10 @@ import { AppTocService, ViewerUtilService, WidgetContentService } from '@sunbird
 /* tslint:enable */
 
 @Component({
-    selector: 'viewer-plugin-html',
-    templateUrl: './html.component.html',
-    styleUrls: ['./html.component.scss'],
-    standalone: false,
+  selector: 'viewer-plugin-html',
+  templateUrl: './html.component.html',
+  styleUrls: ['./html.component.scss'],
+  standalone: false,
 })
 export class HtmlComponent implements OnInit, OnChanges, OnDestroy {
   @ViewChild('mobileOpenInNewTab', { read: ElementRef }) mobileOpenInNewTab !: ElementRef<HTMLAnchorElement>

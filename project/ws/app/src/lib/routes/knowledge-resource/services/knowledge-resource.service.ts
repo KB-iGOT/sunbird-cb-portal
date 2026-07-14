@@ -4,7 +4,7 @@ import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
 import { NSKnowledgeResource } from '../models/knowledge-resource.models'
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 
 // tslint:enable
 
@@ -26,56 +26,56 @@ export class KnowledgeResourceService {
 
   knowledgeResource: NSKnowledgeResource.IResourceData | undefined
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   getAllResources(): Observable<any> {
     return this.http.get<NSKnowledgeResource.IResourceData[]>(API_ENDPOINTS.getBookmarkedResources)
-    .pipe(map((data: any) => {
-      _.each(_.get(data, 'responseData'), rd => {
-        const fileList = _.get(rd, 'additionalProperties.krFiles')
-        _.each(fileType, ft => {
-          switch (ft) {
-            case 'image':
-            const  imageCount = this.countFileType(fileList, ft)
-            _.set(rd, 'totalFiles.images' , imageCount)
-            break
+      .pipe(map((data: any) => {
+        _.each(_.get(data, 'responseData'), rd => {
+          const fileList = _.get(rd, 'additionalProperties.krFiles')
+          _.each(fileType, ft => {
+            switch (ft) {
+              case 'image':
+                const imageCount = this.countFileType(fileList, ft)
+                _.set(rd, 'totalFiles.images', imageCount)
+                break
 
-            case 'pdf':
-              const  pdfCount = this.countFileType(fileList, ft)
-              _.set(rd, 'totalFiles.pdf' , pdfCount)
-            break
+              case 'pdf':
+                const pdfCount = this.countFileType(fileList, ft)
+                _.set(rd, 'totalFiles.pdf', pdfCount)
+                break
 
-            case 'doc':
-              const  docCount = this.countFileType(fileList, ft)
-              _.set(rd, 'totalFiles.doc' , docCount)
-            break
+              case 'doc':
+                const docCount = this.countFileType(fileList, ft)
+                _.set(rd, 'totalFiles.doc', docCount)
+                break
 
-            default:
-              const  otherCount = 0
-              _.set(rd, 'totalFiles.others' , otherCount)
-            break
-          }
+              default:
+                const otherCount = 0
+                _.set(rd, 'totalFiles.others', otherCount)
+                break
+            }
 
+          })
         })
-      })
 
-      return data
-    }))
-   }
+        return data
+      }))
+  }
 
   countFileType(fileList: NSKnowledgeResource.IKrFiles[], flType: string) {
-      let count = 0
-      if (fileList && fileList.length > 0 && fileType.includes(flType)) {
-        if (flType === 'image') {
-          count = (_.filter(fileList, f => _.includes(imageTypes, f.fileType)) || []).length
-        } else {
-          count = (_.filter(fileList, { fileType: flType }) || []).length
-        }
-
+    let count = 0
+    if (fileList && fileList.length > 0 && fileType.includes(flType)) {
+      if (flType === 'image') {
+        count = (_.filter(fileList, f => _.includes(imageTypes, f.fileType)) || []).length
       } else {
-
+        count = (_.filter(fileList, { fileType: flType }) || []).length
       }
-      return count
+
+    } else {
+
+    }
+    return count
   }
 
   addBookmark(data: any): Observable<any> {
@@ -84,73 +84,73 @@ export class KnowledgeResourceService {
 
   getBookmarkedResource(): Observable<any> {
     return this.http.get<NSKnowledgeResource.IResourceData[]>(API_ENDPOINTS.getBookmarkedResources)
-    .pipe(map((data: any) => {
-      _.each(_.get(data, 'responseData'), rd => {
-        const fileList = _.get(rd, 'additionalProperties.krFiles')
-        _.each(fileType, ft => {
-          switch (ft) {
-            case 'image':
-            const  imageCount = this.countFileType(fileList, ft)
-            _.set(rd, 'totalFiles.images' , imageCount)
-            break
+      .pipe(map((data: any) => {
+        _.each(_.get(data, 'responseData'), rd => {
+          const fileList = _.get(rd, 'additionalProperties.krFiles')
+          _.each(fileType, ft => {
+            switch (ft) {
+              case 'image':
+                const imageCount = this.countFileType(fileList, ft)
+                _.set(rd, 'totalFiles.images', imageCount)
+                break
 
-            case 'pdf':
-              const  pdfCount = this.countFileType(fileList, ft)
-              _.set(rd, 'totalFiles.pdf' , pdfCount)
-            break
+              case 'pdf':
+                const pdfCount = this.countFileType(fileList, ft)
+                _.set(rd, 'totalFiles.pdf', pdfCount)
+                break
 
-            case 'doc':
-              const  docCount = this.countFileType(fileList, ft)
-              _.set(rd, 'totalFiles.doc' , docCount)
-            break
+              case 'doc':
+                const docCount = this.countFileType(fileList, ft)
+                _.set(rd, 'totalFiles.doc', docCount)
+                break
 
-            default:
-              const  otherCount = 0
-              _.set(rd, 'totalFiles.others' , otherCount)
-            break
-          }
+              default:
+                const otherCount = 0
+                _.set(rd, 'totalFiles.others', otherCount)
+                break
+            }
 
+          })
         })
-      })
 
-      return data
-    }))
+        return data
+      }))
   }
 
   getResource(id: string, type: string): Observable<any> {
     // const regularExpressionPdf = /.png/
     // const regularExpressionPDF = /.jpg/
     return this.http.get<any>(API_ENDPOINTS.getSingleResource(id, type))
-    .pipe(map((data: any) => {
-      _.each(_.get(data, 'responseData'), rd => {
-        const fileList = _.get(rd, 'krFiles')
-        _.each(fileType, ft => {
-          switch (ft) {
-            case 'image':
-            const  imageCount = this.countFileType(fileList, ft)
-            _.set(rd, 'totalFiles.images' , imageCount)
-            break
+      .pipe(map((data: any) => {
+        _.each(_.get(data, 'responseData'), rd => {
+          const fileList = _.get(rd, 'krFiles')
+          _.each(fileType, ft => {
+            switch (ft) {
+              case 'image':
+                const imageCount = this.countFileType(fileList, ft)
+                _.set(rd, 'totalFiles.images', imageCount)
+                break
 
-            case 'pdf':
-              const  pdfCount = this.countFileType(fileList, ft)
-              _.set(rd, 'totalFiles.pdf' , pdfCount)
-            break
+              case 'pdf':
+                const pdfCount = this.countFileType(fileList, ft)
+                _.set(rd, 'totalFiles.pdf', pdfCount)
+                break
 
-            case 'doc':
-              const  docCount = this.countFileType(fileList, ft)
-              _.set(rd, 'totalFiles.doc' , docCount)
-            break
+              case 'doc':
+                const docCount = this.countFileType(fileList, ft)
+                _.set(rd, 'totalFiles.doc', docCount)
+                break
 
-            default:
-              const  otherCount = 0
-              _.set(rd, 'totalFiles.others' , otherCount)
-            break
-          }
+              default:
+                const otherCount = 0
+                _.set(rd, 'totalFiles.others', otherCount)
+                break
+            }
 
+          })
         })
-      })
-      return data
-    }))
+        return data
+      }))
 
     // .pipe(map((data: any) => {
     //   _.each(_.get(data, 'responseData.additionalProperties.krFiles'), files => {

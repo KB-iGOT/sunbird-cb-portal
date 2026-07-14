@@ -2,7 +2,7 @@
 import { Injectable } from '@angular/core'
 import { Storage, IScromData } from './storage'
 import { errorCodes } from './errors'
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { HttpBackend, HttpClient } from '@angular/common/http'
 import { ActivatedRoute } from '@angular/router'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'

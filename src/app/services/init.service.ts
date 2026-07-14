@@ -18,7 +18,7 @@ import {
 } from '@sunbird-cb/utils-v2'
 import { environment } from '../../environments/environment'
 /* tslint:disable */
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { firstValueFrom } from 'rxjs'
 import { map } from 'rxjs/operators'
 import { v4 as uuid } from 'uuid'

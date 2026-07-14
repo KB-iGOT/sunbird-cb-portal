@@ -9,7 +9,7 @@ import { MomentDateAdapter } from '@angular/material-moment-adapter'
 import { DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core'
 
 /* tslint:disable */
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { Subject } from 'rxjs'
 import { debounceTime, distinctUntilChanged, startWith, takeUntil } from 'rxjs/operators'
 
@@ -62,11 +62,12 @@ const EMP_ID_PATTERN = /^[a-z0-9]+$/i
   /* tslint:disable */
   host: { class: 'flex margin-bottom-l' },
   /* tslint:enable */
+  /* tslint:disable */
   providers: [
     { provide: DateAdapter, useClass: MomentDateAdapter, deps: [MAT_DATE_LOCALE] },
     { provide: MAT_DATE_FORMATS, useValue: MY_FORMATS },
   ],
-  standalone: false
+  standalone: false,
 })
 
 export class ProfileViewComponent implements OnInit, AfterViewInit, OnDestroy {
@@ -1804,6 +1805,7 @@ export class ProfileViewComponent implements OnInit, AfterViewInit, OnDestroy {
     /* tslint:disable */
     console.log('this.content', this.portalProfile)
     /* tslint:enable */
+    /* tslint:disable */
     // smartech('contact', '2', {
     //   'pk^userid': this.configService.unMappedUser.identifier.trim().toLowerCase(),
     //   'FULL_NAME' : this.profileName.trim().toLowerCase(),
@@ -1833,6 +1835,7 @@ export class ProfileViewComponent implements OnInit, AfterViewInit, OnDestroy {
     /* tslint:disable */
     console.log('this.content', this.portalProfile)
     /* tslint:enable */
+    /* tslint:disable */
     // smartech('contact', '2', {
     //   'pk^userid': this.configService.unMappedUser.identifier.trim().toLowerCase(),
     //   'FULL_NAME' : this.profileName.trim().toLowerCase(),
@@ -1860,6 +1863,7 @@ export class ProfileViewComponent implements OnInit, AfterViewInit, OnDestroy {
     /* tslint:disable */
     console.log('this.content', this.portalProfile)
     /* tslint:enable */
+    /* tslint:disable */
     // smartech('contact', '2', {
     //   'pk^userid': this.configService.unMappedUser.identifier.trim().toLowerCase(),
     //   'FULL_NAME' : this.profileName.trim().toLowerCase(),

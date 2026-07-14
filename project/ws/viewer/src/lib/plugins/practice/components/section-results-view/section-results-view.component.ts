@@ -15,14 +15,14 @@ interface FormattedQuestion extends NSPractice.ISectionQuestion {
     trigger('slideDown', [
       transition(':enter', [
         style({ opacity: 0, transform: 'translateY(-10px)' }),
-        animate('300ms ease-out', style({ opacity: 1, transform: 'translateY(0)' }))
+        animate('300ms ease-out', style({ opacity: 1, transform: 'translateY(0)' })),
       ]),
       transition(':leave', [
-        animate('300ms ease-in', style({ opacity: 0, transform: 'translateY(-10px)' }))
-      ])
-    ])
+        animate('300ms ease-in', style({ opacity: 0, transform: 'translateY(-10px)' })),
+      ]),
+    ]),
   ],
-  standalone: false
+  standalone: false,
 })
 export class SectionResultsViewComponent implements OnInit {
   @Input() sectionData!: NSPractice.IQuizSubmitResSec

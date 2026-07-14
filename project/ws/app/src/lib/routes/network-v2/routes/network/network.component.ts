@@ -5,14 +5,14 @@ import { map } from 'rxjs/operators'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { NSNetworkDataV2 } from '../../models/network-v2.model'
 /* tslint:disable */
-import _ from 'lodash'
+import * as _ from 'lodash'
 /* tslint:enable */
 
 @Component({
-    selector: 'ws-app-network',
-    templateUrl: './network.component.html',
-    styleUrls: ['./network.component.scss'],
-    standalone: false,
+  selector: 'ws-app-network',
+  templateUrl: './network.component.html',
+  styleUrls: ['./network.component.scss'],
+  standalone: false,
 })
 export class NetworkComponent implements OnInit, OnDestroy {
   @ViewChild('stickyMenu', { static: true }) menuElement!: ElementRef

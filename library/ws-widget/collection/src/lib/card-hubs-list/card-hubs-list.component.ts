@@ -6,7 +6,7 @@ import { ConfigurationsService, DomainConfService, MultilingualTranslationsServi
 import { Subscription } from 'rxjs'
 import { environment } from 'src/environments/environment'
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { LibNotificationsService } from '@sunbird-cb/notification'
 // tslint:enable
 

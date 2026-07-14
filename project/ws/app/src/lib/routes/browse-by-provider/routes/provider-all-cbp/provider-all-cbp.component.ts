@@ -3,18 +3,18 @@ import { BrowseProviderService } from '../../services/browse-provider.service'
 import { Subscription, Subject, Observable } from 'rxjs'
 import { ActivatedRoute } from '@angular/router'
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { UntypedFormGroup, UntypedFormControl } from '@angular/forms'
 import { debounceTime, switchMap, takeUntil } from 'rxjs/operators'
 import { TranslateService } from '@ngx-translate/core'
 import { NsContent } from '@sunbird-cb/collection'
 
 @Component({
-    selector: 'ws-app-provider-all-cbp',
-    templateUrl: './provider-all-cbp.component.html',
-    styleUrls: ['./provider-all-cbp.component.scss'],
-    host: { class: 'flex flex-1' },
-    standalone: false
+  selector: 'ws-app-provider-all-cbp',
+  templateUrl: './provider-all-cbp.component.html',
+  styleUrls: ['./provider-all-cbp.component.scss'],
+  host: { class: 'flex flex-1' },
+  standalone: false
 })
 export class ProviderAllCbpComponent implements OnInit, OnDestroy {
   private paramSubscription: Subscription | null = null

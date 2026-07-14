@@ -5,7 +5,7 @@ import { AccessControlService } from '@ws/author'
 import { ROOT_WIDGET_CONFIG } from '@sunbird-cb/collection'
 
 /* tslint:disable*/
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { TranslateService } from '@ngx-translate/core'
 
 
@@ -14,10 +14,10 @@ interface IGroupWithFeatureWidgets extends NsAppsConfig.IGroup {
 }
 
 @Component({
-    selector: 'ws-home-other-portal',
-    templateUrl: './home-other-portal.component.html',
-    styleUrls: ['./home-other-portal.component.scss'],
-    standalone: false
+  selector: 'ws-home-other-portal',
+  templateUrl: './home-other-portal.component.html',
+  styleUrls: ['./home-other-portal.component.scss'],
+  standalone: false
 })
 export class HomeOtherPortalComponent implements OnInit {
 

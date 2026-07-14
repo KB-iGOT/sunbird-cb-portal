@@ -61,7 +61,7 @@ export class HomeCarouselBannerV2Component implements OnInit {
 
     return {
       bannerUrl: item.banners.l || item.banners.xl,
-      redirectionUrl: redirectionUrl,
+      redirectionUrl,
       altText: item.title || '',
       title: item.title || '',
       subtitle: '',

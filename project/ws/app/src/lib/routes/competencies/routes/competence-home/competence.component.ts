@@ -5,16 +5,16 @@ import { ValueService } from '@sunbird-cb/utils-v2'
 import { map } from 'rxjs/operators'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 /* tslint:disable */
-import _ from 'lodash'
+import * as _ from 'lodash'
 /* tslint:enable */
 
 @Component({
-    selector: 'app-competence',
-    templateUrl: './competence.component.html',
-    styleUrls: ['./competence.component.scss'],
-    /* tslint:disable */
-    host: { class: 'margin-top-l' },
-    standalone: false
+  selector: 'app-competence',
+  templateUrl: './competence.component.html',
+  styleUrls: ['./competence.component.scss'],
+  /* tslint:disable */
+  host: { class: 'margin-top-l' },
+  standalone: false
 })
 export class CompetenceComponent implements OnInit, OnDestroy {
   @ViewChild('stickyMenu', { static: true }) menuElement!: ElementRef

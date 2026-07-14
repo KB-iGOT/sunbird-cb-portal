@@ -18,7 +18,7 @@ import {
   WsEvents,
 } from '@sunbird-cb/utils-v2'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { of, Subscription } from 'rxjs'
 import { delay } from 'rxjs/operators'
 import { AppTocV2Service, ViewerDataService, ViewerUtilService, WidgetContentService } from '@sunbird-cb/toc'
@@ -810,10 +810,10 @@ export class ViewerTocComponent implements OnInit, OnDestroy {
         // empty array
         return nodes
       }
-        // node is an array with items
-        node.forEach((child: any) => {
-          this.getLeafNodes(child, nodes)
-        })
+      // node is an array with items
+      node.forEach((child: any) => {
+        this.getLeafNodes(child, nodes)
+      })
 
     } else if (node) {
       // node is a single object

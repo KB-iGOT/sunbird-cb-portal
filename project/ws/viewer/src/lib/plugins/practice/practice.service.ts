@@ -6,7 +6,7 @@ import { CommonMethodsService } from '@sunbird-cb/consumption'
 import { BehaviorSubject, EMPTY, Observable, Subject, of, throwError } from 'rxjs'
 import { concatMap, delay, map, retryWhen, switchMap, take } from 'rxjs/operators'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 
 const API_END_POINTS = {
   ASSESSMENT_SUBMIT_V2: '/apis/protected/v8/user/evaluate/assessment/submit/v2',
@@ -120,7 +120,7 @@ export class PracticeService {
     return this.isApiEnabled('assessmentSubmitV3', API_END_POINTS.ASSESSMENT_SUBMIT_V3).pipe(
       switchMap((enabled: boolean) => enabled
         ? this.http.post<{ result: NSPractice.IQuizSubmitResponseV2 }>(API_END_POINTS.ASSESSMENT_SUBMIT_V3, req)
-            .pipe(map((response: { result: NSPractice.IQuizSubmitResponseV2 }) => response.result))
+          .pipe(map((response: { result: NSPractice.IQuizSubmitResponseV2 }) => response.result))
         : EMPTY
       ),
     )
@@ -174,8 +174,8 @@ export class PracticeService {
       switchMap((enabled: boolean) => enabled
         ? this.http.post<{ result: NSPractice.IQuizSubmitResponseV2 }>(
           API_END_POINTS.PUBLIC_ASSESSMENT_V4_SUBMIT, req).pipe(map(response => {
-          return response
-        }))
+            return response
+          }))
         : EMPTY
       ),
     )
@@ -185,8 +185,8 @@ export class PracticeService {
       switchMap((enabled: boolean) => enabled
         ? this.http.post<{ result: NSPractice.IQuizSubmitResponseV2 }>(
           API_END_POINTS.PUBLIC_ASSESSMENT_SUBMIT, req).pipe(map(response => {
-          return response
-        }))
+            return response
+          }))
         : EMPTY
       ),
     )
@@ -199,8 +199,8 @@ export class PracticeService {
       switchMap((enabled: boolean) => enabled
         ? this.http.post<{ result: NSPractice.IQuizSubmitResponseV2 }>(
           url, req).pipe(map(response => {
-          return response
-        }))
+            return response
+          }))
         : EMPTY
       ),
     )
@@ -278,26 +278,26 @@ export class PracticeService {
           // this.mtfSrc['']
           // if (mtfSrc[question.questionId] && mtfSrc[question.questionId].source[i] && mtfSrc[question.questionId].target[i]) {
           //   for (let j = 0; j < question.options.length; j += 1) {
-              let  opText = question.options[i].text.trim()
-              opText = opText.replace(/\&lt;/g, '<').replace(/\&gt;/g, '>')
-              opText = this.extractContent(opText)
-              if (mtfSrc[question.questionId] && mtfSrc[question.questionId].source.length
-                && mtfSrc[question.questionId].source.includes(opText.replace(/<(.|\n)*?>/g, ''))) {
-                  // tslint:disable-next-line: max-line-length
-                const stringRemoveSlashN =  this.extractContent(question.options[i].text.replace(/\n/g, '').replace(/\&lt;/g, '<').replace(/\&gt;/g, '>'))
-                const idxOfSource = _.indexOf(mtfSrc[question.questionId].source, stringRemoveSlashN.replace(/<(.|\n)*?>/g, ''))
-                const targetId = mtfSrc[question.questionId].target[idxOfSource]
-                if (targetId) {
-                  const lastChar = targetId.slice(-1)
-                  if (question && lastChar) {
-                    question.options[i].response = question.rhsChoices && question.rhsChoices[Number(lastChar) - 1]
-                  }
-                  question.options[i].userSelected = true
-                } else {
-                  question.options[i].userSelected = false
-                }
+          let opText = question.options[i].text.trim()
+          opText = opText.replace(/\&lt;/g, '<').replace(/\&gt;/g, '>')
+          opText = this.extractContent(opText)
+          if (mtfSrc[question.questionId] && mtfSrc[question.questionId].source.length
+            && mtfSrc[question.questionId].source.includes(opText.replace(/<(.|\n)*?>/g, ''))) {
+            // tslint:disable-next-line: max-line-length
+            const stringRemoveSlashN = this.extractContent(question.options[i].text.replace(/\n/g, '').replace(/\&lt;/g, '<').replace(/\&gt;/g, '>'))
+            const idxOfSource = _.indexOf(mtfSrc[question.questionId].source, stringRemoveSlashN.replace(/<(.|\n)*?>/g, ''))
+            const targetId = mtfSrc[question.questionId].target[idxOfSource]
+            if (targetId) {
+              const lastChar = targetId.slice(-1)
+              if (question && lastChar) {
+                question.options[i].response = question.rhsChoices && question.rhsChoices[Number(lastChar) - 1]
+              }
+              question.options[i].userSelected = true
+            } else {
+              question.options[i].userSelected = false
+            }
 
-              // }
+            // }
             // }
           } else {
             question.options[i].response = ''
@@ -375,7 +375,7 @@ export class PracticeService {
   }
 
   getQuestions(identifiers: string[], assessmentId: string,
-               forPreview?: any, userDetails?: any, collectionId?: any): Observable<{ count: Number, questions: any[] }> {
+    forPreview?: any, userDetails?: any, collectionId?: any): Observable<{ count: Number, questions: any[] }> {
     const data = {
       assessmentId,
       request: {
@@ -439,7 +439,7 @@ export class PracticeService {
   }
 
   getQuestionsV4(identifiers: string[], assessmentId: string,
-                 forPreview?: any, userDetails?: any, collectionId?: any): Observable<{ count: Number, questions: any[] }> {
+    forPreview?: any, userDetails?: any, collectionId?: any): Observable<{ count: Number, questions: any[] }> {
     const data = {
       assessmentId,
       request: {

@@ -2,7 +2,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { Subscription } from 'rxjs'
 import { AddTopicDialogComponent } from '../../components/add-topic/add-topic.component'
 import { NSProfileDataV3 } from '../../models/profile-v3.models'
@@ -12,10 +12,10 @@ import { MatDialog } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
 
 @Component({
-    selector: 'ws-app-topic',
-    templateUrl: './topic.component.html',
-    styleUrls: ['./topic.component.scss'],
-    standalone: false,
+  selector: 'ws-app-topic',
+  templateUrl: './topic.component.html',
+  styleUrls: ['./topic.component.scss'],
+  standalone: false,
 })
 export class TopicComponent implements OnInit, OnDestroy {
 
@@ -150,7 +150,7 @@ export class TopicComponent implements OnInit, OnDestroy {
         if (res) {
           this.configSvc.updateGlobalProfile(true)
         }
-      },                                                   (_error: any) => {
+      }, (_error: any) => {
         this.snackBar.open('Server error!')
       }
       )
@@ -177,7 +177,7 @@ export class TopicComponent implements OnInit, OnDestroy {
         if (res) {
           this.configSvc.updateGlobalProfile(true)
         }
-      },                                                  (_error: any) => {
+      }, (_error: any) => {
         this.snackBar.open('Server error!')
       }
       )

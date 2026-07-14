@@ -4,17 +4,17 @@ import { Subscription } from 'rxjs'
 import { ActivatedRoute } from '@angular/router'
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { WidgetResolverService } from '@sunbird-cb/resolver/src/public-api'
 import { TranslateService } from '@ngx-translate/core'
 
 @Component({
-    selector: 'ws-public-home',
-    templateUrl: './public-home.component.html',
-    styleUrls: ['./public-home.component.scss'],
-    // tslint:disable-next-line
-    encapsulation: ViewEncapsulation.None,
-    standalone: false,
+  selector: 'ws-public-home',
+  templateUrl: './public-home.component.html',
+  styleUrls: ['./public-home.component.scss'],
+  // tslint:disable-next-line
+  encapsulation: ViewEncapsulation.None,
+  standalone: false,
 })
 export class PublicHomeComponent implements OnInit, OnDestroy {
   contactUsMail = ''
@@ -72,7 +72,7 @@ export class PublicHomeComponent implements OnInit, OnDestroy {
   }
 
   translateHub(hubName: string): string {
-    const translationKey =  hubName
+    const translationKey = hubName
     return this.translate.instant(translationKey)
   }
 

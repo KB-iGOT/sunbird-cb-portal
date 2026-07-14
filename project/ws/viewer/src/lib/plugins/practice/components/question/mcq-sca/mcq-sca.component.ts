@@ -10,7 +10,7 @@ import {
 } from '@angular/core'
 import { NSPractice } from '../../../practice.model'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { Subscription } from 'rxjs'
 import { PracticeService } from '../../../practice.service'
 import { NsContent } from '@sunbird-cb/utils-v2'
@@ -104,13 +104,13 @@ export class SingleChoiseQuesComponent implements OnInit, OnDestroy {
     getSanitizeString(res: any) {
         if (res && (typeof res === 'string')) {
             const response = res
-            .replace(/&lt;/g, '<')
-            .replace(/&gt;/g, '>')
-            .replace(/&nbsp;/g, ' ')
+                .replace(/&lt;/g, '<')
+                .replace(/&gt;/g, '>')
+                .replace(/&nbsp;/g, ' ')
             return response
         }
         return res
-}
+    }
     ngOnDestroy(): void {
         this.practiceSvc.shCorrectAnswer(false)
         if (this.shCorrectAnsSubscription) {

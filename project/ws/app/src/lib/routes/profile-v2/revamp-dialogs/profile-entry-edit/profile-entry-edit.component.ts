@@ -79,7 +79,7 @@ export function urlOrDocumentValidator(): ValidatorFn {
   templateUrl: './profile-entry-edit.component.html',
   styleUrls: ['./profile-entry-edit.component.scss'],
   providers: [PipeCertificateImageURL],
-  standalone: false
+  standalone: false,
 })
 export class ProfileEntryEditComponent implements OnInit {
   //#region (global variables)
@@ -1115,7 +1115,7 @@ export class ProfileEntryEditComponent implements OnInit {
       fileName: [_.get(this.entryDetails?.contextData, 'fileName', '')],
       url: [_.get(this.entryDetails?.contextData, 'url', ''), [Validators.pattern(URL_PATRON), Validators.required]],
       description: [_.get(this.entryDetails?.contextData, 'description', ''), [Validators.maxLength(500)]],
-      competencies_v6: ['', [Validators.required]]
+      competencies_v6: ['', [Validators.required]],
     }, { validators: urlOrDocumentValidator() })
     if (_.get(this.entryDetails?.contextData, 'fileName', '')) {
       const urlControl = this.entryForm.controls.url

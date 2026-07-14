@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
 import { ConfigurationsService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
 /* tslint:disable */
-import _ from 'lodash'
+import * as _ from 'lodash'
 import moment from 'moment'
 import { HomePageService } from '../../services/home-page.service'
 
@@ -21,10 +21,10 @@ function isStripActive(strip: any): boolean {
 const INITIAL_VISIBLE_STRIPS = 5
 
 @Component({
-    selector: 'ws-custom-home',
-    templateUrl: './custom-home.component.html',
-    styleUrls: ['./custom-home.component.scss'],
-    standalone: false
+  selector: 'ws-custom-home',
+  templateUrl: './custom-home.component.html',
+  styleUrls: ['./custom-home.component.scss'],
+  standalone: false
 })
 export class CustomHomeComponent implements OnInit, AfterViewInit {
   widgetData = {}

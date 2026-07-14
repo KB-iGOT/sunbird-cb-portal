@@ -6,7 +6,7 @@ import { TranslateService } from '@ngx-translate/core'
 import { ConfigurationsService, DomainConfService, NsInstanceConfig, ValueService } from '@sunbird-cb/utils-v2'
 
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { environment } from 'src/environments/environment'
 @Component({
   selector: 'ws-app-footer',

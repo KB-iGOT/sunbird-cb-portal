@@ -23,7 +23,7 @@ import {
 } from '@sunbird-cb/utils-v2'
 import { environment } from '../../../../../../../src/environments/environment'
 /* tslint:disable */
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { map } from 'rxjs/operators'
 import { v4 as uuid } from 'uuid'
 // import { Subscription } from 'rxjs'
@@ -38,6 +38,7 @@ import { CommonDataService } from './common-data.service'
 declare const smartech: any
 // import { of } from 'rxjs'
 /* tslint:enable */
+/* tslint:disable:max-line-length no-console */
 // interface IDetailsResponse {
 //   tncStatus: boolean
 //   roles: string[]
@@ -438,13 +439,13 @@ export class InitService {
   }
 
   private async globalConfigData(): Promise<NsInstanceConfig.IConfig> {
-    let payload = {
-      "request": {
-        "type": "page",
-        "subType": "globalConfig",
-        "action": "page-configuration",
-        "component": "portal", "rootOrgId": "*"
-      }
+    const payload = {
+      'request': {
+        'type': 'page',
+        'subType': 'globalConfig',
+        'action': 'page-configuration',
+        'component': 'portal', 'rootOrgId': '*',
+      },
     }
     const publicConfig: any = await this.globalService.globalConfigReadData(payload).toPromise()
     this.configSvc.globalConfig = publicConfig.globalConfig
@@ -455,29 +456,25 @@ export class InitService {
     // const publicConfig: any = await this.http
     //   .get<any>(`${this.baseUrl}/netcore.json`)
     //   .toPromise()
-    let payload = {
-      "request": {
-        "type": "page",
-        "subType": "netcore",
-        "action": "page-configuration",
-        "component": "portal", "rootOrgId": "*"
-      }
+    const payload = {
+      'request': {
+        'type': 'page',
+        'subType': 'netcore',
+        'action': 'page-configuration',
+        'component': 'portal', 'rootOrgId': '*',
+      },
     }
     const publicConfig: any = await this.netCoreService.netCoreConfigReadData(payload).toPromise()
     this.configSvc.netcoreConfig = publicConfig.netcoreConfig
     return publicConfig
   }
 
-
-
-
-
   private async fetchUserEnrollDetails(): Promise<NsInstanceConfig.IConfig> {
     const publicConfig: NsInstanceConfig.IConfig = await this.enrollSvc.fetchEnrollStats(this.configSvc.userProfile?.userId).toPromise().then((res: any) => {
       let userCourseEnrolmentInfo: any = {}
       let userExternalCourseEnrolmentInfo: any = {}
       if (res && res.result && res.result.userCourseEnrolmentInfo) {
-        let badgeCount: any = res.result.badgeCount
+        const badgeCount: any = res.result.badgeCount
         userCourseEnrolmentInfo = res.result.userCourseEnrolmentInfo
         userExternalCourseEnrolmentInfo = res.result.userExternalCourseEnrolmentInfo
         userCourseEnrolmentInfo['badgeCount'] = badgeCount
@@ -489,15 +486,15 @@ export class InitService {
           if (Object.keys(userExternalCourseEnrolmentInfo).length > 0
             && userExternalCourseEnrolmentInfo.addinfo
             && Object.keys(userExternalCourseEnrolmentInfo.addinfo).length > 0) {
-            let addInfo = userExternalCourseEnrolmentInfo.addinfo
+            const addInfo = userExternalCourseEnrolmentInfo.addinfo
             userCourseEnrolmentInfo['addinfo']['claimedNonACBPCourseKarmaQuota'] = userCourseEnrolmentInfo['addinfo']['claimedNonACBPCourseKarmaQuota'] + (addInfo['claimedNonACBPCourseKarmaQuota'] || 0)
             // userCourseEnrolmentInfo['addinfo']['formattedMonth'] = userExternalCourseEnrolmentInfo['externalCourses']
           }
         }
-        let enrolledCourseCount = userCourseEnrolmentInfo['coursesInProgress'] + userCourseEnrolmentInfo['certificatesIssued']
+        const enrolledCourseCount = userCourseEnrolmentInfo['coursesInProgress'] + userCourseEnrolmentInfo['certificatesIssued']
         const userData = {
           enrolledCourseCount,
-          userCourseEnrolmentInfo
+          userCourseEnrolmentInfo,
         }
         console.log('userData', userData)
         localStorage.removeItem('userEnrollmentCount')
@@ -506,22 +503,22 @@ export class InitService {
       }
 
       if (this.configSvc.userProfile) {
-        let userProfile = this.configSvc && this.configSvc.userProfile
+        const userProfile = this.configSvc && this.configSvc.userProfile
         if (userProfile.rootOrgId) {
-          this.netCoreService.getOrgReadData(userProfile.rootOrgId).subscribe((orgData) => {
-            //console.log('orgData--', orgData)
+          this.netCoreService.getOrgReadData(userProfile.rootOrgId).subscribe(orgData => {
+            // console.log('orgData--', orgData)
             this.configSvc.orgReadData = orgData
             if (orgData && orgData['netcoreDisabled']) {
 
             } else {
-              smartech('create', 'ADGMOT35CHFLVDHBJNIG50K968HALK3BMP0VCCVVE0PODR835I00', "tin")
+              smartech('create', 'ADGMOT35CHFLVDHBJNIG50K968HALK3BMP0VCCVVE0PODR835I00', 'tin')
               smartech('register', 'b632681d782c843e187fd5447c97ed4d')
               smartech('identify', '')
               smartech('dispatch', 1, {})
               if (this.configSvc.netcoreConfig && this.configSvc.netcoreConfig.netcoreWebConfig
                 && this.configSvc.netcoreConfig.netcoreWebConfig.isActive
               ) {
-                let netCoreUserSetupFlag: any = localStorage.getItem('netCoreUserSetup') ? localStorage.getItem('netCoreUserSetup') : ''
+                const netCoreUserSetupFlag: any = localStorage.getItem('netCoreUserSetup') ? localStorage.getItem('netCoreUserSetup') : ''
                 if (netCoreUserSetupFlag === 'false' || netCoreUserSetupFlag === false || netCoreUserSetupFlag === '') {
                   this.netCoreUserLoginSetup()
                 }
@@ -532,18 +529,15 @@ export class InitService {
 
       }
 
-
-
-
       return res
     }).catch((_err: any) => {
-      let userCourseEnrolmentInfo = {
+      const userCourseEnrolmentInfo = {
         enrolledCourseCount: 0,
         karmaPoints: 0,
         timeSpentOnCompletedCourses: 0,
         certificatesIssued: 0,
         coursesInProgress: 0,
-        addinfo: {}
+        addinfo: {},
       }
       localStorage.removeItem('userEnrollmentCount')
       localStorage.setItem('userEnrollmentCount', JSON.stringify(userCourseEnrolmentInfo))
@@ -636,7 +630,7 @@ export class InitService {
             profileUpdateCompletion: _.get(userPidProfile, 'profileUpdateCompletion') || 0,
             profileImageUrl: _.get(userPidProfile, 'profileDetails.profileImageUrl') || '',
             professionalDetails: _.get(userPidProfile, 'profileDetails.professionalDetails') || [],
-            userRootOrg: _.get(userPidProfile, 'rootOrg') || null
+            userRootOrg: _.get(userPidProfile, 'rootOrg') || null,
           }
 
           this.configSvc.userProfileV2 = {
@@ -775,7 +769,7 @@ export class InitService {
             profileUpdateCompletion: _.get(userPidProfile, 'profileUpdateCompletion') || 0,
             profileImageUrl: _.get(userPidProfile, 'profileDetails.profileImageUrl') || '',
             professionalDetails: _.get(userPidProfile, 'profileDetails.professionalDetails') || [],
-            userRootOrg: _.get(userPidProfile, 'rootOrg') || null
+            userRootOrg: _.get(userPidProfile, 'rootOrg') || null,
           }
           this.configSvc.userProfileV2 = {
             userId: _.get(profileV2, 'userId') || userPidProfile.userId,
@@ -1088,6 +1082,7 @@ export class InitService {
     /* tslint:disable */
     console.log('userEnrollmentCount', userEnrollmentCount)
     /* tslint:enable */
+    /* tslint:disable:max-line-length */
     const userInfoPayload: any = {}
     userInfoPayload['TOTAL_EXPERIENCE'] = ''
     if (this.configSvc && this.configSvc.unMappedUser && this.configSvc.unMappedUser.identifier) {

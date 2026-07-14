@@ -2,7 +2,7 @@ import { Component, Input } from '@angular/core'
 import { UserProfileService } from '../../../user-profile/services/user-profile.service'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { MatDialog } from '@angular/material/dialog'
 import { CustomFieldsComponent } from '../custom-fields/custom-fields.component'
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout'

@@ -6,16 +6,16 @@ import { map } from 'rxjs/operators'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 
 /* tslint:disable */
-import _ from 'lodash'
+import * as _ from 'lodash'
 /* tslint:enable */
 
 @Component({
-    selector: 'app-profile-v2',
-    templateUrl: './profile.component.html',
-    styleUrls: ['./profile.component.scss'],
-    /* tslint:disable */
-    host: { class: 'margin-top-l' },
-    standalone: false
+  selector: 'app-profile-v2',
+  templateUrl: './profile.component.html',
+  styleUrls: ['./profile.component.scss'],
+  /* tslint:disable */
+  host: { class: 'margin-top-l' },
+  standalone: false
 })
 export class ProfileComponent implements OnInit, OnDestroy {
   sideNavBarOpened = true
@@ -31,8 +31,8 @@ export class ProfileComponent implements OnInit, OnDestroy {
   userRouteName = ''
   private defaultSideNavBarOpenedSubscription: any
   constructor(private valueSvc: ValueService, private router: Router,
-              private activeRoute: ActivatedRoute,
-              private configSvc: ConfigurationsService) {
+    private activeRoute: ActivatedRoute,
+    private configSvc: ConfigurationsService) {
     this.router.events.subscribe((event: Event) => {
       if (event instanceof NavigationEnd) {
         this.bindUrl(event.urlAfterRedirects.replace('/app/discuss/', ''))
@@ -64,12 +64,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
                 response.profile.data[0].personalDetails.surname !== null &&
                 response.profile.data[0].personalDetails.surname !== undefined) {
                 this.userRouteName = response && response.profile && response.profile.data && response.profile.data[0]
-                && response.profile.data[0].personalDetails &&
-                `${(response.profile.data[0].personalDetails.firstname || '')} ${(response.profile.data[0].personalDetails.surname)}`
+                  && response.profile.data[0].personalDetails &&
+                  `${(response.profile.data[0].personalDetails.firstname || '')} ${(response.profile.data[0].personalDetails.surname)}`
               } else {
                 this.userRouteName = response && response.profile && response.profile.data && response.profile.data[0]
-                && response.profile.data[0].personalDetails &&
-                `${(response.profile.data[0].personalDetails.firstname || '')}`
+                  && response.profile.data[0].personalDetails &&
+                  `${(response.profile.data[0].personalDetails.firstname || '')}`
               }
             })
             // this.titles = [{ title: 'Network', url: '/app/network-v2', icon: 'group' }]

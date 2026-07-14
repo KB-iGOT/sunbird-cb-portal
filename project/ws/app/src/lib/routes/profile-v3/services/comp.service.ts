@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { BehaviorSubject } from 'rxjs'
 import { NSProfileDataV3 } from '../models/profile-v3.models'
 
@@ -47,7 +47,7 @@ export class CompLocalService {
     }
     removeDesiredComps(comp: NSProfileDataV3.ICompetencie) {
         const comps = this.desiredComps.value || []
-        const index =  _.findIndex(comps, { id: comp.id })
+        const index = _.findIndex(comps, { id: comp.id })
         if (index !== -1) {
             comps.splice(index, 1)
             this.desiredComps.next(comps)

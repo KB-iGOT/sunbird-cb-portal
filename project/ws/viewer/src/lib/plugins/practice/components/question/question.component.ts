@@ -7,16 +7,16 @@ import { SafeHtml } from '@angular/platform-browser'
 // import { jsPlumb, OnConnectionBindInfo } from 'jsplumb'
 import { PracticeService } from '../../practice.service'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { NsContent } from '@sunbird-cb/utils-v2'
 import { MatSnackBar, MatSnackBarConfig as MatSnackBarConfig } from '@angular/material/snack-bar'
 @Component({
-    selector: 'viewer-question',
-    templateUrl: './question.component.html',
-    styleUrls: ['./question.component.scss'],
-    // tslint:disable-next-line
-    encapsulation: ViewEncapsulation.None,
-    standalone: false,
+  selector: 'viewer-question',
+  templateUrl: './question.component.html',
+  styleUrls: ['./question.component.scss'],
+  // tslint:disable-next-line
+  encapsulation: ViewEncapsulation.None,
+  standalone: false,
 })
 export class QuestionComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() artifactUrl = ''

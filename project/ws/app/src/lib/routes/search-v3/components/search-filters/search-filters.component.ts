@@ -10,7 +10,7 @@ import {
 } from '@angular/core'
 import { Subscription } from 'rxjs'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { TranslateService } from '@ngx-translate/core'
 import {
   ConfigurationsService,
@@ -31,64 +31,64 @@ import { environment } from '../../../../../../../../../src/environments/environ
 import { ActivatedRoute } from '@angular/router'
 import { MatRadioChange } from '@angular/material/radio'
 @Component({
-    selector: 'ws-app-search-filters',
-    templateUrl: './search-filters.component.html',
-    styleUrls: ['./search-filters.component.scss'],
-    standalone: false
+  selector: 'ws-app-search-filters',
+  templateUrl: './search-filters.component.html',
+  styleUrls: ['./search-filters.component.scss'],
+  standalone: false,
 })
 export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
   @Input() newfacets!: any
   @Input() urlparamFilters!: any
-  @Output() appliedFilter = new EventEmitter<{ [key: string]: any }>();
-  @Output() constructQueryParam = new EventEmitter<string>();
-  @Output() applyFilterFromLearn = new EventEmitter<{ [key: string]: any }>();
+  @Output() appliedFilter = new EventEmitter<{ [key: string]: any }>()
+  @Output() constructQueryParam = new EventEmitter<string>()
+  @Output() applyFilterFromLearn = new EventEmitter<{ [key: string]: any }>()
   @Input() karmayogiBadge: any
   competencyFactet: any
   @Input() typesOfEvents: any
 
-  private subscription: Subscription = new Subscription();
+  private subscription: Subscription = new Subscription()
   queryParams: any
 
-  categoryType = CATEGORY_TYPE;
-  categoryTypeDup = CATEGORY_TYPE;
-  categoryTypeEnum = SearchCategory;
-  showAllLanguage = false;
-  showAllContents = false;
+  categoryType = CATEGORY_TYPE
+  categoryTypeDup = CATEGORY_TYPE
+  categoryTypeEnum = SearchCategory
+  showAllLanguage = false
+  showAllContents = false
 
-  formattedFacets: any = {};
-  selectedFilters: any = {};
+  formattedFacets: any = {}
+  selectedFilters: any = {}
   compentencyKey!: NsContent.ICompentencyKeys
   competencyAreaNameKey!: string
   competencyThemeKey!: string
   competencySubThemeKey!: string
-  showAllCompetencyTheme: boolean = false;
-  showAllOrganisation: boolean = false;
-  showAllCompetencySubTheme: boolean = false;
-  showAllDesignation: boolean = false;
-  showAllSectors: boolean = false;
-  showResourceCategory: boolean = false;
-  showAllSubSectors: boolean = false;
-  showAllContentPartners: boolean = false;
-  showAllTopic: boolean = false;
+  showAllCompetencyTheme: boolean = false
+  showAllOrganisation: boolean = false
+  showAllCompetencySubTheme: boolean = false
+  showAllDesignation: boolean = false
+  showAllSectors: boolean = false
+  showResourceCategory: boolean = false
+  showAllSubSectors: boolean = false
+  showAllContentPartners: boolean = false
+  showAllTopic: boolean = false
 
   selectedFilterChips: any
-  filterQueryOrganisation = '';
-  filterQueryContents = '';
-  filterQueryLanguage = '';
-  filterQueryDesignation = '';
-  filterQueryRootOrgName = '';
-  filterQueryThemes = '';
-  filterQuerySectorNames = '';
+  filterQueryOrganisation = ''
+  filterQueryContents = ''
+  filterQueryLanguage = ''
+  filterQueryDesignation = ''
+  filterQueryRootOrgName = ''
+  filterQueryThemes = ''
+  filterQuerySectorNames = ''
   filterQueryResourceCategory = ''
-  filterQuerySubSectorNames = '';
-  filterQuerySubSectors: string = '';
-  filterQuerySubThemes = '';
-  filterCompetency = '';
-  filterQueryContentPartners = '';
-  filterQueryTopic = '';
+  filterQuerySubSectorNames = ''
+  filterQuerySubSectors: string = ''
+  filterQuerySubThemes = ''
+  filterCompetency = ''
+  filterQueryContentPartners = ''
+  filterQueryTopic = ''
 
-  searchCategory = '';
-  searchQuery = '';
+  searchCategory = ''
+  searchQuery = ''
   isExploreContentTab = false
   isAllContentSelected = true
   constructor(
@@ -175,7 +175,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
     }
     return name
       .split('-')
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ')
   }
 
@@ -194,8 +194,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
     this.searchCategory = params['category']
 
     if (this.searchCategory) {
-      this.categoryType = this.categoryTypeDup.filter(
-        (type) => type.name === this.searchCategory
+      this.categoryType = this.categoryTypeDup.filter(type => type.name === this.searchCategory
       )
       if (this.searchCategory === 'case-study' && !this.categoryType.length) {
         this.categoryType = [
@@ -206,7 +205,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
             displayName: 'Case study',
             filters: [],
             disabled: false,
-          }
+          },
         ]
       }
       if (this.categoryType.length && !this.isExploreContentTab) {
@@ -227,13 +226,12 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
 
       }
     } else {
-      this.categoryType = this.categoryTypeDup.map((cat) => ({
+      this.categoryType = this.categoryTypeDup.map(cat => ({
         ...cat,
         isChecked: cat.name === SearchCategory.All ? true : false,
       }))
     }
     // }
-
 
   }
 
@@ -334,7 +332,6 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
 
-
   translateActualLabels(label: string, type: any) {
     return this.langtranslations.translateActualLabel(label, type, '')
   }
@@ -356,7 +353,6 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
         })
         return acc
       }, {} as { [key: string]: { [key: string]: number } })
-
 
     Object.entries(mergedData).forEach(([key, values]) => {
       if (key === FacetType.Duration) {
@@ -381,7 +377,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
       } else if (key === FacetType.AvgRating) {
         const ratingRanges = [4.5, 4.0, 3.5, 3.0]
         const formattedRatings = ratingRanges
-          .map((rating) => {
+          .map(rating => {
             const count = Object.entries(values)
               .filter(([rate]) => parseFloat(rate) >= rating)
               .reduce((sum, [, count]) => sum + count, 0)
@@ -423,12 +419,11 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
         this.selectedFilters[categoryType].push(type)
       }
     } else {
-      this.selectedFilters[categoryType] = this.selectedFilters[
-        categoryType
+      this.selectedFilters[categoryType] = this.selectedFilters[categoryType
       ].filter((item: any) => item !== type)
     }
 
-    Object.keys(this.selectedFilters).forEach((key) => {
+    Object.keys(this.selectedFilters).forEach(key => {
       if (Array.isArray(this.selectedFilters[key]) && this.selectedFilters[key].length === 0) {
         delete this.selectedFilters[key]
       }
@@ -437,7 +432,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
     this.appliedFilter.emit(this.selectedFilters)
     this.selectedFilterChips = this.refactorFilterData(this.selectedFilters)
 
-    const types = this.categoryTypeDup.map((category) => category.name)
+    const types = this.categoryTypeDup.map(category => category.name)
     if (types.includes(type) && !option.isChecked) {
       this.constructQueryParam.emit('')
     }
@@ -480,7 +475,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
       return []
     }
     const returnedData = _.flatMap(data, (values, key) =>
-      values.map((value) => ({
+      values.map(value => ({
         type: key,
         value: value === 'Courses' ? 'Contents' : this.formatValue(value),
       }))
@@ -522,7 +517,6 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
     return `sector-fw_sector_${originalName}`
   }
 
-
   clearFilterChip(item: { type: string; value: string }) {
     let facets
     if (item.type === 'sectorId' || item.type === 'subSectorId') {
@@ -532,7 +526,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
     if (item.type === 'sectorDetails_v1.subSectorName') {
       item.value = (item.value).toLowerCase()
     }
-    const types = this.categoryTypeDup.map((category) => category.name)
+    const types = this.categoryTypeDup.map(category => category.name)
     if (this.searchCategory === 'case-study') {
       types.push('case-study')
     }
@@ -576,7 +570,6 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
           name: item.value,
         })
       }
-
 
       if (foundFilter) {
         foundFilter.isChecked = false
@@ -627,14 +620,14 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   clearAllFilters() {
-    Object.keys(this.selectedFilters).forEach((key) => {
+    Object.keys(this.selectedFilters).forEach(key => {
       this.selectedFilters[key] = []
     })
 
     if (!this.isExploreContentTab) {
-      _.forEach(this.categoryType, (category) => {
+      _.forEach(this.categoryType, category => {
         category.isChecked = false
-        _.forEach(category.filters, (filter) => {
+        _.forEach(category.filters, filter => {
           filter.isChecked = false
         })
       })
@@ -642,8 +635,8 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
       this.isAllContentSelected = true
     }
 
-    _.forEach(this.formattedFacets, (filters) => {
-      _.forEach(filters, (filter) => {
+    _.forEach(this.formattedFacets, filters => {
+      _.forEach(filters, filter => {
         filter.isChecked = false
       })
     })
@@ -663,7 +656,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
     } else {
       data = this.formattedFacets[FacetType.Organization]
     }
-    let filteredList = data?.filter((item: any) =>
+    const filteredList = data?.filter((item: any) =>
       item.name
         .toLowerCase()
         .includes(this.filterQueryOrganisation.toLowerCase())
@@ -673,7 +666,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   get filteredContents() {
-    let filteredList = this.formattedFacets[FacetType.courseCategory].filter(
+    const filteredList = this.formattedFacets[FacetType.courseCategory].filter(
       (item: any) =>
         item.name.toLowerCase().includes(this.filterQueryContents.toLowerCase())
     )
@@ -682,7 +675,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   get filteredLanguages() {
-    let filteredList = this.formattedFacets[FacetType.Language].filter(
+    const filteredList = this.formattedFacets[FacetType.Language].filter(
       (item: any) =>
         item.name.toLowerCase().includes(this.filterQueryLanguage.toLowerCase())
     )
@@ -698,7 +691,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
       data = this.formattedFacets[FacetType.sectorNameResource]
     }
 
-    let filteredList = data.filter(
+    const filteredList = data.filter(
       (item: any) =>
         item.name.toLowerCase().includes(this.filterQuerySectorNames.toLowerCase())
     )
@@ -714,7 +707,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
       data = this.formattedFacets[FacetType.subSectorNameResource]
     }
 
-    let filteredList = data.filter(
+    const filteredList = data.filter(
       (item: any) =>
         item.name.toLowerCase().includes(this.filterQuerySubSectorNames.toLowerCase())
     )
@@ -723,7 +716,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   get filteredSectorId() {
-    let filteredList = this.formattedFacets[FacetType.sectorId].filter(
+    const filteredList = this.formattedFacets[FacetType.sectorId].filter(
       (item: any) =>
         item.name.toLowerCase().includes(this.filterQuerySectorNames.toLowerCase())
     )
@@ -732,7 +725,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   get filteredSubSectorId() {
-    let filteredList = this.formattedFacets[FacetType.subSectorId].filter(
+    const filteredList = this.formattedFacets[FacetType.subSectorId].filter(
       (item: any) =>
         item.name.toLowerCase().includes(this.filterQuerySubSectorNames.toLowerCase())
     )
@@ -741,8 +734,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   get filteredDesignations() {
-    let filteredList = this.formattedFacets[
-      'profileDetails.professionalDetails.designation'
+    const filteredList = this.formattedFacets['profileDetails.professionalDetails.designation'
     ]?.filter((item: any) =>
       item?.name
         .toLowerCase()
@@ -753,7 +745,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   get filteredRootOrgNames() {
-    let filteredList = this.formattedFacets['rootOrgName']?.filter(
+    const filteredList = this.formattedFacets['rootOrgName']?.filter(
       (item: any) =>
         item?.name
           .toLowerCase()
@@ -764,7 +756,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   get filteredCompetencyTheme() {
-    let filteredList = this.formattedFacets[this.competencyThemeKey]?.filter(
+    const filteredList = this.formattedFacets[this.competencyThemeKey]?.filter(
       (item: any) =>
         item?.name
           .toLowerCase()
@@ -775,7 +767,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   get filteredSubCompetencyTheme() {
-    let filteredList = this.formattedFacets[this.competencySubThemeKey]?.filter(
+    const filteredList = this.formattedFacets[this.competencySubThemeKey]?.filter(
       (item: any) =>
         item?.name
           .toLowerCase()
@@ -786,7 +778,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   get filteredResourceCategory() {
-    let filteredList = this.formattedFacets[FacetType.resourceCategory].filter(
+    const filteredList = this.formattedFacets[FacetType.resourceCategory].filter(
       (item: any) =>
         item.name.toLowerCase().includes(this.filterQueryResourceCategory.toLowerCase())
     )
@@ -795,7 +787,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   get filteredContentPartners() {
-    let filteredList = this.formattedFacets[FacetType.contentPartners].filter(
+    const filteredList = this.formattedFacets[FacetType.contentPartners].filter(
       (item: any) =>
         item.name.toLowerCase().includes(this.filterQueryContentPartners.toLowerCase())
     )
@@ -810,7 +802,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
     } else if (this.formattedFacets[FacetType.topicName]) {
       filterData = this.formattedFacets[FacetType.topicName]
     }
-    let filteredList = filterData.filter(
+    const filteredList = filterData.filter(
       (item: any) =>
         item.name.toLowerCase().includes(this.filterQueryTopic.toLowerCase())
     )
@@ -840,7 +832,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
   private formatCategoryName(name: string): string {
     return name
       .split('-')
-      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .map(word => word.charAt(0).toUpperCase() + word.slice(1))
       .join(' ')
   }
 
@@ -865,7 +857,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
   filterValueExists(obj: any, target: any): any {
     if (Array.isArray(obj)) {
       return obj.some(item => this.filterValueExists(item, target))
-    } else if (obj !== null && typeof obj === 'object') {
+    } if (obj !== null && typeof obj === 'object') {
       return Object.values(obj).some(value => this.filterValueExists(value, target))
     } else {
       return obj === target

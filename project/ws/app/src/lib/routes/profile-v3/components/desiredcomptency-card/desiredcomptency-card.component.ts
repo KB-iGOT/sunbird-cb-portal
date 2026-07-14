@@ -2,13 +2,13 @@ import { Component, OnInit, Input } from '@angular/core'
 import { NSProfileDataV3 } from '../../models/profile-v3.models'
 import { CompLocalService } from '../../services/comp.service'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { TranslateService } from '@ngx-translate/core'
 @Component({
-    selector: 'ws-app-desiredcomptency-card',
-    templateUrl: './desiredcomptency-card.component.html',
-    styleUrls: ['./desiredcomptency-card.component.scss'],
-    standalone: false,
+  selector: 'ws-app-desiredcomptency-card',
+  templateUrl: './desiredcomptency-card.component.html',
+  styleUrls: ['./desiredcomptency-card.component.scss'],
+  standalone: false,
 })
 export class DesiredcomptencyCardComponent implements OnInit {
   @Input() selectedLevelId: any
@@ -22,7 +22,7 @@ export class DesiredcomptencyCardComponent implements OnInit {
       const lang = localStorage.getItem('websiteLanguage')!
       this.translate.use(lang)
     }
-   }
+  }
 
   ngOnInit() {
     // this.compLocalService.currentComps.subscribe(comp=>{
@@ -58,8 +58,8 @@ export class DesiredcomptencyCardComponent implements OnInit {
         // if (_.findIndex(this.compLocalService.desiredComps.value, { competencySelfAttestedLevel: complevel.id }) !== -1) {
         //   this.compLocalService.removeDesiredComps(compobj)
         // } else {
-          this.compLocalService.removeDesiredComps(compobj)
-          this.compLocalService.addDesiredComps(compobj)
+        this.compLocalService.removeDesiredComps(compobj)
+        this.compLocalService.addDesiredComps(compobj)
         // }
       }
     }

@@ -12,7 +12,7 @@ import { WidgetContentLibService, ContentLanguageService } from '@sunbird-cb/con
 // import { WidgetContentService as WidgetContentServiceUtils } from '@sunbird-cb/utils-v2'
 
 /* tslint:disable*/
-import _ from 'lodash'
+import * as _ from 'lodash'
 // import { ALLOWED_CATEGORY_FOR_DYNAMIC_GENERATION } from '../../../../../author/src/lib/constants/constant'
 
 @Component({

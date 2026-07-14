@@ -1,12 +1,12 @@
 import { Component, OnDestroy, OnInit, AfterViewInit, AfterViewChecked, HostListener, ElementRef, ViewChild, ViewEncapsulation } from '@angular/core'
 import { ActivatedRoute, Event, Data, Router, NavigationEnd } from '@angular/router'
 import {
-  NsContent,
-  viewerRouteGenerator,
-  NsPlaylist,
-  NsGoal,
-  RatingService,
-  ContentRatingV2DialogComponent,
+    NsContent,
+    viewerRouteGenerator,
+    NsPlaylist,
+    NsGoal,
+    RatingService,
+    ContentRatingV2DialogComponent,
 } from '@sunbird-cb/collection'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { ConfigurationsService, LoggerService, NsPage, TFetchStatus, UtilityService } from '@sunbird-cb/utils-v2'
@@ -18,7 +18,7 @@ import { AccessControlService } from '@ws/author'
 import { MatDialog } from '@angular/material/dialog'
 import dayjs from 'dayjs'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import moment from 'moment'
 import { ActionService, AppTocService, NsAppToc, WidgetContentService } from '@sunbird-cb/toc'
 import { MobileAppsService } from '../../../services/mobile-apps.service'

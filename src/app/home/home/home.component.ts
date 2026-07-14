@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
 import { MatSnackBar, MatSnackBarConfig as MatSnackBarConfig } from '@angular/material/snack-bar'
 /* tslint:disable */
-import _ from 'lodash'
+import * as _ from 'lodash'
 
 /* tslint:enable */
 import { Subject } from 'rxjs'

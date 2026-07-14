@@ -1,13 +1,13 @@
 import { Component, Input, OnInit } from '@angular/core'
 import { NSDiscussData } from '../../models/discuss.model'
 /* tslint:disable */
-import _ from 'lodash'
+import * as _ from 'lodash'
 /* tslint:enable */
 @Component({
-    selector: 'app-discuss-trending-tags',
-    templateUrl: './trending-tags.component.html',
-    styleUrls: ['./trending-tags.component.scss'],
-    standalone: false,
+  selector: 'app-discuss-trending-tags',
+  templateUrl: './trending-tags.component.html',
+  styleUrls: ['./trending-tags.component.scss'],
+  standalone: false,
 })
 export class TrendingTagsComponent implements OnInit {
   @Input() tags!: NSDiscussData.ITag[]
