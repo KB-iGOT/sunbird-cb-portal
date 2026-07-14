@@ -14,9 +14,8 @@ import * as _ from 'lodash'
 import { ActivatedRoute, Router } from '@angular/router'
 import { TermsAndConditionComponent } from './terms-and-condition/terms-and-condition.component'
 import { TranslateService } from '@ngx-translate/core'
-import { HttpClient } from '@angular/common/http'
-import { DomSanitizer } from '@angular/platform-browser'
-import { DialogBoxComponent as ZohoDialogComponent, UserProfileService } from '@ws/app'
+import { ZohoSupportService } from '../../../services/zoho-support.service'
+import { DialogBoxComponent as ZohoDialogComponent } from '@ws/app'
 import { MatDialog } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { MatSelect } from '@angular/material/select'
@@ -161,7 +160,6 @@ export class PublicSignupComponent implements OnInit, OnDestroy {
   hideOrg = false
   emailPattern = '^[\\w\-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$'
   zohoHtml: any
-  zohoUrl: any = '/assets/static-data/zoho-code.html'
   environment!: any
   desigantionFilterEnable = false
   isLoadingMoreDesignations = false
@@ -258,8 +256,7 @@ export class PublicSignupComponent implements OnInit, OnDestroy {
     @Inject(PLATFORM_ID) private _platformId: any,
     private translate: TranslateService,
     private langtranslations: MultilingualTranslationsService,
-    private http: HttpClient,
-    private sanitizer: DomSanitizer,
+    private zohoSupportSvc: ZohoSupportService,
     private eventService: EventService,
     private telemetrySvc: TelemetryService
   ) {
@@ -482,8 +479,8 @@ export class PublicSignupComponent implements OnInit, OnDestroy {
     if (isPlatformBrowser(this._platformId)) {
       this._document.body.classList.add('cs-recaptcha')
     }
-    this.http.get(this.zohoUrl, { responseType: 'text' }).subscribe(res => {
-      this.zohoHtml = this.sanitizer.bypassSecurityTrustHtml(res)
+    this.zohoSupportSvc.getZohoHtml().subscribe(res => {
+      this.zohoHtml = res
     })
     if (!this.masterData['designationBackup']) {
       this.getDesignationSafe()

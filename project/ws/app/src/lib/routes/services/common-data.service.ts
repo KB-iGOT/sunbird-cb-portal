@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core'
 import { Router } from '@angular/router'
-import { ConfigurationsService } from '@sunbird-cb/utils-v2'
+import { ConfigurationsService, DomainConfService } from '@sunbird-cb/utils-v2'
 import { ProfileVerificationDialogComponent } from '../profile-verification-dialog/profile-verification-dialog.component'
 
 import { MatDialog } from '@angular/material/dialog'
@@ -45,7 +45,8 @@ export class CommonDataService {
     private dialog: MatDialog,
     private matSnackBar: MatSnackBar,
     private mandatoryNotificationsService: MandatoryNotificationsService,
-    private http: HttpClient
+    private http: HttpClient,
+    private domainConfSvc: DomainConfService
   ) {
 
     if (this.configSvc && this.configSvc.unMappedUser) {
@@ -56,10 +57,22 @@ export class CommonDataService {
   redirectToCustomProfile() {
     this.router.navigate(['/app/person-profile/me'], { fragment: 'orgDetails' })
   }
+
+  // dialog/popup visibility from global-config -> components.dialogs
+  isDialogEnabled(dialogKey: string): boolean {
+    return this.domainConfSvc.isConfigEnabled('components.dialogs', 'enabled')
+      && this.domainConfSvc.isConfigEnabled('components.dialogs', dialogKey)
+  }
+
   mandatoryDetails(isPlayer: boolean) {
-    const unMappedUser = this.configSvc.unMappedUser
-    // tslint:disable-next-line:max-line-length
-    const userProfileUpdateDate = unMappedUser && unMappedUser.profileDetails && unMappedUser.profileDetails.personalDetails && unMappedUser.profileDetails.personalDetails?.lastProfileVerificationPromptDate ? Number(unMappedUser.profileDetails.personalDetails.lastProfileVerificationPromptDate) : null
+    if (!this.isDialogEnabled('profileVerification')) {
+      // skip the verification dialog but keep the downstream org/custom-field
+      // checks and mandatory-notification flow running
+      this.getOrgDetails(isPlayer)
+      return
+    }
+    let unMappedUser = this.configSvc.unMappedUser
+    let userProfileUpdateDate = unMappedUser && unMappedUser.profileDetails && unMappedUser.profileDetails.personalDetails && unMappedUser.profileDetails.personalDetails?.lastProfileVerificationPromptDate ? Number(unMappedUser.profileDetails.personalDetails.lastProfileVerificationPromptDate) : null
     // Difference in milliseconds
     const currentEpochTime = new Date().getTime()
     let diffMs = 0
@@ -131,13 +144,13 @@ export class CommonDataService {
       const customFieldsLength = _.get(res, 'result?.response?.customfieldsdata?.customFieldIds', [])
       if (isPopupEnabled && customFieldsCount && customFieldsLength?.length > 0) {
         return this.readCustomattributeDetails(isPlayer)
-      // tslint:disable-next-line:no-else-after-return
+        // tslint:disable-next-line:no-else-after-return
       } else {
         this.updatePlayerStatus(isPlayer)
         this.checkAndShowMandatoryNotification()
         return false
       }
-    // tslint:disable-next-line:no-else-after-return
+      // tslint:disable-next-line:no-else-after-return
     } else {
       this.userProfileService.readOrgData(request).subscribe((res: any) => {
         const isPopupEnabled = _.get(res, 'result?.response?.customfieldsdata?.isPopupEnabled') ? true : false
@@ -145,13 +158,13 @@ export class CommonDataService {
         const customFieldsLength = _.get(res, 'result?.response?.customfieldsdata?.customFieldIds', [])
         if (isPopupEnabled && customFieldsCount && customFieldsLength?.length > 0) {
           return this.readCustomattributeDetails(isPlayer)
-        // tslint:disable-next-line:no-else-after-return
+          // tslint:disable-next-line:no-else-after-return
         } else {
           this.updatePlayerStatus(isPlayer)
           this.checkAndShowMandatoryNotification()
           return false
         }
-      // tslint:disable-next-line:align
+        // tslint:disable-next-line:align
       }, error => {
         // tslint:disable:no-console
         console.error('Error fetching organization details:', error)
@@ -171,7 +184,7 @@ export class CommonDataService {
       this.checkAndShowMandatoryNotification()
       return false
 
-    // tslint:disable-next-line:align
+      // tslint:disable-next-line:align
     }, error => {
       console.error('Error fetching custom attribute details:', error)
       return false
@@ -179,6 +192,10 @@ export class CommonDataService {
   }
 
   fetchMandatoryNotification() {
+    if (!this.isDialogEnabled('mandatoryNotification')) {
+      this.showMandatoryNotification = false
+      return
+    }
     this.mandatoryNotificationsService.getMandatoryNotification().subscribe((notification: any) => {
       if (notification && !notification.error && Object.keys(notification).length > 0 && !notification?.read) {
         this.mandatoryNotificationData = notification
@@ -187,7 +204,7 @@ export class CommonDataService {
       } else {
         this.showMandatoryNotification = false
       }
-    // tslint:disable-next-line:align
+      // tslint:disable-next-line:align
     }, error => {
       this.showMandatoryNotification = false
       console.error('Error fetching mandatory notification:', error)
@@ -195,7 +212,8 @@ export class CommonDataService {
   }
 
   openMandatoryNotificationModal() {
-    if (this.isMandatoryModalOpen || !this.showMandatoryNotification || this.isPlayer) {
+    if (this.isMandatoryModalOpen || !this.showMandatoryNotification || this.isPlayer
+      || !this.isDialogEnabled('mandatoryNotification')) {
       return
     }
     this.isMandatoryModalOpen = true
@@ -243,7 +261,7 @@ export class CommonDataService {
               }
             )
           }
-        // tslint:disable-next-line:align
+          // tslint:disable-next-line:align
         }, error => {
           console.error('Error marking mandatory notification as read:', error)
           this.showMandatoryNotification = false

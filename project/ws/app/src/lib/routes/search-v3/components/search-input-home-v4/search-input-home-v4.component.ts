@@ -118,8 +118,8 @@ export class SearchInputHomeV4Component implements OnInit, OnDestroy {
       value: SearchCategory.Resources,
       icon: 'diversity_3',
     },
-    { label: 'All', value: SearchCategory.All, icon: '' },
-  ]
+    // { label: 'All', value: SearchCategory.All, icon: '' },
+  ];
 
   @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>
 
@@ -578,7 +578,7 @@ export class SearchInputHomeV4Component implements OnInit, OnDestroy {
         this.allSearchResults.set([])
       }
       return
-    // tslint:disable-next-line:no-else-after-return
+      // tslint:disable-next-line:no-else-after-return
     } else if (this.selectedSearchCategory() === SearchCategory.Communities) {
       const searchRequestCommunities = new SearchCommunitiesRequest([])
       searchRequestCommunities.searchString = query
@@ -630,7 +630,7 @@ export class SearchInputHomeV4Component implements OnInit, OnDestroy {
 
     if (this.selectedSearchCategory() === SearchCategory.People) {
       return result.personalDetails?.firstname ?? result.firstName ?? ''
-    // tslint:disable-next-line:no-else-after-return
+      // tslint:disable-next-line:no-else-after-return
     } else if (this.selectedSearchCategory() === SearchCategory.Communities) {
       return result.communityName ?? ''
     } else {

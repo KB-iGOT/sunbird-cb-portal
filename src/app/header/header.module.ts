@@ -36,6 +36,7 @@ import { MatButtonModule } from '@angular/material/button'
   imports: [
     CommonModule,
     MatToolbarModule,
+    MatButtonModule,
     MatIconModule,
     MatMenuModule,
     MatSliderModule,

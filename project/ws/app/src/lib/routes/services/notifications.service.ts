@@ -227,7 +227,7 @@ export class NotificationsService {
           },
         }
       )
-    } else if (notification.sub_category === 'CONTENT_UN_ENROLLED') {
+    } else if (notification.sub_category === 'CONTENT_UN_ENROLLED' || notification.sub_category === 'CONTENT_RE_ENROLLED') {
       this.redirectToTOC(notification)
     } else {
       this.redirectToTOC(notification)

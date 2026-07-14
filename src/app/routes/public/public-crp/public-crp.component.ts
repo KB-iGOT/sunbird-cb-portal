@@ -30,8 +30,8 @@ import { ActivatedRoute, Router } from '@angular/router'
 // import { ReCaptchaV3Service } from 'ng-recaptcha';
 import { isPlatformBrowser } from '@angular/common'
 import { TranslateService } from '@ngx-translate/core'
-import { HttpClient } from '@angular/common/http'
 import { DomSanitizer } from '@angular/platform-browser'
+import { ZohoSupportService } from '../../../services/zoho-support.service'
 import { map, pairwise, startWith } from 'rxjs/operators'
 import { SignupSuccessDialogueComponent } from '../public-signup/signup-success-dialogue/signup-success-dialogue/signup-success-dialogue.component'
 import { TermsAndConditionComponent } from '../public-signup/terms-and-condition/terms-and-condition.component'
@@ -87,9 +87,8 @@ export class PublicCrpComponent {
   hideOrg = false
   emailPattern = '^[\\w\-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$'
   zohoHtml: any
-  zohoUrl: any = '/assets/static-data/zoho-code.html'
-  invalidLinkMessage = ''
-  private subscriptionContact: Subscription | null = null
+  invalidLinkMessage = '';
+  private subscriptionContact: Subscription | null = null;
   private recaptchaSubscription!: Subscription
   private userdataSubscription!: Subscription
   searching = false
@@ -132,7 +131,7 @@ export class PublicCrpComponent {
     @Inject(PLATFORM_ID) private _platformId: any,
     private translate: TranslateService,
     private langtranslations: MultilingualTranslationsService,
-    private http: HttpClient,
+    private zohoSupportSvc: ZohoSupportService,
     private sanitizer: DomSanitizer,
     public mobileAppsService: MobileAppsService,
     private eventService: EventService,
@@ -263,8 +262,8 @@ export class PublicCrpComponent {
     if (isPlatformBrowser(this._platformId)) {
       this._document.body.classList.add('cs-recaptcha')
     }
-    this.http.get(this.zohoUrl, { responseType: 'text' }).subscribe(res => {
-      this.zohoHtml = this.sanitizer.bypassSecurityTrustHtml(res)
+    this.zohoSupportSvc.getZohoHtml().subscribe((res) => {
+      this.zohoHtml = res
     })
   }
 
