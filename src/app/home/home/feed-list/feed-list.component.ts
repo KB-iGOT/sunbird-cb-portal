@@ -19,8 +19,10 @@ export class FeedListComponent implements OnInit {
 
   @Output() telemetryRaisedLibrary = new EventEmitter()
   isTelemetryRaised = false
+  // tslint:disable:align
   constructor(private activatedRoute: ActivatedRoute,
     private events: EventService, private utilitySvc: UtilityService) { }
+  // tslint:enable:align
 
   ngOnInit() {
     if (this.activatedRoute.snapshot.data.pageData && this.activatedRoute.snapshot.data.pageData.data) {

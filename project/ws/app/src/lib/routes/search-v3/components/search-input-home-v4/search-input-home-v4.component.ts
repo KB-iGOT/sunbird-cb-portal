@@ -44,6 +44,7 @@ import { WidgetContentLibService } from '@sunbird-cb/consumption'
 import { MobileAppsService } from './../../../services/mobile-apps.service'
 import { MatAutocompleteModule } from '@angular/material/autocomplete'
 
+// tslint:disable-next-line:interface-name
 interface SearchCategoryItem {
   label: string
   value: SearchCategory
@@ -374,6 +375,7 @@ export class SearchInputHomeV4Component implements OnInit, OnDestroy {
         this.updateRecentSearchQuery(query)
       })
       .catch(error => {
+        // tslint:disable-next-line:no-console
         console.error('Error searching people:', error)
       })
   }
@@ -510,6 +512,7 @@ export class SearchInputHomeV4Component implements OnInit, OnDestroy {
   clearSearchText() {
     setTimeout(() => {
       this.openSearchTemplate.set(true)
+      // tslint:disable-next-line:align
     }, 0)
     this.queryControl.reset()
     this.updateQuery('')
@@ -575,6 +578,7 @@ export class SearchInputHomeV4Component implements OnInit, OnDestroy {
         this.allSearchResults.set([])
       }
       return
+    // tslint:disable-next-line:no-else-after-return
     } else if (this.selectedSearchCategory() === SearchCategory.Communities) {
       const searchRequestCommunities = new SearchCommunitiesRequest([])
       searchRequestCommunities.searchString = query
@@ -626,6 +630,7 @@ export class SearchInputHomeV4Component implements OnInit, OnDestroy {
 
     if (this.selectedSearchCategory() === SearchCategory.People) {
       return result.personalDetails?.firstname ?? result.firstName ?? ''
+    // tslint:disable-next-line:no-else-after-return
     } else if (this.selectedSearchCategory() === SearchCategory.Communities) {
       return result.communityName ?? ''
     } else {

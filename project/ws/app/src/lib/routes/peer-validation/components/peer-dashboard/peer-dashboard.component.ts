@@ -1,3 +1,4 @@
+/* tslint:disable:no-console */
 import { Component, OnInit, OnDestroy } from '@angular/core'
 import { Router, NavigationEnd } from '@angular/router'
 import { MatDialog } from '@angular/material/dialog'

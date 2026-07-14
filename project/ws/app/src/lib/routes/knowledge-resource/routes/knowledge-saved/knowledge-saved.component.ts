@@ -20,11 +20,13 @@ export class KnowledgeSavedComponent implements OnInit {
   allResources!: NSKnowledgeResource.IResourceData[]
   searchText = ''
   // kwResources: any;
+  // tslint:disable:align
   constructor(private activateRoute: ActivatedRoute,
     private kwResources: KnowledgeResourceService,
     private translate: TranslateService,
     private langtranslations: MultilingualTranslationsService,
   ) {
+    // tslint:enable:align
     this.filterSaved(null)
     this.langtranslations.languageSelectedObservable.subscribe(() => {
       if (localStorage.getItem('websiteLanguage')) {

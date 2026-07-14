@@ -30,6 +30,7 @@ export class MandatoryNotificationModalComponent {
     this.events.raiseInteractTelemetry(
       {
         type: 'click',
+        // tslint:disable-next-line:object-shorthand-properties-first
         subType,
         id: 'mandatory-notification-modal',
       },

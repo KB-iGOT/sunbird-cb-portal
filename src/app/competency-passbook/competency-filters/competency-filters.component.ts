@@ -273,6 +273,7 @@ export class CompetencyFiltersComponent implements OnInit {
   getThemeName(theme: any): string {
     if (theme.name === theme.refId) {
       return this.missingThemeDetails.find((t: any) => t.id === theme.refId)?.title || theme.refId
+    // tslint:disable-next-line:no-else-after-return
     } else {
       return theme.name
     }

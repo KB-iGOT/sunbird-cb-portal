@@ -171,6 +171,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
 
   formatSectorName(name: string): string {
     if (name.startsWith('sector-fw_sector_')) {
+      // tslint:disable-next-line:no-parameter-reassignment
       name = name.replace('sector-fw_sector_', '')
     }
     return name
@@ -351,8 +352,10 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
             acc[name][valueName] = (acc[name][valueName] || 0) + count
           })
         })
+        // tslint:disable:align
         return acc
       }, {} as { [key: string]: { [key: string]: number } })
+        // tslint:enable:align
 
     Object.entries(mergedData).forEach(([key, values]) => {
       if (key === FacetType.Duration) {
@@ -369,6 +372,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
                 return duration >= range[0] && duration <= range[1]
               })
               .reduce((sum, [, count]) => sum + count, 0)
+            // tslint:disable-next-line:object-shorthand-properties-first
             return count > 0 ? { name: label, count, isChecked: false } : null
           })
           .filter(Boolean)
@@ -382,6 +386,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
               .filter(([rate]) => parseFloat(rate) >= rating)
               .reduce((sum, [, count]) => sum + count, 0)
             return count > 0
+              // tslint:disable-next-line:object-shorthand-properties-first
               ? { name: `${rating.toFixed(1)}`, count, isChecked: false }
               : null
           })
@@ -419,8 +424,10 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
         this.selectedFilters[categoryType].push(type)
       }
     } else {
+      // tslint:disable:ter-computed-property-spacing
       this.selectedFilters[categoryType] = this.selectedFilters[categoryType
       ].filter((item: any) => item !== type)
+      // tslint:enable:ter-computed-property-spacing
     }
 
     Object.keys(this.selectedFilters).forEach(key => {
@@ -585,6 +592,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
           this.selectedFilters
         )
       }
+      // tslint:disable-next-line:brace-style
       else {
         const foundCategory = _.find(this.categoryTypeDup, {
           name: SearchCategory.Courses,
@@ -734,12 +742,14 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   get filteredDesignations() {
+    // tslint:disable:ter-computed-property-spacing
     const filteredList = this.formattedFacets['profileDetails.professionalDetails.designation'
     ]?.filter((item: any) =>
       item?.name
         .toLowerCase()
         .includes(this.filterQueryDesignation.toLowerCase())
     )
+    // tslint:enable:ter-computed-property-spacing
 
     return this.showAllDesignation ? filteredList : filteredList.slice(0, 4)
   }
@@ -859,6 +869,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
       return obj.some(item => this.filterValueExists(item, target))
     } if (obj !== null && typeof obj === 'object') {
       return Object.values(obj).some(value => this.filterValueExists(value, target))
+    // tslint:disable-next-line:no-else-after-return
     } else {
       return obj === target
     }

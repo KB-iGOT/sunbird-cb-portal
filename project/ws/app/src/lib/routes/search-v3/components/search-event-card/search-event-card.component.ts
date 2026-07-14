@@ -181,6 +181,7 @@ export class SearchEventCardComponent implements OnInit, OnChanges {
     })
     const str = arr.toString()
     if (str.length > 150) {
+      // tslint:disable-next-line:prefer-template
       const str = arr.toString().substring(0, 150) + '...'
       return str
     }

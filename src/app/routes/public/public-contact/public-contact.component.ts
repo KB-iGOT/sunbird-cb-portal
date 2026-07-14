@@ -38,9 +38,11 @@ export class PublicContactComponent implements OnInit, AfterViewInit, OnDestroy 
       this.sticky = false
     }
   }
+  // tslint:disable:align
   constructor(private configSvc: ConfigurationsService,
     private activateRoute: ActivatedRoute, private langtranslations: MultilingualTranslationsService,
     private translate: TranslateService) {
+    // tslint:enable:align
     this.langtranslations.languageSelectedObservable.subscribe(() => {
       if (localStorage.getItem('websiteLanguage')) {
         this.translate.setDefaultLang('en')

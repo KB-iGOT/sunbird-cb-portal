@@ -157,6 +157,7 @@ export class NetworkingService {
 
   //#region (translation related methods)
   handleTranslateTo(menuName: string): string {
+    // tslint:disable-next-line:prefer-template
     const translationKey = 'NetworkLandingPage.' + menuName.replace(/\s/g, '')
     return this.translateService.instant(translationKey)
   }

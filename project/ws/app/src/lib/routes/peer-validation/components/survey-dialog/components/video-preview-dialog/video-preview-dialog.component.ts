@@ -96,6 +96,7 @@ export class VideoPreviewDialogComponent implements OnInit {
 
   adjustVolume(event: Event): void {
     const input = event.target as HTMLInputElement
+    // tslint:disable-next-line:radix
     this.volume = parseInt(input.value) / 100
     this.videoPlayer.nativeElement.volume = this.volume
     this.isMuted = this.volume === 0
@@ -148,6 +149,7 @@ export class VideoPreviewDialogComponent implements OnInit {
       if (this.isPlaying) {
         this.showControls = false
       }
+      // tslint:disable-next-line:align
     }, 2000)
   }
 

@@ -58,6 +58,7 @@ export class CommonDataService {
   }
   mandatoryDetails(isPlayer: boolean) {
     const unMappedUser = this.configSvc.unMappedUser
+    // tslint:disable-next-line:max-line-length
     const userProfileUpdateDate = unMappedUser && unMappedUser.profileDetails && unMappedUser.profileDetails.personalDetails && unMappedUser.profileDetails.personalDetails?.lastProfileVerificationPromptDate ? Number(unMappedUser.profileDetails.personalDetails.lastProfileVerificationPromptDate) : null
     // Difference in milliseconds
     const currentEpochTime = new Date().getTime()
@@ -130,11 +131,13 @@ export class CommonDataService {
       const customFieldsLength = _.get(res, 'result?.response?.customfieldsdata?.customFieldIds', [])
       if (isPopupEnabled && customFieldsCount && customFieldsLength?.length > 0) {
         return this.readCustomattributeDetails(isPlayer)
+      // tslint:disable-next-line:no-else-after-return
       } else {
         this.updatePlayerStatus(isPlayer)
         this.checkAndShowMandatoryNotification()
         return false
       }
+    // tslint:disable-next-line:no-else-after-return
     } else {
       this.userProfileService.readOrgData(request).subscribe((res: any) => {
         const isPopupEnabled = _.get(res, 'result?.response?.customfieldsdata?.isPopupEnabled') ? true : false
@@ -142,11 +145,13 @@ export class CommonDataService {
         const customFieldsLength = _.get(res, 'result?.response?.customfieldsdata?.customFieldIds', [])
         if (isPopupEnabled && customFieldsCount && customFieldsLength?.length > 0) {
           return this.readCustomattributeDetails(isPlayer)
+        // tslint:disable-next-line:no-else-after-return
         } else {
           this.updatePlayerStatus(isPlayer)
           this.checkAndShowMandatoryNotification()
           return false
         }
+      // tslint:disable-next-line:align
       }, error => {
         // tslint:disable:no-console
         console.error('Error fetching organization details:', error)
@@ -166,6 +171,7 @@ export class CommonDataService {
       this.checkAndShowMandatoryNotification()
       return false
 
+    // tslint:disable-next-line:align
     }, error => {
       console.error('Error fetching custom attribute details:', error)
       return false
@@ -181,6 +187,7 @@ export class CommonDataService {
       } else {
         this.showMandatoryNotification = false
       }
+    // tslint:disable-next-line:align
     }, error => {
       this.showMandatoryNotification = false
       console.error('Error fetching mandatory notification:', error)
@@ -225,6 +232,7 @@ export class CommonDataService {
 
             this.setMandatoryTimer()
             this.router.navigate(['/viewer/practice/', this.mandatoryNotificationData?.message?.data?.assessmentId],
+              // tslint:disable-next-line:align
               {
                 queryParams: {
                   primaryCategory: this.mandatoryNotificationData?.message?.data?.primaryCategory,
@@ -235,6 +243,7 @@ export class CommonDataService {
               }
             )
           }
+        // tslint:disable-next-line:align
         }, error => {
           console.error('Error marking mandatory notification as read:', error)
           this.showMandatoryNotification = false
@@ -310,6 +319,7 @@ export class CommonDataService {
    * If no cached value, reads from the current configSvc user profile.
    * Returns true only if the user is certified.
    */
+  // tslint:disable-next-line:max-line-length
   /**\n   * Resolve a content URL based on the user's ministry/state org language mapping.\n   * Falls back to English if no match found.\n   */
   getLanguageBasedContentUrl(contentKey: string): string {
     const ministryOrStateOrgName = _.get(this.configSvc, 'unMappedUser.profileDetails.ministryOrStateOrgName', '')
