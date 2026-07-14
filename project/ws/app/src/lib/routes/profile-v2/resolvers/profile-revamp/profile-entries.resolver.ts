@@ -32,7 +32,7 @@ export class profileEntriesResolver {
     const configDetails = {
       defaultUrl: '',
       urlConfigPath: 'profileV1Extended',
-      apiConfig: apiConfig
+      apiConfig,
     }
     return this.profileSvc.fetchProfileEntries(configDetails, userId).pipe(
       map(data => ({ data: _.get(data, 'result.response'), error: null })),

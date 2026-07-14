@@ -21,7 +21,7 @@ import { ConfigDetails } from '@sunbird-cb/consumption'
   selector: 'ws-transfer-request',
   templateUrl: './transfer-request.component.html',
   styleUrls: ['./transfer-request.component.scss'],
-  standalone: false
+  standalone: false,
 })
 
 export class TransferRequestComponent implements OnInit, OnDestroy {
@@ -433,8 +433,8 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
       })
     ).subscribe({
       next: (res: any) => {
-        let data = _.get(res, 'result.result.data', [])
-        let totalCount = _.get(res, 'result.result.totalCount', 0)
+        const data = _.get(res, 'result.result.data', [])
+        const totalCount = _.get(res, 'result.result.totalCount', 0)
         this.setDesignationResults(data, totalCount)
       }, error: (error: HttpErrorResponse) => {
         if (error) {
@@ -522,7 +522,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
         identifier: '-1',
         orgName: 'N/A',
       }],
-      organisation: []
+      organisation: [],
     }
 
     // Initialize group data from dialog payload first, fallback to groups API.
@@ -564,7 +564,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
   }
 
   setupFormChangeListeners(): void {
-    this.transferRequestForm.get('type')?.valueChanges.subscribe((type) => {
+    this.transferRequestForm.get('type')?.valueChanges.subscribe(type => {
       this.isOrganisationConditionInitialized = false
       // Reset downstream progressive visibility on type change
       this.showDepartmentField = false
@@ -601,7 +601,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
       this.applyConditionalControlState()
     })
 
-    this.transferRequestForm.get('state')?.valueChanges.subscribe((state) => {
+    this.transferRequestForm.get('state')?.valueChanges.subscribe(state => {
       this.isOrganisationConditionInitialized = false
       if (state) {
         this.showDepartmentField = true
@@ -622,7 +622,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
       this.applyConditionalControlState()
     })
 
-    this.transferRequestForm.get('ministry')?.valueChanges.subscribe((ministry) => {
+    this.transferRequestForm.get('ministry')?.valueChanges.subscribe(ministry => {
       this.isOrganisationConditionInitialized = false
       if (ministry) {
         this.showOrganisationField = true
@@ -639,7 +639,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
       this.applyConditionalControlState()
     })
 
-    this.transferRequestForm.get('department')?.valueChanges.subscribe((department) => {
+    this.transferRequestForm.get('department')?.valueChanges.subscribe(department => {
       this.isOrganisationConditionInitialized = false
       if (department && department !== '-1') {
         this.showOrganisationField = true
@@ -661,7 +661,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
       this.applyConditionalControlState()
     })
 
-    this.transferRequestForm.get('group')?.valueChanges.subscribe((group) => {
+    this.transferRequestForm.get('group')?.valueChanges.subscribe(group => {
       if (group) {
         this.showDesignationField = true
       }
@@ -1002,7 +1002,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
       department: this.transferRequestForm.get('department')?.value,
       organisation: this.transferRequestForm.get('organisation')?.value,
       group: this.transferRequestForm.get('group')?.value,
-      designation: this.transferRequestForm.get('designation')?.value
+      designation: this.transferRequestForm.get('designation')?.value,
     }
 
     // Validate required fields based on type
@@ -1110,9 +1110,6 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
     }
   }
 
-
-
-
   onDesignationSelectScroll(event: any): void {
     const element = event.target
 
@@ -1211,9 +1208,9 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
           'channel',
           'hierarchyLevel',
           'parentPathId',
-          'ministryOrStateId'
-        ]
-      }
+          'ministryOrStateId',
+        ],
+      },
     }
 
     if (searchText?.length) {
@@ -1262,7 +1259,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.noMoreLegacyMinistrys = true
-      }
+      },
     })
   }
 
@@ -1445,9 +1442,9 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
           'channel',
           'hierarchyLevel',
           'parentPathId',
-          'ministryOrStateId'
-        ]
-      }
+          'ministryOrStateId',
+        ],
+      },
     }
 
     if (searchText?.length) {
@@ -1494,7 +1491,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.noMoreLegacyStates = true
-      }
+      },
     })
   }
 
@@ -1675,9 +1672,9 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
           'orgHierarchyFrameworkStatus',
           'sbOrgType',
           'sbOrgSubType',
-          'channel'
-        ]
-      }
+          'channel',
+        ],
+      },
     }
 
     if (searchText?.length) {
@@ -1735,7 +1732,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.noMoreLegacyDepartments = true
-      }
+      },
     })
   }
 
@@ -1907,7 +1904,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
       let filters: any = {
         status: 1,
         levelZeroOrgId: this.transferRequestForm?.controls?.ministry?.value,
-        hierarchyRequestType: 'All'
+        hierarchyRequestType: 'All',
       }
       for (let i = 0; i < this.masterData['ministryBackup']?.length; i++) {
         if (this.masterData['ministryBackup'][i]?.['identifier'] === this.transferRequestForm?.controls?.ministry?.value) {
@@ -1916,14 +1913,14 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
               status: 1,
               levelZeroOrgId: this.masterData['ministryBackup'][i]['ministryOrStateId'],
               levelOneOrgId: this.masterData['ministryBackup'][i]['identifier'],
-              hierarchyRequestType: 'All'
+              hierarchyRequestType: 'All',
             }
           }
         }
       }
       requestBody = {
         request: {
-          filters: filters,
+          filters,
           query: '',
           limit: reqLimit,
           offset: reqLimit > 0 ? pageIndex * reqLimit : this.organisationDefaultLoadCount,
@@ -1936,9 +1933,9 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
             'orgHierarchyFrameworkStatus',
             'sbOrgType',
             'sbOrgSubType',
-            'channel'
-          ]
-        }
+            'channel',
+          ],
+        },
       }
     } else if (this.transferRequestForm?.controls?.type?.value === 'state') {
       requestBody = {
@@ -1947,7 +1944,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
             status: 1,
             levelZeroOrgId: this.transferRequestForm?.controls?.state?.value,
             levelOneOrgId: this.transferRequestForm?.controls?.department?.value,
-            hierarchyRequestType: 'All'
+            hierarchyRequestType: 'All',
           },
           query: '',
           limit: reqLimit,
@@ -1961,9 +1958,9 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
             'orgHierarchyFrameworkStatus',
             'sbOrgType',
             'sbOrgSubType',
-            'channel'
-          ]
-        }
+            'channel',
+          ],
+        },
       }
     }
 
@@ -2047,7 +2044,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
         if (!queryText?.length) {
           this.applyConditionalControlState()
         }
-      }
+      },
     })
   }
 
@@ -2225,7 +2222,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
       sbOrgType: null,
       description: null,
       sbOrgSubType: null,
-      orgHierarchyFrameworkId: null
+      orgHierarchyFrameworkId: null,
     }]
   }
 
@@ -2252,7 +2249,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
     }
     const requestBody: any = {
       filterCriteriaMap: {
-        status: 'Active'
+        status: 'Active',
       },
       requestedFields: [],
       pageNumber: pageIndex,
@@ -2303,7 +2300,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.noMoreLegacyDesignations = true
-      }
+      },
     })
   }
 

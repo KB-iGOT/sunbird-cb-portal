@@ -35,7 +35,7 @@ export class profileResolver {
     const configDetails: ConfigDetails = {
       defaultUrl: '',
       urlConfigPath: 'profileV1Basic',
-      apiConfig: apiConfig,
+      apiConfig,
     }
     return this.profileSvc.fetchProfile(configDetails, userId, isNotCurrentUser).pipe(
       map(data => ({

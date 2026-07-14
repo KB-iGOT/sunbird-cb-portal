@@ -5,13 +5,13 @@ import { ConfigurationsService, DomainConfService, LogoutComponent, NsPage, Valu
 import { Subscription } from 'rxjs'
 import { map } from 'rxjs/operators'
 /* tslint:disable*/
-import _ from 'lodash'
+import * as _ from 'lodash'
 
 @Component({
-    selector: 'ws-app-profile',
-    templateUrl: './profile.component.html',
-    styleUrls: ['./profile.component.scss'],
-    standalone: false
+  selector: 'ws-app-profile',
+  templateUrl: './profile.component.html',
+  styleUrls: ['./profile.component.scss'],
+  standalone: false
 })
 export class ProfileComponent implements OnInit, OnDestroy {
   tabName = ''
@@ -40,15 +40,15 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     let tabsData =
-  _.get(this.activatedRoute, 'snapshot.data.pageData.data.settingSideMenu') || [];
+      _.get(this.activatedRoute, 'snapshot.data.pageData.data.settingSideMenu') || []
 
-    
+
     tabsData = _.filter(tabsData, (tab: any) =>
       this.domainConfSvc.isConfigEnabled(
         'components.settingsMenu',
         tab.name
       )
-    );
+    )
     this.tabsData = tabsData
     this.sideNavBarOpened = true
     const tab = this.router.url.split('/')[3]

@@ -5,7 +5,7 @@ import { Observable } from 'rxjs'
 import { map } from 'rxjs/operators'
 import { IUserProfileDetailsFromRegistry } from '../../user-profile/models/user-profile.model'
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 // tslint:enable
 
 const API_ENDPOINTS = {

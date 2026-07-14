@@ -7,14 +7,14 @@ import { TranslateService } from '@ngx-translate/core'
 import { EventService, MultilingualTranslationsService, WsEvents } from '@sunbird-cb/utils-v2'
 import { debounceTime, switchMap, takeUntil } from 'rxjs/operators'
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { ActivatedRoute } from '@angular/router'
 
 @Component({
-    selector: 'ws-app-mdo-channels',
-    templateUrl: './mdo-channels.component.html',
-    styleUrls: ['./mdo-channels.component.scss'],
-    standalone: false
+  selector: 'ws-app-mdo-channels',
+  templateUrl: './mdo-channels.component.html',
+  styleUrls: ['./mdo-channels.component.scss'],
+  standalone: false
 })
 export class MdoChannelsComponent implements OnInit {
   public displayLoader!: Observable<boolean>
@@ -73,7 +73,7 @@ export class MdoChannelsComponent implements OnInit {
       }
     })
     this.clonesProviders = this.allProviders
-   }
+  }
 
   ngOnInit() {
     this.searchForm = new UntypedFormGroup({
@@ -182,8 +182,9 @@ export class MdoChannelsComponent implements OnInit {
 
   filterChannles(value: string) {
     if (value) {
+      // tslint:disable-next-line: max-length
       const filterValue = value.toLowerCase()
-      this.clonesProviders = this.allProviders.filter((p: any) => p &&  p.orgName && p.orgName.toLowerCase().includes(filterValue))
+      this.clonesProviders = this.allProviders.filter((p: any) => p && p.orgName && p.orgName.toLowerCase().includes(filterValue))
     }
     if (!value) {
       this.clonesProviders = this.allProviders
@@ -203,12 +204,13 @@ export class MdoChannelsComponent implements OnInit {
     }
   }
 
-  sortType(sortType: any){
-    if(this.searchForm && this.searchForm.get('sortByControl')){
+  sortType(sortType: any) {
+    if (this.searchForm && this.searchForm.get('sortByControl')) {
       // tslint:disable-next-line: no-non-null-assertion
       this.searchForm.get('sortByControl')!.setValue(sortType)
-      this.sortBy = sortType;
-      this.allProviders = _.orderBy(this.allProviders &&this.allProviders.length ? this.allProviders : this.allProviders, ['orgName'], [this.sortBy])
+      this.sortBy = sortType
+      // tslint:disable-next-line: max-length
+      this.allProviders = _.orderBy(this.allProviders && this.allProviders.length ? this.allProviders : this.allProviders, ['orgName'], [this.sortBy])
     }
   }
 

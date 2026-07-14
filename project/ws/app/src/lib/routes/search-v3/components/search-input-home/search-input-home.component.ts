@@ -34,35 +34,33 @@ import {
 import { WidgetContentLibService } from '@sunbird-cb/consumption'
 import { MobileAppsService } from './../../../services/mobile-apps.service'
 
-
 @Component({
   selector: 'ws-app-search-v3-input-home',
   templateUrl: './search-input-home.component.html',
   styleUrls: ['./search-input-home.component.scss'],
   // tslint:disable-next-line
   encapsulation: ViewEncapsulation.None,
-  standalone: false
+  standalone: false,
 })
 export class SearchInputHomeComponent implements OnInit, OnChanges {
-  @Input() placeHolder = '';
-  @Input() ref = '';
-  @Output() closed: EventEmitter<boolean> = new EventEmitter();
-
+  @Input() placeHolder = ''
+  @Input() ref = ''
+  @Output() closed: EventEmitter<boolean> = new EventEmitter()
 
   queryControl: UntypedFormControl
-  languageSearch: string[] = [];
-  SAKSHAMAI_ICON_LOADER = '/assets/images/sakshamAI/saksham_ai_loader.gif';
+  languageSearch: string[] = []
+  SAKSHAMAI_ICON_LOADER = '/assets/images/sakshamAI/saksham_ai_loader.gif'
 
-  disableMenu = false;
+  disableMenu = false
   recentSearches: any = [
     // 'AI Throttling Improves Deliverability',
     // 'AI Throttling Improves Deliverability',
     // 'AI Throttling Improves Deliverability',
-  ];
+  ]
   searchQuery = ''
-  allSearchResults: any[] = [];
+  allSearchResults: any[] = []
   nlpSearchValue: any
-  private hasReadRecentBeenCalled = false;
+  private hasReadRecentBeenCalled = false
   searchCat: any
   categories = [
     { label: 'Content', value: SearchCategory.Courses, icon: 'video-library' },
@@ -94,13 +92,13 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
       icon: 'diversity_3',
     },
     { label: 'All', value: SearchCategory.All, icon: '' },
-  ];
+  ]
 
-  selectedSearchCategory: string = SearchCategory.Courses;
-  searchCategoriesEnabled = true;
-  openSearchTemplate = false;
-  loaderSearching = false;
-  responseNlpQuery = '';
+  selectedSearchCategory: string = SearchCategory.Courses
+  searchCategoriesEnabled = true
+  openSearchTemplate = false
+  loaderSearching = false
+  responseNlpQuery = ''
   searchSubscription: any
   @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>
   @HostListener('document:click', ['$event'])
@@ -131,11 +129,9 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
       }
     })
 
-
-
     this.queryControl.valueChanges
       .pipe(debounceTime(500), distinctUntilChanged())
-      .subscribe(async (value) => {
+      .subscribe(async value => {
         if (value.length > 100) {
           await this.searchFromQuery(value)
           this.loaderSearching = false
@@ -157,7 +153,7 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
     if (!this.activated.snapshot.data.searchPageData) {
       this.searchServSvc
         .getSearchConfig()
-        .then((data) => {
+        .then(data => {
           this.activated.snapshot.data = {
             searchPageData: { data },
           }
@@ -199,7 +195,7 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
       if (typeof isAutoCompleteAllowed === 'boolean' && isAutoCompleteAllowed) {
         this.queryControl.valueChanges
           .pipe(debounceTime(200), distinctUntilChanged())
-          .subscribe((q) => {
+          .subscribe(q => {
             this.searchFromQuery(q)
           })
       }
@@ -241,7 +237,7 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
     } else {
       this.disableMenu = false
     }
-    this.activated.queryParamMap.subscribe((queryParam) => {
+    this.activated.queryParamMap.subscribe(queryParam => {
       if (queryParam.has('q')) {
         this.queryControl.setValue(queryParam.get('q') || '')
       }
@@ -283,7 +279,7 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
       const reqBody = {
         nlpSearchQuery: query?.nlp_search_query,
         searchQuery: query?.search_query,
-        searchCategory: query?.search_category[0]
+        searchCategory: query?.search_category[0],
       }
       await this.searchV3Service.recentCreate(reqBody).then(() => {
         this.processRecentSearchText(query)
@@ -301,7 +297,7 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
     const reqBody = {
       nlpSearchQuery: data,
       searchQuery: this.queryControl?.value,
-      searchCategory: this.selectedSearchCategory ? this.selectedSearchCategory : 'all'
+      searchCategory: this.selectedSearchCategory ? this.selectedSearchCategory : 'all',
     }
 
     await this.searchV3Service.recentCreate(
@@ -330,55 +326,55 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
     if (!this.isCategoryEnabled(category)) { return }
     if (category && category === 'courses' && nlpSearchQuery) {
       const req = {
-        "request": {
-          "filters": {
-            "contentType": [
-              "Course"
+        'request': {
+          'filters': {
+            'contentType': [
+              'Course',
             ],
-            "courseCategory": [],
-            "status": [
-              "Live"
-            ]
+            'courseCategory': [],
+            'status': [
+              'Live',
+            ],
           },
-          "fields": [
-            "downloadUrl",
-            "organisation",
-            "language",
-            "source",
-            "appIcon",
-            "identifier",
-            "name",
-            "primaryCategory",
-            "contentType",
-            "posterImage",
-            "createdOn",
-            "duration",
-            "avgRating",
-            "additionalTags",
-            "courseCategory",
-            "mimeType",
-            "contentId",
-            "creatorLogo",
+          'fields': [
+            'downloadUrl',
+            'organisation',
+            'language',
+            'source',
+            'appIcon',
+            'identifier',
+            'name',
+            'primaryCategory',
+            'contentType',
+            'posterImage',
+            'createdOn',
+            'duration',
+            'avgRating',
+            'additionalTags',
+            'courseCategory',
+            'mimeType',
+            'contentId',
+            'creatorLogo',
             'languageMapV1',
             'language',
-            "sectorDetails_v1"
+            'sectorDetails_v1',
           ],
-          "facets": [
-            "avgRating",
-            "language",
-            "organisation",
-            "courseCategory",
-            "sectorDetails_v1.sectorName",
-            "sectorDetails_v1.subSectorName",
-            "competencies_v6.competencyAreaName",
-            "competencies_v6.competencyThemeName",
-            "competencies_v6.competencySubThemeName"
+          'facets': [
+            'avgRating',
+            'language',
+            'organisation',
+            'courseCategory',
+            'sectorDetails_v1.sectorName',
+            'sectorDetails_v1.subSectorName',
+            'competencies_v6.competencyAreaName',
+            'competencies_v6.competencyThemeName',
+            'competencies_v6.competencySubThemeName',
           ],
-          "query": nlpSearchQuery,
-          "limit": 3,
-          "offset": 0,
-          "sort_by": {}
-        }
+          'query': nlpSearchQuery,
+          'limit': 3,
+          'offset': 0,
+          'sort_by': {},
+        },
       }
       this.searchV3Service.fetchSearchDataByCategory(req).subscribe((res: any) => {
         if (res) {
@@ -388,48 +384,48 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
     }
     if (category && category === 'events' && nlpSearchQuery) {
       const req = {
-        "request": {
-          "filters": {
-            "contentType": "Event",
-            "status": [
-              "Live"
-            ]
+        'request': {
+          'filters': {
+            'contentType': 'Event',
+            'status': [
+              'Live',
+            ],
           },
-          "fields": [
-            "name",
-            "description",
-            "identifier",
-            "resourceType",
-            "contentType",
-            "sourceName",
-            "duration",
-            "startDate",
-            "endDate",
-            "startTime",
-            "endTime",
-            "createdOn",
-            "eventType",
-            "expiryDate",
-            "appIcon",
-            "startDateTime",
-            "endDateTime"
+          'fields': [
+            'name',
+            'description',
+            'identifier',
+            'resourceType',
+            'contentType',
+            'sourceName',
+            'duration',
+            'startDate',
+            'endDate',
+            'startTime',
+            'endTime',
+            'createdOn',
+            'eventType',
+            'expiryDate',
+            'appIcon',
+            'startDateTime',
+            'endDateTime',
           ],
-          "facets": [
-            "duration",
-            "language",
-            "sourceName",
-            "startDateTimeInEpoch",
-            "endDateTimeInEpoch",
-            "resourceType",
-            "competencies_v6.competencyAreaName",
-            "competencies_v6.competencyThemeName",
-            "competencies_v6.competencySubThemeName"
+          'facets': [
+            'duration',
+            'language',
+            'sourceName',
+            'startDateTimeInEpoch',
+            'endDateTimeInEpoch',
+            'resourceType',
+            'competencies_v6.competencyAreaName',
+            'competencies_v6.competencyThemeName',
+            'competencies_v6.competencySubThemeName',
           ],
-          "query": nlpSearchQuery,
-          "limit": 3,
-          "offset": 0,
-          "sort_by": {}
-        }
+          'query': nlpSearchQuery,
+          'limit': 3,
+          'offset': 0,
+          'sort_by': {},
+        },
       }
       this.searchV3Service.fetchSearchDataByCategory(req).subscribe((res: any) => {
         if (res) {
@@ -442,8 +438,8 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
       const req = {
         filters: {},
         facets: [
-          "profileDetails.professionalDetails.designation",
-          "rootOrgName"
+          'profileDetails.professionalDetails.designation',
+          'rootOrgName',
         ],
         fields: [],
         limit: 5,
@@ -466,37 +462,37 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
 
     if (category && category === 'resources' && nlpSearchQuery) {
       const req = {
-        "request": {
-          "filters": {
-            "contentType": "Resource",
-            "courseCategory": [],
-            "status": [
-              "Live"
+        'request': {
+          'filters': {
+            'contentType': 'Resource',
+            'courseCategory': [],
+            'status': [
+              'Live',
             ],
-            "mimeType": [
-              "application/pdf",
-              "video/mp4",
-              "text/x-url",
-              "audio/mpeg",
-              "application/vnd.ekstep.content-collection"
-            ]
+            'mimeType': [
+              'application/pdf',
+              'video/mp4',
+              'text/x-url',
+              'audio/mpeg',
+              'application/vnd.ekstep.content-collection',
+            ],
           },
-          "fields": [],
-          "facets": [
-            "resourceCategory",
-            "sectorDetails_v1.subSectorName",
-            "sectorDetails_v1.sectorName",
-            "years"
+          'fields': [],
+          'facets': [
+            'resourceCategory',
+            'sectorDetails_v1.subSectorName',
+            'sectorDetails_v1.sectorName',
+            'years',
           ],
-          "query": nlpSearchQuery,
-          "limit": 3,
-          "offset": 0,
-          "sort_by": {},
-          "exists": [
-            "sectorDetails_v1.sectorName",
-            "resourceCategory"
-          ]
-        }
+          'query': nlpSearchQuery,
+          'limit': 3,
+          'offset': 0,
+          'sort_by': {},
+          'exists': [
+            'sectorDetails_v1.sectorName',
+            'resourceCategory',
+          ],
+        },
 
       }
       this.searchV3Service.fetchSearchDataByCategory(req).subscribe((res: any) => {
@@ -507,20 +503,20 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
     }
     if (category && category === 'communities' && nlpSearchQuery) {
       const req = {
-        "filterCriteriaMap": {
-          "status": "active"
+        'filterCriteriaMap': {
+          'status': 'active',
         },
-        "requestedFields": [],
-        "pageNumber": 0,
-        "pageSize": 6,
-        "facets": [
-          "topicName",
-          "orgName",
-          "competencies_v6.competencyAreaName",
-          "competencies_v6.competencyThemeName",
-          "competencies_v6.competencySubThemeName"
+        'requestedFields': [],
+        'pageNumber': 0,
+        'pageSize': 6,
+        'facets': [
+          'topicName',
+          'orgName',
+          'competencies_v6.competencyAreaName',
+          'competencies_v6.competencyThemeName',
+          'competencies_v6.competencySubThemeName',
         ],
-        "searchString": nlpSearchQuery
+        'searchString': nlpSearchQuery,
       }
       this.searchV3Service.fetchSearchDataByCategory(req).subscribe((res: any) => {
         if (res) {
@@ -528,60 +524,59 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
         }
       })
 
-
     }
 
     if (category && category === 'all' && nlpSearchQuery) {
       const catReq = {
-        "request": {
-          "filters": {
-            "contentType": [
-              "Course"
+        'request': {
+          'filters': {
+            'contentType': [
+              'Course',
             ],
-            "courseCategory": [],
-            "status": [
-              "Live"
-            ]
+            'courseCategory': [],
+            'status': [
+              'Live',
+            ],
           },
-          "fields": [
-            "downloadUrl",
-            "organisation",
-            "language",
-            "source",
-            "appIcon",
-            "identifier",
-            "name",
-            "primaryCategory",
-            "contentType",
-            "posterImage",
-            "createdOn",
-            "duration",
-            "avgRating",
-            "additionalTags",
-            "courseCategory",
-            "mimeType",
-            "contentId",
-            "creatorLogo",
-            "sectorDetails_v1",
+          'fields': [
+            'downloadUrl',
+            'organisation',
+            'language',
+            'source',
+            'appIcon',
+            'identifier',
+            'name',
+            'primaryCategory',
+            'contentType',
+            'posterImage',
+            'createdOn',
+            'duration',
+            'avgRating',
+            'additionalTags',
+            'courseCategory',
+            'mimeType',
+            'contentId',
+            'creatorLogo',
+            'sectorDetails_v1',
             'languageMapV1',
-            'language'
+            'language',
           ],
-          "facets": [
-            "avgRating",
-            "language",
-            "organisation",
-            "courseCategory",
-            "sectorDetails_v1.sectorName",
-            "sectorDetails_v1.subSectorName",
-            "competencies_v6.competencyAreaName",
-            "competencies_v6.competencyThemeName",
-            "competencies_v6.competencySubThemeName"
+          'facets': [
+            'avgRating',
+            'language',
+            'organisation',
+            'courseCategory',
+            'sectorDetails_v1.sectorName',
+            'sectorDetails_v1.subSectorName',
+            'competencies_v6.competencyAreaName',
+            'competencies_v6.competencyThemeName',
+            'competencies_v6.competencySubThemeName',
           ],
-          "query": nlpSearchQuery,
-          "limit": 3,
-          "offset": 0,
-          "sort_by": {}
-        }
+          'query': nlpSearchQuery,
+          'limit': 3,
+          'offset': 0,
+          'sort_by': {},
+        },
       }
       this.searchV3Service.fetchSearchDataByCategory(catReq).subscribe((res: any) => {
         if (res) {
@@ -590,48 +585,48 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
       })
 
       const eventReq = {
-        "request": {
-          "filters": {
-            "contentType": "Event",
-            "status": [
-              "Live"
-            ]
+        'request': {
+          'filters': {
+            'contentType': 'Event',
+            'status': [
+              'Live',
+            ],
           },
-          "fields": [
-            "name",
-            "description",
-            "identifier",
-            "resourceType",
-            "contentType",
-            "sourceName",
-            "duration",
-            "startDate",
-            "endDate",
-            "startTime",
-            "endTime",
-            "createdOn",
-            "eventType",
-            "expiryDate",
-            "appIcon",
-            "startDateTime",
-            "endDateTime"
+          'fields': [
+            'name',
+            'description',
+            'identifier',
+            'resourceType',
+            'contentType',
+            'sourceName',
+            'duration',
+            'startDate',
+            'endDate',
+            'startTime',
+            'endTime',
+            'createdOn',
+            'eventType',
+            'expiryDate',
+            'appIcon',
+            'startDateTime',
+            'endDateTime',
           ],
-          "facets": [
-            "duration",
-            "language",
-            "sourceName",
-            "startDateTimeInEpoch",
-            "endDateTimeInEpoch",
-            "resourceType",
-            "competencies_v6.competencyAreaName",
-            "competencies_v6.competencyThemeName",
-            "competencies_v6.competencySubThemeName"
+          'facets': [
+            'duration',
+            'language',
+            'sourceName',
+            'startDateTimeInEpoch',
+            'endDateTimeInEpoch',
+            'resourceType',
+            'competencies_v6.competencyAreaName',
+            'competencies_v6.competencyThemeName',
+            'competencies_v6.competencySubThemeName',
           ],
-          "query": nlpSearchQuery,
-          "limit": 3,
-          "offset": 0,
-          "sort_by": {}
-        }
+          'query': nlpSearchQuery,
+          'limit': 3,
+          'offset': 0,
+          'sort_by': {},
+        },
       }
       this.searchV3Service.fetchSearchDataByCategory(eventReq).subscribe((res: any) => {
         if (res) {
@@ -642,8 +637,8 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
       const peopleReq = {
         filters: {},
         facets: [
-          "profileDetails.professionalDetails.designation",
-          "rootOrgName"
+          'profileDetails.professionalDetails.designation',
+          'rootOrgName',
         ],
         fields: [],
         limit: 5,
@@ -654,37 +649,37 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
       this.searchV3Service.searchConnections(peopleReq).catch()
 
       const resourceReq = {
-        "request": {
-          "filters": {
-            "contentType": "Resource",
-            "courseCategory": [],
-            "status": [
-              "Live"
+        'request': {
+          'filters': {
+            'contentType': 'Resource',
+            'courseCategory': [],
+            'status': [
+              'Live',
             ],
-            "mimeType": [
-              "application/pdf",
-              "video/mp4",
-              "text/x-url",
-              "audio/mpeg",
-              "application/vnd.ekstep.content-collection"
-            ]
+            'mimeType': [
+              'application/pdf',
+              'video/mp4',
+              'text/x-url',
+              'audio/mpeg',
+              'application/vnd.ekstep.content-collection',
+            ],
           },
-          "fields": [],
-          "facets": [
-            "resourceCategory",
-            "sectorDetails_v1.subSectorName",
-            "sectorDetails_v1.sectorName",
-            "years"
+          'fields': [],
+          'facets': [
+            'resourceCategory',
+            'sectorDetails_v1.subSectorName',
+            'sectorDetails_v1.sectorName',
+            'years',
           ],
-          "query": query,
-          "limit": 3,
-          "offset": 0,
-          "sort_by": {},
-          "exists": [
-            "sectorDetails_v1.sectorName",
-            "resourceCategory"
-          ]
-        }
+          'query': query,
+          'limit': 3,
+          'offset': 0,
+          'sort_by': {},
+          'exists': [
+            'sectorDetails_v1.sectorName',
+            'resourceCategory',
+          ],
+        },
 
       }
       this.searchV3Service.fetchSearchDataByCategory(resourceReq).subscribe((res: any) => {
@@ -694,20 +689,20 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
       })
 
       const communitiesreq = {
-        "filterCriteriaMap": {
-          "status": "active"
+        'filterCriteriaMap': {
+          'status': 'active',
         },
-        "requestedFields": [],
-        "pageNumber": 0,
-        "pageSize": 6,
-        "facets": [
-          "topicName",
-          "orgName",
-          "competencies_v6.competencyAreaName",
-          "competencies_v6.competencyThemeName",
-          "competencies_v6.competencySubThemeName"
+        'requestedFields': [],
+        'pageNumber': 0,
+        'pageSize': 6,
+        'facets': [
+          'topicName',
+          'orgName',
+          'competencies_v6.competencyAreaName',
+          'competencies_v6.competencyThemeName',
+          'competencies_v6.competencySubThemeName',
         ],
-        "searchString": nlpSearchQuery
+        'searchString': nlpSearchQuery,
       }
       this.searchV3Service.fetchSearchDataByCategory(communitiesreq).subscribe((res: any) => {
         if (res) {
@@ -718,10 +713,9 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
     }
   }
 
-
   recentDeleteByUserId() {
     return this.searchV3Service.recentDeleteByUser().subscribe((result: any) => {
-      if (result && result.responseCode === "OK") {
+      if (result && result.responseCode === 'OK') {
         this.readRecent()
       }
     })
@@ -877,7 +871,7 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
       }
 
       return
-    } else if (this.selectedSearchCategory === SearchCategory.Communities) {
+    } if (this.selectedSearchCategory === SearchCategory.Communities) {
       const searchRequestCommunities = new SearchCommunitiesRequest([])
       searchRequestCommunities.searchString = query
       const result = await this.searchV3Service
@@ -913,11 +907,10 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
       return
     }
 
-    const validKeys = Object.keys(courseSearchResult?.result || {}).filter(
-      (key) =>
-        (key === 'Event' || key === 'content') &&
-        Array.isArray(courseSearchResult.result[key]) &&
-        courseSearchResult.result[key].length > 0
+    const validKeys = Object.keys(courseSearchResult?.result || {}).filter(key =>
+      (key === 'Event' || key === 'content') &&
+      Array.isArray(courseSearchResult.result[key]) &&
+      courseSearchResult.result[key].length > 0
     )
 
     this.allSearchResults = validKeys.length
@@ -973,7 +966,7 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
     searchRequest.query = query
     await this.searchV3Service
       .nlpSearch(searchRequest)
-      .then(async (response) => {
+      .then(async response => {
         if (response?.data && response?.data?.keywords) {
           if (response?.data?.keywords.length > 0) {
             this.responseNlpQuery = response?.data?.keywords[0]?.keyword

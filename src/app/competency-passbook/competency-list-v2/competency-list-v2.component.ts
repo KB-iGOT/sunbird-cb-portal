@@ -270,7 +270,7 @@ export class CompetencyListV2Component implements OnInit, OnDestroy {
             areaId,
             areaName: area,
             name: this.allThemeData.find((t: any) => t.refId === themeId)?.name || themeId,
-            isThemeRemoved: isThemeRemoved,
+            isThemeRemoved,
             subThemes: [],
             competencyDetails: [],
             viewMore: false,

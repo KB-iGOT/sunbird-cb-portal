@@ -5,7 +5,7 @@ import {
   NsCardContent,
 } from '@sunbird-cb/collection'
 /* tslint:disable */
-import _ from 'lodash'
+import * as _ from 'lodash'
 /* tslint:enable */
 import dayjs from 'dayjs'
 import isBetween from 'dayjs/plugin/isBetween'
@@ -19,10 +19,10 @@ dayjs.extend(isSameOrBefore)
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isBetween)
 @Component({
-    selector: 'ws-cbp-plan',
-    templateUrl: './cbp-plan.component.html',
-    styleUrls: ['./cbp-plan.component.scss'],
-    standalone: false,
+  selector: 'ws-cbp-plan',
+  templateUrl: './cbp-plan.component.html',
+  styleUrls: ['./cbp-plan.component.scss'],
+  standalone: false,
 })
 export class CbpPlanComponent implements OnInit {
   cbpConfig: any

@@ -210,7 +210,6 @@ export interface FieldConfig {
 // Component
 // ─────────────────────────────────────────────────────────────────────────────
 
-
 @Component({
   selector: 'ws-app-dynamic-entry-edit',
   templateUrl: './dynamic-entry-edit.component.html',

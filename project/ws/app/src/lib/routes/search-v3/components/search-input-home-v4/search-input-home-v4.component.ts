@@ -72,31 +72,31 @@ interface SearchCategoryItem {
 })
 export class SearchInputHomeV4Component implements OnInit, OnDestroy {
   // Inputs using Angular 20 signals
-  placeHolder = input<string>('');
-  ref = input<string>('');
+  placeHolder = input<string>('')
+  ref = input<string>('')
 
   // Outputs using Angular 20 signals
-  closed = output<boolean>();
+  closed = output<boolean>()
 
   // State signals
   queryControl: FormControl<string | null>
-  languageSearch = signal<string[]>([]);
-  disableMenu = signal(false);
-  recentSearches = signal<any[]>([]);
-  searchQuery = signal('');
-  allSearchResults = signal<any[]>([]);
-  nlpSearchValue = signal<any>(null);
-  selectedSearchCategory = signal<string>(SearchCategory.Courses);
-  openSearchTemplate = signal(false);
-  loaderSearching = signal(false);
-  responseNlpQuery = signal('');
-  searchLocale = signal('en');
-  preferredLanguages = signal('');
+  languageSearch = signal<string[]>([])
+  disableMenu = signal(false)
+  recentSearches = signal<any[]>([])
+  searchQuery = signal('')
+  allSearchResults = signal<any[]>([])
+  nlpSearchValue = signal<any>(null)
+  selectedSearchCategory = signal<string>(SearchCategory.Courses)
+  openSearchTemplate = signal(false)
+  loaderSearching = signal(false)
+  responseNlpQuery = signal('')
+  searchLocale = signal('en')
+  preferredLanguages = signal('')
 
   // Constants
-  readonly SAKSHAMAI_ICON_LOADER = '/assets/images/sakshamAI/saksham_ai_loader.gif';
+  readonly SAKSHAMAI_ICON_LOADER = '/assets/images/sakshamAI/saksham_ai_loader.gif'
 
-  private hasReadRecentBeenCalled = false;
+  private hasReadRecentBeenCalled = false
 
   readonly categories: SearchCategoryItem[] = [
     { label: 'Content', value: SearchCategory.Courses, icon: 'video-library' },
@@ -118,20 +118,20 @@ export class SearchInputHomeV4Component implements OnInit, OnDestroy {
       icon: 'diversity_3',
     },
     { label: 'All', value: SearchCategory.All, icon: '' },
-  ];
+  ]
 
   @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>
 
   private searchSubscription?: Subscription
   private querySubscription?: Subscription
-  private activated = inject(ActivatedRoute);
-  private router = inject(Router);
-  private searchServSvc = inject(SearchServService);
-  private configSvc = inject(ConfigurationsService);
-  private eRef = inject(ElementRef);
-  private searchV3Service = inject(GbSearchService);
-  private contSvc = inject(WidgetContentLibService);
-  private mobileAppsService = inject(MobileAppsService);
+  private activated = inject(ActivatedRoute)
+  private router = inject(Router)
+  private searchServSvc = inject(SearchServService)
+  private configSvc = inject(ConfigurationsService)
+  private eRef = inject(ElementRef)
+  private searchV3Service = inject(GbSearchService)
+  private contSvc = inject(WidgetContentLibService)
+  private mobileAppsService = inject(MobileAppsService)
 
   @HostListener('document:click', ['$event'])
   onClickOutside(event: Event) {
@@ -153,7 +153,7 @@ export class SearchInputHomeV4Component implements OnInit, OnDestroy {
 
     this.querySubscription = this.queryControl.valueChanges
       .pipe(debounceTime(500), distinctUntilChanged())
-      .subscribe(async (value) => {
+      .subscribe(async value => {
         if (value && value.length > 0) {
           await this.searchFromQuery(value)
           this.loaderSearching.set(false)
@@ -167,7 +167,7 @@ export class SearchInputHomeV4Component implements OnInit, OnDestroy {
     if (!this.activated.snapshot.data.searchPageData) {
       this.searchServSvc
         .getSearchConfig()
-        .then((data) => {
+        .then(data => {
           this.activated.snapshot.data = {
             searchPageData: { data },
           }
@@ -194,7 +194,7 @@ export class SearchInputHomeV4Component implements OnInit, OnDestroy {
       if (typeof isAutoCompleteAllowed === 'boolean' && isAutoCompleteAllowed) {
         this.queryControl.valueChanges
           .pipe(debounceTime(200), distinctUntilChanged())
-          .subscribe((q) => {
+          .subscribe(q => {
             if (q) {
               this.searchFromQuery(q)
             }
@@ -217,7 +217,7 @@ export class SearchInputHomeV4Component implements OnInit, OnDestroy {
 
     this.disableMenu.set(isNotMyUser && isIgotOrg)
 
-    this.activated.queryParamMap.subscribe((queryParam) => {
+    this.activated.queryParamMap.subscribe(queryParam => {
       if (queryParam.has('q')) {
         this.queryControl.setValue(queryParam.get('q') || '')
       }
@@ -608,11 +608,10 @@ export class SearchInputHomeV4Component implements OnInit, OnDestroy {
       return
     }
 
-    const validKeys = Object.keys(courseSearchResult?.result || {}).filter(
-      (key) =>
-        (key === 'Event' || key === 'content') &&
-        Array.isArray(courseSearchResult.result[key]) &&
-        courseSearchResult.result[key].length > 0
+    const validKeys = Object.keys(courseSearchResult?.result || {}).filter(key =>
+      (key === 'Event' || key === 'content') &&
+      Array.isArray(courseSearchResult.result[key]) &&
+      courseSearchResult.result[key].length > 0
     )
 
     this.allSearchResults.set(
@@ -669,7 +668,7 @@ export class SearchInputHomeV4Component implements OnInit, OnDestroy {
     searchRequest.query = query
     await this.searchV3Service
       .nlpSearch(searchRequest)
-      .then(async (response) => {
+      .then(async response => {
         if (response?.data && response?.data?.keywords) {
           if (response?.data?.keywords.length > 0) {
             this.responseNlpQuery.set(response?.data?.keywords[0]?.keyword)

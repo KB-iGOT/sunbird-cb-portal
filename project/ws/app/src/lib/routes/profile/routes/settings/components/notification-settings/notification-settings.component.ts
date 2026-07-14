@@ -2,7 +2,7 @@ import { Component, OnInit } from '@angular/core'
 import { SettingsService } from '../../settings.service'
 import { TranslateService } from '@ngx-translate/core'
 /* tslint:disable*/
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 import { MatSnackBar } from '@angular/material/snack-bar'
 
