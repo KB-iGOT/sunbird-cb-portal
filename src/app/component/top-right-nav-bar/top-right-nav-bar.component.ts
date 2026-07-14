@@ -1,6 +1,5 @@
 import { Component, Input, OnChanges, OnDestroy, OnInit } from '@angular/core'
-import { MatDialog } from '@angular/material/dialog'
-import { MatDialog as MatDialogNew } from '@angular/material/dialog'
+import { MatDialog, MatDialog as MatDialogNew } from '@angular/material/dialog'
 import { DialogBoxComponent } from './../dialog-box/dialog-box.component'
 import { TranslateService } from '@ngx-translate/core'
 import { HomePageService } from '../../services/home-page.service'
@@ -37,15 +36,15 @@ export class TopRightNavBarComponent implements OnInit, OnChanges, OnDestroy {
   enableSupportAI = false
   private subscriptions = new Subscription()
   constructor(public dialog: MatDialog, public homePageService: HomePageService,
-    private configSvc: ConfigurationsService,
-    private langtranslations: MultilingualTranslationsService, private translate: TranslateService,
-    private zohoSupportSvc: ZohoSupportService,
-    private events: EventService, private snackBar: MatSnackBar,
-    private router: Router, private notificationsService: NotificationsService,
-    private rootService: RootService,
-    private matDialog: MatDialogNew,
-    private libNotificationsService: LibNotificationsService,
-    public domainConfSvc: DomainConfService) {
+              private configSvc: ConfigurationsService,
+              private langtranslations: MultilingualTranslationsService, private translate: TranslateService,
+              private zohoSupportSvc: ZohoSupportService,
+              private events: EventService, private snackBar: MatSnackBar,
+              private router: Router, private notificationsService: NotificationsService,
+              private rootService: RootService,
+              private matDialog: MatDialogNew,
+              private libNotificationsService: LibNotificationsService,
+              public domainConfSvc: DomainConfService) {
     if (localStorage.getItem('websiteLanguage')) {
       this.translate.setDefaultLang('en')
       let lang = JSON.stringify(localStorage.getItem('websiteLanguage'))
@@ -105,8 +104,10 @@ export class TopRightNavBarComponent implements OnInit, OnChanges, OnDestroy {
           if (res.responseCode === 'OK') {
             this.notificationsCount = 0
           }
+        // tslint:disable-next-line:align
         }, error => {
           // eslint-disable-next-line no-console
+          // tslint:disable-next-line:no-console
           console.error('Error while fetching notifications count', error)
         })
     }

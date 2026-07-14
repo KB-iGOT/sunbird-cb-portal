@@ -134,7 +134,7 @@ export class CommonDataService {
   }
 
   getOrgDetails(isPlayer: boolean) {
-    this.rootOrgId = this.rootOrgId || this.configSvc?.userProfile?.rootOrgId ||''
+    this.rootOrgId = this.rootOrgId || this.configSvc?.userProfile?.rootOrgId || ''
     const request = {
       request: { organisationId: this.rootOrgId },
     }

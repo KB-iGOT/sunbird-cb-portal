@@ -87,8 +87,8 @@ export class PublicCrpComponent {
   hideOrg = false
   emailPattern = '^[\\w\-\\.]+@([\\w-]+\\.)+[\\w-]{2,4}$'
   zohoHtml: any
-  invalidLinkMessage = '';
-  private subscriptionContact: Subscription | null = null;
+  invalidLinkMessage = ''
+  private subscriptionContact: Subscription | null = null
   private recaptchaSubscription!: Subscription
   private userdataSubscription!: Subscription
   searching = false
@@ -262,7 +262,7 @@ export class PublicCrpComponent {
     if (isPlatformBrowser(this._platformId)) {
       this._document.body.classList.add('cs-recaptcha')
     }
-    this.zohoSupportSvc.getZohoHtml().subscribe((res) => {
+    this.zohoSupportSvc.getZohoHtml().subscribe(res => {
       this.zohoHtml = res
     })
   }

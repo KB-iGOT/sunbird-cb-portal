@@ -71,8 +71,9 @@ export class CommonDataService {
       this.getOrgDetails(isPlayer)
       return
     }
-    let unMappedUser = this.configSvc.unMappedUser
-    let userProfileUpdateDate = unMappedUser && unMappedUser.profileDetails && unMappedUser.profileDetails.personalDetails && unMappedUser.profileDetails.personalDetails?.lastProfileVerificationPromptDate ? Number(unMappedUser.profileDetails.personalDetails.lastProfileVerificationPromptDate) : null
+    const unMappedUser = this.configSvc.unMappedUser
+    // tslint:disable-next-line:max-line-length
+    const userProfileUpdateDate = unMappedUser && unMappedUser.profileDetails && unMappedUser.profileDetails.personalDetails && unMappedUser.profileDetails.personalDetails?.lastProfileVerificationPromptDate ? Number(unMappedUser.profileDetails.personalDetails.lastProfileVerificationPromptDate) : null
     // Difference in milliseconds
     const currentEpochTime = new Date().getTime()
     let diffMs = 0

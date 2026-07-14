@@ -12,9 +12,9 @@ const ENROLL_CONTENT_DATA = `${PROXIES_V8}/learner/course/v4/user/enrollment/det
 @Injectable()
 export class AppEnrollmentResolverService {
     constructor(private configSvc: ConfigurationsService,
-        private http: HttpClient,
-        private dataTransfer: DataTransferService,
-        private widgetContentSvc: WidgetContentService,
+                private http: HttpClient,
+                private dataTransfer: DataTransferService,
+                private widgetContentSvc: WidgetContentService,
     ) { }
 
     private reEnrollInactiveCourses(courses: any[], parentCourseId: string): Observable<any[]> {

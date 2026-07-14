@@ -24,17 +24,10 @@ export enum ErrorType {
 }
 
 @Component({
-<<<<<<< HEAD
-    selector: 'viewer-container',
-    templateUrl: './viewer.component.html',
-    styleUrls: ['./viewer.component.scss'],
-    standalone: false,
-=======
   selector: 'viewer-container',
   templateUrl: './viewer.component.html',
   styleUrls: ['./viewer.component.scss'],
-  standalone: false
->>>>>>> aea4e9634ec85c026cda882008965f5c9c6ca7c9
+  standalone: false,
 })
 
 export class ViewerComponent implements OnInit, OnDestroy, AfterViewChecked {
@@ -163,7 +156,7 @@ export class ViewerComponent implements OnInit, OnDestroy, AfterViewChecked {
           }
         }
       })
-    }, 100)
+    },         100)
   }
 
   checkMultilingual() {
@@ -197,22 +190,15 @@ export class ViewerComponent implements OnInit, OnDestroy, AfterViewChecked {
 
       if (this.content) {
         const hashMap = this.tocSvc.hashmap
-<<<<<<< HEAD
-        // console.log('hasMap', hashMap)
-        // console.log(hashMap[this.activatedRoute.snapshot.data['preAssessmentRead']['data']['result']['content']['identifier']])
-        if (!hashMap[this.activatedRoute.snapshot.data['preAssessmentRead']['data']['result']['content']['identifier']]) {
-          this.tocSvc.createPreAssessmentHirarchyProgressHashmap(
-            this.activatedRoute.snapshot.data['contentRead']['data']['result']['content'],
-          )
-=======
         // Only build entries when the pre-enrolment resource do_ids are not in the
         // hashmap yet (first load). createPreAssessmentHirarchyProgressHashmap rebuilds
         // every entry from the static content read, which zeroes live progress — and the
         // old guard checked the program id, so whether it ran depended on unrelated code.
         const preResources = this.activatedRoute.snapshot.data['contentRead']['data']['result']['content']['preEnrolmentResources'] || []
+        // tslint:disable-next-line:max-line-length
         if (preResources.length && preResources.every((item: any) => !hashMap[item.identifier])) {
+          // tslint:disable-next-line:max-line-length
           this.tocSvc.createPreAssessmentHirarchyProgressHashmap(this.activatedRoute.snapshot.data['contentRead']['data']['result']['content'])
->>>>>>> aea4e9634ec85c026cda882008965f5c9c6ca7c9
         }
       }
       this.contentMIMEType = this.activatedRoute.snapshot.data['preAssessmentRead']['data']['result']['content']['mimeType']
@@ -998,15 +984,7 @@ export class ViewerComponent implements OnInit, OnDestroy, AfterViewChecked {
       this.tocSvc.readPreEnrollmentResourcesState(req).subscribe((data: any) => {
         // console.log('read resources progress data', data)
         if (data && data.result && data.result.contentList) {
-<<<<<<< HEAD
           for (let i = 0; i < data.result.contentList.length; i += 1) {
-            const contentProgress = data.result.contentList[i]
-            if (Object.keys(this.tocSvc.hashmap) && Object.keys(this.tocSvc.hashmap).length
-              && this.tocSvc.hashmap[contentProgress['contentId']]) {
-              this.tocSvc.hashmap[contentProgress['contentId']]['completionPercentage'] = contentProgress['completionPercentage']
-              this.tocSvc.hashmap[contentProgress['contentId']]['completionStatus'] = Number(contentProgress['status']) || 0
-=======
-          for (let i = 0; i < data.result.contentList.length; i++) {
             const contentId = data.result.contentList[i]['contentId']
             const apiPercentage = Number(data.result.contentList[i]['completionPercentage']) || 0
             const apiStatus = Number(data.result.contentList[i]['status']) || 0
@@ -1025,7 +1003,6 @@ export class ViewerComponent implements OnInit, OnDestroy, AfterViewChecked {
                 completionStatus: apiStatus,
                 status: apiStatus,
               }
->>>>>>> aea4e9634ec85c026cda882008965f5c9c6ca7c9
             }
           }
         }
@@ -1047,6 +1024,7 @@ export class ViewerComponent implements OnInit, OnDestroy, AfterViewChecked {
         })
         // Reassign and emit so viewer/TOC subscribers pick up the progress (checkmarks)
         this.tocSvc.hashmap = { ...this.tocSvc.hashmap }
+        // tslint:disable-next-line:no-console
         console.log('🔄 [VIEWER] Pre-enrollment resource progress state-read completed, hashmap updated', this.tocSvc.hashmap)
         this.tocSvc.hashmapUpdated.next({ timestamp: Date.now(), hashmap: this.tocSvc.hashmap })
       })
