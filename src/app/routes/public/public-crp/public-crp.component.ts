@@ -229,7 +229,7 @@ export class PublicCrpComponent {
         }, 200)
       } else if (
         this.invalidLinkMessage &&
-        this.invalidLinkMessage == 'Registration link is not active'
+        this.invalidLinkMessage === 'Registration link is not active'
       ) {
         setTimeout(() => {
           const staticURL = environment?.staticHomePageUrl || 'https://igotkarmayogi.gov.in/'

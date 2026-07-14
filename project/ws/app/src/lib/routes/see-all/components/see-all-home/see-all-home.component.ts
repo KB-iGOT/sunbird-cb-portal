@@ -1,3 +1,4 @@
+/* tslint:disable:max-line-length no-console object-shorthand-properties-first */
 import {
   Component,
   OnInit,
@@ -238,8 +239,8 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
   }
 
   getInprogressAndCompleted(array: NsContent.IContent[],
-    customFilter: any,
-    strip: NsContentStripWithTabs.IContentStripUnit) {
+                            customFilter: any,
+                            strip: NsContentStripWithTabs.IContentStripUnit) {
     const inprogress: any[] = []
     const completed: any[] = []
     array.forEach((e, idx, arr) => {
@@ -614,7 +615,7 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
             const currentTabFromMap = (allTabs && allTabs.length &&
               allTabs[this.dynamicTabIndex]) as NsContentStripWithTabs.IContentStripTab
             this.getTabDataByNewReqSearchV6(strip, this.dynamicTabIndex,
-              currentTabFromMap, calculateParentStatus)
+                                            currentTabFromMap, calculateParentStatus)
           }
         }
 
@@ -637,8 +638,8 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
   }
 
   async searchV6Request(strip: NsContentStripWithTabs.IContentStripUnit,
-    request: NsContentStripWithTabs.IContentStripUnit['request'],
-    _calculateParentStatus: boolean
+                        request: NsContentStripWithTabs.IContentStripUnit['request'],
+                        _calculateParentStatus: boolean
   ): Promise<any> {
     const originalFilters: any = []
     // console.log('calling -- ')
@@ -671,7 +672,7 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
             results,
             viewMoreUrl,
           })
-        }, (error: any) => {
+        },                                                  (error: any) => {
           reject(error)
         })
       }
@@ -700,7 +701,7 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
             const currentTabFromMap = (allTabs && allTabs.length &&
               allTabs[this.dynamicTabIndex]) as NsContentStripWithTabs.IContentStripTab
             this.getTabDataByNewReqTrending(strip, this.dynamicTabIndex, currentTabFromMap,
-              calculateParentStatus)
+                                            calculateParentStatus)
           }
         }
 
@@ -725,8 +726,8 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
   }
 
   async trendingSearchRequest(strip: NsContentStripWithTabs.IContentStripUnit,
-    request: NsContentStripWithTabs.IContentStripUnit['request'],
-    _calculateParentStatus: boolean
+                              request: NsContentStripWithTabs.IContentStripUnit['request'],
+                              _calculateParentStatus: boolean
   ): Promise<any> {
     const originalFilters: any = []
     return new Promise<any>((resolve, reject) => {
@@ -779,7 +780,7 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
             results,
             viewMoreUrl,
           })
-        }, (error: any) => {
+        },                                                                     (error: any) => {
           if (error.error && error.error.status === 400) {
           }
           reject(error)
@@ -859,9 +860,8 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
           this.offsetForPage = this.seeAllPageConfig.request.searchV6.request.limit + this.offsetForPage
           this.fetchFromSearchV6(this.seeAllPageConfig)
         }
-      }
-      // with tabs
-      else if (this.seeAllPageConfig.tabs && this.seeAllPageConfig.tabs.length) {
+      } else if (this.seeAllPageConfig.tabs && this.seeAllPageConfig.tabs.length) {
+        // with tabs
         const tabdata = this.seeAllPageConfig.tabs[this.dynamicTabIndex]
         const existingWidgets = tabdata.widgets || []
         if (tabdata && tabdata.request && tabdata.request.searchV6) {
@@ -878,7 +878,7 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
       // Restore scroll position after DOM updates
       setTimeout(() => {
         window.scrollTo(0, currentScrollPosition)
-      }, 100)
+      },         100)
     }
   }
 
@@ -891,9 +891,9 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
     return this.langtranslations.translateLabel(label.toLowerCase(), type, '')
   }
   async postRequestMethod(strip: NsContentStripWithTabs.IContentStripUnit,
-    request: NsContentStripWithTabs.IContentStripUnit['request'],
-    apiUrl: string,
-    _calculateParentStatus: boolean
+                          request: NsContentStripWithTabs.IContentStripUnit['request'],
+                          apiUrl: string,
+                          _calculateParentStatus: boolean
   ): Promise<any> {
     return new Promise<any>((resolve, reject) => {
       if (request && request) {
@@ -917,7 +917,7 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
           } else {
             resolve({ results })
           }
-        }, (error: any) => {
+        },                                                            (error: any) => {
           // this.processStrip(strip, [], 'error', calculateParentStatus, null);
           reject(error)
         },

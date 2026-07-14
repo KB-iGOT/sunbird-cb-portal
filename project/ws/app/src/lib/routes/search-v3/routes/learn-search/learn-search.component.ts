@@ -1,3 +1,4 @@
+/* tslint:disable:object-shorthand-properties-first max-line-length no-console */
 import {
   Component,
   OnInit,
@@ -603,18 +604,18 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
           searchRequestCommunity
         )
         competencyThemeFacet = result.result?.search_results?.facets[this.competencyThemeKey
-        ].length
+].length
           ? {
             values:
               result.result?.search_results?.facets[this.competencyThemeKey],
           }
           : { values: [] }
         competencySubThemeFacet = result.result?.search_results?.facets[this.competencySubThemeKey
-        ].length
+].length
           ? {
             values:
               result.result?.search_results?.facets[this.competencySubThemeKey
-              ],
+],
           }
           : { values: [] }
       } else if (this.seeAllResult === SearchCategory.CaseStudy) {
@@ -742,8 +743,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
         this.searchRequestPeoples.sort_by.createdOn = 'desc'
       } else if (this.seeAllResult === SearchCategory.Resources) {
         this.searchRequestResources.request.sort_by.createdOn = 'desc'
-      }
-      else if (this.seeAllResult === SearchCategory.ExternalContents) {
+      } else if (this.seeAllResult === SearchCategory.ExternalContents) {
         this.searchRequestExternal.orderBy = 'createdOn'
       }
     } else if (this.searchSortFilter === SortType.HighestRated) {
@@ -771,8 +771,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
         this.searchRequestEvents.request.sort_by.name = SortType.Ascending
       } else if (this.seeAllResult === SearchCategory.Resources) {
         this.searchRequestResources.request.sort_by.name = SortType.Ascending
-      }
-      else if (this.seeAllResult === SearchCategory.ExternalContents) {
+      } else if (this.seeAllResult === SearchCategory.ExternalContents) {
         this.searchRequestExternal.orderDirection = SortType.Ascending
       }
 
@@ -847,8 +846,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
           this.constructQueryParam('resources')
           this.seeAllResult = SearchCategory.Resources
           this.applyFilterToCaategoryType()
-        }
-        else if (key === 'Case Study') {
+        } else if (key === 'Case Study') {
           this.searchRequestCourse.request.filters.sectorId = [
             ...selectedFilters[key],
           ]
@@ -896,13 +894,11 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
           this.searchRequestPeoples.filters[key] = [...selectedFilters[key]]
         } else if (key === 'rootOrgName') {
           this.searchRequestPeoples.filters[key] = [...selectedFilters[key]]
-        }
-        else if (key === 'sourceName') {
+        } else if (key === 'sourceName') {
           this.searchRequestEvents.request.filters.sourceName = [
             ...selectedFilters[key],
           ]
-        }
-        else if (key === 'resourceType') {
+        } else if (key === 'resourceType') {
           const orgId = _.get(this.configSvc, 'userProfile.userRootOrg.id', '')
           this.searchRequestEvents.request.filters.resourceType = [
             ...selectedFilters[key],
@@ -910,63 +906,52 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
           if (selectedFilters[key].length && selectedFilters[key].includes('samuhik charcha')) {
             this.searchRequestEvents.request.filters.createdFor = [orgId]
           }
-        }
-        else if (key === 'sectorId') {
+        } else if (key === 'sectorId') {
           this.searchRequestCourse.request.filters.sectorId = [
             ...selectedFilters[key],
           ]
-        }
-        else if (key === 'subSectorId') {
+        } else if (key === 'subSectorId') {
           this.searchRequestCourse.request.filters.subSectorId = [
             ...selectedFilters[key],
           ]
-        }
-        else if (key === FacetType.sectorNames_v1) {
+        } else if (key === FacetType.sectorNames_v1) {
           this.searchRequestCourse.request.filters[FacetType.sectorNames_v1] = [
             ...selectedFilters[key],
           ]
           this.searchRequestResources.request.filters[FacetType.sectorNames_v1] = [
             ...selectedFilters[key]]
-        }
-        else if (key === FacetType.subSectorNames_v1) {
+        } else if (key === FacetType.subSectorNames_v1) {
           this.searchRequestCourse.request.filters[FacetType.subSectorNames_v1] = [
             ...selectedFilters[key],
           ]
           this.searchRequestResources.request.filters[FacetType.subSectorNames_v1] = [
             ...selectedFilters[key],
           ]
-        }
-        else if (key === FacetType.sectorNameResource) {
+        } else if (key === FacetType.sectorNameResource) {
           this.searchRequestResources.request.filters[FacetType.sectorNameResource] = [
             ...selectedFilters[key],
           ]
-        }
-        else if (key === FacetType.subSectorNameResource) {
+        } else if (key === FacetType.subSectorNameResource) {
           this.searchRequestResources.request.filters[FacetType.subSectorNameResource] = [
             ...selectedFilters[key],
           ]
-        }
-        else if (key === FacetType.resourceCategory) {
+        } else if (key === FacetType.resourceCategory) {
           this.searchRequestResources.request.filters[FacetType.resourceCategory] = [
             ...selectedFilters[key],
           ]
-        }
-        else if (key === SearchCategory.ExternalContents) {
+        } else if (key === SearchCategory.ExternalContents) {
           this.constructQueryParam(SearchCategory.ExternalContents)
           this.seeAllResult = SearchCategory.ExternalContents
           this.applyFilterToCaategoryType()
-        }
-        else if (key === FacetType.contentPartners) {
+        } else if (key === FacetType.contentPartners) {
           this.searchRequestExternal.filterCriteriaMap[FacetType.contentPartners] = [
             ...selectedFilters[key],
           ]
-        }
-        else if (key === FacetType.topic) {
+        } else if (key === FacetType.topic) {
           this.searchRequestExternal.filterCriteriaMap[FacetType.topic] = [
             ...selectedFilters[key],
           ]
-        }
-        else {
+        } else {
           this.searchRequestCourse.request.filters.courseCategory!.push(
             ...selectedFilters[key]
           )
@@ -1003,8 +988,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       this.searchEvents()
     } else if (this.seeAllResult === SearchCategory.Resources) {
       this.searchResources()
-    }
-    else if (this.seeAllResult === SearchCategory.People) {
+    } else if (this.seeAllResult === SearchCategory.People) {
       this.searchPeople()
     } else if (this.seeAllResult === SearchCategory.Communities) {
       this.searchcommunities()
@@ -1293,13 +1277,11 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       this.searchRequestResources.request.limit = event.limit
       this.searchRequestResources.request.offset = (event.currentPage - 1) * event.limit
       await this.searchResources()
-    }
-    else if (this.seeAllResult === SearchCategory.ExternalContents) {
+    } else if (this.seeAllResult === SearchCategory.ExternalContents) {
       this.searchRequestExternal.pageSize = event.limit
       this.searchRequestExternal.pageNumber = event.currentPage - 1
       await this.searchExternalContents()
-    }
-    else if (this.seeAllResult === SearchCategory.Communities) {
+    } else if (this.seeAllResult === SearchCategory.Communities) {
       this.searchRequestCommunities.pageSize = event.limit
       this.searchRequestCommunities.pageNumber = event.currentPage - 1
       await this.searchcommunities()
@@ -1358,8 +1340,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       } else if (this.seeAllResult === SearchCategory.Resources) {
         this.searchRequestResources.request.sort_by = {}
         await this.searchResources()
-      }
-      else if (this.seeAllResult === SearchCategory.ExternalContents) {
+      } else if (this.seeAllResult === SearchCategory.ExternalContents) {
         this.searchRequestExternal.orderBy = 'createdOn'
         await this.searchExternalContents()
       }
@@ -1386,8 +1367,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       } else if (this.seeAllResult === SearchCategory.Resources) {
         this.searchRequestResources.request.sort_by.createdOn = 'desc'
         await this.searchResources()
-      }
-      else if (this.seeAllResult === SearchCategory.ExternalContents) {
+      } else if (this.seeAllResult === SearchCategory.ExternalContents) {
         this.searchRequestExternal.orderBy = 'createdOn'
         await this.searchExternalContents()
       }
@@ -1430,8 +1410,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       } else if (this.seeAllResult === SearchCategory.Resources) {
         this.searchRequestResources.request.sort_by.name = SortType.Ascending
         await this.searchResources()
-      }
-      else if (this.seeAllResult === SearchCategory.ExternalContents) {
+      } else if (this.seeAllResult === SearchCategory.ExternalContents) {
         this.searchRequestExternal.orderDirection = SortType.Ascending
         await this.searchExternalContents()
       }
@@ -1452,8 +1431,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       } else if (this.seeAllResult === SearchCategory.Resources) {
         this.searchRequestResources.request.sort_by.name = SortType.Descending
         await this.searchResources()
-      }
-      else if (this.seeAllResult === SearchCategory.ExternalContents) {
+      } else if (this.seeAllResult === SearchCategory.ExternalContents) {
         this.searchRequestExternal.orderDirection = SortType.Descending
         await this.searchExternalContents()
       }
@@ -1466,7 +1444,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
   getFetchIgotSpecializationPrograms() {
     this.searchV3Service.microCredentialsSearch().subscribe((response: any) => {
       this.igotSpecializationPrograms = response?.result?.content || []
-    }, error => {
+    },                                                      error => {
       console.error('Error fetching iGOT Specialization Programs:', error)
     })
   }

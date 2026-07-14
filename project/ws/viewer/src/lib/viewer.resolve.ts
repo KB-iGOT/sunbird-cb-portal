@@ -1,3 +1,4 @@
+/* tslint:disable:max-line-length object-shorthand-properties-first */
 import { Injectable } from '@angular/core'
 import { ActivatedRouteSnapshot, Router } from '@angular/router'
 import { catchError, map, tap } from 'rxjs/operators'

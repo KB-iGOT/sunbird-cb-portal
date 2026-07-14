@@ -16,11 +16,10 @@ import { TermsAndConditionComponent } from './terms-and-condition/terms-and-cond
 import { TranslateService } from '@ngx-translate/core'
 import { HttpClient } from '@angular/common/http'
 import { DomSanitizer } from '@angular/platform-browser'
-import { DialogBoxComponent as ZohoDialogComponent } from '@ws/app'
+import { DialogBoxComponent as ZohoDialogComponent, UserProfileService } from '@ws/app'
 import { MatDialog } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { MatSelect } from '@angular/material/select'
-import { UserProfileService } from '@ws/app'
 
 type SignupSelectKey = 'designation' | 'ministry' | 'state' | 'department' | 'organisation'
 
@@ -1912,7 +1911,7 @@ export class PublicSignupComponent implements OnInit, OnDestroy {
     }
 
     const reqOffset = (typeof offset === 'number') ? offset : this.departmentOffset
-    const requestId = ++this.departmentRequestId
+    const requestId = this.departmentRequestId += 1
     const reqLimit = this.departmentDefaultLoadCount
     const pageIndex = reqLimit > 0 ? Math.floor(reqOffset / reqLimit) : 0
     // if we're requesting from first page, clear the no-more-data guard
@@ -2129,7 +2128,7 @@ export class PublicSignupComponent implements OnInit, OnDestroy {
         'levelZeroOrgId': this.registrationFormStepOne.controls.ministry.value,
         'hierarchyRequestType': 'All',
       }
-      for (let i = 0; i < this.masterData['ministryBackup'].length; i++) {
+      for (let i = 0; i < this.masterData['ministryBackup'].length; i += 1) {
         if (this.masterData['ministryBackup'][i]?.['identifier'] === this.registrationFormStepOne.controls.ministry.value) {
           if (this.masterData['ministryBackup'][i]?.['hierarchyLevel'] === 'levelOne') {
             filters = {

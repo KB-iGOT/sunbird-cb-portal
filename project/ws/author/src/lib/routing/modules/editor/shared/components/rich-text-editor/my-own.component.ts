@@ -62,7 +62,7 @@ export class MatQuillComponent
 
   private _id = ''
 
-  private _uid = `wa-quill-${++nextUniqueId}`
+  private _uid = `wa-quill-${nextUniqueId += 1}`
 
   constructor(
     el: ElementRef,

@@ -1,3 +1,4 @@
+/* tslint:disable:object-shorthand-properties-first */
 import { Component, OnInit } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'

@@ -139,6 +139,7 @@ export class CoverPhotoEditPopupComponent implements OnInit {
     let n = bstr.length
     const u8arr = new Uint8Array(n)
 
+    // tslint:disable-next-line:no-increment-decrement
     while (n--) {
       u8arr[n] = bstr.charCodeAt(n)
     }
@@ -162,6 +163,7 @@ export class CoverPhotoEditPopupComponent implements OnInit {
     let n = bstr.length
     const u8arr = new Uint8Array(n)
 
+    // tslint:disable-next-line:no-increment-decrement
     while (n--) {
       u8arr[n] = bstr.charCodeAt(n)
     }

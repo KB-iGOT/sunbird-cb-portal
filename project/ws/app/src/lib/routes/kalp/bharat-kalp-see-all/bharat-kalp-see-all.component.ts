@@ -288,6 +288,7 @@ export class BharatKalpSeeAllComponent implements OnInit {
         primaryCategory: content?.primaryCategory,
       }
       history.pushState(history.state, '', this.router.url)
+      // tslint:disable-next-line:object-literal-shorthand
       this.router.navigate([url], { queryParams: queryParams, state: { sourceUrl: this.router.url } })
     } else {
       if (!content?.identifier) return
