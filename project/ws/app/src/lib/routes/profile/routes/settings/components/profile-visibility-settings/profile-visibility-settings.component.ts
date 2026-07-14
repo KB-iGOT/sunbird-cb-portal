@@ -1,10 +1,9 @@
 import { Component, OnInit } from '@angular/core'
 import { SettingsService } from '../../settings.service'
-import { ConfigurationsService } from '@sunbird-cb/utils-v2'
+import { ConfigurationsService, MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 import * as _ from 'lodash'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { TranslateService } from '@ngx-translate/core'
-import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 
 @Component({
   selector: 'ws-app-profile-visibility-settings',

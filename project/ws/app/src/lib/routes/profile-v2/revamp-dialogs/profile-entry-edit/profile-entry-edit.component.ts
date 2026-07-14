@@ -1,3 +1,4 @@
+/* tslint:disable:max-line-length variable-name prefer-template */
 import { Component, Inject, OnInit } from '@angular/core'
 import { AbstractControl, FormBuilder, FormGroup, UntypedFormControl, ValidationErrors, ValidatorFn, Validators } from '@angular/forms'
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
@@ -781,7 +782,7 @@ export class ProfileEntryEditComponent implements OnInit {
         if (degreeControl) {
           degreeControl.setValue(_.get(this.entryDetails, 'degree', ''))
         }
-      }, 10)
+      },         10)
     }
 
     if (searchInstituteControl && institutionNameControl) {
@@ -812,7 +813,7 @@ export class ProfileEntryEditComponent implements OnInit {
         institutionNameControl.valueChanges.subscribe((name: string) => {
           this.onInstituteChange(name)
         })
-      }, 10)
+      },         10)
     }
   }
 
@@ -833,7 +834,7 @@ export class ProfileEntryEditComponent implements OnInit {
         if (panel) {
           panel.addEventListener('scroll', this.onDegreesSelectScroll.bind(this))
         }
-      }, 100)
+      },         100)
     }
   }
 
@@ -865,7 +866,7 @@ export class ProfileEntryEditComponent implements OnInit {
         this.checkCurrentDegreePresent()
         // degreeControlControl.setValue(degreeControlControl.value);
       }
-    }, 100)
+    },         100)
   }
 
   generateYearsList(): void {
@@ -994,14 +995,14 @@ export class ProfileEntryEditComponent implements OnInit {
         if (searchInput) {
           searchInput.focus()
         }
-      }, 100)
+      },         100)
       this.checkCurrentInstitutePresent()
       setTimeout(() => {
         const panel = document.querySelector('.mat-select-panel')
         if (panel) {
           panel.addEventListener('scroll', this.onInstituteSelectScroll.bind(this))
         }
-      }, 100)
+      },         100)
     }
   }
   checkCurrentInstitutePresent() {
@@ -1052,7 +1053,7 @@ export class ProfileEntryEditComponent implements OnInit {
           institutionNameControl.setValue(institutionNameControl.value)
         }
       }
-    }, 100)
+    },         100)
   }
 
   onDegreeChange(selectedDegree: string): void {
@@ -1116,7 +1117,7 @@ export class ProfileEntryEditComponent implements OnInit {
       url: [_.get(this.entryDetails?.contextData, 'url', ''), [Validators.pattern(URL_PATRON), Validators.required]],
       description: [_.get(this.entryDetails?.contextData, 'description', ''), [Validators.maxLength(500)]],
       competencies_v6: ['', [Validators.required]],
-    }, { validators: urlOrDocumentValidator() })
+    },                             { validators: urlOrDocumentValidator() })
     if (_.get(this.entryDetails?.contextData, 'fileName', '')) {
       const urlControl = this.entryForm.controls.url
       urlControl?.setValidators([

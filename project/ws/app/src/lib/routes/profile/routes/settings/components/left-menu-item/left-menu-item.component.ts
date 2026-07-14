@@ -75,17 +75,16 @@ export class LeftMenuItemComponent implements OnChanges {
       },
       {},
     )
-    if (tab.name == 'getStartedTour') {
+    if (tab.name === 'getStartedTour') {
       this.router.navigate(['/page/home'], { relativeTo: this.activatedRoute, queryParamsHandling: 'merge' })
       this.configSvc.updateTourGuideMethod(false)
-    }
-    else if (tab.name == 'resetPassword') {
+    } else if (tab.name === 'resetPassword') {
       this.resetPassword()
     }
   }
 
   translateLetMenuName(menuName: string): string {
-    const translationKey = 'settingLeftMenu.' + menuName.replace(/\s/g, '')
+    const translationKey = `settingLeftMenu.${menuName.replace(/\s/g, '')}`
     return this.translate.instant(translationKey)
   }
 

@@ -1,3 +1,4 @@
+/* tslint:disable:object-shorthand-properties-first no-console */
 import { Component, OnInit, OnDestroy, ViewChild, Renderer2, inject, DOCUMENT } from '@angular/core'
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
@@ -133,7 +134,7 @@ export class SurveyDialogComponent implements OnInit, OnDestroy {
     // Wait for view update
     setTimeout(() => {
       this.stepper.next()
-    }, 0)
+    },         0)
   }
 
   isStepCompleted(index: number): boolean {

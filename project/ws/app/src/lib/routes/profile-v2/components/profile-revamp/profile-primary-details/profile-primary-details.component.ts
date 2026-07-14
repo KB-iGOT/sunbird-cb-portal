@@ -1,3 +1,4 @@
+/* tslint:disable:max-line-length object-shorthand-properties-first */
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { ProfileV2RevampService } from '../../../services/profile-v2-revamp.service'
@@ -70,7 +71,7 @@ export class ProfilePrimaryDetailsComponent implements OnInit {
       if (fragment === 'primaryDetails' && this.showPrimaryDetailsEdit) {
         setTimeout(() => {
           this.editPrimaryDetails('Primary Details')
-        }, 500)
+        },         500)
       }
     })
   }
@@ -93,7 +94,7 @@ export class ProfilePrimaryDetailsComponent implements OnInit {
           })
         }
         this.designationApprovedTimeChange.emit(this.designationApprovedTime)
-      }, (error: HttpErrorResponse) => {
+      },         (error: HttpErrorResponse) => {
         if (!error.ok) {
           this.openSnackbar(this.handleTranslateTo('somethingWentWrongPleaseTryAgain'))
         }
@@ -253,7 +254,7 @@ export class ProfilePrimaryDetailsComponent implements OnInit {
           this.openSnackbar(this.handleTranslateTo('withdrawRequestSuccess'))
           this.enableWR = false
           this.updateWithdrawalStatus.emit(false)
-        }, (error: HttpErrorResponse) => {
+        },         (error: HttpErrorResponse) => {
           if (!error.ok) {
             this.openSnackbar(this.handleTranslateTo('unableWithdrawRequest'))
           }

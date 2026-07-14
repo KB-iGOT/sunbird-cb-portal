@@ -1,3 +1,4 @@
+/* tslint:disable:max-line-length no-console prefer-template */
 import { Component, Input, Output, EventEmitter } from '@angular/core'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { NSPeerValidation } from '../../../../models/peer-validation.model'

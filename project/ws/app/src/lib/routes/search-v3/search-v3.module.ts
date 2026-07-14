@@ -17,6 +17,7 @@ import {
   BtnKbAnalyticsModule,
   UserAutocompleteModule,
   AvatarPhotoModule,
+  SkeletonLoaderModule,
 } from '@sunbird-cb/collection'
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
 import {
@@ -36,8 +37,7 @@ import { MatButtonModule } from '@angular/material/button'
 import { MatCardModule } from '@angular/material/card'
 import { MatCheckboxModule } from '@angular/material/checkbox'
 import { MatChipsModule } from '@angular/material/chips'
-import { MatRippleModule } from '@angular/material/core'
-import { MatOptionModule } from '@angular/material/core'
+import { MatOptionModule, MatRippleModule } from '@angular/material/core'
 import { MatDividerModule } from '@angular/material/divider'
 import { MatExpansionModule } from '@angular/material/expansion'
 import { MatFormFieldModule } from '@angular/material/form-field'
@@ -63,7 +63,6 @@ import { PluralPipe } from './pipes/plural.pipe'
 import { PaginationComponent } from './components/pagination/pagination.component'
 import { SearchSortInputComponent } from './components/search-sort-input/search-sort-input.component'
 import { CardsModule, DialogComponentsModule } from '@sunbird-cb/consumption'
-import { SkeletonLoaderModule } from '@sunbird-cb/collection'
 import { SkeletonLoaderContentComponent } from './components/skeleton-loader-content/skeleton-loader-content.component'
 import { SkeletonLoaderPeoplesComponent } from './components/skeleton-loader-peoples/skeleton-loader-peoples.component'
 import { MatRadioModule } from '@angular/material/radio'

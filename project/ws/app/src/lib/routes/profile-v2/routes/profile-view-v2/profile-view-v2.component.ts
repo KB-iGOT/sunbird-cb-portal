@@ -1,3 +1,4 @@
+/* tslint:disable:no-console max-line-length object-shorthand-properties-first */
 //#region (imports)
 import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core'
 import { UserStats, achievement, educationalQualifications, profileRoutes } from '../../models/profile-revamp.model'

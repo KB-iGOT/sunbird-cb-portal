@@ -1,3 +1,4 @@
+/* tslint:disable:interface-name */
 export class SearchV4Request {
   request: RequestParams
   locale?: string[]

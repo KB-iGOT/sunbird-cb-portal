@@ -60,10 +60,10 @@ export class PaginationComponent implements OnInit, OnChanges {
     const items = this.totalItemsCount
     this.showingArray = []
 
-    for (let i = 0; i < items; i++) {
+    for (let i = 0; i < items; i += 1) {
       if (upper !== items && upper < items) {
         lower = upper
-        if (upper != items && (upper = lower + limit) <= items) {
+        if (upper !== items && (upper = lower + limit) <= items) {
           upper = lower + limit
         } else {
           upper = items
@@ -103,8 +103,8 @@ export class PaginationComponent implements OnInit, OnChanges {
     let l
     this.rangeWithDots = []
 
-    for (let i = 1; i <= last; i++) {
-      if (i == 1 || i == last || (i >= left && i < right)) {
+    for (let i = 1; i <= last; i += 1) {
+      if (i === 1 || i === last || (i >= left && i < right)) {
         range.push(i)
       }
     }
@@ -135,14 +135,14 @@ export class PaginationComponent implements OnInit, OnChanges {
 
   // TODO: May need to implement in future
   navigateToLastPage(page: number) {
-    if (page != this.currentPage) {
+    if (page !== this.currentPage) {
       this.goToPage(page)
     }
   }
 
   // TODO: May need to implement in future
   navigateToFirstPage(page: number) {
-    if (page != this.currentPage) {
+    if (page !== this.currentPage) {
       this.goToPage(page)
     }
   }
@@ -151,8 +151,7 @@ export class PaginationComponent implements OnInit, OnChanges {
     if (
       page <=
       (this.pagination.paginationLength &&
-        this.pagination.paginationLength[this.pagination.paginationLength.length - 1
-        ])
+        this.pagination.paginationLength[this.pagination.paginationLength.length - 1])
     ) {
       this.currentPage = this.currentPage + 1
       this.previousPage = page
@@ -164,8 +163,7 @@ export class PaginationComponent implements OnInit, OnChanges {
     if (
       page <=
       (this.pagination.paginationLength &&
-        this.pagination.paginationLength[this.pagination.paginationLength.length - 1
-        ])
+        this.pagination.paginationLength[this.pagination.paginationLength.length - 1])
     ) {
       this.currentPage = this.currentPage - 1
       this.previousPage = page

@@ -1,3 +1,4 @@
+/* tslint:disable:object-shorthand-properties-first prefer-template */
 import { Component, OnInit } from '@angular/core'
 import { Location } from '@angular/common'
 import { ActivatedRoute, Router } from '@angular/router'

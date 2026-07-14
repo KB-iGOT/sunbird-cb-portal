@@ -1,3 +1,4 @@
+/* tslint:disable:interface-name */
 import { Component, DestroyRef, inject, OnDestroy, OnInit, signal } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { AbstractControl, FormBuilder, FormGroup, ValidationErrors, ValidatorFn, Validators } from '@angular/forms'
@@ -250,7 +251,7 @@ export class DynamicEntryEditComponent implements OnInit, OnDestroy {
       .reduce<Record<string, SelectOption[]>>((acc, f) => {
         acc[f.key] = [...(f.options ?? [])]
         return acc
-      }, {})
+      },                                      {})
   )
 
   // ── Form ────────────────────────────────────────────────────────────
@@ -348,14 +349,32 @@ export class DynamicEntryEditComponent implements OnInit, OnDestroy {
       const shouldDisable = field.disabled || (isEditMode && field.canUpdate === false)
 
       if (field.type === 'duration') {
-        const hoursVal = _.get(this.entryDetails, `${field.valuePath}Hours`,
-          _.get(field.defaultValue, 'hours', null))
-        const minsVal = _.get(this.entryDetails, `${field.valuePath}Minutes`,
-          _.get(field.defaultValue, 'minutes', null))
-        controls[`${field.key}Hours`] = [this.wrapControlValue(hoursVal, shouldDisable), [Validators.pattern(/^\d+$/), Validators.min(0), Validators.max(100)]]
-        controls[`${field.key}Minutes`] = [this.wrapControlValue(minsVal, shouldDisable), [Validators.pattern(/^\d+$/), Validators.min(0), Validators.max(59)]]
+        const hoursVal = _.get(
+          this.entryDetails,
+          `${field.valuePath}Hours`,
+          _.get(field.defaultValue, 'hours', null)
+        )
+        const minsVal = _.get(
+          this.entryDetails,
+          `${field.valuePath}Minutes`,
+          _.get(field.defaultValue, 'minutes', null)
+        )
+        controls[`${field.key}Hours`] = [
+          this.wrapControlValue(hoursVal, shouldDisable),
+          [Validators.pattern(/^\d+$/), Validators.min(0), Validators.max(100)],
+        ]
+        controls[`${field.key}Minutes`] = [
+          this.wrapControlValue(minsVal, shouldDisable),
+          [Validators.pattern(/^\d+$/), Validators.min(0), Validators.max(59)],
+        ]
 
-      } else if (field.type === 'searchable-select' || field.type === 'designation-select' || field.type === 'organisation-select' || field.type === 'degree-select' || field.type === 'institution-select') {
+      } else if (
+        field.type === 'searchable-select' ||
+        field.type === 'designation-select' ||
+        field.type === 'organisation-select' ||
+        field.type === 'degree-select' ||
+        field.type === 'institution-select'
+      ) {
         controls[field.key] = [this.wrapControlValue(value, shouldDisable), validators]
         controls[`_search_${field.key}`] = ['']
         if (field.type === 'searchable-select') {
@@ -776,7 +795,7 @@ export class DynamicEntryEditComponent implements OnInit, OnDestroy {
         }
         const searchInput = document.querySelector('.search-input') as HTMLInputElement
         if (searchInput) { searchInput.focus() }
-      }, 200)
+      },         200)
     } else {
       this.activeDesignationField = null
     }
@@ -970,7 +989,7 @@ export class DynamicEntryEditComponent implements OnInit, OnDestroy {
         }
         const searchInput = document.querySelector('.search-input') as HTMLInputElement
         if (searchInput) { searchInput.focus() }
-      }, 100)
+      },         100)
     }
   }
 
@@ -997,7 +1016,7 @@ export class DynamicEntryEditComponent implements OnInit, OnDestroy {
       if (!this.isLoadingMoreOrg[field.key] && list.length < total) {
         this.isLoadingMoreOrg[field.key] = true
         this.getAllOrgData(field, false, list.length,
-          this.entryForm.get(`_search_${field.key}`)?.value || '')
+                           this.entryForm.get(`_search_${field.key}`)?.value || '')
       }
     }
   }
@@ -1047,7 +1066,9 @@ export class DynamicEntryEditComponent implements OnInit, OnDestroy {
               .subscribe(res => {
                 if (this.masterLanguageBackup) {
                   if (res) {
-                    this.dynamicOptions[field.key] = this.masterLanguageBackup.filter((item: any) => item.label.toLowerCase().includes(res && res.toLowerCase()))
+                    this.dynamicOptions[field.key] = this.masterLanguageBackup.filter((item: any) =>
+                      item.label.toLowerCase().includes(res && res.toLowerCase())
+                    )
                   } else {
                     this.dynamicOptions[field.key] = this.masterLanguageBackup
                   }
@@ -1131,7 +1152,7 @@ export class DynamicEntryEditComponent implements OnInit, OnDestroy {
           domicileMediumControl.patchValue(this.resolveValue(field))
           domicileMediumControl.updateValueAndValidity()
         }
-      }, (error: HttpErrorResponse) => {
+      },         (error: HttpErrorResponse) => {
         if (!error.ok) {
           this.openSnackbar(this.handleTranslateTo('unableFetchMasterLanguageData'))
         }
@@ -1297,7 +1318,7 @@ export class DynamicEntryEditComponent implements OnInit, OnDestroy {
         }
         const searchInput = document.querySelector('.search-input') as HTMLInputElement
         if (searchInput) { searchInput.focus() }
-      }, 200)
+      },         200)
     } else {
       this.activeDegreeField = null
     }
@@ -1360,7 +1381,7 @@ export class DynamicEntryEditComponent implements OnInit, OnDestroy {
         }
         const searchInput = document.querySelector('.search-input') as HTMLInputElement
         if (searchInput) { searchInput.focus() }
-      }, 200)
+      },         200)
     } else {
       this.activeInstitutionField = null
     }
@@ -1424,13 +1445,11 @@ export class DynamicEntryEditComponent implements OnInit, OnDestroy {
           // If org has no value, always disable designation
           if (!depCtrl.value) {
             desigCtrl.disable()
-          }
-          // If org has value AND there's NO active disableDependency, enable designation
-          else if (!hasActiveDisableDependency) {
+          } else if (!hasActiveDisableDependency) {
+            // If org has value AND there's NO active disableDependency, enable designation
             desigCtrl.enable()
-          }
-          // If org has value BUT there IS an active disableDependency, explicitly disable it
-          else {
+          } else {
+            // If org has value BUT there IS an active disableDependency, explicitly disable it
             desigCtrl.disable()
           }
         }
@@ -1507,7 +1526,8 @@ export class DynamicEntryEditComponent implements OnInit, OnDestroy {
         if (!rowMap.has(field.row)) { rowMap.set(field.row, []) }
         rowMap.get(field.row)!.push(field)
       } else {
-        rowMap.set(`__solo_${soloIdx++}`, [field])
+        rowMap.set(`__solo_${soloIdx}`, [field])
+        soloIdx += 1
       }
     }
     return Array.from(rowMap.values())
@@ -1744,7 +1764,7 @@ export class DynamicEntryEditComponent implements OnInit, OnDestroy {
                 if (verifyType) {
                   this.handleVerifyOTP(verifyType, primaryEmailControl.value)
                 }
-              }, (error: HttpErrorResponse) => {
+              },         (error: HttpErrorResponse) => {
                 if (!error.ok) {
                   this.openSnackbar(this.handleTranslateTo('emailOTPSentFail'))
                 }
@@ -1810,7 +1830,7 @@ export class DynamicEntryEditComponent implements OnInit, OnDestroy {
         } else {
           this.openSnackbar(this.handleTranslateTo('otpSentMobile'))
         }
-      }, (error: any) => {
+      },         (error: any) => {
         if (!error.ok) {
           this.openSnackbar(_.get(error, 'error.params.errmsg') || 'Unable to resend OTP, please try again later!')
         }
@@ -1833,7 +1853,7 @@ export class DynamicEntryEditComponent implements OnInit, OnDestroy {
           if (verifyType && mobileControl) {
             this.handleVerifyOTP(verifyType, mobileControl.value)
           }
-        }, (error: HttpErrorResponse) => {
+        },         (error: HttpErrorResponse) => {
           if (!error.ok) {
             this.openSnackbar(this.handleTranslateTo('mobileOTPSentFail'))
           }

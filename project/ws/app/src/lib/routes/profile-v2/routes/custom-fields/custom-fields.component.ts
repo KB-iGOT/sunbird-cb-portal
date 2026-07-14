@@ -1,3 +1,4 @@
+/* tslint:disable:no-console prefer-template no-else-after-return */
 import { Component, Inject } from '@angular/core'
 import { FormBuilder, Validators, FormGroup } from '@angular/forms'
 import { UserProfileService } from '../../../user-profile/services/user-profile.service'

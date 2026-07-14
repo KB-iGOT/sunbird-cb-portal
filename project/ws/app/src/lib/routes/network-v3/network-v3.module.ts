@@ -27,7 +27,7 @@ import { MatDialogModule } from '@angular/material/dialog'
 
 import { HttpClient } from '@angular/common/http'
 import { TranslateHttpLoader } from '@ngx-translate/http-loader'
-export function NetworkV3HttpLoaderFactory(http: HttpClient) {
+export function networkV3HttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http)
 }
 
@@ -66,7 +66,7 @@ export function NetworkV3HttpLoaderFactory(http: HttpClient) {
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
-        useFactory: NetworkV3HttpLoaderFactory,
+        useFactory: networkV3HttpLoaderFactory,
         deps: [HttpClient],
       },
     }),

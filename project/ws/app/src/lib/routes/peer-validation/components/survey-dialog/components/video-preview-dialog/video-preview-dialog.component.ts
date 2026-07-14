@@ -1,3 +1,4 @@
+/* tslint:disable:no-console */
 import { Component, Inject, OnInit, ViewChild, ElementRef } from '@angular/core'
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser'

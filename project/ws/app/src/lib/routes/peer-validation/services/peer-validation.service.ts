@@ -1,3 +1,4 @@
+/* tslint:disable:object-shorthand-properties-first */
 import { Injectable } from '@angular/core'
 import { Observable, forkJoin, Subject } from 'rxjs'
 import { map } from 'rxjs/operators'
@@ -27,7 +28,6 @@ export class PeerValidationService {
   readonly notificationSubmitted$ = new Subject<void>()
 
   constructor(private http: HttpClient, private configSvc: ConfigurationsService) { }
-
 
   getAllUsers(query: string = '') {
     const reqBody = {

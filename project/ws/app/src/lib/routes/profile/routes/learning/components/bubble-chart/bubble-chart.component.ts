@@ -1,3 +1,4 @@
+/* tslint:disable:max-line-length */
 import { Component, OnInit, Input, AfterViewInit, ElementRef, ViewChild, OnDestroy } from '@angular/core'
 import { Chart } from 'chart.js'
 @Component({

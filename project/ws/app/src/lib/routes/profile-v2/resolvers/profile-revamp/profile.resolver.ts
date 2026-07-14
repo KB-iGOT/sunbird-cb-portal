@@ -8,7 +8,9 @@ import { catchError, map } from 'rxjs/operators'
 import * as _ from 'lodash'
 import { ConfigDetails } from '@sunbird-cb/consumption'
 
+/* tslint:disable:object-shorthand-properties-first */
 @Injectable()
+// tslint:disable-next-line:class-name
 export class profileResolver {
   constructor(
     private profileSvc: ProfileV2RevampService, private configSvc: ConfigurationsService) { }
@@ -32,6 +34,7 @@ export class profileResolver {
       userId = this.configSvc.userProfile && this.configSvc.userProfile.userId || ''
     }
     const isNotCurrentUser = userId !== _.get(this.configSvc, 'userProfile.userId')
+    // eslint-disable-next-line sort-keys
     const configDetails: ConfigDetails = {
       defaultUrl: '',
       urlConfigPath: 'profileV1Basic',
