@@ -348,7 +348,7 @@ export class TopRightNavBarComponent implements OnInit, OnChanges {
     this.notificationsService.nofificationsCount.next(event)
   }
 
-  calculateCount(event: any) {
+  calculateCount(_event: any) {
   }
 
   showDialog(data: any, url: string) {

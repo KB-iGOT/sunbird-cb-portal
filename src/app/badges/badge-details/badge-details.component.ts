@@ -120,11 +120,11 @@ export class BadgeDetailsComponent {
     this.openMenuBadge = this.openMenuBadge === badge ? null : badge
   }
 
-  viewBadge(badge: any) {
+  viewBadge(_badge: any) {
     this.openMenuBadge = null
   }
 
-  downloadBadge(badge: any) {
+  downloadBadge(_badge: any) {
     this.openMenuBadge = null
   }
 

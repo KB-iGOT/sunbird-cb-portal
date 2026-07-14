@@ -246,7 +246,7 @@ export class BadgeDetailsComponent {
 
           const imgData = canvas.toDataURL('image/png')
 
-          const pdf = new jsPDF('landscape', 'px', 'a4')
+          const pdf = new jspdf('landscape', 'px', 'a4')
           const pageWidth = pdf?.internal?.pageSize?.getWidth()
           const pageHeight = pdf?.internal?.pageSize?.getHeight()
 

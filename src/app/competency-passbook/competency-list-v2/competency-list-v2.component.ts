@@ -595,7 +595,9 @@ export class CompetencyListV2Component implements OnInit, OnDestroy {
     // Fisher-Yates shuffle
     for (let i = flat.length - 1; i > 0; i -= 1) {
       const j = Math.floor(Math.random() * (i + 1))
-      [flat[i], flat[j]] = [flat[j], flat[i]]
+      const temp = flat[i]
+      flat[i] = flat[j]
+      flat[j] = temp
     }
     this.shuffledThemes = flat
   }
