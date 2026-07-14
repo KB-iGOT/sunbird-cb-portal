@@ -1,3 +1,4 @@
+/* tslint:disable:max-line-length */
 import { Injectable } from '@angular/core'
 import { Resolve, ActivatedRouteSnapshot, RouterStateSnapshot, Router, UrlTree } from '@angular/router'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
@@ -48,7 +49,7 @@ export class FormMicroSiteDataService implements Resolve<any> {
       // Use setTimeout to ensure localStorage is updated before navigation
       setTimeout(() => {
         this.router.navigateByUrl(redirectUrl)
-      }, 0)
+      },         0)
       return false
     }
 
@@ -76,7 +77,7 @@ export class FormMicroSiteDataService implements Resolve<any> {
           // Use setTimeout to ensure localStorage is updated before navigation
           setTimeout(() => {
             this.router.navigateByUrl(redirectUrl)
-          }, 0)
+          },         0)
           return false
         }
         localStorage.removeItem('microSiteRedirectionData')

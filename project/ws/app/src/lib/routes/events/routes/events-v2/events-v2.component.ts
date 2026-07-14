@@ -5,11 +5,10 @@ import * as _ from 'lodash'
 import { EventsEngagementComponent } from '../events-engagement/events-engagement.component'
 import { EventsCalendarComponent } from '../events-calendar/events-calendar.component'
 import { EventService } from '../../services/events.service'
-import { WsEvents, EventService as libEventService } from '@sunbird-cb/utils-v2'
+import { WsEvents, EventService as libEventService, MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 import { FormControl } from '@angular/forms'
 import { ActivatedRoute, Router } from '@angular/router'
 import { MatBottomSheet } from '@angular/material/bottom-sheet'
-import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 
 @Component({
   selector: 'ws-app-events-v2',
@@ -137,8 +136,8 @@ export class EventsV2Component {
     }
     this.events.raiseInteractTelemetry(
       {
-        type: 'click',
         subType,
+        type: 'click',
         id: 'card-content',
       },
       {

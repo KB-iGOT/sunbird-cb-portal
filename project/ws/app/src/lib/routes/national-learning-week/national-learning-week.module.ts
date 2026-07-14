@@ -49,7 +49,7 @@ import { KarmayogiSaptahComponent } from './karmayogi-saptah/karmayogi-saptah.co
 import { SadhanaSaptahComponent } from './sadhana-saptah/sadhana-saptah.component'
 import { TranslateHttpLoader } from '@ngx-translate/http-loader'
 
-export function NationalearningweekHttpLoaderFactory(http: HttpClient) {
+export function nationalearningweekHttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http)
 }
 
@@ -95,7 +95,7 @@ export function NationalearningweekHttpLoaderFactory(http: HttpClient) {
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
-        useFactory: NationalearningweekHttpLoaderFactory,
+        useFactory: nationalearningweekHttpLoaderFactory,
         deps: [HttpClient],
       },
     }),

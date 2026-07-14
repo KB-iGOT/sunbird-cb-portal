@@ -1,3 +1,4 @@
+/* tslint:disable:no-variable-name */
 import {
   Component,
   EventEmitter,

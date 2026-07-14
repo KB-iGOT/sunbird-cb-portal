@@ -64,6 +64,7 @@ export class MobileFiltersComponent {
         this.selectedValue = { name: this.selectedFilters.eventStatus[0] }
       }
     }
+    // tslint:disable-next-line:no-console
     console.log('data ', this.datePipe)
   }
 
@@ -78,6 +79,7 @@ export class MobileFiltersComponent {
   }
 
   changeSelection(event: any, key: any, keyData: any, allKeyData: any) {
+    // tslint:disable-next-line:no-console
     console.log('changeSelection', event, key, keyData, allKeyData)
     if (event) {
       if (['resourceType', 'eventDate'].includes(key)) {
@@ -116,6 +118,7 @@ export class MobileFiltersComponent {
   }
 
   onDateChange(event: any, eType: any, facet: any) {
+    // tslint:disable-next-line:no-console
     console.log(facet, eType, event)
     if (eType.key === 'fromDate') {
       this.startDate = this.datePipe.transform(event.value, 'yyyy-MM-dd')

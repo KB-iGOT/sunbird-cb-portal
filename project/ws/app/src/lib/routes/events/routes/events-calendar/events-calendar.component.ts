@@ -4,11 +4,9 @@ import { EventService } from '../../services/events.service'
 import { HttpErrorResponse } from '@angular/common/http'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import * as _ from 'lodash'
-import { ConfigurationsService, WsEvents } from '@sunbird-cb/utils-v2'
+import { ConfigurationsService, EventService as libEventService, MultilingualTranslationsService, WsEvents } from '@sunbird-cb/utils-v2'
 import { Router } from '@angular/router'
 import { MAT_BOTTOM_SHEET_DATA, MatBottomSheetRef } from '@angular/material/bottom-sheet'
-import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
-import { EventService as libEventService } from '@sunbird-cb/utils-v2'
 
 @Component({
   selector: 'ws-app-events-calendar',
@@ -113,7 +111,7 @@ export class EventsCalendarComponent implements OnInit {
 
     // Add padding for days from previous month
     const firstDayOfWeek = firstDay.getDay()
-    for (let i = 0; i < firstDayOfWeek; i++) {
+    for (let i = 0; i < firstDayOfWeek; i += 1) {
       const date = new Date(year, month, -i)
       const details: {
         date: Date,
@@ -130,7 +128,7 @@ export class EventsCalendarComponent implements OnInit {
     }
 
     const lastDayOfMonth = lastDay.getDate()
-    for (let i = 1; i <= lastDayOfMonth; i++) {
+    for (let i = 1; i <= lastDayOfMonth; i += 1) {
       const date = new Date(year, month, i)
       const details: {
         date: Date,
@@ -212,7 +210,9 @@ export class EventsCalendarComponent implements OnInit {
           eventData.setHours(0, 0, 0, 0)
           if (this.selected.getTime() === eventData.getTime()) {
             const eventDetails = JSON.parse(JSON.stringify(_.get(event, 'event')))
+            // tslint:disable-next-line: max-length max-line-length
             const eventStartDateTime = _.get(eventDetails, 'startDateTime', this.convertToUTC(_.get(eventDetails, 'startDate'), _.get(eventDetails, 'startTime')))
+            // tslint:disable-next-line: max-length max-line-length
             const eventEndDateTime = _.get(eventDetails, 'endDateTime', this.convertToUTC(_.get(eventDetails, 'endDate'), _.get(eventDetails, 'endTime')))
             if (eventStartDateTime && eventEndDateTime) {
               const currentTime = new Date()

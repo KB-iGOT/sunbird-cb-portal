@@ -1,3 +1,4 @@
+/* tslint:disable:class-name */
 import { Injectable } from '@angular/core'
 import { HttpClient } from '@angular/common/http'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'

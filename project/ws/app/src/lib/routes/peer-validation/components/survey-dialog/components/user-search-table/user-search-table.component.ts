@@ -61,6 +61,7 @@ export class UserSearchTableComponent implements OnInit, OnChanges, OnDestroy {
         this.filteredUsers = res?.result?.response?.content || res?.result?.content || res || []
       },
       error: (err: any) => {
+        // tslint:disable:no-console
         console.error('Error fetching users:', err)
         this.filteredUsers = []
       },

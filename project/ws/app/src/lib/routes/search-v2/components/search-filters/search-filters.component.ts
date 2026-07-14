@@ -237,7 +237,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy {
         if (fs.name === fil.name && this.queryParams.has('t')) {
           setTimeout(() => {
             this.router.navigate(['/app/globalsearch'], { queryParams: { q: '' } })
-          }, 500)
+          },         500)
         }
         // const selectedName = fs.name ===  fil.name ? fil.name : fs.name  === this.toString(fil.name).toLowerCase()
         // ? this.toString(fil.name).toLowerCase() : this.toCamelCase(fil.name)

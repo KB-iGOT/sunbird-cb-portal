@@ -2,7 +2,7 @@ import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper'
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core'
 import { MatPaginator, PageEvent } from '@angular/material/paginator'
 import { ActivatedRoute, Router } from '@angular/router'
-import { ContentAssignService, NsContent } from '@sunbird-cb/collection'
+import { ContentAssignService, IContentAssignModel, NsContent } from '@sunbird-cb/collection'
 import { ConfigurationsService, TFetchStatus, ValueService } from '@sunbird-cb/utils-v2'
 import { Subscription } from 'rxjs'
 import { IFilterUnitResponse } from '../../../search/models/search.model'
@@ -10,7 +10,6 @@ import { DialogAssignComponent } from '../../components/dialog-assign/dialog-ass
 import {
   UserFilterDisplayComponent,
 } from '../../components/user-filter-display/user-filter-display.component'
-import { IContentAssignModel } from '@sunbird-cb/collection'
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
 @Component({
@@ -155,7 +154,7 @@ export class ContentAssignmentComponent implements OnInit {
         this.directReportees = false
         this.allReportees = false
       }
-    }, 60)
+    },         60)
     this.defaultSideNavBarOpenedSubscription = this.isLtMedium$.subscribe((isLtMedium: boolean) => {
       this.screenSizeIsLtMedium = isLtMedium
       this.sideNavBarOpened = !isLtMedium
@@ -272,7 +271,7 @@ export class ContentAssignmentComponent implements OnInit {
         this.filtersResponse = response.filters
         this.fetchUserStatus = 'done'
 
-      }, err => {
+      },                                                              err => {
         if (err) {
           this.fetchUserStatus = 'none'
           return

@@ -1,3 +1,4 @@
+/* tslint:disable:max-line-length no-console */
 import { Injectable } from '@angular/core'
 import { Router } from '@angular/router'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'

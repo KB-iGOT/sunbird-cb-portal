@@ -2,9 +2,8 @@ import { Component } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
 import { EventService } from '../../../services/events.service'
-import { ConfigurationsService, MultilingualTranslationsService, NsContent, WsEvents } from '@sunbird-cb/utils-v2'
+import { ConfigurationsService, EventService as libEventService, MultilingualTranslationsService, NsContent, WsEvents } from '@sunbird-cb/utils-v2'
 import * as _ from 'lodash'
-import { EventService as libEventService } from '@sunbird-cb/utils-v2'
 // import { DatePipe } from '@angular/common';
 
 @Component({
@@ -84,7 +83,8 @@ export class MyAllEventsComponent {
           this.contentDataList = [...this.contentDataList, ...this.transformContentsToWidgets([], {})]
         }
         this.isLoading = false
-      }, error => {
+      // tslint:disable-next-line:align
+      },         error => {
         // tslint:disable-next-line:no-console
         console.log('error', error)
         this.contentDataList = this.contentDataList.slice(0, -12)

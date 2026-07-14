@@ -1,3 +1,4 @@
+/* tslint:disable:max-line-length */
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core'
 import * as _ from 'lodash'
 import { HttpErrorResponse } from '@angular/common/http'

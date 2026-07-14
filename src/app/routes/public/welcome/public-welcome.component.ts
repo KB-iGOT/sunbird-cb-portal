@@ -223,7 +223,7 @@ export class PublicWelcomeComponent implements OnInit, OnDestroy {
       this.filteredOrgList = res.result.response.filter((org: any) => {
         return org.orgName.toLowerCase().indexOf(filterValue) >= 0
       })
-    }, (err: any) => {
+    },                                                                      (err: any) => {
       this.searching = false
       this.loggerSvc.error('Error in fetching organisations >', err)
       if (err.error && err.error.params && err.error.params.errmsg) {

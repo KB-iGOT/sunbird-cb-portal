@@ -23,6 +23,7 @@ import { NotificationsService } from '../../routes/services/notifications.servic
 import { MatSnackBarModule } from '@angular/material/snack-bar'
 import { ConfirmDialogModule } from '@sunbird-cb/collection'
 
+// tslint:disable-next-line:function-name
 export function NotificationHttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http)
 }
