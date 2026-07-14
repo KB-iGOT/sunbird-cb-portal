@@ -5,15 +5,15 @@ import { CuratedCollectionService } from '../../services/curated-collection.serv
 import { debounceTime, switchMap, takeUntil } from 'rxjs/operators'
 import { ActivatedRoute } from '@angular/router'
 /* tslint:disable*/
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { TranslateService } from '@ngx-translate/core'
 import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 
 @Component({
-    selector: 'ws-app-curated-home',
-    templateUrl: './curated-home.component.html',
-    styleUrls: ['./curated-home.component.scss'],
-    standalone: false
+  selector: 'ws-app-curated-home',
+  templateUrl: './curated-home.component.html',
+  styleUrls: ['./curated-home.component.scss'],
+  standalone: false
 })
 export class CuratedHomeComponent implements OnInit {
   public displayLoader!: Observable<boolean>
@@ -94,7 +94,7 @@ export class CuratedHomeComponent implements OnInit {
         this.allCollections = []
         this.totalCount = res.result.count
       }
-      if (res && res.result &&  res.result && res.result.content) {
+      if (res && res.result && res.result && res.result.content) {
         this.allCollections = res.result.content
         this.totalCount = res.result.count
         if ((this.page * this.defaultLimit) >= this.totalCount) {

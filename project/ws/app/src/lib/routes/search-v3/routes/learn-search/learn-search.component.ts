@@ -17,7 +17,7 @@ import {
 } from '@sunbird-cb/utils-v2'
 import { ActivatedRoute, Router } from '@angular/router'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { TranslateService } from '@ngx-translate/core'
 import { takeUntil } from 'rxjs/operators'
 import {
@@ -33,7 +33,7 @@ import {
   SortType,
   SearchResourceFacets,
   SearchResourceMimeType,
-  SearchExternalRequest
+  SearchExternalRequest,
 } from '../../models/search-v3.model'
 import { forkJoin, Subject } from 'rxjs'
 import {
@@ -48,23 +48,23 @@ import moment from 'moment'
   selector: 'ws-app-learn-search',
   templateUrl: './learn-search.component.html',
   styleUrls: ['./learn-search.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
   @Input() searchQuery!: { query: string; nlp: string; searchCategory: string }
-  @Input() userValue = '';
-  @Input() paramFilters: any = [];
+  @Input() userValue = ''
+  @Input() paramFilters: any = []
   @Input() filtersPanel!: string
-  @Output() queryParamChange = new EventEmitter<any>();
+  @Output() queryParamChange = new EventEmitter<any>()
 
   // searchResults: any = [];
-  defaultThumbnail = '';
-  sideNavBarOpened = true;
+  defaultThumbnail = ''
+  sideNavBarOpened = true
   private defaultSideNavBarOpenedSubscription: any
-  private destroy$ = new Subject<void>();
+  private destroy$ = new Subject<void>()
 
-  public screenSizeIsLtMedium = false;
-  isLtMedium$ = this.valueSvc.isLtMedium$;
+  public screenSizeIsLtMedium = false
+  isLtMedium$ = this.valueSvc.isLtMedium$
   statedata:
     | {
       param: any
@@ -73,67 +73,67 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
     | undefined
   // resultFacets: any = [];
   // facetsData: any = [];
-  veifiedKarmayogi = false;
-  noResultMessage = '';
+  veifiedKarmayogi = false
+  noResultMessage = ''
   recommendedUsers: any
-  seeAllResult: string = '';
-  allResultsDepartmentName = new Set<string>();
+  seeAllResult: string = ''
+  allResultsDepartmentName = new Set<string>()
 
-  courseSearchTotalCount = 0;
-  eventSearchTotalCount = 0;
-  peopleSearchTotalCount = 0;
-  communitiesSearchTotalCount = 0;
-  resourcesSearchTotalCount = 0;
-  externalSearchTotalCount = 0;
+  courseSearchTotalCount = 0
+  eventSearchTotalCount = 0
+  peopleSearchTotalCount = 0
+  communitiesSearchTotalCount = 0
+  resourcesSearchTotalCount = 0
+  externalSearchTotalCount = 0
 
-  courseSearchResults: any[] = [];
-  eventsSearchResults: any[] = [];
-  peoplesSearchResults: any[] = [];
-  resourcesSearchResults: any[] = [];
-  communitiesSearchResults: any[] = [];
-  externalSearchResults: any[] = [];
+  courseSearchResults: any[] = []
+  eventsSearchResults: any[] = []
+  peoplesSearchResults: any[] = []
+  resourcesSearchResults: any[] = []
+  communitiesSearchResults: any[] = []
+  externalSearchResults: any[] = []
 
-  searchRequestCourse = new SearchV4Request([]);
-  searchRequestEvents = new SearchV4Request([]);
-  searchRequestPeoples = new SearchPeoplesRequest();
-  searchRequestResources = new SearchV4Request([]);
-  searchRequestCommunities = new SearchCommunitiesRequest([]);
-  searchRequestExternal = new SearchExternalRequest([]);
-  searchContentLoader = true;
+  searchRequestCourse = new SearchV4Request([])
+  searchRequestEvents = new SearchV4Request([])
+  searchRequestPeoples = new SearchPeoplesRequest()
+  searchRequestResources = new SearchV4Request([])
+  searchRequestCommunities = new SearchCommunitiesRequest([])
+  searchRequestExternal = new SearchExternalRequest([])
+  searchContentLoader = true
 
-  initialPaginationSize = 10;
-  initialPaginationSizeOptions = [10, 20, 50, 100];
-  initialPaginationPage = 1;
-  commonPageResultSize = 3;
+  initialPaginationSize = 10
+  initialPaginationSizeOptions = [10, 20, 50, 100]
+  initialPaginationPage = 1
+  commonPageResultSize = 3
 
-  coursesFacets = [];
-  eventsFacets = [];
-  communitiesFacets = [];
-  peoplesFacets = [];
-  resourcesFacets = [];
-  externalFacets = [];
+  coursesFacets = []
+  eventsFacets = []
+  communitiesFacets = []
+  peoplesFacets = []
+  resourcesFacets = []
+  externalFacets = []
 
-  combinedFacets: any[] = [];
+  combinedFacets: any[] = []
   compentencyKey!: NsContent.ICompentencyKeys
-  enrollmentDetails: any = [];
-  cbpPlanList: any = [];
-  unenrolledCourses: any = [];
+  enrollmentDetails: any = []
+  cbpPlanList: any = []
+  unenrolledCourses: any = []
   igotSpecializationPrograms: any = []
 
   competencyAreaNameKey!: string
   competencyThemeKey!: string
   competencySubThemeKey!: string
 
-  currentUserDept = '';
+  currentUserDept = ''
   connectionRequestsSent!: any
   queryParams: any
   typesOfEventsFilters: any
-  competencyFactet: any = [];
-  searchSortFilter: string = '';
-  searchPeopleLoader = false;
-  filtersChipFromLearn: string[] = [];
+  competencyFactet: any = []
+  searchSortFilter: string = ''
+  searchPeopleLoader = false
+  filtersChipFromLearn: string[] = []
   shouldReturnFromHere = false
-  isExploreContentTab = false;
+  isExploreContentTab = false
   applySelectedFilters: any = []
   compentencyKeyExist = false
   constructor(
@@ -177,11 +177,10 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       path: 'Search',
     }
     const instanceConfig = this.configSvc.instanceConfig
-    this.defaultSideNavBarOpenedSubscription = this.isLtMedium$.subscribe(
-      (isLtMedium) => {
-        this.sideNavBarOpened = !isLtMedium
-        this.screenSizeIsLtMedium = isLtMedium
-      }
+    this.defaultSideNavBarOpenedSubscription = this.isLtMedium$.subscribe(isLtMedium => {
+      this.sideNavBarOpened = !isLtMedium
+      this.screenSizeIsLtMedium = isLtMedium
+    }
     )
 
     if (instanceConfig) {
@@ -279,9 +278,9 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       this.events.raiseInteractTelemetry(
         {
           type: 'click',
-          subType: `card-learnSearch`,
+          subType: 'card-learnSearch',
           id: `search-card-${i + 1}`,
-          pageid: `/app/globalsearch`,
+          pageid: '/app/globalsearch',
         },
         {
           id: content.identifier || '',
@@ -332,7 +331,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
   async searchCourses() {
     if (this.searchRequestCourse && this.searchRequestCourse['request'] && Object.keys(this.searchRequestCourse['request']['filters'])) {
       if (this.searchRequestCourse['request']['filters']['courseCategory']?.length === 0) {
-        this.searchRequestCourse['request']['filters']['courseCategory'] = { "!=": ["pre enrolment assessment"] }
+        this.searchRequestCourse['request']['filters']['courseCategory'] = { '!=': ['pre enrolment assessment'] }
       }
       if (this.searchRequestCourse['request']['facets'] && this.searchRequestCourse['request']['facets'].length) {
         this.searchRequestCourse['request']['facets'] = _.uniq(this.searchRequestCourse['request']['facets'])
@@ -363,7 +362,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       if (formContextList.length) {
         const formBody = {
           userId: _.get(this.configSvc, 'userProfile.userId'),
-          formContextList
+          formContextList,
         }
         const surveyLInksStatus = await this.searchV3Service.getApplicationsById(formBody).toPromise()
         const statusList = _.get(surveyLInksStatus, 'result.response', [])
@@ -536,7 +535,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
 
   async getCompetencyHierichy(filterFlag?: any) {
     const competency = ['Behavioural', 'Functional', 'Domain']
-    let competencyFactet: any = []
+    const competencyFactet: any = []
     let competencyThemeFacet: any = []
     let competencySubThemeFacet: any = []
     let result: any
@@ -603,21 +602,18 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
         result = await this.searchV3Service.searchCommunity(
           searchRequestCommunity
         )
-        competencyThemeFacet = result.result?.search_results?.facets[
-          this.competencyThemeKey
+        competencyThemeFacet = result.result?.search_results?.facets[this.competencyThemeKey
         ].length
           ? {
             values:
               result.result?.search_results?.facets[this.competencyThemeKey],
           }
           : { values: [] }
-        competencySubThemeFacet = result.result?.search_results?.facets[
-          this.competencySubThemeKey
+        competencySubThemeFacet = result.result?.search_results?.facets[this.competencySubThemeKey
         ].length
           ? {
             values:
-              result.result?.search_results?.facets[
-              this.competencySubThemeKey
+              result.result?.search_results?.facets[this.competencySubThemeKey
               ],
           }
           : { values: [] }
@@ -673,7 +669,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   processCommunityFacets(facets: Record<string, any[]>): any {
-    return Object.keys(facets).map((key) => ({
+    return Object.keys(facets).map(key => ({
       name: key,
       values: facets[key].map(({ value, count }) => ({ name: value, count })),
     }))
@@ -797,7 +793,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
 
     this.resetPagination()
 
-    Object.keys(selectedFilters).forEach((key) => {
+    Object.keys(selectedFilters).forEach(key => {
       if (selectedFilters[key] && Array.isArray(selectedFilters[key])) {
         if (key === FacetType.AvgRating) {
           const ratings = selectedFilters[key]
@@ -1052,7 +1048,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
   // Delete the empty request param from resuest body
   deleteFilterKeys() {
     const removeEmpty = (obj: any, keys: string[], isObjectCheck = false) => {
-      keys.forEach((key) => {
+      keys.forEach(key => {
         const value = obj[key]
         if (
           value &&
@@ -1138,12 +1134,11 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       FacetType.topic,
       this.competencyAreaNameKey,
       this.competencyThemeKey,
-      this.competencySubThemeKey
+      this.competencySubThemeKey,
       ],
       false
     )
   }
-
 
   async seeAllResults(category: string) {
     if (!this.isCategoryEnabled(category)) {
@@ -1468,7 +1463,6 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
     this.searchContentLoader = false
   }
 
-
   getFetchIgotSpecializationPrograms() {
     this.searchV3Service.microCredentialsSearch().subscribe((response: any) => {
       this.igotSpecializationPrograms = response?.result?.content || []
@@ -1500,7 +1494,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
         userId
       ),
       cbpPlan: this.userService.fetchCbpPlanList(),
-    }).subscribe((responses) => {
+    }).subscribe(responses => {
       const inProgressCourses =
         (responses.inProgress as any)?.result?.courses || []
       const completedCourses =
@@ -1551,7 +1545,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       q: params['q'].trim(),
       search: params['search'] || null,
       category: category || null,
-      tab: null
+      tab: null,
     }
     this.queryParamChange.emit(this.queryParams)
   }
@@ -1564,7 +1558,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   processEventsResult(events: any) {
-    let processedEvents: any = []
+    const processedEvents: any = []
 
     let serverTime = moment()
     serverTime = serverTime.add(5, 'hours').add(30, 'minutes')

@@ -12,7 +12,7 @@ import { EventService as libEventService } from '@sunbird-cb/utils-v2'
   selector: 'ws-app-see-all',
   templateUrl: './see-all.component.html',
   styleUrls: ['./see-all.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class SeeAllComponent {
   titles: any = []

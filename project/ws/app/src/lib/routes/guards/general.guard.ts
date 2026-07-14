@@ -7,7 +7,7 @@ import {
 import { ConfigurationsService, AuthKeycloakService } from '@sunbird-cb/utils-v2'
 
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { NSProfileDataV3 } from '../profile-v3/models/profile-v3.models'
 
 @Injectable({
