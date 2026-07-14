@@ -1,3 +1,4 @@
+/* tslint:disable: max-line-length prefer-template object-shorthand-properties-first align */
 import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, ViewChild, DOCUMENT } from '@angular/core'
 import { Subscription, Observable, interval, Subject } from 'rxjs'
 import { UntypedFormGroup, UntypedFormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms'

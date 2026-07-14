@@ -1,3 +1,4 @@
+/* tslint:disable:object-shorthand-properties-first */
 // Core imports
 import { Component, OnDestroy, OnInit, Inject, DOCUMENT } from '@angular/core'
 
@@ -208,7 +209,7 @@ export class CompetencyListV2Component implements OnInit, OnDestroy {
     this.getAllCompetencyList()
     setTimeout(() => {
       this.getMyCompetencyList()
-    }, 1000)
+    },         1000)
 
   }
 
@@ -381,7 +382,7 @@ export class CompetencyListV2Component implements OnInit, OnDestroy {
   getAllCompetenciesCount(): number {
     return this.myCompetencies.reduce((sum, areaEntry) => {
       return sum + (areaEntry.themes?.length || 0)
-    }, 0)
+    },                                0)
   }
 
   getAllCompetencyList(): void {

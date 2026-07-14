@@ -1,3 +1,4 @@
+/* tslint:disable:class-name interface-name */
 export interface routesData {
   name: string
   navigationUrl: string

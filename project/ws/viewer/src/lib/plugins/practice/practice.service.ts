@@ -1,3 +1,4 @@
+/* tslint:disable:object-shorthand-properties-first */
 import { Injectable } from '@angular/core'
 import { HttpClient } from '@angular/common/http'
 import { NSPractice } from './practice.model'
@@ -375,7 +376,7 @@ export class PracticeService {
   }
 
   getQuestions(identifiers: string[], assessmentId: string,
-    forPreview?: any, userDetails?: any, collectionId?: any): Observable<{ count: Number, questions: any[] }> {
+               forPreview?: any, userDetails?: any, collectionId?: any): Observable<{ count: Number, questions: any[] }> {
     const data = {
       assessmentId,
       request: {
@@ -439,7 +440,7 @@ export class PracticeService {
   }
 
   getQuestionsV4(identifiers: string[], assessmentId: string,
-    forPreview?: any, userDetails?: any, collectionId?: any): Observable<{ count: Number, questions: any[] }> {
+                 forPreview?: any, userDetails?: any, collectionId?: any): Observable<{ count: Number, questions: any[] }> {
     const data = {
       assessmentId,
       request: {

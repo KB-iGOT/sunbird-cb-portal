@@ -1,3 +1,4 @@
+/* tslint:disable:max-line-length */
 import { Component, OnInit, inject, output } from '@angular/core'
 import { ConfigurationsService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
 import { HomePageService } from '../../../services/home-page.service'

@@ -5,7 +5,7 @@ import {
   PipeFilterV2Module,
 } from '@sunbird-cb/utils-v2'
 
-import { CardContentV2Module } from '@sunbird-cb/collection'
+import { BtnPageBackModule, CardContentV2Module } from '@sunbird-cb/collection'
 import { HttpClient } from '@angular/common/http'
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core'
 import {
@@ -23,7 +23,6 @@ import {
 import { MdoChannelsComponent } from './mdo-channels/mdo-channels.component'
 import { MdoChannelsMicrositeComponent } from './mdo-channels-microsite/mdo-channels-microsite.component'
 import { MdoChannelsRoutingModule } from './mdo-channels-routing.module'
-import { BtnPageBackModule } from '@sunbird-cb/collection'
 import { MdoChannelFormService } from './service/mdo-channel-form.service'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 import { MdoChannelDataService } from './service/mdo-channel-data.service'
@@ -56,7 +55,7 @@ import { MatToolbarModule } from '@angular/material/toolbar'
 import { MatTooltipModule } from '@angular/material/tooltip'
 import { TranslateHttpLoader } from '@ngx-translate/http-loader'
 
-export function MDOChannelsHttpLoaderFactory(http: HttpClient) {
+export function mDOChannelsHttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http)
 }
 
@@ -107,7 +106,7 @@ export function MDOChannelsHttpLoaderFactory(http: HttpClient) {
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
-        useFactory: MDOChannelsHttpLoaderFactory,
+        useFactory: mDOChannelsHttpLoaderFactory,
         deps: [HttpClient],
       },
     }),

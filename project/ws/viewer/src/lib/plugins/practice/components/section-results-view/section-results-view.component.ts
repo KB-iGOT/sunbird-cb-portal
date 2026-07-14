@@ -1,3 +1,4 @@
+/* tslint:disable:interface-name brace-style */
 import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core'
 import { trigger, style, transition, animate } from '@angular/animations'
 import * as _ from 'lodash'

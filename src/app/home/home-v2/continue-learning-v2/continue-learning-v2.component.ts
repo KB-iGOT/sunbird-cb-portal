@@ -1,3 +1,4 @@
+/* tslint:disable:object-shorthand-properties-first */
 import { Component, OnInit, OnDestroy, inject } from '@angular/core'
 import { Router } from '@angular/router'
 import { ConfigurationsService, EventService, WsEvents, WidgetEnrollService } from '@sunbird-cb/utils-v2'
@@ -73,18 +74,18 @@ export class ContinueLearningV2Component implements OnInit, OnDestroy {
             }
             this.inProgressCourse = this.formatAndPickFirst(courses)
             this.isInProgressLoading = false
-          }, () => {
+          },         () => {
             this.inProgressCourse = this.formatAndPickFirst(courses)
             this.isInProgressLoading = false
           })
-      }, () => {
+      },         () => {
         this.enrollSvc.fetchExternalEnrollmentData(IN_PROGRESS_EXTERNAL_PAYLOAD)
           .pipe(takeUntil(this.destroy$))
           .subscribe((extRes: any) => {
             const courses = extRes?.result?.courses ?? []
             this.inProgressCourse = this.formatAndPickFirst(courses)
             this.isInProgressLoading = false
-          }, () => { this.isInProgressLoading = false })
+          },         () => { this.isInProgressLoading = false })
       })
   }
 
@@ -135,7 +136,7 @@ export class ContinueLearningV2Component implements OnInit, OnDestroy {
           this.weeklyData = this.buildWeeklyData(this.insightsData['weeklyClaps'])
         }
         this.isWeeklyLoading = false
-      }, () => { this.isWeeklyLoading = false })
+      },         () => { this.isWeeklyLoading = false })
   }
 
   private buildWeeklyData(weeklyClaps: any): any {

@@ -1,3 +1,4 @@
+/* tslint:disable:interface-name function-name */
 import { Component, HostListener, OnInit } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
 import { HttpClient } from '@angular/common/http'
@@ -268,7 +269,7 @@ export class BharatKalpSeeAllComponent implements OnInit {
     if (total <= 7) return Array.from({ length: total }, (_, i) => i)
     const pages: (number | string)[] = [0]
     if (cur > 2) pages.push('...')
-    for (let i = Math.max(1, cur - 1); i <= Math.min(total - 2, cur + 1); i++) pages.push(i)
+    for (let i = Math.max(1, cur - 1); i <= Math.min(total - 2, cur + 1); i += 1) pages.push(i)
     if (cur < total - 3) pages.push('...')
     if (total - 1 > 0) pages.push(total - 1)
     return pages

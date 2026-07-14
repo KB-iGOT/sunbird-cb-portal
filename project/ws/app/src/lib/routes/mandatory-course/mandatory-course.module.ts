@@ -5,10 +5,9 @@ import { MandatoryCourseRoutingModule } from './manadatory-course-routing.module
 import { ReactiveFormsModule, FormsModule } from '@angular/forms'
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
 import { RouterModule } from '@angular/router'
-import { BtnPageBackModule, CardContentModule } from '@sunbird-cb/collection'
+import { BtnPageBackModule, CardContentModule, CardContentV2Module } from '@sunbird-cb/collection'
 import { MatCardModule } from '@angular/material/card'
 import { MandatoryCourseStatsComponent } from './components/mandatory-course-stats/mandatory-course-stats.component'
-import { CardContentV2Module } from '@sunbird-cb/collection'
 
 @NgModule({
   declarations: [MandatoryCourseComponent, MandatoryCourseStatsComponent],

@@ -1,3 +1,4 @@
+/* tslint:disable:no-console object-shorthand-properties-first */
 import { Component, OnInit } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { NsCarouselBannerV2, SbUicCarouselBannerV2Component } from '@sunbird-cb/consumption'

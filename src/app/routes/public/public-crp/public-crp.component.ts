@@ -1,3 +1,4 @@
+/* tslint:disable: prefer-template object-shorthand-properties-first align */
 import {
   Component,
   Inject,

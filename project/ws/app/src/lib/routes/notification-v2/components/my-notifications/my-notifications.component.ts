@@ -4,8 +4,7 @@ import { ConfigurationsService, EventService, MultilingualTranslationsService } 
 import { NotificationsService } from '../../../../routes/services/notifications.service'
 import { environment } from 'src/environments/environment'
 import { MatSnackBar } from '@angular/material/snack-bar'
-import { MatDialog } from '@angular/material/dialog'
-import { MatDialog as MatDialogNew } from '@angular/material/dialog'
+import { MatDialog, MatDialog as MatDialogNew } from '@angular/material/dialog'
 import { ConfirmDialogComponent } from '@sunbird-cb/collection'
 import { SurveyPopupComponent } from '../../../peer-validation/components/survey-popup/survey-popup.component'
 import { VerificationRequestDialogComponent } from '../../../peer-validation/components/verification-request-dialog/verification-request-dialog.component'
@@ -23,16 +22,16 @@ export class MyNotificationsComponent {
   roles: string[] = []
   fragment: string = ''
   constructor(private translate: TranslateService,
-    private langtranslations: MultilingualTranslationsService,
-    private notificationsService: NotificationsService,
-    private snackBar: MatSnackBar,
-    private dialog: MatDialog,
-    private configService: ConfigurationsService,
-    private events: EventService,
-    private libNotificationsService: LibNotificationsService,
-    private route: ActivatedRoute,
-    private matDialog: MatDialogNew,
-    private peerValidationService: PeerValidationService) {
+              private langtranslations: MultilingualTranslationsService,
+              private notificationsService: NotificationsService,
+              private snackBar: MatSnackBar,
+              private dialog: MatDialog,
+              private configService: ConfigurationsService,
+              private events: EventService,
+              private libNotificationsService: LibNotificationsService,
+              private route: ActivatedRoute,
+              private matDialog: MatDialogNew,
+              private peerValidationService: PeerValidationService) {
     if (localStorage.getItem('websiteLanguage')) {
       this.translate.setDefaultLang('en')
       let lang = JSON.stringify(localStorage.getItem('websiteLanguage'))

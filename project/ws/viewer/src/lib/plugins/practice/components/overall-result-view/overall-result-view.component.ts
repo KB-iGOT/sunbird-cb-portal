@@ -1,3 +1,4 @@
+/* tslint:disable:interface-name */
 import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, OnChanges, SimpleChanges } from '@angular/core'
 import { Subject } from 'rxjs'
 import * as _ from 'lodash'

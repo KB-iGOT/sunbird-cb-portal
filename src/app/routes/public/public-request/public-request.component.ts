@@ -1,3 +1,4 @@
+/* tslint:disable:max-line-length */
 import { Component, OnInit } from '@angular/core'
 import { UntypedFormGroup, UntypedFormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms'
 import { ActivatedRoute, Router } from '@angular/router'
@@ -78,15 +79,15 @@ export class PublicRequestComponent implements OnInit {
   isMultiLangEnabled: any
 
   constructor(private activatedRoute: ActivatedRoute,
-    private router: Router,
-    private snackBar: MatSnackBar,
-    private signupSvc: SignupService,
-    private dialog: MatDialog,
-    private requestSvc: RequestService,
-    private _location: Location,
-    private configSvc: ConfigurationsService,
-    private langtranslations: MultilingualTranslationsService,
-    private translate: TranslateService) {
+              private router: Router,
+              private snackBar: MatSnackBar,
+              private signupSvc: SignupService,
+              private dialog: MatDialog,
+              private requestSvc: RequestService,
+              private _location: Location,
+              private configSvc: ConfigurationsService,
+              private langtranslations: MultilingualTranslationsService,
+              private translate: TranslateService) {
     const navigation = this.router.getCurrentNavigation()
     if (navigation) {
       const extraData = navigation.extras.state as {

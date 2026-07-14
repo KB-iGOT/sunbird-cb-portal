@@ -1,3 +1,4 @@
+/* tslint:disable:max-line-length */
 import { Component, OnDestroy, OnInit } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { ConfigurationsService, EventService, LoggerService, WsEvents } from '@sunbird-cb/utils-v2'

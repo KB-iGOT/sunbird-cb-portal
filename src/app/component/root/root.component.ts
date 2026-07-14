@@ -1,3 +1,4 @@
+/* tslint:disable:object-shorthand-properties-first */
 import {
   AfterViewChecked,
   AfterViewInit,
@@ -835,7 +836,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
   raiseTelemetryExploreContent(id: string, subType: string = '') {
     const eData: any = {
       type: WsEvents.EnumInteractTypes.CLICK,
-      id: id,
+      id,
     }
     if (subType) {
       const telemetrySubTypeKey = subType as keyof typeof WsEvents.EnumTelemetrySubType

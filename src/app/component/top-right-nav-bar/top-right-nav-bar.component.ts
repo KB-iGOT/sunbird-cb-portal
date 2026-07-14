@@ -1,6 +1,6 @@
+/* tslint:disable: align no-console */
 import { Component, Input, OnChanges, OnInit } from '@angular/core'
-import { MatDialog } from '@angular/material/dialog'
-import { MatDialog as MatDialogNew } from '@angular/material/dialog'
+import { MatDialog, MatDialog as MatDialogNew } from '@angular/material/dialog'
 import { DialogBoxComponent } from './../dialog-box/dialog-box.component'
 import { TranslateService } from '@ngx-translate/core'
 import { HomePageService } from '../../services/home-page.service'
@@ -404,14 +404,14 @@ export class TopRightNavBarComponent implements OnInit, OnChanges {
 
   increaseFontSize(): void {
     if (this.fontSizeLevel < 4) {
-      this.fontSizeLevel++
+      this.fontSizeLevel += 1
       this.applyFontSize()
     }
   }
 
   decreaseFontSize(): void {
     if (this.fontSizeLevel > 0) {
-      this.fontSizeLevel--
+      this.fontSizeLevel -= 1
       this.applyFontSize()
     }
   }
