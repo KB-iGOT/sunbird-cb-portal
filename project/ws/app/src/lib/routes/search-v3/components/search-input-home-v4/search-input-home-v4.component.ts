@@ -119,7 +119,7 @@ export class SearchInputHomeV4Component implements OnInit, OnDestroy {
       icon: 'diversity_3',
     },
     // { label: 'All', value: SearchCategory.All, icon: '' },
-  ];
+  ]
 
   @ViewChild('searchInput') searchInput!: ElementRef<HTMLInputElement>
 
