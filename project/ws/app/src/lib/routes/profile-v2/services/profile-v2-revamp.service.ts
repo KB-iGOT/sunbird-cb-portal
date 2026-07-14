@@ -1,3 +1,4 @@
+/* tslint:disable:max-line-length */
 import { HttpClient } from '@angular/common/http'
 import { Injectable } from '@angular/core'
 import { NSProfileDataV2 } from '../models/profile-v2.model'
@@ -479,15 +480,13 @@ export class ProfileV2RevampService {
     if (!url) {
       return of('')
     }
-    if (filterField === 'email') {
-      value = value.toLowerCase()
-    }
+    const searchValue = filterField === 'email' ? value.toLowerCase() : value
     const payload = {
       request: {
         limit: 1,
         offset: 0,
         filters: {
-          [filterField]: [value],
+          [filterField]: [searchValue],
         },
       },
     }

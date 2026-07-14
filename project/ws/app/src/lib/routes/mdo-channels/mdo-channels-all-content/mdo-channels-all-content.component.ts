@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
-import { CommonMethodsService } from '@sunbird-cb/consumption'
-import { NsContentStripWithTabs } from '@sunbird-cb/consumption'
+import { CommonMethodsService, NsContentStripWithTabs } from '@sunbird-cb/consumption'
 
 import { AllContentService } from './../service/all-content.service'
 import { EventService, UtilityService, WsEvents, MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
@@ -29,13 +28,13 @@ export class MdoChannelsAllContentComponent implements OnInit {
   selectedTab: any
   titles: any = []
   constructor(public commonSvc: CommonMethodsService,
-    public activatedRoute: ActivatedRoute,
-    public formExtSvc: FormExtService,
-    public contentSvc: AllContentService,
-    private translate: TranslateService,
-    private langtranslations: MultilingualTranslationsService,
-    public utilitySvc: UtilityService,
-    public events: EventService,
+              public activatedRoute: ActivatedRoute,
+              public formExtSvc: FormExtService,
+              public contentSvc: AllContentService,
+              private translate: TranslateService,
+              private langtranslations: MultilingualTranslationsService,
+              public utilitySvc: UtilityService,
+              public events: EventService,
   ) {
     this.langtranslations.languageSelectedObservable.subscribe(() => {
       if (localStorage.getItem('websiteLanguage')) {
@@ -135,7 +134,7 @@ export class MdoChannelsAllContentComponent implements OnInit {
             }
           }
         }
-      }, (_err: any) => {
+      },                                                  (_err: any) => {
         this.contentDataList = []
       })
     }
@@ -235,7 +234,7 @@ export class MdoChannelsAllContentComponent implements OnInit {
       if (request && request) {
         this.contentSvc.postApiMethod(apiUrl, request).subscribe(results => {
           resolve({ results })
-        }, (error: any) => {
+        },                                                       (error: any) => {
           reject(error)
         },
         )
@@ -277,8 +276,8 @@ export class MdoChannelsAllContentComponent implements OnInit {
   }
 
   async getRequestMethod(strip: NsContentStripWithTabs.IContentStripUnit,
-    request: NsContentStripWithTabs.IContentStripUnit['request'],
-    apiUrl: string
+                         request: NsContentStripWithTabs.IContentStripUnit['request'],
+                         apiUrl: string
   ): Promise<any> {
     return new Promise<any>((resolve, reject) => {
       if (request && request) {
@@ -292,7 +291,7 @@ export class MdoChannelsAllContentComponent implements OnInit {
             }
             : null
           resolve({ results, viewMoreUrl })
-        }, (error: any) => {
+        },                                             (error: any) => {
           reject(error)
         },
         )

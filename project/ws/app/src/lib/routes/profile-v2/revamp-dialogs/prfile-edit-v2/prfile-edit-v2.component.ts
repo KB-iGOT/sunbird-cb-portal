@@ -17,10 +17,7 @@ import { WithdrawRequestComponent } from '../../components/withdraw-request/with
 import { NsUserProfileDetails } from '../../../user-profile/models/NsUserProfile'
 import { DatePipe, Location } from '@angular/common'
 import { ConfigurationsService, ImageCropComponent, PipeCertificateImageURL } from '@sunbird-cb/utils-v2'
-import { NotificationComponent } from '@ws/author'
-import { PROFILE_IMAGE_SUPPORT_TYPES } from '@ws/author'
-import { Notify } from '@ws/author'
-import { NOTIFICATION_TIME } from '@ws/author'
+import { NotificationComponent, NOTIFICATION_TIME, Notify, PROFILE_IMAGE_SUPPORT_TYPES } from '@ws/author'
 import { UserProfileService } from '../../../user-profile/services/user-profile.service'
 import { TranslateService } from '@ngx-translate/core'
 import { ConfigDetails } from '@sunbird-cb/consumption'
@@ -187,13 +184,13 @@ export class PrfileEditV2Component implements OnInit, OnDestroy {
           this.getDesignationHint()
         } else if (roleIdx === 0) {
           // If MDO_LEADER failed and this was the first attempt, try MDO_ADMIN
-          roleIdx++
+          roleIdx += 1
           fetchEmailByRole(tryRoles[roleIdx])
         }
       },
-        _err => {
+                                                                                              _err => {
           if (roleIdx === 0) {
-            roleIdx++
+            roleIdx += 1
             fetchEmailByRole(tryRoles[roleIdx])
           }
           // If second role also errors, keep defaults (do nothing)
@@ -248,7 +245,7 @@ export class PrfileEditV2Component implements OnInit, OnDestroy {
     })
     setTimeout(() => {
       this.initilisationInProgress = false
-    }, 10)
+    },         10)
   }
 
   getInitials(): void {
@@ -423,7 +420,7 @@ export class PrfileEditV2Component implements OnInit, OnDestroy {
     this.checkCurrentDesignationPresent()
     setTimeout(() => {
       this.initilisationInProgress = false
-    }, 10)
+    },         10)
     const searchDesignationControl = this.profileForm.get('searchDesignation')
     if (searchDesignationControl) {
       let settingValueChange = true
@@ -655,7 +652,7 @@ export class PrfileEditV2Component implements OnInit, OnDestroy {
     }
     setTimeout(() => {
       this.initilisationInProgress = false
-    }, 10)
+    },         10)
   }
 
   //#region (other details)
@@ -689,7 +686,7 @@ export class PrfileEditV2Component implements OnInit, OnDestroy {
     this.valueCahngeMethosdsForOtherDetails()
     setTimeout(() => {
       this.initilisationInProgress = false
-    }, 10)
+    },         10)
   }
 
   fetchCadreData() {
@@ -733,7 +730,7 @@ export class PrfileEditV2Component implements OnInit, OnDestroy {
           domicileMediumControl.patchValue(_.get(this.profileDetails, 'domicileMedium', ''))
           domicileMediumControl.updateValueAndValidity()
         }
-      }, (error: HttpErrorResponse) => {
+      },         (error: HttpErrorResponse) => {
         if (!error.ok) {
           this.openSnackbar(this.handleTranslateTo('unableFetchMasterLanguageData'))
         }

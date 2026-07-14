@@ -29,6 +29,7 @@ const DEFAULT_API_ENDPOINTS = {
   RECENT_READ: '/apis/proxies/v8/search/v1/recent/read',
   RECENT_DELETE_BY_USERID: '/apis/proxies/v8/search/v1/recent/delete',
   RECENT_DELETE_BY_TIMESTAMP: (id: string) => { return `/apis/proxies/v8/search/v1/recent/delete/timestamp/${id}` },
+  // tslint:disable-next-line:function-name
   ENROLLMENT_API(userId: string): string {
     return `/apis/proxies/v8/learner/course/v4/user/enrollment/list/${userId}`
   },

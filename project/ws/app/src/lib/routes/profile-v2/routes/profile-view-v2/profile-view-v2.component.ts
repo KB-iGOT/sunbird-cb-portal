@@ -285,7 +285,7 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
     if (lastSectionId) {
       setTimeout(() => {
         this.selectRoute(lastSectionId)
-      }, 100)
+      },         100)
     }
     this.getSendApprovalStatus()
     this.getRejectedStatus()
@@ -347,7 +347,7 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
       .subscribe((res: any) => {
         this.groupsList = res.result && res.result.response.filter((ele: any) => ele !== 'Others')
         this.checkMandatory()
-      }, (error: HttpErrorResponse) => {
+      },         (error: HttpErrorResponse) => {
         if (!error.ok) {
           this.openSnackbar(this.handleTranslateTo('groupDataFaile'))
         }
@@ -360,7 +360,7 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
         setTimeout(() => {
           this.handleEditMandatoryDetails()
 
-        }, 500)
+        },         500)
       } else {
         this.commonSvc.mandatoryDetails(false)
       }
@@ -375,7 +375,7 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
         this.achievementsDetails.achievementsList = allAchievements.slice(0, 2)
         this.achievementsDetails.count = _.get(response, 'result.search_results.totalCount', 0)
       }
-    }, error => {
+    },                                                                             error => {
       this.openSnackbar('Error while fetching achievements')
       console.error('Error while fetching achievements', error)
     })
@@ -523,7 +523,7 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
   }
 
   private onInitCallComplete() {
-    this.initCallCount++
+    this.initCallCount += 1
     if (this.initCallCount === this.INIT_CALL_TOTAL) {
       if (!this.showWithdrawRequestBtn && !this.showApprovalStatus &&
         this.primaryDetails?.profileDesignationStatus === 'VERIFIED'
@@ -689,7 +689,7 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
         if (this.aboutMeElement && this.aboutMeElement.nativeElement && this.aboutMeElement.nativeElement.offsetHeight) {
           this.showViewMoreBtn = this.aboutMeElement.nativeElement.offsetHeight > 56
         }
-      }, 10)
+      },         10)
     }
   }
 

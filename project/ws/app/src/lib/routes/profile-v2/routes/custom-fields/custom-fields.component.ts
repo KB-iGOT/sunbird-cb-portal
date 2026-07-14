@@ -35,11 +35,11 @@ export class CustomFieldsComponent {
   apiConfig: any
 
   constructor(private fb: FormBuilder,
-    private userProfileService: UserProfileService,
-    private configService: ConfigurationsService,
-    private matSnackBar: MatSnackBar,
-    private dialogRef: MatDialogRef<CustomFieldsComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any,
+              private userProfileService: UserProfileService,
+              private configService: ConfigurationsService,
+              private matSnackBar: MatSnackBar,
+              private dialogRef: MatDialogRef<CustomFieldsComponent>,
+              @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
     this.editConfig = this.data.editConfig
     this.apiConfig = this.data.apiConfig
@@ -68,7 +68,7 @@ export class CustomFieldsComponent {
       if (this.customAttrListIds && this.customAttrListIds.length) {
         this.getCustomAttributes()
       }
-    }, error => {
+    },                                                                    error => {
       console.error('Error fetching organization details', error)
     })
   }
@@ -98,7 +98,7 @@ export class CustomFieldsComponent {
       if (this.customAttrList && this.customAttrList.length > 0) {
         this.readCustomattributeDetails()
       }
-    }, error => {
+    },                                                                          error => {
       console.log('Error', error)
     })
 
@@ -118,7 +118,7 @@ export class CustomFieldsComponent {
       this.customFieldValues = _.get(res, 'result.response.customFieldValues', [])
       this.buildDynamicForm()
       this.editCustomDetails = true
-    }, error => {
+    },                                                                                                   error => {
       console.log('Error', error)
     })
   }
@@ -417,7 +417,7 @@ export class CustomFieldsComponent {
     }
 
     // For each level except the last one
-    for (let i = 0; i < hierarchy.length - 1; i++) {
+    for (let i = 0; i < hierarchy.length - 1; i += 1) {
       const parentField = hierarchy[i]
       const childField = hierarchy[i + 1]
 
@@ -429,7 +429,7 @@ export class CustomFieldsComponent {
           this.updateChildOptions(fieldName, parentField, value, childField, isReversed)
 
           // Important: Clear all fields below this one
-          for (let j = i + 2; j < hierarchy.length; j++) {
+          for (let j = i + 2; j < hierarchy.length; j += 1) {
             const grandchildField = hierarchy[j]
             console.log(`Clearing ${grandchildField} due to ${parentField} change`)
             formGroup.get(grandchildField)?.setValue('')
@@ -441,7 +441,7 @@ export class CustomFieldsComponent {
           this.fieldOptions[fieldName][childField] = []
 
           // Also reset all fields below this one
-          for (let j = i + 2; j < hierarchy.length; j++) {
+          for (let j = i + 2; j < hierarchy.length; j += 1) {
             const grandchildField = hierarchy[j]
             formGroup.get(grandchildField)?.setValue('')
             this.fieldOptions[fieldName][grandchildField] = []
@@ -673,7 +673,7 @@ export class CustomFieldsComponent {
         return
       }
 
-      for (let i = 0; i < hierarchy.length; i++) {
+      for (let i = 0; i < hierarchy.length; i += 1) {
         const currentField = hierarchy[i]
 
         if (i === 0) {
@@ -700,7 +700,7 @@ export class CustomFieldsComponent {
       }
 
       // STEP 2: Now set values in order from parent to child
-      for (let i = 0; i < hierarchy.length; i++) {
+      for (let i = 0; i < hierarchy.length; i += 1) {
         const currentField = hierarchy[i]
         const currentValue = field.selectedValues[currentField]
 
@@ -726,7 +726,7 @@ export class CustomFieldsComponent {
       // Re-enable listeners
       setTimeout(() => {
         this.restoreValueChangeListeners(field.attributeName, subscriptions)
-      }, 200)
+      },         200)
     }
   }
 
@@ -794,7 +794,7 @@ export class CustomFieldsComponent {
         this.dialogRef.close(true)
         this.matSnackBar.open('Custom fields saved successfully')
       }
-    }, error => {
+    },                                                                                  error => {
       this.matSnackBar.open(error.error.params.errMsg)
       this.dialogRef.close(true)
       console.error('Error saving custom fields:', error.error.params.errMsg)
@@ -1136,7 +1136,7 @@ export class CustomFieldsComponent {
     console.log(`Restoring value change listeners for ${savedSubscriptions}`)
     setTimeout(() => {
       this.setupCascadingDropdownListeners(fieldName)
-    }, 100)
+    },         100)
   }
 
   // Helper to log nested data structure

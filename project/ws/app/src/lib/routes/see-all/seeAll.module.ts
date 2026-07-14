@@ -14,6 +14,7 @@ import {
   DisplayContentTypeModule,
   PipeContentRouteModule,
   BtnKbAnalyticsModule,
+  CardContentV2Module,
   UserAutocompleteModule,
 } from '@sunbird-cb/collection'
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
@@ -24,7 +25,6 @@ import {
 import { InfiniteScrollModule } from 'ngx-infinite-scroll'
 import { SeeAllRoutingModule } from './seeAll-routing.module'
 import { SeeAllHomeComponent } from './components/see-all-home/see-all-home.component'
-import { CardContentV2Module } from '@sunbird-cb/collection'
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core'
 import { SeeAllWithPillsComponent } from './components/see-all-with-pills/see-all-with-pills.component'
 import { CardsModule, FiltersModule, PaginationModule } from '@sunbird-cb/consumption'
@@ -33,8 +33,7 @@ import { MatButtonModule } from '@angular/material/button'
 import { MatCardModule } from '@angular/material/card'
 import { MatCheckboxModule } from '@angular/material/checkbox'
 import { MatChipsModule } from '@angular/material/chips'
-import { MatRippleModule } from '@angular/material/core'
-import { MatOptionModule } from '@angular/material/core'
+import { MatOptionModule, MatRippleModule } from '@angular/material/core'
 import { MatDividerModule } from '@angular/material/divider'
 import { MatExpansionModule } from '@angular/material/expansion'
 import { MatFormFieldModule } from '@angular/material/form-field'
@@ -55,7 +54,7 @@ import { HttpClient } from '@angular/common/http'
 import { BadgesModule } from '../badges/badges.module'
 import { TranslateHttpLoader } from '@ngx-translate/http-loader'
 
-export function SeeAllModulesHttpLoaderFactory(http: HttpClient) {
+export function seeAllModulesHttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http)
 }
 
@@ -120,7 +119,7 @@ export function SeeAllModulesHttpLoaderFactory(http: HttpClient) {
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
-        useFactory: SeeAllModulesHttpLoaderFactory,
+        useFactory: seeAllModulesHttpLoaderFactory,
         deps: [HttpClient],
       },
     }),
