@@ -27,7 +27,7 @@ import { of } from 'rxjs'
     selector: 'ws-app-event-detail',
     templateUrl: './event-detail.component.html',
     styleUrls: ['./event-detail.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class EventDetailComponent implements OnInit {
   @ViewChild('toastSuccess', { static: true }) toastSuccess!: ElementRef<any>
@@ -152,6 +152,7 @@ export class EventDetailComponent implements OnInit {
               const userId = this.configSvc.userProfile ? this.configSvc.userProfile.userId || '' : ''
               return this.eventSvc.getCourseEnrollData(userId, reqBody).pipe(
                 switchMap((enrollRes: any) => {
+                  // tslint:disable-next-line: max-length max-line-length
                   return of({ eventData: tempEventData, contentData: contentRes?.result?.content, enrollData: enrollRes?.data?.courses[0] || {} })
                 })
               )
@@ -288,6 +289,7 @@ export class EventDetailComponent implements OnInit {
       const filenameParts = lastPart.split('_')
       return filenameParts[filenameParts.length - 1] || lastPart
     } catch (error) {
+      // tslint:disable-next-line:no-console
       console.error('Error extracting filename:', error)
       return url
     }

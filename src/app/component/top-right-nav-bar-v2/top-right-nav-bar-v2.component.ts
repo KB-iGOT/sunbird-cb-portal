@@ -1,3 +1,4 @@
+/* tslint:disable:no-console */
 import { Component, OnInit, OnDestroy, inject, signal, computed, input, effect } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { MatDialog } from '@angular/material/dialog'

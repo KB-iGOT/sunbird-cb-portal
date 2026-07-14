@@ -1,3 +1,4 @@
+/* tslint:disable:no-duplicate-imports */
 import { Component } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
@@ -51,6 +52,7 @@ export class SeeAllComponent {
           return _.get(response, 'result.events', [])
         }),
         catchError(error => {
+          // tslint:disable-next-line:no-console
           console.error('Error in API 1:', error)
           this.contentDataList = this.transformContentsToWidgets([], {})
           return of(null)
@@ -105,7 +107,8 @@ export class SeeAllComponent {
       } else {
         this.contentDataList = this.transformContentsToWidgets([], {})
       }
-    }, error => {
+    },                                                 error => {
+      // tslint:disable-next-line:no-console
       console.log('error', error)
       this.contentDataList = this.transformContentsToWidgets([], {})
     })
@@ -139,8 +142,8 @@ export class SeeAllComponent {
     }
     this.events.raiseInteractTelemetry(
       {
-        type: 'click',
         subType,
+        type: 'click',
         id: 'card-content',
       },
       {

@@ -1,7 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
-import { CommonMethodsService } from '@sunbird-cb/consumption'
-import { NsContentStripWithTabs } from '@sunbird-cb/consumption'
+import { CommonMethodsService, NsContentStripWithTabs } from '@sunbird-cb/consumption'
 
 import { BrowseProviderService } from '../../services/browse-provider.service'
 import { UtilityService } from '@sunbird-cb/utils-v2'
@@ -32,10 +31,10 @@ export class ProviderContentAllComponent implements OnInit, OnDestroy {
     // { title: `${this.provider}`, url: `none`, icon: '' },
   ]
   constructor(public commonSvc: CommonMethodsService,
-    public activatedRoute: ActivatedRoute,
-    public contentSvc: BrowseProviderService,
-    public utilitySvc: UtilityService,
-    public formExtSvc: FormExtService
+              public activatedRoute: ActivatedRoute,
+              public contentSvc: BrowseProviderService,
+              public utilitySvc: UtilityService,
+              public formExtSvc: FormExtService
   ) {
   }
 
@@ -82,7 +81,7 @@ export class ProviderContentAllComponent implements OnInit, OnDestroy {
             this.callApi()
           }
         }
-      }, (_err: any) => {
+      },                                                  (_err: any) => {
         this.contentDataList = []
       })
     }
@@ -122,8 +121,8 @@ export class ProviderContentAllComponent implements OnInit, OnDestroy {
   }
 
   async getRequestMethod(strip: NsContentStripWithTabs.IContentStripUnit,
-    request: NsContentStripWithTabs.IContentStripUnit['request'],
-    apiUrl: string
+                         request: NsContentStripWithTabs.IContentStripUnit['request'],
+                         apiUrl: string
   ): Promise<any> {
     return new Promise<any>((resolve, reject) => {
       if (request && request) {
@@ -137,7 +136,7 @@ export class ProviderContentAllComponent implements OnInit, OnDestroy {
             }
             : null
           resolve({ results, viewMoreUrl })
-        }, (error: any) => {
+        },                                             (error: any) => {
           reject(error)
         },
         )
@@ -242,7 +241,7 @@ export class ProviderContentAllComponent implements OnInit, OnDestroy {
       if (request && request) {
         this.contentSvc.postApiMethod(apiUrl, request).subscribe(results => {
           resolve({ results })
-        }, (error: any) => {
+        },                                                       (error: any) => {
           reject(error)
         },
         )

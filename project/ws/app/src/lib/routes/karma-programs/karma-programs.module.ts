@@ -23,10 +23,9 @@ import { MatSelectModule } from '@angular/material/select'
 import { MatSidenavModule } from '@angular/material/sidenav'
 import { TranslateHttpLoader } from '@ngx-translate/http-loader'
 
-export function KarmaProgramsHttpLoaderFactory(http: HttpClient) {
+export function karmaProgramsHttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http)
 }
-
 
 @NgModule({
   declarations: [
@@ -55,7 +54,7 @@ export function KarmaProgramsHttpLoaderFactory(http: HttpClient) {
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
-        useFactory: KarmaProgramsHttpLoaderFactory,
+        useFactory: karmaProgramsHttpLoaderFactory,
         deps: [HttpClient],
       },
     }),

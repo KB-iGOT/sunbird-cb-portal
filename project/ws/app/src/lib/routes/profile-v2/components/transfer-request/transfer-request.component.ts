@@ -329,7 +329,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
             status: 'Live',
             category: 'designation',
             categories: [
-              this.selectedOrgId + '_odcs_designation',
+              `${this.selectedOrgId}_odcs_designation`,
             ],
             objectType: 'Term',
           },
@@ -378,7 +378,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
           status: 'Live',
           category: 'designation',
           categories: [
-            this.selectedOrgId + '_odcs_designation',
+            `${this.selectedOrgId}_odcs_designation`,
           ],
           objectType: 'Term',
         },
@@ -472,7 +472,10 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
 
     // Recalculate and nudge the pane inside viewport after async option rendering.
     const applyViewportBounds = () => {
-      const panel = (document.querySelector('.mat-mdc-select-panel.search-panel') || document.querySelector('.mat-select-panel.search-panel')) as HTMLElement | null
+      const panel = (
+        document.querySelector('.mat-mdc-select-panel.search-panel') ||
+        document.querySelector('.mat-select-panel.search-panel')
+      ) as HTMLElement | null
       if (!panel) {
         return
       }
@@ -556,7 +559,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
         if (selectedGroup && !this.masterGroup.includes(selectedGroup)) {
           this.masterGroup = [selectedGroup, ...this.masterGroup]
         }
-      }, (error: HttpErrorResponse) => {
+      },         (error: HttpErrorResponse) => {
         if (!error.ok) {
           this.matSnackBar.open(this.handleTranslateTo('groupDataFaile'))
         }
@@ -854,7 +857,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
         this.matSnackBar.open('Your transfer request has been sent for approval')
         this.enableWithdraw.emit(true)
         this.handleCloseModal()
-      }, (error: HttpErrorResponse) => {
+      },         (error: HttpErrorResponse) => {
         if (!error.ok) {
           this.matSnackBar.open(this.handleTranslateTo('transferRequestFailedNew'))
         }
@@ -908,7 +911,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
           }
         }
         this.isLoadingMoreOrganization = false
-      }, (error: HttpErrorResponse) => {
+      },         (error: HttpErrorResponse) => {
         if (!error.ok) {
           this.matSnackBar.open(this.handleTranslateTo('orgFetchDataFailed'))
         }
@@ -1085,18 +1088,19 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
         if (searchInput) {
           searchInput.focus()
         }
-      }, 100)
+      },         100)
 
       // Set panel width to match the select trigger width
       this.setPanelWidthDynamic('search-panel', this.designationRef)
 
       // Add scroll event listener to the panel
       setTimeout(() => {
-        const panel = document.querySelector('.mat-mdc-select-panel.search-panel') || document.querySelector('.mat-select-panel.search-panel')
+        const panel = document.querySelector('.mat-mdc-select-panel.search-panel') ||
+          document.querySelector('.mat-select-panel.search-panel')
         if (panel) {
           panel.addEventListener('scroll', this.onDesignationSelectScroll.bind(this), { passive: true })
         }
-      }, 150)
+      },         150)
     }
   }
 
@@ -1283,19 +1287,22 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
           if (searchInput) {
             searchInput.focus()
           }
-        }, 100)
+        },         100)
 
         // Set panel width to match the select trigger width
         this.setPanelWidthDynamic('search-panel-ministry', this.ministryRef)
 
         // Add scroll event listener to the panel
         setTimeout(() => {
-          const panel = (document.querySelector('.mat-mdc-select-panel.search-panel-ministry') || document.querySelector('.mat-select-panel.search-panel-ministry')) as HTMLElement | null
+          const panel = (
+            document.querySelector('.mat-mdc-select-panel.search-panel-ministry') ||
+            document.querySelector('.mat-select-panel.search-panel-ministry')
+          ) as HTMLElement | null
           if (panel) {
             const scrollHandler = this.onMinistrySelectScroll.bind(this)
             panel.addEventListener('scroll', scrollHandler, { passive: true })
           }
-        }, 150)
+        },         150)
       }
     } else {
       scrollListenerAttached = false
@@ -1315,7 +1322,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
               this.masterData.ministry = this.masterData?.ministryBackup?.slice(0, this.ministryListLoadCount)
               this.checkCurrentMinistryPresent()
               this.isLoadingMoreMinistrys = false
-            }, 500)
+            },         500)
           } else {
             const loadedLegacy = (this.masterData?.ministryBackup || []).length
             if (!this.noMoreLegacyMinistrys && this.defaultSearchMinistryCount && loadedLegacy < this.defaultSearchMinistryCount) {
@@ -1515,19 +1522,22 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
           if (searchInput) {
             searchInput.focus()
           }
-        }, 100)
+        },         100)
 
         // Set panel width to match the select trigger width
         this.setPanelWidthDynamic('search-panel-state', this.stateRef)
 
         // Add scroll event listener to the panel
         setTimeout(() => {
-          const panel = (document.querySelector('.mat-mdc-select-panel.search-panel-state') || document.querySelector('.mat-select-panel.search-panel-state')) as HTMLElement | null
+          const panel = (
+            document.querySelector('.mat-mdc-select-panel.search-panel-state') ||
+            document.querySelector('.mat-select-panel.search-panel-state')
+          ) as HTMLElement | null
           if (panel) {
             const scrollHandler = this.onStateSelectScroll.bind(this)
             panel.addEventListener('scroll', scrollHandler, { passive: true })
           }
-        }, 150)
+        },         150)
       }
     } else {
       scrollListenerAttached = false
@@ -1547,7 +1557,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
               this.masterData.state = this.masterData?.stateBackup?.slice(0, this.stateListLoadCount)
               this.checkCurrentStatePresent()
               this.isLoadingMoreStates = false
-            }, 500)
+            },         500)
           } else {
             const loadedLegacy = (this.masterData?.stateBackup || [])?.length
             if (!this.noMoreLegacyStates && this.defaultSearchStateCount && loadedLegacy < this.defaultSearchStateCount) {
@@ -1756,19 +1766,22 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
           if (searchInput) {
             searchInput.focus()
           }
-        }, 100)
+        },         100)
 
         // Set panel width to match the select trigger width
         this.setPanelWidthDynamic('search-panel-department', this.departmentRef)
 
         // Add scroll event listener to the panel
         setTimeout(() => {
-          const panel = (document.querySelector('.mat-mdc-select-panel.search-panel-department') || document.querySelector('.mat-select-panel.search-panel-department')) as HTMLElement | null
+          const panel = (
+            document.querySelector('.mat-mdc-select-panel.search-panel-department') ||
+            document.querySelector('.mat-select-panel.search-panel-department')
+          ) as HTMLElement | null
           if (panel) {
             const scrollHandler = this.onDepartmentSelectScroll.bind(this)
             panel.addEventListener('scroll', scrollHandler, { passive: true })
           }
-        }, 150)
+        },         150)
       }
     } else {
       scrollListenerAttached = false
@@ -1788,7 +1801,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
               this.masterData.department = this.masterData?.departmentBackup?.slice(0, this.departmentListLoadCount)
               this.checkCurrentDepartmentPresent()
               this.isLoadingMoreDepartments = false
-            }, 500)
+            },         500)
           } else {
             const loadedLegacy = (this.masterData?.departmentBackup || []).length
             if (!this.noMoreLegacyDepartments && this.defaultSearchDepartmentCount && loadedLegacy < this.defaultSearchDepartmentCount) {
@@ -1906,7 +1919,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
         levelZeroOrgId: this.transferRequestForm?.controls?.ministry?.value,
         hierarchyRequestType: 'All',
       }
-      for (let i = 0; i < this.masterData['ministryBackup']?.length; i++) {
+      for (let i = 0; i < this.masterData['ministryBackup']?.length; i += 1) {
         if (this.masterData['ministryBackup'][i]?.['identifier'] === this.transferRequestForm?.controls?.ministry?.value) {
           if (this.masterData['ministryBackup'][i]?.['hierarchyLevel'] === 'levelOne') {
             filters = {
@@ -2009,7 +2022,10 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
             this.markMandatoryFieldTouched('organisation')
           }
         }
-        if (this.defaultSearchOrganisationCount && (this.masterData['organisationBackup'] || [])?.length >= this.defaultSearchOrganisationCount) {
+        if (
+          this.defaultSearchOrganisationCount &&
+          (this.masterData['organisationBackup'] || [])?.length >= this.defaultSearchOrganisationCount
+        ) {
           this.noMoreLegacyOrganisations = true
         }
 
@@ -2068,19 +2084,22 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
           if (searchInput) {
             searchInput.focus()
           }
-        }, 100)
+        },         100)
 
         // Set panel width to match the select trigger width
         this.setPanelWidthDynamic('search-panel-organisation', this.organisationRef)
 
         // Add scroll event listener to the panel
         setTimeout(() => {
-          const panel = (document.querySelector('.mat-mdc-select-panel.search-panel-organisation') || document.querySelector('.mat-select-panel.search-panel-organisation')) as HTMLElement | null
+          const panel = (
+            document.querySelector('.mat-mdc-select-panel.search-panel-organisation') ||
+            document.querySelector('.mat-select-panel.search-panel-organisation')
+          ) as HTMLElement | null
           if (panel) {
             const scrollHandler = this.onOrganisationSelectScroll.bind(this)
             panel.addEventListener('scroll', scrollHandler, { passive: true })
           }
-        }, 150)
+        },         150)
       }
     } else {
       scrollListenerAttached = false
@@ -2099,10 +2118,14 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
             this.masterData.organisation = this.masterData?.organisationBackup?.slice(0, this.organisationListLoadCount)
             this.checkCurrentOrganisationPresent()
             this.isLoadingMoreOrganisations = false
-          }, 500)
+          },         500)
         } else {
           const loadedLegacy = (this.masterData?.organisationBackup || [])?.length
-          if (!this.noMoreLegacyOrganisations && this.defaultSearchOrganisationCount && loadedLegacy < this.defaultSearchOrganisationCount) {
+          if (
+            !this.noMoreLegacyOrganisations &&
+            this.defaultSearchOrganisationCount &&
+            loadedLegacy < this.defaultSearchOrganisationCount
+          ) {
             this.isLoadingMoreOrganisations = true
             this.organisationOffset = this.organisationOffset + this.organisationDefaultLoadCount
             this.organisationListLoadCount += this.organisationDefaultLoadCount
@@ -2154,8 +2177,11 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
         (item?.orgName || item?.identifier || '')?.toLowerCase()?.includes(txt?.toLowerCase())
       )
       this.checkCurrentOrganisationPresent()
-      this.clearInvalidSelectedValue('organisation',
-        (this.masterData?.organisation || [])?.filter((item: any) => this.isSelectableOrganisation(item)), 'identifier')
+      this.clearInvalidSelectedValue(
+        'organisation',
+        (this.masterData?.organisation || [])?.filter((item: any) => this.isSelectableOrganisation(item)),
+        'identifier'
+      )
       if (!this.hasSelectableOrganisation()) {
         this.markMandatoryFieldTouched('organisation')
       }
@@ -2163,8 +2189,11 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
       this.masterData.organisation = this.masterData?.organisationBackup?.slice(0, this.organisationDefaultLoadCount)
       this.organisationFilterEnable = false
       this.checkCurrentOrganisationPresent()
-      this.clearInvalidSelectedValue('organisation',
-        (this.masterData?.organisation || [])?.filter((item: any) => this.isSelectableOrganisation(item)), 'identifier')
+      this.clearInvalidSelectedValue(
+        'organisation',
+        (this.masterData?.organisation || [])?.filter((item: any) => this.isSelectableOrganisation(item)),
+        'identifier'
+      )
     }
   }
 
@@ -2175,8 +2204,11 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
     if (this.masterData?.organisationBackup) {
       this.masterData.organisation = this.masterData?.organisationBackup?.slice(0, this.organisationDefaultLoadCount)
       this.checkCurrentOrganisationPresent()
-      this.clearInvalidSelectedValue('organisation',
-        (this.masterData?.organisation || [])?.filter((item: any) => this.isSelectableOrganisation(item)), 'identifier')
+      this.clearInvalidSelectedValue(
+        'organisation',
+        (this.masterData?.organisation || [])?.filter((item: any) => this.isSelectableOrganisation(item)),
+        'identifier'
+      )
     } else {
       this.getOrganisationData(undefined, 0)
     }
@@ -2277,7 +2309,11 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
           status: item?.status || 'Active',
         }))
 
-        const total = _.get(res, 'result.result.totalcount', _.get(res, 'result.result.data.totalCount', _.get(res, 'result.result.totalCount', 0)))
+        const total = _.get(
+          res,
+          'result.result.totalcount',
+          _.get(res, 'result.result.data.totalCount', _.get(res, 'result.result.totalCount', 0))
+        )
         this.defaultSearchDesignationCount = total
 
         if (!this.masterData['designationBackup'] || reqOffset === 0) {
@@ -2291,7 +2327,10 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
           this.noMoreLegacyDesignations = true
         }
 
-        if (this.defaultSearchDesignationCount && (this.masterData['designationBackup'] || []).length >= this.defaultSearchDesignationCount) {
+        if (
+          this.defaultSearchDesignationCount &&
+          (this.masterData['designationBackup'] || []).length >= this.defaultSearchDesignationCount
+        ) {
           this.noMoreLegacyDesignations = true
         }
 
@@ -2384,7 +2423,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
         if (searchInput) {
           searchInput.focus()
         }
-      }, 100)
+      },         100)
       // Wait for the panel to be rendered in the DOM
       setTimeout(() => {
         // Find the panel element
@@ -2394,7 +2433,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
           panel.addEventListener('scroll', this.onOrgSelectScroll.bind(this))
         }
 
-      }, 100)
+      },         100)
     }
   }
 

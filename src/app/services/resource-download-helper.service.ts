@@ -2,6 +2,7 @@ import { Injectable } from '@angular/core'
 import { EventService, NsContent, WsEvents } from '@sunbird-cb/utils-v2'
 import * as fileSaver from 'file-saver'
 
+// tslint:disable:no-console
 @Injectable({
   providedIn: 'root',
 })
@@ -59,9 +60,9 @@ export class ResourceDownloadHelperService {
   private downloadFile(url: string, fileName: string, identifier: string): Promise<void> {
     // Add file extension if missing
     const fileExtension = this.getFileExtension(url)
-    if (fileExtension && !fileName.toLowerCase().endsWith(fileExtension.toLowerCase())) {
-      fileName = `${fileName}.${fileExtension}`
-    }
+    const downloadFileName = fileExtension && !fileName.toLowerCase().endsWith(fileExtension.toLowerCase())
+      ? `${fileName}.${fileExtension}`
+      : fileName
 
     // Return a promise to track completion
     return new Promise(resolve => {
@@ -84,14 +85,14 @@ export class ResourceDownloadHelperService {
           const newBlob = new Blob([blob], { type: contentType })
 
           // Try to save the blob
-          this.saveBlob(newBlob, fileName)
+          this.saveBlob(newBlob, downloadFileName)
           resolve()
         })
         .catch(error => {
           console.error('Fetch download failed:', error)
 
           // Fallback to XHR which sometimes handles CORS better
-          this.downloadWithXHR(url, fileName).finally(resolve)
+          this.downloadWithXHR(url, downloadFileName).finally(resolve)
         })
         .finally(() => {
           this.downloadInProgress[identifier] = false
@@ -132,7 +133,9 @@ export class ResourceDownloadHelperService {
   }
 
   private getFileExtension(url: string): string {
-    if (!url) return ''
+    if (!url) {
+      return ''
+    }
 
     const urlParts = url.split('.')
     if (urlParts.length > 1) {
@@ -196,7 +199,7 @@ export class ResourceDownloadHelperService {
 
     try {
       // Construct a download URL
-      const downloadUrl = url + (url.indexOf('?') === -1 ? '?' : '&') + 'download=true'
+      const downloadUrl = `${url}${url.indexOf('?') === -1 ? '?' : '&'}download=true`
 
       // Create a link inside the iframe and click it
       const doc = iframe.contentDocument || iframe.contentWindow?.document
@@ -222,11 +225,14 @@ export class ResourceDownloadHelperService {
       document.body.removeChild(a)
     } finally {
       // Clean up the iframe
-      setTimeout(() => {
-        if (document.body.contains(iframe)) {
-          document.body.removeChild(iframe)
-        }
-      },         1000)
+      setTimeout(
+        () => {
+          if (document.body.contains(iframe)) {
+            document.body.removeChild(iframe)
+          }
+        },
+        1000
+      )
     }
   }
 }

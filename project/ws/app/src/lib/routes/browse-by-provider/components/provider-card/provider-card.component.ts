@@ -26,6 +26,7 @@ export class ProviderCardComponent implements OnInit {
     let url = ''
     let queryParams = {}
     if (this.provider?.internalOrgId) {
+      // tslint:disable-next-line: max-length max-line-length
       url = `/app/learn/browse-by/provider/${this.provider.contentPartnerName || this.provider?.name}/${this.provider?.internalOrgId}/micro-sites`
     } else if (this.provider?.orgId) {
       url = `/app/learn/browse-by/provider/${this.provider.name}/${this.provider.orgId}/micro-sites`

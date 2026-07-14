@@ -34,7 +34,7 @@ export class BharatKalpFormService {
         this._cache = { data: rData, error: null }
         return this._cache
       }),
-      catchError((error: any) => of({ data: null, error })),
+      catchError((error: any) => of({ error, data: null })),
     )
   }
 }

@@ -42,7 +42,7 @@ export class HelpCenterService {
             return this.helpCenterConfig
           }),
           catchError((jsonError: any) => {
-            // eslint-disable-next-line no-console
+            // tslint:disable:no-console
             console.error('Fallback JSON also failed:', jsonError)
             return of(null)
           }),

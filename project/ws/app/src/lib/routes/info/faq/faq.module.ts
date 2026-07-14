@@ -19,6 +19,7 @@ import { MatSidenavModule } from '@angular/material/sidenav'
 import { MatToolbarModule } from '@angular/material/toolbar'
 import { TranslateHttpLoader } from '@ngx-translate/http-loader'
 
+// tslint:disable-next-line:function-name
 export function FaqHttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http)
 }

@@ -15,7 +15,7 @@ import { KalpRoutingModule } from './kalp-routing.module'
 import { BharatKalpPageComponent } from './bharat-kalp/bharat-kalp.component'
 import { BharatKalpSeeAllComponent } from './bharat-kalp-see-all/bharat-kalp-see-all.component'
 
-export function KalpHttpLoaderFactory(http: HttpClient) {
+export function kalpHttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http)
 }
 
@@ -38,7 +38,7 @@ export function KalpHttpLoaderFactory(http: HttpClient) {
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
-        useFactory: KalpHttpLoaderFactory,
+        useFactory: kalpHttpLoaderFactory,
         deps: [HttpClient],
       },
     }),

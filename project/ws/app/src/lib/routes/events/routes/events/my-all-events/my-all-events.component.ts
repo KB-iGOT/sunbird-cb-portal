@@ -54,6 +54,7 @@ export class MyAllEventsComponent {
     if (!this.isLoading) {
       this.contentDataList = [...this.contentDataList, ...this.transformSkeletonToWidgets(this.contnet)]
     }
+    // tslint:disable-next-line:no-console
     console.log('tabSelected ', this.tabSelected)
     if (this.tabSelected === 'today') {
       this.tabIndex = 0
@@ -75,6 +76,7 @@ export class MyAllEventsComponent {
         this.response = _.get(resp, 'result.events', [])
         this.contentDataList = this.contentDataList.slice(0, -12)
         if (this.response.length) {
+          // tslint:disable-next-line:no-console
           console.log('response', this.response)
           const processedEvents = this.processResult(this.response)
           this.contentDataList = [...this.contentDataList, ...this.transformContentsToWidgets(processedEvents, {})]
@@ -83,6 +85,7 @@ export class MyAllEventsComponent {
         }
         this.isLoading = false
       }, error => {
+        // tslint:disable-next-line:no-console
         console.log('error', error)
         this.contentDataList = this.contentDataList.slice(0, -12)
         this.contentDataList = [...this.contentDataList, ...this.transformContentsToWidgets([], {})]
@@ -181,6 +184,7 @@ export class MyAllEventsComponent {
     // this.fetchData()
     this.contentDataList = this.contentDataList.slice(0, -12)
     if (this.response.length) {
+      // tslint:disable-next-line:no-console
       console.log('response', this.response)
       const processedEvents = this.processResult(this.response)
       this.contentDataList = [...this.contentDataList, ...this.transformContentsToWidgets(processedEvents, {})]
