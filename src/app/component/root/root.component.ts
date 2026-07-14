@@ -132,8 +132,9 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
       this.headerFooterConfigData = this.configSvc.headerFooterConfigData
       this.showFooter = true
     }
-    if (this.configSvc.instanceConfig && this.configSvc.instanceConfig.leftNavBar) {
-      this.menuBarDetails = this.configSvc.instanceConfig.leftNavBar
+    const instanceConfig = this.configSvc.instanceConfig as any
+    if (instanceConfig && instanceConfig.leftNavBar) {
+      this.menuBarDetails = instanceConfig.leftNavBar
       if (this.menuBarDetails) {
         this.setAchivements()
         this.setOtherPortals()

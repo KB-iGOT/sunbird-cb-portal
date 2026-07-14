@@ -7,11 +7,11 @@ import { ConfigurationsService, DomainConfService, EventService, MultilingualTra
 import { LibNotificationsService } from '@sunbird-cb/notification'
 import { Subscription } from 'rxjs'
 import { ZohoSupportService } from '../../services/zoho-support.service'
-import { DialogBoxComponent as ZohoDialogComponent } from '@ws/app'
+import { DialogBoxComponent as ZohoDialogComponent, SurveyPopupComponent, VerificationRequestDialogComponent } from '@ws/app'
 import { Router } from '@angular/router'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { environment } from '../../../environments/environment'
-import { BtnSettingsService, ConfirmDialogComponent } from '@sunbird-cb/collection'
+import { ConfirmDialogComponent } from '@sunbird-cb/collection'
 import { RootService } from '../root/root.service'
 import { NotificationsService } from '../../services/notifications.service'
 
@@ -35,16 +35,17 @@ export class TopRightNavBarComponent implements OnInit, OnChanges, OnDestroy {
   roles: string[] = []
   enableSupportAI = false
   private subscriptions = new Subscription()
+  /* tslint:disable:align */
   constructor(public dialog: MatDialog, public homePageService: HomePageService,
-              private configSvc: ConfigurationsService,
-              private langtranslations: MultilingualTranslationsService, private translate: TranslateService,
-              private zohoSupportSvc: ZohoSupportService,
-              private events: EventService, private snackBar: MatSnackBar,
-              private router: Router, private notificationsService: NotificationsService,
-              private rootService: RootService,
-              private matDialog: MatDialogNew,
-              private libNotificationsService: LibNotificationsService,
-              public domainConfSvc: DomainConfService) {
+    private configSvc: ConfigurationsService,
+    private langtranslations: MultilingualTranslationsService, private translate: TranslateService,
+    private zohoSupportSvc: ZohoSupportService,
+    private events: EventService, private snackBar: MatSnackBar,
+    private router: Router, private notificationsService: NotificationsService,
+    private rootService: RootService,
+    private matDialog: MatDialogNew,
+    private libNotificationsService: LibNotificationsService,
+    public domainConfSvc: DomainConfService) {
     if (localStorage.getItem('websiteLanguage')) {
       this.translate.setDefaultLang('en')
       let lang = JSON.stringify(localStorage.getItem('websiteLanguage'))
@@ -99,17 +100,15 @@ export class TopRightNavBarComponent implements OnInit, OnChanges, OnDestroy {
 
   onBellClick() {
     if (this.notificationsCount > 0) {
-      this.notificationsService.resetNotificationsCount().subscribe(
-        (res: any) => {
-          if (res.responseCode === 'OK') {
-            this.notificationsCount = 0
-          }
+      this.notificationsService.resetNotificationsCount().subscribe((res: any) => {
+        if (res.responseCode === 'OK') {
+          this.notificationsCount = 0
+        }
         // tslint:disable-next-line:align
-        }, error => {
-          // eslint-disable-next-line no-console
-          // tslint:disable-next-line:no-console
-          console.error('Error while fetching notifications count', error)
-        })
+      }, error => {
+        // tslint:disable-next-line:no-console
+        console.error('Error while fetching notifications count', error)
+      })
     }
     this.showDropdown = false
     setTimeout(() => {
@@ -142,12 +141,10 @@ export class TopRightNavBarComponent implements OnInit, OnChanges, OnDestroy {
     })
     dialogRef.afterClosed().subscribe(() => {
     })
-    setTimeout(
-      () => {
-        this.callXMLRequest()
-      },
-      0,
-    )
+    setTimeout(() => {
+      this.callXMLRequest()
+      // tslint:disable-next-line:align
+    }, 0)
   }
 
   openDialog(): void {
@@ -318,7 +315,9 @@ export class TopRightNavBarComponent implements OnInit, OnChanges, OnDestroy {
     this.notificationsService.nofificationsCount.next(event)
   }
 
-  calculateCount(_event: any) {
+  calculateCount(event: any) {
+    // tslint:disable-next-line:no-console
+    console.log('sds', event)
   }
 
   showDialog(data: any, url: string) {
@@ -389,6 +388,7 @@ export class TopRightNavBarComponent implements OnInit, OnChanges, OnDestroy {
     if (this.configSvc.iGOTAIConfig && this.configSvc.iGOTAIConfig?.supportAI && this.configSvc.iGOTAIConfig?.supportAI?.all) {
       this.enableSupportAI = true
       this.rootService.openSupportAIChatbot.next(true)
+      // tslint:disable-next-line:max-line-length
     } else if (
       this.configSvc.iGOTAIConfig &&
       this.configSvc.iGOTAIConfig?.supportAI &&
@@ -403,37 +403,4 @@ export class TopRightNavBarComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-<<<<<<< HEAD
-  get fontLabel(): string {
-    return this.fontLabels[this.fontSizeLevel]
-  }
-
-  initFontLevel(): void {
-    const stored = localStorage.getItem('setting')
-    const idx = this.fontClasses.indexOf(stored || 'normal-typography')
-    this.fontSizeLevel = idx >= 0 ? idx : 2
-  }
-
-  increaseFontSize(): void {
-    if (this.fontSizeLevel < 4) {
-      this.fontSizeLevel += 1
-      this.applyFontSize()
-    }
-  }
-
-  decreaseFontSize(): void {
-    if (this.fontSizeLevel > 0) {
-      this.fontSizeLevel -= 1
-      this.applyFontSize()
-    }
-  }
-
-  private applyFontSize(): void {
-    const fontClass = this.fontClasses[this.fontSizeLevel]
-    localStorage.setItem('setting', fontClass)
-    this.btnSettingsSvc.changeFont(fontClass)
-  }
-
-=======
->>>>>>> aea4e9634ec85c026cda882008965f5c9c6ca7c9
 }
