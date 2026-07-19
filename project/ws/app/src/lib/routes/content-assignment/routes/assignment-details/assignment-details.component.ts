@@ -22,7 +22,7 @@ import {
             transition('expanded <=> collapsed', animate('225ms cubic-bezier(0.4, 0.0, 0.2, 1)')),
         ]),
     ],
-    standalone: false
+    standalone: false,
 })
 
 export class AssignmentDetailsComponent implements OnInit {
@@ -54,7 +54,7 @@ export class AssignmentDetailsComponent implements OnInit {
         this.assignmentUrl = '/app/content-assignment/assign'
       }
       this.getAssignments()
-    }, 10)
+    },         10)
   }
 
   getAssignments() {

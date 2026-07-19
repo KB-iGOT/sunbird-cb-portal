@@ -1,10 +1,10 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core'
 
 @Component({
-    selector: 'ws-competency-filters',
-    templateUrl: './competency-filters.component.html',
-    styleUrls: ['./competency-filters.component.scss'],
-    standalone: false
+  selector: 'ws-competency-filters',
+  templateUrl: './competency-filters.component.html',
+  styleUrls: ['./competency-filters.component.scss'],
+  standalone: false,
 })
 export class CompetencyFiltersComponent implements OnInit {
 
@@ -273,6 +273,7 @@ export class CompetencyFiltersComponent implements OnInit {
   getThemeName(theme: any): string {
     if (theme.name === theme.refId) {
       return this.missingThemeDetails.find((t: any) => t.id === theme.refId)?.title || theme.refId
+    // tslint:disable-next-line:no-else-after-return
     } else {
       return theme.name
     }

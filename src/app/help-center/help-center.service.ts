@@ -14,7 +14,7 @@ export class HelpCenterService {
 
   private helpCenterConfig: any = null
 
-  constructor(private http: HttpClient) {}
+  constructor(private http: HttpClient) { }
 
   fetchHelpCenterConfig(): Observable<any> {
     const body = {
@@ -36,13 +36,13 @@ export class HelpCenterService {
         throw new Error('Invalid form read response')
       }),
       catchError((_error: any) => {
-        console.warn('Form read failed for help-center, falling back to local JSON asset:', _error)
         return this.http.get<any>('/assets/configurations/feature/help-center.json').pipe(
           map((data: any) => {
             this.helpCenterConfig = data
             return this.helpCenterConfig
           }),
           catchError((jsonError: any) => {
+            // tslint:disable:no-console
             console.error('Fallback JSON also failed:', jsonError)
             return of(null)
           }),

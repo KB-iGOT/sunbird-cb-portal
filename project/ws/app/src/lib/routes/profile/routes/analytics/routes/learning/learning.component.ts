@@ -7,7 +7,7 @@ import { TFetchStatus } from '@sunbird-cb/utils-v2'
     selector: 'ws-app-learning',
     templateUrl: './learning.component.html',
     styleUrls: ['./learning.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class LearningComponent implements OnInit {
   startDate = '2018-04-01'

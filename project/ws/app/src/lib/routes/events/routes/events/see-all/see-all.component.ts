@@ -2,17 +2,16 @@ import { Component } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
 import { EventService } from '../../../services/events.service'
-import { MultilingualTranslationsService, NsContent, WsEvents } from '@sunbird-cb/utils-v2'
+import { EventService as libEventService, MultilingualTranslationsService, NsContent, WsEvents } from '@sunbird-cb/utils-v2'
 import * as _ from 'lodash'
 import { catchError, map } from 'rxjs/operators'
 import { of } from 'rxjs'
-import { EventService as libEventService } from '@sunbird-cb/utils-v2'
 
 @Component({
   selector: 'ws-app-see-all',
   templateUrl: './see-all.component.html',
   styleUrls: ['./see-all.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class SeeAllComponent {
   titles: any = []
@@ -51,6 +50,7 @@ export class SeeAllComponent {
           return _.get(response, 'result.events', [])
         }),
         catchError(error => {
+          // tslint:disable-next-line:no-console
           console.error('Error in API 1:', error)
           this.contentDataList = this.transformContentsToWidgets([], {})
           return of(null)
@@ -105,7 +105,9 @@ export class SeeAllComponent {
       } else {
         this.contentDataList = this.transformContentsToWidgets([], {})
       }
-    }, error => {
+    // tslint:disable-next-line:align
+    },       error => {
+      // tslint:disable-next-line:no-console
       console.log('error', error)
       this.contentDataList = this.transformContentsToWidgets([], {})
     })
@@ -139,8 +141,8 @@ export class SeeAllComponent {
     }
     this.events.raiseInteractTelemetry(
       {
-        type: 'click',
         subType,
+        type: 'click',
         id: 'card-content',
       },
       {

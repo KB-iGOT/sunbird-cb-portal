@@ -8,7 +8,7 @@ import { GbSearchService } from '../../services/gb-search.service'
   selector: 'ws-app-show-all',
   templateUrl: './show-all.component.html',
   styleUrls: ['./show-all.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class ShowAllComponent implements OnInit {
   courses: any[] = []
@@ -23,7 +23,7 @@ export class ShowAllComponent implements OnInit {
   customOptions: any[] = []
   contentName: string = ''
   constructor(private gbSvc: GbSearchService, private activatedRoute: ActivatedRoute,
-    private translate: TranslateService) {
+              private translate: TranslateService) {
       if (localStorage.getItem('websiteLanguage')) {
         this.translate.setDefaultLang('en')
         const lang = localStorage.getItem('websiteLanguage')!

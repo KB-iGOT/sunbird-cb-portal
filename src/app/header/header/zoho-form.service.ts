@@ -1,3 +1,4 @@
+/* tslint:disable:no-console prefer-template no-increment-decrement */
 import { Injectable } from '@angular/core'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 

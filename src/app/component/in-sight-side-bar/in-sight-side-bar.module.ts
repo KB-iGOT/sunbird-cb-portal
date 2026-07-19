@@ -26,6 +26,14 @@ import {
   DiscussStripMultipleModule,
   NetworkStripMultipleModule,
   UserImageModule,
+  WeeklyClapsModule,
+  UpdatePostsModule,
+  RecentRequestsModule,
+  PendingRequestModule,
+  ProfileCardStatsModule,
+  UserLeaderboardModule,
+  DiscussionsModule,
+  TipsForLearnerModule,
 } from '@sunbird-cb/collection'
 
 // Import WidgetResolverModule from the correct package
@@ -42,16 +50,6 @@ import {
   HorizontalScrollerModule,
   HorizontalScrollerV2Module,
 } from '@sunbird-cb/utils-v2'
-
-// Import specific modules from collection (using full paths)
-import { WeeklyClapsModule } from '@sunbird-cb/collection'
-import { UpdatePostsModule } from '@sunbird-cb/collection'
-import { RecentRequestsModule } from '@sunbird-cb/collection'
-import { PendingRequestModule } from '@sunbird-cb/collection'
-import { ProfileCardStatsModule } from '@sunbird-cb/collection'
-import { UserLeaderboardModule } from '@sunbird-cb/collection'
-import { DiscussionsModule } from '@sunbird-cb/collection'
-import { TipsForLearnerModule } from '@sunbird-cb/collection'
 
 // Import consumption modules
 import { ContentStripWithTabsLibModule, ContentStripWithTabsPillsModule, DialogComponentsModule } from '@sunbird-cb/consumption'

@@ -7,7 +7,7 @@ import { WIDGET_LIBRARY } from '../../../constants/widet'
     selector: 'ws-auth-image-gallery',
     templateUrl: './image-gallery.component.html',
     styleUrls: ['./image-gallery.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ImageGalleryComponent implements OnInit {
   @Output() data = new EventEmitter<{

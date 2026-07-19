@@ -12,7 +12,7 @@ import { MatTableDataSource } from '@angular/material/table'
     selector: 'viewer-plugin-resource-collection',
     templateUrl: './resource-collection.component.html',
     styleUrls: ['./resource-collection.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ResourceCollectionComponent implements OnInit {
   @ViewChild('paginator', { static: true }) paginator: MatPaginator | null = null

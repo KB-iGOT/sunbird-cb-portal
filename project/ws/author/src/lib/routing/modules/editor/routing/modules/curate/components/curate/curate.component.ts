@@ -32,7 +32,7 @@ import { ConfirmDialogComponent } from '../../../../../../../../modules/shared/c
     providers: [{
             provide: STEPPER_GLOBAL_OPTIONS, useValue: { displayDefaultIndicatorType: false },
         }],
-    standalone: false
+    standalone: false,
 })
 export class CurateComponent implements OnInit, OnDestroy {
   contents: NSContent.IContentMeta[] = []

@@ -4,16 +4,15 @@ import { Subscription } from 'rxjs'
 import { NsContent } from '@sunbird-cb/collection'
 import { WsEvents, EventService, ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { ActivatedRoute } from '@angular/router'
-import { ViewerUtilService } from '@sunbird-cb/toc'
+import { ViewerUtilService, WidgetContentService } from '@sunbird-cb/toc'
 import * as _ from 'lodash'
 // import { environment } from 'src/environments/environment'
-import { WidgetContentService } from '@sunbird-cb/toc'
 
 @Component({
   selector: 'viewer-survey',
   templateUrl: './survey.component.html',
   styleUrls: ['./survey.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class SurveyComponent implements OnInit, OnDestroy {
   private dataSubscription: Subscription | null = null

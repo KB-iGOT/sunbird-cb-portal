@@ -7,7 +7,7 @@ import { environment } from 'src/environments/environment'
     selector: 'ws-app-tour-video',
     templateUrl: './app-tour-video.component.html',
     styleUrls: ['./app-tour-video.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class AppTourVideoComponent implements OnInit, OnDestroy {
   @Input() showVideoTour: any

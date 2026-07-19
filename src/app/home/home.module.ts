@@ -10,14 +10,16 @@ import { HeaderModule } from '../header/header.module'
 import {
     GridLayoutModule, SlidersModule, DiscussStripMultipleModule,
     NetworkStripMultipleModule, ContentStripWithTabsModule, AvatarPhotoModule,
+    SkeletonLoaderModule,
+    WeeklyClapsModule,
+    TipsForLearnerModule,
+    UpdatePostsModule,
+    DiscussionsModule,
+    RecentRequestsModule,
+    PendingRequestModule,
+    SurveyFormModule,
 } from '@sunbird-cb/collection'
-import { SkeletonLoaderModule } from '@sunbird-cb/collection'
 import { PipeRelativeTimeModule, ImageResponsiveModule } from '@sunbird-cb/utils-v2'
-import { WeeklyClapsModule } from '@sunbird-cb/collection'
-import { TipsForLearnerModule } from '@sunbird-cb/collection'
-import { UpdatePostsModule } from '@sunbird-cb/collection'
-import { DiscussionsModule } from '@sunbird-cb/collection'
-import { RecentRequestsModule } from '@sunbird-cb/collection'
 import { SharedModule } from '../shared/shared.module'
 import { FeedListModule } from './home/feed-list/feed-list.module'
 
@@ -32,16 +34,20 @@ import { NetworkHubComponent } from './home/network-hub/network-hub.component'
 import { NotificationComponent } from './home/notification/notification.component'
 import { SurveyFormComponent } from '../component/app-survey/survey-form/survey-form.component'
 
-import { PendingRequestModule } from '@sunbird-cb/collection'
 import { TranslateLoader, TranslateModule } from '@ngx-translate/core'
 import { HttpLoaderFactory } from '../app.module'
 import { HttpClient } from '@angular/common/http'
-import { ContentStripWithTabsLibModule, ContentStripWithTabsPillsModule, ContetnSectionsComponent } from '@sunbird-cb/consumption'
-import { SurveyFormModule } from '@sunbird-cb/collection'
+import {
+  CardsModule,
+  CardCourseV2Component,
+  ContentStripWithTabsLibModule,
+  ContentStripWithTabsPillsModule,
+  ContetnSectionsComponent,
+  SbUicCarouselBannerV2Component,
+} from '@sunbird-cb/consumption'
 import { MatButtonModule } from '@angular/material/button'
 import { SignupService } from '../routes/signup/signup.service'
 import { InSightSideBarModule } from '../component/in-sight-side-bar/in-sight-side-bar.module'
-import { SbUicCarouselBannerV2Component, CardsModule, CardCourseV2Component } from '@sunbird-cb/consumption'
 import { ContinueLearningV2Module } from './home-v2/continue-learning-v2/continue-learning-v2.module'
 import { WelcomeGreetingV2Component } from './home-v2/welcome-greeting-v2/welcome-greeting-v2.component'
 import { KarmaLeaderboardV2Module } from './home-v2/karma-leaderboard-v2/karma-leaderboard-v2.module'

@@ -16,7 +16,7 @@ import { UntypedFormControl } from '@angular/forms'
     selector: 'ws-analytics-home',
     templateUrl: './home.component.html',
     styleUrls: ['./home.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class HomeComponent implements OnInit, OnDestroy {
   fetchStatus: TFetchStatus = 'none'

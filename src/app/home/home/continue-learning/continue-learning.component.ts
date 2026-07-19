@@ -1,3 +1,4 @@
+/* tslint:disable:object-shorthand-properties-first */
 import { Component, OnInit, OnDestroy } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
 import { ConfigurationsService, EventService, WsEvents, WidgetEnrollService } from '@sunbird-cb/utils-v2'
@@ -63,7 +64,6 @@ export class ContinueLearningComponent implements OnInit, OnDestroy {
     }
 
     if (!myLearningStrip) {
-      console.warn('[ContinueLearning] Could not find My Learning strip in config')
       this.isInProgressLoading = false
       return
     }
@@ -96,36 +96,45 @@ export class ContinueLearningComponent implements OnInit, OnDestroy {
     // Call same APIs as My Learning: fetchInternalEnrollmentData + fetchExternalEnrollmentData
     this.enrollSvc.fetchInternalEnrollmentData(userId, pillPayload)
       .pipe(takeUntil(this.destroy$))
-      .subscribe((res: any) => {
-        let courses: any[] = []
-        if (res && res.result && res.result.courses && res.result.courses.length) {
-          courses = [...courses, ...res.result.courses]
-        }
-        this.enrollSvc.fetchExternalEnrollmentData(pillPayload)
-          .pipe(takeUntil(this.destroy$))
-          .subscribe((extRes: any) => {
-            if (extRes && extRes.result && extRes.result.courses && extRes.result.courses.length) {
-              courses = [...courses, ...extRes.result.courses]
-            }
-            this.inProgressCourse = this.formatAndPickFirst(courses)
-            this.isInProgressLoading = false
-          }, () => {
-            this.inProgressCourse = this.formatAndPickFirst(courses)
-            this.isInProgressLoading = false
-          })
-      }, () => {
-        // If internal fails, try external only (same as library)
-        this.enrollSvc.fetchExternalEnrollmentData(pillPayload)
-          .pipe(takeUntil(this.destroy$))
-          .subscribe((extRes: any) => {
-            let courses: any[] = []
-            if (extRes && extRes.result && extRes.result.courses && extRes.result.courses.length) {
-              courses = [...courses, ...extRes.result.courses]
-            }
-            this.inProgressCourse = this.formatAndPickFirst(courses)
-            this.isInProgressLoading = false
-          }, () => { this.isInProgressLoading = false })
-      })
+      .subscribe(
+        (res: any) => {
+          let courses: any[] = []
+          if (res && res.result && res.result.courses && res.result.courses.length) {
+            courses = [...courses, ...res.result.courses]
+          }
+          this.enrollSvc.fetchExternalEnrollmentData(pillPayload)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(
+              (extRes: any) => {
+                if (extRes && extRes.result && extRes.result.courses && extRes.result.courses.length) {
+                  courses = [...courses, ...extRes.result.courses]
+                }
+                this.inProgressCourse = this.formatAndPickFirst(courses)
+                this.isInProgressLoading = false
+              },
+              () => {
+                this.inProgressCourse = this.formatAndPickFirst(courses)
+                this.isInProgressLoading = false
+              },
+            )
+        },
+        () => {
+          // If internal fails, try external only (same as library)
+          this.enrollSvc.fetchExternalEnrollmentData(pillPayload)
+            .pipe(takeUntil(this.destroy$))
+            .subscribe(
+              (extRes: any) => {
+                let courses: any[] = []
+                if (extRes && extRes.result && extRes.result.courses && extRes.result.courses.length) {
+                  courses = [...courses, ...extRes.result.courses]
+                }
+                this.inProgressCourse = this.formatAndPickFirst(courses)
+                this.isInProgressLoading = false
+              },
+              () => { this.isInProgressLoading = false },
+            )
+        },
+      )
   }
 
   // Same as My Learning's formatNewEnrollmentData — map + sort by lastContentAccessTime desc
@@ -171,18 +180,21 @@ export class ContinueLearningComponent implements OnInit, OnDestroy {
     }
     this.homePageSvc.getInsightsData(request)
       .pipe(takeUntil(this.destroy$))
-      .subscribe((res: any) => {
-        if (res && res.result && res.result.response) {
-          this.insightsData = res.result.response
-          if (this.insightsData['weekly-claps']) {
-            this.insightsData['weeklyClaps'] = this.insightsData['weekly-claps']
-          }
-          // Build weekList for child component (W1–W4 with activeWeek flag)
-          this.weeklyData = this.buildWeeklyData(this.insightsData['weeklyClaps'])
+      .subscribe(
+        (res: any) => {
+          if (res && res.result && res.result.response) {
+            this.insightsData = res.result.response
+            if (this.insightsData['weekly-claps']) {
+              this.insightsData['weeklyClaps'] = this.insightsData['weekly-claps']
+            }
+            // Build weekList for child component (W1–W4 with activeWeek flag)
+            this.weeklyData = this.buildWeeklyData(this.insightsData['weeklyClaps'])
 
-        }
-        this.isWeeklyLoading = false
-      }, () => { this.isWeeklyLoading = false })
+          }
+          this.isWeeklyLoading = false
+        },
+        () => { this.isWeeklyLoading = false },
+      )
   }
 
   private buildWeeklyData(weeklyClaps: any): any {

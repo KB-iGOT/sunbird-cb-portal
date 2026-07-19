@@ -14,7 +14,7 @@ import { Notify } from '../../constants/notificationMessage'
     styleUrls: ['./root.component.scss'],
     // tslint:disable-next-line:use-component-view-encapsulation
     encapsulation: ViewEncapsulation.None,
-    standalone: false
+    standalone: false,
 })
 export class AuthRootComponent implements OnInit, OnDestroy {
   appIcon: SafeUrl | null = null

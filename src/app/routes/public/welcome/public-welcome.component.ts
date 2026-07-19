@@ -9,7 +9,7 @@ import { MatSnackBar } from '@angular/material/snack-bar'
 // import { ReCaptchaV3Service } from 'ng-recaptcha'
 // import { DOCUMENT, isPlatformBrowser } from '@angular/common'
 // tslint:disable-next-line: import-name
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { ActivatedRoute, Router } from '@angular/router'
 import { environment } from 'src/environments/environment'
 import { InitService } from '../../../services/init.service'
@@ -86,13 +86,13 @@ export function forbiddenNamesValidatorPosition(optionsArray: any): ValidatorFn 
   selector: 'ws-public-welcome',
   templateUrl: './public-welcome.component.html',
   styleUrls: ['./public-welcome.component.scss'],
-  standalone: false
+  standalone: false,
 })
 
 export class PublicWelcomeComponent implements OnInit, OnDestroy {
   registrationForm!: UntypedFormGroup
-  namePatern = `^[a-zA-Z\\s\\']{1,32}$`
-  emailWhitelistPattern = `^[a-zA-Z0-9._-]{3,}\\b@\\b[a-zA-Z0-9]*|\\b(.gov|.nic)\b\\.\\b(in)\\b$`
+  namePatern = "^[a-zA-Z\\s\\']{1,32}$"
+  emailWhitelistPattern = '^[a-zA-Z0-9._-]{3,}\\b@\\b[a-zA-Z0-9]*|\\b(.gov|.nic)\b\\.\\b(in)\\b$'
   telemetryConfig: NsInstanceConfig.ITelemetryConfig | null = null
   portalID = ''
   confirm = false
@@ -106,7 +106,7 @@ export class PublicWelcomeComponent implements OnInit, OnDestroy {
   private subscriptionContact: Subscription | null = null
   groupsOriginal: any = []
   masterGroup!: Observable<any> | undefined
-  customCharsPattern = `^[a-zA-Z0-9 \\w\-\&\(\)]*$`
+  customCharsPattern = '^[a-zA-Z0-9 \\w\-\&\(\)]*$'
   phoneNumberPattern = '^((\\+91-?)|0)?[0-9]{10}$'
   timeLeftforOTP = 0
   OTP_TIMER = environment.resendOTPTIme
@@ -223,7 +223,7 @@ export class PublicWelcomeComponent implements OnInit, OnDestroy {
       this.filteredOrgList = res.result.response.filter((org: any) => {
         return org.orgName.toLowerCase().indexOf(filterValue) >= 0
       })
-    }, (err: any) => {
+    },                                                                      (err: any) => {
       this.searching = false
       this.loggerSvc.error('Error in fetching organisations >', err)
       if (err.error && err.error.params && err.error.params.errmsg) {

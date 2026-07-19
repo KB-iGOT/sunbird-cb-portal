@@ -77,7 +77,7 @@ export class AssessmentService {
             achievements: [],
             avgCountOrgWide: 0,
             total: 0,
-            userCountVsOrgWide: 0
+            userCountVsOrgWide: 0,
           })
         },
       )

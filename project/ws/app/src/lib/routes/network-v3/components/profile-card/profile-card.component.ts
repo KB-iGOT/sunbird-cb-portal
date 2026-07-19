@@ -7,7 +7,7 @@ import * as _ from 'lodash'
   selector: 'ws-app-profile-card',
   templateUrl: './profile-card.component.html',
   styleUrls: ['./profile-card.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class ProfileCardComponent implements OnInit, OnChanges {
   //#region (global variables)

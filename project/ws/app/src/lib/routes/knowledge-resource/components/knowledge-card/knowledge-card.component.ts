@@ -7,7 +7,7 @@ import { environment } from 'src/environments/environment'
     selector: 'ws-app-knowledge-card',
     templateUrl: './knowledge-card.component.html',
     styleUrls: ['./knowledge-card.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class KnowledgeCardComponent implements OnInit {
   environment: any

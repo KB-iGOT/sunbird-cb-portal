@@ -14,7 +14,7 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser'
     selector: 'app-certificate-details',
     templateUrl: './certificate-details.component.html',
     styleUrls: ['./certificate-details.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class CertificateDetailsComponent implements OnInit {
   appIcon: SafeUrl | null = null

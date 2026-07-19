@@ -14,12 +14,11 @@ import { WidgetResolverModule } from '@sunbird-cb/resolver'
 
 import { MatCardModule } from '@angular/material/card'
 import { ReactiveFormsModule, FormsModule } from '@angular/forms'
-import { AvatarPhotoModule, BtnPageBackModule, CardContentModule } from '@sunbird-cb/collection'
+import { AvatarPhotoModule, BtnPageBackModule, CardContentModule, CardContentV2Module } from '@sunbird-cb/collection'
 import { LoaderService } from '@ws/author'
 
 import { TaxonomyExplorerComponent } from './routes/taxonomy-explorer/explorer.component'
 import { BreadcrumbsOrgModule } from './components/breadcrumbs/breadcrumbs-org.module'
-import { CardContentV2Module } from '@sunbird-cb/collection'
 import { MatButtonModule } from '@angular/material/button'
 import { MatChipsModule } from '@angular/material/chips'
 import { MatDialogModule } from '@angular/material/dialog'

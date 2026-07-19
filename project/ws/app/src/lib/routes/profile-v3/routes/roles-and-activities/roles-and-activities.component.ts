@@ -3,7 +3,7 @@ import { UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { NSProfileDataV3 } from '../../models/profile-v3.models'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { COMMA, ENTER } from '@angular/cdk/keycodes'
 import { RolesAndActivityService } from '../../services/rolesandActivities.service'
 import { DialogConfirmComponent } from '../../../../routes/dialog-confirm/dialog-confirm.component'

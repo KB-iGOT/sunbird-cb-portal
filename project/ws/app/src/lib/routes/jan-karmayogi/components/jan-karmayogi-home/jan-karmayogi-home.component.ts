@@ -8,7 +8,7 @@ import { TranslateService } from '@ngx-translate/core'
     selector: 'ws-app-jan-karmayogi-home',
     templateUrl: './jan-karmayogi-home.component.html',
     styleUrls: ['./jan-karmayogi-home.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class JanKarmayogiHomeComponent implements OnInit {
   pageData: any

@@ -8,11 +8,18 @@ import { MatCardModule } from '@angular/material/card'
 import { EventsRoutingModule } from './events-routing.module'
 import { EventsHomeComponent } from './routes/events-home/events-home.component'
 import { EventsComponent } from './routes/events/events.component'
-import { LoaderService } from '@ws/author'
-import { InitResolver } from '@ws/author'
+import { InitResolver, LoaderService } from '@ws/author'
 import { ReactiveFormsModule, FormsModule } from '@angular/forms'
-import { BtnPageBackModule, BtnPageBackNavModule, ContentProgressModule, ContentStripWithTabsModule, HttpLoaderFactory } from '@sunbird-cb/collection'
-import { AvatarPhotoModule } from '@sunbird-cb/collection'
+import {
+  AvatarPhotoModule,
+  BtnPageBackModule,
+  BtnPageBackNavModule,
+  ContentProgressModule,
+  ContentStripWithTabsModule,
+  EventCardV2Module,
+  HttpLoaderFactory,
+  SkeletonLoaderModule,
+} from '@sunbird-cb/collection'
 import {
   PipeHtmlTagRemovalModule, PipeFilterV2Module, PipePublicURLModule, HorizontalScrollerV2Module,
   PipeFilterModule,
@@ -43,10 +50,9 @@ import { KarmaPointsModule } from '@sunbird-cb/toc'
 import { EventPlayerComponent } from './routes/event-player/event-player.component'
 import { EventPdfPlayerComponent } from './components/event-pdf-player/event-pdf-player.component'
 import { ViewerResolve } from '@ws/viewer/src/lib/viewer.resolve'
-import { SkeletonLoaderModule } from '@sunbird-cb/collection'
 import { EventYouTubeComponent } from './components/event-you-tube/event-you-tube.component'
 import { EventResolve } from './services/event-resolver.resolve'
-import { WidgetCommentModule } from '@sunbird-cb/discussion-v2'
+import { ShareDiscussionModule, WidgetCommentModule } from '@sunbird-cb/discussion-v2'
 import { InfiniteScrollModule } from 'ngx-infinite-scroll'
 import { HttpClient } from '@angular/common/http'
 import { EventsHomeV2Component } from './routes/events-home-v2/events-home-v2.component'
@@ -58,7 +64,6 @@ import { MatDialogModule } from '@angular/material/dialog'
 import { ViewAllComponent } from './routes/view-all/view-all.component'
 import { MatCheckboxModule } from '@angular/material/checkbox'
 import { MatDatepickerModule } from '@angular/material/datepicker'
-import { EventCardV2Module } from '@sunbird-cb/collection'
 import { MatSnackBarModule } from '@angular/material/snack-bar'
 import { MatMenuModule } from '@angular/material/menu'
 import { MatBottomSheetModule, MAT_BOTTOM_SHEET_DATA, MatBottomSheetRef } from '@angular/material/bottom-sheet'
@@ -68,7 +73,6 @@ import { SeeAllComponent } from './routes/events/see-all/see-all.component'
 import { EventVideoPlayerComponent } from './components/event-video-player/event-video-player.component'
 import { EventsV2Component } from './routes/events-v2/events-v2.component'
 import { MyAllEventsComponent } from './routes/events/my-all-events/my-all-events.component'
-import { ShareDiscussionModule } from '@sunbird-cb/discussion-v2'
 import { MatRadioModule } from '@angular/material/radio'
 @NgModule({
   declarations: [

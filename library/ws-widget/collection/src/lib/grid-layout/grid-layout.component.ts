@@ -13,7 +13,7 @@ import {
   IGridLayoutDataMain,
 } from './grid-layout.model'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { MatSnackBar } from '@angular/material/snack-bar'
 
 // const API_END_POINTS = {
@@ -21,10 +21,10 @@ import { MatSnackBar } from '@angular/material/snack-bar'
 // }
 
 @Component({
-    selector: 'ws-widget-grid-layout',
-    templateUrl: './grid-layout.component.html',
-    styleUrls: ['./grid-layout.component.scss'],
-    standalone: false
+  selector: 'ws-widget-grid-layout',
+  templateUrl: './grid-layout.component.html',
+  styleUrls: ['./grid-layout.component.scss'],
+  standalone: false
 })
 
 export class GridLayoutComponent extends WidgetBaseComponent

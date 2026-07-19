@@ -4,7 +4,7 @@ import { Component, OnInit } from '@angular/core'
     selector: 'app-discuss-comment',
     templateUrl: './discuss-comments.component.html',
     styleUrls: ['./discuss-comments.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class DiscussCommetsComponent implements OnInit {
   items = [

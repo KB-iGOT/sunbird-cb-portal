@@ -21,7 +21,7 @@ import { ConfigDetails } from '@sunbird-cb/consumption'
   selector: 'ws-transfer-request',
   templateUrl: './transfer-request.component.html',
   styleUrls: ['./transfer-request.component.scss'],
-  standalone: false
+  standalone: false,
 })
 
 export class TransferRequestComponent implements OnInit, OnDestroy {
@@ -329,7 +329,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
             status: 'Live',
             category: 'designation',
             categories: [
-              this.selectedOrgId + '_odcs_designation',
+              `${this.selectedOrgId}_odcs_designation`,
             ],
             objectType: 'Term',
           },
@@ -378,7 +378,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
           status: 'Live',
           category: 'designation',
           categories: [
-            this.selectedOrgId + '_odcs_designation',
+            `${this.selectedOrgId}_odcs_designation`,
           ],
           objectType: 'Term',
         },
@@ -433,8 +433,8 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
       })
     ).subscribe({
       next: (res: any) => {
-        let data = _.get(res, 'result.result.data', [])
-        let totalCount = _.get(res, 'result.result.totalCount', 0)
+        const data = _.get(res, 'result.result.data', [])
+        const totalCount = _.get(res, 'result.result.totalCount', 0)
         this.setDesignationResults(data, totalCount)
       }, error: (error: HttpErrorResponse) => {
         if (error) {
@@ -472,7 +472,10 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
 
     // Recalculate and nudge the pane inside viewport after async option rendering.
     const applyViewportBounds = () => {
-      const panel = (document.querySelector('.mat-mdc-select-panel.search-panel') || document.querySelector('.mat-select-panel.search-panel')) as HTMLElement | null
+      const panel = (
+        document.querySelector('.mat-mdc-select-panel.search-panel') ||
+        document.querySelector('.mat-select-panel.search-panel')
+      ) as HTMLElement | null
       if (!panel) {
         return
       }
@@ -522,7 +525,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
         identifier: '-1',
         orgName: 'N/A',
       }],
-      organisation: []
+      organisation: [],
     }
 
     // Initialize group data from dialog payload first, fallback to groups API.
@@ -556,7 +559,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
         if (selectedGroup && !this.masterGroup.includes(selectedGroup)) {
           this.masterGroup = [selectedGroup, ...this.masterGroup]
         }
-      }, (error: HttpErrorResponse) => {
+      },         (error: HttpErrorResponse) => {
         if (!error.ok) {
           this.matSnackBar.open(this.handleTranslateTo('groupDataFaile'))
         }
@@ -564,7 +567,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
   }
 
   setupFormChangeListeners(): void {
-    this.transferRequestForm.get('type')?.valueChanges.subscribe((type) => {
+    this.transferRequestForm.get('type')?.valueChanges.subscribe(type => {
       this.isOrganisationConditionInitialized = false
       // Reset downstream progressive visibility on type change
       this.showDepartmentField = false
@@ -601,7 +604,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
       this.applyConditionalControlState()
     })
 
-    this.transferRequestForm.get('state')?.valueChanges.subscribe((state) => {
+    this.transferRequestForm.get('state')?.valueChanges.subscribe(state => {
       this.isOrganisationConditionInitialized = false
       if (state) {
         this.showDepartmentField = true
@@ -622,7 +625,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
       this.applyConditionalControlState()
     })
 
-    this.transferRequestForm.get('ministry')?.valueChanges.subscribe((ministry) => {
+    this.transferRequestForm.get('ministry')?.valueChanges.subscribe(ministry => {
       this.isOrganisationConditionInitialized = false
       if (ministry) {
         this.showOrganisationField = true
@@ -639,7 +642,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
       this.applyConditionalControlState()
     })
 
-    this.transferRequestForm.get('department')?.valueChanges.subscribe((department) => {
+    this.transferRequestForm.get('department')?.valueChanges.subscribe(department => {
       this.isOrganisationConditionInitialized = false
       if (department && department !== '-1') {
         this.showOrganisationField = true
@@ -661,7 +664,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
       this.applyConditionalControlState()
     })
 
-    this.transferRequestForm.get('group')?.valueChanges.subscribe((group) => {
+    this.transferRequestForm.get('group')?.valueChanges.subscribe(group => {
       if (group) {
         this.showDesignationField = true
       }
@@ -854,7 +857,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
         this.matSnackBar.open('Your transfer request has been sent for approval')
         this.enableWithdraw.emit(true)
         this.handleCloseModal()
-      }, (error: HttpErrorResponse) => {
+      },         (error: HttpErrorResponse) => {
         if (!error.ok) {
           this.matSnackBar.open(this.handleTranslateTo('transferRequestFailedNew'))
         }
@@ -908,7 +911,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
           }
         }
         this.isLoadingMoreOrganization = false
-      }, (error: HttpErrorResponse) => {
+      },         (error: HttpErrorResponse) => {
         if (!error.ok) {
           this.matSnackBar.open(this.handleTranslateTo('orgFetchDataFailed'))
         }
@@ -1002,7 +1005,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
       department: this.transferRequestForm.get('department')?.value,
       organisation: this.transferRequestForm.get('organisation')?.value,
       group: this.transferRequestForm.get('group')?.value,
-      designation: this.transferRequestForm.get('designation')?.value
+      designation: this.transferRequestForm.get('designation')?.value,
     }
 
     // Validate required fields based on type
@@ -1085,18 +1088,19 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
         if (searchInput) {
           searchInput.focus()
         }
-      }, 100)
+      },         100)
 
       // Set panel width to match the select trigger width
       this.setPanelWidthDynamic('search-panel', this.designationRef)
 
       // Add scroll event listener to the panel
       setTimeout(() => {
-        const panel = document.querySelector('.mat-mdc-select-panel.search-panel') || document.querySelector('.mat-select-panel.search-panel')
+        const panel = document.querySelector('.mat-mdc-select-panel.search-panel') ||
+          document.querySelector('.mat-select-panel.search-panel')
         if (panel) {
           panel.addEventListener('scroll', this.onDesignationSelectScroll.bind(this), { passive: true })
         }
-      }, 150)
+      },         150)
     }
   }
 
@@ -1109,9 +1113,6 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
       this.markMandatoryFieldTouched('group')
     }
   }
-
-
-
 
   onDesignationSelectScroll(event: any): void {
     const element = event.target
@@ -1211,9 +1212,9 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
           'channel',
           'hierarchyLevel',
           'parentPathId',
-          'ministryOrStateId'
-        ]
-      }
+          'ministryOrStateId',
+        ],
+      },
     }
 
     if (searchText?.length) {
@@ -1262,7 +1263,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.noMoreLegacyMinistrys = true
-      }
+      },
     })
   }
 
@@ -1286,19 +1287,22 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
           if (searchInput) {
             searchInput.focus()
           }
-        }, 100)
+        },         100)
 
         // Set panel width to match the select trigger width
         this.setPanelWidthDynamic('search-panel-ministry', this.ministryRef)
 
         // Add scroll event listener to the panel
         setTimeout(() => {
-          const panel = (document.querySelector('.mat-mdc-select-panel.search-panel-ministry') || document.querySelector('.mat-select-panel.search-panel-ministry')) as HTMLElement | null
+          const panel = (
+            document.querySelector('.mat-mdc-select-panel.search-panel-ministry') ||
+            document.querySelector('.mat-select-panel.search-panel-ministry')
+          ) as HTMLElement | null
           if (panel) {
             const scrollHandler = this.onMinistrySelectScroll.bind(this)
             panel.addEventListener('scroll', scrollHandler, { passive: true })
           }
-        }, 150)
+        },         150)
       }
     } else {
       scrollListenerAttached = false
@@ -1318,7 +1322,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
               this.masterData.ministry = this.masterData?.ministryBackup?.slice(0, this.ministryListLoadCount)
               this.checkCurrentMinistryPresent()
               this.isLoadingMoreMinistrys = false
-            }, 500)
+            },         500)
           } else {
             const loadedLegacy = (this.masterData?.ministryBackup || []).length
             if (!this.noMoreLegacyMinistrys && this.defaultSearchMinistryCount && loadedLegacy < this.defaultSearchMinistryCount) {
@@ -1445,9 +1449,9 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
           'channel',
           'hierarchyLevel',
           'parentPathId',
-          'ministryOrStateId'
-        ]
-      }
+          'ministryOrStateId',
+        ],
+      },
     }
 
     if (searchText?.length) {
@@ -1494,7 +1498,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.noMoreLegacyStates = true
-      }
+      },
     })
   }
 
@@ -1518,19 +1522,22 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
           if (searchInput) {
             searchInput.focus()
           }
-        }, 100)
+        },         100)
 
         // Set panel width to match the select trigger width
         this.setPanelWidthDynamic('search-panel-state', this.stateRef)
 
         // Add scroll event listener to the panel
         setTimeout(() => {
-          const panel = (document.querySelector('.mat-mdc-select-panel.search-panel-state') || document.querySelector('.mat-select-panel.search-panel-state')) as HTMLElement | null
+          const panel = (
+            document.querySelector('.mat-mdc-select-panel.search-panel-state') ||
+            document.querySelector('.mat-select-panel.search-panel-state')
+          ) as HTMLElement | null
           if (panel) {
             const scrollHandler = this.onStateSelectScroll.bind(this)
             panel.addEventListener('scroll', scrollHandler, { passive: true })
           }
-        }, 150)
+        },         150)
       }
     } else {
       scrollListenerAttached = false
@@ -1550,7 +1557,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
               this.masterData.state = this.masterData?.stateBackup?.slice(0, this.stateListLoadCount)
               this.checkCurrentStatePresent()
               this.isLoadingMoreStates = false
-            }, 500)
+            },         500)
           } else {
             const loadedLegacy = (this.masterData?.stateBackup || [])?.length
             if (!this.noMoreLegacyStates && this.defaultSearchStateCount && loadedLegacy < this.defaultSearchStateCount) {
@@ -1675,9 +1682,9 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
           'orgHierarchyFrameworkStatus',
           'sbOrgType',
           'sbOrgSubType',
-          'channel'
-        ]
-      }
+          'channel',
+        ],
+      },
     }
 
     if (searchText?.length) {
@@ -1735,7 +1742,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.noMoreLegacyDepartments = true
-      }
+      },
     })
   }
 
@@ -1759,19 +1766,22 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
           if (searchInput) {
             searchInput.focus()
           }
-        }, 100)
+        },         100)
 
         // Set panel width to match the select trigger width
         this.setPanelWidthDynamic('search-panel-department', this.departmentRef)
 
         // Add scroll event listener to the panel
         setTimeout(() => {
-          const panel = (document.querySelector('.mat-mdc-select-panel.search-panel-department') || document.querySelector('.mat-select-panel.search-panel-department')) as HTMLElement | null
+          const panel = (
+            document.querySelector('.mat-mdc-select-panel.search-panel-department') ||
+            document.querySelector('.mat-select-panel.search-panel-department')
+          ) as HTMLElement | null
           if (panel) {
             const scrollHandler = this.onDepartmentSelectScroll.bind(this)
             panel.addEventListener('scroll', scrollHandler, { passive: true })
           }
-        }, 150)
+        },         150)
       }
     } else {
       scrollListenerAttached = false
@@ -1791,7 +1801,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
               this.masterData.department = this.masterData?.departmentBackup?.slice(0, this.departmentListLoadCount)
               this.checkCurrentDepartmentPresent()
               this.isLoadingMoreDepartments = false
-            }, 500)
+            },         500)
           } else {
             const loadedLegacy = (this.masterData?.departmentBackup || []).length
             if (!this.noMoreLegacyDepartments && this.defaultSearchDepartmentCount && loadedLegacy < this.defaultSearchDepartmentCount) {
@@ -1907,23 +1917,23 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
       let filters: any = {
         status: 1,
         levelZeroOrgId: this.transferRequestForm?.controls?.ministry?.value,
-        hierarchyRequestType: 'All'
+        hierarchyRequestType: 'All',
       }
-      for (let i = 0; i < this.masterData['ministryBackup']?.length; i++) {
+      for (let i = 0; i < this.masterData['ministryBackup']?.length; i += 1) {
         if (this.masterData['ministryBackup'][i]?.['identifier'] === this.transferRequestForm?.controls?.ministry?.value) {
           if (this.masterData['ministryBackup'][i]?.['hierarchyLevel'] === 'levelOne') {
             filters = {
               status: 1,
               levelZeroOrgId: this.masterData['ministryBackup'][i]['ministryOrStateId'],
               levelOneOrgId: this.masterData['ministryBackup'][i]['identifier'],
-              hierarchyRequestType: 'All'
+              hierarchyRequestType: 'All',
             }
           }
         }
       }
       requestBody = {
         request: {
-          filters: filters,
+          filters,
           query: '',
           limit: reqLimit,
           offset: reqLimit > 0 ? pageIndex * reqLimit : this.organisationDefaultLoadCount,
@@ -1936,9 +1946,9 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
             'orgHierarchyFrameworkStatus',
             'sbOrgType',
             'sbOrgSubType',
-            'channel'
-          ]
-        }
+            'channel',
+          ],
+        },
       }
     } else if (this.transferRequestForm?.controls?.type?.value === 'state') {
       requestBody = {
@@ -1947,7 +1957,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
             status: 1,
             levelZeroOrgId: this.transferRequestForm?.controls?.state?.value,
             levelOneOrgId: this.transferRequestForm?.controls?.department?.value,
-            hierarchyRequestType: 'All'
+            hierarchyRequestType: 'All',
           },
           query: '',
           limit: reqLimit,
@@ -1961,9 +1971,9 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
             'orgHierarchyFrameworkStatus',
             'sbOrgType',
             'sbOrgSubType',
-            'channel'
-          ]
-        }
+            'channel',
+          ],
+        },
       }
     }
 
@@ -2012,7 +2022,10 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
             this.markMandatoryFieldTouched('organisation')
           }
         }
-        if (this.defaultSearchOrganisationCount && (this.masterData['organisationBackup'] || [])?.length >= this.defaultSearchOrganisationCount) {
+        if (
+          this.defaultSearchOrganisationCount &&
+          (this.masterData['organisationBackup'] || [])?.length >= this.defaultSearchOrganisationCount
+        ) {
           this.noMoreLegacyOrganisations = true
         }
 
@@ -2047,7 +2060,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
         if (!queryText?.length) {
           this.applyConditionalControlState()
         }
-      }
+      },
     })
   }
 
@@ -2071,19 +2084,22 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
           if (searchInput) {
             searchInput.focus()
           }
-        }, 100)
+        },         100)
 
         // Set panel width to match the select trigger width
         this.setPanelWidthDynamic('search-panel-organisation', this.organisationRef)
 
         // Add scroll event listener to the panel
         setTimeout(() => {
-          const panel = (document.querySelector('.mat-mdc-select-panel.search-panel-organisation') || document.querySelector('.mat-select-panel.search-panel-organisation')) as HTMLElement | null
+          const panel = (
+            document.querySelector('.mat-mdc-select-panel.search-panel-organisation') ||
+            document.querySelector('.mat-select-panel.search-panel-organisation')
+          ) as HTMLElement | null
           if (panel) {
             const scrollHandler = this.onOrganisationSelectScroll.bind(this)
             panel.addEventListener('scroll', scrollHandler, { passive: true })
           }
-        }, 150)
+        },         150)
       }
     } else {
       scrollListenerAttached = false
@@ -2102,10 +2118,14 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
             this.masterData.organisation = this.masterData?.organisationBackup?.slice(0, this.organisationListLoadCount)
             this.checkCurrentOrganisationPresent()
             this.isLoadingMoreOrganisations = false
-          }, 500)
+          },         500)
         } else {
           const loadedLegacy = (this.masterData?.organisationBackup || [])?.length
-          if (!this.noMoreLegacyOrganisations && this.defaultSearchOrganisationCount && loadedLegacy < this.defaultSearchOrganisationCount) {
+          if (
+            !this.noMoreLegacyOrganisations &&
+            this.defaultSearchOrganisationCount &&
+            loadedLegacy < this.defaultSearchOrganisationCount
+          ) {
             this.isLoadingMoreOrganisations = true
             this.organisationOffset = this.organisationOffset + this.organisationDefaultLoadCount
             this.organisationListLoadCount += this.organisationDefaultLoadCount
@@ -2157,8 +2177,11 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
         (item?.orgName || item?.identifier || '')?.toLowerCase()?.includes(txt?.toLowerCase())
       )
       this.checkCurrentOrganisationPresent()
-      this.clearInvalidSelectedValue('organisation',
-        (this.masterData?.organisation || [])?.filter((item: any) => this.isSelectableOrganisation(item)), 'identifier')
+      this.clearInvalidSelectedValue(
+        'organisation',
+        (this.masterData?.organisation || [])?.filter((item: any) => this.isSelectableOrganisation(item)),
+        'identifier'
+      )
       if (!this.hasSelectableOrganisation()) {
         this.markMandatoryFieldTouched('organisation')
       }
@@ -2166,8 +2189,11 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
       this.masterData.organisation = this.masterData?.organisationBackup?.slice(0, this.organisationDefaultLoadCount)
       this.organisationFilterEnable = false
       this.checkCurrentOrganisationPresent()
-      this.clearInvalidSelectedValue('organisation',
-        (this.masterData?.organisation || [])?.filter((item: any) => this.isSelectableOrganisation(item)), 'identifier')
+      this.clearInvalidSelectedValue(
+        'organisation',
+        (this.masterData?.organisation || [])?.filter((item: any) => this.isSelectableOrganisation(item)),
+        'identifier'
+      )
     }
   }
 
@@ -2178,8 +2204,11 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
     if (this.masterData?.organisationBackup) {
       this.masterData.organisation = this.masterData?.organisationBackup?.slice(0, this.organisationDefaultLoadCount)
       this.checkCurrentOrganisationPresent()
-      this.clearInvalidSelectedValue('organisation',
-        (this.masterData?.organisation || [])?.filter((item: any) => this.isSelectableOrganisation(item)), 'identifier')
+      this.clearInvalidSelectedValue(
+        'organisation',
+        (this.masterData?.organisation || [])?.filter((item: any) => this.isSelectableOrganisation(item)),
+        'identifier'
+      )
     } else {
       this.getOrganisationData(undefined, 0)
     }
@@ -2225,7 +2254,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
       sbOrgType: null,
       description: null,
       sbOrgSubType: null,
-      orgHierarchyFrameworkId: null
+      orgHierarchyFrameworkId: null,
     }]
   }
 
@@ -2252,7 +2281,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
     }
     const requestBody: any = {
       filterCriteriaMap: {
-        status: 'Active'
+        status: 'Active',
       },
       requestedFields: [],
       pageNumber: pageIndex,
@@ -2280,7 +2309,11 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
           status: item?.status || 'Active',
         }))
 
-        const total = _.get(res, 'result.result.totalcount', _.get(res, 'result.result.data.totalCount', _.get(res, 'result.result.totalCount', 0)))
+        const total = _.get(
+          res,
+          'result.result.totalcount',
+          _.get(res, 'result.result.data.totalCount', _.get(res, 'result.result.totalCount', 0))
+        )
         this.defaultSearchDesignationCount = total
 
         if (!this.masterData['designationBackup'] || reqOffset === 0) {
@@ -2294,7 +2327,10 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
           this.noMoreLegacyDesignations = true
         }
 
-        if (this.defaultSearchDesignationCount && (this.masterData['designationBackup'] || []).length >= this.defaultSearchDesignationCount) {
+        if (
+          this.defaultSearchDesignationCount &&
+          (this.masterData['designationBackup'] || []).length >= this.defaultSearchDesignationCount
+        ) {
           this.noMoreLegacyDesignations = true
         }
 
@@ -2303,7 +2339,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
       },
       error: () => {
         this.noMoreLegacyDesignations = true
-      }
+      },
     })
   }
 
@@ -2387,7 +2423,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
         if (searchInput) {
           searchInput.focus()
         }
-      }, 100)
+      },         100)
       // Wait for the panel to be rendered in the DOM
       setTimeout(() => {
         // Find the panel element
@@ -2397,7 +2433,7 @@ export class TransferRequestComponent implements OnInit, OnDestroy {
           panel.addEventListener('scroll', this.onOrgSelectScroll.bind(this))
         }
 
-      }, 100)
+      },         100)
     }
   }
 

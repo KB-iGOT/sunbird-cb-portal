@@ -7,7 +7,9 @@ import { ProfileV2RevampService } from '../../services/profile-v2-revamp.service
 import { catchError, map } from 'rxjs/operators'
 import * as _ from 'lodash'
 
+/* tslint:disable:object-shorthand-properties-first */
 @Injectable()
+// tslint:disable-next-line:class-name
 export class profileEntriesResolver {
   constructor(private profileSvc: ProfileV2RevampService, private configSvc: ConfigurationsService) { }
 
@@ -29,10 +31,11 @@ export class profileEntriesResolver {
     } else {
       userId = this.configSvc.userProfile && this.configSvc.userProfile.userId || ''
     }
+    // eslint-disable-next-line sort-keys
     const configDetails = {
       defaultUrl: '',
       urlConfigPath: 'profileV1Extended',
-      apiConfig: apiConfig
+      apiConfig,
     }
     return this.profileSvc.fetchProfileEntries(configDetails, userId).pipe(
       map(data => ({ data: _.get(data, 'result.response'), error: null })),

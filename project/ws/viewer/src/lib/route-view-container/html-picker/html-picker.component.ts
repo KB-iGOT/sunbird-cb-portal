@@ -5,7 +5,7 @@ import { NsContent } from '@sunbird-cb/collection'
     selector: 'viewer-html-picker-container',
     templateUrl: './html-picker.component.html',
     styleUrls: ['./html-picker.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class HtmlPickerComponent {
   @Input() isFetchingDataComplete = false

@@ -4,13 +4,13 @@ import { Subscription } from 'rxjs'
 import { ActivatedRoute, Params } from '@angular/router'
 import { HttpClient } from '@angular/common/http'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 
 @Component({
     selector: 'public-login-wg',
     templateUrl: './public-login-wg.component.html',
     styleUrls: ['./public-login-wg.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class PublicLoginWGComponent implements OnInit, OnDestroy {
     userMail = ''

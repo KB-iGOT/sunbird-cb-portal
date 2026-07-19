@@ -3,6 +3,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 import { Router } from '@angular/router'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 
+// tslint:disable-next-line: interface-name
 export interface ProfileVerificationData {
   organization?: string
   designation?: string
@@ -16,7 +17,7 @@ export interface ProfileVerificationData {
   templateUrl: './profile-verification-dialog.component.html',
   styleUrls: ['./profile-verification-dialog.component.scss'],
   encapsulation: ViewEncapsulation.None,
-  standalone: false
+  standalone: false,
 })
 export class ProfileVerificationDialogComponent implements OnInit {
   userOrganization: any | undefined
@@ -25,12 +26,13 @@ export class ProfileVerificationDialogComponent implements OnInit {
     @Inject(MAT_DIALOG_DATA) public data: ProfileVerificationData,
     private dialogRef: MatDialogRef<ProfileVerificationDialogComponent>,
     private router: Router,
-    private configSvc: ConfigurationsService
+    private configSvc: ConfigurationsService,
   ) {
 
     if (this.configSvc.userProfile) {
       this.userOrganization = this.configSvc.userProfile.userRootOrg
-      this.ministryOrStateType = this.userOrganization?.ministryOrStateType ? this.userOrganization?.ministryOrStateType?.toLowerCase() : 'spv'
+      this.ministryOrStateType = this.userOrganization?.ministryOrStateType ?
+        this.userOrganization?.ministryOrStateType?.toLowerCase() : 'spv'
     }
   }
 

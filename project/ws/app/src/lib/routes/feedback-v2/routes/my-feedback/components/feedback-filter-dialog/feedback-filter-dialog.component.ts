@@ -14,7 +14,7 @@ import { Subscription } from 'rxjs'
     selector: 'ws-app-feedback-filter-dialog',
     templateUrl: './feedback-filter-dialog.component.html',
     styleUrls: ['./feedback-filter-dialog.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class FeedbackFilterDialogComponent implements OnInit, OnDestroy {
   filterForm: UntypedFormGroup

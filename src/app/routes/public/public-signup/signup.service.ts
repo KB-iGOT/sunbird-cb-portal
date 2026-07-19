@@ -3,7 +3,7 @@ import { BehaviorSubject, Observable, of } from 'rxjs'
 import { HttpClient } from '@angular/common/http'
 import { map, tap } from 'rxjs/operators'
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { CommonMethodsService, ConfigDetails } from '@sunbird-cb/consumption'
 
 

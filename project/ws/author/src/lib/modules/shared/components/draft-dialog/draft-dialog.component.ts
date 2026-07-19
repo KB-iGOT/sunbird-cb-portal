@@ -21,7 +21,7 @@ import { Notify } from '../../../../constants/notificationMessage'
     selector: 'ws-auth-draft-dialog',
     templateUrl: './draft-dialog.component.html',
     styleUrls: ['./draft-dialog.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class DraftDialogComponent implements OnInit {
   commentsForm!: UntypedFormGroup

@@ -5,7 +5,7 @@ import { ContentStripNewMultipleService } from './carrier-strip-multiple.service
 import { WidgetContentService } from '@sunbird-cb/toc'
 import { NsContent } from '../_services/widget-content.model'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import {
   TFetchStatus,
   LoggerService,
@@ -36,10 +36,10 @@ interface IStripUnitContentData {
   description?: string | null
 }
 @Component({
-    selector: 'ws-widget-carrier-strip-multiple',
-    templateUrl: './carrier-strip-multiple.component.html',
-    styleUrls: ['./carrier-strip-multiple.component.scss'],
-    standalone: false
+  selector: 'ws-widget-carrier-strip-multiple',
+  templateUrl: './carrier-strip-multiple.component.html',
+  styleUrls: ['./carrier-strip-multiple.component.scss'],
+  standalone: false
 })
 export class CarrierStripMultipleComponent extends WidgetBaseComponent
   implements

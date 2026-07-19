@@ -1,3 +1,4 @@
+/* tslint:disable:interface-name max-line-length variable-name */
 import { Component, HostListener, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core'
 import { ZohoFormService } from '../../../header/header/zoho-form.service'
 import { DialogBoxComponent as ZohoDialogComponent } from '@ws/app'
@@ -27,7 +28,7 @@ interface StateData {
   selector: 'app-suppot-section',
   templateUrl: './suppot-section.component.html',
   styleUrls: ['./suppot-section.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class SuppotSectionComponent implements OnInit, OnChanges {
 
@@ -51,9 +52,9 @@ export class SuppotSectionComponent implements OnInit, OnChanges {
   phoneNumbers: PhoneNumber[] = []
   supportHours = '8:00 AM – 8:00 PM IST'
 
-  features: { icon: string; label: string }[] = [];
+  features: { icon: string; label: string }[] = []
 
-  createTicket: { enableInNonLoggedInPage?: boolean; title?: string; description?: string } = {};
+  createTicket: { enableInNonLoggedInPage?: boolean; title?: string; description?: string } = {}
 
   supportSectionConfig: {
     badgeIcon?: string
@@ -68,11 +69,16 @@ export class SuppotSectionComponent implements OnInit, OnChanges {
     nationalHelpDeskDesc?: string
     secondaryHelpText?: string
     secondaryHelpPhone?: string
-  } = {};
+  } = {}
   zohoHtml: any
   zohoUrl: any = '/assets/static-data/support-html/zoho_karmayogi_form.html'
-  constructor(private zohoFormService: ZohoFormService, private http: HttpClient,
-    private sanitizer: DomSanitizer, public dialog: MatDialog, private snackBar: MatSnackBar) {
+  constructor(
+    private zohoFormService: ZohoFormService,
+    private http: HttpClient,
+    private sanitizer: DomSanitizer,
+    public dialog: MatDialog,
+    private snackBar: MatSnackBar,
+  ) {
 
   }
 
@@ -169,9 +175,12 @@ export class SuppotSectionComponent implements OnInit, OnChanges {
         value: this.zohoHtml,
       },
     })
-    setTimeout(() => {
-      this.initializeZohoForm()
-    }, 300)
+    setTimeout(
+      () => {
+        this.initializeZohoForm()
+      },
+      300,
+    )
   }
 
   private initializeZohoForm(): void {
@@ -190,7 +199,6 @@ export class SuppotSectionComponent implements OnInit, OnChanges {
       this.zohoFormService.patchUserDataFromConfig()
       this.zohoFormService.initializeAttachmentZone()
     } catch (error) {
-      console.error('Error initializing Zoho form:', error)
       this.zohoFormService.loadCaptcha()
     }
   }

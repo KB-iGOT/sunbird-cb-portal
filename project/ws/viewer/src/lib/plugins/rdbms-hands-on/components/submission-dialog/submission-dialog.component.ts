@@ -4,7 +4,7 @@ import { Component, OnInit } from '@angular/core'
     selector: 'viewer-submission-dialog',
     templateUrl: './submission-dialog.component.html',
     styleUrls: ['./submission-dialog.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class SubmissionDialogComponent implements OnInit {
 

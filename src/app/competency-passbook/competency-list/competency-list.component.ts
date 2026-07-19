@@ -19,7 +19,7 @@ import { MatTabChangeEvent } from '@angular/material/tabs'
   selector: 'ws-competency-list',
   templateUrl: './competency-list.component.html',
   styleUrls: ['./competency-list.component.scss'],
-  standalone: false
+  standalone: false,
 })
 
 export class CompetencyListComponent implements OnInit, OnDestroy {

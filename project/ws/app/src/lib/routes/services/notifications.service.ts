@@ -8,10 +8,11 @@ import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import moment from 'moment'
 
 const API_END_POINTS = {
-  NOTIFICATIONS_COUNT: `apis/proxies/v8/v1/notifications/unread/count`,
-  RESET_NOTIFICATIONS_COUNT: `apis/proxies/v8/v1/notifications/reset/unread/count`,
+  NOTIFICATIONS_COUNT: 'apis/proxies/v8/v1/notifications/unread/count',
+  RESET_NOTIFICATIONS_COUNT: 'apis/proxies/v8/v1/notifications/reset/unread/count',
   CONTENT_READ: (contentId: any) => `/apis/proxies/v8/content/v2/read/${contentId}`,
-  WORKFLOW_SEARCH: `apis/protected/v8/workflowhandler/profileApprovalSearch`,
+  WORKFLOW_SEARCH: 'apis/protected/v8/workflowhandler/profileApprovalSearch',
+  // tslint:disable-next-line:max-line-length
   CONNECTION_REQUEST: (pageNo: any, pageSize: any) => `apis/protected/v8/connections/v2/connections/requests/received?pageNo=${pageNo}&pageSize=${pageSize}`,
 }
 
@@ -24,7 +25,9 @@ export class NotificationsService {
   nofificationsCount = new Subject()
   orgName: string = ''
   constructor(private http: HttpClient,
+    // tslint:disable-next-line:align
     private router: Router,
+    // tslint:disable-next-line:align
     private configService: ConfigurationsService,
   ) {
     if (this.configService && this.configService.unMappedUser
@@ -64,16 +67,16 @@ export class NotificationsService {
   }
 
   constrctPayload(notification: any): any {
-    let req: any = {
+    const req: any = {
       applicationStatus: 'SEND_FOR_APPROVAL',
       deptName: this.orgName,
       limit: 50,
-      serviceName: 'profile'
+      serviceName: 'profile',
     }
     if (notification.sub_category === 'PROFILE_VERIFICATION') {
-      req["requestType"] = ['GROUP_CHANGE', 'DESIGNATION_CHANGE']
+      req['requestType'] = ['GROUP_CHANGE', 'DESIGNATION_CHANGE']
     } else if (notification.sub_category === 'USER_TRANSFER') {
-      req["requestType"] = ['ORG_TRANSFER']
+      req['requestType'] = ['ORG_TRANSFER']
     }
     return req
   }
@@ -84,7 +87,7 @@ export class NotificationsService {
         this.router.navigate([`/app/event-hub/home/${notification.message.data.id}`])
       })
     } else if (notification.sub_category === 'EVENT_ENROLLED') {
-      let url = `${environment.portalsForNotifications.mdo}/app/home/events`
+      const url = `${environment.portalsForNotifications.mdo}/app/home/events`
       window.open(url, '_blank')
     }
   }
@@ -93,16 +96,18 @@ export class NotificationsService {
     switch (res.reviewStatus) {
       case 'InReview': {
         if (roles.includes('CONTENT_REVIEWER')) {
+          // tslint:disable-next-line:max-line-length
           window.open(`${environment.portalsForNotifications.cbp}/author/editor/${notification.message.data.id}/collectionV2?isStandaloneResource=${isStandaloneResource}&preview=true&editMode=true&status=Review&reviewStatus=${res.reviewStatus}`, '_blank')
         } else {
-          snackBar.open("You are not authorized to view this content.")
+          snackBar.open('You are not authorized to view this content.')
         }
         break
       } case 'Reviewed': {
         if (roles.includes('CONTENT_PUBLISHER')) {
+          // tslint:disable-next-line:max-line-length
           window.open(`${environment.portalsForNotifications.cbp}/author/editor/${notification.message.data.id}/collectionV2?isStandaloneResource=${isStandaloneResource}`, '_blank')
         } else {
-          snackBar.open("You are not authorized to view this content.")
+          snackBar.open('You are not authorized to view this content.')
         }
         break
       }
@@ -111,47 +116,53 @@ export class NotificationsService {
 
   handleProfileRedirection(notification: any, environment: any, snackBar: any) {
     if (notification.sub_category === 'PROFILE_VERIFICATION' || notification.sub_category === 'USER_TRANSFER') {
-      let payload = this.constrctPayload(notification)
+      const payload = this.constrctPayload(notification)
       this.searchWorkflowSearch(payload).subscribe((res: any) => {
-        let data = _.get(res, 'result.data', [])
-        let pendingUser = data.find((item: any) => {
+        const data = _.get(res, 'result.data', [])
+        const pendingUser = data.find((item: any) => {
           return item.wfInfo[0] && item.wfInfo[0].userId === notification.message.data.id
         })
         if (pendingUser) {
-          let url = `${environment.portalsForNotifications.mdo}/app/home/approvals/approval`
+          const url = `${environment.portalsForNotifications.mdo}/app/home/approvals/approval`
           window.open(url, '_blank')
         } else if (notification.sub_category === 'PROFILE_VERIFICATION') {
           snackBar.open('This request has been resolved or is no longer available.')
         } else if (notification.sub_category === 'USER_TRANSFER') {
           snackBar.open('This request has been resolved or is no longer available.')
         }
+      // tslint:disable-next-line:align
       }, error => {
+        // tslint:disable-next-line:no-console
         console.error('Error while fetching workflow search data', error)
         snackBar.open('Error while fetching approval data')
       })
     } else if (['TRANSFER_UPDATE', 'PROFILE_UPDATE'].includes(notification.sub_category)) {
-      this.router.navigate([`/app/person-profile/me`])
+      this.router.navigate(['/app/person-profile/me'])
     }
   }
 
   handleDiscussionRedirection(notification: any, environment: any, roles: any[]): void {
     if (notification.sub_category === 'LEARN_DISCUSSION_POST_COMMENT' || notification.sub_category === 'LEARN_DISCUSSION_POST_REPLY') {
       if (roles.includes('CONTENT_CREATOR')) {
-        let url = `${environment.portalsForNotifications.cbp}/author/content-detail/${notification.message.data.id}/overview-v2?preview=true&editMode=true&commentId=${notification.message.data.commentId}`
+        // tslint:disable-next-line:max-line-length
+        const url = `${environment.portalsForNotifications.cbp}/author/content-detail/${notification.message.data.id}/overview-v2?preview=true&editMode=true&commentId=${notification.message.data.commentId}`
         window.open(url, '_blank')
       } else {
         this.router.navigate([`/app/toc/${notification.message.data.id}`],
+          // tslint:disable-next-line:align
           {
             queryParams: {
-              commentId: notification.message.data.commentId
-            }
+              commentId: notification.message.data.commentId,
+            },
           })
       }
     } else if (notification.sub_category === 'PROFANITY_CHECK') {
       this.router.navigate([
-        `/app/discussion-forum-v2/community/${notification.message.data.communityId}/${notification.message.data.discussionId}`
+        `/app/discussion-forum-v2/community/${notification.message.data.communityId}/${notification.message.data.discussionId}`,
+        // tslint:disable-next-line:align
       ], { queryParams: { profanity: notification.sub_category } })
     } else {
+      // tslint:disable-next-line:max-line-length
       this.router.navigate([`/app/discussion-forum-v2/community/${notification.message.data.communityId}/${notification.message.data.discussionId}`])
     }
   }
@@ -171,7 +182,7 @@ export class NotificationsService {
           const connection = res.find((item: any) => item.userId === notification.message.data.id)
           if (connection) {
             this.router.navigateByUrl('/app/network-v2', { skipLocationChange: true }).then(() => {
-              this.router.navigate([`/app/network-v2/connections`])
+              this.router.navigate(['/app/network-v2/connections'])
             })
           } else {
             snackBar.open('This request has been resolved or is no longer available.')
@@ -182,7 +193,7 @@ export class NotificationsService {
       })
     } else {
       this.router.navigateByUrl('/app/network-v2', { skipLocationChange: true }).then(() => {
-        this.router.navigate([`/app/network-v2/connections`])
+        this.router.navigate(['/app/network-v2/connections'])
       })
     }
   }
@@ -203,16 +214,17 @@ export class NotificationsService {
         snackBar.open('Something went wrong. Please try again later.')
       }
     } else if (notification.sub_category === 'CONTENT_RETIRED') {
-      snackBar.open(`This content is retired. You can not access it now.`)
+      snackBar.open('This content is retired. You can not access it now.')
     } else if (notification.sub_category === 'RETAKE_MANDATORY_COMPREHENSIVE_ASSESSMENT_PROGRAM') {
-      this.router.navigate(['/viewer/practice/', notification.message.data.assessmentId,],
+      this.router.navigate(['/viewer/practice/', notification.message.data.assessmentId],
+        // tslint:disable-next-line:align
         {
           queryParams: {
             primaryCategory: notification.message.data.primaryCategory,
             collectionId: notification.message.data.collectionId,
             collectionType: notification.message.data.collectionType,
             batchId: notification.message.data.batchId,
-          }
+          },
         }
       )
     } else if (notification.sub_category === 'CONTENT_UN_ENROLLED' || notification.sub_category === 'CONTENT_RE_ENROLLED') {
@@ -229,13 +241,16 @@ export class NotificationsService {
   }
 
   handleRedirection(notification: any, environment: any, roles: any[], snackBar: any): void {
+    // tslint:disable-next-line:no-console
     console.log('notification', notification)
     if (notification.sub_category === 'AWARD_BADGES') {
       this.router.navigateByUrl('/badges')
     }
+    // tslint:disable-next-line:brace-style
     else if (notification.sub_category === 'AWARD_BADGES_REMINDER') {
       this.router.navigateByUrl(`/app/toc/${notification?.message?.data?.[0]?.courseId}`)
     }
+    // tslint:disable-next-line:brace-style
     else if (notification.category === 'LEARN') {
       this.handleTocRedirection(notification, snackBar)
     } else if (notification.category === 'EVENT') {
@@ -259,12 +274,15 @@ export class NotificationsService {
           }
           if (res.status === 'Live') {
             if (notification.sub_category === 'BP_ASSIGNMENT_SUBMIT' || notification.sub_category === 'BP_ADD_INSTRUCTOR') {
+              // tslint:disable-next-line:max-line-length
               window.open(`${environment.portalsForNotifications.cbp}/author/content-detail/${notification.message.data.id}/batches/${notification.message.data.batchId}/assignments`, '_blank')
             } else {
+              // tslint:disable-next-line:max-line-length
               window.open(`${environment.portalsForNotifications.cbp}/author/content-detail/${notification.message.data.id}/overview-v2?isStandaloneResource=${isStandaloneResource}`, '_blank')
             }
           } else if (res.status === 'Draft') {
             if (roles.includes('CONTENT_CREATOR')) {
+              // tslint:disable-next-line:max-line-length
               window.open(`${environment.portalsForNotifications.cbp}/author/editor/${notification.message.data.id}/collectionV2?isStandaloneResource=${isStandaloneResource}`, '_blank')
             } else {
               snackBar.open('You are not authorized to view this content.')

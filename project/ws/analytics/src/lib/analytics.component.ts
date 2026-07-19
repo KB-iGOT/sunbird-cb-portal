@@ -8,7 +8,7 @@ import { Component, OnInit } from '@angular/core'
     </p>
   `,
     styles: [],
-    standalone: false
+    standalone: false,
 })
 export class AnalyticsComponent implements OnInit {
 

@@ -1,3 +1,4 @@
+/* tslint:disable:object-shorthand-properties-first prefer-template */
 import { Component, OnInit } from '@angular/core'
 import { Location } from '@angular/common'
 import { ActivatedRoute, Router } from '@angular/router'
@@ -9,10 +10,10 @@ import { SuccessDialogComponent } from '../survey-dialog/components/success-dial
 import { VideoPreviewDialogComponent } from '../survey-dialog/components/video-preview-dialog/video-preview-dialog.component'
 
 @Component({
-    selector: 'ws-app-review-page',
-    templateUrl: './review-page.component.html',
-    styleUrls: ['./review-page.component.scss'],
-    standalone: false
+  selector: 'ws-app-review-page',
+  templateUrl: './review-page.component.html',
+  styleUrls: ['./review-page.component.scss'],
+  standalone: false,
 })
 export class ReviewPageComponent implements OnInit {
   requestId: string | null = null

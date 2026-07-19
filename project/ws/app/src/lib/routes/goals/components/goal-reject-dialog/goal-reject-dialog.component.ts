@@ -8,7 +8,7 @@ import { TFetchStatus } from '@sunbird-cb/utils-v2'
     selector: 'ws-app-goal-reject-dialog',
     templateUrl: './goal-reject-dialog.component.html',
     styleUrls: ['./goal-reject-dialog.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class GoalRejectDialogComponent implements OnInit {
   @ViewChild('errorReject', { static: true }) errorRejectMessage!: ElementRef<

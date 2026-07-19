@@ -7,7 +7,7 @@ import { TFetchStatus } from '@sunbird-cb/utils-v2'
     selector: 'ws-app-goal-me',
     templateUrl: './goal-me.component.html',
     styleUrls: ['./goal-me.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class GoalMeComponent implements OnInit {
   fetchGoalsStatus: TFetchStatus = 'none'

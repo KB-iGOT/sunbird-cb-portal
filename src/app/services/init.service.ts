@@ -1,3 +1,4 @@
+/* tslint:disable: max-length max-line-length no-console */
 import { APP_BASE_HREF } from '@angular/common'
 import { HttpClient, HttpHeaders } from '@angular/common/http'
 import { Inject, Injectable } from '@angular/core'
@@ -18,7 +19,7 @@ import {
 } from '@sunbird-cb/utils-v2'
 import { environment } from '../../environments/environment'
 /* tslint:disable */
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { firstValueFrom } from 'rxjs'
 import { map } from 'rxjs/operators'
 import { v4 as uuid } from 'uuid'
@@ -33,6 +34,7 @@ import { CommonDataService } from './common-data.service'
 import { FormExtService } from './form-ext.service'
 declare const smartech: any
 /* tslint:enable */
+/* tslint:disable: max-length max-line-length no-console */
 
 @Injectable({
   providedIn: 'root',
@@ -855,6 +857,7 @@ export class InitService {
     /* tslint:disable */
     console.log('userEnrollmentCount', userEnrollmentCount)
     /* tslint:enable */
+    /* tslint:disable: max-length max-line-length no-console */
     const userInfoPayload: any = {}
     userInfoPayload['TOTAL_EXPERIENCE'] = ''
     if (this.configSvc && this.configSvc.unMappedUser && this.configSvc.unMappedUser.identifier) {

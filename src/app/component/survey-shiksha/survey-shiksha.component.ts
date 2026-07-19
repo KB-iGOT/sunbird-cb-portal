@@ -6,7 +6,7 @@ import { DomSanitizer } from '@angular/platform-browser'
     selector: 'ws-survey-shiksha',
     templateUrl: './survey-shiksha.component.html',
     styleUrls: ['./survey-shiksha.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class SurveyShikshaComponent implements OnInit {
   hostUrl = environment.azureHost

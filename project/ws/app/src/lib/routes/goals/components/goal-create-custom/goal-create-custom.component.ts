@@ -9,7 +9,7 @@ import { Router, ActivatedRoute } from '@angular/router'
     selector: 'ws-app-goal-create-custom',
     templateUrl: './goal-create-custom.component.html',
     styleUrls: ['./goal-create-custom.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class GoalCreateCustomComponent implements OnInit {
   @ViewChild('selectContent', { static: true })
@@ -127,7 +127,7 @@ export class GoalCreateCustomComponent implements OnInit {
   scroll(shareGoalStep: HTMLElement) {
     setTimeout(() => {
       shareGoalStep.scrollIntoView({ behavior: 'smooth' })
-    }, 100)
+    },         100)
   }
 
   createGoal() {

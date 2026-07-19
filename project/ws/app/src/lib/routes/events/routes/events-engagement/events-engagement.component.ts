@@ -8,7 +8,7 @@ import { Router } from '@angular/router'
   selector: 'ws-app-events-engagement',
   templateUrl: './events-engagement.component.html',
   styleUrls: ['./events-engagement.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class EventsEngagementComponent implements OnInit {
 

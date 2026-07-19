@@ -12,7 +12,7 @@ import { MatDialog } from '@angular/material/dialog'
     selector: 'ws-app-chatbot',
     templateUrl: './app-chatbot.component.html',
     styleUrls: ['./app-chatbot.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class AppChatbotComponent implements OnInit, AfterViewChecked, OnChanges {
   @Input() rootOrgId: any

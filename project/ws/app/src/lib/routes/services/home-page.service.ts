@@ -4,17 +4,17 @@ import { Observable, Subject } from 'rxjs'
 import { shareReplay } from 'rxjs/operators'
 
 const API_END_POINTS = {
-  INSIGHTS: `apis/proxies/v8/read/user/insights`,
-  DISCUSSIONS: `apis/proxies/v8/discussion/user/`,
+  INSIGHTS: 'apis/proxies/v8/read/user/insights',
+  DISCUSSIONS: 'apis/proxies/v8/discussion/user/',
   // NETWORK: `apis/protected/v8/connections/v2/connections/recommended`,
   GET_RECOMMENDED_USERS: '/apis/proxies/v8/connections/v3/connections/recommended',
-  ADD_CONNECTION: `apis/protected/v8/connections/v2/add/connection`,
-  UPDATE_CONNECTION: `apis/protected/v8/connections/v2/update/connection`,
-  CONN_REQUESTED: `apis/protected/v8/connections/v2/connections/requests/received`,
-  TRENDING_DISCUSSION: `apis/proxies/v8/discussion/popular`,
-  ASSESSMENT_DATA: `apis/proxies/v8/wheebox/read`,
-  LEADER_BOARD: `apis/proxies/v8/halloffame/learnerleaderboard`,
-  EVENT_ENROLL: `apis/proxies/v8/user/events/enroll/summary`
+  ADD_CONNECTION: 'apis/protected/v8/connections/v2/add/connection',
+  UPDATE_CONNECTION: 'apis/protected/v8/connections/v2/update/connection',
+  CONN_REQUESTED: 'apis/protected/v8/connections/v2/connections/requests/received',
+  TRENDING_DISCUSSION: 'apis/proxies/v8/discussion/popular',
+  ASSESSMENT_DATA: 'apis/proxies/v8/wheebox/read',
+  LEADER_BOARD: 'apis/proxies/v8/halloffame/learnerleaderboard',
+  EVENT_ENROLL: 'apis/proxies/v8/user/events/enroll/summary',
 }
 
 @Injectable({

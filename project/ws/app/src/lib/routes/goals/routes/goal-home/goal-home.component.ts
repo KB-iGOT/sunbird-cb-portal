@@ -7,7 +7,7 @@ import { BtnGoalsService } from '@sunbird-cb/collection'
     selector: 'ws-app-goal-home',
     templateUrl: './goal-home.component.html',
     styleUrls: ['./goal-home.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class GoalHomeComponent implements OnInit {
   navBackground: Partial<NsPage.INavBackground>

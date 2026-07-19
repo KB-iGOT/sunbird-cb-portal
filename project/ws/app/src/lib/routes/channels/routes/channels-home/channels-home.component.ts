@@ -7,7 +7,7 @@ import { NsContent } from '@sunbird-cb/utils-v2'
   selector: 'ws-app-channels-home',
   templateUrl: './channels-home.component.html',
   styleUrls: ['./channels-home.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class ChannelsHomeComponent implements OnInit {
   labelFilters: IFilterUnitContent[] = []

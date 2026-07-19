@@ -2,18 +2,18 @@ import { Component, OnInit, OnDestroy } from '@angular/core'
 import { BrowseCompetencyService } from '../../services/browse-competency.service'
 import { NSBrowseCompetency } from '../../models/competencies.model'
 // tslint:disable
-import _ from 'lodash'
-import { ActivatedRoute } from '@angular/router';
-import { Subscription, Observable } from 'rxjs';
-import { UntypedFormGroup, UntypedFormControl } from '@angular/forms';
+import * as _ from 'lodash'
+import { ActivatedRoute } from '@angular/router'
+import { Subscription, Observable } from 'rxjs'
+import { UntypedFormGroup, UntypedFormControl } from '@angular/forms'
 import { ValueService } from '@sunbird-cb/utils-v2'
-import { LocalDataService } from '../../services/localService';
+import { LocalDataService } from '../../services/localService'
 
 @Component({
-    selector: 'ws-app-competency-details',
-    templateUrl: './competency-details.component.html',
-    styleUrls: ['./competency-details.component.scss'],
-    standalone: false
+  selector: 'ws-app-competency-details',
+  templateUrl: './competency-details.component.html',
+  styleUrls: ['./competency-details.component.scss'],
+  standalone: false
 })
 export class CompetencyDetailsComponent implements OnInit, OnDestroy {
   private paramSubscription: Subscription | null = null
@@ -80,7 +80,7 @@ export class CompetencyDetailsComponent implements OnInit, OnDestroy {
 
     // Fetch initial data
     // this.searchCompetency()
-    if(!this.currentComp) {
+    if (!this.currentComp) {
       this.searchCompetencyV2()
     }
     this.getCbps()
@@ -176,10 +176,10 @@ export class CompetencyDetailsComponent implements OnInit, OnDestroy {
     this.browseCompServ
       .searchCompetency(req)
       .subscribe((response: any) => {
-          // console.log('response :: ', response)
-            if (response) {
-              this.competencyData = _.first(_.filter(response, { 'name': this.competencyName }))
-            }
+        // console.log('response :: ', response)
+        if (response) {
+          this.competencyData = _.first(_.filter(response, { 'name': this.competencyName }))
+        }
       })
   }
 

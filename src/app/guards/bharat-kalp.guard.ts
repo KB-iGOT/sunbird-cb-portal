@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core'
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot, UrlTree } from '@angular/router'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
-import _ from 'lodash'
+import * as _ from 'lodash'
 
 @Injectable({
   providedIn: 'root',

@@ -5,7 +5,7 @@ import { take } from 'rxjs/operators'
 @Directive({
     // tslint:disable-next-line
     selector: '[clickOutside]',
-    standalone: false
+    standalone: false,
 })
 export class ClickOutsideDirective implements OnInit {
   @Output() clickOutside = new EventEmitter()

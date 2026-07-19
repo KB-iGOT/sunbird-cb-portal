@@ -10,7 +10,7 @@ import { filter, switchMap, takeUntil } from 'rxjs/operators'
   selector: 'ws-app-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class HomeComponent implements OnInit, OnDestroy {
   currentTabIndex!: number

@@ -6,7 +6,7 @@ import { mapTo } from 'rxjs/operators'
     selector: 'app-no-connection',
     templateUrl: './no-connection.component.html',
     styleUrls: ['./no-connection.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class NoConnectionComponent {
     online$: Observable<boolean>

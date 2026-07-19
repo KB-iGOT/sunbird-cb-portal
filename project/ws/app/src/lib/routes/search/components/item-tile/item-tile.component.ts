@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router'
     selector: 'ws-app-item-tile',
     templateUrl: './item-tile.component.html',
     styleUrls: ['./item-tile.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ItemTileComponent implements OnInit {
   @Input() data: any = {} as any

@@ -31,7 +31,7 @@ import { DeleteDialogComponent } from '../../../../../../../../modules/shared/co
     providers: [{
             provide: STEPPER_GLOBAL_OPTIONS, useValue: { displayDefaultIndicatorType: false },
         }],
-    standalone: false
+    standalone: false,
 })
 export class UploadComponent implements OnInit, OnDestroy {
   contents: NSContent.IContentMeta[] = []

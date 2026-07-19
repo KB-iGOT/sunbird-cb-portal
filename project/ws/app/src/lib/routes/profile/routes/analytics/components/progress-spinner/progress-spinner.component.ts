@@ -4,7 +4,7 @@ import { Component, OnInit, Input } from '@angular/core'
     selector: 'ws-app-progress-spinner',
     templateUrl: './progress-spinner.component.html',
     styleUrls: ['./progress-spinner.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ProgressSpinnerComponent implements OnInit {
 //   @Input() contentId = ''

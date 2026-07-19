@@ -11,7 +11,7 @@ import { MatSnackBar } from '@angular/material/snack-bar'
     selector: 'ws-send-mail-dialog',
     templateUrl: './send-mail-dialog.component.html',
     styleUrls: ['./send-mail-dialog.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class SendMailDialogComponent implements OnInit {
   mailBodyText = ''

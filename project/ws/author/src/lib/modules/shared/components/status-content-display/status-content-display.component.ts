@@ -4,7 +4,7 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core'
     selector: 'ws-auth-status-content-display',
     templateUrl: './status-content-display.component.html',
     styleUrls: ['./status-content-display.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class StatusContentDisplayComponent implements OnInit {
   @Input() workFlow: IContentFlow[] | undefined

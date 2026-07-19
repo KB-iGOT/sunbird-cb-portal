@@ -3,7 +3,7 @@ import { NsPlaylist } from '@sunbird-cb/collection'
 
 @Pipe({
     name: 'filterPlaylist',
-    standalone: false
+    standalone: false,
 })
 export class FilterPlaylistPipe implements PipeTransform {
   transform(playlists: any, searchPlaylistQuery: string): NsPlaylist.IPlaylist[] | undefined {

@@ -6,7 +6,7 @@ import { AccessControlService } from '../../services/access-control.service'
     selector: 'ws-auth-last-update-display',
     templateUrl: './last-update-display.component.html',
     styleUrls: ['./last-update-display.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class LastUpdateDisplayComponent implements OnInit {
   @Input() lastUpdatedOn!: string

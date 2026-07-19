@@ -35,7 +35,7 @@ import { CommentsDialogComponent } from '../../../../../../../../../modules/shar
     selector: 'ws-auth-add-web-pages',
     templateUrl: './add-web-pages.component.html',
     styleUrls: ['./add-web-pages.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class AddWebPagesComponent implements OnInit, OnDestroy {
   @Output() data = new EventEmitter<string>()

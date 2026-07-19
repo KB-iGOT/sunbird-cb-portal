@@ -1,12 +1,14 @@
-import { HttpClient } from "@angular/common/http"
-import { Injectable } from "@angular/core"
+import { HttpClient } from '@angular/common/http'
+import { Injectable } from '@angular/core'
 
+// tslint:disable-next-line: interface-name
 export interface ChatMessage {
   sender: 'bot' | 'user'
   text?: string
   activity?: any
 }
 
+// tslint:disable-next-line: interface-name
 export interface ChatResponse {
   session_id: string
   activities: any[]
@@ -15,11 +17,8 @@ export interface ChatResponse {
   ticket_id?: string
 }
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
-
-
-
 export class SupportAiService {
   private SUPPORT_AI_API = {
     LIST_SESSION:
@@ -32,11 +31,11 @@ export class SupportAiService {
       `/apis/proxies/v8/ai/chatbot/v1/sessions/history/${sessionId}`,
 
     SEND_TURN: (sessionId: string) =>
-      `/apis/proxies/v8/ai/chatbot/v1/sessions/turn/${sessionId}`
+      `/apis/proxies/v8/ai/chatbot/v1/sessions/turn/${sessionId}`,
   }
   // private baseUrl = 'apis/proxies/v8';
   constructor(
-    private http: HttpClient
+    private http: HttpClient,
   ) { }
 
   listSessions() {
@@ -50,8 +49,8 @@ export class SupportAiService {
       this.SUPPORT_AI_API.CREATE_SESSION,
       {
         channel: 'web',
-        language: 'en'
-      }
+        language: 'en',
+      },
     )
   }
 
@@ -67,7 +66,7 @@ export class SupportAiService {
   ) {
     return this.http.post(
       this.SUPPORT_AI_API.SEND_TURN(sessionId),
-      payload
+      payload,
     )
   }
 }

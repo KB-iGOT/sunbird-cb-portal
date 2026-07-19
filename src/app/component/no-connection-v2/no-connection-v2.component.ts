@@ -36,9 +36,12 @@ export class NoConnectionV2Component implements OnDestroy {
     if (this.hideTimeout) {
       clearTimeout(this.hideTimeout)
     }
-    this.hideTimeout = setTimeout(() => {
-      this.display.set(false)
-    }, 3000)
+    this.hideTimeout = setTimeout(
+      () => {
+        this.display.set(false)
+      },
+      3000,
+    )
   }
 
   ngOnDestroy() {

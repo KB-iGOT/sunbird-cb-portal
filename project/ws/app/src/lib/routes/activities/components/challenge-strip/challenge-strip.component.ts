@@ -8,7 +8,7 @@ import { Router } from '@angular/router'
     selector: 'ws-app-challenge-strip',
     templateUrl: './challenge-strip.component.html',
     styleUrls: ['./challenge-strip.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ChallengeStripComponent implements OnInit {
   @Input() widgetData!: IChallenges

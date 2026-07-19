@@ -14,7 +14,7 @@ import { environment } from 'src/environments/environment'
     selector: 'ws-app-gyaan-karmayogi-view-all',
     templateUrl: './gyaan-karmayogi-view-all.component.html',
     styleUrls: ['./gyaan-karmayogi-view-all.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class GyaanKarmayogiViewAllComponent implements OnInit {
   sectorsList = []

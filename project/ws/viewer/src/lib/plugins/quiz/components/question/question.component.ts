@@ -7,7 +7,7 @@ import { jsPlumb, OnConnectionBindInfo } from 'jsplumb'
     selector: 'viewer-question',
     templateUrl: './question.component.html',
     styleUrls: ['./question.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class QuestionComponent implements OnInit, AfterViewInit {
 

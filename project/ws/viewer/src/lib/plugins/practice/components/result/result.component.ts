@@ -8,7 +8,7 @@ import * as _ from 'lodash'
     selector: 'viewer-result',
     templateUrl: './result.component.html',
     styleUrls: ['./result.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ResultComponent implements OnInit, OnChanges {
   @Input() percentage = 0

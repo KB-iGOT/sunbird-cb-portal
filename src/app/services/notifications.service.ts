@@ -6,12 +6,12 @@ import * as _ from 'lodash'
 import { Router } from '@angular/router'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import moment from 'moment'
-
 const API_END_POINTS = {
   NOTIFICATIONS_COUNT: 'apis/proxies/v8/v1/notifications/unread/count',
   RESET_NOTIFICATIONS_COUNT: 'apis/proxies/v8/v1/notifications/reset/unread/count',
   CONTENT_READ: (contentId: any) => `/apis/proxies/v8/content/v2/read/${contentId}`,
   WORKFLOW_SEARCH: 'apis/protected/v8/workflowhandler/profileApprovalSearch',
+  // tslint:disable-next-line: max-line-length
   CONNECTION_REQUEST: (pageNo: any, pageSize: any) => `apis/protected/v8/connections/v2/connections/requests/received?pageNo=${pageNo}&pageSize=${pageSize}`,
 }
 
@@ -23,9 +23,10 @@ export class NotificationsService {
   closeDialogPop = new Subject()
   nofificationsCount = new Subject()
   orgName: string = ''
-  constructor(private http: HttpClient,
-              private router: Router,
-              private configService: ConfigurationsService,
+  constructor(
+    private http: HttpClient,
+    private router: Router,
+    private configService: ConfigurationsService,
   ) {
     if (this.configService && this.configService.unMappedUser
       && this.configService.unMappedUser.profileDetails
@@ -89,10 +90,12 @@ export class NotificationsService {
     }
   }
 
+  // tslint:disable-next-line: max-line-length
   handleReviewStatus(res: any, notification: any, isStandaloneResource: boolean, roles: string[], environment: any, snackBar: any): void {
     switch (res.reviewStatus) {
       case 'InReview': {
         if (roles.includes('CONTENT_REVIEWER')) {
+          // tslint:disable-next-line: max-line-length
           window.open(`${environment.portalsForNotifications.cbp}/author/editor/${notification.message.data.id}/collectionV2?isStandaloneResource=${isStandaloneResource}&preview=true&editMode=true&status=Review&reviewStatus=${res.reviewStatus}`, '_blank')
         } else {
           snackBar.open('You are not authorized to view this content.')
@@ -100,6 +103,7 @@ export class NotificationsService {
         break
       } case 'Reviewed': {
         if (roles.includes('CONTENT_PUBLISHER')) {
+          // tslint:disable-next-line: max-line-length
           window.open(`${environment.portalsForNotifications.cbp}/author/editor/${notification.message.data.id}/collectionV2?isStandaloneResource=${isStandaloneResource}`, '_blank')
         } else {
           snackBar.open('You are not authorized to view this content.')
@@ -125,7 +129,9 @@ export class NotificationsService {
         } else if (notification.sub_category === 'USER_TRANSFER') {
           snackBar.open('This request has been resolved or is no longer available.')
         }
-      },                                           error => {
+        // tslint:disable-next-line: align
+      }, error => {
+        // tslint:disable-next-line: no-console
         console.error('Error while fetching workflow search data', error)
         snackBar.open('Error while fetching approval data')
       })
@@ -135,23 +141,31 @@ export class NotificationsService {
   }
 
   handleDiscussionRedirection(notification: any, environment: any, roles: any[]): void {
+    // tslint:disable-next-line: max-line-length
     if (notification.sub_category === 'LEARN_DISCUSSION_POST_COMMENT' || notification.sub_category === 'LEARN_DISCUSSION_POST_REPLY') {
       if (roles.includes('CONTENT_CREATOR')) {
+        // tslint:disable-next-line: max-line-length
         const url = `${environment.portalsForNotifications.cbp}/author/content-detail/${notification.message.data.id}/overview-v2?preview=true&editMode=true&commentId=${notification.message.data.commentId}`
         window.open(url, '_blank')
       } else {
-        this.router.navigate([`/app/toc/${notification.message.data.id}`],
-                             {
+        this.router.navigate(
+          [`/app/toc/${notification.message.data.id}`],
+          {
             queryParams: {
               commentId: notification.message.data.commentId,
             },
-          })
+          }
+        )
       }
     } else if (notification.sub_category === 'PROFANITY_CHECK') {
-      this.router.navigate([
-        `/app/discussion-forum-v2/community/${notification.message.data.communityId}/${notification.message.data.discussionId}`,
-      ],                   { queryParams: { profanity: notification.sub_category } })
+      this.router.navigate(
+        [
+          `/app/discussion-forum-v2/community/${notification.message.data.communityId}/${notification.message.data.discussionId}`,
+        ],
+        { queryParams: { profanity: notification.sub_category } }
+      )
     } else {
+      // tslint:disable-next-line: max-line-length
       this.router.navigate([`/app/discussion-forum-v2/community/${notification.message.data.communityId}/${notification.message.data.discussionId}`])
     }
   }
@@ -205,8 +219,9 @@ export class NotificationsService {
     } else if (notification.sub_category === 'CONTENT_RETIRED') {
       snackBar.open('This content is retired. You can not access it now.')
     } else if (notification.sub_category === 'RETAKE_MANDATORY_COMPREHENSIVE_ASSESSMENT_PROGRAM') {
-      this.router.navigate(['/viewer/practice/', notification.message.data.assessmentId ],
-                           {
+      this.router.navigate(
+        ['/viewer/practice/', notification.message.data.assessmentId],
+        {
           queryParams: {
             primaryCategory: notification.message.data.primaryCategory,
             collectionId: notification.message.data.collectionId,
@@ -217,7 +232,7 @@ export class NotificationsService {
       )
     } else if (notification.sub_category === 'EXTERNAL_TRAINING') {
       this.router.navigateByUrl('/page/competency-passbook/list', { skipLocationChange: true }).then(() => {
-        this.router.navigate([`/page/competency-passbook/list`])
+        this.router.navigate(['/page/competency-passbook/list'])
       })
     } else {
       this.router.navigateByUrl('/app/toc', { skipLocationChange: true }).then(() => {
@@ -227,14 +242,11 @@ export class NotificationsService {
   }
 
   handleRedirection(notification: any, environment: any, roles: any[], snackBar: any): void {
-    console.log('notification', notification)
     if (notification.sub_category === 'AWARD_BADGES') {
       this.router.navigateByUrl('/badges')
-    }
-    else if (notification.sub_category === 'AWARD_BADGES_REMINDER') {
+    } else if (notification.sub_category === 'AWARD_BADGES_REMINDER') {
       this.router.navigateByUrl(`/app/toc/${notification?.message?.data?.[0]?.courseId}`)
-    }
-    else if (notification.category === 'LEARN') {
+    } else if (notification.category === 'LEARN') {
       this.handleTocRedirection(notification, snackBar)
     } else if (notification.category === 'EVENT') {
       this.handleEventRedirection(notification, environment)
@@ -257,12 +269,15 @@ export class NotificationsService {
           }
           if (res.status === 'Live') {
             if (notification.sub_category === 'BP_ASSIGNMENT_SUBMIT' || notification.sub_category === 'BP_ADD_INSTRUCTOR') {
+              // tslint:disable-next-line: max-line-length
               window.open(`${environment.portalsForNotifications.cbp}/author/content-detail/${notification.message.data.id}/batches/${notification.message.data.batchId}/assignments`, '_blank')
             } else {
+              // tslint:disable-next-line: max-line-length
               window.open(`${environment.portalsForNotifications.cbp}/author/content-detail/${notification.message.data.id}/overview-v2?isStandaloneResource=${isStandaloneResource}`, '_blank')
             }
           } else if (res.status === 'Draft') {
             if (roles.includes('CONTENT_CREATOR')) {
+              // tslint:disable-next-line: max-line-length
               window.open(`${environment.portalsForNotifications.cbp}/author/editor/${notification.message.data.id}/collectionV2?isStandaloneResource=${isStandaloneResource}`, '_blank')
             } else {
               snackBar.open('You are not authorized to view this content.')

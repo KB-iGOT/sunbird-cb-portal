@@ -6,7 +6,7 @@ import { Router } from '@angular/router'
     selector: 'ws-request-success-dialog',
     templateUrl: './request-success-dialog.component.html',
     styleUrls: ['./request-success-dialog.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class RequestSuccessDialogComponent implements OnInit {
   reqType: any
@@ -15,7 +15,7 @@ export class RequestSuccessDialogComponent implements OnInit {
   constructor(
     public dialogRef: MatDialogRef<RequestSuccessDialogComponent>,
     @Inject(MAT_DIALOG_DATA) public data: any,
-    private router: Router
+    private router: Router,
   ) { this.dialogRef.disableClose = true }
 
   ngOnInit() {

@@ -9,7 +9,7 @@ import { TranslateService } from '@ngx-translate/core'
     selector: 'ws-app-karma-programs-microsite-v1',
     templateUrl: './karma-programs-microsite-v1.component.html',
     styleUrls: ['./karma-programs-microsite-v1.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class KarmaProgramsMicrositeV1Component implements OnInit {
   programName = ''

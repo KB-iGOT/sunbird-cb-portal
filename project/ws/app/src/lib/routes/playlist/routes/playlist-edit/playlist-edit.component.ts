@@ -9,7 +9,7 @@ import { PLAYLIST_TITLE_MIN_LENGTH, PLAYLIST_TITLE_MAX_LENGTH } from '../../cons
     selector: 'ws-app-playlist-edit',
     templateUrl: './playlist-edit.component.html',
     styleUrls: ['./playlist-edit.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class PlaylistEditComponent implements OnInit {
 

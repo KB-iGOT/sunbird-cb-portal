@@ -11,7 +11,7 @@ import * as _ from 'lodash'
   selector: 'ws-app-connection-people-card',
   templateUrl: './connection-people-card.component.html',
   styleUrls: ['./connection-people-card.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class ConnectionPeopleCardComponent implements OnInit {
   @Input() user!: NSNetworkDataV2.INetworkUser
@@ -77,18 +77,21 @@ export class ConnectionPeopleCardComponent implements OnInit {
       }
     } else if (this.user && this.user.personalDetails) {
       if (this.user.personalDetails.middlename) {
+        // tslint:disable-next-line: max-length max-line-length
         if (this.user.personalDetails.surname && this.user.personalDetails.surname !== null && this.user.personalDetails.surname !== undefined) {
           name = `${this.user.personalDetails.firstname} ${this.user.personalDetails.middlename} ${this.user.personalDetails.surname}`
         } else {
           name = `${this.user.personalDetails.firstname} ${this.user.personalDetails.middlename}`
         }
       } else if (this.user.personalDetails.firstname) {
+        // tslint:disable-next-line: max-length max-line-length
         if (this.user.personalDetails.surname && this.user.personalDetails.surname !== null && this.user.personalDetails.surname !== undefined) {
           name = `${this.user.personalDetails.firstname} ${this.user.personalDetails.surname}`
         } else {
           name = `${this.user.personalDetails.firstname}`
         }
       } else if (this.user.personalDetails.firstName) {
+        // tslint:disable-next-line: max-length max-line-length
         if (this.user.personalDetails.surname && this.user.personalDetails.surname !== null && this.user.personalDetails.surname !== undefined) {
           name = `${this.user.personalDetails.firstName} ${this.user.personalDetails.surname}`
         } else {

@@ -1,10 +1,11 @@
+/* tslint:disable:max-line-length */
 import { Component, OnInit, Input, AfterViewInit, ElementRef, ViewChild, OnDestroy } from '@angular/core'
 import { Chart } from 'chart.js'
 @Component({
-    selector: 'ws-app-bubble-chart',
-    templateUrl: './bubble-chart.component.html',
-    styleUrls: ['./bubble-chart.component.scss'],
-    standalone: false
+  selector: 'ws-app-bubble-chart',
+  templateUrl: './bubble-chart.component.html',
+  styleUrls: ['./bubble-chart.component.scss'],
+  standalone: false,
 })
 export class BubbleChartComponent implements OnInit, AfterViewInit, OnDestroy {
   bubbleChart: Chart | null = null

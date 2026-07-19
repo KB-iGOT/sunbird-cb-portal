@@ -3,14 +3,14 @@ import { Router, Event, NavigationEnd, NavigationError, ActivatedRoute } from '@
 import { ValueService } from '@sunbird-cb/utils-v2'
 import { map } from 'rxjs/operators'
 // tslint:disable
-import _ from 'lodash'
-import { Subscription } from 'rxjs';
+import * as _ from 'lodash'
+import { Subscription } from 'rxjs'
 
 @Component({
-    selector: 'ws-app-provider-details',
-    templateUrl: './provider-details.component.html',
-    styleUrls: ['./provider-details.component.scss'],
-    standalone: false
+  selector: 'ws-app-provider-details',
+  templateUrl: './provider-details.component.html',
+  styleUrls: ['./provider-details.component.scss'],
+  standalone: false
 })
 export class ProviderDetailsComponent implements OnInit, OnDestroy {
   @ViewChild('stickyMenu', { static: true }) menuElement!: ElementRef
@@ -72,18 +72,18 @@ export class ProviderDetailsComponent implements OnInit, OnDestroy {
     this.paramSubscription = this.activatedRoute.params.subscribe(async params => {
       this.provider = _.get(params, 'provider')
       this.orgId = _.get(params, 'orgId')
-      this.querySubscription = this.activatedRoute.queryParams.subscribe((querData:any)=>{
-        if(querData && querData.pageDetails) {
+      this.querySubscription = this.activatedRoute.queryParams.subscribe((querData: any) => {
+        if (querData && querData.pageDetails) {
           let urlTomicrosite = `/app/learn/browse-by/provider/${this.provider}/${this.orgId}/micro-sites`
-          this.titles.push({ title: this.provider, icon: '', url: urlTomicrosite,  disableTranslate: true})
-          this.titles.push({ title: 'All Contents', icon: '', url: 'none', disableTranslate: false})
+          this.titles.push({ title: this.provider, icon: '', url: urlTomicrosite, disableTranslate: true })
+          this.titles.push({ title: 'All Contents', icon: '', url: 'none', disableTranslate: false })
         } else {
-          this.titles.push({ title: 'All Contents', icon: '', url: 'none', disableTranslate: false})
+          this.titles.push({ title: 'All Contents', icon: '', url: 'none', disableTranslate: false })
         }
       })
       this.initializeTabs()
     })
-    
+
     // pageDetails
     this.defaultSideNavBarOpenedSubscription = this.isLtMedium$.subscribe(isLtMedium => {
       this.sideNavBarOpened = !isLtMedium
@@ -100,12 +100,12 @@ export class ProviderDetailsComponent implements OnInit, OnDestroy {
       // this.titles.push({ title: this.provider, icon: '', url: 'none' })
       switch (path) {
         case 'overview':
-          this.titles.push({ title: 'Provider overview', icon: '', url: 'none', disableTranslate: false})
+          this.titles.push({ title: 'Provider overview', icon: '', url: 'none', disableTranslate: false })
           break
         case 'all-CBP':
           break
         case 'insights':
-          this.titles.push({ title: 'Insights', icon: '', url: 'none', disableTranslate: false})
+          this.titles.push({ title: 'Insights', icon: '', url: 'none', disableTranslate: false })
           break
         default:
           break

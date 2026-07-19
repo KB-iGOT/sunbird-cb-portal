@@ -6,7 +6,7 @@ import { TranslateService } from '@ngx-translate/core'
     selector: 'ws-app-add-topic',
     templateUrl: './add-topic.component.html',
     styleUrls: ['./add-topic.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class AddTopicDialogComponent implements OnInit {
 

@@ -81,7 +81,9 @@ export class AppTocResolverService {
           let currentRoute: string[] | string = window.location.href.split('/')
           currentRoute = currentRoute[currentRoute.length - 1]
           if (forPreview && currentRoute !== 'contents' && currentRoute !== 'overview') {
+            // eslint-disable-next-line max-len
             this.router.navigate([
+              // tslint:disable-next-line: max-length max-line-length
               `${forPreview ? '/author' : '/app'}/toc/${resolveData.data.identifier}/${resolveData.data.children.length ? 'contents' : 'overview'
               }?primaryCategory=${resolveData.data.primaryCategory}`,
             ])

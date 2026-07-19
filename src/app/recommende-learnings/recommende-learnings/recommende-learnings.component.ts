@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 /* tslint:disable */
-import _ from 'lodash'
+import * as _ from 'lodash'
 /* tslint:enable */
 import { TranslateService } from '@ngx-translate/core'
 import { MultilingualTranslationsService, NsContent, WidgetEnrollService } from '@sunbird-cb/utils-v2'
@@ -12,7 +12,7 @@ import { WidgetUserServiceLib } from '@sunbird-cb/consumption'
   selector: 'ws-recommende-learnings',
   templateUrl: './recommende-learnings.component.html',
   styleUrls: ['./recommende-learnings.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class RecommendeLearningsComponent implements OnInit {
   recommendedConfig: any
@@ -59,14 +59,14 @@ export class RecommendeLearningsComponent implements OnInit {
   }
 
   async getRecommendeLeanings() {
-    let response = await this.seeAllSvc.fetchDesigantionsData(this.recommendedConfig.strip.request.designationsList.path).toPromise()
+    const response = await this.seeAllSvc.fetchDesigantionsData(this.recommendedConfig.strip.request.designationsList.path).toPromise()
     if (response) {
-      let request = {
-        "request": {
-          "courseId": response
-        }
+      const request = {
+        'request': {
+          'courseId': response,
+        },
       }
-      let enollData = await this.enrollSvc.fetchEnrollContentData(request).toPromise().then(async (res: any) => {
+      const enollData = await this.enrollSvc.fetchEnrollContentData(request).toPromise().then(async (res: any) => {
         if (res && res.result && res.result.courses && res.result.courses.length) {
           return res.result.courses
         }
@@ -80,10 +80,10 @@ export class RecommendeLearningsComponent implements OnInit {
           'filters': {
             'identifier': response,
           },
-          "offset": 0,
-          "query": "",
-          "sort_by": {
-            "lastUpdatedOn": "desc"
+          'offset': 0,
+          'query': '',
+          'sort_by': {
+            'lastUpdatedOn': 'desc',
           },
         },
       }
@@ -97,9 +97,9 @@ export class RecommendeLearningsComponent implements OnInit {
   }
 
   getPilldata(courses: any, enollData: any, coursesArray: any) {
-    let avaialable: any[] = []
-    let inprogress: any[] = []
-    let completed: any[] = []
+    const avaialable: any[] = []
+    const inprogress: any[] = []
+    const completed: any[] = []
     let cbpData: any
     this.widgetSvc.getData('cbpData').subscribe((result => {
       cbpData = result
@@ -131,17 +131,17 @@ export class RecommendeLearningsComponent implements OnInit {
     })
     this.results.push({
       name: 'ravailable', courses: this.transformContentsToWidgets(
-        avaialable, this.recommendedConfig.strip)
-    }
+        avaialable, this.recommendedConfig.strip),
+    },
     )
     this.results.push({
       name: 'rinprogress', courses: this.transformContentsToWidgets(
-        inprogress, this.recommendedConfig.strip)
+        inprogress, this.recommendedConfig.strip),
     })
     this.results.push({
       name: 'rcompleted', courses: this.transformContentsToWidgets(
-        completed, this.recommendedConfig.strip)
-    }
+        completed, this.recommendedConfig.strip),
+    },
     )
     const _courses = this.results.find((key: any) => key.name === this.slectedPill)
     this.content = _courses ? _courses.courses : []

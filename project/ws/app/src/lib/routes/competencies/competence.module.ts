@@ -20,13 +20,12 @@ import { MatProgressBarModule } from '@angular/material/progress-bar'
 import { ReactiveFormsModule, FormsModule } from '@angular/forms'
 /*CkEditorModule, CKEditorService,*/
 import { AvatarPhotoModule, BtnPageBackModule } from '@sunbird-cb/collection'
-import { LoaderService } from '@ws/author'
+import { EditorSharedModule, LoaderService } from '@ws/author'
 import { InitResolver } from './resolvers/init-resolve.service'
 import { CompetenceAllComponent } from './routes/competence-all/competence-all.component'
 import { CompetenceSysComponent } from './routes/competence-sys/competence-sys.component'
 import { CompetencyDetailedViewComponent } from './routes/competency-detailed-view/competency-detailed-view.component'
 import { CompetencyAllWrapperComponent } from './routes/competency-all-wrapper/competency-all-wrapper.component'
-import { EditorSharedModule } from '@ws/author'
 import { CompetenciesAssessmentComponent } from './components/competencies-assessment/competencies-assessment.component'
 import { PracticePlModule } from '@ws/viewer/src/lib/plugins/practice/practice.module'
 import { CompetencyTestComponent } from './routes/competence-test/competence-test.component'
@@ -46,7 +45,7 @@ import { MatSelectModule } from '@angular/material/select'
 import { MatSidenavModule } from '@angular/material/sidenav'
 import { TranslateHttpLoader } from '@ngx-translate/http-loader'
 
-export function CompetencieHttpLoaderFactory(http: HttpClient) {
+export function competencieHttpLoaderFactory(http: HttpClient) {
     return new TranslateHttpLoader(http)
 }
 
@@ -103,7 +102,7 @@ export function CompetencieHttpLoaderFactory(http: HttpClient) {
         TranslateModule.forRoot({
             loader: {
                 provide: TranslateLoader,
-                useFactory: CompetencieHttpLoaderFactory,
+                useFactory: competencieHttpLoaderFactory,
                 deps: [HttpClient],
             },
         }),

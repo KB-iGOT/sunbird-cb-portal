@@ -3,7 +3,7 @@ import { HttpClient, HttpHeaders } from '@angular/common/http'
 import { NSNetworkDataV2 } from '../models/network-v2.model'
 import { map } from 'rxjs/operators'
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 // tslint:enable
 
 const API_ENDPOINTS = {
@@ -27,7 +27,7 @@ export class NetworkV2Service {
     private http: HttpClient) {
   }
   headers = new HttpHeaders({
-    'Cache-Control':  'no-cache, no-store, must-revalidate, post-check=0, pre-check=0',
+    'Cache-Control': 'no-cache, no-store, must-revalidate, post-check=0, pre-check=0',
     Pragma: 'no-cache',
     Expires: '0',
   })

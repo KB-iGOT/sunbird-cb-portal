@@ -1,3 +1,4 @@
+/* tslint:disable:interface-name function-name */
 import { Component, HostListener, OnInit } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
 import { HttpClient } from '@angular/common/http'
@@ -133,7 +134,6 @@ export class BharatKalpSeeAllComponent implements OnInit {
     return Math.min(Math.floor(diff / 7) + 1, this.weeks.length)
   }
 
-
   /** Content-type tabs (Courses/Programs/Events/Resources/...) present for the selected week (or across
    *  all weeks when "All Weeks" is selected) — a key only shows up as a tab if it has at least one id */
   get contentTypeTabs(): ContentTypeTab[] {
@@ -170,7 +170,7 @@ export class BharatKalpSeeAllComponent implements OnInit {
     if (this.selectedWeek === ALL_WEEKS) {
       const ids: string[] = []
       this.weeksData.forEach((wd: any) => {
-        ; ((wd?.content_ids?.[key]) || []).forEach((id: string) => {
+        ((wd?.content_ids?.[key]) || []).forEach((id: string) => {
           if (id && !ids.includes(id)) ids.push(id)
         })
       })
@@ -269,7 +269,7 @@ export class BharatKalpSeeAllComponent implements OnInit {
     if (total <= 7) return Array.from({ length: total }, (_, i) => i)
     const pages: (number | string)[] = [0]
     if (cur > 2) pages.push('...')
-    for (let i = Math.max(1, cur - 1); i <= Math.min(total - 2, cur + 1); i++) pages.push(i)
+    for (let i = Math.max(1, cur - 1); i <= Math.min(total - 2, cur + 1); i += 1) pages.push(i)
     if (cur < total - 3) pages.push('...')
     if (total - 1 > 0) pages.push(total - 1)
     return pages
@@ -283,20 +283,21 @@ export class BharatKalpSeeAllComponent implements OnInit {
 
   onCardNavigate(content: any): void {
     if (content?.primaryCategory === NsContent.EPrimaryCategory.RESOURCE) {
-      let url = `app/amrit-gyaan-kosh/player/${VIEWER_ROUTE_FROM_MIME(content?.mimeType)}/${content?.identifier}`
-      let queryParams = {
-        primaryCategory: content?.primaryCategory
+      const url = `app/amrit-gyaan-kosh/player/${VIEWER_ROUTE_FROM_MIME(content?.mimeType)}/${content?.identifier}`
+      const queryParams = {
+        primaryCategory: content?.primaryCategory,
       }
       history.pushState(history.state, '', this.router.url)
-      this.router.navigate([url], { queryParams:queryParams , state: { sourceUrl: this.router.url }})
-    }else{
-    if (!content?.identifier) return
-    const qp: any = {}
-    if (content.batchId) qp['batchId'] = content.batchId
-    this.router.navigate(
-      ['/app/toc', content.identifier, 'overview'],
-      { queryParams: qp, state: { sourceUrl: this.router.url } }
-    )
+      // tslint:disable-next-line:object-literal-shorthand
+      this.router.navigate([url], { queryParams: queryParams, state: { sourceUrl: this.router.url } })
+    } else {
+      if (!content?.identifier) return
+      const qp: any = {}
+      if (content.batchId) qp['batchId'] = content.batchId
+      this.router.navigate(
+        ['/app/toc', content.identifier, 'overview'],
+        { queryParams: qp, state: { sourceUrl: this.router.url } }
+      )
     }
   }
 

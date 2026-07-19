@@ -6,7 +6,7 @@ import { TranslateService } from '@ngx-translate/core'
 import { ConfigurationsService, DomainConfService, NsInstanceConfig, ValueService } from '@sunbird-cb/utils-v2'
 
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { environment } from 'src/environments/environment'
 @Component({
   selector: 'ws-app-footer',
@@ -14,7 +14,7 @@ import { environment } from 'src/environments/environment'
   styleUrls: ['./app-footer.component.scss'],
   // tslint:disable-next-line
   encapsulation: ViewEncapsulation.None,
-  standalone: false
+  standalone: false,
 })
 export class AppFooterComponent implements OnInit {
   @Input() headerFooterConfigData: any

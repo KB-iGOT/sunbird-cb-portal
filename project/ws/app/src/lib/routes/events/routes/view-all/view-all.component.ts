@@ -17,7 +17,7 @@ import { Subject, Subscription } from 'rxjs'
   templateUrl: './view-all.component.html',
   styleUrls: ['./view-all.component.scss'],
   providers: [DatePipe],
-  standalone: false
+  standalone: false,
 })
 export class ViewAllComponent {
 
@@ -61,10 +61,10 @@ export class ViewAllComponent {
   selectedResourceType: string = 'All'
 
   constructor(private activateRoute: ActivatedRoute, private eventSvc: EventService,
-    private datePipe: DatePipe, private bottomSheet: MatBottomSheet, private snackbar: MatSnackBar,
-    private translate: TranslateService, private router: Router,
-    private langtranslations: MultilingualTranslationsService,
-    private configService: ConfigurationsService,
+              private datePipe: DatePipe, private bottomSheet: MatBottomSheet, private snackbar: MatSnackBar,
+              private translate: TranslateService, private router: Router,
+              private langtranslations: MultilingualTranslationsService,
+              private configService: ConfigurationsService,
   ) {
 
     if (localStorage.getItem('websiteLanguage')) {
@@ -76,8 +76,7 @@ export class ViewAllComponent {
     this.titles = [
       { title: 'Events', url: '/app/event-hub/home', disableTranslate: true, icon: 'event' },
     ]
-    this.scrollSubject.pipe(debounceTime(500)).subscribe((event: any) => {
-      console.log('event ', event)
+    this.scrollSubject.pipe(debounceTime(500)).subscribe((_event: any) => {
       this.onDebouncedScroll()
     })
   }
@@ -214,49 +213,52 @@ export class ViewAllComponent {
         startDate = this.datePipe.transform(new Date(this.selectedFilters.dateRange.fromDate), 'yyyy-MM-dd')
         endDate = this.datePipe.transform(new Date(this.selectedFilters.dateRange.toDate), 'yyyy-MM-dd')
       }
+      // tslint:disable-next-line: max-length max-line-length
       if (this.selectedFilters.eventStatus && this.selectedFilters.eventStatus.length && this.selectedFilters.eventStatus[0] === 'Upcoming') {
         const today = new Date()
         today.setDate(today.getDate() + 1)
         // startDate = this.datePipe.transform(today, 'yyyy-MM-dd')
         startDateTimeInEpoch = Date.UTC(new Date().getUTCFullYear(),
-          new Date().getUTCMonth(),
-          new Date().getUTCDate(),
-          new Date().getUTCHours(),
-          new Date().getUTCMinutes(),
-          new Date().getUTCSeconds(),
-          new Date().getUTCMilliseconds())
+                                        new Date().getUTCMonth(),
+                                        new Date().getUTCDate(),
+                                        new Date().getUTCHours(),
+                                        new Date().getUTCMinutes(),
+                                        new Date().getUTCSeconds(),
+                                        new Date().getUTCMilliseconds())
       }
+      // tslint:disable-next-line: max-length max-line-length
       if (this.selectedFilters.eventStatus && this.selectedFilters.eventStatus.length && this.selectedFilters.eventStatus[0] === 'Past Events') {
         const today = new Date()
         today.setDate(today.getDate() - 1)
         // endDate = this.datePipe.transform(today, 'yyyy-MM-dd')
         endDateTimeInEpoch = Date.UTC(new Date().getUTCFullYear(),
-          new Date().getUTCMonth(),
-          new Date().getUTCDate(),
-          new Date().getUTCHours(),
-          new Date().getUTCMinutes(),
-          new Date().getUTCSeconds(),
-          new Date().getUTCMilliseconds())
+                                      new Date().getUTCMonth(),
+                                      new Date().getUTCDate(),
+                                      new Date().getUTCHours(),
+                                      new Date().getUTCMinutes(),
+                                      new Date().getUTCSeconds(),
+                                      new Date().getUTCMilliseconds())
       }
+      // tslint:disable-next-line: max-length max-line-length
       if (this.selectedFilters.eventStatus && this.selectedFilters.eventStatus.length && this.selectedFilters.eventStatus[0] === 'Live Events') {
         const today = new Date()
         today.setDate(today.getDate())
         // startDate = this.datePipe.transform(today, 'yyyy-MM-dd')
         // endDate = this.datePipe.transform(today, 'yyyy-MM-dd')
         startDateTimeInEpoch = Date.UTC(new Date().getUTCFullYear(),
-          new Date().getUTCMonth(),
-          new Date().getUTCDate(),
-          new Date().getUTCHours(),
-          new Date().getUTCMinutes(),
-          new Date().getUTCSeconds(),
-          new Date().getUTCMilliseconds())
+                                        new Date().getUTCMonth(),
+                                        new Date().getUTCDate(),
+                                        new Date().getUTCHours(),
+                                        new Date().getUTCMinutes(),
+                                        new Date().getUTCSeconds(),
+                                        new Date().getUTCMilliseconds())
         endDateTimeInEpoch = Date.UTC(new Date().getUTCFullYear(),
-          new Date().getUTCMonth(),
-          new Date().getUTCDate(),
-          new Date().getUTCHours(),
-          new Date().getUTCMinutes(),
-          new Date().getUTCSeconds(),
-          new Date().getUTCMilliseconds())
+                                      new Date().getUTCMonth(),
+                                      new Date().getUTCDate(),
+                                      new Date().getUTCHours(),
+                                      new Date().getUTCMinutes(),
+                                      new Date().getUTCSeconds(),
+                                      new Date().getUTCMilliseconds())
       }
 
       requestBody = {
@@ -271,10 +273,12 @@ export class ViewAllComponent {
             ...(endDate ? { 'endDate': { '<=': [endDate] } } : {}),
             ...(startDateTimeInEpoch ? {
               'startDateTimeInEpoch':
+                // tslint:disable-next-line: max-length max-line-length
                 (_.get(this.selectedFilters, 'eventStatus[0]') === 'Upcoming' ? { '>=': [startDateTimeInEpoch] } : { '<=': [startDateTimeInEpoch] }),
             } : {}),
             ...(endDateTimeInEpoch ? {
               'endDateTimeInEpoch':
+                // tslint:disable-next-line: max-length max-line-length
                 (_.get(this.selectedFilters, 'eventStatus[0]') === 'Past Events' ? { '<=': [endDateTimeInEpoch] } : { '>=': [endDateTimeInEpoch] }),
             } : {}),
           },
@@ -346,7 +350,8 @@ export class ViewAllComponent {
         }
       }
       this.isLoading = false
-    }, error => {
+    },                                                                      error => {
+      // tslint:disable-next-line:no-console
       console.log('error', error)
       this.contentDataList = [...this.contentDataList, ...this.transformContentsToWidgets([], {})]
       this.isLoading = false
@@ -415,7 +420,6 @@ export class ViewAllComponent {
   }
 
   filterChange(data: any) {
-    console.log(data)
     this.selectedFilters = data
     this.fetchData()
   }
@@ -489,7 +493,7 @@ export class ViewAllComponent {
   }
 
   sortType(type: any) {
-    if (type == 'asc') {
+    if (type === 'asc') {
       this.sortOptions = { name: 'asc' }
       this.resetData()
       this.fetchData()

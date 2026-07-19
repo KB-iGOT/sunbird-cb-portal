@@ -9,7 +9,7 @@ import { ViewerHeaderSideBarToggleService } from '../../../../viewer-header-side
   selector: 'viewer-ca-results-view',
   templateUrl: './ca-results-view.component.html',
   styleUrls: ['./ca-results-view.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class CaResultsViewComponent implements OnInit, OnChanges, OnDestroy {
   @Input() results!: any

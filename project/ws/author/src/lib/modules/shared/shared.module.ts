@@ -61,10 +61,9 @@ import { MatSlideToggleModule } from '@angular/material/slide-toggle'
 import { MatTooltipModule } from '@angular/material/tooltip'
 import { TranslateHttpLoader } from '@ngx-translate/http-loader'
 
-export function ShareHttpLoaderFactory(http: HttpClient) {
+export function shareHttpLoaderFactory(http: HttpClient) {
     return new TranslateHttpLoader(http)
 }
-
 
 @NgModule({
     declarations: [
@@ -128,7 +127,7 @@ export function ShareHttpLoaderFactory(http: HttpClient) {
         TranslateModule.forRoot({
             loader: {
                 provide: TranslateLoader,
-                useFactory: ShareHttpLoaderFactory,
+                useFactory: shareHttpLoaderFactory,
                 deps: [HttpClient],
             },
         }),

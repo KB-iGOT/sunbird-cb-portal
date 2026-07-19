@@ -6,10 +6,10 @@ import { ActivatedRoute } from '@angular/router'
 import { Options } from '@angular-slider/ngx-slider'
 
 @Component({
-    selector: 'ws-app-gyaan-filter',
-    templateUrl: './gyaan-filter.component.html',
-    styleUrls: ['./gyaan-filter.component.scss'],
-    standalone: false
+  selector: 'ws-app-gyaan-filter',
+  templateUrl: './gyaan-filter.component.html',
+  styleUrls: ['./gyaan-filter.component.scss'],
+  standalone: false,
 })
 export class GyaanFilterComponent implements OnInit {
   minValue = 2000
@@ -115,7 +115,6 @@ export class GyaanFilterComponent implements OnInit {
         const facet = this.localFilterData[key]
         // Check if facet value is not an object or doesn't have values array
         if (!facet || typeof facet !== 'object' || !Array.isArray(facet.values)) {
-          console.warn(`Invalid facet data for key "${key}":`, facet)
           delete this.localFilterData[key]
         }
       })
@@ -228,7 +227,6 @@ export class GyaanFilterComponent implements OnInit {
 
     // Add safety check to ensure itemData and values exist
     if (!itemData || !Array.isArray(itemData.values)) {
-      console.warn(`Invalid facet data for search on key "${keyData}":`, itemData)
       return
     }
 

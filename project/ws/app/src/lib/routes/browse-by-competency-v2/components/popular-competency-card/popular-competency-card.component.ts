@@ -4,7 +4,7 @@ import { Component, OnInit, Input } from '@angular/core'
     selector: 'ws-app-popular-competency-card',
     templateUrl: './popular-competency-card.component.html',
     styleUrls: ['./popular-competency-card.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class PopularCompetencyCardComponent implements OnInit {
   @Input() competency!: any

@@ -7,7 +7,7 @@ import { Subscription } from 'rxjs'
 @Directive({
     selector: '[wsAuthDraggableHelper]',
     exportAs: 'wsAuthDraggableHelper',
-    standalone: false
+    standalone: false,
 })
 export class DraggableHelperDirective implements OnInit, OnDestroy {
   private overlayRef!: OverlayRef

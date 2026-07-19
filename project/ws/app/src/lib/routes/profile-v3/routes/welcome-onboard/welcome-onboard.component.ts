@@ -2,13 +2,13 @@ import { Component, OnInit } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
 // tslint:disable-next-line
-import _ from 'lodash';
+import * as _ from 'lodash'
 
 @Component({
     selector: 'ws-app-welcome-onboard',
     templateUrl: './welcome-onboard.component.html',
     styleUrls: ['./welcome-onboard.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class WelcomeOnboardComponent implements OnInit {
     constructor(private activatedRoute: ActivatedRoute, private route: Router, private translate: TranslateService) {

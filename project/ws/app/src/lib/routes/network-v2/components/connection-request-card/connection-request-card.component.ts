@@ -10,7 +10,7 @@ import { NsUser } from '@sunbird-cb/utils-v2'
     selector: 'ws-app-connection-request-card',
     templateUrl: './connection-request-card.component.html',
     styleUrls: ['./connection-request-card.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ConnectionRequestCardComponent implements OnInit {
   @Input() user!: any // NSNetworkDataV2.INetworkUser

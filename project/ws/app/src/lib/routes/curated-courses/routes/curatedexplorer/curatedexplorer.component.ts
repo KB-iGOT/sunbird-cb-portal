@@ -2,25 +2,25 @@ import { Component, OnInit, OnDestroy } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
 import { CuratedCollectionService } from '../../services/curated-collection.service'
 /* tslint:disable*/
-import _ from 'lodash'
-import { ValueService } from '@sunbird-cb/utils-v2';
-import { map } from 'rxjs/operators';
-import { Observable } from 'rxjs';
+import * as _ from 'lodash'
+import { ValueService } from '@sunbird-cb/utils-v2'
+import { map } from 'rxjs/operators'
+import { Observable } from 'rxjs'
 
 
 @Component({
-    selector: 'ws-app-curatedexplorer',
-    templateUrl: './curatedexplorer.component.html',
-    styleUrls: ['./curatedexplorer.component.scss'],
-    standalone: false
+  selector: 'ws-app-curatedexplorer',
+  templateUrl: './curatedexplorer.component.html',
+  styleUrls: ['./curatedexplorer.component.scss'],
+  standalone: false
 })
 export class CuratedexplorerComponent implements OnInit, OnDestroy {
   sideNavBarOpened = true
   public screenSizeIsLtMedium = false
-  userEmail : any
+  userEmail: any
   title: any[] = [
     { title: 'Learn', url: '/page/learn', icon: 'school' },
-    { title: ('Curated collections') , url: '/app/curatedCollections/home', icon: '' }
+    { title: ('Curated collections'), url: '/app/curatedCollections/home', icon: '' }
   ]
   currentCollectionId: any
   currentCollection: any
@@ -83,7 +83,7 @@ export class CuratedexplorerComponent implements OnInit, OnDestroy {
     const request = req || this.searchReq
 
     this.curatedCollectionSvc.fetchSearchData(request).subscribe((res: any) => {
-      if (res && res.result &&  res.result && res.result.content) {
+      if (res && res.result && res.result && res.result.content) {
         this.allCollections = _.get(res, 'result.content')
         this.currentCollection = _.find(this.allCollections, ac => ac.identifier === this.currentCollectionId)
 
@@ -95,8 +95,8 @@ export class CuratedexplorerComponent implements OnInit, OnDestroy {
 
 
   getCurrentCollectionHirarchy() {
-    this.curatedCollectionSvc.fetchContent(this.currentCollectionId || '', 'minimal').subscribe( res => {
-      if (res && res.result &&  res.result && res.result.content) {
+    this.curatedCollectionSvc.fetchContent(this.currentCollectionId || '', 'minimal').subscribe(res => {
+      if (res && res.result && res.result && res.result.content) {
         // const tempRequestParam: { content: any }[] = []
         // if (res.result.content && res.result.content.children) {
         //   res.result.content.children.forEach((course: any) => {
@@ -108,9 +108,8 @@ export class CuratedexplorerComponent implements OnInit, OnDestroy {
         //     }
         //   })
 
-          this.currentCollectionHierarchy = _.get(res, 'result.content.children')
-          console.log(this.currentCollectionHierarchy, 'this.currentCollectionHierarchy==')
-        }
+        this.currentCollectionHierarchy = _.get(res, 'result.content.children')
+      }
       // }
     })
   }
@@ -123,7 +122,7 @@ export class CuratedexplorerComponent implements OnInit, OnDestroy {
   // }
 
 
-  collectDataRefresh(do_id:any) {
+  collectDataRefresh(do_id: any) {
     console.log(do_id, 'do_id====')
     // return `app/curatedCollections/${do_id}`
     this.router.navigate(['app/curatedCollections/', do_id])
@@ -162,8 +161,8 @@ export class CuratedexplorerComponent implements OnInit, OnDestroy {
   updateBreadcrumbTitle() {
     this.title = [
       { title: 'Learn', url: '/page/learn', icon: 'school' },
-      { title: ('Curated collections') , url: '/app/curatedCollections/home', icon: '' },
-      { title: `${_.get(this.currentCollection, 'name') || ''}` , url: 'none', icon: '' }
+      { title: ('Curated collections'), url: '/app/curatedCollections/home', icon: '' },
+      { title: `${_.get(this.currentCollection, 'name') || ''}`, url: 'none', icon: '' }
     ]
   }
 

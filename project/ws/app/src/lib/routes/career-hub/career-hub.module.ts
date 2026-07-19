@@ -8,8 +8,7 @@ import { MatCardModule } from '@angular/material/card'
 import { CareerHubRoutingModule } from './career-hub-routing.module'
 import { CareersHomeComponent } from './routes/careers-home/careers-home.component'
 import { CareersComponent } from './routes/careers/careers.component'
-import { LoaderService } from '@ws/author'
-import { InitResolver } from '@ws/author'
+import { InitResolver, LoaderService } from '@ws/author'
 import { ReactiveFormsModule, FormsModule } from '@angular/forms'
 import { BtnPageBackModule, AvatarPhotoModule } from '@sunbird-cb/collection'
 import {
@@ -37,7 +36,7 @@ import { MatSelectModule } from '@angular/material/select'
 import { MatSidenavModule } from '@angular/material/sidenav'
 import { TranslateHttpLoader } from '@ngx-translate/http-loader'
 
-export function CareerHubHttpLoaderFactory(http: HttpClient) {
+export function careerHubHttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http)
 }
 
@@ -79,7 +78,7 @@ export function CareerHubHttpLoaderFactory(http: HttpClient) {
     TranslateModule.forRoot({
       loader: {
         provide: TranslateLoader,
-        useFactory: CareerHubHttpLoaderFactory,
+        useFactory: careerHubHttpLoaderFactory,
         deps: [HttpClient],
       },
     }),

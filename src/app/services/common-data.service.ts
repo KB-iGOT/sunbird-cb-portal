@@ -1,3 +1,4 @@
+/* tslint:disable:max-line-length no-console */
 import { Injectable } from '@angular/core'
 import { Router } from '@angular/router'
 import { ConfigurationsService, DomainConfService } from '@sunbird-cb/utils-v2'
@@ -133,7 +134,7 @@ export class CommonDataService {
   }
 
   getOrgDetails(isPlayer: boolean) {
-    this.rootOrgId = this.rootOrgId || this.configSvc?.userProfile?.rootOrgId ||''
+    this.rootOrgId = this.rootOrgId || this.configSvc?.userProfile?.rootOrgId || ''
     const request = {
       request: { organisationId: this.rootOrgId },
     }

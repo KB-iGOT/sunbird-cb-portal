@@ -17,7 +17,7 @@ import { MatCardModule } from '@angular/material/card'
     TranslateModule,
     SkeletonLoaderModule,
     WidgetResolverModule,
-    MatCardModule
+    MatCardModule,
   ],
   exports: [HomeOtherPortalComponent],
 })

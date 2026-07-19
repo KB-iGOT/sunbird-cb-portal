@@ -9,7 +9,7 @@ import * as _ from 'lodash'
   selector: 'ws-app-educational-qualifications',
   templateUrl: './educational-qualifications.component.html',
   styleUrls: ['./educational-qualifications.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class EducationalQualificationsComponent implements OnInit {
   //#region (global variables)
@@ -48,7 +48,7 @@ export class EducationalQualificationsComponent implements OnInit {
       const configDetails = {
         defaultUrl: '',
         urlConfigPath: 'profileV1Extended',
-        apiConfig: this.apiConfig
+        apiConfig: this.apiConfig,
       }
       this.profileV2RevampSvc.fetchProfileEntries(configDetails, this.userId).subscribe({
         next: (res: any) => {

@@ -8,7 +8,7 @@ import { debounceTime, distinctUntilChanged, map } from 'rxjs/operators'
     selector: 'ws-competency-search',
     templateUrl: './competency-search.component.html',
     styleUrls: ['./competency-search.component.scss'],
-    standalone: false
+    standalone: false,
 })
 
 export class CompetencySearchComponent implements OnInit, AfterViewInit {

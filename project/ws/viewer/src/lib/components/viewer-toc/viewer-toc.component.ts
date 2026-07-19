@@ -18,12 +18,11 @@ import {
   WsEvents,
 } from '@sunbird-cb/utils-v2'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { of, Subscription } from 'rxjs'
 import { delay } from 'rxjs/operators'
-import { ViewerUtilService, ViewerDataService } from '@sunbird-cb/toc'
+import { AppTocV2Service, ViewerDataService, ViewerUtilService, WidgetContentService } from '@sunbird-cb/toc'
 import { MatTreeNestedDataSource } from '@angular/material/tree'
-import { AppTocV2Service, WidgetContentService } from '@sunbird-cb/toc'
 // import { AppTocService } from '@sunbird-cb/toc'
 export interface IViewerTocCard {
   identifier: string
@@ -62,7 +61,7 @@ interface ICollectionCard {
   selector: 'viewer-viewer-toc',
   templateUrl: './viewer-toc.component.html',
   styleUrls: ['./viewer-toc.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class ViewerTocComponent implements OnInit, OnDestroy {
   @Output() hidenav = new EventEmitter<boolean>()
@@ -150,17 +149,16 @@ export class ViewerTocComponent implements OnInit, OnDestroy {
     if (this.configSvc.iGOTAIConfig && this.configSvc.iGOTAIConfig?.aiTutor?.all) {
       if (this.configSvc.iGOTAIConfig?.aiTutor?.allDesignation) {
         this.enableAITutorFlag = true
-      }
-      else if (this.configSvc.iGOTAIConfig?.aiTutor?.forDesignation?.includes(this.userDesignation)) {
+      } else if (this.configSvc.iGOTAIConfig?.aiTutor?.forDesignation?.includes(this.userDesignation)) {
         this.enableAITutorFlag = true
       }
-    } else if (this.configSvc.iGOTAIConfig && this.configSvc.iGOTAIConfig?.aiTutor && this.configSvc.iGOTAIConfig?.aiTutor?.forOrg && this.configSvc.iGOTAIConfig?.aiTutor?.forOrg?.length &&
-      this.configSvc.iGOTAIConfig?.aiTutor?.forOrg?.includes(this.configSvc.userProfile?.rootOrgId)
+    } else if (this.configSvc.iGOTAIConfig && this.configSvc.iGOTAIConfig?.aiTutor
+      && this.configSvc.iGOTAIConfig?.aiTutor?.forOrg && this.configSvc.iGOTAIConfig?.aiTutor?.forOrg?.length
+      && this.configSvc.iGOTAIConfig?.aiTutor?.forOrg?.includes(this.configSvc.userProfile?.rootOrgId)
     ) {
       if (this.configSvc.iGOTAIConfig?.aiTutor?.allDesignation) {
         this.enableAITutorFlag = true
-      }
-      else if (this.configSvc.iGOTAIConfig?.aiTutor?.forDesignation?.includes(this.userDesignation)) {
+      } else if (this.configSvc.iGOTAIConfig?.aiTutor?.forDesignation?.includes(this.userDesignation)) {
         this.enableAITutorFlag = true
       }
     } else {
@@ -171,7 +169,11 @@ export class ViewerTocComponent implements OnInit, OnDestroy {
     if (this.hierarchyData && this.hierarchyData.result
       && this.hierarchyData.result.content
       && this.hierarchyData.result.content.children) {
-      this.showAITutorFlag = this.onlyscormAssessmentExists(this.hierarchyData.result.content.children, 'mimeType', ['application/vnd.ekstep.html-archive', 'application/vnd.sunbird.questionset', 'application/json', 'text/x-url'])
+      this.showAITutorFlag = this.onlyscormAssessmentExists(
+        this.hierarchyData.result.content.children,
+        'mimeType',
+        ['application/vnd.ekstep.html-archive', 'application/vnd.sunbird.questionset', 'application/json', 'text/x-url'],
+      )
     }
 
     this.enrollmentList = this.activatedRoute.snapshot.data.enrollmentData
@@ -497,7 +499,6 @@ export class ViewerTocComponent implements OnInit, OnDestroy {
       this.collectionCard = this.createCollectionCard(content)
       const viewerTocCardContent = this.convertContentToIViewerTocCard(content)
       this.isFetching = false
-      console.log('content', content)
       return viewerTocCardContent
     } catch (err: any) {
       switch (err && err.status) {
@@ -716,7 +717,7 @@ export class ViewerTocComponent implements OnInit, OnDestroy {
   }
 
   onlyscormAssessmentExists(data: any, key: any, value: any) {
-    for (let i = 0; i < data?.length; i++) {
+    for (let i = 0; i < data?.length; i += 1) {
       if (data[i] && data[i]['children'] && data[i]['children'].length) {
         // this.totalResource = this.totalResource + 1
         this.onlyscormAssessmentExists(data[i]?.children, key, value)
@@ -809,10 +810,10 @@ export class ViewerTocComponent implements OnInit, OnDestroy {
         // empty array
         return nodes
       }
-        // node is an array with items
-        node.forEach((child: any) => {
-          this.getLeafNodes(child, nodes)
-        })
+      // node is an array with items
+      node.forEach((child: any) => {
+        this.getLeafNodes(child, nodes)
+      })
 
     } else if (node) {
       // node is a single object

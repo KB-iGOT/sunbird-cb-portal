@@ -4,7 +4,7 @@ import { Component, OnInit, Input } from '@angular/core'
     selector: 'ws-app-curated-popular-card',
     templateUrl: './curated-popular-card.component.html',
     styleUrls: ['./curated-popular-card.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class CuratedPopularCardComponent implements OnInit {
   @Input() collection!: any

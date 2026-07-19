@@ -1,7 +1,7 @@
 import { Component, OnInit, Inject, Input } from '@angular/core'
 import { NSCompetencie } from '../../models/competencies.model'
 // tslint:disable-next-line: import-name
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { Router } from '@angular/router'
 import { CompetenceAssessmentService } from '../../services/comp-assessment.service'
 import { TranslateService } from '@ngx-translate/core'
@@ -14,13 +14,13 @@ export interface IDialogData {
   name: string
 }
 @Component({
-    selector: 'app-competence-view',
-    templateUrl: './competencies-view.component.html',
-    styleUrls: ['./competencies-view.component.scss'],
-    /* tslint:disable */
-    /* host: { class: 'flex flex-1 margin-right-xs margin-top-xs margin-bottom-s' },*/
-    host: { class: 'flex flex-1' },
-    standalone: false
+  selector: 'app-competence-view',
+  templateUrl: './competencies-view.component.html',
+  styleUrls: ['./competencies-view.component.scss'],
+  /* tslint:disable */
+  /* host: { class: 'flex flex-1 margin-right-xs margin-top-xs margin-bottom-s' },*/
+  host: { class: 'flex flex-1' },
+  standalone: false
 })
 
 export class CompetenceViewComponent implements OnInit {

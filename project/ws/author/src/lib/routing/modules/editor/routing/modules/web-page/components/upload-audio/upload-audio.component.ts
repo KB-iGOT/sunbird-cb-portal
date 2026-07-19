@@ -20,7 +20,7 @@ export interface IUsersData {
     selector: 'ws-auth-upload-audio',
     templateUrl: './upload-audio.component.html',
     styleUrls: ['./upload-audio.component.scss'],
-    standalone: false
+    standalone: false,
 })
 
 export class UploadAudioComponent implements OnInit {

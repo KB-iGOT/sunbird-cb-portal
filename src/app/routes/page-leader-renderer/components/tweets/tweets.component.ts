@@ -9,7 +9,7 @@ let tweetScriptId = 'tweetScript'
     selector: 'ws-tweets',
     templateUrl: './tweets.component.html',
     styleUrls: ['./tweets.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class TweetsComponent implements OnInit {
   @Input() twitterUrl = ''

@@ -5,7 +5,7 @@ import * as _ from 'lodash'
   selector: 'ws-app-updates-card',
   templateUrl: './updates-card.component.html',
   styleUrls: ['./updates-card.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class UpdatesCardComponent implements OnInit, OnChanges {
 

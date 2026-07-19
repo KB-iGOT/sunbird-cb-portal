@@ -6,7 +6,7 @@ import { NSPeerValidation } from '../../../../models/peer-validation.model'
     selector: 'ws-app-survey-questions',
     templateUrl: './survey-questions.component.html',
     styleUrls: ['./survey-questions.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class SurveyQuestionsComponent {
   @Input() questions: NSPeerValidation.ISurveyQuestion[] = []

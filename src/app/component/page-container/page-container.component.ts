@@ -4,7 +4,7 @@ import { Component, OnInit } from '@angular/core'
     selector: 'ws-page-container',
     templateUrl: './page-container.component.html',
     styleUrls: ['./page-container.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class PageContainerComponent implements OnInit {
   widgetData = {}

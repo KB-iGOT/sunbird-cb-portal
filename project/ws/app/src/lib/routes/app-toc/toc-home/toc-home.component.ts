@@ -4,7 +4,7 @@ import { Component } from '@angular/core'
   selector: 'ws-app-toc-home',
   templateUrl: './toc-home.component.html',
   styleUrls: ['./toc-home.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class TocHomeComponent {
 

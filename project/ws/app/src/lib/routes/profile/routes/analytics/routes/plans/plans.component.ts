@@ -6,7 +6,7 @@ import { TFetchStatus } from '@sunbird-cb/utils-v2'
     selector: 'ws-app-plans',
     templateUrl: './plans.component.html',
     styleUrls: ['./plans.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class PlansComponent implements OnInit {
   startDate = '2018-04-01'

@@ -10,7 +10,7 @@ import { connectionUpdates } from '../../models/network-v3.model'
   selector: 'ws-app-network-home',
   templateUrl: './network-home.component.html',
   styleUrls: ['./network-home.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class NetworkHomeComponent implements OnInit {
   //#region (global variables)
@@ -60,7 +60,7 @@ export class NetworkHomeComponent implements OnInit {
     const pageSize = 3
     this.connectionsLoading = true
     this.networkingService.getConnectionRequests(pageNo, pageSize).subscribe({
-      next: (response) => {
+      next:response => {
         this.connectionsLoading = false
         this.connectionRequestsList = _.get(response, 'data', [])
         this.connectionRequestsCount = _.get(response, 'count', 0)
@@ -75,7 +75,7 @@ export class NetworkHomeComponent implements OnInit {
         if (error) {
           this.openSnackbar(this.handleTranslateTo('NetworkLandingPage.failedToFetchConnectionRequests'), 3000)
         }
-      }
+      },
     })
   }
 
@@ -87,7 +87,7 @@ export class NetworkHomeComponent implements OnInit {
 
     this.suggestionsLoading = true
     this.networkingService.getRecommendedUsers(formBody).subscribe({
-      next: (response) => {
+      next:response => {
         this.suggestionsLoading = false
         this.peopleYouMayKnowList = _.get(response, 'result.response', [])
         this.peopleYouMayKnowCount = _.get(response, 'result.count', 0)
@@ -97,7 +97,7 @@ export class NetworkHomeComponent implements OnInit {
         if (error) {
           this.openSnackbar(this.handleTranslateTo('NetworkLandingPage.failedToFetchPeopleYouMayKnow'), 3000)
         }
-      }
+      },
     })
   }
 
@@ -108,7 +108,7 @@ export class NetworkHomeComponent implements OnInit {
     }
     this.mentorsLoading = true
     this.networkingService.getRecommendedMentors(formBody).subscribe({
-      next: (response) => {
+      next:response => {
         this.mentorsLoading = false
         this.mentorSuggestionsList = _.get(response, 'result.response', [])
       },
@@ -117,7 +117,7 @@ export class NetworkHomeComponent implements OnInit {
         if (error) {
           this.openSnackbar(this.handleTranslateTo('NetworkLandingPage.failedToFetchMentorSuggestions'), 3000)
         }
-      }
+      },
     })
   }
   //#endregion (initialization)

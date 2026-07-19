@@ -5,7 +5,7 @@ import { ActivatedRoute } from '@angular/router'
     selector: 'ws-app-learning-home',
     templateUrl: './learning-home.component.html',
     styleUrls: ['./learning-home.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class LearningHomeComponent implements OnInit {
   enabledTab = this.activatedRoute.snapshot.data.pageData.data.enabledTabs.learning.subTabs

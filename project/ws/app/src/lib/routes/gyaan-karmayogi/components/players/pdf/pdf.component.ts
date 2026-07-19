@@ -4,7 +4,7 @@ import { Component, OnInit } from '@angular/core'
     selector: 'ws-app-pdf',
     templateUrl: './pdf.component.html',
     styleUrls: ['./pdf.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class PdfComponent implements OnInit {
 

@@ -6,7 +6,7 @@ import { ConfigurationsService, NsPage } from '@sunbird-cb/utils-v2'
     selector: 'ws-app-my-rewards-home',
     templateUrl: './my-rewards-home.component.html',
     styleUrls: ['./my-rewards-home.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class MyRewardsHomeComponent implements OnInit {
 

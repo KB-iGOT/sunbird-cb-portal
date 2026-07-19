@@ -21,7 +21,7 @@ import { Notify } from '../../../../../../../../../constants/notificationMessage
     selector: 'ws-auth-renderer',
     templateUrl: './renderer.component.html',
     styleUrls: ['./renderer.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class RendererComponent implements OnInit, OnChanges {
 

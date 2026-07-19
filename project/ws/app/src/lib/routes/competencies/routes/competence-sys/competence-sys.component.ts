@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog'
 import { ActivatedRoute } from '@angular/router'
 import { CompetenceService } from '../../services/competence.service'
 /* tslint:disable */
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { UntypedFormControl } from '@angular/forms'
 import { CompetenceViewComponent } from '../../components/competencies-view/competencies-view.component'
 import { MatSnackBar } from '@angular/material/snack-bar'
@@ -13,12 +13,12 @@ import { TranslateService } from '@ngx-translate/core'
 /* tslint:enable */
 
 @Component({
-    selector: 'app-competence-sys',
-    templateUrl: './competence-sys.component.html',
-    styleUrls: ['./competence-sys.component.scss'],
-    /* tslint:disable */
-    host: { class: 'flex flex-1 margin-top-l' },
-    standalone: false
+  selector: 'app-competence-sys',
+  templateUrl: './competence-sys.component.html',
+  styleUrls: ['./competence-sys.component.scss'],
+  /* tslint:disable */
+  host: { class: 'flex flex-1 margin-top-l' },
+  standalone: false
 })
 export class CompetenceSysComponent implements OnInit {
   @ViewChild('stickyMenu', { static: true }) menuElement!: ElementRef

@@ -10,7 +10,7 @@ const APP_TAXONOMY = '/app/taxonomy/'
     selector: 'app-taxonomy',
     templateUrl: './taxonomy.component.html',
     styleUrls: ['./taxonomy.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class TaxonomyHomeComponent implements OnInit, OnDestroy {
   sideNavBarOpened = true

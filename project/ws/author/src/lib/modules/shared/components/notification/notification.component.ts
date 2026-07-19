@@ -12,7 +12,7 @@ interface IData {
     selector: 'ws-auth-root-notification',
     templateUrl: './notification.component.html',
     styleUrls: ['./notification.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class NotificationComponent {
 

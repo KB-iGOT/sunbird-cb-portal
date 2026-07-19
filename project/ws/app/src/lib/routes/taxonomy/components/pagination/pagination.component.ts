@@ -5,7 +5,7 @@ import { Component, Input, Output, EventEmitter, OnInit } from '@angular/core'
     selector: 'ws-app-pagination',
     templateUrl: './pagination.component.html',
     styleUrls: ['./pagination.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class PaginationComponent implements OnInit {
 

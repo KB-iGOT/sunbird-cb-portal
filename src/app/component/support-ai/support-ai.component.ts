@@ -9,12 +9,11 @@ import { MatSnackBar as MatSnackbarNew } from '@angular/material/snack-bar'
 // import cloneDeep from 'lodash/cloneDeep'
 import { SupportAiService } from './support-ai.service'
 
-
 @Component({
   selector: 'ws-app-support-ai',
   templateUrl: './support-ai.component.html',
   styleUrls: ['./support-ai.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class SupportAIComponent implements OnInit, OnChanges, AfterViewInit, AfterViewChecked, OnDestroy {
   @Input() from = ''

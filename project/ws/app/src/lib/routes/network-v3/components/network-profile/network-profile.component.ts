@@ -4,7 +4,7 @@ import { Component } from '@angular/core'
   selector: 'ws-app-network-profile',
   templateUrl: './network-profile.component.html',
   styleUrls: ['./network-profile.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class NetworkProfileComponent {
 

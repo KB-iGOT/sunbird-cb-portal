@@ -11,7 +11,7 @@ import { AccessControlService } from '../../../../../../../../modules/shared/ser
     selector: 'ws-auth-template',
     templateUrl: './template.component.html',
     styleUrls: ['./template.component.scss'],
-    standalone: false
+    standalone: false,
 })
 
 export class TemplateComponent implements OnInit {

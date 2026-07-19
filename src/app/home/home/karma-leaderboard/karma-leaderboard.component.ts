@@ -1,3 +1,4 @@
+/* tslint:disable:max-line-length */
 import { Component, OnInit } from '@angular/core'
 import { ConfigurationsService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
 import { HomePageService } from '../../../services/home-page.service'
@@ -119,9 +120,12 @@ export class KarmaLeaderboardComponent implements OnInit {
   showOverlayMessage() {
     this.showOverlay = true
     this.updateMotivationalMessagestatus()
-    setTimeout(() => {
-      this.showOverlay = false
-    }, 5000)
+    setTimeout(
+      () => {
+        this.showOverlay = false
+      },
+      5000,
+    )
   }
 
   dismissOverlay() {

@@ -7,7 +7,7 @@ import { ConfigurationsService } from '@sunbird-cb/utils-v2'
     selector: 'viewer-web-module-container',
     templateUrl: './web-module.component.html',
     styleUrls: ['./web-module.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class WebModuleComponent implements OnInit {
   @Input() isFetchingDataComplete = false

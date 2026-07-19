@@ -2,13 +2,13 @@ import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/cor
 import { ConfigurationsService, DomainConfService, MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 import { Router } from '@angular/router'
 /* tslint:disable */
-import _ from 'lodash'
+import * as _ from 'lodash'
 /* tslint:enable */
 @Component({
   selector: 'ws-footer-section',
   templateUrl: './footer-section.component.html',
   styleUrls: ['./footer-section.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class FooterSectionComponent implements OnInit, OnChanges {
   @Input() environment: any

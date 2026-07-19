@@ -8,7 +8,7 @@ import moment from 'moment'
     selector: 'ws-app-today-event-card',
     templateUrl: './today-event-card.component.html',
     styleUrls: ['./today-event-card.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class TodayEventCardComponent implements OnInit {
   @Input() eventData: any

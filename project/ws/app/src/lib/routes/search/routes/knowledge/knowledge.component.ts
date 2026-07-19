@@ -11,7 +11,7 @@ import { NsError, ROOT_WIDGET_CONFIG } from '@sunbird-cb/collection'
     selector: 'ws-app-knowledge',
     templateUrl: './knowledge.component.html',
     styleUrls: ['./knowledge.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class KnowledgeComponent implements OnInit, OnDestroy {
   defaultSideNavBarOpenedSubscription: Subscription | null = null

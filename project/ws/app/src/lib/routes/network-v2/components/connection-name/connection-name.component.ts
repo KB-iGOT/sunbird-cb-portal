@@ -9,7 +9,7 @@ import { NsUser } from '@sunbird-cb/utils-v2'
     selector: 'ws-app-connection-name',
     templateUrl: './connection-name.component.html',
     styleUrls: ['./connection-name.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ConnectionNameComponent implements OnInit, AfterViewInit {
   @Input() hoverUser!: any

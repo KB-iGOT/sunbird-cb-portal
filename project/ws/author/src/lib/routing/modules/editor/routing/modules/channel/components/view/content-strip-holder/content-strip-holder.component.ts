@@ -8,7 +8,7 @@ import { WidgetContentService } from '@sunbird-cb/toc'
     selector: 'ws-auth-content-strip-holder',
     templateUrl: './content-strip-holder.component.html',
     styleUrls: ['./content-strip-holder.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ContentStripHolderComponent implements OnInit, OnChanges {
 

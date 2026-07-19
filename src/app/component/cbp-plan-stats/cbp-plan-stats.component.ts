@@ -11,7 +11,7 @@ dayjs.extend(isSameOrAfter)
     selector: 'ws-cbp-plan-stats',
     templateUrl: './cbp-plan-stats.component.html',
     styleUrls: ['./cbp-plan-stats.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class CbpPlanStatsComponent implements OnInit {
   filterList: any = [{ id: 3, value: 'Last 3 months' }, { id: 6, value: 'Last 6 months' }, { id: 12, value: 'Last year' }]

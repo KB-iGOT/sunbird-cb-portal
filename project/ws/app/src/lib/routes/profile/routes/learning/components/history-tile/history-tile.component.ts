@@ -4,7 +4,7 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core'
     selector: 'ws-app-history-tile',
     templateUrl: './history-tile.component.html',
     styleUrls: ['./history-tile.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class HistoryTileComponent implements OnInit {
   @Input() uniqueUsers!: number

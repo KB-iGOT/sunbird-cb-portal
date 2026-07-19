@@ -1,3 +1,4 @@
+/* tslint:disable:max-line-length no-console prefer-template */
 import { Component, Input, Output, EventEmitter } from '@angular/core'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { NSPeerValidation } from '../../../../models/peer-validation.model'
@@ -8,10 +9,10 @@ import { environment } from 'src/environments/environment'
 import { ConnectedPosition } from '@angular/cdk/overlay'
 
 @Component({
-    selector: 'ws-app-document-upload',
-    templateUrl: './document-upload.component.html',
-    styleUrls: ['./document-upload.component.scss'],
-    standalone: false
+  selector: 'ws-app-document-upload',
+  templateUrl: './document-upload.component.html',
+  styleUrls: ['./document-upload.component.scss'],
+  standalone: false,
 })
 export class DocumentUploadComponent {
   @Input() documents: NSPeerValidation.IUploadedDocument[] = []

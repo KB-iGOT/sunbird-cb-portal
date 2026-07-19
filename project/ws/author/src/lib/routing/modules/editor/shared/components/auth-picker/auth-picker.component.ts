@@ -18,7 +18,7 @@ interface IAuthPickerData {
     styleUrls: ['./auth-picker.component.scss'],
     // tslint:disable-next-line: use-component-view-encapsulation
     encapsulation: ViewEncapsulation.None,
-    standalone: false
+    standalone: false,
 })
 export class AuthPickerComponent implements OnInit, OnDestroy {
   query = ''

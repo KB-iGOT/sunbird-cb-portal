@@ -1,3 +1,4 @@
+/* tslint:disable: max-line-length prefer-template object-shorthand-properties-first align */
 import { Component, OnInit, OnDestroy, Inject, PLATFORM_ID, ViewChild, DOCUMENT } from '@angular/core'
 import { Subscription, Observable, interval, Subject } from 'rxjs'
 import { UntypedFormGroup, UntypedFormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms'
@@ -9,16 +10,15 @@ import { ReCaptchaV3Service } from 'ng-recaptcha'
 import { SignupSuccessDialogueComponent } from './signup-success-dialogue/signup-success-dialogue/signup-success-dialogue.component'
 import { isPlatformBrowser } from '@angular/common'
 // tslint:disable-next-line: import-name
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { ActivatedRoute, Router } from '@angular/router'
 import { TermsAndConditionComponent } from './terms-and-condition/terms-and-condition.component'
 import { TranslateService } from '@ngx-translate/core'
 import { ZohoSupportService } from '../../../services/zoho-support.service'
-import { DialogBoxComponent as ZohoDialogComponent } from '@ws/app'
+import { DialogBoxComponent as ZohoDialogComponent, UserProfileService } from '@ws/app'
 import { MatDialog } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { MatSelect } from '@angular/material/select'
-import { UserProfileService } from '@ws/app'
 
 type SignupSelectKey = 'designation' | 'ministry' | 'state' | 'department' | 'organisation'
 
@@ -94,7 +94,7 @@ export function forbiddenNamesValidatorNonEmpty(optionsArray: any): ValidatorFn 
   selector: 'ws-public-signup',
   templateUrl: './public-signup.component.html',
   styleUrls: ['./public-signup.component.scss'],
-  standalone: false
+  standalone: false,
 })
 
 export class PublicSignupComponent implements OnInit, OnDestroy {
@@ -1908,7 +1908,7 @@ export class PublicSignupComponent implements OnInit, OnDestroy {
     }
 
     const reqOffset = (typeof offset === 'number') ? offset : this.departmentOffset
-    const requestId = ++this.departmentRequestId
+    const requestId = this.departmentRequestId += 1
     const reqLimit = this.departmentDefaultLoadCount
     const pageIndex = reqLimit > 0 ? Math.floor(reqOffset / reqLimit) : 0
     // if we're requesting from first page, clear the no-more-data guard
@@ -2125,7 +2125,7 @@ export class PublicSignupComponent implements OnInit, OnDestroy {
         'levelZeroOrgId': this.registrationFormStepOne.controls.ministry.value,
         'hierarchyRequestType': 'All',
       }
-      for (let i = 0; i < this.masterData['ministryBackup'].length; i++) {
+      for (let i = 0; i < this.masterData['ministryBackup'].length; i += 1) {
         if (this.masterData['ministryBackup'][i]?.['identifier'] === this.registrationFormStepOne.controls.ministry.value) {
           if (this.masterData['ministryBackup'][i]?.['hierarchyLevel'] === 'levelOne') {
             filters = {

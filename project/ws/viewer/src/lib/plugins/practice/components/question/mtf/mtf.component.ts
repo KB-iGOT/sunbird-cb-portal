@@ -12,7 +12,7 @@ import { NSPractice } from '../../../practice.model'
 import { PracticeService } from '../../../practice.service'
 import { jsPlumb, OnConnectionBindInfo } from 'jsplumb'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { Subscription } from 'rxjs'
 import { NsContent } from '@sunbird-cb/utils-v2'
 
@@ -22,7 +22,7 @@ import { NsContent } from '@sunbird-cb/utils-v2'
     styleUrls: ['./mtf.component.scss'],
     // tslint:disable-next-line
     encapsulation: ViewEncapsulation.None,
-    standalone: false
+    standalone: false,
 })
 export class MatchTheFollowingQuesComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
     @Input() question: NSPractice.IQuestion = {
@@ -85,9 +85,9 @@ export class MatchTheFollowingQuesComponent implements OnInit, OnChanges, AfterV
             }
         })
         this.practiceSvc.clearResponse.subscribe((questionId: any) => {
-           if (this.question.questionId === questionId) {
-            this.resetMtf()
-           }
+            if (this.question.questionId === questionId) {
+                this.resetMtf()
+            }
         })
     }
     get numConnections() {
@@ -285,9 +285,9 @@ export class MatchTheFollowingQuesComponent implements OnInit, OnChanges, AfterV
     getSanitizeString(res: any) {
         if (res && (typeof res === 'string')) {
             const response = res
-            .replace(/&lt;/g, '<')
-            .replace(/&gt;/g, '>')
-            .replace(/&nbsp;/g, ' ')
+                .replace(/&lt;/g, '<')
+                .replace(/&gt;/g, '>')
+                .replace(/&nbsp;/g, ' ')
             return response
         }
         return res

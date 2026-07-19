@@ -4,7 +4,7 @@ import { ActivatedRoute, Router } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
 import { MatSnackBar, MatSnackBarConfig as MatSnackBarConfig } from '@angular/material/snack-bar'
 /* tslint:disable */
-import _ from 'lodash'
+import * as _ from 'lodash'
 
 /* tslint:enable */
 import { Subject } from 'rxjs'
@@ -38,7 +38,7 @@ const INITIAL_VISIBLE_STRIPS = 5
   selector: 'ws-home',
   templateUrl: './home.component.html',
   styleUrls: ['./home.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class HomeComponent implements OnInit, AfterViewInit {
 
@@ -155,7 +155,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
       // Add all content strips to sectionList with correct indices
       this.contentStripData.forEach((strip: any, index: number) => {
         const obj: any = {}
-        obj['section'] = 'section_' + index
+        obj['section'] = `section_${index}`
         obj['isVisible'] = false
         obj['stripData'] = strip
         obj['isActive'] = isStripActive(strip)
@@ -282,9 +282,12 @@ export class HomeComponent implements OnInit, AfterViewInit {
     this.handleDefaultFontSetting()
 
     if (this.homePageData?.karmaPointsPanel?.enabled) {
-      this.enrollInterval = setInterval(() => {
-        this.getEnrollmentData()
-      }, 1000)
+      this.enrollInterval = setInterval(
+        () => {
+          this.getEnrollmentData()
+        },
+        1000,
+      )
     }
 
     if (localStorage.getItem('websiteLanguage')) {
@@ -335,22 +338,24 @@ export class HomeComponent implements OnInit, AfterViewInit {
   getListPendingApproval(): void {
     this.userProfileService.listApprovalPendingFields()
       .pipe(takeUntil(this.destroySubject$))
-      .subscribe((res: any) => {
-        this.pendingApprovalList = res.result.data
-        // TODO...
-        // this.matSnackBar.openFromComponent(NotificationComponent, {
-        //   data: { type: 'pending' },
-        // ...this.configSuccess,
-        // })
-        if (!(this.pendingApprovalList && this.pendingApprovalList.length)) {
-          this.handleUpdateMobileNudge()
-        }
-
-      }, (error: HttpErrorResponse) => {
-        if (!error.ok) {
-          this.matSnackBar.open('Unable to fetch pending approval list')
-        }
-      })
+      .subscribe(
+        (res: any) => {
+          this.pendingApprovalList = res.result.data
+          // TODO...
+          // this.matSnackBar.openFromComponent(NotificationComponent, {
+          //   data: { type: 'pending' },
+          // ...this.configSuccess,
+          // })
+          if (!(this.pendingApprovalList && this.pendingApprovalList.length)) {
+            this.handleUpdateMobileNudge()
+          }
+        },
+        (error: HttpErrorResponse) => {
+          if (!error.ok) {
+            this.matSnackBar.open('Unable to fetch pending approval list')
+          }
+        },
+      )
   }
 
   // dialog/popup visibility from global-config -> components.dialogs
@@ -408,7 +413,7 @@ export class HomeComponent implements OnInit, AfterViewInit {
   @HostListener('window:scroll', ['$event'])
   scrollHandler() {
     // Check visibility for sections that aren't already visible
-    for (let i = 0; i < this.sectionList.length; i++) {
+    for (let i = 0; i < this.sectionList.length; i += 1) {
       if (!this.sectionList[i]['isVisible'] &&
         !this.sectionList[i]['section'].match(new RegExp(`^section_[0-${this.initialVisibleStrips - 1}]$`))) {
         this.checkSectionVisibility(this.sectionList[i]['section'])
@@ -466,73 +471,82 @@ export class HomeComponent implements OnInit, AfterViewInit {
         },
       },
     }
-    this.userProfileService.editProfileDetails(reqUpdates).subscribe((res: any) => {
-      if (res) {
-        this.isMDOMsgOpen = true
-      }
-    }, (error: HttpErrorResponse) => {
-      if (!error.ok) {
-        this.matSnackBar.open(error.error.text)
-      }
-    })
+    this.userProfileService.editProfileDetails(reqUpdates).subscribe(
+      (res: any) => {
+        if (res) {
+          this.isMDOMsgOpen = true
+        }
+      },
+      (error: HttpErrorResponse) => {
+        if (!error.ok) {
+          this.matSnackBar.open(error.error.text)
+        }
+      },
+    )
   }
 
   getApprovedStatus(): void {
     this.userProfileService.fetchApprovedFields()
       .pipe(takeUntil(this.destroySubject$))
-      .subscribe((res: any) => {
-        if (res) {
-          this.approvedStatusList = res.result.data
-          if (this.approvedStatusList && this.approvedStatusList.length > 0) {
+      .subscribe(
+        (res: any) => {
+          if (res) {
+            this.approvedStatusList = res.result.data
+            if (this.approvedStatusList && this.approvedStatusList.length > 0) {
 
-            const exists = this.approvedStatusList.filter((obj: any) => {
-              if (obj.hasOwnProperty('name') || obj.hasOwnProperty('group') || obj.hasOwnProperty('designation')) {
-                return obj
+              const exists = this.approvedStatusList.filter((obj: any) => {
+                if (obj.hasOwnProperty('name') || obj.hasOwnProperty('group') || obj.hasOwnProperty('designation')) {
+                  return obj
+                }
+              }).length > 0
+              if (exists) {
+                this.approvedStatus = true
+              } else {
+                this.approvedStatus = false
               }
-            }).length > 0
-            if (exists) {
-              this.approvedStatus = true
             } else {
               this.approvedStatus = false
             }
-          } else {
-            this.approvedStatus = false
           }
-        }
-      }, (error: HttpErrorResponse) => {
-        if (!error.ok) {
-          this.matSnackBar.open(error.error.text)
-        }
-      })
+        },
+        (error: HttpErrorResponse) => {
+          if (!error.ok) {
+            this.matSnackBar.open(error.error.text)
+          }
+        },
+      )
   }
 
   getRejectedStatus(): void {
     this.userProfileService.listRejectedFields()
       .pipe(takeUntil(this.destroySubject$))
-      .subscribe((res: any) => {
-        if (res) {
-          this.rejectedStatusList = res.result.data
-          if (this.rejectedStatusList && this.rejectedStatusList.length > 0) {
-            const exists = this.rejectedStatusList.filter((obj: any) => {
-              if (obj.hasOwnProperty('name') || obj.hasOwnProperty('group') || obj.hasOwnProperty('designation')) {
-                return obj
-              }
-            }).length > 0
+      .subscribe(
+        (res: any) => {
+          if (res) {
+            this.rejectedStatusList = res.result.data
+            if (this.rejectedStatusList && this.rejectedStatusList.length > 0) {
+              const exists = this.rejectedStatusList.filter((obj: any) => {
+                if (obj.hasOwnProperty('name') || obj.hasOwnProperty('group') || obj.hasOwnProperty('designation')) {
+                  return obj
+                }
+              }).length > 0
 
-            if (exists) {
-              this.rejectedStatus = true
+              if (exists) {
+                this.rejectedStatus = true
+              } else {
+                this.rejectedStatus = false
+              }
             } else {
               this.rejectedStatus = false
             }
-          } else {
-            this.rejectedStatus = false
           }
-        }
-      }, (error: HttpErrorResponse) => {
-        if (!error.ok) {
-          this.matSnackBar.open(error.error.text)
-        }
-      })
+        },
+        (error: HttpErrorResponse) => {
+          if (!error.ok) {
+            this.matSnackBar.open(error.error.text)
+          }
+        },
+      )
   }
 
   raiseTelemetryInteratEvent(event: any) {
@@ -567,13 +581,11 @@ export class HomeComponent implements OnInit, AfterViewInit {
           id = event.identifier
           type = event.primaryCategory
           _subType = `${event.selectedTab}-${event.selectedPill}`
-        }
-        else if (event.typeOfTelemetry === 'cbpPlan' && event?.sakshamAIGenerated) {
+        } else if (event.typeOfTelemetry === 'cbpPlan' && event?.sakshamAIGenerated) {
           id = event.identifier
           type = event.primaryCategory
           _subType = 'igot-ai'
-        }
-        else if (event.typeOfTelemetry === 'providers') {
+        } else if (event.typeOfTelemetry === 'providers') {
           id = event.orgId
           type = 'org'
           _subType = 'training-institutions'

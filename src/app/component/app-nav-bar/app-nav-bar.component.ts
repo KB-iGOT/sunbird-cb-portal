@@ -1,3 +1,4 @@
+/* tslint:disable:max-line-length */
 import { Component, Input, OnChanges, OnDestroy, OnInit, SimpleChanges } from '@angular/core'
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser'
 import { Router, NavigationStart, NavigationEnd } from '@angular/router'
@@ -6,9 +7,6 @@ import { TranslateService } from '@ngx-translate/core'
 import { IBtnAppsConfig, CustomTourService, WidgetUserService } from '@sunbird-cb/collection'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { ConfigurationsService, DomainConfService, EventService, MultilingualTranslationsService, NsInstanceConfig, NsPage, WsEvents } from '@sunbird-cb/utils-v2'
-
-
-
 import * as _ from 'lodash'
 import { LibNotificationsService } from '@sunbird-cb/notification'
 import { Subscription } from 'rxjs'
@@ -19,7 +17,7 @@ import { NotificationsService } from '../../services/notifications.service'
   selector: 'ws-app-nav-bar',
   templateUrl: './app-nav-bar.component.html',
   styleUrls: ['./app-nav-bar.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class AppNavBarComponent implements OnInit, OnChanges, OnDestroy {
   @Input() mode: 'top' | 'bottom' = 'top'
@@ -251,12 +249,14 @@ export class AppNavBarComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   getMyCount() {
-    this.notificationsService.getNotificationsData().subscribe((res: any) => {
-      this.notificationsCount = _.get(res, 'result.unread', 0)
-    },                                                         error => {
-      console.error('Error while fetching notifications count', error)
-      this.notificationsCount = 0
-    })
+    this.notificationsService.getNotificationsData().subscribe(
+      (res: any) => {
+        this.notificationsCount = _.get(res, 'result.unread', 0)
+      },
+      () => {
+        this.notificationsCount = 0
+      },
+    )
   }
 
   displayLogo() {

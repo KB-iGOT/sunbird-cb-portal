@@ -27,7 +27,7 @@ interface IProcessedMultiError {
     selector: 'ws-auth-error-parser',
     templateUrl: './error-parser.component.html',
     styleUrls: ['./error-parser.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ErrorParserComponent implements OnInit {
   processErrorData: IProcessedMultiError[] | null = null

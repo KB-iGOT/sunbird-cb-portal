@@ -7,7 +7,7 @@ import { ConfirmDialogComponent } from '../../../../../../../../../modules/share
     selector: 'ws-auth-media-wrapper',
     templateUrl: './media-wrapper.component.html',
     styleUrls: ['./media-wrapper.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class MediaWrapperComponent implements OnInit, OnChanges {
   @Input() identifier = ''

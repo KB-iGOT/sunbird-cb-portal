@@ -6,7 +6,7 @@ import { CONTENT_BASE_WEBHOST_ASSETS } from '../../../../../../../../../constant
     selector: 'ws-auth-html-v2',
     templateUrl: './html-v2.component.html',
     styleUrls: ['./html-v2.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class HtmlV2Component implements OnInit {
   showInfo = ''

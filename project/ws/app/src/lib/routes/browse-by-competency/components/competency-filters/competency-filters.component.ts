@@ -4,16 +4,16 @@ import { Subscription } from 'rxjs'
 import { BrowseCompetencyService } from '../../services/browse-competency.service'
 import { NSBrowseCompetency } from '../../models/competencies.model'
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 // tslint:enable
 import { LocalDataService } from '../../services/localService'
 import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 
 @Component({
-    selector: 'ws-app-competency-filters',
-    templateUrl: './competency-filters.component.html',
-    styleUrls: ['./competency-filters.component.scss'],
-    standalone: false
+  selector: 'ws-app-competency-filters',
+  templateUrl: './competency-filters.component.html',
+  styleUrls: ['./competency-filters.component.scss'],
+  standalone: false,
 })
 export class CompetencyFiltersComponent implements OnInit, OnDestroy {
   @Output() appliedFilter = new EventEmitter<any>()

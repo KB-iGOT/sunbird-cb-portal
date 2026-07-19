@@ -5,7 +5,7 @@ import { IWsLeaderArticle } from '../../model/leadership.model'
     selector: 'ws-articles',
     templateUrl: './articles.component.html',
     styleUrls: ['./articles.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ArticlesComponent implements OnInit {
   @Input() articles: IWsLeaderArticle[] = []

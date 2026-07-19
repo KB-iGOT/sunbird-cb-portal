@@ -4,21 +4,21 @@ import { UntypedFormControl } from '@angular/forms'
 import { MAT_BOTTOM_SHEET_DATA, MAT_BOTTOM_SHEET_DEFAULT_OPTIONS, MatBottomSheetRef } from '@angular/material/bottom-sheet'
 import { AppCbpPlansService } from '../../_services/app-cbp-plans.service'
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { ConfigurationsService, MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 import { environment } from 'src/environments/environment'
 import { NsContent } from '../../_services/widget-content.model'
 
 @Component({
-    selector: 'ws-widget-cbp-filters',
-    templateUrl: './cbp-filters.component.html',
-    styleUrls: ['./cbp-filters.component.scss'],
-    providers: [
-        { provide: MatBottomSheetRef, useValue: {} },
-        { provide: MAT_BOTTOM_SHEET_DEFAULT_OPTIONS, useValue: { hasBackdrop: false } },
-        { provide: MAT_BOTTOM_SHEET_DATA, useValue: {} }
-    ],
-    standalone: false
+	selector: 'ws-widget-cbp-filters',
+	templateUrl: './cbp-filters.component.html',
+	styleUrls: ['./cbp-filters.component.scss'],
+	providers: [
+		{ provide: MatBottomSheetRef, useValue: {} },
+		{ provide: MAT_BOTTOM_SHEET_DEFAULT_OPTIONS, useValue: { hasBackdrop: false } },
+		{ provide: MAT_BOTTOM_SHEET_DATA, useValue: {} }
+	],
+	standalone: false
 })
 
 export class CbpFiltersComponent implements OnInit {

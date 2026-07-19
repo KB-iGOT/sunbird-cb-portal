@@ -6,6 +6,7 @@ import {
     NsPlaylist,
     NsGoal,
     RatingService,
+    ContentRatingV2DialogComponent,
 } from '@sunbird-cb/collection'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { ConfigurationsService, LoggerService, NsPage, TFetchStatus, UtilityService } from '@sunbird-cb/utils-v2'
@@ -17,12 +18,9 @@ import { AccessControlService } from '@ws/author'
 import { MatDialog } from '@angular/material/dialog'
 import dayjs from 'dayjs'
 // tslint:disable-next-line
-import _ from 'lodash'
-import { ContentRatingV2DialogComponent } from '@sunbird-cb/collection'
+import * as _ from 'lodash'
 import moment from 'moment'
-import { NsAppToc } from '@sunbird-cb/toc'
-import { AppTocService } from '@sunbird-cb/toc'
-import { ActionService, WidgetContentService } from '@sunbird-cb/toc'
+import { ActionService, AppTocService, NsAppToc, WidgetContentService } from '@sunbird-cb/toc'
 import { MobileAppsService } from '../../../services/mobile-apps.service'
 
 export enum ErrorType {
@@ -47,7 +45,7 @@ const flattenItems = (items: any[], key: string | number) => {
     styleUrls: ['./public-toc.component.scss'],
     // tslint:disable-next-line: use-component-view-encapsulation
     encapsulation: ViewEncapsulation.None,
-    standalone: false
+    standalone: false,
 })
 export class PublicTocComponent implements OnInit, OnDestroy, AfterViewChecked, AfterViewInit {
     banners: NsAppToc.ITocBanner | null = null

@@ -4,7 +4,7 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
     selector: 'ws-auth-ipr-dialog',
     templateUrl: './ipr-dialog.component.html',
     styleUrls: ['./ipr-dialog.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class IprDialogComponent implements OnInit {
   // constructor(public dialogRef: MatDialogRef<IprDialogComponent>,

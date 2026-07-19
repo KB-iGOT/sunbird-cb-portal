@@ -5,7 +5,7 @@ import { AccessControlService } from '../../../../../modules/shared/services/acc
     selector: 'ws-auth-root-content-card',
     templateUrl: './content-card.component.html',
     styleUrls: ['./content-card.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ContentCardComponent implements OnInit {
   @Input() data: any

@@ -5,7 +5,7 @@ import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { ActivatedRoute, NavigationEnd, NavigationStart, Router } from '@angular/router'
 import { NSProfileDataV3 } from '../../models/profile-v3.models'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { Subscription } from 'rxjs'
 import { StepService } from '../../services/step.service'
 import { CompLocalService } from '../../services/comp.service'
@@ -13,10 +13,10 @@ import { ProfileV3Service } from '../../services/profile_v3.service'
 import { InitService } from '../../../../routes/services/appInit.service'
 import { TranslateService } from '@ngx-translate/core'
 @Component({
-    selector: 'ws-app-profile-home',
-    templateUrl: './profile-home.component.html',
-    styleUrls: ['./profile-home.component.scss'],
-    standalone: false
+  selector: 'ws-app-profile-home',
+  templateUrl: './profile-home.component.html',
+  styleUrls: ['./profile-home.component.scss'],
+  standalone: false,
 })
 export class ProfileHomeComponent implements OnInit, OnDestroy {
   @ViewChild('stickyMenu', { static: true }) menuElement!: ElementRef

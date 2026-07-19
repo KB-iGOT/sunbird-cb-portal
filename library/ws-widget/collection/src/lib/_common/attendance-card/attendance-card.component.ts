@@ -3,14 +3,14 @@ import { MatDialog } from '@angular/material/dialog'
 // import { ActivatedRoute } from '@angular/router'
 import { NsContent } from '@sunbird-cb/utils-v2'
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { AttendanceHelperComponent } from '../attendance-helper/attendance-helper.component'
 
 @Component({
-    selector: 'ws-widget-attendance-card',
-    templateUrl: './attendance-card.component.html',
-    styleUrls: ['./attendance-card.component.scss'],
-    standalone: false
+  selector: 'ws-widget-attendance-card',
+  templateUrl: './attendance-card.component.html',
+  styleUrls: ['./attendance-card.component.scss'],
+  standalone: false
 })
 export class AttendanceCardComponent implements OnInit {
 

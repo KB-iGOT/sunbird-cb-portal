@@ -4,7 +4,7 @@ import { Component, OnInit } from '@angular/core'
     selector: 'ws-auth-title',
     templateUrl: './title.component.html',
     styleUrls: ['./title.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class TitleComponent implements OnInit {
 

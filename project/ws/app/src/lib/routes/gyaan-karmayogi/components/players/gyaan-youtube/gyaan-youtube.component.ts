@@ -4,7 +4,7 @@ import { Component, OnInit } from '@angular/core'
     selector: 'ws-app-gyaan-youtube',
     templateUrl: './gyaan-youtube.component.html',
     styleUrls: ['./gyaan-youtube.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class GyaanYoutubeComponent implements OnInit {
 

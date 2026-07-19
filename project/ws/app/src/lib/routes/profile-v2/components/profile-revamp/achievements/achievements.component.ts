@@ -13,7 +13,7 @@ import { ConfigDetails, NlwCertificateDialogComponent } from '@sunbird-cb/consum
   templateUrl: './achievements.component.html',
   styleUrls: ['./achievements.component.scss'],
   providers: [PipeCertificateImageURL],
-  standalone: false
+  standalone: false,
 })
 export class AchievementsComponent implements OnInit {
   //#region (global variables)
@@ -57,7 +57,7 @@ export class AchievementsComponent implements OnInit {
     const configDetails: ConfigDetails = {
       apiConfig: this.apiConfig,
       urlConfigPath: 'achievementList',
-      defaultUrl: ''
+      defaultUrl: '',
     }
     if (this.userId || userId) {
       this.profileV2RevampSvc.listAchievements(configDetails, this.userId || userId).subscribe({
@@ -94,7 +94,7 @@ export class AchievementsComponent implements OnInit {
 
   openPDF(content: any): void {
     if (content?.uploadedDocumentUrl) {
-      let dialogData = {
+      const dialogData = {
         pdfZoom: 'FitH',
         type: 'PDF',
         action: 'view',

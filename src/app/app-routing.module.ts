@@ -587,7 +587,7 @@ const routes: Routes = [
       pageKey: 'profile-v2',
       pageId: 'app/person-profile',
       module: 'Profile',
-      pageSubtype: 'profile'
+      pageSubtype: 'profile',
     },
     resolve: {
       pageData: FormConfigResolverService,

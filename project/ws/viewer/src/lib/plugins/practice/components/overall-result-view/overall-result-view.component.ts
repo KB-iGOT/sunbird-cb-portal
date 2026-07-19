@@ -1,3 +1,4 @@
+/* tslint:disable:interface-name */
 import { Component, Input, Output, EventEmitter, OnInit, OnDestroy, OnChanges, SimpleChanges } from '@angular/core'
 import { Subject } from 'rxjs'
 import * as _ from 'lodash'
@@ -19,32 +20,32 @@ interface FailureInfo {
 }
 
 @Component({
-    selector: 'viewer-overall-result-view',
-    templateUrl: './overall-result-view.component.html',
-    styleUrls: ['./overall-result-view.component.scss'],
-    standalone: false
+  selector: 'viewer-overall-result-view',
+  templateUrl: './overall-result-view.component.html',
+  styleUrls: ['./overall-result-view.component.scss'],
+  standalone: false,
 })
 export class OverallResultViewComponent implements OnInit, OnChanges, OnDestroy {
   @Input() resultsData: any
   @Input() selectedAssessmentCompatibilityLevel: number = 1
   @Input() v4questionSet: any
   @Input() hideSectionTable = false
-  @Output() viewQuestions = new EventEmitter<NSPractice.IQuizSubmitResSec>();
+  @Output() viewQuestions = new EventEmitter<NSPractice.IQuizSubmitResSec>()
 
   // Component-owned computed properties
-  isPassed = false;
-  overallScorePercent: number | null = null;
-  marksObtainedText = '';
-  requiredPassPercent: number | null = null;
-  summaryCards: any[] = [];
-  sectionTableData: SectionTableData[] = [];
-  displayedColumns = ['sectionName', 'result', 'yourScore', 'requiredScore', 'actions'];
-  failureInfo: FailureInfo | null = null;
-  isDataLoaded = false;
+  isPassed = false
+  overallScorePercent: number | null = null
+  marksObtainedText = ''
+  requiredPassPercent: number | null = null
+  summaryCards: any[] = []
+  sectionTableData: SectionTableData[] = []
+  displayedColumns = ['sectionName', 'result', 'yourScore', 'requiredScore', 'actions']
+  failureInfo: FailureInfo | null = null
+  isDataLoaded = false
   isPracticeAssessment = false
 
   // RxJS Lifecycle Management
-  destroy$ = new Subject<void>();
+  destroy$ = new Subject<void>()
 
   constructor(
     private translateService: TranslateService,
@@ -76,7 +77,6 @@ export class OverallResultViewComponent implements OnInit, OnChanges, OnDestroy 
     this.failureInfo = null
     this.isDataLoaded = false
   }
-
 
   // Component owns its computations
   computeUIData() {
@@ -223,7 +223,7 @@ export class OverallResultViewComponent implements OnInit, OnChanges, OnDestroy 
         result: pass ? 'PASSED' : 'FAILED',
         yourScore: parseFloat(this.sanitizeNumber(result).toFixed(2)),
         requiredScore: minimumPass,
-        rawSectionData: section
+        rawSectionData: section,
       }
     })
   }
@@ -254,7 +254,7 @@ export class OverallResultViewComponent implements OnInit, OnChanges, OnDestroy 
 
     this.failureInfo = {
       percentageMore: Math.max(0, parseFloat(percentageNeeded.toFixed(2))),
-      additionalMarks: Math.max(0, pointsNeeded)
+      additionalMarks: Math.max(0, pointsNeeded),
     }
   }
 

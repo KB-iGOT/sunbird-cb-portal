@@ -13,7 +13,7 @@ import cloneDeep from 'lodash/cloneDeep'
   selector: 'ws-app-igot-sarthi',
   templateUrl: './igot-sarthi.component.html',
   styleUrls: ['./igot-sarthi.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class IGotSarthiComponent implements OnInit, AfterViewInit, AfterViewChecked, OnDestroy {
   @Input() from = ''

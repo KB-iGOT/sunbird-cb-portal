@@ -9,7 +9,7 @@ import { SettingsService } from '../../settings.service'
   selector: 'ws-app-left-menu-item',
   templateUrl: './left-menu-item.component.html',
   styleUrls: ['./left-menu-item.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class LeftMenuItemComponent implements OnChanges {
   //#region (global variables)
@@ -45,7 +45,7 @@ export class LeftMenuItemComponent implements OnChanges {
     this.disableMenu = isNotMyUser && isIgotOrg
     if (this.disableMenu && _.get(this.item, 'name') === 'getStartedTour') {
       this.item['enabled'] = false
-      this.item['img'] = "fusion-assets/images/play_circle.svg"
+      this.item['img'] = 'fusion-assets/images/play_circle.svg'
     }
   }
 
@@ -75,17 +75,16 @@ export class LeftMenuItemComponent implements OnChanges {
       },
       {},
     )
-    if (tab.name == 'getStartedTour') {
+    if (tab.name === 'getStartedTour') {
       this.router.navigate(['/page/home'], { relativeTo: this.activatedRoute, queryParamsHandling: 'merge' })
       this.configSvc.updateTourGuideMethod(false)
-    }
-    else if (tab.name == 'resetPassword') {
+    } else if (tab.name === 'resetPassword') {
       this.resetPassword()
     }
   }
 
   translateLetMenuName(menuName: string): string {
-    const translationKey = 'settingLeftMenu.' + menuName.replace(/\s/g, '')
+    const translationKey = `settingLeftMenu.${menuName.replace(/\s/g, '')}`
     return this.translate.instant(translationKey)
   }
 

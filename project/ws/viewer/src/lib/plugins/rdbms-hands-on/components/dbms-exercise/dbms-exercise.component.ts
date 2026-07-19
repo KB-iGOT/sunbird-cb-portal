@@ -10,7 +10,7 @@ import { MatSnackBar } from '@angular/material/snack-bar'
     selector: 'viewer-dbms-exercise',
     templateUrl: './dbms-exercise.component.html',
     styleUrls: ['./dbms-exercise.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class DbmsExerciseComponent implements OnDestroy, OnChanges {
   @Input() resourceContent: any
@@ -204,14 +204,14 @@ export class DbmsExerciseComponent implements OnDestroy, OnChanges {
       if (this.isInput) {
         this.raiseInteractTelemetry('editor', 'codeinput')
       }
-    }, 2 * 60000)
+    },                               2 * 60000)
   }
   startClickTimer() {
     this.clickInterval = setInterval(() => {
       if (this.isClick) {
         this.raiseInteractTelemetry('editor', 'buttonclick')
       }
-    }, 2 * 60000)
+    },                               2 * 60000)
   }
 
 }

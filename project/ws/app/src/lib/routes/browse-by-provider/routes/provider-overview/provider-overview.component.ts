@@ -6,7 +6,7 @@ import { Component, OnInit } from '@angular/core'
     styleUrls: ['./provider-overview.component.scss'],
     // tslint:disable-next-line: no-host-metadata-property
     host: { class: 'flex flex-1' },
-    standalone: false
+    standalone: false,
 })
 export class ProviderOverviewComponent implements OnInit {
 

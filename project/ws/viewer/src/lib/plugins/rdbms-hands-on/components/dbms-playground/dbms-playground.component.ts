@@ -7,7 +7,7 @@ import { EventService } from '@sunbird-cb/utils-v2'
     selector: 'viewer-dbms-playground',
     templateUrl: './dbms-playground.component.html',
     styleUrls: ['./dbms-playground.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class DbmsPlaygroundComponent implements OnChanges {
 

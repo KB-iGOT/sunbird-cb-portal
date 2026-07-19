@@ -3,16 +3,16 @@ import { GbSearchService } from '../../services/gb-search.service'
 import { ConfigurationsService, EventService, MultilingualTranslationsService, ValueService } from '@sunbird-cb/utils-v2'
 import { ActivatedRoute, Router } from '@angular/router'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { TranslateService } from '@ngx-translate/core'
 import { NsContent } from '@sunbird-cb/collection'
 
 import { WidgetContentLibService } from '@sunbird-cb/consumption'
 @Component({
-    selector: 'ws-app-learn-search',
-    templateUrl: './learn-search.component.html',
-    styleUrls: ['./learn-search.component.scss'],
-    standalone: false
+  selector: 'ws-app-learn-search',
+  templateUrl: './learn-search.component.html',
+  styleUrls: ['./learn-search.component.scss'],
+  standalone: false,
 })
 export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
   @Input() param: any
@@ -229,7 +229,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
         'filters': {
           'courseCategory': [],
           'contentType': ['Course', 'Event'],
-          'status': ['Live']
+          'status': ['Live'],
         },
         'sort_by': { 'lastUpdatedOn': 'desc' },
         'facets': ['mimeType'],

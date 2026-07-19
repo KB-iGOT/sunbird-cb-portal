@@ -33,11 +33,8 @@ export class CustomHomeFormResolverService {
     }
     return this.formSvc.formReadData(requestData).pipe(
       map((rData: any) => {
-        console.log('Raw API response in resolver:', rData)
         const finalData = rData && rData.result && rData.result.form && rData.result.form.data
-        console.log('Extracted finalData in resolver:', finalData)
         const result = { data: finalData, error: null }
-        console.log('Final resolver result:', result)
         return result
       }),
       catchError((error: any) => of({ error, data: null })),

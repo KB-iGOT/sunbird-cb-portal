@@ -2,17 +2,17 @@ import { Component, Input, OnInit } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { EventService, WsEvents } from '@sunbird-cb/utils-v2'
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 // tslint:enable
 
 import { NSKnowledgeResource } from '../../models/knowledge-resource.models'
 import { TranslateService } from '@ngx-translate/core'
 
 @Component({
-    selector: 'ws-app-knowledge-left-menu',
-    templateUrl: './left-menu.component.html',
-    styleUrls: ['./left-menu.component.scss'],
-    standalone: false
+  selector: 'ws-app-knowledge-left-menu',
+  templateUrl: './left-menu.component.html',
+  styleUrls: ['./left-menu.component.scss'],
+  standalone: false,
 })
 export class LeftMenuComponent implements OnInit {
   @Input()
@@ -43,7 +43,7 @@ export class LeftMenuComponent implements OnInit {
         subType: WsEvents.EnumInteractSubTypes.SIDE_MENU,
         id: `${_.camelCase(tab.name)}-menu`,
       },
-      { },
+      {},
     )
   }
 

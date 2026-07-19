@@ -160,7 +160,7 @@ export function HttpLoaderFactory(http: HttpClient) {
       },
     }),
     GuidedTourModule,
-    AppNavBarV2Component
+    AppNavBarV2Component,
 
   ],
   exports: [

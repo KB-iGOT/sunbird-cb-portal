@@ -1,3 +1,4 @@
+/* tslint:disable:interface-name class-name */
 export interface UserStats {
   state: string
   totalPoints: string
@@ -72,12 +73,13 @@ export interface designation {
 export const generateYears = (startYear: number = 1900): string[] => {
   const currentYear = new Date().getFullYear()
   const years: string[] = []
-  for (let year = currentYear; year >= startYear; year--) {
+  for (let year = currentYear; year >= startYear; year -= 1) {
     years.push(year.toString())
   }
   return years
 }
 
+// tslint:disable-next-line: max-length max-line-length
 export const EMAIL_PATTERN = /^[a-zA-Z0-9]+[a-zA-Z0-9._-]*[a-zA-Z0-9]+@[a-zA-Z0-9]+([-a-zA-Z0-9]*[a-zA-Z0-9]+)?(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,4}$/
 export const MOBILE_PATTERN = /^[0]?[6789]\d{9}$/
 export const PIN_CODE_PATTERN = /^[1-9][0-9]{5}$/

@@ -4,18 +4,18 @@ import { BrowseProviderService } from '../../services/browse-provider.service'
 import { debounceTime, switchMap, takeUntil } from 'rxjs/operators'
 import { Subject, Observable } from 'rxjs'
 // tslint:disable
-import _ from 'lodash'
-import { LocalDataService } from '../../../browse-by-competency/services/localService';
+import * as _ from 'lodash'
+import { LocalDataService } from '../../../browse-by-competency/services/localService'
 import { TranslateService } from '@ngx-translate/core'
 import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 import { ActivatedRoute } from '@angular/router'
 // tslint:enable
 
 @Component({
-    selector: 'ws-app-all-providers',
-    templateUrl: './all-providers.component.html',
-    styleUrls: ['./all-providers.component.scss'],
-    standalone: false
+  selector: 'ws-app-all-providers',
+  templateUrl: './all-providers.component.html',
+  styleUrls: ['./all-providers.component.scss'],
+  standalone: false,
 })
 export class AllProvidersComponent implements OnInit {
   public displayLoader!: Observable<boolean>
@@ -77,7 +77,7 @@ export class AllProvidersComponent implements OnInit {
       })
       this.featuredProviders = this.route.snapshot.data.contentData.data.result.data
     }
-   }
+  }
 
   ngOnInit() {
     this.searchForm = new UntypedFormGroup({
@@ -191,7 +191,7 @@ export class AllProvidersComponent implements OnInit {
   filterChannles(value: string) {
     if (value) {
       const filterValue = value.toLowerCase()
-      this.clonesProviders = this.allProviders.filter((p: any) => p &&  p.name && p.name.toLowerCase().includes(filterValue))
+      this.clonesProviders = this.allProviders.filter((p: any) => p && p.name && p.name.toLowerCase().includes(filterValue))
     }
     if (!value) {
       this.clonesProviders = this.allProviders

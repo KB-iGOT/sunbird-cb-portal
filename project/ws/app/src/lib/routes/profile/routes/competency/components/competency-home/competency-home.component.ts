@@ -6,7 +6,7 @@ import { ConfigurationsService } from '@sunbird-cb/utils-v2'
     selector: 'ws-app-competency-home',
     templateUrl: './competency-home.component.html',
     styleUrls: ['./competency-home.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class CompetencyHomeComponent implements OnInit {
   enabledTab = this.activatedRoute.snapshot.data.pageData.data.enabledTabs.achievements.subTabs

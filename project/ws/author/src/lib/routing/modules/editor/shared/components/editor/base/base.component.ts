@@ -11,7 +11,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core'
     selector: 'ws-auth-base',
     templateUrl: './base.component.html',
     styleUrls: ['./base.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class BaseComponent implements OnInit, OnDestroy {
   ngOnInit() { }

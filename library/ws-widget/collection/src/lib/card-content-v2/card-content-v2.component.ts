@@ -7,7 +7,7 @@ import { NsPlaylist } from '../btn-playlist/btn-playlist.model'
 import { NsContent } from '../_services/widget-content.model'
 import { NsCardContent } from './card-content-v2.model'
 /* tslint:disable*/
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { CertificateService } from '../_services/certificate.service'
 import { CertificateDialogComponent } from '../_common/certificate-dialog/certificate-dialog.component'
 import { TranslateService } from '@ngx-translate/core'
@@ -18,10 +18,10 @@ import { MatDialog } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
 
 @Component({
-    selector: 'ws-widget-card-content-v2',
-    templateUrl: './card-content-v2.component.html',
-    styleUrls: ['./card-content-v2.component.scss'],
-    standalone: false
+  selector: 'ws-widget-card-content-v2',
+  templateUrl: './card-content-v2.component.html',
+  styleUrls: ['./card-content-v2.component.scss'],
+  standalone: false
 })
 export class CardContentV2Component extends WidgetBaseComponent
   implements OnInit, OnDestroy, AfterViewInit, NsWidgetResolver.IWidgetData<NsCardContent.ICard> {

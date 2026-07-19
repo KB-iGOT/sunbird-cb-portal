@@ -1,3 +1,4 @@
+/* tslint:disable:max-line-length */
 import { Injectable } from '@angular/core'
 import { Resolve, ActivatedRouteSnapshot, RouterStateSnapshot, Router, UrlTree } from '@angular/router'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
@@ -79,8 +80,8 @@ export class FormMicroSiteDataService implements Resolve<any> {
           },         0)
           return false
         }
-          localStorage.removeItem('microSiteRedirectionData')
-          return { data: finalData?.userRedirectionData, error: null }
+        localStorage.removeItem('microSiteRedirectionData')
+        return { data: finalData?.userRedirectionData, error: null }
 
       }),
       catchError((_error: any) => {

@@ -8,7 +8,7 @@ import {
 
 @Directive({
     selector: '[wsCompTooltipDirective]',
-    standalone: false
+    standalone: false,
 })
 export class CompTooltipDirective {
     // private tooltipId!: string

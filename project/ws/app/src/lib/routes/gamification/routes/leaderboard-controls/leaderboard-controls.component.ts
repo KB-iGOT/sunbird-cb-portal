@@ -19,7 +19,7 @@ import { LeaderboardService } from '../../../../routes/leaderboard/services/lead
     selector: 'ws-app-leaderboard',
     templateUrl: './leaderboard.component.html',
     styleUrls: ['./leaderboard.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class LeaderboardComponent implements OnInit, OnDestroy {
   private routerSub!: Subscription

@@ -11,7 +11,7 @@ import { AssessmentService } from '../../services/competency.service'
     selector: 'ws-app-card-detail',
     templateUrl: './card-detail.component.html',
     styleUrls: ['./card-detail.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class CardDetailComponent implements OnInit {
   lineChart: Chart | null = null

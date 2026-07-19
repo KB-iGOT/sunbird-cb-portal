@@ -3,7 +3,6 @@ import { CommonModule } from '@angular/common'
 
 import { GamificationRoutingModule } from './gamification-routing.module'
 
-
 import { UserImageModule } from '@sunbird-cb/collection'
 import { PipeNameTransformModule, PipeCountTransformModule } from '@sunbird-cb/utils-v2'
 import { MatButtonModule } from '@angular/material/button'

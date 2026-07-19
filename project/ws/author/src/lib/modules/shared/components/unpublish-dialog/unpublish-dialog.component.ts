@@ -22,7 +22,7 @@ import { NOTIFICATION_TIME } from '../../../../constants/constant'
     selector: 'ws-auth-unpublish-dialog',
     templateUrl: './unpublish-dialog.component.html',
     styleUrls: ['./unpublish-dialog.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class UnpublishDialogComponent implements OnInit {
   commentsForm!: UntypedFormGroup

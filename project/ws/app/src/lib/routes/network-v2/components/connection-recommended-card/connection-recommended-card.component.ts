@@ -10,7 +10,7 @@ import { TranslateService } from '@ngx-translate/core'
     selector: 'ws-app-connection-recommended-card',
     templateUrl: './connection-recommended-card.component.html',
     styleUrls: ['./connection-recommended-card.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ConnectionRecommendedCardComponent implements OnInit {
 

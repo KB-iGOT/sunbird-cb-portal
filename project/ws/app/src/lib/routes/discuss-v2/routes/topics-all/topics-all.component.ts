@@ -5,7 +5,7 @@ import { Router } from '@angular/router'
   selector: 'ws-app-topics-all',
   templateUrl: './topics-all.component.html',
   styleUrls: ['./topics-all.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class TopicsAllComponent {
 

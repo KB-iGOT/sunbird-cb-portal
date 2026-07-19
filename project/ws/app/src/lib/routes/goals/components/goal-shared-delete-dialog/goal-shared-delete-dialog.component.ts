@@ -10,7 +10,7 @@ import { MatSnackBar } from '@angular/material/snack-bar'
     selector: 'ws-app-goal-shared-delete-dialog',
     templateUrl: './goal-shared-delete-dialog.component.html',
     styleUrls: ['./goal-shared-delete-dialog.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class GoalSharedDeleteDialogComponent {
   @ViewChild('errorDeleteForUser', { static: true })

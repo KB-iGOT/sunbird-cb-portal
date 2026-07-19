@@ -7,7 +7,7 @@ import { AccessControlService } from '../../../../../modules/shared/services/acc
     selector: 'ws-auth-root-home',
     templateUrl: './home.component.html',
     styleUrls: ['./home.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class AuthHomeComponent implements OnInit, OnDestroy {
   sideNavBarOpened = true

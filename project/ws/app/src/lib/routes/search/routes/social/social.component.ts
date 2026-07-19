@@ -16,7 +16,7 @@ import { NsWidgetResolver } from '@sunbird-cb/resolver'
     selector: 'ws-app-social',
     templateUrl: './social.component.html',
     styleUrls: ['./social.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class SocialComponent implements OnInit, OnDestroy {
   defaultSideNavBarOpenedSubscription: Subscription | null = null

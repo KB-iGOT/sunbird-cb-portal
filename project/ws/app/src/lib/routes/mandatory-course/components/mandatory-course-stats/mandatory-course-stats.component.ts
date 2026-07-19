@@ -5,7 +5,7 @@ import { NSMandatoryCourseData } from '../../models/mandatory-course.model'
     selector: 'ws-app-mandatory-course-stats',
     templateUrl: './mandatory-course-stats.component.html',
     styleUrls: ['./mandatory-course-stats.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class MandatoryCourseStatsComponent implements OnInit, OnChanges {
   @Input() stats!: NSMandatoryCourseData.IMandatoryCourseStats

@@ -9,7 +9,7 @@ import { NSContent } from '../../../../interface/content'
     selector: 'ws-auth-root-comments-dialog',
     templateUrl: './comments-dialog.component.html',
     styleUrls: ['./comments-dialog.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class CommentsDialogComponent implements OnInit {
   commentsForm!: UntypedFormGroup

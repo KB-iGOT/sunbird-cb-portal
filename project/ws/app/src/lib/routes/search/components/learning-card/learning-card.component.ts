@@ -3,12 +3,12 @@ import { NsContent } from '@sunbird-cb/collection'
 import { ConfigurationsService, EventService } from '@sunbird-cb/utils-v2'
 import { SafeHtml, DomSanitizer } from '@angular/platform-browser'
 /* tslint:disable*/
-import _ from 'lodash'
+import * as _ from 'lodash'
 @Component({
-    selector: 'ws-app-learning-card',
-    templateUrl: './learning-card.component.html',
-    styleUrls: ['./learning-card.component.scss'],
-    standalone: false
+  selector: 'ws-app-learning-card',
+  templateUrl: './learning-card.component.html',
+  styleUrls: ['./learning-card.component.scss'],
+  standalone: false
 })
 export class LearningCardComponent implements OnInit, OnChanges {
   @Input()
@@ -55,6 +55,6 @@ export class LearningCardComponent implements OnInit, OnChanges {
       {
         pageIdExt: `${_.camelCase(this.content.primaryCategory)}-card`,
         module: _.camelCase(this.content.primaryCategory),
-    })
+      })
   }
 }

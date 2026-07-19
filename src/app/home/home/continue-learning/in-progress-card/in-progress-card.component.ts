@@ -80,4 +80,3 @@ export class InProgressCardComponent implements OnChanges {
     this.router.navigate(['/app/toc', id, 'overview'])
   }
 }
-

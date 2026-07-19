@@ -5,7 +5,7 @@ import { Competency } from '../../../models/profile-revamp.model'
   selector: 'ws-app-competencies',
   templateUrl: './competencies.component.html',
   styleUrls: ['./competencies.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class CompetenciesComponent implements OnInit {
   //#region (global variable)

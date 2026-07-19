@@ -3,12 +3,12 @@ import { AuthKeycloakService, ConfigurationsService, NsPage } from '@sunbird-cb/
 import { Subscription } from 'rxjs'
 import { ActivatedRoute } from '@angular/router'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 @Component({
-    selector: 'ws-public-logout',
-    templateUrl: './public-logout.component.html',
-    styleUrls: ['./public-logout.component.scss'],
-    standalone: false
+  selector: 'ws-public-logout',
+  templateUrl: './public-logout.component.html',
+  styleUrls: ['./public-logout.component.scss'],
+  standalone: false,
 })
 export class PublicLogoutComponent implements OnInit, OnDestroy {
   contactUsMail = ''

@@ -17,7 +17,7 @@ import { environment } from 'src/environments/environment'
     selector: 'viewer-html-mobile',
     templateUrl: './html-mobile.component.html',
     styleUrls: ['./html-mobile.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class HtmlMobileComponent implements OnInit, OnDestroy {
   private routeDataSubscription: Subscription | null = null

@@ -9,7 +9,7 @@ import { ViewerUtilService } from '@sunbird-cb/toc'
     selector: 'viewer-channel',
     templateUrl: './channel.component.html',
     styleUrls: ['./channel.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ChannelComponent implements OnInit, OnDestroy {
   private routeDataSubscription: Subscription | null = null

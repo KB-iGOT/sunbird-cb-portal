@@ -5,7 +5,7 @@ import { Subscription, Observable, interval, forkJoin } from 'rxjs'
 import { startWith, map, debounceTime, distinctUntilChanged, pairwise } from 'rxjs/operators'
 import { AppDateAdapter, APP_DATE_FORMATS, changeformat } from '../../services/format-datepicker'
 import { ImageCropComponent, ConfigurationsService, WsEvents, EventService, PipeCertificateImageURL, MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
-import { IMAGE_MAX_SIZE, PROFILE_IMAGE_SUPPORT_TYPES } from '@ws/author'
+import { IMAGE_MAX_SIZE, LoaderService, NOTIFICATION_TIME, NotificationComponent, Notify, PROFILE_IMAGE_SUPPORT_TYPES } from '@ws/author'
 import { UserProfileService } from '../../services/user-profile.service'
 import { Router, ActivatedRoute } from '@angular/router'
 
@@ -21,10 +21,6 @@ import {
   INameField,
   ICountry,
 } from '../../models/user-profile.model'
-import { NotificationComponent } from '@ws/author'
-import { Notify } from '@ws/author'
-import { NOTIFICATION_TIME } from '@ws/author'
-import { LoaderService } from '@ws/author'
 /* tslint:disable */
 import * as _ from 'lodash'
 import { OtpService } from '../../services/otp.services'
@@ -64,7 +60,7 @@ export function forbiddenNamesValidator(optionsArray: any): ValidatorFn {
     { provide: DateAdapter, useClass: AppDateAdapter },
     { provide: MAT_DATE_FORMATS, useValue: APP_DATE_FORMATS },
   ],
-  standalone: false
+  standalone: false,
 })
 export class UserProfileComponent implements OnInit, OnDestroy {
   createUserForm: UntypedFormGroup
@@ -198,7 +194,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
     this.isForcedUpdate = !!this.route.snapshot.paramMap.get('isForcedUpdate')
 
     this.updatePrimaryEmail = new UntypedFormControl('',
-      [Validators.required,
+                                                     [Validators.required,
       Validators.email,
       Validators.pattern(this.emailRegix),
       ]
@@ -325,7 +321,7 @@ export class UserProfileComponent implements OnInit, OnDestroy {
       })
       this.onGroupChange()
     },
-      (_err: any) => {
+                                              (_err: any) => {
       })
 
     this.userProfileSvc.getMasterNationality().subscribe(

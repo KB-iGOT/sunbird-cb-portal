@@ -5,7 +5,7 @@ import { NSRdbmsHandsOn } from '../../rdbms-hands-on.model'
     selector: 'viewer-execution-result',
     templateUrl: './execution-result.component.html',
     styleUrls: ['./execution-result.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ExecutionResultComponent implements OnInit {
 

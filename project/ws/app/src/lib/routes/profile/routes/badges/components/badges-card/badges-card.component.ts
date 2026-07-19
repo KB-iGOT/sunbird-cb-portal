@@ -6,7 +6,7 @@ import { MatDialog } from '@angular/material/dialog'
     selector: 'ws-app-badges-card',
     templateUrl: './badges-card.component.html',
     styleUrls: ['./badges-card.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class BadgesCardComponent implements OnInit {
   shareErrorMessage!: ElementRef<any>

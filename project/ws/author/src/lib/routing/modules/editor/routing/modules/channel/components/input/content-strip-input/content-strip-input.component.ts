@@ -4,7 +4,7 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core'
     selector: 'ws-auth-content-strip-input',
     templateUrl: './content-strip-input.component.html',
     styleUrls: ['./content-strip-input.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ContentStripInputComponent implements OnInit {
 

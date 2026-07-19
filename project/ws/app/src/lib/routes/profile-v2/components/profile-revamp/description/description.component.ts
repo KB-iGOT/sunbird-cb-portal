@@ -4,7 +4,7 @@ import { AfterViewInit, Component, ElementRef, EventEmitter, Input, Output, View
   selector: 'ws-app-description',
   templateUrl: './description.component.html',
   styleUrls: ['./description.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class DescriptionComponent implements AfterViewInit {
   @ViewChild('descriptionElement') descriptionElement !: ElementRef

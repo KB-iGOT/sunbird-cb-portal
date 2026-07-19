@@ -5,14 +5,14 @@ import { ConfigurationsService, EventService, UtilityService } from '@sunbird-cb
 import { NsCardContent } from '../card-content-v2/card-content-v2.model'
 
 /* tslint:disable*/
-import _ from 'lodash'
+import * as _ from 'lodash'
 import moment from 'moment'
 
 @Component({
-    selector: 'ws-widget-card-event-hub',
-    templateUrl: './card-event-hub.component.html',
-    styleUrls: ['./card-event-hub.component.scss'],
-    standalone: false
+  selector: 'ws-widget-card-event-hub',
+  templateUrl: './card-event-hub.component.html',
+  styleUrls: ['./card-event-hub.component.scss'],
+  standalone: false
 })
 export class CardEventHubComponent extends WidgetBaseComponent
   implements OnInit, OnDestroy, NsWidgetResolver.IWidgetData<NsCardContent.ICard> {

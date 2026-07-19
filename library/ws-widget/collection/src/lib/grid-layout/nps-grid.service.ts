@@ -2,16 +2,16 @@ import { Injectable } from '@angular/core'
 import { HttpClient } from '@angular/common/http'
 // import { map } from 'rxjs/operators'
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { BehaviorSubject } from 'rxjs'
 // tslint:enable
 
 const API_END_POINTS = {
-    readFeed: (id: string) => `/apis/proxies/v8/user/v1/feed/${id}`,
-    getFormID: (id: string) => `/apis/proxies/v8/forms/getFormById?id=${id}`,
-    submitForm: `/apis/proxies/v8/forms/v1/saveFormSubmit`,
-    SUBMIT_ENROLMENT_FORM: `apis/proxies/v8/forms/v2/saveFormSubmit`,
-    deleteFeed: `/apis/proxies/v8/user/feed/v1/delete`,
+  readFeed: (id: string) => `/apis/proxies/v8/user/v1/feed/${id}`,
+  getFormID: (id: string) => `/apis/proxies/v8/forms/getFormById?id=${id}`,
+  submitForm: `/apis/proxies/v8/forms/v1/saveFormSubmit`,
+  SUBMIT_ENROLMENT_FORM: `apis/proxies/v8/forms/v2/saveFormSubmit`,
+  deleteFeed: `/apis/proxies/v8/user/feed/v1/delete`,
 }
 
 @Injectable()

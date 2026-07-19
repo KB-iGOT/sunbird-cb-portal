@@ -1,3 +1,4 @@
+/* tslint:disable:variable-name */
 import {
   Component,
   EventEmitter,
@@ -7,7 +8,7 @@ import {
   Output,
   SimpleChanges,
 } from '@angular/core'
-import { NsContent } from '@sunbird-cb/collection'
+import { CertificateDialogComponent, NsContent } from '@sunbird-cb/collection'
 import { environment } from 'src/environments/environment'
 import {
   ConfigurationsService,
@@ -16,7 +17,6 @@ import {
   WsEvents,
 } from '@sunbird-cb/utils-v2'
 import { MatDialog } from '@angular/material/dialog'
-import { CertificateDialogComponent } from '@sunbird-cb/collection'
 import { CertificateService } from '../../../certificate/services/certificate.service'
 import { Router } from '@angular/router'
 import { CommonMethodsService, WidgetContentLibService } from '@sunbird-cb/consumption'
@@ -28,7 +28,7 @@ const NEW_CONTENT_THRESHOLD_DAYS = 14
   selector: 'ws-app-course-content-card',
   templateUrl: './course-content-card.component.html',
   styleUrls: ['./course-content-card.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class CourseContentCardComponent implements OnInit, OnChanges {
   @Input() content: any

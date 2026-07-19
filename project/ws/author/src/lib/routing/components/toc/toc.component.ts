@@ -4,7 +4,7 @@ import { Component, OnInit } from '@angular/core'
     selector: 'ws-auth-toc',
     templateUrl: './toc.component.html',
     styleUrls: ['./toc.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class TocComponent implements OnInit {
 

@@ -1,11 +1,11 @@
+/* tslint:disable:max-line-length */
 import { Component, OnDestroy, OnInit } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { ConfigurationsService, EventService, LoggerService, WsEvents } from '@sunbird-cb/utils-v2'
 import { Subscription } from 'rxjs'
 import { NsContent } from '@sunbird-cb/collection'
-import { WidgetContentService } from '@sunbird-cb/toc'
+import { ViewerUtilService, WidgetContentService } from '@sunbird-cb/toc'
 import { NSQuiz } from '../../plugins/quiz/quiz.model'
-import { ViewerUtilService } from '@sunbird-cb/toc'
 /// **
 // * this will not be available for any Preview.
 // **/
@@ -13,7 +13,7 @@ import { ViewerUtilService } from '@sunbird-cb/toc'
     selector: 'viewer-practice',
     templateUrl: './practice-test.component.html',
     styleUrls: ['./practice-test.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class PracticeTestComponent implements OnInit, OnDestroy {
     isPreviewMode = false

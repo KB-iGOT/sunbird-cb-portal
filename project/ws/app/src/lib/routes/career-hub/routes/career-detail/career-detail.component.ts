@@ -2,14 +2,14 @@ import { Component, OnInit, ElementRef, ViewChild } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { MatDialog } from '@angular/material/dialog'
 /* tslint:disable */
-import _ from 'lodash'
+import * as _ from 'lodash'
 /* tslint:enable */
 
 @Component({
   selector: 'ws-app-career-detail',
   templateUrl: './career-detail.component.html',
   styleUrls: ['./career-detail.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class CareerDetailComponent implements OnInit {
   @ViewChild('toastSuccess', { static: true }) toastSuccess!: ElementRef<any>

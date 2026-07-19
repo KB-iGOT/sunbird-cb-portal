@@ -4,7 +4,7 @@ import { Component, OnInit, OnDestroy } from '@angular/core'
     selector: 'ws-auth-confirm',
     templateUrl: './confirmation.component.html',
     styleUrls: ['./confirmation.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ConfirmationComponent implements OnInit, OnDestroy {
   isChecked = false

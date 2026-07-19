@@ -9,7 +9,7 @@ import { EventService, WsEvents } from '@sunbird-cb/utils-v2'
   selector: 'ws-app-people-suggestions',
   templateUrl: './people-suggestions.component.html',
   styleUrls: ['./people-suggestions.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class PeopleSuggestionsComponent implements OnChanges {
   //#region (global variables)
@@ -64,7 +64,7 @@ export class PeopleSuggestionsComponent implements OnChanges {
         },
         error: () => {
           this.openSnackbar('Something went wrong while sending connection request')
-        }
+        },
       })
     }
   }

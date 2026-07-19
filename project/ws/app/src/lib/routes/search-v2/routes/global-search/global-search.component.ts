@@ -9,7 +9,7 @@ import { environment } from 'src/environments/environment'
   selector: 'ws-app-global-search',
   templateUrl: './global-search.component.html',
   styleUrls: ['./global-search.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class GlobalSearchComponent implements OnInit {
   searchParam: any = ''

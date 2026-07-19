@@ -1,18 +1,18 @@
 import { Component, Input, OnInit } from '@angular/core'
 import { MatSnackBar } from '@angular/material/snack-bar'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { NSProfileDataV3 } from '../../models/profile-v3.models'
 import { TopicService } from '../../services/topics.service'
 import { TranslateService } from '@ngx-translate/core'
 
 @Component({
-    selector: 'ws-app-topic-card',
-    templateUrl: './topic-card.component.html',
-    styleUrls: ['./topic-card.component.scss'],
-    /* tslint:disable */
-    host: { class: 'flex flex-1 top_main flex-col' },
-    standalone: false
+  selector: 'ws-app-topic-card',
+  templateUrl: './topic-card.component.html',
+  styleUrls: ['./topic-card.component.scss'],
+  /* tslint:disable */
+  host: { class: 'flex flex-1 top_main flex-col' },
+  standalone: false
 })
 export class TopicCardComponent implements OnInit {
   @Input() topic!: NSProfileDataV3.ITopic

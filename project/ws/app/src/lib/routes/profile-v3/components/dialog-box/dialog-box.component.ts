@@ -6,7 +6,7 @@ import { TranslateService } from '@ngx-translate/core'
     selector: 'ws-app-dialog-box',
     templateUrl: './dialog-box.component.html',
     styleUrls: ['./dialog-box.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class DialogBoxComponent implements OnInit {
 

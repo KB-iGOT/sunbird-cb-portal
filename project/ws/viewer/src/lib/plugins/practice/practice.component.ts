@@ -24,7 +24,7 @@ import { VIEWER_ROUTE_FROM_MIME } from '@sunbird-cb/collection'
 import { ActivatedRoute, NavigationStart, Router } from '@angular/router'
 import { ViewerUtilService, WidgetContentService, AppTocService, ViewerDataService } from '@sunbird-cb/toc'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { NSQuiz } from '../quiz/quiz.model'
 import { environment } from 'src/environments/environment'
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser'
@@ -40,7 +40,7 @@ export type FetchStatus = 'hasMore' | 'fetching' | 'done' | 'error' | 'none'
   selector: 'viewer-plugin-practice',
   templateUrl: './practice.component.html',
   styleUrls: ['./practice.component.scss'],
-  standalone: false
+  standalone: false,
 })
 // ComponentCanDeactivate
 export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
@@ -589,121 +589,129 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
     } else {
       if (this.selectedAssessmentCompatibilityLevel < 7) {
 
-        this.quizSvc.getSectionV4(this.identifier, this.forPreview,
-          this.getPublicContentRequestData(), this.collectionId).subscribe((section: NSPractice.ISectionResponse) => {
-            // console.log(section)
-            if (section && section.result && section.result.response) {
-              if ((this.forPreview && !this.forCreatorMode)) {
-                this.showPublicUserPopUp('noAtempt')
+        this.quizSvc.getSectionV4(
+          this.identifier,
+          this.forPreview,
+          this.getPublicContentRequestData(),
+          this.collectionId,
+        ).subscribe((section: NSPractice.ISectionResponse) => {
+          // console.log(section)
+          if (section && section.result && section.result.response) {
+            if ((this.forPreview && !this.forCreatorMode)) {
+              this.showPublicUserPopUp('noAtempt')
+            }
+          } else {
+            this.fetchingSectionsStatus = 'done'
+            if (section.responseCode && section.responseCode === 'OK') {
+              this.compatibilityLevel = section.result.questionSet.compatibilityLevel
+              this.assessmentType = section.result.questionSet.assessmentType
+              this.v4questionSet = section.result.questionSet
+              /** this is to enable or disable Timer */
+              const showTimer = _.toLower(_.get(section, 'result.questionSet.showTimer')) === 'yes'
+              if (showTimer) {
+                this.quizJson.timeLimit = section.result.questionSet.expectedDuration
+              } else {
+                // this.quizJson.timeLimit = this.duration * 60
+                this.quizJson.timeLimit = this.quizJson.timeLimit
+              }
+              this.allSectionTimeLimit = section.result.questionSet.expectedDuration
+              // this.quizSvc.paperSections.next(section.result)
+              const tempObj = _.get(section, 'result.questionSet.children')
+              this.showQuestionMarks = _.get(section, 'result.questionSet.showMarks', 'No')
+              this.updataDB(tempObj)
+              this.paperSections = []
+              this.questionSectionTableData = []
+              let totalQuestions = 0
+              _.each(tempObj, o => {
+                if (this.paperSections) {
+                  this.paperSections.push(o)
+                  this.questionSectionTableData.push(o)
+                  if (o.childNodes) {
+                    totalQuestions = totalQuestions + o.childNodes.length
+                  }
+                }
+              })
+              this.totalAssessemntQuestionsCount = totalQuestions
+              // this.paperSections = _.get(section, 'result.questionSet.children')
+              this.viewState = 'detail'
+              // this.updateTimer()
+              this.startIfonlySection()
+            }
+          }
+        },
+                    (error: any) => {
+            this.fetchingSectionsStatus = 'error'
+            // Only show specific message for 400 status code errors
+            if (error.status === 400) {
+              if (error.error && error.error.params && error.error.params.errmsg) {
+                this.openSnackbar(`${error.error.params.errmsg}`)
+                this.viewerHeaderSideBarToggleService.visibilityStatus.next(true)
               }
             } else {
-              this.fetchingSectionsStatus = 'done'
-              if (section.responseCode && section.responseCode === 'OK') {
-                this.compatibilityLevel = section.result.questionSet.compatibilityLevel
-                this.assessmentType = section.result.questionSet.assessmentType
-                this.v4questionSet = section.result.questionSet
-                /** this is to enable or disable Timer */
-                const showTimer = _.toLower(_.get(section, 'result.questionSet.showTimer')) === 'yes'
-                if (showTimer) {
-                  this.quizJson.timeLimit = section.result.questionSet.expectedDuration
-                } else {
-                  // this.quizJson.timeLimit = this.duration * 60
-                  this.quizJson.timeLimit = this.quizJson.timeLimit
-                }
-                this.allSectionTimeLimit = section.result.questionSet.expectedDuration
-                // this.quizSvc.paperSections.next(section.result)
-                const tempObj = _.get(section, 'result.questionSet.children')
-                this.showQuestionMarks = _.get(section, 'result.questionSet.showMarks', 'No')
-                this.updataDB(tempObj)
-                this.paperSections = []
-                this.questionSectionTableData = []
-                let totalQuestions = 0
-                _.each(tempObj, o => {
-                  if (this.paperSections) {
-                    this.paperSections.push(o)
-                    this.questionSectionTableData.push(o)
-                    if (o.childNodes) {
-                      totalQuestions = totalQuestions + o.childNodes.length
-                    }
-                  }
-                })
-                this.totalAssessemntQuestionsCount = totalQuestions
-                // this.paperSections = _.get(section, 'result.questionSet.children')
-                this.viewState = 'detail'
-                // this.updateTimer()
-                this.startIfonlySection()
-              }
+              this.openSnackbar('Failed to load assessment section. Please try again later.')
             }
-          },
-            (error: any) => {
-              this.fetchingSectionsStatus = 'error'
-              // Only show specific message for 400 status code errors
-              if (error.status === 400) {
-                if (error.error && error.error.params && error.error.params.errmsg) {
-                  this.openSnackbar(`${error.error.params.errmsg}`)
-                  this.viewerHeaderSideBarToggleService.visibilityStatus.next(true)
-                }
-              } else {
-                this.openSnackbar('Failed to load assessment section. Please try again later.')
-              }
-            })
+          })
       } else {
-        this.quizSvc.getSection(this.identifier, this.forPreview,
-          this.getPublicContentRequestData(), this.collectionId).subscribe((section: NSPractice.ISectionResponse) => {
-            // console.log(section)
-            if (section && section.result && section.result.response) {
-              if ((this.forPreview && !this.forCreatorMode)) {
-                this.showPublicUserPopUp('noAtempt')
+        this.quizSvc.getSection(
+          this.identifier,
+          this.forPreview,
+          this.getPublicContentRequestData(),
+          this.collectionId,
+        ).subscribe((section: NSPractice.ISectionResponse) => {
+          // console.log(section)
+          if (section && section.result && section.result.response) {
+            if ((this.forPreview && !this.forCreatorMode)) {
+              this.showPublicUserPopUp('noAtempt')
+            }
+          } else {
+            this.fetchingSectionsStatus = 'done'
+            if (section.responseCode && section.responseCode === 'OK') {
+              this.compatibilityLevel = section.result.questionSet.compatibilityLevel
+              this.assessmentType = section.result.questionSet.assessmentType
+              /** this is to enable or disable Timer */
+              const showTimer = _.toLower(_.get(section, 'result.questionSet.showTimer')) === 'yes'
+              if (showTimer) {
+                this.quizJson.timeLimit = section.result.questionSet.expectedDuration
+              } else {
+                // this.quizJson.timeLimit = this.duration * 60
+                this.quizJson.timeLimit = this.quizJson.timeLimit
+              }
+              this.allSectionTimeLimit = section.result.questionSet.expectedDuration
+              // this.quizSvc.paperSections.next(section.result)
+              const tempObj = _.get(section, 'result.questionSet.children')
+              this.showQuestionMarks = _.get(section, 'result.questionSet.showMarks', 'No')
+              this.updataDB(tempObj)
+              this.paperSections = []
+              this.questionSectionTableData = []
+              let totalQuestions = 0
+              _.each(tempObj, o => {
+                if (this.paperSections) {
+                  this.paperSections.push(o)
+                  this.questionSectionTableData.push(o)
+                  if (o.childNodes) {
+                    totalQuestions = totalQuestions + o.childNodes.length
+                  }
+                }
+              })
+              this.totalAssessemntQuestionsCount = totalQuestions
+              // this.paperSections = _.get(section, 'result.questionSet.children')
+              this.viewState = 'detail'
+              // this.updateTimer()
+              this.startIfonlySection()
+            }
+          }
+        },
+                    (error: any) => {
+            this.fetchingSectionsStatus = 'error'
+            // Only show specific message for 400 status code errors
+            if (error.status === 400) {
+              if (error.error && error.error.params && error.error.params.errmsg) {
+                this.openSnackbar(`${error.error.params.errmsg}`)
               }
             } else {
-              this.fetchingSectionsStatus = 'done'
-              if (section.responseCode && section.responseCode === 'OK') {
-                this.compatibilityLevel = section.result.questionSet.compatibilityLevel
-                this.assessmentType = section.result.questionSet.assessmentType
-                /** this is to enable or disable Timer */
-                const showTimer = _.toLower(_.get(section, 'result.questionSet.showTimer')) === 'yes'
-                if (showTimer) {
-                  this.quizJson.timeLimit = section.result.questionSet.expectedDuration
-                } else {
-                  // this.quizJson.timeLimit = this.duration * 60
-                  this.quizJson.timeLimit = this.quizJson.timeLimit
-                }
-                this.allSectionTimeLimit = section.result.questionSet.expectedDuration
-                // this.quizSvc.paperSections.next(section.result)
-                const tempObj = _.get(section, 'result.questionSet.children')
-                this.showQuestionMarks = _.get(section, 'result.questionSet.showMarks', 'No')
-                this.updataDB(tempObj)
-                this.paperSections = []
-                this.questionSectionTableData = []
-                let totalQuestions = 0
-                _.each(tempObj, o => {
-                  if (this.paperSections) {
-                    this.paperSections.push(o)
-                    this.questionSectionTableData.push(o)
-                    if (o.childNodes) {
-                      totalQuestions = totalQuestions + o.childNodes.length
-                    }
-                  }
-                })
-                this.totalAssessemntQuestionsCount = totalQuestions
-                // this.paperSections = _.get(section, 'result.questionSet.children')
-                this.viewState = 'detail'
-                // this.updateTimer()
-                this.startIfonlySection()
-              }
+              this.openSnackbar('Failed to load assessment section. Please try again later.')
             }
-          },
-            (error: any) => {
-              this.fetchingSectionsStatus = 'error'
-              // Only show specific message for 400 status code errors
-              if (error.status === 400) {
-                if (error.error && error.error.params && error.error.params.errmsg) {
-                  this.openSnackbar(`${error.error.params.errmsg}`)
-                }
-              } else {
-                this.openSnackbar('Failed to load assessment section. Please try again later.')
-              }
-            })
+          })
       }
 
     }
@@ -767,7 +775,7 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
 
   goToNextSet(): void {
     if (this.hasNextSet) {
-      this.currentSetNumber++
+      this.currentSetNumber += 1
       this.currentQuestionIndex = 0
       const questions = this.secQuestions
       this.currentQuestion = questions && questions[0] ? questions[0] : null
@@ -780,7 +788,7 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
 
   goToPreviousSet(): void {
     if (this.hasPreviousSet) {
-      this.currentSetNumber--
+      this.currentSetNumber -= 1
       const questions = this.secQuestions
       const lastIdx = questions.length - 1
       this.currentQuestionIndex = lastIdx
@@ -897,10 +905,10 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
   getMultiQuestions(ids: string[]) {
     if (this.selectedAssessmentCompatibilityLevel < 7) {
       return this.quizSvc.getQuestionsV4(ids, this.identifier, this.forPreview,
-        this.viewerSvc.publicUserDetails, this.collectionId).toPromise()
+                                         this.viewerSvc.publicUserDetails, this.collectionId).toPromise()
     }
     return this.quizSvc.getQuestions(ids, this.identifier, this.forPreview,
-      this.viewerSvc.publicUserDetails, this.collectionId).toPromise()
+                                     this.viewerSvc.publicUserDetails, this.collectionId).toPromise()
   }
   getRhsValue(question: NSPractice.IQuestionV2) {
     if (question && question.qType) {
@@ -1197,7 +1205,7 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
     // status = 1 indicates started
     // status = 2 indicates completed
     const resData = this.viewerSvc.getBatchIdAndCourseId(this.activatedRoute.snapshot.queryParams.collectionId,
-      this.activatedRoute.snapshot.queryParams.batchId, this.identifier)
+                                                         this.activatedRoute.snapshot.queryParams.batchId, this.identifier)
     const collectionId = (resData && resData.courseId) ? resData.courseId : ''
     const batchId = (resData && resData.batchId) ? resData.batchId : ''
     // const collectionId = this.activatedRoute.snapshot.queryParams.collectionId ?
@@ -1220,6 +1228,7 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
       if (this.identifier) {
         const MIME_TYPE = 'application/vnd.ekstep.content-collection'
         const parentId = this.resolvePreEnrolmentAssessmentId()
+        // tslint:disable-next-line:no-console
         console.log('🎯 [PRE-ENROLLMENT] progress update', {
           status,
           parentId,
@@ -1256,7 +1265,7 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
               this.tocSvc.hashmap = { ...this.tocSvc.hashmap }
               this.tocSvc.hashmapUpdated.next({ timestamp: Date.now(), hashmap: this.tocSvc.hashmap })
             }
-          }, 700)
+          },         700)
         }
       }
     }
@@ -1525,9 +1534,17 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
     const request: NSPractice.IQuizSubmit = {
       language,
       batchId: this.resBatchId,
-      identifier: this.activatedRoute.snapshot.queryParams.preAssessment && this.widgetContentService.currentMetaData && this.widgetContentService.currentMetaData.content && this.widgetContentService.currentMetaData.content.data && this.widgetContentService.currentMetaData.content.data.identifier ? this.widgetContentService.currentMetaData?.content?.data?.identifier : this.identifier,
+      identifier: this.activatedRoute.snapshot.queryParams.preAssessment && this.widgetContentService.currentMetaData
+        && this.widgetContentService.currentMetaData.content && this.widgetContentService.currentMetaData.content.data
+        && this.widgetContentService.currentMetaData.content.data.identifier
+        ? this.widgetContentService.currentMetaData?.content?.data?.identifier : this.identifier,
       primaryCategory: this.primaryCategory,
-      courseId: this.forPreview ? this.collectionId : (this.activatedRoute.snapshot.queryParams.preAssessment && this.activatedRoute.snapshot.queryParams.preAssessment && this.widgetContentService.currentMetaData && this.widgetContentService.currentMetaData.content && this.widgetContentService.currentMetaData.content.data && this.widgetContentService.currentMetaData.content.data.parent ? this.widgetContentService.currentMetaData?.content.data.parent : this.resCollectionId),
+      courseId: this.forPreview ? this.collectionId : (
+        this.activatedRoute.snapshot.queryParams.preAssessment && this.activatedRoute.snapshot.queryParams.preAssessment
+          && this.widgetContentService.currentMetaData && this.widgetContentService.currentMetaData.content
+          && this.widgetContentService.currentMetaData.content.data && this.widgetContentService.currentMetaData.content.data.parent
+          ? this.widgetContentService.currentMetaData?.content.data.parent : this.resCollectionId
+      ),
       isAssessment: true,
       objectType: 'QuestionSet',
       timeLimit: this.quizJson.timeLimit,

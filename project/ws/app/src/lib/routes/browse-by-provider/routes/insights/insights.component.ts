@@ -8,7 +8,7 @@ import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
     styleUrls: ['./insights.component.scss'],
     // tslint:disable-next-line: no-host-metadata-property
     host: { class: 'flex flex-1' },
-    standalone: false
+    standalone: false,
 })
 export class InsightsComponent implements OnInit {
 

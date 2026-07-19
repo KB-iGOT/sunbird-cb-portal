@@ -1,3 +1,4 @@
+/* tslint:disable:object-shorthand-properties-first */
 import { Component, OnInit } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
@@ -6,20 +7,20 @@ import { ConfigurationsService, MultilingualTranslationsService } from '@sunbird
 import { environment } from 'src/environments/environment'
 
 @Component({
-    selector: 'ws-app-global-search',
-    templateUrl: './global-search.component.html',
-    styleUrls: ['./global-search.component.scss'],
-    standalone: false
+  selector: 'ws-app-global-search',
+  templateUrl: './global-search.component.html',
+  styleUrls: ['./global-search.component.scss'],
+  standalone: false,
 })
 export class GlobalSearchComponent implements OnInit {
-  searchParam = { query: '', nlp: '', searchCategory: '' };
-  userValue = '';
+  searchParam = { query: '', nlp: '', searchCategory: '' }
+  userValue = ''
   searchparamFilters: any
   filtersPanel!: string | null
-  selectedTab = 1;
-  tabs = ['All', 'Learn', 'Network', 'Discuss', 'Careers'];
+  selectedTab = 1
+  tabs = ['All', 'Learn', 'Network', 'Discuss', 'Careers']
   compentencyKey!: NsContent.ICompentencyKeys
-  searchCategory: string = '';
+  searchCategory: string = ''
   constructor(
     private activated: ActivatedRoute,
     private translate: TranslateService,
@@ -46,7 +47,7 @@ export class GlobalSearchComponent implements OnInit {
   ngOnInit() {
     this.compentencyKey =
       this.configService.compentency[environment.compentencyVersionKey]
-    this.activated.queryParamMap.subscribe((queryParams) => {
+    this.activated.queryParamMap.subscribe(queryParams => {
       this.userValue = ''
       if (queryParams.has('tab')) {
         const tabn = queryParams.get('tab')
@@ -60,14 +61,14 @@ export class GlobalSearchComponent implements OnInit {
         this.searchParam = {
           query: queryParams.get('q') || '',
           nlp: queryParams.get('search') || '',
-          searchCategory: queryParams.get('category') || ''
+          searchCategory: queryParams.get('category') || '',
         }
       }
       if (queryParams.has('t')) {
         this.searchParam = {
           query: 'moderatedCourses',
           nlp: queryParams.get('search') || '',
-          searchCategory: queryParams.get('category') || ''
+          searchCategory: queryParams.get('category') || '',
 
         }
         this.userValue = 'moderatedCourses'
@@ -79,7 +80,7 @@ export class GlobalSearchComponent implements OnInit {
             mainType: 'course',
             subType: sfilters?.primaryCategory
             ,
-          }
+          },
         ]
         this.searchparamFilters = paramfilter
       }
@@ -87,7 +88,6 @@ export class GlobalSearchComponent implements OnInit {
       if (queryParams.has('filtersPanel')) {
         this.filtersPanel = queryParams.get('filtersPanel')
       }
-
 
     })
   }

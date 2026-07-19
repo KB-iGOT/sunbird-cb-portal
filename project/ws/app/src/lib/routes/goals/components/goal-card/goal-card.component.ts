@@ -21,7 +21,7 @@ import { MatSnackBar } from '@angular/material/snack-bar'
     selector: 'ws-app-goal-card[type]',
     templateUrl: './goal-card.component.html',
     styleUrls: ['./goal-card.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class GoalCardComponent implements OnInit {
   @ViewChild('errorDurationUpdate', { static: true })

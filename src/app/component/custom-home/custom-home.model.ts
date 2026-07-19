@@ -1,3 +1,4 @@
+/* tslint:disable:prefer-array-literal */
 export interface IIIIDEMConfig {
   banner: {
     logo: string

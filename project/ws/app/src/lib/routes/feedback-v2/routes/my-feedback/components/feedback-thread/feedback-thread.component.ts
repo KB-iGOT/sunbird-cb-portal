@@ -19,7 +19,7 @@ import { MyFeedbackService } from '../../services/my-feedback.service'
     selector: 'ws-app-feedback-thread',
     templateUrl: './feedback-thread.component.html',
     styleUrls: ['./feedback-thread.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class FeedbackThreadComponent implements OnInit, OnChanges {
   @Input() feedbackId!: string

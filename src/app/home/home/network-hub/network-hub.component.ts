@@ -9,7 +9,7 @@ import { HomePageService } from '../../../services/home-page.service'
     selector: 'ws-network-hub',
     templateUrl: './network-hub.component.html',
     styleUrls: ['./network-hub.component.scss'],
-    standalone: false
+    standalone: false,
 })
 
 export class NetworkHubComponent implements OnInit {

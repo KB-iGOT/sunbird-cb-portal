@@ -12,7 +12,7 @@ import { InterestService } from '../../services/interest.service'
     selector: 'ws-app-interest',
     templateUrl: './interest.component.html',
     styleUrls: ['./interest.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class InterestComponent implements OnInit {
   @ViewChild('toastSuccess', { static: true }) toastSuccess!: ElementRef<any>

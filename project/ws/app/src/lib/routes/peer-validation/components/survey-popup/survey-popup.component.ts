@@ -8,7 +8,7 @@ import { PeerValidationService } from '../../services/peer-validation.service'
     selector: 'ws-app-survey-popup',
     templateUrl: './survey-popup.component.html',
     styleUrls: ['./survey-popup.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class SurveyPopupComponent {
   constructor(

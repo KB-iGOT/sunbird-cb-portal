@@ -4,7 +4,7 @@ import { Component, OnInit } from '@angular/core'
     selector: 'ws-app-event-pdf-player',
     templateUrl: './event-pdf-player.component.html',
     styleUrls: ['./event-pdf-player.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class EventPdfPlayerComponent implements OnInit {
 

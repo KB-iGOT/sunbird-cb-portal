@@ -1,3 +1,4 @@
+/* tslint:disable:no-console object-shorthand-properties-first */
 import { Component, OnInit } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { NsCarouselBannerV2, SbUicCarouselBannerV2Component } from '@sunbird-cb/consumption'
@@ -44,6 +45,7 @@ export class HomeCarouselBannerV2Component implements OnInit {
           .map((item: ISliderDataItem) => this.transformBannerData(item))
       }
     } catch (error) {
+      // eslint-disable-next-line no-console
       console.error('Error loading slider data:', error)
       this.banners = []
     }
@@ -60,7 +62,7 @@ export class HomeCarouselBannerV2Component implements OnInit {
 
     return {
       bannerUrl: item.banners.l || item.banners.xl,
-      redirectionUrl: redirectionUrl,
+      redirectionUrl,
       altText: item.title || '',
       title: item.title || '',
       subtitle: '',

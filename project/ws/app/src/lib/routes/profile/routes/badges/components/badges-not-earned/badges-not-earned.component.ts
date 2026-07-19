@@ -5,7 +5,7 @@ import { IBadge } from '../../badges.model'
     selector: 'ws-app-badges-not-earned',
     templateUrl: './badges-not-earned.component.html',
     styleUrls: ['./badges-not-earned.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class BadgesNotEarnedComponent implements OnInit {
   constructor() { }

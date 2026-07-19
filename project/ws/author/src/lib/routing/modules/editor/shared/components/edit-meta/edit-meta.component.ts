@@ -57,7 +57,7 @@ export interface IUsersData {
     selector: 'ws-auth-edit-meta',
     templateUrl: './edit-meta.component.html',
     styleUrls: ['./edit-meta.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class EditMetaComponent implements OnInit, OnDestroy, AfterViewInit {
   contentMeta!: NSContent.IContentMeta

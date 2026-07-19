@@ -9,7 +9,7 @@ import { EventService, WsEvents } from '@sunbird-cb/utils-v2'
     selector: 'viewer-assessment',
     templateUrl: './assessment.component.html',
     styleUrls: ['./assessment.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class AssessmentComponent implements OnInit {
     isPreviewMode = false

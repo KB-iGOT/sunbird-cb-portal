@@ -1,3 +1,4 @@
+/* tslint:disable:max-line-length */
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { PublicSignupComponent } from './public-signup.component'

@@ -9,7 +9,7 @@ import { TranslateService } from '@ngx-translate/core'
     selector: 'ws-app-account-password-settings',
     templateUrl: './account-password-settings.component.html',
     styleUrls: ['./account-password-settings.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class AccountPasswordSettingsComponent implements OnInit {
 

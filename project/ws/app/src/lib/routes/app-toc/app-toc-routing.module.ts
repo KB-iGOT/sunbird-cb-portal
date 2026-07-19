@@ -1,9 +1,11 @@
 import { NgModule } from '@angular/core'
 import { RouterModule, Routes } from '@angular/router'
-import { AppTocCiosHomeComponent } from '@sunbird-cb/toc'
-import { AppTocCiosResolverService } from '@sunbird-cb/toc'
-import { AppTocCiosUserEnrollResolverService } from '@sunbird-cb/toc'
-import { AppTocContentReadResolverService } from '@sunbird-cb/toc'
+import {
+  AppTocCiosHomeComponent,
+  AppTocCiosResolverService,
+  AppTocCiosUserEnrollResolverService,
+  AppTocContentReadResolverService,
+} from '@sunbird-cb/toc'
 import { FormDataResolverService } from './../../routes/services/form-data-resolver.service'
 
 import { TocHomeComponent } from './toc-home/toc-home.component'
@@ -17,8 +19,8 @@ const routes: Routes = [
       pageType: 'feature',
       pageKey: 'toc',
       pageId: ':do_ID',
-      module: 'Learn',  
-      pageSubtype: 'toc'
+      module: 'Learn',
+      pageSubtype: 'toc',
     },
     resolve: {
       pageData: FormConfigResolverService,

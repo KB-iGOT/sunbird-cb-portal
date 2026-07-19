@@ -7,7 +7,7 @@ import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
     selector: 'ws-upcoming-timeline',
     templateUrl: './upcoming-timeline.component.html',
     styleUrls: ['./upcoming-timeline.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class UpcomingTimelineComponent implements OnInit {
   @Output()

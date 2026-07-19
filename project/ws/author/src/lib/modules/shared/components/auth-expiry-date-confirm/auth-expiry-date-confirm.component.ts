@@ -20,7 +20,7 @@ import { Notify } from '../../../../constants/notificationMessage'
     selector: 'ws-auth-expiry-date-confirm',
     templateUrl: './auth-expiry-date-confirm.component.html',
     styleUrls: ['./auth-expiry-date-confirm.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class AuthExpiryDateConfirmComponent implements OnInit {
   userActionForm!: UntypedFormGroup

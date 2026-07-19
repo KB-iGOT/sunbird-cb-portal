@@ -20,7 +20,7 @@ import { IHtmlPicker } from './html-picker.model'
   selector: 'viewer-plugin-html-picker',
   templateUrl: './html-picker.component.html',
   styleUrls: ['./html-picker.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class HtmlPickerComponent implements OnInit, OnDestroy {
   @Input() identifier: string | null = null
@@ -199,14 +199,14 @@ export class HtmlPickerComponent implements OnInit, OnDestroy {
       if (this.isInput) {
         this.raiseInteractTelemetry('editor', 'codeinput')
       }
-    }, 2 * 60000)
+    },                               2 * 60000)
   }
   startClickTimer() {
     this.clickInterval = setInterval(() => {
       if (this.isClick) {
         this.raiseInteractTelemetry('editor', 'buttonclick')
       }
-    }, 2 * 60000)
+    },                               2 * 60000)
   }
 
 }

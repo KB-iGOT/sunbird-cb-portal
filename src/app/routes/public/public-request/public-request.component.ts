@@ -1,9 +1,10 @@
+/* tslint:disable:max-line-length */
 import { Component, OnInit } from '@angular/core'
 import { UntypedFormGroup, UntypedFormControl, Validators, AbstractControl, ValidatorFn } from '@angular/forms'
 import { ActivatedRoute, Router } from '@angular/router'
 import { environment } from 'src/environments/environment'
 // tslint:disable-next-line: import-name
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { Subscription, Observable, interval } from 'rxjs'
 import { map, pairwise, startWith } from 'rxjs/operators'
 import { SignupService } from '../public-signup/signup.service'
@@ -33,10 +34,10 @@ export function forbiddenNamesValidatorPosition(optionsArray: any): ValidatorFn 
 }
 
 @Component({
-    selector: 'ws-public-request',
-    templateUrl: './public-request.component.html',
-    styleUrls: ['./public-request.component.scss'],
-    standalone: false
+  selector: 'ws-public-request',
+  templateUrl: './public-request.component.html',
+  styleUrls: ['./public-request.component.scss'],
+  standalone: false,
 })
 export class PublicRequestComponent implements OnInit {
   requestForm!: UntypedFormGroup
@@ -78,15 +79,15 @@ export class PublicRequestComponent implements OnInit {
   isMultiLangEnabled: any
 
   constructor(private activatedRoute: ActivatedRoute,
-    private router: Router,
-    private snackBar: MatSnackBar,
-    private signupSvc: SignupService,
-    private dialog: MatDialog,
-    private requestSvc: RequestService,
-    private _location: Location,
-    private configSvc: ConfigurationsService,
-    private langtranslations: MultilingualTranslationsService,
-    private translate: TranslateService) {
+              private router: Router,
+              private snackBar: MatSnackBar,
+              private signupSvc: SignupService,
+              private dialog: MatDialog,
+              private requestSvc: RequestService,
+              private _location: Location,
+              private configSvc: ConfigurationsService,
+              private langtranslations: MultilingualTranslationsService,
+              private translate: TranslateService) {
     const navigation = this.router.getCurrentNavigation()
     if (navigation) {
       const extraData = navigation.extras.state as {
@@ -524,7 +525,7 @@ export class PublicRequestComponent implements OnInit {
       firstname: formData.firstname,
       mobile: formData.mobile, email: formData.email,
       isMobileVerified: this.isMobileVerified,
-      isEmailVerified: this.isEmailVerified
+      isEmailVerified: this.isEmailVerified,
     })
     this._location.back()
   }

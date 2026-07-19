@@ -8,7 +8,7 @@ import * as _ from 'lodash'
     selector: 'viewer-final-assessment-popup',
     templateUrl: './final-assessment-popup.component.html',
     styleUrls: ['./final-assessment-popup.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class FinalAssessmentPopupComponent implements OnInit, OnDestroy {
 
@@ -50,7 +50,7 @@ export class FinalAssessmentPopupComponent implements OnInit, OnDestroy {
 
   startCountdown() {
     this.countdownInterval = setInterval(() => {
-      this.countdown--
+      this.countdown -= 1
       if (this.countdown <= 0) {
         clearInterval(this.countdownInterval)
         // Auto-close will be handled by parent component

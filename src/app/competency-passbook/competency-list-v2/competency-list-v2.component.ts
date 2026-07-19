@@ -1,3 +1,4 @@
+/* tslint:disable:object-shorthand-properties-first */
 // Core imports
 import { Component, OnDestroy, OnInit, Inject, DOCUMENT } from '@angular/core'
 
@@ -16,10 +17,10 @@ import { MatTabChangeEvent } from '@angular/material/tabs'
 import { CompetencyPassbookService } from '../competency-passbook.service'
 
 @Component({
-    selector: 'ws-competency-list-v2',
-    templateUrl: './competency-list-v2.component.html',
-    styleUrls: ['./competency-list-v2.component.scss'],
-    standalone: false
+  selector: 'ws-competency-list-v2',
+  templateUrl: './competency-list-v2.component.html',
+  styleUrls: ['./competency-list-v2.component.scss'],
+  standalone: false,
 })
 
 export class CompetencyListV2Component implements OnInit, OnDestroy {
@@ -258,7 +259,7 @@ export class CompetencyListV2Component implements OnInit, OnDestroy {
       }
       if (areaEntry) {
         let themeEntry = areaEntry.themes.find((t: any) => t.id === themeId)
-        let findTheme = this.allThemeData.find((t: any) => t.refId === themeId)
+        const findTheme = this.allThemeData.find((t: any) => t.refId === themeId)
         let isThemeRemoved = false
         if (!findTheme) {
           this.removedThemes.push(themeId)
@@ -270,7 +271,7 @@ export class CompetencyListV2Component implements OnInit, OnDestroy {
             areaId,
             areaName: area,
             name: this.allThemeData.find((t: any) => t.refId === themeId)?.name || themeId,
-            isThemeRemoved: isThemeRemoved,
+            isThemeRemoved,
             subThemes: [],
             competencyDetails: [],
             viewMore: false,
@@ -329,21 +330,20 @@ export class CompetencyListV2Component implements OnInit, OnDestroy {
   }
 
   findmissingThemes() {
-    let payload: any = {
+    const payload: any = {
       filterCriteriaMap: {
-        status: "Live",
+        status: 'Live',
         isActive: true,
-        id: this.removedThemes
+        id: this.removedThemes,
       },
-      requestedFields: ["title", "id"],
+      requestedFields: ['title', 'id'],
       pageNumber: 0,
-      pageSize: 1000
+      pageSize: 1000,
     }
     this.competencyPassbookSvc.fetchMissingThemes(payload).subscribe(
       (response: any) => {
         if (response && response.result && response.result.result && response.result.result.data) {
           this.missingThemeDetails = response.result.result.data
-          console.log('missingThemeDetails', this.missingThemeDetails)
         }
       },
       (error: HttpErrorResponse) => {
@@ -479,8 +479,8 @@ export class CompetencyListV2Component implements OnInit, OnDestroy {
   }
 
   handleSearch(event: string, competencyTheme: string): void {
-    competencyTheme = competencyTheme.toLowerCase()
-    this.filterCompetencyByTab(competencyTheme)
+    const selectedCompetencyTheme = competencyTheme.toLowerCase()
+    this.filterCompetencyByTab(selectedCompetencyTheme)
     if (event.length) {
       this.filteredCompetencyArray = this.filteredCompetencyArray
         .map((area: any) => ({
@@ -593,9 +593,11 @@ export class CompetencyListV2Component implements OnInit, OnDestroy {
       })
     })
     // Fisher-Yates shuffle
-    for (let i = flat.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [flat[i], flat[j]] = [flat[j], flat[i]]
+    for (let i = flat.length - 1; i > 0; i -= 1) {
+      const j = Math.floor(Math.random() * (i + 1))
+      const temp = flat[i]
+      flat[i] = flat[j]
+      flat[j] = temp
     }
     this.shuffledThemes = flat
   }

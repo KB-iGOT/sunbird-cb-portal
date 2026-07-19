@@ -4,7 +4,7 @@ import { Component, OnInit } from '@angular/core'
     selector: 'viewer-dnd-snippet',
     templateUrl: './dnd-snippet.component.html',
     styleUrls: ['./dnd-snippet.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class DndSnippetComponent implements OnInit {
 

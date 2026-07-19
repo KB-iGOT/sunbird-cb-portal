@@ -8,12 +8,11 @@ import { TranslateService } from '@ngx-translate/core'
 import { MobileAppsService } from '../../../../routes/services/mobile-apps.service'
 import { Router } from '@angular/router'
 
-
 @Component({
   selector: 'ws-app-network',
   templateUrl: './network.component.html',
   styleUrls: ['./network.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class NetworkComponent implements OnInit {
 

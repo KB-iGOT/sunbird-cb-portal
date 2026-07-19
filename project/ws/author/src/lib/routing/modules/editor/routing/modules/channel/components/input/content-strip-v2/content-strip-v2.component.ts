@@ -20,7 +20,7 @@ import { ConfirmDialogComponent } from '../../../../../../../../../modules/share
     selector: 'ws-auth-content-strip-v2',
     templateUrl: './content-strip-v2.component.html',
     styleUrls: ['./content-strip-v2.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ContentStripV2Component implements OnInit {
   @Output() data = new EventEmitter<{

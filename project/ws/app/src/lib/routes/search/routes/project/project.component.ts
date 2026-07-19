@@ -11,7 +11,7 @@ import { NsError, ROOT_WIDGET_CONFIG } from '@sunbird-cb/collection'
     selector: 'ws-app-project',
     templateUrl: './project.component.html',
     styleUrls: ['./project.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ProjectComponent implements OnInit, OnDestroy {
   defaultSideNavBarOpenedSubscription: Subscription | null = null

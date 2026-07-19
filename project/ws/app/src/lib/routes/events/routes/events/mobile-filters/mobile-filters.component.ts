@@ -19,14 +19,14 @@ export const MY_FORMATS = {
   },
 }
 @Component({
-    selector: 'ws-app-mobile-filters',
-    templateUrl: './mobile-filters.component.html',
-    styleUrls: ['./mobile-filters.component.scss'],
-    providers: [DatePipe,
-        { provide: DateAdapter, useClass: MomentDateAdapter, deps: [MAT_DATE_LOCALE] },
-        { provide: MAT_DATE_FORMATS, useValue: MY_FORMATS },
-    ],
-    standalone: false
+  selector: 'ws-app-mobile-filters',
+  templateUrl: './mobile-filters.component.html',
+  styleUrls: ['./mobile-filters.component.scss'],
+  providers: [DatePipe,
+    { provide: DateAdapter, useClass: MomentDateAdapter, deps: [MAT_DATE_LOCALE] },
+    { provide: MAT_DATE_FORMATS, useValue: MY_FORMATS },
+  ],
+  standalone: false,
 })
 export class MobileFiltersComponent {
 
@@ -64,7 +64,6 @@ export class MobileFiltersComponent {
         this.selectedValue = { name: this.selectedFilters.eventStatus[0] }
       }
     }
-    console.log('data ', this.datePipe)
   }
 
   returnZero() {
@@ -77,8 +76,7 @@ export class MobileFiltersComponent {
     }
   }
 
-  changeSelection(event: any, key: any, keyData: any, allKeyData: any) {
-    console.log('changeSelection', event, key, keyData, allKeyData)
+  changeSelection(event: any, key: any, keyData: any, _allKeyData: any) {
     if (event) {
       if (['resourceType', 'eventDate'].includes(key)) {
         if (this.selectedFilters[key]) {
@@ -115,8 +113,7 @@ export class MobileFiltersComponent {
     }
   }
 
-  onDateChange(event: any, eType: any, facet: any) {
-    console.log(facet, eType, event)
+  onDateChange(event: any, eType: any, _facet: any) {
     if (eType.key === 'fromDate') {
       this.startDate = this.datePipe.transform(event.value, 'yyyy-MM-dd')
       this.selectedFilters['dateRange'] = { fromDate: this.startDate }

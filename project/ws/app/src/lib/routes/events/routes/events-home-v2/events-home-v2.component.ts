@@ -7,7 +7,7 @@ import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
   selector: 'ws-app-events-home-v2',
   templateUrl: './events-home-v2.component.html',
   styleUrls: ['./events-home-v2.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class EventsHomeV2Component implements OnInit {
   isFullScreen: boolean = false

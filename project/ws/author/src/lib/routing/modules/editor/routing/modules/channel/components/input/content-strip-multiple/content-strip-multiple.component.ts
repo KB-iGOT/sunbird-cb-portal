@@ -8,7 +8,7 @@ import { NsContentStripMultiple, IPickerContentData, NsContent } from '@sunbird-
     selector: 'ws-auth-content-strip-multiple',
     templateUrl: './content-strip-multiple.component.html',
     styleUrls: ['./content-strip-multiple.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ContentStripMultipleComponent implements OnInit {
 

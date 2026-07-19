@@ -10,21 +10,24 @@ import { MatAutocompleteModule } from '@angular/material/autocomplete'
 import { MatGridListModule } from '@angular/material/grid-list'
 import { MatExpansionModule } from '@angular/material/expansion'
 import { MatDividerModule } from '@angular/material/divider'
-import { SkeletonLoaderModule } from '@sunbird-cb/collection'
+import {
+  AvatarPhotoModule,
+  BtnPageBackModule,
+  DiscussionsModule,
+  PendingRequestModule,
+  ProfileCardStatsModule,
+  RecentRequestsModule,
+  SkeletonLoaderModule,
+  UpdatePostsModule,
+  UserLeaderboardModule,
+  WeeklyClapsModule,
+} from '@sunbird-cb/collection'
 
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
 import { PipeFilterModule, PipeHtmlTagRemovalModule, PipeOrderByModule, PipeRelativeTimeModule, PipeCertificateImageURL } from '@sunbird-cb/utils-v2'
-import { AvatarPhotoModule, BtnPageBackModule } from '@sunbird-cb/collection'
 import { ProfileV2RoutingModule } from './profile-v2.rounting.module'
-import { EditorSharedModule } from '@ws/author'
+import { EditorSharedModule, LoaderService } from '@ws/author'
 import { ProfileCertificateDialogModule } from './components/profile-certificate-dialog/profile-certificate-dialog.module'
-import { ProfileCardStatsModule } from '@sunbird-cb/collection'
-import { WeeklyClapsModule } from '@sunbird-cb/collection'
-import { UpdatePostsModule } from '@sunbird-cb/collection'
-import { DiscussionsModule } from '@sunbird-cb/collection'
-import { RecentRequestsModule } from '@sunbird-cb/collection'
-import { PendingRequestModule } from '@sunbird-cb/collection'
-import { UserLeaderboardModule } from '@sunbird-cb/collection'
 
 import { LeftMenuComponent } from './components/left-menu/left-menu.component'
 import { RightMenuComponent } from './components/right-menu/right-menu.component'
@@ -36,7 +39,6 @@ import { TransferRequestComponent } from './components/transfer-request/transfer
 import { WithdrawRequestComponent } from './components/withdraw-request/withdraw-request.component'
 import { DesignationRequestComponent } from './components/designation-request/designation-request.component'
 
-import { LoaderService } from '@ws/author'
 import { InitResolver } from './resolvers/init-resolve.service'
 import { OtpService } from '../user-profile/services/otp.services'
 import { RejectionReasonPopupComponent } from './components/rejection-reason-popup/rejection-reason-popup.component'
@@ -81,7 +83,7 @@ import { ViewCustomFieldsComponent } from './routes/view-custom-fields/view-cust
 import { TranslateHttpLoader } from '@ngx-translate/http-loader'
 import { ProfileVerificationDialogModule } from '../profile-verification-dialog/profile-verification-dialog.module'
 
-export function ProfileV2HttpLoaderFactory(http: HttpClient) {
+export function profileV2HttpLoaderFactory(http: HttpClient) {
     return new TranslateHttpLoader(http)
 }
 
@@ -171,7 +173,7 @@ export function ProfileV2HttpLoaderFactory(http: HttpClient) {
         TranslateModule.forRoot({
             loader: {
                 provide: TranslateLoader,
-                useFactory: ProfileV2HttpLoaderFactory,
+                useFactory: profileV2HttpLoaderFactory,
                 deps: [HttpClient],
             },
         }),

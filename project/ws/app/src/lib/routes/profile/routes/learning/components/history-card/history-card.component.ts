@@ -5,7 +5,7 @@ import { NSProfileData } from '../../../../models/profile.model'
     selector: 'ws-app-history-card',
     templateUrl: './history-card.component.html',
     styleUrls: ['./history-card.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class HistoryCardComponent implements OnInit {
   @Input() pieData: any

@@ -5,7 +5,7 @@ import { Component, OnInit, Input } from '@angular/core'
     selector: 'ws-app-leaderboard-item',
     templateUrl: './leaderboard-item.component.html',
     styleUrls: ['./leaderboard-item.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class LeaderboardItemComponent implements OnInit {
   @Input() leaderboardItem!: any

@@ -8,7 +8,7 @@ import { environment } from 'src/environments/environment'
     selector: 'ws-app-competency-card',
     templateUrl: './competency-card.component.html',
     styleUrls: ['./competency-card.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class CompetencyCardComponent implements OnInit {
   @Input() competency!: any

@@ -53,21 +53,24 @@ import {
   AttendanceHelperModule,
   AttendanceCardModule,
   NonReleventFeedbackDialogModule,
+  SkeletonLoaderModule,
+  CardContentV2Module,
+  ConnectionNameModule,
+  CertificateDialogModule,
+  ConfirmDialogModule,
+  TipsForLearnerModule,
+  SlidersDynamicModule,
 } from '@sunbird-cb/collection'
-import { SkeletonLoaderModule } from '@sunbird-cb/collection'
-import { ContentTocModule } from '@sunbird-cb/toc'
-import { TocKpiValuesModule } from '@sunbird-cb/toc'
+import {
+  AppTocLibModule,
+  ContentTocModule,
+  KarmaPointsModule,
+  TocKpiValuesModule,
+} from '@sunbird-cb/toc'
 import { MicroSurveyModule } from '@sunbird-cb/micro-surveys'
-import { CardContentV2Module } from '@sunbird-cb/collection'
-import { ConnectionNameModule } from '@sunbird-cb/collection'
-import { CertificateDialogModule } from '@sunbird-cb/collection'
-import { ConfirmDialogModule } from '@sunbird-cb/collection'
-import { KarmaPointsModule } from '@sunbird-cb/toc'
-import { TipsForLearnerModule } from '@sunbird-cb/collection'
 
 // Services
-import { ApiService, AccessControlService } from '@ws/author'
-import { EditorService } from '@ws/author'
+import { ApiService, AccessControlService, EditorService } from '@ws/author'
 import { AppPublicTocResolverService } from '../../routes/services/app-public-toc-resolver.service'
 
 // Resolver
@@ -99,9 +102,7 @@ import { MatTabsModule } from '@angular/material/tabs'
 import { MatToolbarModule } from '@angular/material/toolbar'
 import { MatTooltipModule } from '@angular/material/tooltip'
 import { WidgetCommentModule } from '@sunbird-cb/discussion-v2'
-import { SlidersDynamicModule } from '@sunbird-cb/collection'
 import { TocHomeComponent } from './toc-home/toc-home.component'
-import { AppTocLibModule } from '@sunbird-cb/toc'
 @NgModule({
   declarations: [
     TocHomeComponent,

@@ -1,13 +1,13 @@
 import { Component, OnInit, Input } from '@angular/core'
 import { CompLocalService } from '../../services/comp.service'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { TranslateService } from '@ngx-translate/core'
 @Component({
-    selector: 'ws-app-current-competency-card',
-    templateUrl: './current-competency-card.component.html',
-    styleUrls: ['./current-competency-card.component.scss'],
-    standalone: false
+  selector: 'ws-app-current-competency-card',
+  templateUrl: './current-competency-card.component.html',
+  styleUrls: ['./current-competency-card.component.scss'],
+  standalone: false,
 })
 export class CurrentCompetencyCardComponent implements OnInit {
   @Input() selectedCompetency: any
@@ -74,7 +74,7 @@ export class CurrentCompetencyCardComponent implements OnInit {
         competencySelfAttestedLevelValue: complevel.level,
         competencySelfAttestedLevelName: complevel.name,
         osid: competency.osid ? competency.osid : '',
-       }
+      }
     }
 
     if (_.findIndex(this.compLocalService.currentComps.value, { id: competency.id }) === -1) {
@@ -86,8 +86,8 @@ export class CurrentCompetencyCardComponent implements OnInit {
         // if (_.findIndex(this.compLocalService.currentComps.value, { competencySelfAttestedLevel: complevel.id }) !== -1) {
         //   this.compLocalService.removecurrentComps(this.compobj)
         // } else {
-          this.compLocalService.removecurrentComps(this.compobj)
-          this.compLocalService.addcurrentComps(this.compobj)
+        this.compLocalService.removecurrentComps(this.compobj)
+        this.compLocalService.addcurrentComps(this.compobj)
         // }
       }
     }

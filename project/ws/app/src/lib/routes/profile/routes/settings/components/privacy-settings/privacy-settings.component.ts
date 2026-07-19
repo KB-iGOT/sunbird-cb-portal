@@ -9,7 +9,7 @@ import { TranslateService } from '@ngx-translate/core'
     selector: 'ws-app-privacy-settings',
     templateUrl: './privacy-settings.component.html',
     styleUrls: ['./privacy-settings.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class PrivacySettingsComponent implements OnInit {
 

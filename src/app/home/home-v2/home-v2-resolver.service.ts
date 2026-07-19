@@ -27,7 +27,7 @@ export class HomeV2ResolverService {
     }
     const baseUrl = this.configSvc.sitePath
     const homeConfig = this.http.get<any>(`${baseUrl}/page/home-v2.json`).pipe(catchError(() => of(null)))
-    const sectionRecordsCount = this.http.get<any>(`/apis/proxies/v8/user/content/info`).pipe(
+    const sectionRecordsCount = this.http.get<any>('/apis/proxies/v8/user/content/info').pipe(
       catchError(() => of(null)),
     )
     const request = {
@@ -42,6 +42,7 @@ export class HomeV2ResolverService {
 
     return forkJoin([response$, homeConfig, sectionRecordsCount]).pipe(
       map(([responseRes, homeConfigRes, sectionRecordsCountRes]) => {
+        // tslint:disable-next-line:max-line-length
         const configDetails = responseRes && responseRes.result && responseRes.result.data && responseRes.result.data.homeV2 ? responseRes.result.data.homeV2 : homeConfigRes ? homeConfigRes : []
         if (configDetails && configDetails.homeSections && sectionRecordsCountRes && sectionRecordsCountRes.result) {
           const pillsSection = configDetails.homeSections.find((section: any) => section.sectionKey === 'aparCourses')

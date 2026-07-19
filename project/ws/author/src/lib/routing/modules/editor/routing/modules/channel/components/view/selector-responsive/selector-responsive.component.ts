@@ -7,7 +7,7 @@ import { ChannelResolverService } from './../../../services/resolver.service'
     selector: 'ws-auth-selector-responsive',
     templateUrl: './selector-responsive.component.html',
     styleUrls: ['./selector-responsive.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class SelectorResponsiveComponent implements OnInit, OnChanges {
 

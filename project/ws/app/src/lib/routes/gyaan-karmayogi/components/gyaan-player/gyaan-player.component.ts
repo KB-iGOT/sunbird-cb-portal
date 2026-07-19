@@ -6,13 +6,13 @@ import { VIEWER_ROUTE_FROM_MIME } from '@sunbird-cb/collection'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { ViewerDataService } from '@sunbird-cb/toc'
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 
 @Component({
-    selector: 'ws-app-gyaan-player',
-    templateUrl: './gyaan-player.component.html',
-    styleUrls: ['./gyaan-player.component.scss'],
-    standalone: false
+  selector: 'ws-app-gyaan-player',
+  templateUrl: './gyaan-player.component.html',
+  styleUrls: ['./gyaan-player.component.scss'],
+  standalone: false
 })
 export class GyaanPlayerComponent implements OnInit {
   resourceData: any
@@ -37,10 +37,10 @@ export class GyaanPlayerComponent implements OnInit {
   selectedSectorId = ''
 
   constructor(private viewerDataSvc: ViewerDataService,
-              private configSvc: ConfigurationsService,
-              private route: ActivatedRoute,
-              public titleCasePipe: TitleCasePipe,
-              public translate: TranslateService, private router: Router) {
+    private configSvc: ConfigurationsService,
+    private route: ActivatedRoute,
+    public titleCasePipe: TitleCasePipe,
+    public translate: TranslateService, private router: Router) {
     this.playerPreview = !!this.route.snapshot.queryParams.playerPreview
     this.collectionId = this.route.snapshot.queryParams.collectionId || ''
     if (this.route.parent && this.route.parent.snapshot.data.pageData
@@ -121,7 +121,7 @@ export class GyaanPlayerComponent implements OnInit {
     // Set up observer to check if instructions are long enough to require "View More"
     setTimeout(() => {
       this.checkInstructionsLength()
-    },         100)
+    }, 100)
 
     this.handleSubsector(this.resourceData?.sectorDetails_v1?.[0] || [])
   }

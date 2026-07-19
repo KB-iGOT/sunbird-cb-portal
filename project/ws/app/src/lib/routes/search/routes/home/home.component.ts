@@ -12,7 +12,7 @@ import { TranslateService } from '@ngx-translate/core'
     styleUrls: ['./home.component.scss'],
     // tslint:disable-next-line
     encapsulation: ViewEncapsulation.None,
-    standalone: false
+    standalone: false,
 })
 export class HomeComponent implements OnInit {
 

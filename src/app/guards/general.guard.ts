@@ -2,12 +2,12 @@ import { Injectable } from '@angular/core'
 import {
   ActivatedRouteSnapshot, Router, RouterStateSnapshot,
   // RouterStateSnapshot,
-  UrlTree
+  UrlTree,
 } from '@angular/router'
 import { ConfigurationsService, AuthKeycloakService } from '@sunbird-cb/utils-v2'
 import { NSProfileDataV3 } from '@ws/app'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 
 @Injectable({
   providedIn: 'root',

@@ -20,7 +20,7 @@ import { NsContent } from '@sunbird-cb/utils-v2'
     styleUrls: ['./fitb.component.scss'],
     // tslint:disable-next-line
     encapsulation: ViewEncapsulation.None,
-    standalone: false
+    standalone: false,
 })
 export class FillInTheBlankComponent implements OnInit, OnChanges, AfterViewInit, OnDestroy {
     @Input() question: NSPractice.IQuestion = {

@@ -10,7 +10,7 @@ import {
   ValueService,
 } from '@sunbird-cb/utils-v2'
 import { ActivatedRoute, Router } from '@angular/router'
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { TranslateService } from '@ngx-translate/core'
 import { forkJoin, Subject } from 'rxjs'
 import {
@@ -89,18 +89,17 @@ export class VolunteerSearchComponent implements OnInit, OnDestroy {
 
   ngOnInit() {
     const instanceConfig = this.configSvc.instanceConfig
-    this.defaultSideNavBarOpenedSubscription = this.isLtMedium$.subscribe(
-      (isLtMedium) => {
-        this.sideNavBarOpened = !isLtMedium
-        this.screenSizeIsLtMedium = isLtMedium
-      }
+    this.defaultSideNavBarOpenedSubscription = this.isLtMedium$.subscribe(isLtMedium => {
+      this.sideNavBarOpened = !isLtMedium
+      this.screenSizeIsLtMedium = isLtMedium
+    }
     )
 
     if (instanceConfig) {
       this.defaultThumbnail = instanceConfig.logos.defaultContent || ''
     }
 
-    this.activated.queryParamMap.subscribe((queryParams) => {
+    this.activated.queryParamMap.subscribe(queryParams => {
       const q = queryParams.get('q') || ''
       if (this.isFirstLoad || q !== this.searchQuery) {
         this.isFirstLoad = false
@@ -247,7 +246,7 @@ export class VolunteerSearchComponent implements OnInit, OnDestroy {
       this.searchRequestCourse.request.sort_by.name = SortType.Descending
     }
 
-    Object.keys(selectedFilters).forEach((key) => {
+    Object.keys(selectedFilters).forEach(key => {
       if (selectedFilters[key] && Array.isArray(selectedFilters[key])) {
         if (
           key === SearchCategory.Courses ||
@@ -301,7 +300,7 @@ export class VolunteerSearchComponent implements OnInit, OnDestroy {
   private deleteEmptyFilterKeys() {
     const courseFilters = this.searchRequestCourse?.request?.filters || {}
     const removeEmpty = (obj: any, keys: string[], isObjectCheck = false) => {
-      keys.forEach((key) => {
+      keys.forEach(key => {
         const value = obj[key]
         if (
           value &&

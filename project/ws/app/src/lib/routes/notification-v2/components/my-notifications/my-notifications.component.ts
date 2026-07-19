@@ -4,8 +4,7 @@ import { ConfigurationsService, EventService, MultilingualTranslationsService } 
 import { NotificationsService } from '../../../../routes/services/notifications.service'
 import { environment } from 'src/environments/environment'
 import { MatSnackBar } from '@angular/material/snack-bar'
-import { MatDialog } from '@angular/material/dialog'
-import { MatDialog as MatDialogNew } from '@angular/material/dialog'
+import { MatDialog, MatDialog as MatDialogNew } from '@angular/material/dialog'
 import { ConfirmDialogComponent } from '@sunbird-cb/collection'
 import { SurveyPopupComponent } from '../../../peer-validation/components/survey-popup/survey-popup.component'
 import { VerificationRequestDialogComponent } from '../../../peer-validation/components/verification-request-dialog/verification-request-dialog.component'
@@ -16,23 +15,23 @@ import { ActivatedRoute } from '@angular/router'
   selector: 'ws-app-my-notifications',
   templateUrl: './my-notifications.component.html',
   styleUrls: ['./my-notifications.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class MyNotificationsComponent {
   selectedLanguage = 'en'
   roles: string[] = []
   fragment: string = ''
   constructor(private translate: TranslateService,
-    private langtranslations: MultilingualTranslationsService,
-    private notificationsService: NotificationsService,
-    private snackBar: MatSnackBar,
-    private dialog: MatDialog,
-    private configService: ConfigurationsService,
-    private events: EventService,
-    private libNotificationsService: LibNotificationsService,
-    private route: ActivatedRoute,
-    private matDialog: MatDialogNew,
-    private peerValidationService: PeerValidationService) {
+              private langtranslations: MultilingualTranslationsService,
+              private notificationsService: NotificationsService,
+              private snackBar: MatSnackBar,
+              private dialog: MatDialog,
+              private configService: ConfigurationsService,
+              private events: EventService,
+              private libNotificationsService: LibNotificationsService,
+              private route: ActivatedRoute,
+              private matDialog: MatDialogNew,
+              private peerValidationService: PeerValidationService) {
     if (localStorage.getItem('websiteLanguage')) {
       this.translate.setDefaultLang('en')
       let lang = JSON.stringify(localStorage.getItem('websiteLanguage'))
@@ -101,7 +100,7 @@ export class MyNotificationsComponent {
       this.snackBar.open('You have already submitted the response.', 'X', { duration: 3000 })
       return
     }
-    if (notification.status === "EXPIRED") {
+    if (notification.status === 'EXPIRED') {
       this.snackBar.open('Survey has ended.', 'X', { duration: 3000 })
       return
     }
@@ -150,7 +149,7 @@ export class MyNotificationsComponent {
       this.snackBar.open('You have already submitted the response.', 'X', { duration: 3000 })
       return
     }
-    if (notification.status === "EXPIRED") {
+    if (notification.status === 'EXPIRED') {
       this.snackBar.open('Survey has ended.', 'X', { duration: 3000 })
       return
     }

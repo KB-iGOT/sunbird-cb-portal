@@ -10,7 +10,7 @@ import { ViewerUtilService, WidgetContentService } from '@sunbird-cb/toc'
     selector: 'viewer-iap',
     templateUrl: './iap.component.html',
     styleUrls: ['./iap.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class IapComponent implements OnInit, OnDestroy {
   private routeDataSubscription: Subscription | null = null

@@ -7,7 +7,7 @@ import { ChannelResolverService } from './../../../services/resolver.service'
     selector: 'ws-auth-gallery',
     templateUrl: './gallery.component.html',
     styleUrls: ['./gallery.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class GalleryComponent implements OnInit, OnChanges {
 

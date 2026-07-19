@@ -1,7 +1,8 @@
+/* tslint:disable:no-console prefer-template no-else-after-return */
 import { Component, Inject } from '@angular/core'
 import { FormBuilder, Validators, FormGroup } from '@angular/forms'
 import { UserProfileService } from '../../../user-profile/services/user-profile.service'
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
@@ -10,7 +11,7 @@ import { ConfigDetails } from '@sunbird-cb/consumption'
   selector: 'ws-app-custom-fields',
   templateUrl: './custom-fields.component.html',
   styleUrls: ['./custom-fields.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class CustomFieldsComponent {
 
@@ -34,11 +35,11 @@ export class CustomFieldsComponent {
   apiConfig: any
 
   constructor(private fb: FormBuilder,
-    private userProfileService: UserProfileService,
-    private configService: ConfigurationsService,
-    private matSnackBar: MatSnackBar,
-    private dialogRef: MatDialogRef<CustomFieldsComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any,
+              private userProfileService: UserProfileService,
+              private configService: ConfigurationsService,
+              private matSnackBar: MatSnackBar,
+              private dialogRef: MatDialogRef<CustomFieldsComponent>,
+              @Inject(MAT_DIALOG_DATA) public data: any,
   ) {
     this.editConfig = this.data.editConfig
     this.apiConfig = this.data.apiConfig
@@ -60,14 +61,14 @@ export class CustomFieldsComponent {
     const configDetails: ConfigDetails = {
       apiConfig: this.apiConfig,
       urlConfigPath: 'orgV1Read',
-      defaultUrl: ''
+      defaultUrl: '',
     }
     this.userProfileService.readOrgData(request, configDetails).subscribe((res: any) => {
       this.customAttrListIds = _.get(res, 'result.response.customfieldsdata.customFieldIds', [])
       if (this.customAttrListIds && this.customAttrListIds.length) {
         this.getCustomAttributes()
       }
-    }, error => {
+    },                                                                    error => {
       console.error('Error fetching organization details', error)
     })
   }
@@ -90,14 +91,14 @@ export class CustomFieldsComponent {
     const configDetails: ConfigDetails = {
       apiConfig: this.apiConfig,
       urlConfigPath: 'customFieldsV1Search',
-      defaultUrl: ''
+      defaultUrl: '',
     }
     this.userProfileService.fetchCustomFields(payload, configDetails).subscribe((res: any) => {
       this.customAttrList = _.get(res, 'result.searchResults.data', [])
       if (this.customAttrList && this.customAttrList.length > 0) {
         this.readCustomattributeDetails()
       }
-    }, error => {
+    },                                                                          error => {
       console.log('Error', error)
     })
 
@@ -111,13 +112,13 @@ export class CustomFieldsComponent {
     const configDetails: ConfigDetails = {
       apiConfig: this.apiConfig,
       urlConfigPath: 'profileV1GetAdditionalFields',
-      defaultUrl: ''
+      defaultUrl: '',
     }
     this.userProfileService.readCustomattributeDetails(this.userId, this.orgId, configDetails).subscribe((res: any) => {
       this.customFieldValues = _.get(res, 'result.response.customFieldValues', [])
       this.buildDynamicForm()
       this.editCustomDetails = true
-    }, error => {
+    },                                                                                                   error => {
       console.log('Error', error)
     })
   }
@@ -251,7 +252,6 @@ export class CustomFieldsComponent {
     })
 
     // Debug form structure
-    console.log("Form controls:", Object.keys(this.customAttrForm.controls))
     // Object.keys(this.hierarchyFields).forEach(fieldName => {
     //   // console.log(`Hierarchy for ${fieldName}:`, this.hierarchyFields[fieldName]);
     //   // console.log(`Form group controls for ${fieldName}:`,
@@ -324,7 +324,7 @@ export class CustomFieldsComponent {
       // Convert set to array and reverse to get correct order
       const hierarchy = Array.from(hierarchySet)
       return hierarchy.reverse()
-    } else {
+    } {
       // For regular data (top-down)
       const extractForwardFields = (item: any, currentDepth: number) => {
         if (!item || currentDepth > 5) return
@@ -360,7 +360,7 @@ export class CustomFieldsComponent {
           uniqueOptions.set(item.fieldValue, {
             value: item.fieldValue,
             label: item.fieldValue,
-            data: item
+            data: item,
           })
         }
       })
@@ -376,7 +376,7 @@ export class CustomFieldsComponent {
       uniqueOptions.set(item.fieldValue, {
         value: item.fieldValue,
         label: item.fieldValue,
-        data: item
+        data: item,
       })
       return
     }
@@ -416,7 +416,7 @@ export class CustomFieldsComponent {
     }
 
     // For each level except the last one
-    for (let i = 0; i < hierarchy.length - 1; i++) {
+    for (let i = 0; i < hierarchy.length - 1; i += 1) {
       const parentField = hierarchy[i]
       const childField = hierarchy[i + 1]
 
@@ -428,7 +428,7 @@ export class CustomFieldsComponent {
           this.updateChildOptions(fieldName, parentField, value, childField, isReversed)
 
           // Important: Clear all fields below this one
-          for (let j = i + 2; j < hierarchy.length; j++) {
+          for (let j = i + 2; j < hierarchy.length; j += 1) {
             const grandchildField = hierarchy[j]
             console.log(`Clearing ${grandchildField} due to ${parentField} change`)
             formGroup.get(grandchildField)?.setValue('')
@@ -440,7 +440,7 @@ export class CustomFieldsComponent {
           this.fieldOptions[fieldName][childField] = []
 
           // Also reset all fields below this one
-          for (let j = i + 2; j < hierarchy.length; j++) {
+          for (let j = i + 2; j < hierarchy.length; j += 1) {
             const grandchildField = hierarchy[j]
             formGroup.get(grandchildField)?.setValue('')
             this.fieldOptions[fieldName][grandchildField] = []
@@ -502,7 +502,7 @@ export class CustomFieldsComponent {
             options.set(childItem.fieldValue, {
               value: childItem.fieldValue,
               label: childItem.fieldValue,
-              data: childItem
+              data: childItem,
             })
           }
         })
@@ -524,7 +524,7 @@ export class CustomFieldsComponent {
         options.set(item.fieldValue, {
           value: item.fieldValue,
           label: item.fieldValue,
-          data: item
+          data: item,
         })
       }
 
@@ -555,7 +555,7 @@ export class CustomFieldsComponent {
         options.set(item.fieldValue, {
           value: item.fieldValue,
           label: item.fieldValue,
-          data: item
+          data: item,
         })
       }
 
@@ -672,7 +672,7 @@ export class CustomFieldsComponent {
         return
       }
 
-      for (let i = 0; i < hierarchy.length; i++) {
+      for (let i = 0; i < hierarchy.length; i += 1) {
         const currentField = hierarchy[i]
 
         if (i === 0) {
@@ -699,7 +699,7 @@ export class CustomFieldsComponent {
       }
 
       // STEP 2: Now set values in order from parent to child
-      for (let i = 0; i < hierarchy.length; i++) {
+      for (let i = 0; i < hierarchy.length; i += 1) {
         const currentField = hierarchy[i]
         const currentValue = field.selectedValues[currentField]
 
@@ -725,7 +725,7 @@ export class CustomFieldsComponent {
       // Re-enable listeners
       setTimeout(() => {
         this.restoreValueChangeListeners(field.attributeName, subscriptions)
-      }, 200)
+      },         200)
     }
   }
 
@@ -783,7 +783,7 @@ export class CustomFieldsComponent {
     const configDetails: ConfigDetails = {
       apiConfig: this.apiConfig,
       urlConfigPath: 'updateAdditionalFields',
-      defaultUrl: ''
+      defaultUrl: '',
     }
     this.userProfileService.updateCustomFields(requestPalyoud, configDetails).subscribe((res: any) => {
       if (res && res.result && res.result.response && res.result.response === 'success') {
@@ -793,7 +793,7 @@ export class CustomFieldsComponent {
         this.dialogRef.close(true)
         this.matSnackBar.open('Custom fields saved successfully')
       }
-    }, error => {
+    },                                                                                  error => {
       this.matSnackBar.open(error.error.params.errMsg)
       this.dialogRef.close(true)
       console.error('Error saving custom fields:', error.error.params.errMsg)
@@ -1112,7 +1112,7 @@ export class CustomFieldsComponent {
             uniqueOptions.set(item.fieldValue, {
               value: item.fieldValue,
               label: item.fieldValue,
-              data: item
+              data: item,
             })
           }
 
@@ -1135,7 +1135,7 @@ export class CustomFieldsComponent {
     console.log(`Restoring value change listeners for ${savedSubscriptions}`)
     setTimeout(() => {
       this.setupCascadingDropdownListeners(fieldName)
-    }, 100)
+    },         100)
   }
 
   // Helper to log nested data structure

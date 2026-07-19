@@ -38,7 +38,7 @@ import { CommentsDialogComponent } from '../../../../../../../../../modules/shar
     providers: [QuizResolverService, {
             provide: STEPPER_GLOBAL_OPTIONS, useValue: { displayDefaultIndicatorType: false },
         }],
-    standalone: false
+    standalone: false,
 })
 export class QuizQusetionsComponent implements OnInit, OnDestroy {
   @Output() data = new EventEmitter<string>()

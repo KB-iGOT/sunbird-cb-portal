@@ -1,6 +1,6 @@
 import { Injectable } from '@angular/core'
 import { Observable, Subject } from 'rxjs'
-import {  take } from 'rxjs/operators'
+import { take } from 'rxjs/operators'
 import { HttpClient } from '@angular/common/http'
 const PROXY_CREATE_V8 = '/apis/proxies/v8'
 const API_END_POINTS = {
@@ -13,11 +13,11 @@ const API_END_POINTS = {
 export class WebSocketService {
   private socket: WebSocket | undefined
   private messageSubject: Subject<any> = new Subject<any>()
-  pingIntervalId:any
-  clientId:any
+  pingIntervalId: any
+  clientId: any
   constructor(
     public http: HttpClient
-  ) {}
+  ) { }
 
   // Establish a connection to the WebSocket
   connect(url: string): void {
@@ -25,8 +25,10 @@ export class WebSocketService {
     // console.log('this.socket', this.socket)
     this.socket.onopen = () => {
       try {
+        // tslint:disable-next-line:no-console
         console.log('WebSocket connection established')
       } catch (error) {
+        // tslint:disable-next-line:no-console
         console.log('error', error)
       }
 
@@ -34,48 +36,52 @@ export class WebSocketService {
     }
 
     this.socket.onmessage = event => {
-        // console.log('event', event)
-        try {
-          const data = JSON.parse(event.data)
+      // console.log('event', event)
+      try {
+        const data = JSON.parse(event.data)
         // console.log('data', data)
-          if (data.type === 'connection' && data.clientId) {
-              this.clientId = data.clientId
-             // clientIdDisplay.textContent = `Assigned Client ID: ${this.clientId}`;
-             // console.log('Server', `Connected. Assigned Client ID: ${this.clientId}`);
-          } else if (data.type === 'answer') {
-            this.messageSubject.next(JSON.parse(event.data))
-             // console.log('Server', `Answer: ${data.answer}`);
-              // if (data.sources && data.sources.length > 0) {
-              //    // console.log('Server', `Sources: ${data.sources.join(', ')}`);
-              // }
-              // if (data.retrievedChunks && data.retrievedChunks.length > 0) {
-              //     data.retrievedChunks.forEach((chunk:any) => {
-              //         if (chunk.uri && chunk.uri.length > 0) {
-              //             console.log('Server', `Retrieved URI: ${chunk.uri.join(', ')}`);
-              //         }
-              //         if (chunk.content && chunk.content.length > 0) {
-              //             console.log('Server', `Retrieved Content: ${chunk.content.join('...')}`);
-              //         }
-              //     });
-              // }
-          } else if (data.type === 'error' && data.error) {
-              console.log('Server', `Error: ${data.error}`)
-          } else {
-              // console.log('Server', `Received: ${event.data}`);
-          }
+        if (data.type === 'connection' && data.clientId) {
+          this.clientId = data.clientId
+          // clientIdDisplay.textContent = `Assigned Client ID: ${this.clientId}`;
+          // console.log('Server', `Connected. Assigned Client ID: ${this.clientId}`);
+        } else if (data.type === 'answer') {
+          this.messageSubject.next(JSON.parse(event.data))
+          // console.log('Server', `Answer: ${data.answer}`);
+          // if (data.sources && data.sources.length > 0) {
+          //    // console.log('Server', `Sources: ${data.sources.join(', ')}`);
+          // }
+          // if (data.retrievedChunks && data.retrievedChunks.length > 0) {
+          //     data.retrievedChunks.forEach((chunk:any) => {
+          //         if (chunk.uri && chunk.uri.length > 0) {
+          //             console.log('Server', `Retrieved URI: ${chunk.uri.join(', ')}`);
+          //         }
+          //         if (chunk.content && chunk.content.length > 0) {
+          //             console.log('Server', `Retrieved Content: ${chunk.content.join('...')}`);
+          //         }
+          //     });
+          // }
+        } else if (data.type === 'error' && data.error) {
+          // tslint:disable-next-line:no-console
+          console.log('Server', `Error: ${data.error}`)
+        } else {
+          // tslint:disable-next-line:no-console
+          console.log('Server', `Received: ${event.data}`)
+        }
       } catch (error) {
-          // console.log('Server', `Received raw: ${event.data}`);
-          // console.error('Error processing message:', error);
+        // tslint:disable-next-line:no-console
+        console.log('Server', `Received raw: ${event.data}`)
+        // console.error('Error processing message:', error);
       }
       // this.messageSubject.next(event.data);
     }
 
     this.socket.onerror = error => {
-      // console.log('error', error)
+      // tslint:disable-next-line:no-console
       console.error('WebSocket error:', error)
     }
 
     this.socket.onclose = () => {
+      // tslint:disable-next-line:no-console
       console.log('WebSocket connection closed')
     }
   }
@@ -88,6 +94,7 @@ export class WebSocketService {
     if (this.socket && this.socket.readyState === WebSocket.OPEN) {
       this.socket.send(JSON.stringify(message))
     } else {
+      // tslint:disable-next-line:no-console
       console.error('WebSocket is not open')
     }
   }
@@ -101,13 +108,13 @@ export class WebSocketService {
 
     clearInterval(this.pingIntervalId)
     this.pingIntervalId = setInterval(() => {
-        if (this.socket && this.socket.readyState === WebSocket.OPEN) {
-          // console.log('in')
-          this.socket.send(JSON.stringify({ type: 'ping' })) // Send a ping message
-            // console.log('Client sent ping');
-        }
+      if (this.socket && this.socket.readyState === WebSocket.OPEN) {
+        // console.log('in')
+        this.socket.send(JSON.stringify({ type: 'ping' })) // Send a ping message
+        // console.log('Client sent ping');
+      }
     },                                25000) // Send ping every 25 seconds (slightly less than server's 30s)
-}
+  }
 
   // Close the WebSocket connection
   closeConnection(): void {

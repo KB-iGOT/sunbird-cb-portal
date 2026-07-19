@@ -120,7 +120,7 @@ const ELEMENT_DATA: IPeriodicElement[] = [
     selector: 'ws-app-organization-home',
     templateUrl: './organization-home.component.html',
     styleUrls: ['./organization-home.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class OrganizationHomeComponent implements OnInit, OnDestroy {
   banner!: NsWidgetResolver.IWidgetData<any>

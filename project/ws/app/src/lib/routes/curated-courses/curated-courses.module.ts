@@ -10,7 +10,7 @@ import { WidgetResolverModule } from '@sunbird-cb/resolver'
 
 import { MatCardModule } from '@angular/material/card'
 import { ReactiveFormsModule, FormsModule } from '@angular/forms'
-import { AvatarPhotoModule, BtnPageBackModule, CardContentModule } from '@sunbird-cb/collection'
+import { AvatarPhotoModule, BtnPageBackModule, CardContentModule, CardContentV2Module } from '@sunbird-cb/collection'
 
 import { CuratedCoursesRoutingModule } from './curated-courses-routing.module'
 import { CuratedHomeComponent } from './routes/curated-home/curated-home.component'
@@ -19,7 +19,6 @@ import { CuratedCollectionCardComponent } from './components/curated-collection-
 import { CuratedPopularCardComponent } from './components/curated-popular-card/curated-popular-card.component'
 import { CuratedCollectionService } from './services/curated-collection.service'
 import { LeftMenuComponent } from './components/left-menu/left-menu.component'
-import { CardContentV2Module } from '@sunbird-cb/collection'
 import { TranslateModule } from '@ngx-translate/core'
 import { MatButtonModule } from '@angular/material/button'
 import { MatChipsModule } from '@angular/material/chips'

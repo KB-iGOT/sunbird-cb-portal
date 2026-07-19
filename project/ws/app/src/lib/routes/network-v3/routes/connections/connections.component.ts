@@ -9,7 +9,7 @@ import { ActivatedRoute } from '@angular/router'
   selector: 'ws-app-connections',
   templateUrl: './connections.component.html',
   styleUrls: ['./connections.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class ConnectionsComponent implements OnInit {
 
@@ -21,17 +21,17 @@ export class ConnectionsComponent implements OnInit {
     { lable: 'NetworkLandingPage.sent', key: 'Pending', recordsCount: 0 },
     { lable: 'NetworkLandingPage.blocked', key: 'Blocked', recordsCount: 0 },
   ]
-  connectionsList: any = [];
-  connectionsLoading = false;
+  connectionsList: any = []
+  connectionsLoading = false
   apiSubscription: any
-  paginationSize = 10;
-  paginationSizeOptions = [10, 20, 30, 40];
-  paginationPage = 1;
-  totalItemsCount = 0;
-  defaultPaginationSize = 10;
-  noDataMessage = 'NetworkLandingPage.youDoNotHaveAnyConnectionsSendConnectionRequestsFromTheHomeTab';
-  allStatesList = ['Approved', 'Pending', 'Blocked'];
-  satesListToGetCount: string[] = [];
+  paginationSize = 10
+  paginationSizeOptions = [10, 20, 30, 40]
+  paginationPage = 1
+  totalItemsCount = 0
+  defaultPaginationSize = 10
+  noDataMessage = 'NetworkLandingPage.youDoNotHaveAnyConnectionsSendConnectionRequestsFromTheHomeTab'
+  allStatesList = ['Approved', 'Pending', 'Blocked']
+  satesListToGetCount: string[] = []
 
   constructor(
     private networkingSvc: NetworkingService,
@@ -67,11 +67,11 @@ export class ConnectionsComponent implements OnInit {
     }
 
     this.networkingSvc.getConnectionsCount(formBody).subscribe({
-      next: (response) => {
+      next:response => {
         if (response) {
           const facets = _.get(response, 'result.facets[0].values', [])
           const responseMap = new Map(facets.map((item: any) => [item.name.toLowerCase(), item.count]))
-          this.tabDetailsList.forEach((tab) => {
+          this.tabDetailsList.forEach(tab => {
             let keyToSet = tab.key
             if (tab.key === 'Pending') {
               keyToSet = 'Requested'
@@ -151,7 +151,7 @@ export class ConnectionsComponent implements OnInit {
     const pageSize = this.paginationSize
     this.connectionsLoading = true
     this.apiSubscription = this.networkingSvc.getConnections(pageNo, pageSize).subscribe({
-      next: (response) => {
+      next:response => {
         this.connectionsLoading = false
         this.totalItemsCount = _.get(response, 'result.count', 0)
         this.connectionsList = _.get(response, 'result.data', [])
@@ -160,7 +160,7 @@ export class ConnectionsComponent implements OnInit {
         this.connectionsLoading = false
         this.connectionsList = []
         this.openSnackBar(this.handleTranslateTo('NetworkLandingPage.errorWhileFetchingConnections'), 'X')
-      }
+      },
     })
   }
 
@@ -169,7 +169,7 @@ export class ConnectionsComponent implements OnInit {
     const pageSize = this.paginationSize
     this.connectionsLoading = true
     this.apiSubscription = this.networkingSvc.getConnectionRequests(pageNo, pageSize).subscribe({
-      next: (response) => {
+      next:response => {
         this.connectionsLoading = false
         this.totalItemsCount = _.get(response, 'result.count', 0)
         this.connectionsList = _.get(response, 'data', [])
@@ -178,7 +178,7 @@ export class ConnectionsComponent implements OnInit {
         this.connectionsLoading = false
         this.connectionsList = []
         this.openSnackBar(this.handleTranslateTo('NetworkLandingPage.errorWhileFetchingConnectionRequests'), 'X')
-      }
+      },
     })
   }
 
@@ -187,7 +187,7 @@ export class ConnectionsComponent implements OnInit {
     const pageSize = this.paginationSize
     this.connectionsLoading = true
     this.apiSubscription = this.networkingSvc.getRequestSent(pageNo, pageSize).subscribe({
-      next: (response) => {
+      next:response => {
         this.connectionsLoading = false
         this.totalItemsCount = _.get(response, 'result.count', 0)
         this.connectionsList = _.get(response, 'result.data', [])
@@ -196,18 +196,18 @@ export class ConnectionsComponent implements OnInit {
         this.connectionsLoading = false
         this.connectionsList = []
         this.openSnackBar(this.handleTranslateTo('NetworkLandingPage.errorWhileFetchingSentRequests'), 'X')
-      }
+      },
     })
   }
 
   getBlockedList() {
     const formBody = {
       offset: this.paginationPage - 1,
-      size: this.paginationSize
+      size: this.paginationSize,
     }
     this.connectionsLoading = true
     this.apiSubscription = this.networkingSvc.getBlockedUsers(formBody).subscribe({
-      next: (response) => {
+      next:response => {
         this.connectionsLoading = false
         this.totalItemsCount = _.get(response, 'result.count', 0)
         this.connectionsList = _.get(response, 'result.response', [])
@@ -216,7 +216,7 @@ export class ConnectionsComponent implements OnInit {
         this.connectionsLoading = false
         this.connectionsList = []
         this.openSnackBar(this.handleTranslateTo('NetworkLandingPage.errorWhileFetchingBlockedUsers'), 'X')
-      }
+      },
     })
   }
 

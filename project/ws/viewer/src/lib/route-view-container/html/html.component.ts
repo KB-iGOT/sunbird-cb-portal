@@ -7,7 +7,7 @@ import { PipeLimitToPipe, ValueService, ConfigurationsService } from '@sunbird-c
     selector: 'viewer-html-container',
     templateUrl: './html.component.html',
     styleUrls: ['./html.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class HtmlComponent implements OnInit, OnChanges {
 

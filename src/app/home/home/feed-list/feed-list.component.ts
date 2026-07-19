@@ -1,15 +1,15 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
-import { UtilityService, EventService, WsEvents  } from '@sunbird-cb/utils-v2'
+import { UtilityService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
 
 /* tslint:disable */
-import _ from 'lodash'
+import * as _ from 'lodash'
 /* tslint:enable */
 @Component({
-    selector: 'ws-feed-list',
-    templateUrl: './feed-list.component.html',
-    styleUrls: ['./feed-list.component.scss'],
-    standalone: false
+  selector: 'ws-feed-list',
+  templateUrl: './feed-list.component.html',
+  styleUrls: ['./feed-list.component.scss'],
+  standalone: false,
 })
 export class FeedListComponent implements OnInit {
   contentStripData = {}
@@ -19,8 +19,10 @@ export class FeedListComponent implements OnInit {
 
   @Output() telemetryRaisedLibrary = new EventEmitter()
   isTelemetryRaised = false
+  // tslint:disable:align
   constructor(private activatedRoute: ActivatedRoute,
-              private events: EventService, private utilitySvc: UtilityService) { }
+    private events: EventService, private utilitySvc: UtilityService) { }
+  // tslint:enable:align
 
   ngOnInit() {
     if (this.activatedRoute.snapshot.data.pageData && this.activatedRoute.snapshot.data.pageData.data) {

@@ -18,7 +18,7 @@ import { ErrorParserComponent } from '../../../../../modules/shared/components/e
     selector: 'ws-auth-generic',
     templateUrl: './create.component.html',
     styleUrls: ['./create.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class CreateComponent implements OnInit, OnDestroy {
   entity: ICreateEntity[] = []

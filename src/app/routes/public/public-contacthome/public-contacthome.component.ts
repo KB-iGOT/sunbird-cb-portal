@@ -8,7 +8,7 @@ import { TranslateService } from '@ngx-translate/core'
     selector: 'ws-public-contacthome',
     templateUrl: './public-contacthome.component.html',
     styleUrls: ['./public-contacthome.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class PublicContacthomeComponent implements OnInit {
   contactUsMail = ''

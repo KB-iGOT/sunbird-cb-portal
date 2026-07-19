@@ -1,3 +1,4 @@
+/* tslint:disable:align no-console */
 import { Component, OnInit, OnDestroy, AfterViewChecked, ElementRef, ViewChild, ChangeDetectorRef } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
@@ -38,7 +39,7 @@ const configMap: any = {
   selector: 'ws-app-see-all-dynamic',
   templateUrl: './see-all-dynamic.component.html',
   styleUrls: ['./see-all-dynamic.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class SeeAllDynamicComponent implements OnInit, OnDestroy, AfterViewChecked {
   colors = [

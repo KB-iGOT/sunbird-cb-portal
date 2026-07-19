@@ -14,7 +14,7 @@ import { IResolveResponse, ConfigurationsService } from '@sunbird-cb/utils-v2'
     selector: 'ws-app-feedback-thread-header',
     templateUrl: './feedback-thread-header.component.html',
     styleUrls: ['./feedback-thread-header.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class FeedbackThreadHeaderComponent implements OnInit {
   @Input() threadHead!: IFeedbackThread

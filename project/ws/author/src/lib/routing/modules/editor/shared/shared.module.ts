@@ -27,7 +27,7 @@ import { HttpClient } from '@angular/common/http'
 import { SharedModule } from '../../../../modules/shared/shared.module'
 import { TranslateHttpLoader } from '@ngx-translate/http-loader'
 
-export function EditorShareHttpLoaderFactory(http: HttpClient) {
+export function editorShareHttpLoaderFactory(http: HttpClient) {
     return new TranslateHttpLoader(http)
 }
 
@@ -62,7 +62,7 @@ export function EditorShareHttpLoaderFactory(http: HttpClient) {
         TranslateModule.forRoot({
             loader: {
                 provide: TranslateLoader,
-                useFactory: EditorShareHttpLoaderFactory,
+                useFactory: editorShareHttpLoaderFactory,
                 deps: [HttpClient],
             },
         }),

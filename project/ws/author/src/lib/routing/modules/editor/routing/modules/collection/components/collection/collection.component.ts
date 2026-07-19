@@ -43,7 +43,7 @@ import { DeleteDialogComponent } from '../../../../../../../../modules/shared/co
     templateUrl: './collection.component.html',
     styleUrls: ['./collection.component.scss'],
     providers: [CollectionStoreService, CollectionResolverService],
-    standalone: false
+    standalone: false,
 })
 export class CollectionComponent implements OnInit, OnDestroy {
   contents: NSContent.IContentMeta[] = []

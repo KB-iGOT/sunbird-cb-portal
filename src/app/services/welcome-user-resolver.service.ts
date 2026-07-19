@@ -5,10 +5,10 @@ import { map, catchError, retry } from 'rxjs/operators'
 import { HttpBackend, HttpClient } from '@angular/common/http'
 import { IResolveResponse } from '@sunbird-cb/utils-v2'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 
 @Injectable()
-export class WelcomeUserResolverService  {
+export class WelcomeUserResolverService {
     private httpClient: HttpClient
     constructor(handler: HttpBackend) {
         this.httpClient = new HttpClient(handler)

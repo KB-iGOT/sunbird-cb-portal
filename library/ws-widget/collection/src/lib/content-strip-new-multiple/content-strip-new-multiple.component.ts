@@ -15,7 +15,7 @@ import { Subscription } from 'rxjs'
 import { filter } from 'rxjs/operators'
 import { WidgetUserServiceLib } from '@sunbird-cb/consumption'
 // tslint:disable-next-line
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { HttpClient } from '@angular/common/http'
 // import { SearchServService } from '../_services/search-serv.service'
 
@@ -43,10 +43,10 @@ interface IStripUnitContentData {
 }
 
 @Component({
-    selector: 'ws-widget-content-strip-new-multiple',
-    templateUrl: './content-strip-new-multiple.component.html',
-    styleUrls: ['./content-strip-new-multiple.component.scss'],
-    standalone: false
+  selector: 'ws-widget-content-strip-new-multiple',
+  templateUrl: './content-strip-new-multiple.component.html',
+  styleUrls: ['./content-strip-new-multiple.component.scss'],
+  standalone: false
 })
 export class ContentStripNewMultipleComponent extends WidgetBaseComponent
   implements

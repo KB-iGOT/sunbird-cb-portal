@@ -4,7 +4,7 @@ import { Component, OnInit } from '@angular/core'
     selector: 'ws-auth-expiry-date-display',
     templateUrl: './expiry-date-display.component.html',
     styleUrls: ['./expiry-date-display.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ExpiryDateDisplayComponent implements OnInit {
   constructor() {}

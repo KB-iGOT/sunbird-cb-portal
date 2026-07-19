@@ -12,7 +12,7 @@ interface IEmbedWidget {
     selector: 'ws-auth-embed',
     templateUrl: './embed.component.html',
     styleUrls: ['./embed.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class EmbedComponent implements OnInit {
 

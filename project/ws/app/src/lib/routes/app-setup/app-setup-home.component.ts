@@ -18,7 +18,7 @@ import { ActivatedRoute } from '@angular/router'
             useValue: { displayDefaultIndicatorType: false },
         },
     ],
-    standalone: false
+    standalone: false,
 })
 export class AppSetupHomeComponent implements OnInit, AfterViewInit {
   currentIndex = 0

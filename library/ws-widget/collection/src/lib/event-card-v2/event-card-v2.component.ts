@@ -4,15 +4,15 @@ import { ConfigurationsService, EventService, NsInstanceConfig, MultilingualTran
 import { NsContent } from '../_services/widget-content.model'
 import { NsCardContent } from './event-card-v2.model'
 /* tslint:disable*/
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { TranslateService } from '@ngx-translate/core'
 import { Router } from '@angular/router'
 
 @Component({
-    selector: 'ws-widget-event-card-v2',
-    templateUrl: './event-card-v2.component.html',
-    styleUrls: ['./event-card-v2.component.scss'],
-    standalone: false
+  selector: 'ws-widget-event-card-v2',
+  templateUrl: './event-card-v2.component.html',
+  styleUrls: ['./event-card-v2.component.scss'],
+  standalone: false
 })
 export class EventCardV2Component extends WidgetBaseComponent
   implements OnInit, NsWidgetResolver.IWidgetData<NsCardContent.ICard> {
@@ -64,9 +64,9 @@ export class EventCardV2Component extends WidgetBaseComponent
   }
 
   getTime(minutes: number): string {
-    const hours = Math.floor(minutes / 60);
-    const remainingMinutes = minutes % 60;
-    return `${hours}hr ${remainingMinutes}mins`;
+    const hours = Math.floor(minutes / 60)
+    const remainingMinutes = minutes % 60
+    return `${hours}hr ${remainingMinutes}mins`
   }
 
   getStartDate(startDate: any, startTime: any) {

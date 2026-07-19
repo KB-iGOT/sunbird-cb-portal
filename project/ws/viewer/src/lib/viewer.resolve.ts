@@ -1,3 +1,4 @@
+/* tslint:disable:max-line-length object-shorthand-properties-first */
 import { Injectable } from '@angular/core'
 import { ActivatedRouteSnapshot, Router } from '@angular/router'
 import { catchError, map, tap } from 'rxjs/operators'
@@ -66,6 +67,7 @@ export class ViewerResolve {
           mimeType = 'application/vnd.sunbird.questionset'
           if (content?.children && content?.children?.length) {
             if (content?.children[0]['contextCategory'] && content?.children[0]['contextCategory'] === 'Pre Enrolment Assessment') {
+              // tslint:disable-next-line:no-parameter-reassignment
               content = content?.children[0]
             }
           }
@@ -109,6 +111,7 @@ export class ViewerResolve {
           mimeType = 'application/vnd.sunbird.questionset'
           if (data?.children && data?.children?.length) {
             if (data?.children[0]['contextCategory'] && data?.children[0]['contextCategory'] === 'Pre Enrolment Assessment') {
+              // tslint:disable-next-line:no-parameter-reassignment
               data = data?.children[0]
             }
           }

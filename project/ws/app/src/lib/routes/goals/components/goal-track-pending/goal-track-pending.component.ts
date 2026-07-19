@@ -11,7 +11,7 @@ import { MatTableDataSource } from '@angular/material/table'
     selector: 'ws-app-goal-track-pending',
     templateUrl: './goal-track-pending.component.html',
     styleUrls: ['./goal-track-pending.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class GoalTrackPendingComponent implements OnInit {
   @ViewChild('remindError', { static: true }) remindErrorMessage!: ElementRef<

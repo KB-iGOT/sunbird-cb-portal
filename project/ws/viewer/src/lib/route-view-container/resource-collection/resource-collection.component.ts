@@ -7,7 +7,7 @@ import { ConfigurationsService } from '@sunbird-cb/utils-v2'
     selector: 'viewer-resource-collection-container',
     templateUrl: './resource-collection.component.html',
     styleUrls: ['./resource-collection.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ResourceCollectionComponent implements OnInit {
   @Input() isFetchingDataComplete = false

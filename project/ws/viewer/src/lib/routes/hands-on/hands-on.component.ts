@@ -4,14 +4,13 @@ import { Subscription } from 'rxjs'
 import { EventService, WsEvents } from '@sunbird-cb/utils-v2'
 import { NsContent } from '@sunbird-cb/collection'
 import { ActivatedRoute } from '@angular/router'
-import { ViewerUtilService } from '@sunbird-cb/toc'
-import { WidgetContentService } from '@sunbird-cb/toc'
+import { ViewerUtilService, WidgetContentService } from '@sunbird-cb/toc'
 
 @Component({
     selector: 'viewer-hands-on',
     templateUrl: './hands-on.component.html',
     styleUrls: ['./hands-on.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class HandsOnComponent implements OnInit, OnDestroy {
   private routeDataSubscription: Subscription | null = null

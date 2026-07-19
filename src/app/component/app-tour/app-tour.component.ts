@@ -8,7 +8,7 @@ import { TranslateService } from '@ngx-translate/core'
     templateUrl: './app-tour.component.html',
     styleUrls: ['./app-tour.component.scss'],
     providers: [UserProfileService],
-    standalone: false
+    standalone: false,
 })
 
 export class AppTourComponent {
@@ -259,10 +259,13 @@ export class AppTourComponent {
     this.hideCloseBtn = false
     this.showpopup = false
     this.showCompletePopup = true
-    setTimeout(() => {
-      this.onCongrats()
-      // tslint: disable-next-line
-    }, 3000)
+    setTimeout(
+      () => {
+        this.onCongrats()
+        // tslint: disable-next-line
+      },
+      3000,
+    )
     this.raiseGetStartedEndTelemetry()
     this.updateTourstatus({ visited: true, skipped: false })
   }

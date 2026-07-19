@@ -15,7 +15,7 @@ import { AUTHORING_CONTENT_BASE, CONTENT_BASE_WEBHOST_ASSETS } from '../../../..
     selector: 'ws-auth-slider',
     templateUrl: './slider.component.html',
     styleUrls: ['./slider.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class SliderComponent implements OnInit {
 

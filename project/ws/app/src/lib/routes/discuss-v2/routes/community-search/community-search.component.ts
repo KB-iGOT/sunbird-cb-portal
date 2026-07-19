@@ -5,7 +5,7 @@ import { Router } from '@angular/router'
   selector: 'ws-app-community-search',
   templateUrl: './community-search.component.html',
   styleUrls: ['./community-search.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class CommunitySearchComponent {
 

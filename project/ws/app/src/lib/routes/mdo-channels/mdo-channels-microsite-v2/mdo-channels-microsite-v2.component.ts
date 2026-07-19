@@ -6,7 +6,7 @@ import { ConfigurationsService } from '@sunbird-cb/utils-v2'
     selector: 'ws-app-mdo-channels-microsite-v2',
     templateUrl: './mdo-channels-microsite-v2.component.html',
     styleUrls: ['./mdo-channels-microsite-v2.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class MdoChannelsMicrositeV2Component implements OnInit {
   titles = [

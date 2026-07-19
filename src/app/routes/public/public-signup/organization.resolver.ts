@@ -9,7 +9,7 @@ import { switchMap, map, catchError } from 'rxjs/operators'
 import { SignupService } from './signup.service'
 
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 // tslint:enable
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { environment } from 'src/environments/environment'
@@ -19,12 +19,11 @@ import { environment } from 'src/environments/environment'
 })
 export class AppPublicOrganizationResolver
   implements
-    Resolve<Observable<{ organizationDetails: any; designationsList: any[]; isInvalidLink?: string }>>
-{
+  Resolve<Observable<{ organizationDetails: any; designationsList: any[]; isInvalidLink?: string }>> {
   constructor(
     private signupSvc: SignupService,
     private snackBar: MatSnackBar
-  ) {}
+  ) { }
 
   resolve(
     route: ActivatedRouteSnapshot,

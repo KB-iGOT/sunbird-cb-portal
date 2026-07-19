@@ -6,7 +6,7 @@ import { LearningHistoryService } from '../../services/learning-history.service'
     selector: 'ws-app-learning-history-progress',
     templateUrl: './learning-history-progress.component.html',
     styleUrls: ['./learning-history-progress.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class LearningHistoryProgressComponent {
   @Input() item: any

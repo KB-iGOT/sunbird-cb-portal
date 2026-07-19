@@ -7,7 +7,7 @@ import { NsGalleryView } from '@sunbird-cb/collection'
     selector: 'ws-auth-gallery-widget',
     templateUrl: './gallery-widget.component.html',
     styleUrls: ['./gallery-widget.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class GalleryWidgetComponent implements OnInit {
 

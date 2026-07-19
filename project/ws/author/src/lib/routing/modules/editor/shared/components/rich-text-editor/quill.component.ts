@@ -12,7 +12,7 @@ import quill from 'quill'
             multi: true,
         },
     ],
-    standalone: false
+    standalone: false,
 })
 export class QuillComponent implements OnInit, OnDestroy, AfterViewInit, ControlValueAccessor {
 

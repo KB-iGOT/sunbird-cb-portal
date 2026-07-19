@@ -27,6 +27,7 @@ import {
   BtnContentFeedbackV2Module,
   PlayerBriefModule,
   ContentProgressModule,
+  SkeletonLoaderModule,
 } from '@sunbird-cb/collection'
 
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
@@ -45,7 +46,6 @@ export function HttpLoaderFactory(http: HttpClient) {
 import { ViewerSecondaryTopBarModule } from './components/viewer-secondary-top-bar/viewer-secondary-top-bar.module'
 
 import { PdfScormDataService } from './pdf-scorm-data-service'
-import { SkeletonLoaderModule } from '@sunbird-cb/collection'
 import { MatButtonModule } from '@angular/material/button'
 import { MatCardModule } from '@angular/material/card'
 import { MatDividerModule } from '@angular/material/divider'

@@ -1,3 +1,4 @@
+/* tslint:disable:object-shorthand-properties-first no-console */
 import { Component, OnInit, OnDestroy, ViewChild, Renderer2, inject, DOCUMENT } from '@angular/core'
 import { MatDialogRef, MAT_DIALOG_DATA, MatDialog } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
@@ -9,10 +10,10 @@ import { PeerValidationService } from '../../services/peer-validation.service'
 import { SuccessDialogComponent } from './components/success-dialog/success-dialog.component'
 
 @Component({
-    selector: 'ws-app-survey-dialog',
-    templateUrl: './survey-dialog.component.html',
-    styleUrls: ['./survey-dialog.component.scss'],
-    standalone: false
+  selector: 'ws-app-survey-dialog',
+  templateUrl: './survey-dialog.component.html',
+  styleUrls: ['./survey-dialog.component.scss'],
+  standalone: false,
 })
 export class SurveyDialogComponent implements OnInit, OnDestroy {
   @ViewChild('stepper') stepper!: MatStepper
@@ -139,7 +140,7 @@ export class SurveyDialogComponent implements OnInit, OnDestroy {
   isStepCompleted(index: number): boolean {
     if (index === 0) {
       return this.questionForm.valid
-    }  if (index === 1) {
+    } if (index === 1) {
       return this.isStep2Completed
     }
     return false

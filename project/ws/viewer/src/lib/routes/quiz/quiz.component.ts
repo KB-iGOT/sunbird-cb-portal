@@ -5,9 +5,8 @@ import { NsContent } from '@sunbird-cb/collection'
 import { NSQuiz } from '../../plugins/quiz/quiz.model'
 import { ActivatedRoute } from '@angular/router'
 import { WsEvents, EventService } from '@sunbird-cb/utils-v2'
-import { ViewerUtilService } from '@sunbird-cb/toc'
+import { ViewerUtilService, WidgetContentService } from '@sunbird-cb/toc'
 // import { environment } from 'src/environments/environment'
-import { WidgetContentService } from '@sunbird-cb/toc'
 
 @Component({
     selector: 'viewer-quiz',
@@ -15,7 +14,7 @@ import { WidgetContentService } from '@sunbird-cb/toc'
     styleUrls: ['./quiz.component.scss'],
     /* tslint:disable */
     host: { class: 'h-inherit inline-block w-full', style: 'height:  inherit;' },
-    standalone: false
+    standalone: false,
 })
 export class QuizComponent implements OnInit, OnDestroy {
   private dataSubscription: Subscription | null = null

@@ -5,7 +5,7 @@ import { EFeedbackType } from '@sunbird-cb/collection'
     selector: 'ws-app-feedback-type',
     templateUrl: './feedback-type.component.html',
     styleUrls: ['./feedback-type.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class FeedbackTypeComponent implements OnInit {
   @Input() feedbackType!: EFeedbackType

@@ -8,7 +8,7 @@ import { MatSelectChange } from '@angular/material/select'
     selector: 'ws-app-admin',
     templateUrl: './admin.component.html',
     styleUrls: ['./admin.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class AdminComponent implements OnInit {
   query!: any

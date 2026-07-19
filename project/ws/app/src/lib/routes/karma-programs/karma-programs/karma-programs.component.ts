@@ -7,14 +7,14 @@ import { TranslateService } from '@ngx-translate/core'
 import { EventService, WsEvents, MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 import { debounceTime, switchMap, takeUntil } from 'rxjs/operators'
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { ActivatedRoute } from '@angular/router'
 
 @Component({
-    selector: 'ws-app-karma-programs',
-    templateUrl: './karma-programs.component.html',
-    styleUrls: ['./karma-programs.component.scss'],
-    standalone: false
+  selector: 'ws-app-karma-programs',
+  templateUrl: './karma-programs.component.html',
+  styleUrls: ['./karma-programs.component.scss'],
+  standalone: false
 })
 export class KarmaProgramsComponent implements OnInit {
 
@@ -73,14 +73,14 @@ export class KarmaProgramsComponent implements OnInit {
       this.allProviders = []
       let programData: any = this.route.snapshot.data.programData.data.result.data
       programData.forEach((prgData: any) => {
-        if(prgData.children && prgData.children.length) {
+        if (prgData.children && prgData.children.length) {
           this.allProviders.push(prgData)
         }
       })
       // .data.result.form.data.sectionList
     }
     this.clonesProviders = this.allProviders
-   }
+  }
 
   ngOnInit() {
     this.searchForm = new UntypedFormGroup({
@@ -210,11 +210,11 @@ export class KarmaProgramsComponent implements OnInit {
     }
   }
 
-  sortType(sortType: any){
-    if(this.searchForm && this.searchForm.get('sortByControl')){
+  sortType(sortType: any) {
+    if (this.searchForm && this.searchForm.get('sortByControl')) {
       // tslint:disable-next-line: no-non-null-assertion
       this.searchForm.get('sortByControl')!.setValue(sortType)
-      this.sortBy = sortType;
+      this.sortBy = sortType
       this.allProviders = _.orderBy(this.allProviders.length ? this.allProviders : this.allProviders, ['title'], [this.sortBy])
     }
   }

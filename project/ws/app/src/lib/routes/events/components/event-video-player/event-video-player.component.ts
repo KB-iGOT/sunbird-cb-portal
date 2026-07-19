@@ -46,7 +46,7 @@ const videoJsOptions: IYTOptions = {
   selector: 'ws-app-event-video-player',
   templateUrl: './event-video-player.component.html',
   styleUrls: ['./event-video-player.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class EventVideoPlayerComponent implements OnInit, AfterViewInit, OnDestroy {
 
@@ -65,8 +65,8 @@ export class EventVideoPlayerComponent implements OnInit, AfterViewInit, OnDestr
   dispose: (() => void) | null = null
   pageConfigData: any = {}
   constructor(private route: ActivatedRoute,
-    private eventService: EventService,
-    private configSvc: ConfigurationsService,
+              private eventService: EventService,
+              private configSvc: ConfigurationsService,
 
   ) {
 

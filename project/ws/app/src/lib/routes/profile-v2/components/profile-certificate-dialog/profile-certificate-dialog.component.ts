@@ -5,13 +5,13 @@ import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
     selector: 'ws-app-profile-certificate-dialog',
     templateUrl: './profile-certificate-dialog.component.html',
     styleUrls: ['./profile-certificate-dialog.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ProfileCertificateDialogComponent implements OnInit {
 
   url!: string
   constructor(public dialogRef: MatDialogRef<ProfileCertificateDialogComponent>,
-    @Inject(MAT_DIALOG_DATA) public data: any) { }
+              @Inject(MAT_DIALOG_DATA) public data: any) { }
 
   ngOnInit() {
     this.url = this.data.cet

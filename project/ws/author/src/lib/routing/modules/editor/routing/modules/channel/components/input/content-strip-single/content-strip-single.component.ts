@@ -22,7 +22,7 @@ import { ConfirmDialogComponent } from '../../../../../../../../../modules/share
     selector: 'ws-auth-content-strip-single',
     templateUrl: './content-strip-single.component.html',
     styleUrls: ['./content-strip-single.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ContentStripSingleComponent implements OnInit {
   @Output() data = new EventEmitter<{
@@ -313,7 +313,7 @@ export class ContentStripSingleComponent implements OnInit {
   }
 
   onSearchV6Change(event?: { content: Partial<NsContent.IContent>; checked: boolean },
-    ids?: string[], fromAuthChips = false) {
+                   ids?: string[], fromAuthChips = false) {
     const searchV6 = JSON.parse(JSON.stringify(SEARCHV6))
     searchV6.locale = [...this.language]
     searchV6.sort = [

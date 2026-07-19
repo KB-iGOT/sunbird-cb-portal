@@ -1,5 +1,4 @@
-import { ISearchContent } from "../../../../interface/search"
-
+import { ISearchContent } from '../../../../interface/search'
 
 export interface IAction {
   action: string

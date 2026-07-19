@@ -7,14 +7,14 @@ import { PipeCertificateImageURL } from '@sunbird-cb/utils-v2'
     templateUrl: './certificate-view-popup.component.html',
     styleUrls: ['./certificate-view-popup.component.scss'],
     providers: [PipeCertificateImageURL],
-    standalone: false
+    standalone: false,
 })
 export class CertificateViewPopupComponent implements OnInit {
-  certificateUrl = '';
+  certificateUrl = ''
 
   constructor(private dialogRef: MatDialogRef<CertificateViewPopupComponent>,
-    private pipeImgUrl: PipeCertificateImageURL,
-    @Inject(MAT_DIALOG_DATA) public data: any) {
+              private pipeImgUrl: PipeCertificateImageURL,
+              @Inject(MAT_DIALOG_DATA) public data: any) {
   }
 
   ngOnInit(): void {

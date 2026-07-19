@@ -14,7 +14,7 @@ interface IAuthorGrid {
     selector: 'ws-auth-grid',
     templateUrl: './grid.component.html',
     styleUrls: ['./grid.component.scss'],
-    standalone: false
+    standalone: false,
 })
 
 export class GridComponent implements OnInit, OnChanges {

@@ -8,7 +8,7 @@ import { ConfigurationsService, MultilingualTranslationsService, NsInstanceConfi
 import { BtnPageBackService } from './btn-page-back.service'
 import { environment } from 'src/environments/environment'
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { TranslateService } from '@ngx-translate/core'
 // tslint:enable
 

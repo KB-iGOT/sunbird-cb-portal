@@ -2,15 +2,17 @@ import { Component, HostListener } from '@angular/core'
 import * as _ from 'lodash'
 import { BadgeService } from './../../services/badge.service'
 import { Router } from '@angular/router'
+// tslint:disable-next-line:import-name
 import jsPDF from 'jspdf'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 @Component({
-    selector: 'app-badge-details',
-    templateUrl: './badge-details.component.html',
-    styleUrls: ['./badge-details.component.scss'],
-    standalone: false
+  selector: 'app-badge-details',
+  templateUrl: './badge-details.component.html',
+  styleUrls: ['./badge-details.component.scss'],
+  standalone: false,
 })
 export class BadgeDetailsComponent {
+  // tslint:disable-next-line: max-length max-line-length
   constructor(private userProfileService: BadgeService, private router: Router, private badgeService: BadgeService, private configSvc: ConfigurationsService) {
   }
   activeTab: 'earned' | 'inprogress' = 'earned'
@@ -33,8 +35,8 @@ export class BadgeDetailsComponent {
 
     const payload = {
       request: {
-        status: status
-      }
+        status,
+      },
     }
 
     this.userProfileService.fetchBadgeDetails(payload).subscribe(
@@ -55,7 +57,7 @@ export class BadgeDetailsComponent {
               title: detail.badgeTitle,
               level: detail.badgeSubTitle,
               courseId: badge?.courseId,
-              badgeId: detail?.badgeId
+              badgeId: detail?.badgeId,
             }))
           )
 
@@ -67,16 +69,17 @@ export class BadgeDetailsComponent {
             icon: badge?.badgeDetails_v1?.[0]?.badgeTemplate,
             badgeTitle: `${badge?.badgeDetails_v1?.[0]?.badgeTitle}`,
             courseName: `${badge.courseName}`,
-            progress: badge.completionPercentage + '%',
+            progress: `${badge.completionPercentage}%`,
             continue: badge.completionPercentage < 100 && badge.completionPercentage > 0,
             courseId: badge?.courseId,
-            endDate: badge?.badgeDetails_v1?.[0]?.badgeEarningDateTime
+            endDate: badge?.badgeDetails_v1?.[0]?.badgeEarningDateTime,
           }))
 
         }
 
-      },
-      (error) => {
+        // tslint:disable-next-line:align
+      }, error => {
+        // tslint:disable-next-line:no-console
         console.log('Badge API Error', error)
       }
     )
@@ -107,8 +110,8 @@ export class BadgeDetailsComponent {
     url: 'home',
     titles: [
       { title: 'sdadsad', url: '/app/person-profile', icon: 'person', noTranslate: true },
-      { title: 'My Badges', url: 'none', icon: '', noTranslate: true }
-    ]
+      { title: 'My Badges', url: 'none', icon: '', noTranslate: true },
+    ],
   }
   openMenuBadge: any = null
 
@@ -118,11 +121,13 @@ export class BadgeDetailsComponent {
   }
 
   viewBadge(badge: any) {
+    // tslint:disable-next-line:no-console
     console.log('View', badge)
     this.openMenuBadge = null
   }
 
   downloadBadge(badge: any) {
+    // tslint:disable-next-line:no-console
     console.log('Download', badge)
     this.openMenuBadge = null
   }
@@ -154,7 +159,7 @@ export class BadgeDetailsComponent {
 
     earnedBadges: [],
 
-    inProgress: []
+    inProgress: [],
   }
   downloadBadgePng(badgeData: any) {
     const payload = {
@@ -210,7 +215,8 @@ export class BadgeDetailsComponent {
         a.click()
         a.remove()
       },
-      error: (err) => {
+      error: err => {
+        // tslint:disable-next-line:no-console
         console.error('Download failed', err)
       },
     })

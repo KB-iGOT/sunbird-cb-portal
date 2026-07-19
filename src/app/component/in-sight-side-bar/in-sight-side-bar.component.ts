@@ -9,9 +9,8 @@ import { MatSnackBar } from '@angular/material/snack-bar'
 import { MatDialog } from '@angular/material/dialog'
 import moment from 'moment'
 import { SignupService } from '../../routes/public/public-signup/signup.service'
-import _ from 'lodash'
-import { ProfileV2Service } from '@ws/app'
-import { UserProfileService } from '@ws/app'
+import * as _ from 'lodash'
+import { ProfileV2Service, UserProfileService } from '@ws/app'
 import { MatAutocompleteTrigger } from '@angular/material/autocomplete'
 import { NlwCertificateDialogComponent, NlwCertificateDialogData } from '@sunbird-cb/consumption'
 import { Subscription } from 'rxjs'
@@ -61,7 +60,7 @@ const noData = {
       transition('true => false', animate(DEFAULT_DISCUSS_DURATION + 'ms ease-out')),
     ]),
   ],
-  standalone: false
+  standalone: false,
 })
 
 export class InsightSideBarComponent implements OnInit, OnDestroy {
@@ -166,15 +165,15 @@ export class InsightSideBarComponent implements OnInit, OnDestroy {
         this.isNlw2026Certified = status
       })
       this.updateDesignationCard = this.activatedRoute.snapshot.data.pageData.data.updateDesignation
-      let slwConfigurationLocal: any = this.activatedRoute.snapshot.data.pageData.data &&
+      const slwConfigurationLocal: any = this.activatedRoute.snapshot.data.pageData.data &&
         this.activatedRoute.snapshot.data.pageData.data.stateLearningWeek || []
 
       if (slwConfigurationLocal && slwConfigurationLocal.length) {
-        let userData = this.configSvc.unMappedUser
+        const userData = this.configSvc.unMappedUser
         if (userData && userData.profileDetails
           && userData.profileDetails.refRootOrg
           && userData.profileDetails.refRootOrg.orgId) {
-          for (let item of slwConfigurationLocal) {
+          for (const item of slwConfigurationLocal) {
             if (item.orgId === userData.profileDetails.refRootOrg.orgId) {
               this.slwConfiguration = item
             }
@@ -294,7 +293,7 @@ export class InsightSideBarComponent implements OnInit, OnDestroy {
               } else {
                 if (this.configSvc.userProfile && this.configSvc.userProfile.professionalDetails &&
                   this.configSvc.userProfile.professionalDetails[0] && this.configSvc.userProfile.professionalDetails[0].designation) {
-                  let designation = this.configSvc.userProfile.professionalDetails[0].designation
+                  const designation = this.configSvc.userProfile.professionalDetails[0].designation
                   if (designation) {
                     const designationsArray = this.designationList.map((des: any) => des.name.toLowerCase())
                     if (!designationsArray.includes(designation.toLowerCase())) {
@@ -589,9 +588,9 @@ export class InsightSideBarComponent implements OnInit, OnDestroy {
       request: {
         userId: this.configSvc.unMappedUser.id,
         profileDetails: {
-          professionalDetails: [{ designation: this.selectDesignation }]
-        }
-      }
+          professionalDetails: [{ designation: this.selectDesignation }],
+        },
+      },
     }
 
     this.userProfileService.editProfileDetails(payload).subscribe((res: any) => {

@@ -1,3 +1,4 @@
+/* tslint:disable:max-line-length no-console object-shorthand-properties-first */
 import {
   Component,
   OnInit,
@@ -27,10 +28,10 @@ import { WidgetContentLibService, WidgetUserServiceLib } from '@sunbird-cb/consu
 import { environment } from 'src/environments/environment'
 
 @Component({
-    selector: 'ws-app-see-all-home',
-    templateUrl: './see-all-home.component.html',
-    styleUrls: ['./see-all-home.component.scss'],
-    standalone: false
+  selector: 'ws-app-see-all-home',
+  templateUrl: './see-all-home.component.html',
+  styleUrls: ['./see-all-home.component.scss'],
+  standalone: false,
 })
 export class SeeAllHomeComponent implements OnInit, OnDestroy {
 
@@ -859,9 +860,8 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
           this.offsetForPage = this.seeAllPageConfig.request.searchV6.request.limit + this.offsetForPage
           this.fetchFromSearchV6(this.seeAllPageConfig)
         }
-      }
-      // with tabs
-      else if (this.seeAllPageConfig.tabs && this.seeAllPageConfig.tabs.length) {
+      } else if (this.seeAllPageConfig.tabs && this.seeAllPageConfig.tabs.length) {
+        // with tabs
         const tabdata = this.seeAllPageConfig.tabs[this.dynamicTabIndex]
         const existingWidgets = tabdata.widgets || []
         if (tabdata && tabdata.request && tabdata.request.searchV6) {

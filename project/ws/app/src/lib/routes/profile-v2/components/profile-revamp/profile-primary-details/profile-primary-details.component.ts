@@ -1,3 +1,4 @@
+/* tslint:disable:max-line-length object-shorthand-properties-first */
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { ProfileV2RevampService } from '../../../services/profile-v2-revamp.service'
@@ -14,7 +15,7 @@ import { ConfigDetails } from '@sunbird-cb/consumption'
   selector: 'ws-app-profile-primary-details',
   templateUrl: './profile-primary-details.component.html',
   styleUrls: ['./profile-primary-details.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class ProfilePrimaryDetailsComponent implements OnInit {
   @Input() primaryDetails: any
@@ -70,7 +71,7 @@ export class ProfilePrimaryDetailsComponent implements OnInit {
       if (fragment === 'primaryDetails' && this.showPrimaryDetailsEdit) {
         setTimeout(() => {
           this.editPrimaryDetails('Primary Details')
-        }, 500)
+        },         500)
       }
     })
   }
@@ -93,7 +94,7 @@ export class ProfilePrimaryDetailsComponent implements OnInit {
           })
         }
         this.designationApprovedTimeChange.emit(this.designationApprovedTime)
-      }, (error: HttpErrorResponse) => {
+      },         (error: HttpErrorResponse) => {
         if (!error.ok) {
           this.openSnackbar(this.handleTranslateTo('somethingWentWrongPleaseTryAgain'))
         }
@@ -287,7 +288,7 @@ export class ProfilePrimaryDetailsComponent implements OnInit {
           this.openSnackbar(this.handleTranslateTo('withdrawRequestSuccess'))
           this.enableWR = false
           this.updateWithdrawalStatus.emit(false)
-        }, (error: HttpErrorResponse) => {
+        },         (error: HttpErrorResponse) => {
           if (!error.ok) {
             this.openSnackbar(this.handleTranslateTo('unableWithdrawRequest'))
           }
@@ -313,8 +314,6 @@ export class ProfilePrimaryDetailsComponent implements OnInit {
       }
     )
   }
-
-
 
   handleTranslateTo(menuName: string): string {
     return this.profileV2RevampSvc.handleTranslateTo(menuName)

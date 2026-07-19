@@ -7,7 +7,7 @@ import { MAT_DIALOG_DATA } from '@angular/material/dialog'
     selector: 'ws-app-badges-share-dialog',
     templateUrl: './badges-share-dialog.component.html',
     styleUrls: ['./badges-share-dialog.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class BadgesShareDialogComponent implements OnInit {
   @ViewChild('shareError', { static: true }) shareErrorMessage!: ElementRef<any>

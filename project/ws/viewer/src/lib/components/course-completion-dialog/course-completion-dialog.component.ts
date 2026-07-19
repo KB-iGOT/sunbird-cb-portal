@@ -10,7 +10,7 @@ import { RatingService } from '@sunbird-cb/collection'
   selector: 'viewer-course-completion-dialog',
   templateUrl: './course-completion-dialog.component.html',
   styleUrls: ['./course-completion-dialog.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class CourseCompletionDialogComponent implements OnInit {
   courseName = ''
@@ -43,7 +43,7 @@ export class CourseCompletionDialogComponent implements OnInit {
     if (badgeDetails && badgeDetails.length) {
       const badge = badgeDetails[0]
       const now = Date.now()
-      if (badge?.criteria == 'partialRandomCompletion') {
+      if (badge?.criteria === 'partialRandomCompletion') {
         this.badge = null
         return
       }

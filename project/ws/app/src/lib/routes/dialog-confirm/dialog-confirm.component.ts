@@ -6,7 +6,7 @@ import { TranslateService } from '@ngx-translate/core'
     selector: 'ws-dialog-confirm',
     templateUrl: './dialog-confirm.component.html',
     styleUrls: ['./dialog-confirm.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class DialogConfirmComponent {
 

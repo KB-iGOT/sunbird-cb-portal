@@ -14,7 +14,7 @@ import {
     selector: 'ws-app-service-request',
     templateUrl: './service-request.component.html',
     styleUrls: ['./service-request.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class ServiceRequestComponent implements OnDestroy {
   sendStatus: TSendStatus

@@ -1,3 +1,4 @@
+/* tslint:disable:max-line-length */
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core'
 import * as _ from 'lodash'
 import { HttpErrorResponse } from '@angular/common/http'
@@ -12,17 +13,17 @@ import { ConfirmationDialogComponent } from '@sunbird-cb/consumption'
   selector: 'ws-app-connections-card',
   templateUrl: './connections-card.component.html',
   styleUrls: ['./connections-card.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class ConnectionsCardComponent implements OnInit {
 
   @Input() otherUserProfile: any
   @Input() currentTab = 'Requested'
-  @Input() showBorder = true;
-  @Output() getCountOf: EventEmitter<string[]> = new EventEmitter<string[]>();
-  nameInitials = '';
-  fullName = '';
-  currentUserDetails: NsUser.IUserProfile | null = null;
+  @Input() showBorder = true
+  @Output() getCountOf: EventEmitter<string[]> = new EventEmitter<string[]>()
+  nameInitials = ''
+  fullName = ''
+  currentUserDetails: NsUser.IUserProfile | null = null
 
   constructor(
     private snackBar: MatSnackBar,

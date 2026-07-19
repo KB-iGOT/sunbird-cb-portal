@@ -5,18 +5,18 @@ import { KnowledgeResourceService } from '../../services/knowledge-resource.serv
 import { environment } from 'src/environments/environment'
 
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { TranslateService } from '@ngx-translate/core'
 import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 // tslint:enable
 
 @Component({
-    selector: 'ws-app-knowledge-detail',
-    templateUrl: './knowledge-detail.component.html',
-    styleUrls: ['./knowledge-detail.component.scss'],
-    // tslint:disable-next-line
-    host: { class: 'flex flex-1 overflow-hidden' },
-    standalone: false
+  selector: 'ws-app-knowledge-detail',
+  templateUrl: './knowledge-detail.component.html',
+  styleUrls: ['./knowledge-detail.component.scss'],
+  // tslint:disable-next-line
+  host: { class: 'flex flex-1 overflow-hidden' },
+  standalone: false,
 })
 
 export class KnowledgeDetailComponent implements OnInit {
@@ -34,9 +34,9 @@ export class KnowledgeDetailComponent implements OnInit {
     private kwResources: KnowledgeResourceService,
     private translate: TranslateService,
     private langtranslations: MultilingualTranslationsService,
-    ) {
-      // this.resource = _.get(this.route.snapshot, 'data.resource.data.responseData') || []
-   }
+  ) {
+    // this.resource = _.get(this.route.snapshot, 'data.resource.data.responseData') || []
+  }
 
   ngOnInit() {
     this.route.params.subscribe(async params => {
@@ -46,14 +46,14 @@ export class KnowledgeDetailComponent implements OnInit {
     })
     this.environment = environment
     this.kwResources
-    .getResource(this.id, this.type)
-    .subscribe((reponse: NSKnowledgeResource.IResourceResponse) => {
-      if (reponse.statusInfo && reponse.statusInfo.statusCode === 200) {
-        this.resource = reponse.responseData
-      } else {
-        this.resource = []
-      }
-    })
+      .getResource(this.id, this.type)
+      .subscribe((reponse: NSKnowledgeResource.IResourceResponse) => {
+        if (reponse.statusInfo && reponse.statusInfo.statusCode === 200) {
+          this.resource = reponse.responseData
+        } else {
+          this.resource = []
+        }
+      })
     this.langtranslations.languageSelectedObservable.subscribe(() => {
       if (localStorage.getItem('websiteLanguage')) {
         this.translate.setDefaultLang('en')
@@ -70,21 +70,21 @@ export class KnowledgeDetailComponent implements OnInit {
         this.refresh()
       }
     })
-}
+  }
 
-addBookmark(resource: NSKnowledgeResource.IResourceData) {
-  resource.bookmark = !resource.bookmark
-  this.kwResources.addBookmark(resource).subscribe(data => {
-    if (data) {
-      this.refresh()
-    }
-  })
-}
+  addBookmark(resource: NSKnowledgeResource.IResourceData) {
+    resource.bookmark = !resource.bookmark
+    this.kwResources.addBookmark(resource).subscribe(data => {
+      if (data) {
+        this.refresh()
+      }
+    })
+  }
 
-refresh() {
-  this.kwResources.getAllResources().subscribe((reponse: NSKnowledgeResource.IResourceResponse) => {
-    if (reponse.statusInfo && reponse.statusInfo.statusCode === 200) {
-      this.resource = reponse.responseData
+  refresh() {
+    this.kwResources.getAllResources().subscribe((reponse: NSKnowledgeResource.IResourceResponse) => {
+      if (reponse.statusInfo && reponse.statusInfo.statusCode === 200) {
+        this.resource = reponse.responseData
       }
     })
   }
@@ -104,37 +104,37 @@ refresh() {
     minutes = Math.floor(totalMinutes) % 60
     hours = Math.floor(totalHours) % 60
     if (hours !== 0) {
-        result += `${hours}hr`
+      result += `${hours}hr`
 
-        if (minutes.toString().length === 1) {
-            minutes = `0${minutes}`
-        }
+      if (minutes.toString().length === 1) {
+        minutes = `0${minutes}`
+      }
     }
     result += `${minutes}min`
     return result
-}
+  }
 
- getNbOccur(fileType: string, objectArray: NSKnowledgeResource.IKrFiles[]) {
-  let occurs = 0
-  for (let i = 0; i < objectArray.length; i += 1) {
-    if (objectArray[i] && objectArray[i].fileType === fileType) {
+  getNbOccur(fileType: string, objectArray: NSKnowledgeResource.IKrFiles[]) {
+    let occurs = 0
+    for (let i = 0; i < objectArray.length; i += 1) {
+      if (objectArray[i] && objectArray[i].fileType === fileType) {
         occurs += 1
       }
     }
-  return occurs
- }
+    return occurs
+  }
 
- itemCount(items: NSKnowledgeResource.IUrl[]) {
-  let occurs = 0
-  for (let i = 0; i < items.length; i += 1) {
-    if (items[i].toString() !== '[]') {
+  itemCount(items: NSKnowledgeResource.IUrl[]) {
+    let occurs = 0
+    for (let i = 0; i < items.length; i += 1) {
+      if (items[i].toString() !== '[]') {
         occurs += 1
       }
     }
-  return occurs
- }
+    return occurs
+  }
 
-   /* To copy Text from Textbox */
+  /* To copy Text from Textbox */
   copyInputMessage(value: string): void {
     navigator.clipboard.writeText(value).then(() => {
       alert('Copied!')

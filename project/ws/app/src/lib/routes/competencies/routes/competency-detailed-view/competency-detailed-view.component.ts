@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy, ElementRef, ViewChild } from '@angular/core'
 import { CompetenceService } from '../../services/competence.service'
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 import { ActivatedRoute } from '@angular/router'
 import { Subscription } from 'rxjs'
 import { NSCompetencie } from '../../models/competencies.model'
@@ -12,10 +12,10 @@ import { ConfigurationsService, MultilingualTranslationsService } from '@sunbird
 import { TranslateService } from '@ngx-translate/core'
 
 @Component({
-    selector: 'ws-app-competency-detailed-view',
-    templateUrl: './competency-detailed-view.component.html',
-    styleUrls: ['./competency-detailed-view.component.scss'],
-    standalone: false
+  selector: 'ws-app-competency-detailed-view',
+  templateUrl: './competency-detailed-view.component.html',
+  styleUrls: ['./competency-detailed-view.component.scss'],
+  standalone: false
 })
 export class CompetencyDetailedViewComponent implements OnInit, OnDestroy {
   @ViewChild('successMsg', { static: true }) successMsg!: ElementRef

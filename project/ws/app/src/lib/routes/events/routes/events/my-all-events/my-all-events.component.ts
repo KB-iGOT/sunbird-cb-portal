@@ -2,16 +2,15 @@ import { Component } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
 import { EventService } from '../../../services/events.service'
-import { ConfigurationsService, MultilingualTranslationsService, NsContent, WsEvents } from '@sunbird-cb/utils-v2'
+import { ConfigurationsService, EventService as libEventService, MultilingualTranslationsService, NsContent, WsEvents } from '@sunbird-cb/utils-v2'
 import * as _ from 'lodash'
-import { EventService as libEventService } from '@sunbird-cb/utils-v2'
 // import { DatePipe } from '@angular/common';
 
 @Component({
   selector: 'ws-app-my-all-events',
   templateUrl: './my-all-events.component.html',
   styleUrls: ['./my-all-events.component.scss'],
-  standalone: false
+  standalone: false,
 })
 export class MyAllEventsComponent {
   titles: any = []
@@ -54,6 +53,7 @@ export class MyAllEventsComponent {
     if (!this.isLoading) {
       this.contentDataList = [...this.contentDataList, ...this.transformSkeletonToWidgets(this.contnet)]
     }
+    // tslint:disable-next-line:no-console
     console.log('tabSelected ', this.tabSelected)
     if (this.tabSelected === 'today') {
       this.tabIndex = 0
@@ -70,19 +70,20 @@ export class MyAllEventsComponent {
     }
     this.isLoading = true
     if (_.get(this.configSvc, 'userProfile.userId')) {
-      let userId: any = _.get(this.configSvc, 'userProfile.userId')
+      const userId: any = _.get(this.configSvc, 'userProfile.userId')
       this.eventSvc.myEvents(userId, requestBody).subscribe((resp: any) => {
         this.response = _.get(resp, 'result.events', [])
         this.contentDataList = this.contentDataList.slice(0, -12)
         if (this.response.length) {
-          console.log('response', this.response)
           const processedEvents = this.processResult(this.response)
           this.contentDataList = [...this.contentDataList, ...this.transformContentsToWidgets(processedEvents, {})]
         } else {
           this.contentDataList = [...this.contentDataList, ...this.transformContentsToWidgets([], {})]
         }
         this.isLoading = false
+        // tslint:disable-next-line:align
       }, error => {
+        // tslint:disable-next-line:no-console
         console.log('error', error)
         this.contentDataList = this.contentDataList.slice(0, -12)
         this.contentDataList = [...this.contentDataList, ...this.transformContentsToWidgets([], {})]
@@ -181,7 +182,6 @@ export class MyAllEventsComponent {
     // this.fetchData()
     this.contentDataList = this.contentDataList.slice(0, -12)
     if (this.response.length) {
-      console.log('response', this.response)
       const processedEvents = this.processResult(this.response)
       this.contentDataList = [...this.contentDataList, ...this.transformContentsToWidgets(processedEvents, {})]
     } else {

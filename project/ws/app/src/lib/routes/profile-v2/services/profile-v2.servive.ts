@@ -3,7 +3,7 @@ import { HttpClient } from '@angular/common/http'
 import { Observable } from 'rxjs'
 import { NSProfileDataV2 } from '../models/profile-v2.model'
 // tslint:disable
-import _ from 'lodash'
+import * as _ from 'lodash'
 // tslint:enable
 import { map } from 'rxjs/operators'
 
@@ -25,7 +25,7 @@ const API_END_POINTS = {
   providedIn: 'root',
 })
 export class ProfileV2Service {
-constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient) { }
   fetchDiscussProfile(wid: string): Observable<any> {
     return this.http.get<any>(`${API_END_POINTS.DISCUSS_PROFILE}/${wid}`)
   }

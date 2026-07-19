@@ -27,7 +27,7 @@ import { ConfirmDialogComponent } from '../../../../../../../../modules/shared/c
     selector: 'ws-auth-fill-ups-editor',
     templateUrl: './fill-ups-editor.component.html',
     styleUrls: ['./fill-ups-editor.component.scss'],
-    standalone: false
+    standalone: false,
 })
 export class FillUpsEditorComponent implements OnInit, OnChanges, OnDestroy {
   @Input() submitPressed = false
