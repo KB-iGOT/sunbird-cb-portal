@@ -252,7 +252,6 @@ export class CustomFieldsComponent {
     })
 
     // Debug form structure
-    console.log('Form controls:', Object.keys(this.customAttrForm.controls))
     // Object.keys(this.hierarchyFields).forEach(fieldName => {
     //   // console.log(`Hierarchy for ${fieldName}:`, this.hierarchyFields[fieldName]);
     //   // console.log(`Form group controls for ${fieldName}:`,

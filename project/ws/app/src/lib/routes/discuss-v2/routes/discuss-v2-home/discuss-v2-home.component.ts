@@ -83,8 +83,6 @@ export class DiscussV2HomeComponent implements AfterViewInit, OnDestroy {
 
   searchTextMethod(searchTxt: any) {
 
-    // tslint:disable-next-line:no-console
-    console.log(event, 'searchTextMethod')
     this.router.navigate(['/app/discussion-forum-v2/search'], {
       queryParams: { c: searchTxt.trim() },
     })

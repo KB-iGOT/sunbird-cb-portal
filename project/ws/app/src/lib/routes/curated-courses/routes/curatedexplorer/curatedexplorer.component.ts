@@ -109,7 +109,6 @@ export class CuratedexplorerComponent implements OnInit, OnDestroy {
         //   })
 
         this.currentCollectionHierarchy = _.get(res, 'result.content.children')
-        console.log(this.currentCollectionHierarchy, 'this.currentCollectionHierarchy==')
       }
       // }
     })

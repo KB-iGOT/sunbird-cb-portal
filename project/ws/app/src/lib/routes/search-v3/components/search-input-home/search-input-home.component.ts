@@ -454,11 +454,11 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
         .then(() => {
           this.updateRecentSearchQuery(query)
         })
-      .catch(error => {
-        // tslint:disable-next-line: align
-        // tslint:disable-next-line:no-console
-        console.error('some error', error)
-      })
+        .catch(error => {
+          // tslint:disable-next-line: align
+          // tslint:disable-next-line:no-console
+          console.error('some error', error)
+        })
     }
 
     if (category && category === 'resources' && nlpSearchQuery) {
@@ -874,7 +874,8 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
       }
 
       return
-    } if (this.selectedSearchCategory === SearchCategory.Communities) {
+      // tslint:disable-next-line:no-else-after-return
+    } else if (this.selectedSearchCategory === SearchCategory.Communities) {
       const searchRequestCommunities = new SearchCommunitiesRequest([])
       searchRequestCommunities.searchString = query
       const result = await this.searchV3Service
@@ -892,7 +893,7 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
       }
 
       return
-    // tslint:disable-next-line:no-else-after-return
+      // tslint:disable-next-line:no-else-after-return
     } else if (this.selectedSearchCategory === SearchCategory.ExternalContents) {
       const searchRequestExternal = new SearchExternalRequest([])
       searchRequestExternal.searchString = query || ''
@@ -929,7 +930,7 @@ export class SearchInputHomeComponent implements OnInit, OnChanges {
 
     if (this.selectedSearchCategory === SearchCategory.People) {
       return result.personalDetails?.firstname ?? result.firstName ?? ''
-    // tslint:disable-next-line:no-else-after-return
+      // tslint:disable-next-line:no-else-after-return
     } else if (this.selectedSearchCategory === SearchCategory.Communities) {
       return result.communityName ?? ''
     } else {

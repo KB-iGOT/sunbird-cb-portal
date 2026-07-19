@@ -207,8 +207,6 @@ export class PostDetailsComponent implements OnInit {
 
   ngOnInit(): void {
     this.activatedRoute.params.subscribe(params => {
-      // tslint:disable-next-line:no-console
-      console.log(params['discussionId'])
       this.discussionId = params['discussionId']
     })
   }

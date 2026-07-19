@@ -2,8 +2,8 @@ import { Component, HostListener } from '@angular/core'
 import * as _ from 'lodash'
 import { BadgeService } from './../../services/badge.service'
 import { Router } from '@angular/router'
-// eslint-disable-next-line camelcase
-import jspdf from 'jspdf'
+// tslint:disable-next-line:import-name
+import jsPDF from 'jspdf'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 @Component({
   selector: 'app-badge-details',
@@ -77,7 +77,7 @@ export class BadgeDetailsComponent {
 
         }
 
-      // tslint:disable-next-line:align
+        // tslint:disable-next-line:align
       }, error => {
         // tslint:disable-next-line:no-console
         console.log('Badge API Error', error)
@@ -246,7 +246,7 @@ export class BadgeDetailsComponent {
 
           const imgData = canvas.toDataURL('image/png')
 
-          const pdf = new jspdf('landscape', 'px', 'a4')
+          const pdf = new jsPDF('landscape', 'px', 'a4')
           const pageWidth = pdf?.internal?.pageSize?.getWidth()
           const pageHeight = pdf?.internal?.pageSize?.getHeight()
 

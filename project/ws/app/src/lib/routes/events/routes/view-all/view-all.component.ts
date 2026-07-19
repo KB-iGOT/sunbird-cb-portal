@@ -76,9 +76,7 @@ export class ViewAllComponent {
     this.titles = [
       { title: 'Events', url: '/app/event-hub/home', disableTranslate: true, icon: 'event' },
     ]
-    this.scrollSubject.pipe(debounceTime(500)).subscribe((event: any) => {
-      // tslint:disable-next-line:no-console
-      console.log('event ', event)
+    this.scrollSubject.pipe(debounceTime(500)).subscribe((_event: any) => {
       this.onDebouncedScroll()
     })
   }
@@ -422,8 +420,6 @@ export class ViewAllComponent {
   }
 
   filterChange(data: any) {
-    // tslint:disable-next-line:no-console
-    console.log(data)
     this.selectedFilters = data
     this.fetchData()
   }

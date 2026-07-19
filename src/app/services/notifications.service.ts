@@ -129,7 +129,7 @@ export class NotificationsService {
         } else if (notification.sub_category === 'USER_TRANSFER') {
           snackBar.open('This request has been resolved or is no longer available.')
         }
-      // tslint:disable-next-line: align
+        // tslint:disable-next-line: align
       }, error => {
         // tslint:disable-next-line: no-console
         console.error('Error while fetching workflow search data', error)
@@ -242,8 +242,6 @@ export class NotificationsService {
   }
 
   handleRedirection(notification: any, environment: any, roles: any[], snackBar: any): void {
-    // tslint:disable-next-line: no-console
-    console.log('notification', notification)
     if (notification.sub_category === 'AWARD_BADGES') {
       this.router.navigateByUrl('/badges')
     } else if (notification.sub_category === 'AWARD_BADGES_REMINDER') {

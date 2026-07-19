@@ -1803,7 +1803,6 @@ export class ProfileViewComponent implements OnInit, AfterViewInit, OnDestroy {
 
   netCoreUserProfilePhotoUpdateEvent() {
     /* tslint:disable */
-    console.log('this.content', this.portalProfile)
     /* tslint:enable */
     /* tslint:disable */
     // smartech('contact', '2', {

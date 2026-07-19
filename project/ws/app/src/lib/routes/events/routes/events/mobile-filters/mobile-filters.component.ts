@@ -64,8 +64,6 @@ export class MobileFiltersComponent {
         this.selectedValue = { name: this.selectedFilters.eventStatus[0] }
       }
     }
-    // tslint:disable-next-line:no-console
-    console.log('data ', this.datePipe)
   }
 
   returnZero() {
@@ -78,9 +76,7 @@ export class MobileFiltersComponent {
     }
   }
 
-  changeSelection(event: any, key: any, keyData: any, allKeyData: any) {
-    // tslint:disable-next-line:no-console
-    console.log('changeSelection', event, key, keyData, allKeyData)
+  changeSelection(event: any, key: any, keyData: any, _allKeyData: any) {
     if (event) {
       if (['resourceType', 'eventDate'].includes(key)) {
         if (this.selectedFilters[key]) {
@@ -117,9 +113,7 @@ export class MobileFiltersComponent {
     }
   }
 
-  onDateChange(event: any, eType: any, facet: any) {
-    // tslint:disable-next-line:no-console
-    console.log(facet, eType, event)
+  onDateChange(event: any, eType: any, _facet: any) {
     if (eType.key === 'fromDate') {
       this.startDate = this.datePipe.transform(event.value, 'yyyy-MM-dd')
       this.selectedFilters['dateRange'] = { fromDate: this.startDate }

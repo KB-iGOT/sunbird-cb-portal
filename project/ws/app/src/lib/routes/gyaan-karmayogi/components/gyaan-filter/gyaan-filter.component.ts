@@ -115,8 +115,6 @@ export class GyaanFilterComponent implements OnInit {
         const facet = this.localFilterData[key]
         // Check if facet value is not an object or doesn't have values array
         if (!facet || typeof facet !== 'object' || !Array.isArray(facet.values)) {
-          // tslint:disable-next-line:no-console
-          console.warn(`Invalid facet data for key "${key}":`, facet)
           delete this.localFilterData[key]
         }
       })
@@ -229,8 +227,6 @@ export class GyaanFilterComponent implements OnInit {
 
     // Add safety check to ensure itemData and values exist
     if (!itemData || !Array.isArray(itemData.values)) {
-      // tslint:disable-next-line:no-console
-      console.warn(`Invalid facet data for search on key "${keyData}":`, itemData)
       return
     }
 

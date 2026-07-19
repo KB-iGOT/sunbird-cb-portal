@@ -315,9 +315,7 @@ export class TopRightNavBarComponent implements OnInit, OnChanges, OnDestroy {
     this.notificationsService.nofificationsCount.next(event)
   }
 
-  calculateCount(event: any) {
-    // tslint:disable-next-line:no-console
-    console.log('sds', event)
+  calculateCount(_event: any) {
   }
 
   showDialog(data: any, url: string) {

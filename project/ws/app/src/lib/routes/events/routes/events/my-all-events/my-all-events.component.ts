@@ -75,16 +75,14 @@ export class MyAllEventsComponent {
         this.response = _.get(resp, 'result.events', [])
         this.contentDataList = this.contentDataList.slice(0, -12)
         if (this.response.length) {
-          // tslint:disable-next-line:no-console
-          console.log('response', this.response)
           const processedEvents = this.processResult(this.response)
           this.contentDataList = [...this.contentDataList, ...this.transformContentsToWidgets(processedEvents, {})]
         } else {
           this.contentDataList = [...this.contentDataList, ...this.transformContentsToWidgets([], {})]
         }
         this.isLoading = false
-      // tslint:disable-next-line:align
-      },         error => {
+        // tslint:disable-next-line:align
+      }, error => {
         // tslint:disable-next-line:no-console
         console.log('error', error)
         this.contentDataList = this.contentDataList.slice(0, -12)
@@ -184,8 +182,6 @@ export class MyAllEventsComponent {
     // this.fetchData()
     this.contentDataList = this.contentDataList.slice(0, -12)
     if (this.response.length) {
-      // tslint:disable-next-line:no-console
-      console.log('response', this.response)
       const processedEvents = this.processResult(this.response)
       this.contentDataList = [...this.contentDataList, ...this.transformContentsToWidgets(processedEvents, {})]
     } else {
