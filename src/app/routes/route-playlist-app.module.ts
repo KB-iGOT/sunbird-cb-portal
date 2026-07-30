@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { PlaylistModule } from '@ws/app'
+import { PlaylistModule } from '@ws/app/src/lib/routes/playlist/playlist.module'
 
 @NgModule({
   declarations: [],

@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { SearchModule } from '@ws/app'
+import { SearchModule } from '@ws/app/src/lib/routes/search/search.module'
 
 @NgModule({
   declarations: [],

@@ -13,7 +13,7 @@ import { ReactiveFormsModule, FormsModule } from '@angular/forms'
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
 import { AvatarPhotoModule, BtnPageBackModule, CardContentModule } from '@sunbird-cb/collection'
 
-import { LoaderService } from '@ws/author'
+import { LoaderService } from '@ws/author/src/lib/services/loader.service'
 import { AllCompetenciesComponent } from './routes/all-competencies/all-competencies.component'
 import { CompetencyDetailsComponent } from './routes/competency-details/competency-details.component'
 import { CompetencyFiltersComponent } from './components/competency-filters/competency-filters.component'

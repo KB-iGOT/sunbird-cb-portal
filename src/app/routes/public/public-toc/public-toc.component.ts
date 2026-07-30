@@ -12,7 +12,7 @@ import { ConfigurationsService, LoggerService, NsPage, TFetchStatus, UtilityServ
 import { Subscription, Observable } from 'rxjs'
 import { share } from 'rxjs/operators'
 import { SafeHtml, DomSanitizer, SafeStyle } from '@angular/platform-browser'
-import { AccessControlService } from '@ws/author'
+import { AccessControlService } from '@ws/author/src/lib/modules/shared/services/access-control.service'
 // import { FormControl, Validators } from '@angular/forms'
 import { MatDialog } from '@angular/material/dialog'
 import dayjs from 'dayjs'

@@ -109,6 +109,15 @@ function uiHostCreator(hostPath, hostFolderName) {
     expressStaticGzip(path.join(__dirname, `www/${hostFolderName}`), {
       enableBrotli: true,
       orderPreference: ['br', 'gz'],
+      serveStatic: {
+        setHeaders: (res, filePath) => {
+          if (filePath.endsWith('index.html')) {
+            res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate')
+          } else {
+            res.setHeader('Cache-Control', 'public, max-age=31536000, immutable')
+          }
+        },
+      },
     }),
   )
 app.get(`${hostPath}/*`, (req, res) => {
@@ -117,6 +126,9 @@ res.sendFile(path.join(__dirname, `www/${hostFolderName}/${req.url}`))
 
 } else if (req.url.startsWith('/.well-known/')) {
 res.sendFile(path.join(__dirname, `${req.url}`))
+
+} else if (/\.(js|mjs|css)$/.test(req.url)) {
+res.status(404).end()
 
 } else {
 res.sendFile(path.join(__dirname, `www/${hostFolderName}/index.html`))

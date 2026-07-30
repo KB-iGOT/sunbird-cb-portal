@@ -34,7 +34,7 @@ import { ZohoSupportService } from '../../../services/zoho-support.service'
 import { map, pairwise, startWith } from 'rxjs/operators'
 import { SignupSuccessDialogueComponent } from '../public-signup/signup-success-dialogue/signup-success-dialogue/signup-success-dialogue.component'
 import { TermsAndConditionComponent } from '../public-signup/terms-and-condition/terms-and-condition.component'
-import { DialogBoxComponent as ZohoDialogComponent } from '@ws/app'
+import { DialogBoxComponent as ZohoDialogComponent } from '@ws/app/src/lib/routes/profile-v3/components/dialog-box/dialog-box.component'
 // tslint:disable-next-line: import-name
 import _ from 'lodash'
 import { IOrganizationDetails } from './models/public-crp-model'

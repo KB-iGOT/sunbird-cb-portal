@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core'
 import { NsPage, NsAppsConfig, ConfigurationsService, WsEvents, EventService, MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
-import { AccessControlService } from '@ws/author'
+import { AccessControlService } from '@ws/author/src/lib/modules/shared/services/access-control.service'
 import { ROOT_WIDGET_CONFIG } from '@sunbird-cb/collection'
 
 /* tslint:disable*/

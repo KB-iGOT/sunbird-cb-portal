@@ -27,7 +27,7 @@ import { HtmlModule as HtmlViewContainerModule } from '../../route-view-containe
 
 import { HtmlMobileComponent } from './html-mobile.component'
 
-import { AccessControlService } from '@ws/author'
+import { AccessControlService } from '@ws/author/src/lib/modules/shared/services/access-control.service'
 import { MatButtonModule } from '@angular/material/button'
 import { MatCardModule } from '@angular/material/card'
 import { MatDividerModule } from '@angular/material/divider'

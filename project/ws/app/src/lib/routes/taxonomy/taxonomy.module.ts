@@ -15,7 +15,7 @@ import { WidgetResolverModule } from '@sunbird-cb/resolver'
 import { MatCardModule } from '@angular/material/card'
 import { ReactiveFormsModule, FormsModule } from '@angular/forms'
 import { AvatarPhotoModule, BtnPageBackModule, CardContentModule } from '@sunbird-cb/collection'
-import { LoaderService } from '@ws/author'
+import { LoaderService } from '@ws/author/src/lib/services/loader.service'
 
 import { TaxonomyExplorerComponent } from './routes/taxonomy-explorer/explorer.component'
 import { BreadcrumbsOrgModule } from './components/breadcrumbs/breadcrumbs-org.module'
