@@ -4,6 +4,7 @@ import {
   ApplicationRef,
   ChangeDetectorRef,
   Component,
+  computed,
   effect,
   ElementRef,
   HostListener,
@@ -57,6 +58,12 @@ import { HomePageService } from '../../services/home-page.service'
 import { trigger, style, animate, transition } from '@angular/animations'
 import { DialogBoxComponent } from '../dialog-box/dialog-box.component'
 import * as _ from 'lodash'
+
+// Anchor on the "Achievement" heading in profile-view-v2, scrolled to from the bottom nav
+const ACHIEVEMENT_SECTION_ID = 'achievement-section'
+// Breathing room left above the heading so it does not sit flush against the top edge
+const ACHIEVEMENT_SCROLL_GAP = 12
+
 @Component({
   selector: 'ws-root',
   templateUrl: './root.component.html',
@@ -66,13 +73,11 @@ import * as _ from 'lodash'
   animations: [
     trigger('slidePanel', [
       transition(':enter', [
-        style({ left: 'calc(330px - 120px)', opacity: 0 }),
-        animate('280ms cubic-bezier(0.25, 0.46, 0.45, 0.94)',
-          style({ left: 'calc(330px + 24px)', opacity: 1 }))
+        style({ opacity: 0 }),
+        animate('240ms cubic-bezier(0.22, 1, 0.36, 1)', style({ opacity: 1 }))
       ]),
       transition(':leave', [
-        animate('220ms cubic-bezier(0.55, 0.06, 0.68, 0.19)',
-          style({ left: 'calc(330px - 120px)', opacity: 0 }))
+        animate('160ms ease-in', style({ opacity: 0 }))
       ])
     ]),
     trigger('fadeBackdrop', [
@@ -100,6 +105,10 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
   showFullScreen = signal(false)
   navBarOpenStatusBasedOnNav = signal(true)
   openStatusUserSelection = signal(true)
+  // The sidebar only pushes page content on the home page. Everywhere else it is an overlay
+  // drawer (see isOverlayMode in sb-uic-dynamic-sidebar), so opening it must leave the header
+  // and main content exactly where they are instead of reflowing them.
+  sidebarPushesContent = computed(() => this.isHomePage() && this.leftNavBarIsOpen())
   constructor(
     private router: Router,
     private route: ActivatedRoute,
@@ -147,6 +156,9 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
         this.setAchivements()
         this.setOtherPortals()
         this.setNavOpenStatus()
+        // share the resolved config so pages outside the sidebar (mweb explore menu)
+        // render the same items instead of resolving the config a second time
+        this.commonDataSvc.leftNavBarConfig.next(this.menuBarDetails)
       }
     } else {
       this.getLeftNavBarConfiguration().subscribe((sectionData: any) => {
@@ -155,6 +167,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
           this.setAchivements()
           this.setOtherPortals()
           this.setNavOpenStatus()
+          this.commonDataSvc.leftNavBarConfig.next(this.menuBarDetails)
         }
       })
     }
@@ -264,9 +277,11 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
   @ViewChild('skipper') skipper!: ElementRef
 
   isXSmall$ = this.valueSvc.isXSmall$
-  // Matches the tablet overlay-drawer range used by sb-uic-dynamic-sidebar (768px - 1199.98px)
+  // Matches BREAKPOINT_QUERIES.TABLET in sb-uic-dynamic-sidebar (600px - 1024px). Starting this
+  // at 768px left 600px-767.98px claimed by neither isXSmall$ (< 600px) nor isTabView$, so the
+  // desktop sidebar rendered in a range the sidebar itself treated as mobile.
   isTabView$ = this.breakpointObserver
-    .observe(['(min-width: 768px) and (max-width: 1024px)'])
+    .observe(['(min-width: 600px) and (max-width: 1024px)'])
     .pipe(map(state => state.matches))
   // Desktop-only: sidebar-driven widths (navBarOpenContent/navBarCloseContent) must not apply on mobile or tab
   isDesktopView$ = combineLatest([this.isXSmall$, this.isTabView$]).pipe(
@@ -454,7 +469,9 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
         }
         if (
           this.currentUrl.startsWith('/app/toc') ||
-          this.currentUrl.startsWith('/viewer/')
+          this.currentUrl.startsWith('/viewer/') ||
+          (this.currentUrl.startsWith('/app/event-hub/') && this.currentUrl !== '/app/event-hub/home') ||
+          this.currentUrl.startsWith('/public/')
         ) {
           this.showFullScreen.set(true)
         } else {
@@ -560,7 +577,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
   setAchivements() {
     const menuBarDetails = JSON.parse(JSON.stringify(this.menuBarDetails))
     const achievements = menuBarDetails?.navSections?.find((section: any) => section.sectionKey === 'my_achievements')
-    achievements.sectionLoading = true
+    achievements['sectionLoading'] = true
     this.sendDetailsChangedEvent(achievements)
     if (achievements) {
       try {
@@ -885,7 +902,90 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
   }
 
   viewAllAchievements() {
-    this.showKarmaLeaderboard.set(true)
+    this.homePageSvc.getLearnerLeaderboardCached().subscribe(
+      (res: any) => {
+        const results = _.get(res, 'result.result', [])
+        if (Array.isArray(results) && results.length >= 3) {
+          this.showKarmaLeaderboard.set(true)
+        } else {
+          this.navigateToKarmaPoints()
+        }
+      },
+      () => {
+        this.navigateToKarmaPoints()
+      },
+    )
+  }
+
+  private navigateToKarmaPoints() {
+    this.showKarmaLeaderboard.set(false)
+    this.openStatusUserSelection.set(false)
+    this.leftNavBarIsOpen.set(false)
+    this.navBarOpenStatusBasedOnNav.set(false)
+    this.router.navigate(['/app/person-profile/karma-points'])
+  }
+
+  viewMyActivities() {
+    this.showKarmaLeaderboard.set(false)
+    this.eventSvc.raiseInteractTelemetry(
+      { id: 'view_all_achievements', type: WsEvents.EnumInteractTypes.CLICK },
+      {},
+      { module: WsEvents.EnumTelemetrymodules.HOME }
+    )
+    this.router.navigate(['/app/person-profile/me'], { queryParams: { tab: 'activities' } })
+      .then(() => this.scrollToAchievements())
+  }
+
+  private scrollToAchievements(attempt = 0): void {
+    const MAX_ATTEMPTS = 30
+    const target = document.getElementById(ACHIEVEMENT_SECTION_ID)
+    if (!target) {
+      if (attempt < MAX_ATTEMPTS) {
+        requestAnimationFrame(() => this.scrollToAchievements(attempt + 1))
+      } else {
+        this.scrollContentToTop()
+      }
+      return
+    }
+
+    this.alignAchievements(target)
+  }
+
+  private alignAchievements(target: HTMLElement, pass = 0): void {
+    const MAX_PASSES = 4
+    const scroller = this.getContentScroller()
+    // Re-read every pass: the header's height changes with the banner
+    const headerHeight = scroller
+      ? scroller.getBoundingClientRect().top
+      : document.querySelector('ws-header-v2')?.getBoundingClientRect().height ?? 0
+    const drift = target.getBoundingClientRect().top - headerHeight - ACHIEVEMENT_SCROLL_GAP
+    if (Math.abs(drift) <= 2 || pass >= MAX_PASSES) {
+      return
+    }
+
+    const behavior: ScrollBehavior = pass === 0 ? 'smooth' : 'auto'
+    if (scroller) {
+      scroller.scrollTo({ top: Math.max(0, scroller.scrollTop + drift), behavior })
+    } else {
+      window.scrollTo({ top: Math.max(0, window.scrollY + drift), behavior })
+    }
+    // Give the smooth scroll (and whatever the banner does in response) time to settle
+    setTimeout(() => this.alignAchievements(target, pass + 1), pass === 0 ? 450 : 150)
+  }
+
+  // The mobile content column scrolls instead of the document; on wider layouts it does not
+  private getContentScroller(): HTMLElement | null {
+    const column = document.querySelector('.height-on-bottom') as HTMLElement | null
+    return column && column.scrollHeight > column.clientHeight ? column : null
+  }
+
+  private scrollContentToTop(): void {
+    const scroller = this.getContentScroller()
+    if (scroller) {
+      scroller.scrollTo({ top: 0, behavior: 'smooth' })
+    } else {
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
   }
 
   exploreContent() {
