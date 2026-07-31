@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { GamificationModule } from '@ws/app'
+import { GamificationModule } from '@ws/app/src/lib/routes/gamification/gamification.module'
 
 @NgModule({
   declarations: [],

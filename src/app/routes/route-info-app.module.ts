@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { InfoModule } from '@ws/app'
+import { InfoModule } from '@ws/app/src/lib/routes/info/info.module'
 
 @NgModule({
   declarations: [],

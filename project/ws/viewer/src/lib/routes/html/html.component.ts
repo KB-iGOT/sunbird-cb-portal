@@ -1,6 +1,6 @@
 import { Component, OnDestroy, OnInit } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
-import { AccessControlService } from '@ws/author'
+import { AccessControlService } from '@ws/author/src/lib/modules/shared/services/access-control.service'
 import { NsContent } from '@sunbird-cb/collection'
 import {
   EventService,

@@ -30,7 +30,7 @@ import { TncPublicResolverService } from './services/tnc-public-resolver.service
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 import { ServiceWorkerModule } from '@angular/service-worker'
 import { environment } from 'src/environments/environment'
-import { QuickTourModule } from '@ws/app'
+import { QuickTourModule } from '@ws/app/src/lib/routes/info/quick-tour/quick-tour.module'
 import { AppIntroComponent } from './component/app-intro/app-intro.component'
 import { NoConnectionComponent } from './component/no-connection/no-connection.component'
 import { PublicHomeComponent } from './routes/public/public-home/public-home.component'

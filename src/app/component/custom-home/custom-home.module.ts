@@ -12,7 +12,7 @@ import { CustomHomeComponent } from './custom-home.component'
 import { CustomHomeFormResolverService } from './resolvers/custom-home-form-resolver.service'
 import { AnnouncementsModule } from '@sunbird-cb/consumption'
 import { ProfileCardStatsModule } from '@sunbird-cb/collection'
-import { EventsCalendarModule } from '@ws/app'
+import { EventsCalendarModule } from '@ws/app/src/lib/routes/events/routes/events-calendar/events-calendar.module'
 import { FeedListModule } from '../../home/home/feed-list/feed-list.module'
 
 

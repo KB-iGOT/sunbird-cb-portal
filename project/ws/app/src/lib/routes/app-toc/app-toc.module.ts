@@ -66,8 +66,9 @@ import { KarmaPointsModule } from '@sunbird-cb/toc'
 import { TipsForLearnerModule } from '@sunbird-cb/collection'
 
 // Services
-import { ApiService, AccessControlService } from '@ws/author'
-import { EditorService } from '@ws/author'
+import { ApiService } from '@ws/author/src/lib/modules/shared/services/api.service'
+import { AccessControlService } from '@ws/author/src/lib/modules/shared/services/access-control.service'
+import { EditorService } from '@ws/author/src/lib/routing/modules/editor/services/editor.service'
 import { AppPublicTocResolverService } from '../../routes/services/app-public-toc-resolver.service'
 
 // Resolver

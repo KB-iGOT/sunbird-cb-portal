@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, Input } from '@angular/core'
 import { Subscription } from 'rxjs'
-import { AccessControlService } from '@ws/author'
+import { AccessControlService } from '@ws/author/src/lib/modules/shared/services/access-control.service'
 import {
   NsContent,
 } from '@sunbird-cb/collection'

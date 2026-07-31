@@ -14,11 +14,11 @@ import { ActivatedRoute, Router } from '@angular/router'
 import { TermsAndConditionComponent } from './terms-and-condition/terms-and-condition.component'
 import { TranslateService } from '@ngx-translate/core'
 import { ZohoSupportService } from '../../../services/zoho-support.service'
-import { DialogBoxComponent as ZohoDialogComponent } from '@ws/app'
+import { DialogBoxComponent as ZohoDialogComponent } from '@ws/app/src/lib/routes/profile-v3/components/dialog-box/dialog-box.component'
 import { MatDialog } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { MatSelect } from '@angular/material/select'
-import { UserProfileService } from '@ws/app'
+import { UserProfileService } from '@ws/app/src/lib/routes/user-profile/services/user-profile.service'
 
 type SignupSelectKey = 'designation' | 'ministry' | 'state' | 'department' | 'organisation'
 

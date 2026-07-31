@@ -5,7 +5,7 @@ import { RootService } from './../root/root.service'
 import { environment } from 'src/environments/environment'
 import { NavigationEnd, Router } from '@angular/router'
 import { CdkDragEnd } from '@angular/cdk/drag-drop'
-import { DialogBoxComponent as ZohoDialogComponent } from '@ws/app'
+import { DialogBoxComponent as ZohoDialogComponent } from '@ws/app/src/lib/routes/profile-v3/components/dialog-box/dialog-box.component'
 import { ZohoSupportService } from '../../services/zoho-support.service'
 import { MatDialog } from '@angular/material/dialog'
 @Component({

@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { GoalsModule } from '@ws/app'
+import { GoalsModule } from '@ws/app/src/lib/routes/goals/goals.module'
 
 @NgModule({
   declarations: [],

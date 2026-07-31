@@ -1,4 +1,4 @@
-import { AccessControlService } from '@ws/author'
+import { AccessControlService } from '@ws/author/src/lib/modules/shared/services/access-control.service'
 import { Component, OnInit, OnDestroy } from '@angular/core'
 import { Subscription } from 'rxjs'
 import { NsContent } from '@sunbird-cb/collection'

@@ -9,7 +9,7 @@ import {
 } from '@sunbird-cb/utils-v2'
 
 import { MatDialog } from '@angular/material/dialog'
-import { AccessControlService } from '@ws/author'
+import { AccessControlService } from '@ws/author/src/lib/modules/shared/services/access-control.service'
 import { CustomTourService, ROOT_WIDGET_CONFIG } from '@sunbird-cb/collection'
 /* tslint:disable*/
 import _ from 'lodash'

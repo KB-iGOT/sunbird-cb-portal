@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common'
 import { NgModule } from '@angular/core'
-import { MyDashboardModule } from '@ws/app'
+import { MyDashboardModule } from '@ws/app/src/lib/routes/my-dashboard/my-dashboard.module'
 
 @NgModule({
   declarations: [],
