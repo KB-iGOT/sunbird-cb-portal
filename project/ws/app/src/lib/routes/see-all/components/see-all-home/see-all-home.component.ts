@@ -27,10 +27,10 @@ import { WidgetContentLibService, WidgetUserServiceLib } from '@sunbird-cb/consu
 import { environment } from 'src/environments/environment'
 
 @Component({
-    selector: 'ws-app-see-all-home',
-    templateUrl: './see-all-home.component.html',
-    styleUrls: ['./see-all-home.component.scss'],
-    standalone: false
+  selector: 'ws-app-see-all-home',
+  templateUrl: './see-all-home.component.html',
+  styleUrls: ['./see-all-home.component.scss'],
+  standalone: false
 })
 export class SeeAllHomeComponent implements OnInit, OnDestroy {
 
@@ -66,14 +66,40 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
   }
 
   async ngOnInit() {
-    let pageSubType = ''
-    let pageType = ''
-    this.activated.queryParams.subscribe((res: any) => {
-      this.keyData = (res.key) ? res.key : ''
-      this.tabSelected = (res.tabSelected) ? res.tabSelected : ''
-      pageSubType = (res.pageSubType) ? res.pageSubType : ''
-      pageType = (res.pageType) ? res.pageType : ''
-    })
+    // Every /app/seeAll?key=... link resolves to this same route, so the router reuses
+    // the component and only the query string changes - it is never re-created. The
+    // work below therefore has to re-run per emission: previously the subscription just
+    // stored the params while the config lookup and fetch ran once in ngOnInit, so
+    // switching strips (trendingOnIgot -> karmaTracks) updated the URL but left the
+    // previous strip's content on screen. The first emission is synchronous, which is
+    // why the initial load always looked correct.
+    this.activated.queryParams
+      .pipe(takeUntil(this.destroy$))
+      .subscribe((res: any) => {
+        this.keyData = (res.key) ? res.key : ''
+        this.tabSelected = (res.tabSelected) ? res.tabSelected : ''
+        this.loadPage((res.pageType) ? res.pageType : '', (res.pageSubType) ? res.pageSubType : '')
+      })
+
+    // Setup search control with debounce
+    this.setupSearchControl()
+  }
+
+  private async loadPage(pageType: string, pageSubType: string) {
+    // Reset anything derived from the previous key. seeAllPageConfig especially: the
+    // lookups below are guarded by `if (!this.seeAllPageConfig)`, so a leftover config
+    // would short-circuit every fallback and the old strip would win.
+    this.seeAllPageConfig = undefined
+    this.contentDataList = []
+    this.tabResults = []
+    this.dynamicTabIndex = 0
+    this.savedTabIndex = 0
+    this.isCoisContent = false
+    this.page = 1
+    this.offsetForPage = 0
+    this.totalCount = 0
+    this.totalPages = 0
+
     const configData = await this.seeAllSvc.getSeeAllFormsConfigJson(pageType, pageSubType).catch(_error => { })
     if (configData && configData.homeStrips) {
       configData.homeStrips.forEach((ele: any) => {
@@ -87,7 +113,7 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
       })
     }
     if (!this.seeAllPageConfig) {
-      if (configData) {
+      if (configData && configData.newHomeStrip) {
         configData.newHomeStrip.forEach((ele: any) => {
           if (ele && ele.strips && ele.strips.length > 0) {
             ele.strips.forEach((subEle: any) => {
@@ -112,6 +138,13 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
         })
       }
     }
+    if (!this.seeAllPageConfig) {
+      // no strip matched the key in any config source — drop the skeletons instead of throwing
+      this.contentDataList = []
+      this.setupSearchControl()
+      return
+    }
+    this.seeAllPageConfig = _.cloneDeep(this.seeAllPageConfig)
     if (
       this.tabSelected &&
       this.seeAllPageConfig.tabs &&
@@ -133,9 +166,6 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
       this.isCoisContent = true
       this.fetchCiosContentData(this.seeAllPageConfig)
     }
-
-    // Setup search control with debounce
-    this.setupSearchControl()
   }
 
   checkForDateFilters(filters: any) {
@@ -238,8 +268,8 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
   }
 
   getInprogressAndCompleted(array: NsContent.IContent[],
-                            customFilter: any,
-                            strip: NsContentStripWithTabs.IContentStripUnit) {
+    customFilter: any,
+    strip: NsContentStripWithTabs.IContentStripUnit) {
     const inprogress: any[] = []
     const completed: any[] = []
     array.forEach((e, idx, arr) => {
@@ -614,7 +644,7 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
             const currentTabFromMap = (allTabs && allTabs.length &&
               allTabs[this.dynamicTabIndex]) as NsContentStripWithTabs.IContentStripTab
             this.getTabDataByNewReqSearchV6(strip, this.dynamicTabIndex,
-                                            currentTabFromMap, calculateParentStatus)
+              currentTabFromMap, calculateParentStatus)
           }
         }
 
@@ -637,8 +667,8 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
   }
 
   async searchV6Request(strip: NsContentStripWithTabs.IContentStripUnit,
-                        request: NsContentStripWithTabs.IContentStripUnit['request'],
-                        _calculateParentStatus: boolean
+    request: NsContentStripWithTabs.IContentStripUnit['request'],
+    _calculateParentStatus: boolean
   ): Promise<any> {
     const originalFilters: any = []
     // console.log('calling -- ')
@@ -671,7 +701,7 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
             results,
             viewMoreUrl,
           })
-        },                                                  (error: any) => {
+        }, (error: any) => {
           reject(error)
         })
       }
@@ -700,7 +730,7 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
             const currentTabFromMap = (allTabs && allTabs.length &&
               allTabs[this.dynamicTabIndex]) as NsContentStripWithTabs.IContentStripTab
             this.getTabDataByNewReqTrending(strip, this.dynamicTabIndex, currentTabFromMap,
-                                            calculateParentStatus)
+              calculateParentStatus)
           }
         }
 
@@ -725,8 +755,8 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
   }
 
   async trendingSearchRequest(strip: NsContentStripWithTabs.IContentStripUnit,
-                              request: NsContentStripWithTabs.IContentStripUnit['request'],
-                              _calculateParentStatus: boolean
+    request: NsContentStripWithTabs.IContentStripUnit['request'],
+    _calculateParentStatus: boolean
   ): Promise<any> {
     const originalFilters: any = []
     return new Promise<any>((resolve, reject) => {
@@ -779,7 +809,7 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
             results,
             viewMoreUrl,
           })
-        },                                                                     (error: any) => {
+        }, (error: any) => {
           if (error.error && error.error.status === 400) {
           }
           reject(error)
@@ -878,7 +908,7 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
       // Restore scroll position after DOM updates
       setTimeout(() => {
         window.scrollTo(0, currentScrollPosition)
-      },         100)
+      }, 100)
     }
   }
 
@@ -891,9 +921,9 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
     return this.langtranslations.translateLabel(label.toLowerCase(), type, '')
   }
   async postRequestMethod(strip: NsContentStripWithTabs.IContentStripUnit,
-                          request: NsContentStripWithTabs.IContentStripUnit['request'],
-                          apiUrl: string,
-                          _calculateParentStatus: boolean
+    request: NsContentStripWithTabs.IContentStripUnit['request'],
+    apiUrl: string,
+    _calculateParentStatus: boolean
   ): Promise<any> {
     return new Promise<any>((resolve, reject) => {
       if (request && request) {
@@ -917,7 +947,7 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
           } else {
             resolve({ results })
           }
-        },                                                            (error: any) => {
+        }, (error: any) => {
           // this.processStrip(strip, [], 'error', calculateParentStatus, null);
           reject(error)
         },
