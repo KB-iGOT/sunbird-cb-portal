@@ -27,10 +27,10 @@ import { WidgetContentLibService, WidgetUserServiceLib } from '@sunbird-cb/consu
 import { environment } from 'src/environments/environment'
 
 @Component({
-    selector: 'ws-app-see-all-home',
-    templateUrl: './see-all-home.component.html',
-    styleUrls: ['./see-all-home.component.scss'],
-    standalone: false
+  selector: 'ws-app-see-all-home',
+  templateUrl: './see-all-home.component.html',
+  styleUrls: ['./see-all-home.component.scss'],
+  standalone: false
 })
 export class SeeAllHomeComponent implements OnInit, OnDestroy {
 
@@ -113,7 +113,7 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
       })
     }
     if (!this.seeAllPageConfig) {
-      if (configData) {
+      if (configData && configData.newHomeStrip) {
         configData.newHomeStrip.forEach((ele: any) => {
           if (ele && ele.strips && ele.strips.length > 0) {
             ele.strips.forEach((subEle: any) => {
@@ -138,11 +138,13 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
         })
       }
     }
-    // No strip matches this key - nothing to render. Bail out rather than dereference
-    // an undefined config below, which is what the original code did on a miss.
     if (!this.seeAllPageConfig) {
+      // no strip matched the key in any config source — drop the skeletons instead of throwing
+      this.contentDataList = []
+      this.setupSearchControl()
       return
     }
+    this.seeAllPageConfig = _.cloneDeep(this.seeAllPageConfig)
     if (
       this.tabSelected &&
       this.seeAllPageConfig.tabs &&
@@ -266,8 +268,8 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
   }
 
   getInprogressAndCompleted(array: NsContent.IContent[],
-                            customFilter: any,
-                            strip: NsContentStripWithTabs.IContentStripUnit) {
+    customFilter: any,
+    strip: NsContentStripWithTabs.IContentStripUnit) {
     const inprogress: any[] = []
     const completed: any[] = []
     array.forEach((e, idx, arr) => {
@@ -642,7 +644,7 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
             const currentTabFromMap = (allTabs && allTabs.length &&
               allTabs[this.dynamicTabIndex]) as NsContentStripWithTabs.IContentStripTab
             this.getTabDataByNewReqSearchV6(strip, this.dynamicTabIndex,
-                                            currentTabFromMap, calculateParentStatus)
+              currentTabFromMap, calculateParentStatus)
           }
         }
 
@@ -665,8 +667,8 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
   }
 
   async searchV6Request(strip: NsContentStripWithTabs.IContentStripUnit,
-                        request: NsContentStripWithTabs.IContentStripUnit['request'],
-                        _calculateParentStatus: boolean
+    request: NsContentStripWithTabs.IContentStripUnit['request'],
+    _calculateParentStatus: boolean
   ): Promise<any> {
     const originalFilters: any = []
     // console.log('calling -- ')
@@ -699,7 +701,7 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
             results,
             viewMoreUrl,
           })
-        },                                                  (error: any) => {
+        }, (error: any) => {
           reject(error)
         })
       }
@@ -728,7 +730,7 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
             const currentTabFromMap = (allTabs && allTabs.length &&
               allTabs[this.dynamicTabIndex]) as NsContentStripWithTabs.IContentStripTab
             this.getTabDataByNewReqTrending(strip, this.dynamicTabIndex, currentTabFromMap,
-                                            calculateParentStatus)
+              calculateParentStatus)
           }
         }
 
@@ -753,8 +755,8 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
   }
 
   async trendingSearchRequest(strip: NsContentStripWithTabs.IContentStripUnit,
-                              request: NsContentStripWithTabs.IContentStripUnit['request'],
-                              _calculateParentStatus: boolean
+    request: NsContentStripWithTabs.IContentStripUnit['request'],
+    _calculateParentStatus: boolean
   ): Promise<any> {
     const originalFilters: any = []
     return new Promise<any>((resolve, reject) => {
@@ -807,7 +809,7 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
             results,
             viewMoreUrl,
           })
-        },                                                                     (error: any) => {
+        }, (error: any) => {
           if (error.error && error.error.status === 400) {
           }
           reject(error)
@@ -906,7 +908,7 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
       // Restore scroll position after DOM updates
       setTimeout(() => {
         window.scrollTo(0, currentScrollPosition)
-      },         100)
+      }, 100)
     }
   }
 
@@ -919,9 +921,9 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
     return this.langtranslations.translateLabel(label.toLowerCase(), type, '')
   }
   async postRequestMethod(strip: NsContentStripWithTabs.IContentStripUnit,
-                          request: NsContentStripWithTabs.IContentStripUnit['request'],
-                          apiUrl: string,
-                          _calculateParentStatus: boolean
+    request: NsContentStripWithTabs.IContentStripUnit['request'],
+    apiUrl: string,
+    _calculateParentStatus: boolean
   ): Promise<any> {
     return new Promise<any>((resolve, reject) => {
       if (request && request) {
@@ -945,7 +947,7 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
           } else {
             resolve({ results })
           }
-        },                                                            (error: any) => {
+        }, (error: any) => {
           // this.processStrip(strip, [], 'error', calculateParentStatus, null);
           reject(error)
         },
