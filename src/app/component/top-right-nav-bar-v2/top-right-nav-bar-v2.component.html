@@ -84,6 +84,16 @@
   }
   }
   }
+  @if (item()?.type === 'walletButton' && showKarmaWallet()) {
+  <li class="flex items-center cursor-pointer">
+    <span class="icon-svg w-6 h-6" role="button" tabindex="0" aria-label="Karma Wallet"
+      matTooltipClass="right-nav-tooltip" [matTooltip]="'Karma Wallet'"
+      (click)="goToKarmaWallet()"
+      (keydown.enter)="$event.preventDefault(); goToKarmaWallet()"
+      [style.mask-image]="'url(/assets/icons/karmawallet-v2/wallet.svg)'"
+      [style.-webkit-mask-image]="'url(/assets/icons/karmawallet-v2/wallet.svg)'"></span>
+  </li>
+  }
   @if (item()?.type === 'themeToggle') {
   <li matTooltipClass="right-nav-tooltip"
     matTooltip="{{ themeSvc.isDark ? 'Switch to Light Mode' : 'Switch to Dark Mode' }}"

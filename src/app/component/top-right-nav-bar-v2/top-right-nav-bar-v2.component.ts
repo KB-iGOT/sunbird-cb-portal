@@ -73,6 +73,26 @@ export class TopRightNavBarV2Component implements OnInit, OnDestroy {
     return input?.topRightNavConfig ? input.topRightNavConfig : input
   })
 
+  /**
+   * Karma wallet icon visibility, mirroring how the bell / language / theme icons are gated.
+   * Two optional layers, so the icon works before either is set anywhere:
+   *   - the nav item's own `enabled` flag (primaryNavBarConfig.mediumScreen.right)
+   *   - the server's topRightNavConfig entry for section 'karma-wallet'
+   * Absent means enabled - only an explicit false hides it. That matches DomainConfService's
+   * isConfigEnabled and means the backend section can be added later without a code change.
+   */
+  showKarmaWallet = computed(() => {
+    if (this.item()?.enabled === false) {
+      return false
+    }
+    const sections = this.rightNavConfig()
+    if (!Array.isArray(sections)) {
+      return true
+    }
+    const section = sections.find((s: any) => s?.section === 'karma-wallet')
+    return !section || section.active !== false
+  })
+
   fontLabel = computed(() => this.fontLabels[this.fontSizeLevel()])
 
   // Constants
@@ -155,6 +175,10 @@ export class TopRightNavBarV2Component implements OnInit, OnDestroy {
 
   translateLabels(label: string, type: any) {
     return this.langtranslations.translateLabel(label, type, '')
+  }
+
+  goToKarmaWallet(): void {
+    this.router.navigate(['/app/person-profile/karma-wallet'])
   }
 
   onBellClick() {

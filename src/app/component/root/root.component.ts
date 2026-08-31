@@ -114,6 +114,8 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
   // Add more prefixes here when another route needs the same treatment.
   fullWidthMobileRoutes = ['/app/learn/bharat-kalp']
   isFullWidthMobileRoute = signal(false)
+  surfaceBackgroundRoutes = ['/app/person-profile/karma-wallet']
+  usesSurfaceBackground = signal(false)
   navBarOpenStatusBasedOnNav = signal(true)
   openStatusUserSelection = signal(true)
   // The sidebar only pushes page content on the home page. Everywhere else it is an overlay
@@ -534,6 +536,10 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
           this.fullWidthMobileRoutes.some(route => this.currentUrl.startsWith(route))
         )
 
+        this.usesSurfaceBackground.set(
+          this.surfaceBackgroundRoutes.some(route => this.currentUrl.startsWith(route))
+        )
+
         if (
           !!this.currentUrl.startsWith('/public/logout')
           || !!this.currentUrl.startsWith('/public/signup')
@@ -640,6 +646,15 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
                 case 'karma_points':
                   const karmaPoints = _.get(parsed, 'userCourseEnrolmentInfo.karmaPoints', 0)
                   item.value = `${karmaPoints} Karma Points`
+                  /* Was absent while this was the last case; required now that one follows,
+                     or karma_points would fall through and take the coins value. */
+                  break
+                case 'karma_coins':
+                  /* TODO: read from the Karma Coin wallet API once it exists; 0 until then */
+                  item.value = '0 Karma Coins'
+                  break
+                default:
+                  break
               }
             })
           }
