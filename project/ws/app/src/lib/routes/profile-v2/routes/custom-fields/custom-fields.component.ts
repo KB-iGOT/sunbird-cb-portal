@@ -491,7 +491,7 @@ export class CustomFieldsComponent {
 
     // Find child options based on parent selection
     const options = isReversed ?
-      this.findChildOptionsFromReversedData(dataSource, parentField, parentValue, childField) :
+      this.findChildOptionsFromReversedData(fieldName, dataSource, parentField, parentValue, childField) :
       this.findChildOptions(dataSource, parentField, parentValue, childField)
 
     this.fieldOptions[fieldName][childField] = options
@@ -535,8 +535,35 @@ export class CustomFieldsComponent {
   }
 
   // Find child options based on parent selection (for reversed data)
-  findChildOptionsFromReversedData(data: any[], parentField: string, parentValue: string, childField: string): any[] {
+  findChildOptionsFromReversedData(fieldName: string, data: any[], parentField: string, parentValue: string,
+    childField: string): any[] {
     const options = new Map()
+    const field = this.customAttrList.find((item: any) => item.attributeName === fieldName)
+    const hierarchy = this.hierarchyFields[fieldName]
+    const formGroup = this.masterListFormGroups[fieldName]
+    const parentFields = hierarchy?.slice(0, hierarchy.indexOf(childField)) || []
+    let items = field?.customFieldData
+
+    if (formGroup && items?.length && parentFields.every(item => formGroup.get(item)?.value)) {
+      const childIndex = hierarchy.indexOf(childField)
+      const topValue = formGroup.get(hierarchy[0])?.value
+      const topIndex = items.findIndex((item: any) => item.fieldValue === topValue)
+      const selectedParents = childIndex > 1 && topIndex > -1 ? parentFields.slice(1) : parentFields
+
+      if (childIndex > 1 && topIndex > -1) {
+        items = items.slice(0, topIndex + 1)
+          .reduce((children: any[], item: any) => children.concat(item.fieldValues || []), [])
+      }
+      selectedParents.forEach(parent => {
+        items = items.filter((item: any) => item.fieldName === parent &&
+          item.fieldValue === formGroup.get(parent)?.value)
+          .reduce((children: any[], item: any) => children.concat(item.fieldValues || []), [])
+      })
+      items.filter((item: any) => item.fieldName === childField).forEach((item: any) => {
+        options.set(item.fieldValue, { value: item.fieldValue, label: item.fieldValue, data: item })
+      })
+      return Array.from(options.values())
+    }
 
     // For reversed data, we need a different approach
     data.forEach(item => {
@@ -710,13 +737,15 @@ export class CustomFieldsComponent {
 
           // Load options for this level based on parent
           this.fieldOptions[field.attributeName][currentField] = isReversed
-            ? this.findChildOptionsFromReversedData(this.getDataSource(field), parentField, parentValue, currentField)
+            ? this.findChildOptionsFromReversedData(field.attributeName, this.getDataSource(field),
+              parentField, parentValue, currentField)
             : this.findChildOptions(this.getDataSource(field), parentField, parentValue, currentField)
         } else {
-          // If no parent value, load all possible options
-          console.log(`Loading all options for ${currentField} (no parent value)`)
-          this.fieldOptions[field.attributeName][currentField] =
-            this.extractAllOptionsForField(this.getDataSource(field), currentField, isReversed)
+          const currentValue = formGroup.get(currentField)?.value
+          const option = this.fieldOptions[field.attributeName][currentField]
+            ?.find(item => this.isNotApplicable(item?.value))
+          this.fieldOptions[field.attributeName][currentField] = this.isNotApplicable(currentValue)
+            ? [option || { value: currentValue, label: currentValue }] : []
         }
       }
 
@@ -732,7 +761,8 @@ export class CustomFieldsComponent {
           if (i < hierarchy.length - 1) {
             const nextField = hierarchy[i + 1]
             this.fieldOptions[field.attributeName][nextField] = isReversed
-              ? this.findChildOptionsFromReversedData(this.getDataSource(field), currentField, currentValue, nextField)
+              ? this.findChildOptionsFromReversedData(field.attributeName, this.getDataSource(field),
+                currentField, currentValue, nextField)
               : this.findChildOptions(this.getDataSource(field), currentField, currentValue, nextField)
           }
         }
@@ -842,12 +872,14 @@ export class CustomFieldsComponent {
 
     const hierarchy = this.hierarchyFields[fieldName]
     const isLastField = index === hierarchy.length - 1
+    const formGroup = this.masterListFormGroups[fieldName]
 
     console.log(`Dropdown changed: ${fieldName}, field: ${hierarchyField}, value: ${value}, index: ${index}, isLast: ${isLastField}`)
 
     // If this is the last field in the hierarchy (e.g., city),
     // we need to try to set parent values (e.g., state, country)
-    if (isLastField && !this.isNotApplicable(value)) {
+    if (isLastField && !this.isNotApplicable(value) &&
+      hierarchy.slice(0, index).some(field => !formGroup?.get(field)?.value)) {
       // console.log('Last field selected, trying to set parent values')
       this.setParentValuesFromChild(fieldName, hierarchyField, value)
     }
@@ -1125,9 +1157,9 @@ export class CustomFieldsComponent {
         ? [allOptions.find(option => this.isNotApplicable(option?.value)) || { value: 'Not Applicable', label: 'Not Applicable' }]
         : parentValue
           ? isReversed
-            ? this.findChildOptionsFromReversedData(dataSource, parentField, parentValue, hierarchyField)
+            ? this.findChildOptionsFromReversedData(fieldName, dataSource, parentField, parentValue, hierarchyField)
             : this.findChildOptions(dataSource, parentField, parentValue, hierarchyField)
-          : allOptions
+          : []
     })
   }
 
