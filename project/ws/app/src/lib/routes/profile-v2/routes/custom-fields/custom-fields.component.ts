@@ -131,7 +131,8 @@ export class CustomFieldsComponent {
     const customField = this.customFieldValues.find((_filed: any) => _filed.attributeName === arrtName)
     if (customField && customField.values && customField.values.length) {
       const _item = customField.values.find((_filed: any) => _filed.attributeName.toLocaleLowerCase() === listItem.toLocaleLowerCase())
-      return _item ? _item.value : ''
+      return _item ? _item.value : this.customAttrList.find((item: any) => item.attributeName === arrtName)?.isMandatory
+        ? 'Not Applicable' : ''
     }
     return ''
   }
@@ -424,6 +425,23 @@ export class CustomFieldsComponent {
       formGroup.get(parentField)?.valueChanges.subscribe(value => {
         if (value) {
           console.log(`${parentField} changed to ${value}, updating ${childField} options`)
+
+          // "Not Applicable" is a terminal choice for the remaining hierarchy.
+          // Keep mandatory descendants populated instead of clearing their values.
+          if (this.isNotApplicable(value)) {
+            const options = this.fieldOptions[fieldName]
+            if (!options) return
+
+            hierarchy.slice(i + 1).forEach(descendantField => {
+              const option = options[descendantField]
+                ?.find(item => this.isNotApplicable(item?.value)) || { value, label: value }
+              options[descendantField] = [option]
+              formGroup.get(descendantField)?.setValue(option.value, { emitEvent: false })
+            })
+            this.updateCombinedValue(fieldName)
+            return
+          }
+
           // Update options for the child field
           this.updateChildOptions(fieldName, parentField, value, childField, isReversed)
 
@@ -510,6 +528,10 @@ export class CustomFieldsComponent {
     })
 
     return Array.from(options.values())
+  }
+
+  isNotApplicable(value: any): boolean {
+    return typeof value === 'string' && value?.trim()?.toLocaleLowerCase() === 'not applicable'
   }
 
   // Find child options based on parent selection (for reversed data)
@@ -760,7 +782,7 @@ export class CustomFieldsComponent {
         const group = this.customAttrForm.get(`${field.attributeName}_group`) as FormGroup
         if (group && group.value) {
           field.originalCustomFieldData.forEach((item: any) => {
-            if (item.name && group.value[item.name]) {
+            if (item?.name && group?.value[item?.name] && !this.isNotApplicable(group?.value[item?.name])) {
               values.push({
                 attributeName: item.name,
                 value: group.value[item.name],
@@ -825,8 +847,8 @@ export class CustomFieldsComponent {
 
     // If this is the last field in the hierarchy (e.g., city),
     // we need to try to set parent values (e.g., state, country)
-    if (isLastField) {
-      console.log('Last field selected, trying to set parent values')
+    if (isLastField && !this.isNotApplicable(value)) {
+      // console.log('Last field selected, trying to set parent values')
       this.setParentValuesFromChild(fieldName, hierarchyField, value)
     }
   }
@@ -1081,17 +1103,31 @@ export class CustomFieldsComponent {
 
     const hierarchy = this.hierarchyFields[fieldName]
     const isReversed = this.useReversedData[fieldName]
+    const formGroup = this.masterListFormGroups[fieldName]
 
     // First level is already loaded in this.extractOptionsForField
+    const topField = hierarchy[0]
+    if (this.isNotApplicable(formGroup?.get(topField)?.value)) {
+      const option = this.fieldOptions[fieldName][topField]?.find(item => this.isNotApplicable(item?.value))
+      this.fieldOptions[fieldName][topField] = [option || { value: 'Not Applicable', label: 'Not Applicable' }]
+    }
 
     // Load options for all other levels
     hierarchy.forEach((hierarchyField, index) => {
       if (index === 0) return // Skip first level, it's already loaded
 
-      // Load all possible options for this field
-      this.fieldOptions[fieldName][hierarchyField] = this.extractAllOptionsForField(
-        dataSource, hierarchyField, isReversed
-      )
+      const parentField = hierarchy[index - 1]
+      const parentValue = formGroup?.get(parentField)?.value
+      const currentValue = formGroup?.get(hierarchyField)?.value
+      const allOptions = this.extractAllOptionsForField(dataSource, hierarchyField, isReversed)
+
+      this.fieldOptions[fieldName][hierarchyField] = this.isNotApplicable(currentValue || parentValue)
+        ? [allOptions.find(option => this.isNotApplicable(option?.value)) || { value: 'Not Applicable', label: 'Not Applicable' }]
+        : parentValue
+          ? isReversed
+            ? this.findChildOptionsFromReversedData(dataSource, parentField, parentValue, hierarchyField)
+            : this.findChildOptions(dataSource, parentField, parentValue, hierarchyField)
+          : allOptions
     })
   }
 
