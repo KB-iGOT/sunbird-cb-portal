@@ -162,11 +162,15 @@ export class EventDetailComponent implements OnInit {
       })
     ).subscribe((data: any) => {
       this.eventData = data?.eventData
-      if (this.eventData?.createdFor && this.eventData?.createdFor.length) {
+      if (this.eventData?.resourceType === 'Bharat Kalp - Talks' || this.eventData?.resourceType === 'Bharat Kalp - Podcast') {
+        const isBharatKalpMember = _.get(this.configSvc, 'unMappedUser.profileDetails.additionalProperties.isBharatKalpMember')
+        this.userAbleToEnroll = !!isBharatKalpMember
+      } else if (this.eventData?.createdFor && this.eventData?.createdFor.length) {
         this.eventOrg = this.eventData?.createdFor[0]
         if (this.configSvc && this.configSvc.userProfile && this.configSvc.userProfile?.rootOrgId) {
           if (this.configSvc.userProfile?.rootOrgId === this.eventOrg) {
             this.userAbleToEnroll = true
+
           } else {
             this.userAbleToEnroll = false
           }
