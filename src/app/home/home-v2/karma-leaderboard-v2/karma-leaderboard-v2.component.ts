@@ -33,6 +33,8 @@ export class KarmaLeaderboardV2Component implements OnInit {
   monthName = ''
   year: any = null
   myKarmaPoints = 0
+  /* TODO: populate from the Karma Coin wallet API once it exists; 0 until then */
+  myKarmaCoins = 0
 
   // Celebration banner
   showOverlay = false

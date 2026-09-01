@@ -35,6 +35,9 @@ import { RightMenuComponent } from './components/right-menu/right-menu.component
 import { ProfileComponent } from './routes/profile/profile.component'
 import { ProfileViewComponent } from './routes/profile-view/profile-view.component'
 import { ProfileKarmapointsComponent } from './routes/profile-karmapoints/profile-karmapoints.component'
+import { KarmaWalletComponent } from './routes/karma-wallet/karma-wallet.component'
+import { KarmaCoinsInfoDialogComponent } from './routes/karma-wallet/karma-coins-info-dialog.component'
+import { KarmaRedeemDialogComponent } from './routes/karma-wallet/karma-redeem-dialog.component'
 import { VerifyOtpComponent } from './components/verify-otp/verify-otp.component'
 import { TransferRequestComponent } from './components/transfer-request/transfer-request.component'
 import { WithdrawRequestComponent } from './components/withdraw-request/withdraw-request.component'
@@ -94,6 +97,9 @@ export function ProfileV2HttpLoaderFactory(http: HttpClient) {
         ProfileComponent,
         ProfileViewComponent,
         ProfileKarmapointsComponent,
+        KarmaWalletComponent,
+        KarmaCoinsInfoDialogComponent,
+        KarmaRedeemDialogComponent,
         LeftMenuComponent,
         RightMenuComponent,
         VerifyOtpComponent,

@@ -1,0 +1,155 @@
+<div class="kw">
+
+  <!-- Breadcrumb -->
+  <nav class="kw__breadcrumb" aria-label="breadcrumb">
+    <a class="kw__crumb kw__crumb--link" [routerLink]="['/page/home']">
+      <span>Home</span>
+    </a>
+    <mat-icon class="kw__crumb-sep" aria-hidden="true">chevron_right</mat-icon>
+    <a class="kw__crumb kw__crumb--link" [routerLink]="['/app/person-profile/me']">
+      <mat-icon class="kw__crumb-icon" aria-hidden="true">person</mat-icon>
+      <span>Profile</span>
+    </a>
+    <mat-icon class="kw__crumb-sep" aria-hidden="true">chevron_right</mat-icon>
+    <span class="kw__crumb kw__crumb--current" aria-current="page">
+      <span>Karma Wallet</span>
+    </span>
+  </nav>
+
+  <!-- Page header -->
+  <header class="kw__header">
+    <div class="kw__title-wrap">
+      <h1 class="kw__title">Karma Coin Wallet</h1>
+      <button type="button" class="kw__info-btn" aria-label="About Karma Coin Wallet" (click)="openKarmaCoinsInfo()">
+        <mat-icon class="kw__info-icon">info_outline</mat-icon>
+      </button>
+    </div>
+    <div class="kw__actions">
+      <button type="button" class="kw__btn kw__btn--ghost" (click)="redeemKarmaPoints()">Redeem Karma Points</button>
+      <button type="button" class="kw__btn kw__btn--primary" (click)="useKarmaCoins()">Use Your Karma Coins</button>
+    </div>
+  </header>
+
+  <!-- Summary cards -->
+  <section class="kw__stats" aria-label="Karma coin summary">
+    <div class="kw-stat">
+      <div class="kw-stat__label">Wallet Balance</div>
+      <div class="kw-stat__value-row">
+        <img class="kw-stat__coin" [src]="icons.karmaCoin" alt="" aria-hidden="true">
+        <span class="kw-stat__value">{{ summary.walletBalance | number }}</span>
+      </div>
+      <div class="kw-stat__hint">Available for course redemption</div>
+    </div>
+
+    <div class="kw-stat kw-stat--progress">
+      <div class="kw-stat__label">Pending for conversion this month</div>
+      <div class="kw-stat__value-row">
+        <img class="kw-stat__badge" [src]="icons.karmaPoints" alt="" aria-hidden="true">
+        <span class="kw-stat__value">{{ redeemInfo.convertibleRemaining | number }}</span>
+        <span class="kw-stat__value-sub">of {{ redeemInfo.monthlyCap | number }} KP</span>
+      </div>
+      <div class="kw-stat__track">
+        <span class="kw-stat__fill" [style.width.%]="conversionProgress"></span>
+      </div>
+      <div class="kw-stat__hint">
+        {{ redeemInfo.convertedThisMonth | number }} KP converted in {{ currentMonthLabel }}
+      </div>
+    </div>
+
+    <div class="kw-stat">
+      <div class="kw-stat__label">Total Redeemed</div>
+      <div class="kw-stat__value-row">
+        <img class="kw-stat__coin" [src]="icons.karmaCoin" alt="" aria-hidden="true">
+        <span class="kw-stat__value">{{ summary.totalRedeemed | number }}</span>
+      </div>
+      <div class="kw-stat__hint">Converted from Karma Points to Karma Coins</div>
+    </div>
+
+    <div class="kw-stat">
+      <div class="kw-stat__label">Unredeemed Karma Points</div>
+      <div class="kw-stat__value-row">
+        <img class="kw-stat__badge" [src]="icons.karmaPoints" alt="" aria-hidden="true">
+        <span class="kw-stat__value">{{ summary.unredeemedKarmaPoints | number }}</span>
+      </div>
+      <div class="kw-stat__hint kw-stat__hint--link">
+        <a class="kw-stat__link" href="javascript:void(0)" (click)="viewUnredeemedKarmaPoints()">View More</a>
+      </div>
+    </div>
+  </section>
+
+  <!-- Coin history -->
+  <section class="kw__history" aria-label="Coin history">
+    <div class="kw__history-head">
+      <h2 class="kw__history-title">Coin History</h2>
+      <button type="button" class="kw__sort" [matMenuTriggerFor]="periodMenu"
+        aria-label="Filter coin history by period">
+        <span class="kw__sort-label">{{ activePeriodLabel }}</span>
+        <mat-icon class="kw__sort-caret" aria-hidden="true">arrow_drop_down</mat-icon>
+      </button>
+      <mat-menu #periodMenu="matMenu" panelClass="kw-period-menu">
+        <button mat-menu-item type="button" role="menuitemradio" *ngFor="let option of periodOptions"
+          [attr.aria-checked]="activePeriod === option.value" (click)="selectPeriod(option.value)">
+          <span class="kw-period">
+            <span class="kw-period__radio" [class.kw-period__radio--on]="activePeriod === option.value"></span>
+            <span class="kw-period__label" [class.kw-period__label--on]="activePeriod === option.value">
+              {{ option.label }}
+            </span>
+          </span>
+        </button>
+      </mat-menu>
+    </div>
+
+    <div class="kw__tabs" role="tablist">
+      <button type="button" role="tab" class="kw__tab" *ngFor="let tab of tabs"
+        [class.kw__tab--active]="activeTab === tab.value" [attr.aria-selected]="activeTab === tab.value"
+        (click)="selectTab(tab.value)">
+        {{ tab.label }}
+      </button>
+    </div>
+
+    <div class="kw-table" *ngIf="hasTransactions">
+      <div class="kw-table__group" *ngFor="let group of groups">
+        <button type="button" class="kw-table__month" [attr.aria-expanded]="group.expanded"
+          (click)="toggleGroup(group)">
+          <span class="kw-table__month-label">{{ group.label }}</span>
+          <mat-icon class="kw-table__month-caret" [class.kw-table__month-caret--collapsed]="!group.expanded"
+            aria-hidden="true">arrow_drop_down</mat-icon>
+        </button>
+
+        <ng-container *ngIf="group.expanded">
+          <div class="kw-table__head" role="row">
+            <span class="kw-table__th" role="columnheader">Date</span>
+            <span class="kw-table__th" role="columnheader">Description</span>
+            <span class="kw-table__th kw-table__th--num" role="columnheader">Credit</span>
+            <span class="kw-table__th kw-table__th--num" role="columnheader">Debit</span>
+            <span class="kw-table__th kw-table__th--num" role="columnheader">Balance</span>
+          </div>
+
+          <div class="kw-table__row" role="row" *ngFor="let txn of group.transactions">
+            <span class="kw-table__date">{{ txn.date | date: 'd MMM yyyy' }}</span>
+            <span class="kw-table__desc">
+              <span class="kw-table__desc-title">{{ txn.title }}</span>
+              <span class="kw-table__desc-sub">{{ txn.description }}</span>
+              <span class="kw-table__desc-sub">{{ txn.transactionId }}</span>
+            </span>
+            <span class="kw-table__num" [class.kw-table__num--credit]="txn.credit > 0">
+              {{ txn.credit > 0 ? '+' + (txn.credit | number) : '0' }}
+            </span>
+            <span class="kw-table__num" [class.kw-table__num--debit]="txn.debit > 0">
+              {{ txn.debit > 0 ? '-' + (txn.debit | number) : '0' }}
+            </span>
+            <span class="kw-table__num kw-table__num--balance">{{ txn.balance | number }}</span>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+
+    <div class="kw__empty" *ngIf="!loading && !hasTransactions">
+      No Karma Coin transactions yet.
+    </div>
+
+    <div class="kw__loader" *ngIf="loading">
+      <mat-spinner diameter="32"></mat-spinner>
+    </div>
+  </section>
+</div>
