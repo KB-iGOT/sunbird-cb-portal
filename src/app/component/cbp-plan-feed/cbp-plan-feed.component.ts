@@ -1,7 +1,8 @@
-import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core'
+import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChanges, ViewChild } from '@angular/core'
 import { UntypedFormControl } from '@angular/forms'
 import { ActivatedRoute } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
+import { PageChangeEmitter, PaginationComponent } from '@sunbird-cb/collection'
 import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 import { distinctUntilChanged } from 'rxjs/operators'
 
@@ -11,7 +12,7 @@ import { distinctUntilChanged } from 'rxjs/operators'
     styleUrls: ['./cbp-plan-feed.component.scss'],
     standalone: false
 })
-export class CbpPlanFeedComponent implements OnInit {
+export class CbpPlanFeedComponent implements OnInit, OnChanges {
 
   searchControl = new UntypedFormControl('')
   toggleFilter = false
@@ -25,6 +26,12 @@ export class CbpPlanFeedComponent implements OnInit {
   @Output() toggleFilterEvent = new EventEmitter()
   @Output() searchRequest = new EventEmitter()
   @Output() closeFilterKey = new EventEmitter()
+
+  @ViewChild(PaginationComponent) private paginator?: PaginationComponent
+  pageSize = 10
+  pageSizeOptions = [10, 20, 50, 100]
+  currentPage = 1
+  pagedFeedList: any[] = []
 
   filterValuesBinding: any = {
     status: {
@@ -67,6 +74,32 @@ export class CbpPlanFeedComponent implements OnInit {
     ).subscribe(() => {
       this.emitSearchEvent()
     })
+  }
+
+  ngOnChanges(changes: SimpleChanges) {
+    // a new list arrives on every search / filter change, so start again from the first page
+    if (changes.contenFeedList) {
+      this.currentPage = 1
+      if (this.paginator) {
+        this.paginator.currentPage = 1
+      }
+      this.updatePagedFeedList()
+    }
+  }
+
+  onPageChange(event: PageChangeEmitter) {
+    this.currentPage = event.currentPage
+    this.pageSize = event.limit
+    this.updatePagedFeedList()
+    const listPage = document.getElementById('listPage')
+    if (listPage) {
+      listPage.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  }
+
+  private updatePagedFeedList() {
+    const start = (this.currentPage - 1) * this.pageSize
+    this.pagedFeedList = (this.contenFeedList || []).slice(start, start + this.pageSize)
   }
 
   emitSearchEvent() {
