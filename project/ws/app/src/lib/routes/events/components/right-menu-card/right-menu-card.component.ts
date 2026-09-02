@@ -8,6 +8,7 @@ import { EventService } from '../../services/events.service'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { MatDialog } from '@angular/material/dialog'
 import { DialogConfirmComponent } from '../../../../routes/dialog-confirm/dialog-confirm.component'
+import { IEventResourceType } from '../../models/event'
 // import { ActivatedRoute } from '@angular/router'
 // import { ConfigurationsService } from '@ws-widget/utils'
 // import { NSProfileDataV2 } from '../../models/profile-v2.model'
@@ -147,6 +148,11 @@ export class RightMenuCardComponent implements OnInit, OnDestroy, OnChanges {
 
   get progressVal() {
     return this.enrolledEvent && this.enrolledEvent.status === 2 ? 100 : this.enrolledEvent.completionPercentage
+  }
+
+  get isBharatKalpEvent(): boolean {
+    return this.eventData?.resourceType?.toLowerCase() === IEventResourceType.BharatKalpTalks ||
+      this.eventData?.resourceType?.toLowerCase() === IEventResourceType.BharatKalpPodcast
   }
 
   get isEnrollmentAllowed(): boolean {

@@ -37,6 +37,10 @@
                 <div class="enrollment-pill" *ngIf="!userAbleToEnroll && eventData?.resourceType === 'Samuhik Charcha'">
                   <span class="enrollment-text">This event is not available for your organisation.</span>
                 </div>
+                <div class="enrollment-pill"
+                  *ngIf="!userAbleToEnroll && isBharatKalpEvent">
+                  <span class="enrollment-text">This event is only available for Bharat Kalp members.</span>
+                </div>
               </ng-container>
               <ng-container *ngIf="(!eventData?.courseLinked || courseProgress?.completionPercentage >= 30)
                 && totalUsersEnrolled < eventData?.maxEnrolments">
@@ -47,12 +51,21 @@
                 <div class="enrollment-pill" *ngIf="!userAbleToEnroll && eventData?.resourceType === 'Samuhik Charcha'">
                   <span class="enrollment-text">This event is not available for your organisation.</span>
                 </div>
+                <div class="enrollment-pill"
+                  *ngIf="!userAbleToEnroll && isBharatKalpEvent">
+                  <span class="enrollment-text">This event is only available for Bharat Kalp members.</span>
+                </div>
               </ng-container>
             </ng-container>
             <ng-container *ngIf="eventData?.typeofEvent !== 'live'">
-              <a mat-button class="flex-1 action-button" target="_blank" (click)="enrolltoEvent()">
+              <a *ngIf="!isBharatKalpEvent || userAbleToEnroll"
+                mat-button class="flex-1 action-button" target="_blank" (click)="enrolltoEvent()">
                 <span i18n>{{ 'eventDetailsRightCard.enroll' | translate }}</span>
               </a>
+              <div class="enrollment-pill"
+                *ngIf="!userAbleToEnroll && isBharatKalpEvent">
+                <span class="enrollment-text">This event is only available for Bharat Kalp members.</span>
+              </div>
             </ng-container>
           </div>
           <ng-container *ngIf="!batchId">

@@ -21,6 +21,7 @@ import { NsContent } from '@sunbird-cb/collection'
 import { NetCoreService } from '../../../../routes/services/netcore.service'
 import { switchMap } from 'rxjs/operators'
 import { of } from 'rxjs'
+import { IEventResourceType } from '../../models/event'
 /* tslint:enable */
 
 @Component({
@@ -162,11 +163,16 @@ export class EventDetailComponent implements OnInit {
       })
     ).subscribe((data: any) => {
       this.eventData = data?.eventData
-      if (this.eventData?.createdFor && this.eventData?.createdFor.length) {
+      if (this.eventData?.resourceType?.toLowerCase() === IEventResourceType.BharatKalpTalks ||
+        this.eventData?.resourceType?.toLowerCase() === IEventResourceType.BharatKalpPodcast) {
+        const isBharatKalpMember = _.get(this.configSvc, 'unMappedUser.profileDetails.additionalProperties.isBharatKalpMember')
+        this.userAbleToEnroll = !!isBharatKalpMember
+      } else if (this.eventData?.createdFor && this.eventData?.createdFor.length) {
         this.eventOrg = this.eventData?.createdFor[0]
         if (this.configSvc && this.configSvc.userProfile && this.configSvc.userProfile?.rootOrgId) {
           if (this.configSvc.userProfile?.rootOrgId === this.eventOrg) {
             this.userAbleToEnroll = true
+
           } else {
             this.userAbleToEnroll = false
           }
