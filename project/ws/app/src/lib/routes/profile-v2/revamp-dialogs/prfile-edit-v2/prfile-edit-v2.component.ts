@@ -740,7 +740,7 @@ export class PrfileEditV2Component implements OnInit, OnDestroy {
       domicileMedium: [_.get(this.profileDetails, 'domicileMedium', ''), []],
       isCadre: [_.get(this.profileDetails, 'isCadre')],
       civilServiceType: [_.get(this.profileDetails, 'civilServiceType', ''), []],
-      civilServiceState: [_.get(this.profileDetails, 'civilServiceState', ''), []],
+      civilServiceState: [_.get(this.profileDetails, CIVIL_SERVICE_STATE, ''), []],
       civilServiceName: [_.get(this.profileDetails, 'civilServiceName', ''), []],
       cadreName: [_.get(this.profileDetails, 'cadreName', ''), []],
       cadreBatch: [_.get(this.profileDetails, 'cadreBatch', ''), []],
@@ -1606,7 +1606,7 @@ export class PrfileEditV2Component implements OnInit, OnDestroy {
         formBody['isOnCentralDeputation'] = isOnCentralDeputationControl?.value || false
       } else {
         formBody['civilServiceType'] = ''
-        formBody['civilServiceState'] = ''
+        formBody[CIVIL_SERVICE_STATE] = ''
         formBody['civilServiceStateId'] = ''
         formBody['civilServiceName'] = ''
         formBody['isCadre'] = false
