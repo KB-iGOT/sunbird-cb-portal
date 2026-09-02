@@ -51,9 +51,11 @@
         </ng-container>
     </div>
     <ng-container *ngIf="contenFeedList?.length;else emptyTemplate">
-        <div class="mr-2 mb-5" *ngFor="let c of contenFeedList">
+        <div class="mr-2 mb-5" *ngFor="let c of pagedFeedList">
             <ws-widget-card-content-v2 [widgetData]="c.widgetData"> </ws-widget-card-content-v2>
         </div>
+        <ws-widget-pagination [defaultPaginationSize]="pageSize" [defaultPaginationSizeOptions]="pageSizeOptions"
+            [totalItemsCount]="contenFeedList.length" (pageChange)="onPageChange($event)"></ws-widget-pagination>
     </ng-container>
     <ng-template #emptyTemplate>
         <div class="w-full flex flex-col items-center justify-center">

@@ -725,6 +725,20 @@
                 <p *ngIf="isCardElementEnabled('overdue') && widgetData?.content?.planDuration === acbpConstants?.OVERDUE" class="cbp-danger">Over due</p>
               </div>
             </ng-container> -->
+                <!-- CBP / APAR progress tag, driven by the enrolment dictionary status
+                     (0 not started, 1 in progress, 2 completed) that CbpPlanComponent stamps
+                     onto each plan item. Gated on planDuration, which only plan items carry,
+                     so this stays inert on every other surface using this card. Overdue is
+                     suppressed once the course is completed. -->
+                <ng-container *ngIf="widgetData?.content?.planDuration">
+                  <div class="cbp-mark left-0 border-top-radius">
+                    <p *ngIf="widgetData?.content?.enrolmentStatus === 2" class="cbp-success">Completed</p>
+                    <p *ngIf="widgetData?.content?.enrolmentStatus === 1" class="cbp-warning">In - Progress</p>
+                    <p *ngIf="isCardElementEnabled('overdue') && widgetData?.content?.enrolmentStatus !== 2
+                      && widgetData?.content?.planDuration === acbpConstants?.OVERDUE"
+                      class="cbp-danger">{{'cardcontentv2.overDue' | translate}}</p>
+                  </div>
+                </ng-container>
                 <ng-container *ngIf="cbPlanMapData && cbPlanMapData[widgetData?.content?.identifier]">
                   <ng-container [ngTemplateOutlet]="cbpPlan" [ngTemplateOutletContext]="{data: {
                     cbpData: cbPlanMapData[widgetData?.content?.identifier]
