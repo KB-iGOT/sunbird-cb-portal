@@ -80,7 +80,7 @@
             "extractLicenses": false,
             "sourceMap": true,
             "optimization": false,
-            "namedChunks": false,
+            "namedChunks": true,
             "allowedCommonJsDependencies": [
               "@ckeditor/ckeditor5-editor-classic"
             ],
@@ -104,8 +104,8 @@
               ],
               "optimization": true,
               "outputHashing": "all",
-              "sourceMap": false,
-              "namedChunks": false,
+              "sourceMap": true,
+              "namedChunks": true,
               "aot": true,
               "extractLicenses": true,
               "budgets": [
@@ -130,8 +130,8 @@
               ],
               "optimization": true,
               "outputHashing": "all",
-              "sourceMap": false,
-              "namedChunks": false,
+              "sourceMap": true,
+              "namedChunks": true,
               "aot": true,
               "extractLicenses": true,
               "budgets": [
@@ -156,8 +156,8 @@
               ],
               "optimization": true,
               "outputHashing": "all",
-              "sourceMap": false,
-              "namedChunks": false,
+              "sourceMap": true,
+              "namedChunks": true,
               "aot": true,
               "extractLicenses": true,
               "budgets": [
@@ -182,8 +182,8 @@
               ],
               "optimization": true,
               "outputHashing": "all",
-              "sourceMap": false,
-              "namedChunks": false,
+              "sourceMap": true,
+              "namedChunks": true,
               "aot": true,
               "extractLicenses": true,
               "budgets": [
@@ -208,8 +208,8 @@
               ],
               "optimization": true,
               "outputHashing": "all",
-              "sourceMap": false,
-              "namedChunks": false,
+              "sourceMap": true,
+              "namedChunks": true,
               "aot": true,
               "extractLicenses": true,
               "budgets": [
@@ -234,7 +234,10 @@
             "port": 3000,
             "buildTarget": "fusion:build",
             "prebundle": {
-              "exclude": ["@sunbird-cb/design-system", "@sunbird-cb/consumption"]
+              "exclude": [
+                "@sunbird-cb/design-system",
+                "@sunbird-cb/consumption"
+              ]
             }
           },
           "configurations": {
@@ -485,7 +488,7 @@
   "cli": {
     "analytics": "0960077c-cd40-4a38-a76c-e63878df5326",
     "cache": {
-      "enabled": true,
+      "enabled": false,
       "environment": "all",
       "path": ".angular/cache"
     }

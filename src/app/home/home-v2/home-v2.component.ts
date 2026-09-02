@@ -30,6 +30,7 @@ export class HomeV2Component implements OnInit {
   pendingApprovalList: any
 
   ngOnInit(): void {
+    // alert('in home module  ')
     this.initializeUserState()
     this.handleDefaultFontSetting()
     this.initializeLanguage()

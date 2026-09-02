@@ -170,6 +170,10 @@ export class InitService {
     return this.isAnonymousTelemetry
   }
 
+  async testInit() {
+    console.log('init service test')
+  }
+
   async init() {
     if (this.updateProfileSubscription) {
       this.updateProfileSubscription.unsubscribe()
@@ -252,6 +256,7 @@ export class InitService {
     return true
   }
   async initFeatured() {
+    console.time('WidgetResolver initialize')
     /**
      * Wait for the widgets and get the list of restricted widgets
      */
@@ -261,12 +266,15 @@ export class InitService {
       this.configSvc.userGroups,
       this.configSvc.restrictedFeatures,
     )
+    console.timeEnd('WidgetResolver initialize')
+    console.time('SbUiResolver initialize')
     this.sbUiResolverService.initialize(
       this.configSvc.restrictedWidgets,
       this.configSvc.userRoles,
       this.configSvc.userGroups,
       this.configSvc.restrictedFeatures,
     )
+    console.timeEnd('SbUiResolver initialize')
     /**
      * Wait for the instance config and after that
      */

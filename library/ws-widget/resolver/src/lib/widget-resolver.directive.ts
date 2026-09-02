@@ -4,8 +4,8 @@ import { NsWidgetResolver } from './widget-resolver.model'
 import { WidgetResolverService } from './widget-resolver.service'
 
 @Directive({
-    selector: '[wsResolverWidget]',
-    standalone: false
+  selector: '[wsResolverWidget]',
+  standalone: false
 })
 export class WidgetResolverDirective implements OnChanges {
   @Input() wsResolverWidget: NsWidgetResolver.IRenderConfigWithAnyData | null = null
@@ -13,7 +13,7 @@ export class WidgetResolverDirective implements OnChanges {
     private viewContainerRef: ViewContainerRef,
     private widgetResolverSvc: WidgetResolverService,
     private logger: LoggerService,
-  ) {}
+  ) { }
 
   ngOnChanges() {
     if (!this.widgetResolverSvc.isInitialized) {
