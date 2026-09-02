@@ -12,7 +12,7 @@ import isSameOrBefore from 'dayjs/plugin/isSameOrBefore'
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
 import { NsCardContent } from '@sunbird-cb/collection'
 import { TranslateService } from '@ngx-translate/core'
-import { ConfigurationsService, MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
+import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 
 import { WidgetUserServiceLib } from '@sunbird-cb/consumption'
 import { IndexedDbService } from '@ws/app/src/lib/routes/search-v3/services/indexed-db.service'
@@ -46,6 +46,7 @@ export class CbpPlanComponent implements OnInit {
   filterCheckOnFilter = false
   filterObjData: any = {
     isApar: false,
+    planYear: '',
     primaryCategory: [],
     status: [],
     timeDuration: [],
@@ -56,11 +57,14 @@ export class CbpPlanComponent implements OnInit {
   }
   mobileTopHeaderVisibilityStatus = true
   contentCompletedStatus = 2
+  /** Financial year the page falls back to when none is selected or passed in. */
+  currentPlanYear = ''
+  /** Year `cbpOriginalData` was fetched for — what a new selection is compared against. */
+  loadedPlanYear = ''
   constructor(
     private activatedRoute: ActivatedRoute,
     private widgetSvc: WidgetUserServiceLib,
     private translate: TranslateService,
-    private configSvc: ConfigurationsService,
     private langtranslations: MultilingualTranslationsService,
     private indexedDbSvc: IndexedDbService,
     private initSvc: InitService
@@ -83,6 +87,10 @@ export class CbpPlanComponent implements OnInit {
     if (this.activatedRoute.snapshot.queryParamMap.get('isApar') === 'true') {
       this.filterObjData.isApar = true
     }
+    // The CBP strips carry the year they were showing onto "View All", so honour it here
+    // rather than always opening on the current one.
+    this.currentPlanYear = this.widgetSvc.getCurrentFinancialYear()
+    this.filterObjData.planYear = this.activatedRoute.snapshot.queryParamMap.get('planYear') || this.currentPlanYear
     this.upcommingList = this.transformSkeletonToWidgets(this.cbpAllConfig.cbpUpcomingStrips)
     this.overDueList = this.transformSkeletonToWidgets(this.cbpAllConfig.cbpUpcomingStrips)
     this.aparList = this.transformSkeletonToWidgets(this.cbpAllConfig.cbpUpcomingStrips)
@@ -92,8 +100,9 @@ export class CbpPlanComponent implements OnInit {
 
   async getCbPlans() {
     this.cbpLoader = true
-    const userId: any = this.configSvc.userProfile && this.configSvc.userProfile.userId
-    let response = await this.widgetSvc.fetchCbpPlanList(userId, true).toPromise()
+    // Year-scoped on the server: a different year is a different request, cached per year.
+    this.loadedPlanYear = this.filterObjData.planYear
+    let response = await this.widgetSvc.fetchCbpPlanListV3(this.filterObjData.planYear).toPromise()
     response = await this.stampEnrolmentStatus(response)
     if (response?.length) {
       this.cbpOriginalData = response
@@ -102,6 +111,9 @@ export class CbpPlanComponent implements OnInit {
       this.overDueList = []
       this.aparList = []
       this.completedList = []
+      // Reset too: these accumulate, and a year change runs this a second time.
+      this.upcomingUncompleted = []
+      this.overdueUncompleted = []
       response = response?.sort((a: any, b: any): any => {
         if (a.planDuration === NsCardContent.ACBPConst.OVERDUE && b.planDuration === NsCardContent.ACBPConst.OVERDUE) {
           const firstDate: any = new Date(a.endDate)
@@ -151,11 +163,16 @@ export class CbpPlanComponent implements OnInit {
         this.filterData(this.filterObjData)
       }
     } else {
+      // A year with no plans still has to clear what the previous year left behind.
+      this.cbpOriginalData = []
       this.upcommingList = []
       this.overDueList = []
       this.contentFeedList = []
       this.completedList = []
       this.aparList = []
+      this.upcomingUncompleted = []
+      this.overdueUncompleted = []
+      this.usersCbpCount = { upcoming: 0, overdue: 0, completed: 0, apar: 0, all: 0 }
     }
     this.cbpLoader = false
     // this.widgetSvc.fetchCbpPlanList().subscribe(async (res: any) => {
@@ -283,13 +300,34 @@ export class CbpPlanComponent implements OnInit {
   toggleFilterEvent(event: any) {
     this.toggleFilter = event
   }
-  applyFilter(event: any) {
+  async applyFilter(event: any) {
     this.toggleFilter = false
+    const yearChanged = this.hasPlanYearChanged(event)
     this.filterObjData = event
+    if (yearChanged) {
+      // The plan list is scoped to one year server side, so the year is not something the
+      // page can filter locally — it has to fetch that year's plans first.
+      await this.getCbPlans()
+    }
     this.filterData(event)
   }
-  clearFilterObj(event: any) {
+
+  /**
+   * True when `event` selects a plan year other than the one the loaded data is for.
+   * Compared against `loadedPlanYear` rather than `filterObjData`, because the chip-dismiss
+   * path mutates `filterObjData` in place before handing it back here.
+   */
+  private hasPlanYearChanged(event: any): boolean {
+    const selected = event && event.planYear
+    return !!selected && selected !== this.loadedPlanYear
+  }
+
+  async clearFilterObj(event: any) {
+    const yearChanged = this.hasPlanYearChanged(event)
     this.filterObjData = event
+    if (yearChanged) {
+      await this.getCbPlans()
+    }
     // tslint: disable-next-line: whitespace
     this.filterData(event)
     // tslint: disable-next-line: whitespace
@@ -417,6 +455,8 @@ export class CbpPlanComponent implements OnInit {
   searchData(event: any) {
     this.filterObjData = {
       isApar: false,
+      // Searching clears the filters but stays in the year the user is looking at.
+      planYear: this.filterObjData.planYear || this.currentPlanYear,
       primaryCategory: [],
       status: [],
       timeDuration: [],
@@ -439,6 +479,9 @@ export class CbpPlanComponent implements OnInit {
   closeFilterKey(data: any) {
     if (data.key === 'isApar') {
       this.filterObjData[data.key] = false
+    } else if (data.key === 'planYear') {
+      // A year is always in effect, so dismissing the chip goes back to the current one.
+      this.filterObjData[data.key] = this.currentPlanYear
     } else {
       const index = this.filterObjData[data.key].indexOf(data.value)
       if (index > -1) { // only splice array when item is found

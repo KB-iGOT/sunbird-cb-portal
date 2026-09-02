@@ -4,6 +4,7 @@ import { ActivatedRoute } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
 import { PageChangeEmitter, PaginationComponent } from '@sunbird-cb/collection'
 import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
+import { WidgetUserServiceLib } from '@sunbird-cb/consumption'
 import { distinctUntilChanged } from 'rxjs/operators'
 
 @Component({
@@ -32,6 +33,8 @@ export class CbpPlanFeedComponent implements OnInit, OnChanges {
   pageSizeOptions = [10, 20, 50, 100]
   currentPage = 1
   pagedFeedList: any[] = []
+  /** The default year gets no chip — it is the page's normal state, not a filter. */
+  currentPlanYear = ''
 
   filterValuesBinding: any = {
     status: {
@@ -55,7 +58,8 @@ export class CbpPlanFeedComponent implements OnInit, OnChanges {
   constructor(
     private activatedRoute: ActivatedRoute,
     private translate: TranslateService,
-    private langtranslations: MultilingualTranslationsService) {
+    private langtranslations: MultilingualTranslationsService,
+    private widgetSvc: WidgetUserServiceLib) {
       this.langtranslations.languageSelectedObservable.subscribe(() => {
         if (localStorage.getItem('websiteLanguage')) {
           this.translate.setDefaultLang('en')
@@ -69,6 +73,7 @@ export class CbpPlanFeedComponent implements OnInit, OnChanges {
     if (this.activatedRoute.snapshot.data.pageData) {
       this.cbpConfig = this.activatedRoute.snapshot.data.pageData.data
     }
+    this.currentPlanYear = this.widgetSvc.getCurrentFinancialYear()
     this.searchControl.valueChanges.pipe(
       distinctUntilChanged()
     ).subscribe(() => {
