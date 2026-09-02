@@ -17,3 +17,8 @@ export interface ITodayEvents {
     description?: string
     resourceType?: string
   }
+
+  export enum IEventResourceType {
+    BharatKalpTalks = 'bharat kalp - talks',
+    BharatKalpPodcast = 'bharat kalp - podcast',
+  }

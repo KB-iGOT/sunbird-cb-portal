@@ -38,7 +38,7 @@
                   <span class="enrollment-text">This event is not available for your organisation.</span>
                 </div>
                 <div class="enrollment-pill"
-                  *ngIf="!userAbleToEnroll && (eventData?.resourceType === 'Bharat Kalp - Talks' || eventData?.resourceType === 'Bharat Kalp - Podcast')">
+                  *ngIf="!userAbleToEnroll && isBharatKalpEvent">
                   <span class="enrollment-text">This event is only available for Bharat Kalp members.</span>
                 </div>
               </ng-container>
@@ -52,18 +52,18 @@
                   <span class="enrollment-text">This event is not available for your organisation.</span>
                 </div>
                 <div class="enrollment-pill"
-                  *ngIf="!userAbleToEnroll && (eventData?.resourceType === 'Bharat Kalp - Talks' || eventData?.resourceType === 'Bharat Kalp - Podcast')">
+                  *ngIf="!userAbleToEnroll && isBharatKalpEvent">
                   <span class="enrollment-text">This event is only available for Bharat Kalp members.</span>
                 </div>
               </ng-container>
             </ng-container>
             <ng-container *ngIf="eventData?.typeofEvent !== 'live'">
-              <a *ngIf="(eventData?.resourceType !== 'Bharat Kalp - Talks' && eventData?.resourceType !== 'Bharat Kalp - Podcast') || userAbleToEnroll"
+              <a *ngIf="!isBharatKalpEvent || userAbleToEnroll"
                 mat-button class="flex-1 action-button" target="_blank" (click)="enrolltoEvent()">
                 <span i18n>{{ 'eventDetailsRightCard.enroll' | translate }}</span>
               </a>
               <div class="enrollment-pill"
-                *ngIf="!userAbleToEnroll && (eventData?.resourceType === 'Bharat Kalp - Talks' || eventData?.resourceType === 'Bharat Kalp - Podcast')">
+                *ngIf="!userAbleToEnroll && isBharatKalpEvent">
                 <span class="enrollment-text">This event is only available for Bharat Kalp members.</span>
               </div>
             </ng-container>
