@@ -273,14 +273,17 @@
       font-weight: 400;
       font-style: normal;
       word-break: break-word;
-      height: 20px;
+      min-height: 20px;
       font-family: Lato;
       font-weight: 400;
       font-size: 12px;
       line-height: 14.4px;
     }
 
-    .stats-count {}
+    .stats-count {
+      margin-top: 4px;
+      display: block;
+    }
   }
 
   .user-insights {
