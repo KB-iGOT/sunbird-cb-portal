@@ -1,28 +1,144 @@
-/**
- * Contracts for the Karma Coin Wallet page.
- *
- * These mirror the shape the wallet APIs are expected to return, so swapping
- * `KarmaWalletService`'s mock responses for real HTTP calls needs no changes here
- * or in the component.
- */
-
 export type TKarmaCoinTxnType = 'earned' | 'redeemed'
+export const KARMA_CONVERSION_RATE = 1
 
 export interface IKarmaWalletSummary {
-  /* Coins available to spend on marketplace courses */
   walletBalance: number
-  /* Coins already spent on marketplace courses */
-  totalSpent: number
-  /* Karma Points that have been converted into Karma Coins */
   totalRedeemed: number
-  /* Karma Points still waiting to be converted */
+  totalEarnedTillDate: number
+  totalKarmaPoints: number
+  /* Karma Points still waiting to be converted = totalKarmaPoints - totalEarnedTillDate */
   unredeemedKarmaPoints: number
+  yearMonth: string
+  monthlyCap: number
+  convertedThisMonth: number
+  convertibleThisMonth: number
+  capResetsOn: string
+  redeemEnabled: boolean
+}
+
+export interface IKarmaWalletSummaryResponse {
+  responseCode: string
+  result: IKarmaWalletSummary
+}
+
+export type TKarmaRedeemStatus = 'PROCESSING' | 'SUCCESS' | 'FAILED'
+
+export interface IKarmaRedeemRequestBody {
+  pointsToConvert: number
+  requestId: string
+}
+
+export interface IKarmaRedeemRequest {
+  request: IKarmaRedeemRequestBody
+}
+
+export interface IKarmaRedeemAcceptedResponse {
+  responseCode: string
+  result: {
+    requestId: string
+    status: TKarmaRedeemStatus
+  }
+}
+
+export interface IKarmaRedeemStatusResult {
+  requestId: string
+  status: TKarmaRedeemStatus
+  /* SUCCESS only */
+  transactionId?: string
+  pointsConverted?: number
+  /* FAILED only */
+  errorCode?: string
+  errorMessage?: string
+}
+
+export interface IKarmaRedeemStatusResponse {
+  responseCode: string
+  result: IKarmaRedeemStatusResult
+}
+
+export interface IKarmaApiRejection {
+  responseCode: string
+  params: {
+    err: string
+    errmsg: string
+  }
+}
+
+export function newRequestId(): string {
+  const api: any = typeof crypto === 'undefined' ? null : crypto
+  if (api && typeof api.randomUUID === 'function') {
+    return api.randomUUID()
+  }
+
+  const bytes = new Uint8Array(16)
+  if (api && typeof api.getRandomValues === 'function') {
+    api.getRandomValues(bytes)
+  } else {
+    for (let index = 0; index < bytes.length; index += 1) {
+      bytes[index] = Math.floor(Math.random() * 256)
+    }
+  }
+  /* RFC 4122 version and variant bits, so the id is a well-formed v4 either way */
+  bytes[6] = (bytes[6] & 0x0F) | 0x40
+  bytes[8] = (bytes[8] & 0x3F) | 0x80
+
+  const hex = Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('')
+  return [
+    hex.slice(0, 8), hex.slice(8, 12), hex.slice(12, 16), hex.slice(16, 20), hex.slice(20),
+  ].join('-')
+}
+
+export function readApiError(err: any): string {
+  const body = (err && err.error) || err
+  if (!body) {
+    return ''
+  }
+  if (body.params && body.params.errmsg) {
+    return body.params.errmsg
+  }
+  return body.errorMessage || ''
+}
+
+export type TKarmaTxnDirection = 'CREDIT' | 'DEBIT'
+
+export type TKarmaTxnFilter = 'ALL' | TKarmaTxnDirection
+
+export interface IKarmaTransactionsRequestBody {
+  /* Inclusive 'YYYY-MM-DD' bounds; both omitted when the period is unbounded */
+  startDate?: string
+  endDate?: string
+  type: TKarmaTxnFilter
+}
+
+/* The endpoint wraps its body in `request`, as the platform's POST APIs do */
+export interface IKarmaTransactionsRequest {
+  request: IKarmaTransactionsRequestBody
+}
+
+/* One row exactly as the API returns it */
+export interface IKarmaCoinTransactionApi {
+  transactionId: string
+  date: number
+  type: TKarmaTxnDirection
+  amount: number
+  balanceAfter: number
+  actionType: string
+  contextType: string
+  contextId: string
+  addinfo: string
+}
+
+export interface IKarmaTransactionsResponse {
+  responseCode: string
+  result: {
+    transactions: IKarmaCoinTransactionApi[]
+  }
 }
 
 export interface IKarmaCoinTransaction {
   transactionId: string
-  /* ISO date string */
-  date: string
+  /* Epoch milliseconds, straight off the API */
+  date: number
   /* Primary label, e.g. 'Event Attendance' */
   title: string
   /* Secondary label, e.g. 'Karmayogi Talks — Evidence-based policy' */
@@ -42,10 +158,7 @@ export interface IKarmaCoinTxnGroup {
   transactions: IKarmaCoinTransaction[]
 }
 
-/**
- * Coin History period filter. 'recent' is the unfiltered default; 'custom' opens a date range
- * the user picks themselves.
- */
+
 export type TKarmaWalletPeriod =
   'recent' | 'currentMonth' | 'lastMonth' | 'last3Months' | 'last6Months' | 'custom'
 
@@ -57,21 +170,21 @@ export interface IKarmaWalletPeriodOption {
 export interface IKarmaWalletTab {
   value: 'all' | TKarmaCoinTxnType
   label: string
+  /* What the transactions request sends for this tab */
+  apiType: TKarmaTxnFilter
 }
 
-export interface IKarmaRedeemInfo {
-  /* Karma Points that convert into one Karma Coin */
-  conversionRate: number
-  /* Ceiling on how many Karma Points may be converted per calendar month */
-  monthlyCap: number
-  /* Already converted inside the current month */
-  convertedThisMonth: number
-  /* Still convertible before the monthly cap is reached */
-  convertibleRemaining: number
-  /*
-   * Karma Points the user actually holds and has not converted yet. Independent of the cap:
-   * a user can be under the monthly cap and still not hold enough points to convert.
-   * The real limit is min(convertibleRemaining, unconvertedBalance).
-   */
-  unconvertedBalance: number
+/* Zeroed summary the components hold until the API responds */
+export const EMPTY_KARMA_WALLET_SUMMARY: IKarmaWalletSummary = {
+  walletBalance: 0,
+  totalRedeemed: 0,
+  totalEarnedTillDate: 0,
+  totalKarmaPoints: 0,
+  unredeemedKarmaPoints: 0,
+  yearMonth: '',
+  monthlyCap: 0,
+  convertedThisMonth: 0,
+  convertibleThisMonth: 0,
+  capResetsOn: '',
+  redeemEnabled: false,
 }

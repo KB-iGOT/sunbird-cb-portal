@@ -1,17 +1,23 @@
-import { Component, OnInit } from '@angular/core'
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core'
 import { Router } from '@angular/router'
+import { MatDatepicker } from '@angular/material/datepicker'
 import { MatDialog } from '@angular/material/dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { EventService, WsEvents } from '@sunbird-cb/utils-v2'
 import { NoopScrollStrategy } from '@angular/cdk/overlay'
+import { of, Subject } from 'rxjs'
+import { catchError, switchMap, takeUntil } from 'rxjs/operators'
 import { KarmaCoinsInfoDialogComponent } from './karma-coins-info-dialog.component'
 import { KarmaRedeemDialogComponent } from './karma-redeem-dialog.component'
 import {
+  EMPTY_KARMA_WALLET_SUMMARY,
   IKarmaCoinTransaction,
   IKarmaCoinTxnGroup,
-  IKarmaRedeemInfo,
+  IKarmaTransactionsRequest,
   IKarmaWalletPeriodOption,
   IKarmaWalletSummary,
   IKarmaWalletTab,
+  readApiError,
   TKarmaWalletPeriod,
 } from './karma-wallet.model'
 import { KarmaWalletService } from './karma-wallet.service'
@@ -19,6 +25,18 @@ import { KarmaWalletService } from './karma-wallet.service'
 const ICON_BASE = '/assets/icons/karmawallet-v2'
 
 const MONTH_LABELS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
+
+/* Recent is a rolling window ending today; 30 days back from it is its start */
+const RECENT_DAYS = 30
+
+/* How far back the history APIs will look, and so how far back the calendar may go */
+const LOOKBACK_YEARS = 1
+
+const END_BEFORE_START = 'The end date cannot be earlier than the start date.'
+
+/* Fallbacks for when a call fails without the server saying why */
+const HISTORY_ERROR = 'We could not load your coin history. Please try again.'
+const SUMMARY_ERROR = 'We could not load your Karma Coin Wallet. Please try again.'
 
 /* Full names for the conversion card's footnote; the short set above labels the history groups */
 const MONTH_NAMES = [
@@ -32,7 +50,7 @@ const MONTH_NAMES = [
   styleUrls: ['./karma-wallet.component.scss'],
   standalone: false,
 })
-export class KarmaWalletComponent implements OnInit {
+export class KarmaWalletComponent implements OnInit, OnDestroy {
 
   /* Card icons, kept here so re-pointing the asset folder is a one-place change */
   readonly icons = {
@@ -41,10 +59,11 @@ export class KarmaWalletComponent implements OnInit {
     karmaPoints: '/assets/icons/home-v2/karma-badge.svg',
   }
 
+  /* The one place the tabs are mapped onto the transactions request's `type` filter */
   readonly tabs: IKarmaWalletTab[] = [
-    { value: 'all', label: 'All' },
-    { value: 'earned', label: 'Earned' },
-    { value: 'redeemed', label: 'Redeemed' },
+    { value: 'all', label: 'All', apiType: 'ALL' },
+    { value: 'earned', label: 'Earned', apiType: 'CREDIT' },
+    { value: 'redeemed', label: 'Redeemed', apiType: 'DEBIT' },
   ]
 
   readonly periodOptions: IKarmaWalletPeriodOption[] = [
@@ -56,38 +75,47 @@ export class KarmaWalletComponent implements OnInit {
     { value: 'custom', label: 'Custom Date' },
   ]
 
-  summary: IKarmaWalletSummary = {
-    walletBalance: 0,
-    totalSpent: 0,
-    totalRedeemed: 0,
-    unredeemedKarmaPoints: 0,
-  }
-
-  redeemInfo: IKarmaRedeemInfo = {
-    conversionRate: 1,
-    monthlyCap: 0,
-    convertedThisMonth: 0,
-    convertibleRemaining: 0,
-    unconvertedBalance: 0,
-  }
+  /* Everything the page renders comes from the one summary response */
+  summary: IKarmaWalletSummary = { ...EMPTY_KARMA_WALLET_SUMMARY }
 
   activeTab: IKarmaWalletTab['value'] = 'all'
   activePeriod: TKarmaWalletPeriod = 'recent'
   groups: IKarmaCoinTxnGroup[] = []
   loading = true
-  /* Anchor for the relative period ranges; overridable so tests are not clock-dependent */
+
+  /* Custom Date range. Both are picked from the calendar, so neither can be a malformed date */
+  customStart: Date | null = null
+  customEnd: Date | null = null
+  /* Client-side complaint about the pair, e.g. an end date before the start. API failures do
+     not land here - those go to the snackbar. */
+  customError = ''
+
+  @ViewChild('customStartPicker') customStartPicker?: MatDatepicker<Date>
+  /* Anchor for the relative period ranges, and the fallback month label before the summary
+     loads; overridable so tests are not clock-dependent */
   referenceDate = new Date()
 
   private transactions: IKarmaCoinTransaction[] = []
   /* Collapsed month keys, so a collapse survives a tab or sort change */
   private collapsedKeys = new Set<string>()
+  /* Every tab or period change pushes a request here; switchMap keeps only the latest */
+  private readonly historyRequest$ = new Subject<IKarmaTransactionsRequest>()
+  private readonly destroy$ = new Subject<void>()
 
   constructor(
     private router: Router,
     private dialog: MatDialog,
     private events: EventService,
     private karmaWalletSvc: KarmaWalletService,
+    private snackBar: MatSnackBar,
   ) { }
+
+  /* Every API failure on this page is reported here and nowhere else */
+  private openSnackbar(primaryMsg: string, duration: number = 5000) {
+    this.snackBar.open(primaryMsg, 'X', {
+      duration,
+    })
+  }
 
   /**
    * Interact telemetry for this page. subType and module are plain strings on the contract, so
@@ -110,7 +138,32 @@ export class KarmaWalletComponent implements OnInit {
   }
 
   ngOnInit() {
-    this.fetchWallet()
+    this.fetchSummary()
+
+    this.historyRequest$.pipe(
+      /* switchMap, so a quick second tab or period change cannot be overtaken by the response
+         to the first one and leave the table showing a filter the user has moved off */
+      switchMap(request => this.karmaWalletSvc.getTransactions(request).pipe(
+        /* Caught inside, so a rejected range cannot take the whole stream down with it and
+           leave every later filter change unanswered */
+        catchError(err => {
+          this.openSnackbar(readApiError(err) || HISTORY_ERROR)
+          return of([] as IKarmaCoinTransaction[])
+        }),
+      )),
+      takeUntil(this.destroy$),
+    ).subscribe(transactions => {
+      this.transactions = transactions || []
+      this.buildGroups()
+      this.loading = false
+    })
+
+    this.fetchTransactions()
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
   }
 
   get activePeriodLabel(): string {
@@ -118,18 +171,28 @@ export class KarmaWalletComponent implements OnInit {
     return selected ? selected.label : ''
   }
 
-  /* Calendar month the conversion figures belong to, e.g. 'August' */
+  /* Month the conversion figures belong to, e.g. 'August' - the API's yearMonth, not the clock */
   get currentMonthLabel(): string {
-    return MONTH_NAMES[this.referenceDate.getMonth()]
+    const parts = (this.summary.yearMonth || '').split('-')
+    const month = Number(parts[1])
+    const index = parts.length === 2 && month >= 1 && month <= 12
+      ? month - 1
+      : this.referenceDate.getMonth()
+    return MONTH_NAMES[index]
   }
 
   /* Share of this month's cap already converted - what the card's orange bar fills to */
   get conversionProgress(): number {
-    if (!this.redeemInfo.monthlyCap) {
+    if (!this.summary.monthlyCap) {
       return 0
     }
-    const ratio = this.redeemInfo.convertedThisMonth / this.redeemInfo.monthlyCap
+    const ratio = this.summary.convertedThisMonth / this.summary.monthlyCap
     return Math.max(0, Math.min(100, ratio * 100))
+  }
+
+  /* Conversion can be switched off server-side, which greys out Redeem Karma Points */
+  get canRedeem(): boolean {
+    return this.summary.redeemEnabled
   }
 
   get hasTransactions(): boolean {
@@ -144,12 +207,7 @@ export class KarmaWalletComponent implements OnInit {
       maxHeight: '90vh',
       autoFocus: false,
       panelClass: 'kci-dialog-panel',
-      // Styled in karma-coins-info-dialog.component.scss. Naming a class here replaces the
-      // CDK default cdk-overlay-dark-backdrop, so there is no competing rule to outrank.
       backdropClass: 'kci-dialog-backdrop',
-      // Material's default block-scroll strategy takes the scrollbar out of 100vw, and the
-      // shell sizes its content column from that unit - so the page behind slides ~8px left
-      // while any dialog is open. Noop keeps the page still.
       scrollStrategy: new NoopScrollStrategy(),
     }).afterClosed().subscribe((closedVia: any) => {
       /* The dialog reports which control dismissed it; fall back if it closed some other way */
@@ -163,16 +221,86 @@ export class KarmaWalletComponent implements OnInit {
     }
     this.activeTab = tab
     this.raiseTelemetry(`coin-history-${tab}-tab`, 'coin-history-tab')
-    this.buildGroups()
+    this.fetchTransactions()
   }
 
   selectPeriod(period: TKarmaWalletPeriod) {
+    /* Re-picking Custom Date is how the calendar is reopened, so it is not a no-op */
     if (this.activePeriod === period) {
+      if (period === 'custom') {
+        this.openCustomStartPicker()
+      }
       return
     }
     this.activePeriod = period
     this.raiseTelemetry(`coin-history-period-${period}`, 'coin-history-period')
-    this.buildGroups()
+
+    if (period === 'custom') {
+      this.startCustomRange()
+      return
+    }
+
+    this.customError = ''
+    this.fetchTransactions()
+  }
+
+  /* Earliest date the calendar offers: history only reaches back a year */
+  get minSelectableDate(): Date {
+    const ref = this.referenceDate
+    return new Date(ref.getFullYear() - LOOKBACK_YEARS, ref.getMonth(), ref.getDate())
+  }
+
+  /* Latest date the calendar offers - there is no history in the future */
+  get maxSelectableDate(): Date {
+    return this.referenceDate
+  }
+
+  onCustomStartChange(value: Date | null) {
+    this.customStart = value
+    this.applyCustomRange()
+  }
+
+  onCustomEndChange(value: Date | null) {
+    this.customEnd = value
+    this.applyCustomRange()
+  }
+
+  private startCustomRange() {
+    if (!this.customStart || !this.customEnd) {
+      const ref = this.referenceDate
+      this.customStart = new Date(ref.getFullYear(), ref.getMonth(), ref.getDate() - RECENT_DAYS)
+      this.customEnd = new Date(ref.getFullYear(), ref.getMonth(), ref.getDate())
+    }
+    this.customError = ''
+    this.fetchTransactions()
+    this.openCustomStartPicker()
+  }
+
+  private openCustomStartPicker() {
+    /* The fields sit behind an *ngIf, so they do not exist until this change is rendered */
+    setTimeout(() => {
+      if (this.customStartPicker) {
+        this.customStartPicker.open()
+      }
+    })
+  }
+
+  private applyCustomRange() {
+    if (!this.customStart || !this.customEnd) {
+      this.customError = ''
+      return
+    }
+
+    if (this.customEnd.getTime() < this.customStart.getTime()) {
+      /* Same day at both ends is a valid one-day range; only a true inversion is refused */
+      this.customError = END_BEFORE_START
+      this.groups = []
+      return
+    }
+
+    this.customError = ''
+    this.raiseTelemetry('coin-history-period-custom-range', 'coin-history-period')
+    this.fetchTransactions()
   }
 
   toggleGroup(group: IKarmaCoinTxnGroup) {
@@ -196,6 +324,9 @@ export class KarmaWalletComponent implements OnInit {
   }
 
   redeemKarmaPoints() {
+    if (!this.canRedeem) {
+      return
+    }
     this.raiseTelemetry('redeem-karma-points-open', 'karma-wallet-dialog')
     this.dialog.open(KarmaRedeemDialogComponent, {
       width: '652px',
@@ -203,20 +334,17 @@ export class KarmaWalletComponent implements OnInit {
       maxHeight: '90vh',
       autoFocus: false,
       panelClass: 'krd-dialog-panel',
-      // Styled in karma-redeem-dialog.component.scss; replaces the CDK default backdrop class.
       backdropClass: 'krd-dialog-backdrop',
-      // Only the Cancel button closes this dialog - no backdrop click, no Escape.
       disableClose: true,
-      // Material's block-scroll strategy takes the scrollbar out of 100vw and the shell sizes
-      // its content column from that unit, so the page behind would slide ~8px left.
       scrollStrategy: new NoopScrollStrategy(),
     }).afterClosed().subscribe((result: any) => {
-      this.raiseTelemetry(
-        `redeem-karma-points-close-${result && result.redeemed ? 'convert' : 'cancel'}`,
-        'karma-wallet-dialog')
-      /* TODO: refresh the summary and history from the API once redemption is wired up */
-      if (result && result.redeemed) {
-        this.fetchWallet()
+      const outcome = result && result.redeemed
+        ? 'convert'
+        : (result && result.pending ? 'pending' : 'cancel')
+      this.raiseTelemetry(`redeem-karma-points-close-${outcome}`, 'karma-wallet-dialog')
+      if (outcome !== 'cancel') {
+        this.fetchSummary()
+        this.fetchTransactions()
       }
     })
   }
@@ -229,65 +357,75 @@ export class KarmaWalletComponent implements OnInit {
     })
   }
 
-  private fetchWallet() {
-    this.loading = true
-    this.karmaWalletSvc.getWalletSummary().subscribe(summary => {
-      this.summary = summary
-    })
-    this.karmaWalletSvc.getRedeemInfo().subscribe(info => {
-      this.redeemInfo = info
-    })
-    this.karmaWalletSvc.getTransactions().subscribe(transactions => {
-      this.transactions = transactions || []
-      this.buildGroups()
-      this.loading = false
+  private fetchSummary() {
+    this.karmaWalletSvc.getWalletSummary().pipe(
+      takeUntil(this.destroy$),
+    ).subscribe({
+      next: summary => {
+        this.summary = summary
+      },
+      error: err => this.openSnackbar(readApiError(err) || SUMMARY_ERROR),
     })
   }
 
-  /* Inclusive lower bound for the selected period, or null when everything qualifies */
-  private periodStart(): Date | null {
+  /* Asks the API for the active tab over the active period */
+  private fetchTransactions() {
+    this.loading = true
+    this.historyRequest$.next(this.transactionRequest())
+  }
+
+  private transactionRequest(): IKarmaTransactionsRequest {
+    const tab = this.tabs.find(option => option.value === this.activeTab)
+    return {
+      request: {
+        ...this.periodWindow(),
+        type: tab ? tab.apiType : 'ALL',
+      },
+    }
+  }
+
+  private periodWindow(): { startDate?: string, endDate?: string } {
     const ref = this.referenceDate
     const monthStart = (monthsBack: number) =>
       new Date(ref.getFullYear(), ref.getMonth() - monthsBack, 1)
+    /* Day 0 of a month is the last day of the one before it */
+    const monthEnd = (monthsBack: number) =>
+      new Date(ref.getFullYear(), ref.getMonth() - monthsBack + 1, 0)
+    const window = (start: Date, end: Date) =>
+      ({ startDate: this.toApiDate(start), endDate: this.toApiDate(end) })
 
     switch (this.activePeriod) {
-      case 'currentMonth': return monthStart(0)
-      case 'lastMonth': return monthStart(1)
-      case 'last3Months': return monthStart(2)
-      case 'last6Months': return monthStart(5)
-      /* TODO: 'custom' needs its date-range picker; until then it filters nothing */
-      default: return null
+      case 'currentMonth':
+        return window(monthStart(0), ref)
+      case 'lastMonth':
+        return window(monthStart(1), monthEnd(1))
+      case 'last3Months':
+        return window(monthStart(3), monthEnd(1))
+      case 'last6Months':
+        return window(monthStart(6), monthEnd(1))
+      case 'custom':
+        return this.customStart && this.customEnd
+          ? window(this.customStart, this.customEnd)
+          : {}
+      /* Recent: a rolling 30 days through today, both ends inclusive */
+      default: {
+        const start = new Date(ref.getFullYear(), ref.getMonth(), ref.getDate() - RECENT_DAYS)
+        return window(start, ref)
+      }
     }
   }
 
-  /* Exclusive upper bound; only 'lastMonth' stops short of today */
-  private periodEnd(): Date | null {
-    if (this.activePeriod !== 'lastMonth') {
-      return null
-    }
-    return new Date(this.referenceDate.getFullYear(), this.referenceDate.getMonth(), 1)
+  /* 'YYYY-MM-DD' from the local date parts - toISOString would shift the day westward */
+  private toApiDate(date: Date): string {
+    const month = `${date.getMonth() + 1}`.padStart(2, '0')
+    const day = `${date.getDate()}`.padStart(2, '0')
+    return `${date.getFullYear()}-${month}-${day}`
   }
 
-  private withinPeriod(txn: IKarmaCoinTransaction): boolean {
-    const start = this.periodStart()
-    const end = this.periodEnd()
-    if (!start && !end) {
-      return true
-    }
-    const stamp = new Date(txn.date).getTime()
-    if (start && stamp < start.getTime()) {
-      return false
-    }
-    return !(end && stamp >= end.getTime())
-  }
-
+  /* Tab and period are applied by the API now, so this only groups what came back */
   private buildGroups() {
-    const filtered = this.transactions
-      .filter(txn => this.activeTab === 'all' || txn.type === this.activeTab)
-      .filter(txn => this.withinPeriod(txn))
-
     const grouped = new Map<string, IKarmaCoinTxnGroup>()
-    filtered.forEach(txn => {
+    this.transactions.forEach(txn => {
       const date = new Date(txn.date)
       const key = `${date.getFullYear()}-${`${date.getMonth() + 1}`.padStart(2, '0')}`
       if (!grouped.has(key)) {
@@ -308,11 +446,7 @@ export class KarmaWalletComponent implements OnInit {
     const groups = Array.from(grouped.values())
     groups.sort((a, b) => a.key < b.key ? 1 : (a.key > b.key ? -1 : 0))
     groups.forEach(group => {
-      group.transactions.sort((a, b) => {
-        const first = new Date(a.date).getTime()
-        const second = new Date(b.date).getTime()
-        return first < second ? 1 : (first > second ? -1 : 0)
-      })
+      group.transactions.sort((a, b) => a.date < b.date ? 1 : (a.date > b.date ? -1 : 0))
     })
     this.groups = groups
   }

@@ -1,97 +1,130 @@
+import { HttpClient } from '@angular/common/http'
 import { Injectable } from '@angular/core'
-import { Observable, of } from 'rxjs'
-import { delay } from 'rxjs/operators'
-import { IKarmaCoinTransaction, IKarmaRedeemInfo, IKarmaWalletSummary } from './karma-wallet.model'
+import { Observable } from 'rxjs'
+import { map } from 'rxjs/operators'
+import {
+  IKarmaCoinTransaction,
+  IKarmaCoinTransactionApi,
+  IKarmaRedeemAcceptedResponse,
+  IKarmaRedeemRequest,
+  IKarmaRedeemStatusResult,
+  IKarmaTransactionsRequest,
+  IKarmaWalletSummary,
+} from './karma-wallet.model'
+import {
+  mockRedeem,
+  mockRedeemStatus,
+  mockTransactions,
+  mockWalletSummary,
+} from './karma-wallet.mock'
 
-/**
- * Karma Coin Wallet data source.
- *
- * The wallet APIs are not available yet, so both methods resolve mock payloads
- * that match the agreed response contracts. When the endpoints land, replace the
- * `of(...)` bodies with the corresponding `http.get()` calls - the component
- * consumes only the Observables and the interfaces, so nothing else has to change.
- */
+export const API_END_POINTS = {
+  WALLET_SUMMARY: '/v1/user/karma-wallet/summary',
+  WALLET_TRANSACTIONS: '/v1/karma-wallet/transactions',
+  WALLET_REDEEM: '/v1/karma-wallet/redeem',
+  WALLET_REDEEM_STATUS: '/v1/karma-wallet/redeem/status',
+}
+
 @Injectable()
 export class KarmaWalletService {
 
-  /* TODO: replace with GET /apis/proxies/v8/karma/wallet/summary */
+  constructor(readonly http: HttpClient) { }
+
+  /* GET /v1/user/karma-wallet/summary */
   getWalletSummary(): Observable<IKarmaWalletSummary> {
-    return of(MOCK_SUMMARY).pipe(delay(150))
+    // return this.http.get<IKarmaWalletSummaryResponse>(API_END_POINTS.WALLET_SUMMARY).pipe(
+    return mockWalletSummary().pipe(
+      map(response => response.result),
+    )
   }
 
-  /* TODO: replace with GET /apis/proxies/v8/karma/wallet/transactions */
-  getTransactions(): Observable<IKarmaCoinTransaction[]> {
-    return of(MOCK_TRANSACTIONS).pipe(delay(150))
+  getTransactions(request: IKarmaTransactionsRequest): Observable<IKarmaCoinTransaction[]> {
+    // return this.http.post<IKarmaTransactionsResponse>(
+    //   API_END_POINTS.WALLET_TRANSACTIONS, request).pipe(
+    return mockTransactions(request).pipe(
+      map(response => (response.result.transactions || []).map(toCoinRow)),
+    )
   }
 
-  /* TODO: replace with GET /apis/proxies/v8/karma/wallet/redeem-info */
-  getRedeemInfo(): Observable<IKarmaRedeemInfo> {
-    return of(MOCK_REDEEM_INFO).pipe(delay(150))
+  redeem(request: IKarmaRedeemRequest): Observable<IKarmaRedeemAcceptedResponse['result']> {
+    return mockRedeem(request).pipe(
+      map(response => response.result),
+    )
+  }
+
+  getRedeemStatus(requestId: string): Observable<IKarmaRedeemStatusResult> {
+    return mockRedeemStatus(requestId).pipe(
+      map(response => response.result),
+    )
   }
 }
 
-const MOCK_REDEEM_INFO: IKarmaRedeemInfo = {
-  conversionRate: 1,
-  monthlyCap: 300,
-  convertedThisMonth: 120,
-  convertibleRemaining: 180,
-  /* Matches the wallet summary's unredeemed Karma Points */
-  unconvertedBalance: 1341,
+/* ------------------------------------------------------------------------------------------ *
+ * Response -> row
+ * ------------------------------------------------------------------------------------------ */
+
+/* Row titles per actionType; anything unmapped falls back to its own words, title-cased */
+const ACTION_TITLES: { [actionType: string]: string } = {
+  POINTS_REDEMPTION: 'Karma Points Redemption',
+  COURSE_ENROLLMENT: 'Marketplace Course Purchase',
+  COURSE_COMPLETION: 'Course Completion',
+  EVENT_ATTENDANCE: 'Event Attendance',
 }
 
-const MOCK_SUMMARY: IKarmaWalletSummary = {
-  walletBalance: 492,
-  totalSpent: 849,
-  totalRedeemed: 1321,
-  unredeemedKarmaPoints: 1341,
+/* 'POINTS_REDEMPTION' -> 'Points Redemption', so a new action type never renders as an enum */
+function titleFor(actionType: string): string {
+  if (ACTION_TITLES[actionType]) {
+    return ACTION_TITLES[actionType]
+  }
+  return (actionType || '')
+    .split('_')
+    .filter(word => !!word)
+    .map(word => word.charAt(0) + word.slice(1).toLowerCase())
+    .join(' ')
 }
 
-/* Twelve alternating credit/debit entries for Aug 2026, matching the design. */
-const AUGUST_TRANSACTIONS: IKarmaCoinTransaction[] = Array.from({ length: 12 }, (_unused, index) => {
-  const isCredit = index % 2 === 0
+/* `addinfo` arrives as a JSON string; a missing or malformed one must not take the row down */
+function parseAddInfo(raw: string): { [key: string]: any } {
+  if (!raw) {
+    return {}
+  }
+  try {
+    const parsed = JSON.parse(raw)
+    return parsed && typeof parsed === 'object' ? parsed : {}
+  } catch (err) {
+    return {}
+  }
+}
+
+/* The secondary line under the title, assembled from contextType and the addinfo extras */
+function descriptionFor(txn: IKarmaCoinTransactionApi): string {
+  const info = parseAddInfo(txn.addinfo)
+  switch (txn.contextType) {
+    case 'POINTS_CONVERSION':
+      return info.pointsUsed === undefined
+        ? 'Converted Karma Points to Karma Coins'
+        : `Converted ${info.pointsUsed} Karma Points to Karma Coins`
+    case 'MARKETPLACE_COURSE': {
+      const course = info.courseName || ''
+      return info.providerName ? `${course} — Provider: ${info.providerName}` : course
+    }
+    /* Unknown contexts still have a name to show more often than not */
+    default:
+      return info.courseName || info.eventName || info.contentName || ''
+  }
+}
+
+/* Resolves the API row into what the table renders: the copy and the credit/debit split */
+function toCoinRow(txn: IKarmaCoinTransactionApi): IKarmaCoinTransaction {
+  const isCredit = txn.type === 'CREDIT'
   return {
-    transactionId: 'TXN-000027',
-    date: '2026-08-27',
-    title: 'Event Attendance',
-    description: 'Karmayogi Talks — Evidence-based policy',
-    credit: isCredit ? 40 : 0,
-    debit: isCredit ? 0 : 40,
-    balance: 99999,
+    transactionId: txn.transactionId,
+    date: txn.date,
+    title: titleFor(txn.actionType),
+    description: descriptionFor(txn),
+    credit: isCredit ? txn.amount : 0,
+    debit: isCredit ? 0 : txn.amount,
+    balance: txn.balanceAfter,
     type: isCredit ? 'earned' : 'redeemed',
-  } as IKarmaCoinTransaction
-})
-
-const JULY_TRANSACTIONS: IKarmaCoinTransaction[] = [
-  {
-    transactionId: 'TXN-000021',
-    date: '2026-07-22',
-    title: 'Karma Points Redemption',
-    description: 'Converted 500 Karma Points to Karma Coins',
-    credit: 500,
-    debit: 0,
-    balance: 99959,
-    type: 'earned',
-  },
-  {
-    transactionId: 'TXN-000018',
-    date: '2026-07-14',
-    title: 'Marketplace Course Purchase',
-    description: 'Foundations of Public Policy — Provider: NIEPA',
-    credit: 0,
-    debit: 250,
-    balance: 99459,
-    type: 'redeemed',
-  },
-  {
-    transactionId: 'TXN-000012',
-    date: '2026-07-03',
-    title: 'Course Completion',
-    description: 'Digital Governance for Civil Servants',
-    credit: 120,
-    debit: 0,
-    balance: 99709,
-    type: 'earned',
-  },
-]
-
-const MOCK_TRANSACTIONS: IKarmaCoinTransaction[] = [...AUGUST_TRANSACTIONS, ...JULY_TRANSACTIONS]
+  }
+}

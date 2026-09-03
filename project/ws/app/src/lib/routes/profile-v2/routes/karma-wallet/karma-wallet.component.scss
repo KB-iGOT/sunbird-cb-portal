@@ -180,6 +180,15 @@ $kw-row-pad: 17px;
       border-color: var(--color-primary-600);
     }
   }
+
+  &:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+
+  &--ghost:disabled:hover {
+    background: transparent;
+  }
 }
 
 // Dark mode only. --color-primary-500 does not flip, so on a dark surface the fill sinks into
@@ -481,7 +490,59 @@ $kw-row-pad: 17px;
   }
 }
 
-// Tabs
+
+.kw__range {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  gap: 10px;
+  margin-bottom: 18px;
+}
+
+.kw__range-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+
+.kw__range-label {
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 18px;
+  color: $kw-ink-strong;
+}
+
+.kw__range-field {
+  width: 180px;
+  ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+    display: none;
+  }
+
+  ::ng-deep .mat-mdc-form-field-infix {
+    min-height: 40px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+  }
+
+}
+
+.kw__range-sep {
+  align-self: flex-end;
+  padding-bottom: 11px;
+  font-size: 13px;
+  color: $kw-ink-muted;
+}
+
+.kw__range-error {
+  margin: -8px 0 18px;
+  text-align: center;
+  font-size: 12.5px;
+  line-height: 18px;
+  color: var(--environment-all-fills-system-error);
+}
+
+
 .kw__tabs {
   display: flex;
   align-items: flex-end;
@@ -687,14 +748,36 @@ $kw-row-pad: 17px;
     gap: 12px;
   }
 
+  .kw__history-filter {
+    width: 100%;
+    align-items: stretch;
+  }
+
   .kw__sort {
     width: 100%;
   }
+
+  .kw__range-field {
+    width: 160px;
+  }
 }
 
-// Below 450px the two labels are too long to sit side by side, so the actions stack.
-// .kw__actions is align-items:center in the base rule, which would shrink each button to its
-// text width once the axis flips - hence the explicit stretch.
+@media screen and (max-width: 430px) {
+  .kw__range {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .kw__range-field {
+    width: 100%;
+  }
+
+  .kw__range-sep {
+    align-self: center;
+    padding-bottom: 0;
+  }
+}
+
 @media screen and (max-width: 450px) {
   .kw__actions {
     flex-direction: column;
