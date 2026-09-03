@@ -28,7 +28,16 @@
                         role="img"> close </mat-icon>
                 </div>
             </ng-container>
-            <ng-container *ngIf="item?.value?.length">
+            <ng-container *ngIf="item?.key === 'planYear' && item?.value && item?.value !== currentPlanYear">
+                <div class="tag-wrap flex margin-right-xs margin-bottom-xs">
+                    <p>{{item.value}}</p>
+                    <mat-icon aria-hidden="true" (click)="closeFilter(item.value,item.key)"
+                        class="ws-mat-default-text mat-icon notranslate material-icons mat-icon-no-color filter-acbp cursor-pointer"
+                        role="img"> close </mat-icon>
+                </div>
+            </ng-container>
+            <!-- planYear is a plain string; without excluding it the loop below renders one chip per character -->
+            <ng-container *ngIf="item?.key !== 'planYear' && item?.value?.length">
                 <ng-container *ngFor="let item1 of item.value">
                     <div class="tag-wrap flex margin-right-xs margin-bottom-xs">
                         <ng-container *ngIf="item.key === 'status' || item.key === 'timeDuration' ;else allEle">

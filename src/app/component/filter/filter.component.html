@@ -28,6 +28,25 @@
                     <mat-expansion-panel disableRipple [expanded]="true">
                         <mat-expansion-panel-header>
                             <mat-panel-title>
+                                {{'Year' | translate}}
+                                </mat-panel-title>
+                                </mat-expansion-panel-header>
+                                <mat-radio-group class="flex flex-col" [value]="filterObj?.planYear" (change)="selectPlanYear($event.value)">
+                                    <div class="flex flex-1 flex-row category-item" *ngFor="let year of planYearList">
+                                        <mat-radio-button disableRipple class="example-margin" [value]="year">
+                                            {{year}}
+                                        </mat-radio-button>
+                                    </div>
+                                </mat-radio-group>
+                                </mat-expansion-panel>
+                                </mat-accordion>
+                                </div>
+                                <div class="spacer"></div>
+                                <div class="filter-content flex flex-1">
+                                    <mat-accordion>
+                                        <mat-expansion-panel disableRipple [expanded]="true">
+                                            <mat-expansion-panel-header>
+                                                <mat-panel-title>
                                 {{'widgetCbpFilters.contentType' | translate}}
                             </mat-panel-title>
                         </mat-expansion-panel-header>
@@ -93,7 +112,7 @@
                 </mat-expansion-panel>
             </mat-accordion>
         </div>
-            
+
 
             <div class="spacer" *ngIf="competencyThemeList.length"></div>
             <div class="filter-content flex flex-1" *ngIf="competencyThemeList.length">

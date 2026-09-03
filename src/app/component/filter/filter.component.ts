@@ -5,7 +5,11 @@ import _ from 'lodash'
 import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 import { TranslateService } from '@ngx-translate/core'
 import { AppCbpPlansService } from '../../services/app-cbp-plans.service'
+import { WidgetUserServiceLib } from '@sunbird-cb/consumption'
 // tslint:enable
+
+/** How many financial years the year filter lists, counting back from the current one. */
+const PLAN_YEARS_OFFERED = 3
 
 @Component({
     selector: 'ws-app-filter',
@@ -35,8 +39,13 @@ export class FilterComponent implements OnInit {
   competencyThemeOriginalList: any[] = []
   competencySubThemeOriginalList: any[] = []
   isApar = false
+  /** Plan years offered in the filter, newest first. */
+  planYearList: string[] = []
+  /** The year the CBP list defaults to; picking it back is not treated as a filter. */
+  currentPlanYear = ''
   filterObjEmpty: any = {
     isApar: false,
+    planYear: '',
     primaryCategory: [],
     status: [],
     timeDuration: [],
@@ -49,7 +58,8 @@ export class FilterComponent implements OnInit {
   @ViewChildren('checkboxes') checkboxes!: QueryList<ElementRef>
   constructor(private appCbpPlansService: AppCbpPlansService,
     private translate: TranslateService,
-    private langtranslations: MultilingualTranslationsService
+    private langtranslations: MultilingualTranslationsService,
+    private widgetSvc: WidgetUserServiceLib
   ) {
     this.langtranslations.languageSelectedObservable.subscribe(() => {
       if (localStorage.getItem('websiteLanguage')) {
@@ -67,6 +77,9 @@ export class FilterComponent implements OnInit {
     this.bindFilter()
   }
   setDefaultValues() {
+    this.currentPlanYear = this.widgetSvc.getCurrentFinancialYear()
+    this.planYearList = this.buildPlanYears(this.currentPlanYear, PLAN_YEARS_OFFERED)
+    this.filterObjEmpty.planYear = this.currentPlanYear
     this.primaryCategoryList = [
       { id: 'Course', name: 'Course', checked: false },
       // { "id": 'Program', name: 'Program',checked: false },
@@ -129,6 +142,30 @@ export class FilterComponent implements OnInit {
 
   hideFilter() {
     this.toggleFilter.emit(false)
+  }
+
+  /**
+   * Builds 'YYYY-YY' financial years counting back from `latest`, e.g.
+   * ('2026-27', 3) -> ['2026-27', '2025-26', '2024-25'].
+   */
+  buildPlanYears(latest: string, count: number): string[] {
+    const startYear = Number((latest || '').split('-')[0])
+    if (!startYear) {
+      return latest ? [latest] : []
+    }
+    return Array.from({ length: count }, (_unused, index) => {
+      const start = startYear - index
+      return `${start}-${`0${(start + 1) % 100}`.slice(-2)}`
+    })
+  }
+
+  /**
+   * The plan list is year-scoped on the server, so this is a single choice rather than a
+   * checkbox set — the page refetches for whichever year is applied.
+   */
+  selectPlanYear(planYear: string) {
+    this.filterObj['planYear'] = planYear
+    this.checkFilterEmpty()
   }
 
   checkedProviders(event: any, item: any) {
@@ -351,7 +388,9 @@ export class FilterComponent implements OnInit {
   }
 
   checkFilterEmpty() {
-    if (this.filterObj['isApar'] ||
+    // A year is always selected, so only a non-default one counts as a filter being applied.
+    if ((this.filterObj['planYear'] && this.filterObj['planYear'] !== this.currentPlanYear) ||
+      this.filterObj['isApar'] ||
       this.filterObj['primaryCategory'].length ||
       this.filterObj['status'].length ||
       this.filterObj['timeDuration'].length ||
