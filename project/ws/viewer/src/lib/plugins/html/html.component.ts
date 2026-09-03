@@ -1329,15 +1329,6 @@ export class HtmlComponent implements OnInit, OnChanges, OnDestroy {
     return this.scormAdapterService.getStatus(storeData) === 2 ? 2 : null
   }
 
-  // The SCORM package finds the LMS by walking window.parent looking for window.API, which
-  // is blocked when the iframe is cross-origin - that is what produces Articulate's
-  // "unable to find the LMS API for ..." warnings and an empty CMI store on upload.
-  //
-  // In a deployment this is already fine: azureHost and the portal share a host, so the
-  // content is same-origin. It only breaks in local dev, where the app runs on
-  // localhost:4200 while the content still comes from the remote portal host. There we
-  // route the request through the dev-server proxy (see the "/scorm-content" entry in
-  // proxy/localhost.proxy.json) so the package is served from this origin instead.
   // True only under `ng serve`. Deliberately based on the host rather than
   // environment.production, which is compiled false by the dev/np/preprod/benchmark
   // build configurations and so cannot distinguish local from deployed.
@@ -1346,24 +1337,37 @@ export class HtmlComponent implements OnInit, OnChanges, OnDestroy {
     return host === 'localhost' || host === '127.0.0.1' || host === '::1' || host === '[::1]'
   }
 
+  // A SCORM package finds the LMS by walking window.parent for window.API, and the browser
+  // blocks every property read across an origin boundary. That is not a degraded-tracking
+  // problem: the first blocked read throws SecurityError inside the package's own boot
+  // code, so a cross-origin package does not merely lose its CMI store, it fails to start
+  // ("Failed to read a named property 'CommitData' from 'Window'"). Serving it from this
+  // origin is the only fix - no response header on the content host can permit a
+  // cross-origin window.parent read, CORS included.
+  //
+  // So a cross-origin package is always re-pointed at this origin by path. The host the
+  // app is served from has to answer that path: deployed, each portal vhost serves the
+  // content paths itself, and if a new vhost does not, the fix belongs there (route the
+  // content prefix on that vhost) rather than here. Under `ng serve` it cannot - /assets
+  // and /content-store are local mocks in proxy/localhost.proxy.json - so the dedicated
+  // "/scorm-content" passthrough in that proxy config carries it to the remote host.
+  //
+  // This used to leave deployed URLs alone, on the assumption that azureHost and the
+  // portal always shared a host. They do not: on a tenant host
+  // (adikarmayogi-portal.uat.karmayogibharat.net) the content still resolved to the main
+  // portal (portal.uat.karmayogibharat.net) and every package there failed to boot.
   private ensureSameOriginUrl(url: string): string {
     try {
       const parsed = new URL(url, window.location.origin)
       if (parsed.origin === window.location.origin) {
         return url
       }
-      if (!this.isLocalDevServer()) {
-        // Never rewrite a deployed URL - /scorm-content only exists in the ng serve proxy
-        // config. Note this cannot key off environment.production: the dev, np, preprod
-        // and benchmark build configurations all compile production: false, so testing
-        // that flag would rewrite URLs on four of the five deployable builds and 404.
-        console.warn('[SCORM] Content is cross-origin at', parsed.origin, 'vs page', window.location.origin,
-          '- the SCORM API and localStorage will not be reachable')
-        return url
-      }
-      const proxyUrl = `${this.scormProxyPrefix}${parsed.pathname}${parsed.search}`
-      console.log('[SCORM] ensureSameOriginUrl: proxying', parsed.origin, '→', proxyUrl.substring(0, 120))
-      return proxyUrl
+      const sameOriginUrl = this.isLocalDevServer()
+        ? `${this.scormProxyPrefix}${parsed.pathname}${parsed.search}`
+        : `${parsed.pathname}${parsed.search}`
+      console.log('[SCORM] ensureSameOriginUrl: content is cross-origin at', parsed.origin,
+        '- serving it from', window.location.origin, '→', sameOriginUrl.substring(0, 120))
+      return sameOriginUrl
     } catch (_e) {
       console.warn('[SCORM] ensureSameOriginUrl: could not parse', url)
       return url
