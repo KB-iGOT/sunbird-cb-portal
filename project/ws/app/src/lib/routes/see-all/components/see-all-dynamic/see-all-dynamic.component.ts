@@ -2,7 +2,7 @@ import { Component, OnInit, OnDestroy, AfterViewChecked, ElementRef, ViewChild, 
 import { ActivatedRoute, Router } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
 import { Subject } from 'rxjs'
-import { takeUntil } from 'rxjs/operators'
+import { debounceTime, takeUntil } from 'rxjs/operators'
 import { SeeAllService } from '../../services/see-all.service'
 import { CommonMethodsService, WidgetContentLibService } from '@sunbird-cb/consumption'
 import * as _ from 'lodash'
@@ -93,6 +93,7 @@ export class SeeAllDynamicComponent implements OnInit, OnDestroy, AfterViewCheck
   ]
 
   private destroy$ = new Subject<void>()
+  private searchStringChange$ = new Subject<string>()
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -124,6 +125,9 @@ export class SeeAllDynamicComponent implements OnInit, OnDestroy, AfterViewCheck
     this.isLtMedium$.pipe(takeUntil(this.destroy$)).subscribe(isLtMedium => {
       this.screenSizeIsLtMedium = isLtMedium
     })
+    this.searchStringChange$
+      .pipe(debounceTime(500), takeUntil(this.destroy$))
+      .subscribe(() => this.onSearch())
     this.getRouterData()
     this.loadProviderDetails()
     this.loadEnrolments()
@@ -684,6 +688,10 @@ export class SeeAllDynamicComponent implements OnInit, OnDestroy, AfterViewCheck
     }
 
     this.getCourses(false)
+  }
+
+  onSearchKeyChange() {
+    this.searchStringChange$.next(this.searchString)
   }
 
   onSearch() {

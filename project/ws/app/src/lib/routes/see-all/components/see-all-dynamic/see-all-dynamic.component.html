@@ -107,7 +107,7 @@
             <div class="relative search-wrapper">
               <mat-icon class="flex absolute items-center justify-center mr-2 search-icon" title="Search"
                 (click)="onSearch()" (keypress)="onSearch()">search</mat-icon>
-              <input type="text" name="searchKey" [(ngModel)]="searchString" (keyup.enter)="onSearch()"
+              <input type="text" name="searchKey" [(ngModel)]="searchString" (keyup)="onSearchKeyChange()"
                 class="search-field" aria-label="Search" placeholder="Search" />
               <mat-icon *ngIf="searchString" class="clear-icon absolute" title="Clear search"
                 (click)="clearSearch()" (keypress)="clearSearch()">clear</mat-icon>
