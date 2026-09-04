@@ -25,7 +25,8 @@
       </button>
     </div>
     <div class="kw__actions">
-      <button type="button" class="kw__btn kw__btn--ghost" (click)="redeemKarmaPoints()">Redeem Karma Points</button>
+      <button type="button" class="kw__btn kw__btn--ghost" [disabled]="!canRedeem"
+        (click)="redeemKarmaPoints()">Redeem Karma Points</button>
       <button type="button" class="kw__btn kw__btn--primary" (click)="useKarmaCoins()">Use Your Karma Coins</button>
     </div>
   </header>
@@ -45,14 +46,14 @@
       <div class="kw-stat__label">Pending for conversion this month</div>
       <div class="kw-stat__value-row">
         <img class="kw-stat__badge" [src]="icons.karmaPoints" alt="" aria-hidden="true">
-        <span class="kw-stat__value">{{ redeemInfo.convertibleRemaining | number }}</span>
-        <span class="kw-stat__value-sub">of {{ redeemInfo.monthlyCap | number }} KP</span>
+        <span class="kw-stat__value">{{ summary.convertibleThisMonth | number }}</span>
+        <span class="kw-stat__value-sub">of {{ summary.monthlyCap | number }} KP</span>
       </div>
       <div class="kw-stat__track">
         <span class="kw-stat__fill" [style.width.%]="conversionProgress"></span>
       </div>
       <div class="kw-stat__hint">
-        {{ redeemInfo.convertedThisMonth | number }} KP converted in {{ currentMonthLabel }}
+        {{ summary.convertedThisMonth | number }} KP converted in {{ currentMonthLabel }}
       </div>
     </div>
 
@@ -60,7 +61,7 @@
       <div class="kw-stat__label">Total Redeemed</div>
       <div class="kw-stat__value-row">
         <img class="kw-stat__coin" [src]="icons.karmaCoin" alt="" aria-hidden="true">
-        <span class="kw-stat__value">{{ summary.totalRedeemed | number }}</span>
+        <span class="kw-stat__value">{{ summary.totalEarnedTillDate | number }}</span>
       </div>
       <div class="kw-stat__hint">Converted from Karma Points to Karma Coins</div>
     </div>
@@ -98,6 +99,40 @@
         </button>
       </mat-menu>
     </div>
+
+    <div class="kw__range" *ngIf="activePeriod === 'custom'">
+      <div class="kw__range-item">
+        <label class="kw__range-label" for="kw-range-start">Start Date</label>
+        <mat-form-field appearance="outline" class="kw__range-field">
+          <input id="kw-range-start" matInput readonly placeholder="Select Date"
+            [matDatepicker]="customStartPicker" [min]="minSelectableDate"
+            [max]="maxSelectableDate" [ngModel]="customStart"
+            (dateChange)="onCustomStartChange($event.value)" (click)="customStartPicker.open()">
+          <mat-datepicker-toggle matSuffix [for]="customStartPicker">
+            <mat-icon class="datepicker-icon" matDatepickerToggleIcon>calendar_today</mat-icon>
+          </mat-datepicker-toggle>
+          <mat-datepicker #customStartPicker></mat-datepicker>
+        </mat-form-field>
+      </div>
+
+      <span class="kw__range-sep" aria-hidden="true">to</span>
+
+      <div class="kw__range-item">
+        <label class="kw__range-label" for="kw-range-end">End Date</label>
+        <mat-form-field appearance="outline" class="kw__range-field">
+          <input id="kw-range-end" matInput readonly placeholder="Select Date"
+            [matDatepicker]="customEndPicker" [min]="minSelectableDate"
+            [max]="maxSelectableDate" [ngModel]="customEnd"
+            (dateChange)="onCustomEndChange($event.value)" (click)="customEndPicker.open()">
+          <mat-datepicker-toggle matSuffix [for]="customEndPicker">
+            <mat-icon class="datepicker-icon" matDatepickerToggleIcon>calendar_today</mat-icon>
+          </mat-datepicker-toggle>
+          <mat-datepicker #customEndPicker></mat-datepicker>
+        </mat-form-field>
+      </div>
+    </div>
+
+    <p class="kw__range-error" role="alert" *ngIf="customError">{{ customError }}</p>
 
     <div class="kw__tabs" role="tablist">
       <button type="button" role="tab" class="kw__tab" *ngFor="let tab of tabs"
@@ -144,7 +179,8 @@
       </div>
     </div>
 
-    <div class="kw__empty" *ngIf="!loading && !hasTransactions">
+    <!-- A failed history call is reported in the snackbar, so this stays a plain empty state -->
+    <div class="kw__empty" *ngIf="!loading && !hasTransactions && !customError">
       No Karma Coin transactions yet.
     </div>
 

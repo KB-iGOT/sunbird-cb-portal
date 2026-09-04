@@ -1,22 +1,10 @@
-// Redeem Karma Points dialog. Surfaces and text use design-system tokens so the dialog
-// follows the light/dark theme set on <html data-theme>.
+
 $krd-font: 'Noto Sans', sans-serif;
 
-// A global rule in src/styles/styles.scss puts `padding: 24px !important` on every dialog
-// surface via the legacy .mdc-dialog__surface class. This component paints its own header,
-// body and footer, so that has to be undone - hence !important plus the extra container step
-// so this wins on specificity rather than on stylesheet order.
-// Overlay scrim behind the dialog. The element sits in the CDK overlay container, outside
-// this component's DOM - reachable because the component runs with ViewEncapsulation.None.
-// Paired with .cdk-overlay-backdrop so it outranks any CDK rule on source order alone.
 .cdk-overlay-backdrop.krd-dialog-backdrop {
   background: var(--text-system-text-disabled);
 }
 
-// src/styles/styles.scss paints every dialog container #fff with an 8px radius, while the
-// surface below is rounded to 12px. The surface therefore curves inside its own white parent
-// and leaks four white corner slivers - invisible in light mode, obvious in dark. Clearing the
-// container and matching its radius removes them.
 .krd-dialog-panel .mat-mdc-dialog-container {
   background: transparent;
   border-radius: 12px !important;
@@ -28,8 +16,6 @@ $krd-font: 'Noto Sans', sans-serif;
   overflow: hidden !important;
 }
 
-// This build ships Tailwind's utilities but not its preflight, so there is no global
-// border-box reset to inherit.
 .krd,
 .krd *,
 .krd *::before,
@@ -37,9 +23,6 @@ $krd-font: 'Noto Sans', sans-serif;
   box-sizing: border-box;
 }
 
-// Material's .mat-typography h2/p rules carry font-family and margins at (0,1,1), which
-// outranks a plain class selector - and ViewEncapsulation.None removes the attribute that
-// would otherwise win. Hence the .krd ancestor on every heading and paragraph rule below.
 .krd,
 .krd *:not(mat-icon) {
   font-family: $krd-font;
@@ -102,10 +85,6 @@ $krd-font: 'Noto Sans', sans-serif;
   color: var(--environment-icon-overall-primary-bandw);
 }
 
-// The asset is a single path with a hardcoded #1B4CA1 fill, so an <img> could not be
-// recoloured. It is applied as a mask instead and tinted with background-color - the same
-// approach the nav bar icons use. The mask URL is bound from the component's icons map so
-// that map stays the single source for asset paths.
 .krd__rate-arrow {
   display: inline-block;
   width: 24px;
@@ -255,6 +234,14 @@ $krd-font: 'Noto Sans', sans-serif;
   color: var(--environment-all-fills-system-error);
 }
 
+.krd .krd-pending {
+  margin: 8px 0 0;
+  font-size: 12.5px;
+  font-weight: 400;
+  line-height: 18px;
+  color: var(--environment-icon-overall-secondary-bandw);
+}
+
 .krd-check {
   display: flex;
   align-items: center;
@@ -369,10 +356,6 @@ $krd-font: 'Noto Sans', sans-serif;
       border-color: var(--color-primary-600);
     }
 
-    // Faded from whatever the enabled fill is, rather than a separate colour token. A fixed
-    // token cannot track an overridden primary, and the one used before resolved to a 56%
-    // blue in dark - brighter than the enabled outline button beside it, which inverted the
-    // two states. Opacity always reads as the muted version of the real button.
     &:disabled {
       opacity: 0.48;
       cursor: not-allowed;
@@ -384,19 +367,24 @@ $krd-font: 'Noto Sans', sans-serif;
     background: transparent;
     color: var(--color-primary-500);
 
-    &:hover {
+    &:hover:not(:disabled) {
       background: var(--color-primary-o-8);
     }
+
+    &:disabled {
+      opacity: 0.48;
+      cursor: not-allowed;
+    }
+  }
+
+  &-spinner {
+    margin-right: 8px;
+    --mdc-circular-progress-active-indicator-color: currentColor;
   }
 }
 
-// Dark mode only. --color-primary-500 does not flip, so on the dark dialog surface the fill
-// sank into the panel and the outline all but vanished; these tokens carry the inverted values.
 [data-theme='dark'] {
-  // The cap card sat at #0F121C - darker than the panel - and the progress track's token
-  // resolves to rgba(0,0,0,0.96) in dark, i.e. black on near-black, so the unfilled part of
-  // the bar was invisible. Lifting the card above the panel mirrors how it is tinted away
-  // from the panel in light mode, and the track gets a light wash instead of a black one.
+
   .krd-cap {
     background: var(--surface-tertiary);
   }
@@ -405,19 +393,14 @@ $krd-font: 'Noto Sans', sans-serif;
     background: rgba(255, 255, 255, 0.16);
   }
 
-  // The panel token resolves to a saturated #133672 here, which read far too strong.
-  // --surface-secondary is a neutral slate one step above the page background, so the panel
-  // still lifts off the page without the colour cast.
   .krd {
     background: var(--surface-secondary);
   }
 
-  // Slightly darker than the panel so the amount field still reads as an input well.
   .krd-amount {
     background: var(--surface-primary);
   }
 
-  // Orange on the dark strip, matching the conversion progress bar.
   .krd__rate-arrow {
     background-color: var(--environment-all-fills-system-warning);
   }
@@ -433,8 +416,6 @@ $krd-font: 'Noto Sans', sans-serif;
     }
   }
 
-  // bandw, not the outline button token - see karma-wallet.component.scss for why: that token
-  // is overridden to the brand colour in both themes here, leaving a purple outline on dark.
   .krd__btn--ghost {
     border-color: var(--environment-icon-overall-primary-bandw);
     color: var(--environment-icon-overall-primary-bandw);
@@ -455,14 +436,10 @@ $krd-font: 'Noto Sans', sans-serif;
   }
 
   .krd__footer {
-    // `column`, not `column-reverse`: DOM order is Convert then Cancel, so reversing put
-    // Cancel on top. The primary action leads on mobile.
     flex-direction: column;
     gap: 12px;
     padding: 0 16px 16px;
 
-    // flex: 1 1 0 from the base rule means "grow" once the axis is vertical, which would
-    // stretch each button past its 40px height.
     .krd__btn {
       flex: 0 0 auto;
     }

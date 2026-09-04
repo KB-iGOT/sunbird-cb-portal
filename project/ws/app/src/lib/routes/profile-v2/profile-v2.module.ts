@@ -49,6 +49,7 @@ import { OtpService } from '../user-profile/services/otp.services'
 import { RejectionReasonPopupComponent } from './components/rejection-reason-popup/rejection-reason-popup.component'
 import { MatButtonModule } from '@angular/material/button'
 import { MatChipsModule } from '@angular/material/chips'
+import { MatNativeDateModule } from '@angular/material/core'
 import { MatDatepickerModule } from '@angular/material/datepicker'
 import { MatDialogModule } from '@angular/material/dialog'
 import { MatFormFieldModule } from '@angular/material/form-field'
@@ -168,6 +169,7 @@ export function ProfileV2HttpLoaderFactory(http: HttpClient) {
         PendingRequestModule,
         MatTooltipModule,
         MatDatepickerModule,
+        MatNativeDateModule,
         MatAutocompleteModule,
         TranslateModule,
         MatMenuModule,
