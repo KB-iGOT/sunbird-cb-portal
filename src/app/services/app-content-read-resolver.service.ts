@@ -1,19 +1,17 @@
 import { Injectable } from '@angular/core'
 import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router'
-import { IResolveResponse } from '@sunbird-cb/utils-v2'
+// import { IResolveResponse } from '@sunbird-cb/utils-v2'
 import { Observable, of } from 'rxjs'
 import { catchError, map, tap } from 'rxjs/operators'
-import { WidgetContentService } from '@sunbird-cb/toc'
 
 @Injectable()
-export class AppContentResolverService
-     {
-    constructor(private contentSvc: WidgetContentService) {}
+export class AppContentResolverService {
+    constructor(private contentSvc: any) { }
 
     resolve(
         _route: ActivatedRouteSnapshot,
         _state: RouterStateSnapshot,
-    ): Observable<IResolveResponse<any>> {
+    ): Observable<any> {
         let collectionId = _route.queryParams && _route.queryParams.collectionId || ''
         const multilingualContentId = _route.queryParams && _route.queryParams.MLId || ''
         if (multilingualContentId && (collectionId !== multilingualContentId)) {
@@ -24,8 +22,8 @@ export class AppContentResolverService
                 map((rData: any) => ({ data: rData, error: null })), //  (rData.responseData || []).map((p: any) => p.name)
                 tap((resolveData: any) => of({ error: null, data: resolveData })),
                 catchError((error: any) => of({ error, data: null })),
-                )
+            )
         }
-        return  of({ error: 'Collection Id not found', data: null })
+        return of({ error: 'Collection Id not found', data: null })
     }
 }

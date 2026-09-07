@@ -9,7 +9,7 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
 
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
 import { UserProfileService } from '@ws/app/src/lib/routes/user-profile/services/user-profile.service'
-import { AccessControlService, ApiService } from '@ws/author/src/public-api'
+import { AccessControlService, ApiService } from '@ws/author'
 import { SbUiResolverModule } from '@sunbird-cb/resolver-v2'
 import { LoggerService, PipeSafeSanitizerModule, ConfigurationsService, PipeOrderByModule, NPSGridService, DomainConfService } from '@sunbird-cb/utils-v2'
 
@@ -28,15 +28,12 @@ import { AppRetryInterceptorService } from './services/app-retry-interceptor.ser
 import { TncAppResolverService } from './services/tnc-app-resolver.service'
 import { TncPublicResolverService } from './services/tnc-public-resolver.service'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
-import { ServiceWorkerModule } from '@angular/service-worker'
 import { environment } from 'src/environments/environment'
-import { QuickTourModule } from '@ws/app'
 import { AppIntroComponent } from './component/app-intro/app-intro.component'
 import { NoConnectionComponent } from './component/no-connection/no-connection.component'
 import { PublicHomeComponent } from './routes/public/public-home/public-home.component'
 import { WelcomeUserResolverService } from './services/welcome-user-resolver.service'
 
-import { AppChatbotModule } from './component/app-chatbot/app-chatbot.module'
 import { AppHierarchyResolverService } from './services/app-hierarchy-resolver.service'
 import { AppEnrollmentResolverService } from './services/app-enrollment-resolver.service'
 import { TranslateHttpLoader } from '@ngx-translate/http-loader'
@@ -71,10 +68,7 @@ import { WIDGET_REGISTRATION_CONFIG } from '@sunbird-cb/collection'
 import { MandatoryNotificationModalComponent } from './component/mandatory-notification-modal/mandatory-notification-modal.component'
 import { HeaderV2Component } from './header/header-v2/header-v2.component'
 import { NoConnectionV2Component } from './component/no-connection-v2/no-connection-v2.component'
-import { KarmaLeaderboardV2Module } from './home/home-v2/karma-leaderboard-v2/karma-leaderboard-v2.module'
 import { AppNavBarV2Component } from './component/app-nav-bar-v2/app-nav-bar-v2.component'
-import { GuidedTourModule, GuidedTourService } from 'igot-cb-tour-guide'
-import { AppTourSharedModule } from './component/app-tour/app-tour-shared.module'
 // @Injectable()
 // export class HammerConfig extends GestureConfig {
 //   buildHammer(element: HTMLElement) {
@@ -119,7 +113,7 @@ export function HttpLoaderFactory(http: HttpClient) {
   imports: [
     FormsModule,
     MatCheckboxModule,
-    QuickTourModule,
+
     ReactiveFormsModule,
     BrowserModule,
     HttpClientModule,
@@ -142,12 +136,9 @@ export function HttpLoaderFactory(http: HttpClient) {
     MatProgressSpinnerModule,
     PipeOrderByModule,
     PipeSafeSanitizerModule,
-    AppChatbotModule,
     DynamicSidebarComponent,
     HeaderV2Component,
     NoConnectionV2Component,
-    KarmaLeaderboardV2Module,
-    ServiceWorkerModule.register('ngsw-worker.js', { enabled: environment.production }),
     HeaderModule,
     TranslateModule.forRoot({
       loader: {
@@ -156,9 +147,7 @@ export function HttpLoaderFactory(http: HttpClient) {
         deps: [HttpClient],
       },
     }),
-    GuidedTourModule,
     AppNavBarV2Component,
-    AppTourSharedModule,
 
   ],
   exports: [
@@ -216,7 +205,6 @@ export function HttpLoaderFactory(http: HttpClient) {
     // { provide: HAMMER_GESTURE_CONFIG, useClass: HammerConfig },
     { provide: ErrorHandler, useClass: GlobalErrorHandlingService },
     { provide: 'environment', useValue: environment },
-    GuidedTourService,
     ResourceDownloadHelperService,
   ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],

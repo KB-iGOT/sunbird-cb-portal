@@ -4,16 +4,16 @@ import { Observable, of } from 'rxjs'
 import { map, catchError } from 'rxjs/operators'
 import { HttpClient } from '@angular/common/http'
 import { NsTnc } from '../models/tnc.model'
-import { IResolveResponse } from '@sunbird-cb/utils-v2'
+// import { IResolveResponse } from '@sunbird-cb/utils-v2'
 
 @Injectable()
-export class TncPublicResolverService  {
+export class TncPublicResolverService {
 
   constructor(
     private http: HttpClient,
   ) { }
 
-  resolve(): Observable<IResolveResponse<NsTnc.ITnc>> {
+  resolve(): Observable<any> {
     return this.getPublicTnc().pipe(
       map(data => ({ data, error: null })),
       catchError(error => of({ error, data: null })),

@@ -80,7 +80,7 @@
             "extractLicenses": false,
             "sourceMap": true,
             "optimization": false,
-            "namedChunks": true,
+            "namedChunks": false,
             "allowedCommonJsDependencies": [
               "@ckeditor/ckeditor5-editor-classic"
             ],
@@ -104,8 +104,8 @@
               ],
               "optimization": true,
               "outputHashing": "all",
-              "sourceMap": true,
-              "namedChunks": true,
+              "sourceMap": false,
+              "namedChunks": false,
               "aot": true,
               "extractLicenses": true,
               "budgets": [
@@ -130,8 +130,8 @@
               ],
               "optimization": true,
               "outputHashing": "all",
-              "sourceMap": true,
-              "namedChunks": true,
+              "sourceMap": false,
+              "namedChunks": false,
               "aot": true,
               "extractLicenses": true,
               "budgets": [
@@ -156,8 +156,8 @@
               ],
               "optimization": true,
               "outputHashing": "all",
-              "sourceMap": true,
-              "namedChunks": true,
+              "sourceMap": false,
+              "namedChunks": false,
               "aot": true,
               "extractLicenses": true,
               "budgets": [
@@ -182,8 +182,8 @@
               ],
               "optimization": true,
               "outputHashing": "all",
-              "sourceMap": true,
-              "namedChunks": true,
+              "sourceMap": false,
+              "namedChunks": false,
               "aot": true,
               "extractLicenses": true,
               "budgets": [
@@ -208,8 +208,8 @@
               ],
               "optimization": true,
               "outputHashing": "all",
-              "sourceMap": true,
-              "namedChunks": true,
+              "sourceMap": false,
+              "namedChunks": false,
               "aot": true,
               "extractLicenses": true,
               "budgets": [

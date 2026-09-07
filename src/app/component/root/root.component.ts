@@ -1,7 +1,6 @@
 import {
   AfterViewChecked,
   AfterViewInit,
-  ApplicationRef,
   ChangeDetectorRef,
   Component,
   computed,
@@ -25,7 +24,7 @@ import {
 } from '@angular/router'
 import { BreakpointObserver } from '@angular/cdk/layout'
 // import { interval, concat, timer } from 'rxjs'
-import { BtnPageBackService } from '@sunbird-cb/collection'
+// import { BtnPageBackService } from '@sunbird-cb/collection'
 import { HttpClient } from '@angular/common/http'
 import {
   AuthKeycloakService,
@@ -39,7 +38,7 @@ import {
   WsEvents,
   // NsInstanceConfig,
 } from '@sunbird-cb/utils-v2'
-import { delay, first, catchError, map, filter } from 'rxjs/operators'
+import { delay, catchError, map, filter } from 'rxjs/operators'
 import { combineLatest } from 'rxjs'
 import { MobileAppsService } from '../../services/mobile-apps.service'
 import { RootService } from './root.service'
@@ -50,11 +49,9 @@ import { RootService } from './root.service'
 // to it silently, but the dev server's Vite dependency optimizer errors out with
 // "Failed to resolve entry for package". Naming the subpath skips entry resolution.
 import { CsModule } from '@project-sunbird/client-services/index'
-import { SwUpdate } from '@angular/service-worker'
-import { environment } from '../../../environments/environment'
+// import { SwUpdate } from '@angular/service-worker'
 import { MatDialog } from '@angular/material/dialog'
-import { DialogConfirmComponent } from '../dialog-confirm/dialog-confirm.component'
-import { concat, interval, of } from 'rxjs'
+import { of } from 'rxjs'
 // import { iGOTAIService } from './../../services/igot-ai.service'
 import { CommonDataService } from '../../services/common-data.service'
 import { UserRestrictionService } from '../../services/user-restriction.service'
@@ -126,9 +123,8 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
   constructor(
     private router: Router,
     private route: ActivatedRoute,
-    private appRef: ApplicationRef,
     // private logger: LoggerService,
-    private swUpdate: SwUpdate,
+    // private swUpdate: SwUpdate,
     private dialog: MatDialog,
     private http: HttpClient,
     private authSvc: AuthKeycloakService,
@@ -138,7 +134,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
     private eventSvc: EventService,
     private mobileAppsSvc: MobileAppsService,
     private rootSvc: RootService,
-    private btnBackSvc: BtnPageBackService,
+    // private btnBackSvc: BtnPageBackService,
     private changeDetector: ChangeDetectorRef,
     private utilitySvc: UtilityService,
     private urlService: UrlService,
@@ -417,7 +413,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
       this.isInIframe = false
     }
 
-    this.btnBackSvc.initialize()
+    // this.btnBackSvc.initialize()
 
     this.router.events.pipe(
       filter(event => event instanceof NavigationEnd)
@@ -829,7 +825,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
   }
 
   ngAfterViewInit() {
-    this.initAppUpdateCheck()
+    // this.initAppUpdateCheck()
   }
 
   getChildRouteData(snapshot: ActivatedRouteSnapshot, firstChild: ActivatedRouteSnapshot | null) {
@@ -843,57 +839,6 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
     }
   }
 
-  initAppUpdateCheck() {
-    if (!environment.production || !this.swUpdate.isEnabled) {
-      return
-    }
-
-    // A tab left open across a deployment keeps running the shell the service worker
-    // cached, but the next build deletes that shell's lazy chunks from the server. The
-    // first navigation to a route the user had not visited yet then fails with
-    //   Failed to fetch dynamically imported module: .../chunk-XXXXXXXX.js
-    // `unrecoverable` fires for exactly that - the cached version references assets the
-    // server no longer has. A full reload is the only way out: it fetches the current
-    // index.html, which names the chunks that do exist.
-    this.swUpdate.unrecoverable.subscribe(() => {
-      window.location.reload()
-    })
-
-    // Look for a new deployment once the app settles, then every six hours. Without
-    // this the client can sit on a stale build indefinitely.
-    const appIsStable$ = this.appRef.isStable.pipe(
-      first(isStable => isStable),
-    )
-    const everySixHours$ = interval(6 * 60 * 60 * 1000)
-    concat(appIsStable$, everySixHours$).subscribe(() => {
-      // Rejects when offline; the next tick retries, so failure is not worth surfacing.
-      this.swUpdate.checkForUpdate().catch(() => undefined)
-    })
-
-    // `SwUpdate.available` was removed in Angular 13 - versionUpdates replaces it, and
-    // VERSION_READY is the event that means the new version is fully downloaded and
-    // safe to activate. Subscribing unconditionally (as this did while `available` was
-    // commented out) opened the update prompt on every single load.
-    this.swUpdate.versionUpdates
-      .pipe(filter(evt => evt.type === 'VERSION_READY'))
-      .subscribe(() => {
-        const dialogRef = this.dialog.open(DialogConfirmComponent, {
-          data: {
-            title: (this.appUpdateTitleRef && this.appUpdateTitleRef.nativeElement.value) || '',
-            body: (this.appUpdateBodyRef && this.appUpdateBodyRef.nativeElement.value) || '',
-          },
-        })
-        dialogRef.afterClosed().subscribe(result => {
-          if (!result) {
-            return
-          }
-          // Do not clear the Cache Storage here. The previous version wiped every cache
-          // right after activating, which threw away the version that had just been
-          // installed and forced a full re-download on the next load.
-          this.swUpdate.activateUpdate().then(() => window.location.reload())
-        })
-      })
-  }
 
   getTourGuide() {
     let showTour = false

@@ -22,13 +22,12 @@ import _ from 'lodash'
 import { firstValueFrom, forkJoin, of } from 'rxjs'
 import { catchError, map } from 'rxjs/operators'
 import { v4 as uuid } from 'uuid'
-import { NPSGridService } from '@sunbird-cb/collection'
-import { ContentDictionaryService } from '@sunbird-cb/consumption'
+// import { NPSGridService, BtnSettingsService } from '@sunbird-cb/collection'
+// import { ContentDictionaryService } from '@sunbird-cb/consumption'
 import moment from 'moment'
 import { TranslateService } from '@ngx-translate/core'
 import { SbUiResolverService } from '@sunbird-cb/resolver-v2'
 import { NetCoreService } from './netcore.service'
-import { BtnSettingsService } from '@sunbird-cb/collection'
 import { CommonDataService } from './common-data.service'
 import { FormExtService } from './form-ext.service'
 import { IndexedDbService } from '@ws/app/src/lib/routes/search-v3/services/indexed-db.service'
@@ -58,15 +57,13 @@ export class InitService {
     private domainConfSvc: DomainConfService,
     private widgetResolverService: WidgetResolverService,
     private sbUiResolverService: SbUiResolverService,
-    private settingsSvc: BtnSettingsService,
     private userPreference: UserPreferenceService,
     private http: HttpClient,
-    private npsSvc: NPSGridService,
     private translate: TranslateService,
     private enrollSvc: WidgetEnrollService,
     private netCoreService: NetCoreService,
     private commonDataSvc: CommonDataService,
-    private contentDictionarySvc: ContentDictionaryService,
+    // private contentDictionarySvc: ContentDictionaryService,
     private formSvc: FormExtService,
     private indexedDbSvc: IndexedDbService,
 
@@ -215,9 +212,7 @@ export class InitService {
         await this.fetchUserEnrollDetails()
         // pre-load the content dictionary only when enabled via global-config apis.content.dictionary
         if (this.configSvc.globalConfig?.apis?.content?.dictionary?.enabled) {
-          this.contentDictionarySvc.getDictionary().subscribe({
-            error: (err: any) => this.logger.warn('InitService: Failed to pre-load content dictionary', err),
-          })
+
         }
         // pre-load the enrolment dictionary so the cards that look up their own id
         // already have it cached by the time they render. Deliberately not awaited:
@@ -233,7 +228,7 @@ export class InitService {
 
       // detail: depends only on userID
     } catch (e) {
-      this.settingsSvc.initializePrefChanges(environment.production)
+      // this.settingsSvc.initializePrefChanges(environment.production)
       this.updateNavConfig()
       this.isAnonymousTelemetry = true
       this.updateTelemetryConfig()
@@ -249,7 +244,7 @@ export class InitService {
         'Initialization process encountered some error. Application may not work as expected',
         e,
       )
-      this.settingsSvc.initializePrefChanges(environment.production)
+      // this.settingsSvc.initializePrefChanges(environment.production)
     }
     this.updateNavConfig()
     if (
@@ -291,7 +286,7 @@ export class InitService {
     this.updateTelemetryConfig()
 
     // Apply the settings using settingsService
-    this.settingsSvc.initializePrefChanges(environment.production)
+    // this.settingsSvc.initializePrefChanges(environment.production)
     this.userPreference.initialize()
 
     // lang selection
@@ -929,28 +924,28 @@ export class InitService {
       return
     }
 
-    const feedId: any = []
+    //const feedId: any = []
     // Pass only the user ID to getFeedStatus - the service constructs the full URL
-    this.npsSvc.getFeedStatus(this.configSvc.unMappedUser.id).subscribe((res: any) => {
-      if (res.result.response.userFeed && res.result.response.userFeed.length > 0) {
-        const feed = res.result.response.userFeed
-        feed.forEach((item: any) => {
-          if (item.category === 'NPS' && item && item.data && item.data.actionData && item.data.actionData.formId) {
-            feedId.push(item.id)
-            const currentTime = moment()
-            localStorage.platformratingTime = currentTime
-            localStorage.setItem('ratingformID', JSON.stringify(item.data.actionData.formId))
-            localStorage.setItem('ratingfeedID', JSON.stringify(feedId))
-          } else if (item.category === 'NPS2' && item && item.data && item.data.actionData && item.data.actionData.formId) {
-            feedId.push(item.id)
-            const currentTime = moment()
-            localStorage.platformratingTime = currentTime
-            localStorage.setItem('ratingformID', JSON.stringify(item.data.actionData.formId))
-            localStorage.setItem('ratingfeedID', JSON.stringify(feedId))
-          }
-        })
-      }
-    })
+    // this.npsSvc.getFeedStatus(this.configSvc.unMappedUser.id).subscribe((res: any) => {
+    //   if (res.result.response.userFeed && res.result.response.userFeed.length > 0) {
+    //     const feed = res.result.response.userFeed
+    //     feed.forEach((item: any) => {
+    //       if (item.category === 'NPS' && item && item.data && item.data.actionData && item.data.actionData.formId) {
+    //         feedId.push(item.id)
+    //         const currentTime = moment()
+    //         localStorage.platformratingTime = currentTime
+    //         localStorage.setItem('ratingformID', JSON.stringify(item.data.actionData.formId))
+    //         localStorage.setItem('ratingfeedID', JSON.stringify(feedId))
+    //       } else if (item.category === 'NPS2' && item && item.data && item.data.actionData && item.data.actionData.formId) {
+    //         feedId.push(item.id)
+    //         const currentTime = moment()
+    //         localStorage.platformratingTime = currentTime
+    //         localStorage.setItem('ratingformID', JSON.stringify(item.data.actionData.formId))
+    //         localStorage.setItem('ratingfeedID', JSON.stringify(feedId))
+    //       }
+    //     })
+    //   }
+    // })
     const checkSurvey = localStorage.getItem('surveyPopup')
     if (checkSurvey && checkSurvey === 'false') {
       localStorage.setItem('surveyPopup', 'false')
