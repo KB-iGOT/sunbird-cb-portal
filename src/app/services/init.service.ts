@@ -66,6 +66,7 @@ export class InitService {
     // private contentDictionarySvc: ContentDictionaryService,
     private formSvc: FormExtService,
     private indexedDbSvc: IndexedDbService,
+    private widgetUserSvc: WidgetUserServiceLib,
 
     @Inject(APP_BASE_HREF) private baseHref: string,
     domSanitizer: DomSanitizer,
@@ -220,6 +221,7 @@ export class InitService {
         this.fetchEnrolmentDictionary().catch((err: any) =>
           this.logger.warn('InitService: Failed to pre-load enrolment dictionary', err),
         )
+        this.preloadCbpPlans()
       } else if (path.includes('/public/welcome')) {
         await this.fetchStartUpDetails()
       } else if (window.location.href.includes('editMode=true') && window.location.href.includes('_rc')) {
@@ -426,6 +428,23 @@ export class InitService {
     const dictionary = _.get(res, 'result.response', {}) || {}
     await this.indexedDbSvc.setEnrollmentDetails(dictionary)
     return dictionary
+  }
+
+  /**
+   * Warms the CBP plan cache (IndexedDB, iGotCbpDB/cbpPlans) for the current financial year.
+   *
+   * The cards that show a plan's due date, overdue flag and APAR tag look their own content
+   * id up in that cache; nothing on the home page fetches the plan list itself, so without
+   * this the cache is only ever written by a visit to /app/cbp and those tags appeared or
+   * not depending on whether the user had been there inside the cache's TTL.
+   *
+   * Deliberately not awaited — startup must not block on it, and every reader already
+   * degrades to "no plan tag" on an empty cache.
+   */
+  private preloadCbpPlans(): void {
+    this.widgetUserSvc.fetchCbpPlanListV3().subscribe({
+      error: (err: any) => this.logger.warn('InitService: Failed to pre-load CBP plans', err),
+    })
   }
 
   private async fetchUserEnrollDetails(): Promise<NsInstanceConfig.IConfig> {
