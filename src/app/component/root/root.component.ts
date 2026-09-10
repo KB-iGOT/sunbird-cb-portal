@@ -203,6 +203,10 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
       this.showTour = this.configSvc.unMappedUser.profileDetails.get_started_tour_v2.skipped ||
         this.configSvc.unMappedUser.profileDetails.get_started_tour_v2.visited
     }
+    if (this.configSvc.unMappedUser && this.configSvc.unMappedUser.profileDetails) {
+      const karmaWalletTour = this.configSvc.unMappedUser.profileDetails.karma_wallet_tour
+      this.karmaWalletVideoPending = !karmaWalletTour || karmaWalletTour.video_visited !== true
+    }
     this.mobileAppsSvc.init()
     this.openIntro()
     const locationOrigin = location.origin
@@ -349,6 +353,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
   processed: any
   loginToken: any
   showTour = false
+  karmaWalletVideoPending = false
   currentRouteData: any = []
   loggedinUser = !!(this.configSvc.userProfile && this.configSvc.userProfile.userId)
   headerFooterConfigData: any = null
