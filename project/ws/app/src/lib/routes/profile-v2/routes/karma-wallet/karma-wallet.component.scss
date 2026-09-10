@@ -151,15 +151,11 @@ $kw-row-pad: 17px;
   font-size: 14px;
   font-weight: 700;
   white-space: nowrap;
-  // Light mode keeps --color-primary-500, the token this page has always used, so whatever
-  // supplies its value in a given environment keeps supplying it. Dark mode is handled by the
-  // :host-context([data-theme='dark']) block below rather than by swapping the token, because
-  // the two are not
-  // guaranteed to resolve to the same colour in every deployment.
   cursor: pointer;
   transition: background-color 0.2s ease, border-color 0.2s ease;
 
-  &--ghost {
+  &--ghost,
+  &--retry {
     // Transparent, not white: reads white on the light page and stays correct in dark mode.
     border: 2px solid var(--color-primary-500);
     background: transparent;
@@ -191,8 +187,6 @@ $kw-row-pad: 17px;
   }
 }
 
-// Dark mode only. --color-primary-500 does not flip, so on a dark surface the fill sinks into
-// the background and the outline all but vanishes; these tokens carry the inverted values.
 :host-context([data-theme='dark']) {
   .kw__btn--primary {
     border-color: var(--environment-button-primary-filled-primary);
@@ -205,10 +199,8 @@ $kw-row-pad: 17px;
     }
   }
 
-  // bandw (black-in-light / white-in-dark) rather than the outline button token: that token
-  // is overridden to the brand colour in both themes in this deployment, which left a purple
-  // outline on a dark surface. bandw is proven to flip - it is what turns the body text white.
-  .kw__btn--ghost {
+  .kw__btn--ghost,
+  .kw__btn--retry {
     border-color: var(--environment-icon-overall-primary-bandw);
     color: var(--environment-icon-overall-primary-bandw);
 
@@ -218,8 +210,6 @@ $kw-row-pad: 17px;
   }
 }
 
-// Eyebrow type shared by the month bands and column headers. The colour tracks the theme
-// because it sits on the card surface token, which goes near-black in dark mode.
 .kw-table__month-label,
 .kw-table__th {
   font-size: 11px;
@@ -237,13 +227,96 @@ $kw-row-pad: 17px;
   gap: 30px;
   margin-bottom: 32px;
 }
+.kw-stats-error {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  min-height: 150px;
+  padding: 16px 24px;
+  border: 2px solid transparent;
+  border-radius: 12px;
+  background: var(--environment-cards-overall-cards-primary);
+}
+
+.kw-stats-error__icon {
+  flex: none;
+  color: $kw-debit;
+}
+
+.kw-stats-error__text {
+  flex: 1 1 auto;
+  min-width: 0;
+}
+
+.kw-stats-error__title {
+  font-size: 16px;
+  font-weight: 700;
+  line-height: 22px;
+  color: $kw-ink-strong;
+}
+
+.kw-stats-error__detail {
+  margin-top: 4px;
+  font-size: 14px;
+  line-height: 20px;
+  color: $kw-ink-muted;
+}
+
+.kw-stats-error__retry {
+  flex: none;
+}
+
+.kw-stat--skeleton {
+  gap: 12px;
+  justify-content: center;
+  // No hover affordance on a placeholder
+  pointer-events: none;
+}
+
+.kw-skel {
+  display: block;
+  border-radius: 4px;
+  background: rgba(127, 127, 127, 0.22);
+  animation: kw-skel-pulse 1.4s ease-in-out infinite;
+
+  &--label {
+    width: 62%;
+    height: 12px;
+  }
+
+  &--value {
+    width: 40%;
+    height: 26px;
+  }
+
+  &--track {
+    width: 100%;
+    height: 6px;
+    border-radius: 999px;
+  }
+
+  &--hint {
+    width: 78%;
+    height: 10px;
+  }
+}
+
+@keyframes kw-skel-pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.45; }
+}
+
+// Honour a reduced-motion preference - the placeholder still reads without the pulse
+@media (prefers-reduced-motion: reduce) {
+  .kw-skel {
+    animation: none;
+  }
+}
 
 .kw-stat {
   display: flex;
   flex-direction: column;
-  // Figma box model: 2px border + 16/24 padding + 192x114 content = 244x150 card.
-  // The border is kept on every card - transparent until hover - so gaining one on
-  // hover never shifts the grid.
   min-height: 150px;
   padding: 16px 24px;
   border: 2px solid transparent;
@@ -253,9 +326,6 @@ $kw-row-pad: 17px;
 
   &:hover {
     border-color: var(--color-primary-500);
-
-    // Both figures drop the brand colour on hover for the theme foreground - black in light.
-    // Dark mode overrides this further down.
     .kw-stat__value,
     .kw-stat__value-sub {
       color: var(--environment-icon-overall-primary-bandw);
@@ -263,39 +333,25 @@ $kw-row-pad: 17px;
   }
 }
 
-// Dark-mode colours for the figures. bandw is black-in-light / white-in-dark, so inside this
-// block it resolves to white.
-// These must be :host-context() rather than a plain [data-theme='dark'] ancestor: this
-// component uses emulated encapsulation, which would stamp the content attribute onto the
-// [data-theme] selector - and <html> never carries it, so the rule would never match.
-// The hover rules need the prefix too, or the light-mode hover selector outranks them.
 :host-context([data-theme='dark']) {
   .kw-stat__value,
   .kw-stat__value-sub {
     color: var(--environment-icon-overall-primary-bandw);
   }
 
-  // Hovering a card turns the whole figure the brand colour. Black here would be near-black
-  // on a near-black card, so the brand colour is both what was asked for and the legible one.
   .kw-stat:hover .kw-stat__value,
   .kw-stat:hover .kw-stat__value-sub {
     color: var(--color-primary-500);
   }
 
-  // The track token resolves to rgba(0,0,0,0.96) in dark - black on a near-black card, so the
-  // unfilled part of the bar disappeared. A light wash reads on any dark surface.
   .kw-stat__track {
     background: rgba(255, 255, 255, 0.16);
   }
 
-  // card-background resolves to the brand colour in this deployment, which turned the sort
-  // control into a solid purple pill. A neutral raised surface reads as a control instead.
   .kw__sort {
     background: var(--surface-secondary);
   }
 
-  // Selected tab and its underline switch to the warning orange - the same token as the
-  // progress fills - since the brand colour reads dimly on the dark surface.
   .kw__tab--active {
     color: var(--environment-all-fills-system-warning);
   }
@@ -353,9 +409,6 @@ $kw-row-pad: 17px;
   overflow: hidden;
 }
 
-// The bar needs clear air before the footnote beneath it. Content already fills the card's
-// 114px budget exactly, so the 12px that used to sit entirely above the bar is split 4/8
-// instead of adding to it - the card still lands on 244x150.
 .kw-stat--progress {
   .kw-stat__value-row {
     margin-bottom: 4px;
@@ -443,8 +496,6 @@ $kw-row-pad: 17px;
   color: $kw-ink-muted;
 }
 
-// Period filter options. These live in the mat-menu overlay, but the markup is declared in
-// this component's template so it still carries the encapsulation attribute.
 .kw-period {
   display: inline-flex;
   align-items: center;
@@ -453,8 +504,6 @@ $kw-row-pad: 17px;
 
 .kw-period__radio {
   position: relative;
-  // The menu panel lives in the CDK overlay, outside .kw, so the scoped border-box reset at
-  // the top of this file cannot reach it - without this the 2px border would make it 22px.
   box-sizing: border-box;
   width: 18px;
   height: 18px;
@@ -494,7 +543,7 @@ $kw-row-pad: 17px;
 .kw__range {
   display: flex;
   align-items: flex-end;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 10px;
   margin-bottom: 18px;
 }
@@ -518,13 +567,27 @@ $kw-row-pad: 17px;
   ::ng-deep .mat-mdc-form-field-subscript-wrapper {
     display: none;
   }
-
-  ::ng-deep .mat-mdc-form-field-infix {
-    min-height: 40px;
-    padding-top: 10px;
-    padding-bottom: 10px;
+  ::ng-deep .mat-mdc-form-field-flex {
+    align-items: center;
   }
 
+  ::ng-deep .mat-mdc-form-field-infix {
+    display: flex;
+    align-items: center;
+    min-height: 40px;
+    padding-top: 0;
+    padding-bottom: 0;
+  }
+
+  ::ng-deep .mat-mdc-input-element {
+    text-align: left;
+    margin: 0;
+  }
+
+  // Material leaves the toggle hard against the outline; this is the gap after the icon.
+  ::ng-deep .mat-mdc-form-field-icon-suffix {
+    padding-right: 8px;
+  }
 }
 
 .kw__range-sep {
@@ -536,7 +599,8 @@ $kw-row-pad: 17px;
 
 .kw__range-error {
   margin: -8px 0 18px;
-  text-align: center;
+  // Follows the range it belongs to, which is left-aligned now
+  text-align: left;
   font-size: 12.5px;
   line-height: 18px;
   color: var(--environment-all-fills-system-error);
@@ -722,6 +786,10 @@ $kw-row-pad: 17px;
   .kw {
     padding: 16px 16px 40px;
   }
+  .kw-stats-error {
+    flex-direction: column;
+    align-items: flex-start;
+  }
 
   .kw__header {
     flex-direction: column;
@@ -790,10 +858,6 @@ $kw-row-pad: 17px;
   }
 }
 
-// The menu panel is created by Material inside the CDK overlay, outside this component's host,
-// so neither view encapsulation nor :host-context() can reach it. ::ng-deep emits these rules
-// unscoped; the unique .kw-period* names keep them from touching anything else. Dark mode only -
-// the light panel is Material's default white, which already matches the design.
 ::ng-deep [data-theme='dark'] {
   .kw-period-menu.mat-mdc-menu-panel {
     background: var(--surface-secondary);

@@ -175,6 +175,15 @@ export class KarmaLeaderboardV2Component implements OnInit {
     )
   }
 
+  onKarmaCoinsNavBtnClick() {
+    this.close.emit()
+    this.eventSvc.raiseInteractTelemetry(
+      { id: 'wallet-balance', type: WsEvents.EnumInteractTypes.CLICK, subType: WsEvents.EnumInteractSubTypes.PROFILE },
+      {},
+      { pageId: 'page/home' }
+    )
+  }
+
   private raiseImpressionTelemetry() {
     this.eventSvc.raiseInteractTelemetry(
       { id: 'karma-leaderboard-impression', type: WsEvents.EnumInteractTypes.CLICK, subType: 'leaderboard-loaded' },

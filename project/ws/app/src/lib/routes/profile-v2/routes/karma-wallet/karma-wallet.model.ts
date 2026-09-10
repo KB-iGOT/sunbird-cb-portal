@@ -1,12 +1,18 @@
+import { v4 as uuid } from 'uuid'
+
 export type TKarmaCoinTxnType = 'earned' | 'redeemed'
 export const KARMA_CONVERSION_RATE = 1
+
+/* Telemetry identity for the whole wallet feature - the page and its dialogs all report
+   these, so they live here rather than in one component. */
+export const KARMA_WALLET_PAGE_ID = 'app/person-profile/karma-wallet'
+export const KARMA_WALLET_ENV = 'Karma Wallet'
 
 export interface IKarmaWalletSummary {
   walletBalance: number
   totalRedeemed: number
   totalEarnedTillDate: number
   totalKarmaPoints: number
-  /* Karma Points still waiting to be converted = totalKarmaPoints - totalEarnedTillDate */
   unredeemedKarmaPoints: number
   yearMonth: string
   monthlyCap: number
@@ -30,6 +36,11 @@ export interface IKarmaRedeemRequestBody {
 
 export interface IKarmaRedeemRequest {
   request: IKarmaRedeemRequestBody
+}
+
+/* What the wallet page hands the convert dialog, so the dialog need not refetch the summary */
+export interface IKarmaRedeemDialogData {
+  summary: IKarmaWalletSummary
 }
 
 export interface IKarmaRedeemAcceptedResponse {
@@ -65,27 +76,7 @@ export interface IKarmaApiRejection {
 }
 
 export function newRequestId(): string {
-  const api: any = typeof crypto === 'undefined' ? null : crypto
-  if (api && typeof api.randomUUID === 'function') {
-    return api.randomUUID()
-  }
-
-  const bytes = new Uint8Array(16)
-  if (api && typeof api.getRandomValues === 'function') {
-    api.getRandomValues(bytes)
-  } else {
-    for (let index = 0; index < bytes.length; index += 1) {
-      bytes[index] = Math.floor(Math.random() * 256)
-    }
-  }
-  /* RFC 4122 version and variant bits, so the id is a well-formed v4 either way */
-  bytes[6] = (bytes[6] & 0x0F) | 0x40
-  bytes[8] = (bytes[8] & 0x3F) | 0x80
-
-  const hex = Array.from(bytes, byte => byte.toString(16).padStart(2, '0')).join('')
-  return [
-    hex.slice(0, 8), hex.slice(8, 12), hex.slice(12, 16), hex.slice(16, 20), hex.slice(20),
-  ].join('-')
+  return uuid()
 }
 
 export function readApiError(err: any): string {
@@ -104,9 +95,8 @@ export type TKarmaTxnDirection = 'CREDIT' | 'DEBIT'
 export type TKarmaTxnFilter = 'ALL' | TKarmaTxnDirection
 
 export interface IKarmaTransactionsRequestBody {
-  /* Inclusive 'YYYY-MM-DD' bounds; both omitted when the period is unbounded */
-  startDate?: string
-  endDate?: string
+  startDate: string
+  endDate: string
   type: TKarmaTxnFilter
 }
 
@@ -157,7 +147,6 @@ export interface IKarmaCoinTxnGroup {
   expanded: boolean
   transactions: IKarmaCoinTransaction[]
 }
-
 
 export type TKarmaWalletPeriod =
   'recent' | 'currentMonth' | 'lastMonth' | 'last3Months' | 'last6Months' | 'custom'

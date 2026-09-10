@@ -1,9 +1,13 @@
 import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core'
 import { Router } from '@angular/router'
 import { MatDatepicker } from '@angular/material/datepicker'
-import { MatDialog } from '@angular/material/dialog'
+import {
+  DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE, MatDateFormats, NativeDateAdapter,
+} from '@angular/material/core'
+import { MatDialog, MatDialogRef } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
-import { EventService, WsEvents } from '@sunbird-cb/utils-v2'
+import { EventService, TelemetryService, WsEvents } from '@sunbird-cb/utils-v2'
+import { $t } from '@project-sunbird/telemetry-sdk'
 import { NoopScrollStrategy } from '@angular/cdk/overlay'
 import { of, Subject } from 'rxjs'
 import { catchError, switchMap, takeUntil } from 'rxjs/operators'
@@ -17,28 +21,35 @@ import {
   IKarmaWalletPeriodOption,
   IKarmaWalletSummary,
   IKarmaWalletTab,
+  KARMA_WALLET_ENV,
+  KARMA_WALLET_PAGE_ID,
   readApiError,
   TKarmaWalletPeriod,
 } from './karma-wallet.model'
 import { KarmaWalletService } from './karma-wallet.service'
+import { IKarmaTourAction, IKarmaTourStep } from './karma-wallet-tour.model'
+import { KarmaWalletTourComponent } from './karma-wallet-tour.component'
 
 const ICON_BASE = '/assets/icons/karmawallet-v2'
-
 const MONTH_LABELS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
-
-/* Recent is a rolling window ending today; 30 days back from it is its start */
 const RECENT_DAYS = 30
-
-/* How far back the history APIs will look, and so how far back the calendar may go */
 const LOOKBACK_YEARS = 1
-
 const END_BEFORE_START = 'The end date cannot be earlier than the start date.'
-
-/* Fallbacks for when a call fails without the server saying why */
 const HISTORY_ERROR = 'We could not load your coin history. Please try again.'
 const SUMMARY_ERROR = 'We could not load your Karma Coin Wallet. Please try again.'
+/* the coin-history range pickers must read as DD/MM/YYYY, not the en-US M/D/YYYY default */
+export const KARMA_WALLET_DATE_FORMATS: MatDateFormats = {
+  parse: {
+    dateInput: { day: '2-digit', month: '2-digit', year: 'numeric' },
+  },
+  display: {
+    dateInput: { day: '2-digit', month: '2-digit', year: 'numeric' },
+    monthYearLabel: { year: 'numeric', month: 'short' },
+    dateA11yLabel: { year: 'numeric', month: 'long', day: 'numeric' },
+    monthYearA11yLabel: { year: 'numeric', month: 'long' },
+  },
+}
 
-/* Full names for the conversion card's footnote; the short set above labels the history groups */
 const MONTH_NAMES = [
   'January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December',
@@ -49,15 +60,77 @@ const MONTH_NAMES = [
   templateUrl: './karma-wallet.component.html',
   styleUrls: ['./karma-wallet.component.scss'],
   standalone: false,
+  providers: [
+    { provide: MAT_DATE_LOCALE, useValue: 'en-GB' },
+    { provide: DateAdapter, useClass: NativeDateAdapter },
+    { provide: MAT_DATE_FORMATS, useValue: KARMA_WALLET_DATE_FORMATS },
+  ],
 })
 export class KarmaWalletComponent implements OnInit, OnDestroy {
-
-  /* Card icons, kept here so re-pointing the asset folder is a one-place change */
   readonly icons = {
     karmaCoin: `${ICON_BASE}/karmacoin.svg`,
     /* TODO: no karmawallet-v2 equivalent supplied yet, so this still resolves from home-v2 */
     karmaPoints: '/assets/icons/home-v2/karma-badge.svg',
   }
+
+  @ViewChild('tour') private tour!: KarmaWalletTourComponent
+
+  private tourDialogRef: MatDialogRef<KarmaRedeemDialogComponent> | null = null
+
+  readonly tourSteps: IKarmaTourStep[] = [
+    {
+      selector: '.kw__stats',
+      title: 'Your Karma stats at a glance',
+      body: `<ul>
+        <li><b>Wallet Balance</b> - Coins available to redemption on Marketplace courses.</li>
+        <li><b>Pending Conversion</b> - Karma Points being converted / pending conversion into coins.</li>
+        <li><b>Total Converted</b> - Your lifetime Karma Points converted into Karma Coins.</li>
+        <li><b>Unconverted Karma</b> - Karma Points yet to be converted.</li>
+      </ul>`,
+      placement: 'bottom',
+    },
+    {
+      selector: '.kw__history',
+      title: 'Every transaction, tracked',
+      body: `View your complete Karma Coin transaction history. Filter by time period or
+        transaction type - All, Earned, or Redeemed - to quickly find transactions and track
+        your running balance.`,
+      placement: 'left',
+    },
+    {
+      selector: '.kw__btn--primary',
+      title: 'Redeem Your Karma Coins',
+      body: `Use your Karma Coins to redeem courses from the marketplace and unlock new
+        learning opportunities.`,
+      placement: 'bottom',
+      radius: 6,
+    },
+    {
+      selector: '.kw__btn--ghost',
+      title: 'Convert Karma Points',
+      body: `Whenever you're ready to turn points into spendable coins, click "Convert Karma
+        Points." To try it now, press Next to continue the tour.`,
+      placement: 'bottom',
+      radius: 6,
+    },
+    {
+      selector: '.krd__body',
+      title: 'Type an amount to convert',
+      body: `Enter how many Karma Points you'd like to convert. "Convertible this month" shows
+        your monthly limit of up to 300 KP and how many points are already pending conversion.`,
+      placement: 'bottom',
+      before: () => this.openConvertDialogForTour(),
+      onBack: () => this.closeConvertDialogForTour(),
+    },
+    {
+      selector: '.krd__btn--primary',
+      title: 'Confirm the conversion',
+      body: `Once value is entered, tap Convert to instantly turn your points into Karma Coins.
+        The coins are added immediately and are ready to spend on Marketplace courses.`,
+      placement: 'left',
+      radius: 6,
+    },
+  ]
 
   /* The one place the tabs are mapped onto the transactions request's `type` filter */
   readonly tabs: IKarmaWalletTab[] = [
@@ -65,6 +138,9 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
     { value: 'earned', label: 'Earned', apiType: 'CREDIT' },
     { value: 'redeemed', label: 'Redeemed', apiType: 'DEBIT' },
   ]
+
+  /* One per summary card, so the skeleton lays out on the same grid as the real thing */
+  readonly skeletonSlots = [0, 1, 2, 3]
 
   readonly periodOptions: IKarmaWalletPeriodOption[] = [
     { value: 'recent', label: 'Recent' },
@@ -75,36 +151,34 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
     { value: 'custom', label: 'Custom Date' },
   ]
 
-  /* Everything the page renders comes from the one summary response */
   summary: IKarmaWalletSummary = { ...EMPTY_KARMA_WALLET_SUMMARY }
 
   activeTab: IKarmaWalletTab['value'] = 'all'
   activePeriod: TKarmaWalletPeriod = 'recent'
   groups: IKarmaCoinTxnGroup[] = []
   loading = true
-
-  /* Custom Date range. Both are picked from the calendar, so neither can be a malformed date */
+  /* The summary drives all four cards, so they hold a skeleton until it resolves. Separate
+     from `loading`, which tracks the history table - the two calls settle independently. */
+  summaryLoading = true
+  /* Set when the summary call fails, and the only thing that puts the cards' slot into the
+     error state. Empty whenever the four cards hold real figures. */
+  summaryError = ''
   customStart: Date | null = null
   customEnd: Date | null = null
-  /* Client-side complaint about the pair, e.g. an end date before the start. API failures do
-     not land here - those go to the snackbar. */
   customError = ''
 
   @ViewChild('customStartPicker') customStartPicker?: MatDatepicker<Date>
-  /* Anchor for the relative period ranges, and the fallback month label before the summary
-     loads; overridable so tests are not clock-dependent */
   referenceDate = new Date()
 
   private transactions: IKarmaCoinTransaction[] = []
-  /* Collapsed month keys, so a collapse survives a tab or sort change */
   private collapsedKeys = new Set<string>()
-  /* Every tab or period change pushes a request here; switchMap keeps only the latest */
   private readonly historyRequest$ = new Subject<IKarmaTransactionsRequest>()
   private readonly destroy$ = new Subject<void>()
 
   constructor(
     private router: Router,
     private dialog: MatDialog,
+    private telemetrySvc: TelemetryService,
     private events: EventService,
     private karmaWalletSvc: KarmaWalletService,
     private snackBar: MatSnackBar,
@@ -117,35 +191,13 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
     })
   }
 
-  /**
-   * Interact telemetry for this page. subType and module are plain strings on the contract, so
-   * the ids below are descriptive rather than drawn from EnumInteractSubTypes, which has no
-   * karma wallet members. The module is the existing KARMAPOINTS bucket.
-   */
-  private raiseTelemetry(id: string, subType: string) {
-    this.events.raiseInteractTelemetry(
-      {
-        subType,
-        id,
-        type: WsEvents.EnumInteractTypes.CLICK,
-      },
-      {},
-      {
-        module: WsEvents.EnumTelemetrymodules.KARMAPOINTS,
-        pageId: 'karma-wallet',
-      }
-    )
-  }
-
   ngOnInit() {
+    this.raisePageImpression()
+
     this.fetchSummary()
 
     this.historyRequest$.pipe(
-      /* switchMap, so a quick second tab or period change cannot be overtaken by the response
-         to the first one and leave the table showing a filter the user has moved off */
       switchMap(request => this.karmaWalletSvc.getTransactions(request).pipe(
-        /* Caught inside, so a rejected range cannot take the whole stream down with it and
-           leave every later filter change unanswered */
         catchError(err => {
           this.openSnackbar(readApiError(err) || HISTORY_ERROR)
           return of([] as IKarmaCoinTransaction[])
@@ -190,7 +242,6 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
     return Math.max(0, Math.min(100, ratio * 100))
   }
 
-  /* Conversion can be switched off server-side, which greys out Redeem Karma Points */
   get canRedeem(): boolean {
     return this.summary.redeemEnabled
   }
@@ -200,7 +251,6 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
   }
 
   openKarmaCoinsInfo() {
-    this.raiseTelemetry('karma-coins-info-open', 'karma-wallet-dialog')
     this.dialog.open(KarmaCoinsInfoDialogComponent, {
       width: '608px',
       maxWidth: '94vw',
@@ -211,7 +261,9 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
       scrollStrategy: new NoopScrollStrategy(),
     }).afterClosed().subscribe((closedVia: any) => {
       /* The dialog reports which control dismissed it; fall back if it closed some other way */
-      this.raiseTelemetry(`karma-coins-info-close-${closedVia || 'dismiss'}`, 'karma-wallet-dialog')
+      if (closedVia === 'walkthrough') {
+        this.startWalkthrough()
+      }
     })
   }
 
@@ -220,7 +272,6 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
       return
     }
     this.activeTab = tab
-    this.raiseTelemetry(`coin-history-${tab}-tab`, 'coin-history-tab')
     this.fetchTransactions()
   }
 
@@ -233,7 +284,6 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
       return
     }
     this.activePeriod = period
-    this.raiseTelemetry(`coin-history-period-${period}`, 'coin-history-period')
 
     if (period === 'custom') {
       this.startCustomRange()
@@ -244,13 +294,11 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
     this.fetchTransactions()
   }
 
-  /* Earliest date the calendar offers: history only reaches back a year */
   get minSelectableDate(): Date {
     const ref = this.referenceDate
     return new Date(ref.getFullYear() - LOOKBACK_YEARS, ref.getMonth(), ref.getDate())
   }
 
-  /* Latest date the calendar offers - there is no history in the future */
   get maxSelectableDate(): Date {
     return this.referenceDate
   }
@@ -299,14 +347,11 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
     }
 
     this.customError = ''
-    this.raiseTelemetry('coin-history-period-custom-range', 'coin-history-period')
     this.fetchTransactions()
   }
 
   toggleGroup(group: IKarmaCoinTxnGroup) {
     group.expanded = !group.expanded
-    this.raiseTelemetry(
-      `coin-history-month-${group.expanded ? 'expand' : 'collapse'}`, 'coin-history-month')
     if (group.expanded) {
       this.collapsedKeys.delete(group.key)
     } else {
@@ -315,11 +360,117 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
   }
 
   viewUnredeemedKarmaPoints() {
-    this.raiseTelemetry('unredeemed-view-more', 'karma-wallet-link')
-    /* `from` lets the karma points page show a trail back here; without it that page keeps
-       whatever navigation it already had. */
+    this.raiseClick('view-more', 'unconverted-karma')
     this.router.navigate(['/app/person-profile/karma-points'], {
       queryParams: { from: 'karma-wallet' },
+    })
+  }
+  startWalkthrough() {
+    this.raiseWalkthroughImpression()
+    this.raiseWalkthroughClick()
+    this.tour.start(this.tourSteps)
+  }
+
+  private raiseWalkthroughClick() {
+    this.raiseClick('start-walkthrough', 'what-is-karma-coins')
+  }
+
+  onTourAction(event: IKarmaTourAction) {
+    this.raiseGuidedTourClick(`step-${event.step}-${event.action}`)
+  }
+
+  private raiseGuidedTourClick(id: string) {
+    this.raiseClick(id, 'guided-tour')
+  }
+
+  private raiseClick(id: string, subType?: string) {
+    const edata: WsEvents.ITelemetryEdata = {
+      id,
+      type: WsEvents.EnumInteractTypes.CLICK,
+    }
+    if (subType) {
+      edata.subType = subType
+    }
+    this.events.dispatchEvent<WsEvents.IWsEventTelemetryInteract>({
+      eventType: WsEvents.WsEventType.Telemetry,
+      eventLogLevel: WsEvents.WsEventLogLevel.Info,
+      data: {
+        edata,
+        eventSubType: WsEvents.EnumTelemetrySubType.Interact,
+        object: {},
+        pageContext: { pageId: KARMA_WALLET_PAGE_ID },
+      },
+      pageContext: { module: KARMA_WALLET_ENV },
+      from: '',
+      to: 'Telemetry',
+    })
+  }
+
+  private raisePageImpression() {
+    const pData = this.telemetrySvc.pData || {}
+    try {
+      $t.impression(
+        {
+          pageid: KARMA_WALLET_PAGE_ID,
+          type: 'page',
+          uri: KARMA_WALLET_PAGE_ID,
+        },
+        {
+          context: {
+            pdata: { ...pData, id: pData.id },
+            env: KARMA_WALLET_ENV,
+          },
+          object: {},
+        },
+      )
+    } catch (err) {
+    }
+  }
+
+  private raiseWalkthroughImpression() {
+    const pData = this.telemetrySvc.pData || {}
+    try {
+      $t.impression(
+        {
+          pageid: KARMA_WALLET_PAGE_ID,
+          type: 'view',
+          uri: KARMA_WALLET_PAGE_ID,
+        },
+        {
+          context: {
+            pdata: { ...pData, id: pData.id },
+            env: KARMA_WALLET_ENV,
+          },
+          object: {},
+        },
+      )
+    } catch (err) {
+    }
+  }
+
+  onTourFinished() {
+    this.closeConvertDialogForTour()
+  }
+
+  private openConvertDialogForTour(): Promise<void> {
+    if (this.tourDialogRef) {
+      return Promise.resolve()
+    }
+    this.tourDialogRef = this.openRedeemDialog()
+    return new Promise<void>(resolve => {
+      this.tourDialogRef!.afterOpened().subscribe(() => resolve())
+    })
+  }
+
+  private closeConvertDialogForTour(): Promise<void> {
+    if (!this.tourDialogRef) {
+      return Promise.resolve()
+    }
+    const ref = this.tourDialogRef
+    this.tourDialogRef = null
+    return new Promise<void>(resolve => {
+      ref.afterClosed().subscribe(() => resolve())
+      ref.close()
     })
   }
 
@@ -327,8 +478,13 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
     if (!this.canRedeem) {
       return
     }
-    this.raiseTelemetry('redeem-karma-points-open', 'karma-wallet-dialog')
-    this.dialog.open(KarmaRedeemDialogComponent, {
+    this.raiseClick('convert-karma-points')
+    this.openRedeemDialog()
+  }
+
+  private openRedeemDialog(): MatDialogRef<KarmaRedeemDialogComponent> {
+    const ref = this.dialog.open(KarmaRedeemDialogComponent, {
+      data: { summary: this.summary },
       width: '652px',
       maxWidth: '94vw',
       maxHeight: '90vh',
@@ -337,34 +493,45 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
       backdropClass: 'krd-dialog-backdrop',
       disableClose: true,
       scrollStrategy: new NoopScrollStrategy(),
-    }).afterClosed().subscribe((result: any) => {
+    })
+    ref.afterClosed().subscribe((result: any) => {
       const outcome = result && result.redeemed
         ? 'convert'
         : (result && result.pending ? 'pending' : 'cancel')
-      this.raiseTelemetry(`redeem-karma-points-close-${outcome}`, 'karma-wallet-dialog')
       if (outcome !== 'cancel') {
         this.fetchSummary()
         this.fetchTransactions()
       }
     })
+    return ref
   }
 
-  /* Karma Tracks see-all, opened on the Providers tab */
   useKarmaCoins() {
-    this.raiseTelemetry('use-karma-coins', 'karma-wallet-cta')
+    this.raiseClick('redeem-karma-coins')
     this.router.navigate(['/app/seeAll'], {
       queryParams: { key: 'karmaTracks', tabSelected: 'Providers' },
     })
   }
+  retrySummary() {
+    this.fetchSummary()
+  }
 
   private fetchSummary() {
+    this.summaryLoading = true
+    this.summaryError = ''
     this.karmaWalletSvc.getWalletSummary().pipe(
       takeUntil(this.destroy$),
     ).subscribe({
       next: summary => {
         this.summary = summary
+        this.summaryLoading = false
       },
-      error: err => this.openSnackbar(readApiError(err) || SUMMARY_ERROR),
+      error: err => {
+        const message = readApiError(err) || SUMMARY_ERROR
+        this.summaryError = message
+        this.openSnackbar(message)
+        this.summaryLoading = false
+      },
     })
   }
 
@@ -384,7 +551,8 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
     }
   }
 
-  private periodWindow(): { startDate?: string, endDate?: string } {
+  /* Always a complete window: the endpoint rejects a request missing either bound */
+  private periodWindow(): { startDate: string, endDate: string } {
     const ref = this.referenceDate
     const monthStart = (monthsBack: number) =>
       new Date(ref.getFullYear(), ref.getMonth() - monthsBack, 1)
@@ -403,12 +571,12 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
         return window(monthStart(3), monthEnd(1))
       case 'last6Months':
         return window(monthStart(6), monthEnd(1))
-      case 'custom':
-        return this.customStart && this.customEnd
-          ? window(this.customStart, this.customEnd)
-          : {}
       /* Recent: a rolling 30 days through today, both ends inclusive */
+      case 'custom':
       default: {
+        if (this.activePeriod === 'custom' && this.customStart && this.customEnd) {
+          return window(this.customStart, this.customEnd)
+        }
         const start = new Date(ref.getFullYear(), ref.getMonth(), ref.getDate() - RECENT_DAYS)
         return window(start, ref)
       }
