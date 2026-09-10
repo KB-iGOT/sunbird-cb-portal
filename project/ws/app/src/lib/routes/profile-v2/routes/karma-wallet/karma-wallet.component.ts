@@ -366,7 +366,6 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
     })
   }
   startWalkthrough() {
-    this.raiseWalkthroughImpression()
     this.raiseWalkthroughClick()
     this.tour.start(this.tourSteps)
   }
@@ -413,27 +412,6 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
         {
           pageid: KARMA_WALLET_PAGE_ID,
           type: 'page',
-          uri: KARMA_WALLET_PAGE_ID,
-        },
-        {
-          context: {
-            pdata: { ...pData, id: pData.id },
-            env: KARMA_WALLET_ENV,
-          },
-          object: {},
-        },
-      )
-    } catch (err) {
-    }
-  }
-
-  private raiseWalkthroughImpression() {
-    const pData = this.telemetrySvc.pData || {}
-    try {
-      $t.impression(
-        {
-          pageid: KARMA_WALLET_PAGE_ID,
-          type: 'view',
           uri: KARMA_WALLET_PAGE_ID,
         },
         {
