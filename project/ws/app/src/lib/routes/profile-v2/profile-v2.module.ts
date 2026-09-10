@@ -38,6 +38,7 @@ import { ProfileKarmapointsComponent } from './routes/profile-karmapoints/profil
 import { KarmaWalletComponent } from './routes/karma-wallet/karma-wallet.component'
 import { KarmaCoinsInfoDialogComponent } from './routes/karma-wallet/karma-coins-info-dialog.component'
 import { KarmaRedeemDialogComponent } from './routes/karma-wallet/karma-redeem-dialog.component'
+import { KarmaWalletTourComponent } from './routes/karma-wallet/karma-wallet-tour.component'
 import { VerifyOtpComponent } from './components/verify-otp/verify-otp.component'
 import { TransferRequestComponent } from './components/transfer-request/transfer-request.component'
 import { WithdrawRequestComponent } from './components/withdraw-request/withdraw-request.component'
@@ -101,6 +102,7 @@ export function ProfileV2HttpLoaderFactory(http: HttpClient) {
         KarmaWalletComponent,
         KarmaCoinsInfoDialogComponent,
         KarmaRedeemDialogComponent,
+        KarmaWalletTourComponent,
         LeftMenuComponent,
         RightMenuComponent,
         VerifyOtpComponent,

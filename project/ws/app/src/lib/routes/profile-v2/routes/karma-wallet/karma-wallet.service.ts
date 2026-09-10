@@ -7,22 +7,21 @@ import {
   IKarmaCoinTransactionApi,
   IKarmaRedeemAcceptedResponse,
   IKarmaRedeemRequest,
+  IKarmaRedeemStatusResponse,
   IKarmaRedeemStatusResult,
   IKarmaTransactionsRequest,
+  IKarmaTransactionsResponse,
   IKarmaWalletSummary,
+  IKarmaWalletSummaryResponse,
 } from './karma-wallet.model'
-import {
-  mockRedeem,
-  mockRedeemStatus,
-  mockTransactions,
-  mockWalletSummary,
-} from './karma-wallet.mock'
+
+const WALLET_BASE = '/apis/proxies/v8/karmawallet/v1'
 
 export const API_END_POINTS = {
-  WALLET_SUMMARY: '/v1/user/karma-wallet/summary',
-  WALLET_TRANSACTIONS: '/v1/karma-wallet/transactions',
-  WALLET_REDEEM: '/v1/karma-wallet/redeem',
-  WALLET_REDEEM_STATUS: '/v1/karma-wallet/redeem/status',
+  WALLET_SUMMARY: `${WALLET_BASE}/summary`,
+  WALLET_TRANSACTIONS: `${WALLET_BASE}/transactions`,
+  WALLET_REDEEM: `${WALLET_BASE}/redeem`,
+  WALLET_REDEEM_STATUS: `${WALLET_BASE}/redeem/status`,
 }
 
 @Injectable()
@@ -30,40 +29,35 @@ export class KarmaWalletService {
 
   constructor(readonly http: HttpClient) { }
 
-  /* GET /v1/user/karma-wallet/summary */
   getWalletSummary(): Observable<IKarmaWalletSummary> {
-    // return this.http.get<IKarmaWalletSummaryResponse>(API_END_POINTS.WALLET_SUMMARY).pipe(
-    return mockWalletSummary().pipe(
+    return this.http.get<IKarmaWalletSummaryResponse>(API_END_POINTS.WALLET_SUMMARY).pipe(
       map(response => response.result),
     )
   }
 
   getTransactions(request: IKarmaTransactionsRequest): Observable<IKarmaCoinTransaction[]> {
-    // return this.http.post<IKarmaTransactionsResponse>(
-    //   API_END_POINTS.WALLET_TRANSACTIONS, request).pipe(
-    return mockTransactions(request).pipe(
-      map(response => (response.result.transactions || []).map(toCoinRow)),
+    return this.http.post<IKarmaTransactionsResponse>(
+      API_END_POINTS.WALLET_TRANSACTIONS, request).pipe(
+      map(response => ((response.result && response.result.transactions) || []).map(toCoinRow)),
     )
   }
 
   redeem(request: IKarmaRedeemRequest): Observable<IKarmaRedeemAcceptedResponse['result']> {
-    return mockRedeem(request).pipe(
+    return this.http.post<IKarmaRedeemAcceptedResponse>(
+      API_END_POINTS.WALLET_REDEEM, request).pipe(
       map(response => response.result),
     )
   }
 
   getRedeemStatus(requestId: string): Observable<IKarmaRedeemStatusResult> {
-    return mockRedeemStatus(requestId).pipe(
+    return this.http.get<IKarmaRedeemStatusResponse>(
+      `${API_END_POINTS.WALLET_REDEEM_STATUS}/${requestId}`).pipe(
       map(response => response.result),
     )
   }
 }
 
-/* ------------------------------------------------------------------------------------------ *
- * Response -> row
- * ------------------------------------------------------------------------------------------ */
 
-/* Row titles per actionType; anything unmapped falls back to its own words, title-cased */
 const ACTION_TITLES: { [actionType: string]: string } = {
   POINTS_REDEMPTION: 'Karma Points Redemption',
   COURSE_ENROLLMENT: 'Marketplace Course Purchase',
@@ -114,8 +108,7 @@ function descriptionFor(txn: IKarmaCoinTransactionApi): string {
   }
 }
 
-/* Resolves the API row into what the table renders: the copy and the credit/debit split */
-function toCoinRow(txn: IKarmaCoinTransactionApi): IKarmaCoinTransaction {
+export function toCoinRow(txn: IKarmaCoinTransactionApi): IKarmaCoinTransaction {
   const isCredit = txn.type === 'CREDIT'
   return {
     transactionId: txn.transactionId,

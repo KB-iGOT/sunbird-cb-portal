@@ -84,14 +84,22 @@
   }
   }
   }
+  <!-- Karma Coin Wallet -->
   @if (item()?.type === 'walletButton' && showKarmaWallet()) {
-  <li class="flex items-center cursor-pointer">
-    <span class="icon-svg w-6 h-6" role="button" tabindex="0" aria-label="Karma Wallet"
-      matTooltipClass="right-nav-tooltip" [matTooltip]="'Karma Wallet'"
-      (click)="goToKarmaWallet()"
-      (keydown.enter)="$event.preventDefault(); goToKarmaWallet()"
-      [style.mask-image]="'url(/assets/icons/karmawallet-v2/wallet.svg)'"
-      [style.-webkit-mask-image]="'url(/assets/icons/karmawallet-v2/wallet.svg)'"></span>
+  <li class="flex items-center">
+    <button type="button" class="karma-coins-chip" matTooltipClass="right-nav-tooltip"
+      [matTooltip]="walletTooltip()" (click)="goToKarmaWallet()">
+      <span class="karma-coins-chip__amount">
+        <img class="karma-coins-chip__icon" src="/assets/icons/karmawallet-v2/karmacoin.svg" alt=""
+          aria-hidden="true" />
+        @if (karmaCoins() === null) {
+        <span class="karma-coins-chip__placeholder" aria-hidden="true"></span>
+        } @else {
+        <span class="karma-coins-chip__value">{{ karmaCoins() | number }}</span>
+        }
+      </span>
+      <span class="karma-coins-chip__label">Karma Coins</span>
+    </button>
   </li>
   }
   @if (item()?.type === 'themeToggle') {

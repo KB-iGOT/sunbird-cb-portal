@@ -1,27 +1,20 @@
-import { NO_ERRORS_SCHEMA } from '@angular/core'
-import { ComponentFixture, TestBed } from '@angular/core/testing'
 import { MatDialogRef } from '@angular/material/dialog'
-import { MatIconModule } from '@angular/material/icon'
 
 import { KarmaCoinsInfoDialogComponent } from './karma-coins-info-dialog.component'
 
+/**
+ * No TestBed: the component is plain constructor injection with no template behaviour to
+ * exercise, so it is built directly and its one collaborator stubbed here in the spec.
+ */
 describe('KarmaCoinsInfoDialogComponent', () => {
   let component: KarmaCoinsInfoDialogComponent
-  let fixture: ComponentFixture<KarmaCoinsInfoDialogComponent>
-  const dialogRefStub = { close: jest.fn() }
+  let dialogRefStub: { close: jest.Mock }
 
-  beforeEach(async () => {
-    dialogRefStub.close.mockClear()
-    await TestBed.configureTestingModule({
-      declarations: [KarmaCoinsInfoDialogComponent],
-      imports: [MatIconModule],
-      providers: [{ provide: MatDialogRef, useValue: dialogRefStub }],
-      schemas: [NO_ERRORS_SCHEMA],
-    }).compileComponents()
-
-    fixture = TestBed.createComponent(KarmaCoinsInfoDialogComponent)
-    component = fixture.componentInstance
-    fixture.detectChanges()
+  beforeEach(() => {
+    dialogRefStub = { close: jest.fn() }
+    component = new KarmaCoinsInfoDialogComponent(
+      dialogRefStub as unknown as MatDialogRef<KarmaCoinsInfoDialogComponent>,
+    )
   })
 
   it('should create', () => {
@@ -59,6 +52,11 @@ describe('KarmaCoinsInfoDialogComponent', () => {
 
     component.close('close-icon')
     expect(dialogRefStub.close).toHaveBeenCalledWith('close-icon')
+  })
+
+  it('should report the walkthrough CTA distinctly, so the page can start the tour', () => {
+    component.close('walkthrough')
+    expect(dialogRefStub.close).toHaveBeenCalledWith('walkthrough')
   })
 
   it('should default to the close icon when no control is named', () => {

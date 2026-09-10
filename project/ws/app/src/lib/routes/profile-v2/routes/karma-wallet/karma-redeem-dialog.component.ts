@@ -1,26 +1,25 @@
-import { Component, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core'
-import { MatDialogRef } from '@angular/material/dialog'
+import { Component, Inject, OnDestroy, OnInit, ViewEncapsulation } from '@angular/core'
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
-import { Subject, timer } from 'rxjs'
-import { repeat, takeUntil } from 'rxjs/operators'
+import { EventService, WsEvents } from '@sunbird-cb/utils-v2'
+import { Subject } from 'rxjs'
+import { takeUntil } from 'rxjs/operators'
 import {
   EMPTY_KARMA_WALLET_SUMMARY,
+  IKarmaRedeemDialogData,
   IKarmaRedeemStatusResult,
   IKarmaWalletSummary,
   KARMA_CONVERSION_RATE,
+  KARMA_WALLET_ENV,
+  KARMA_WALLET_PAGE_ID,
   newRequestId,
   readApiError,
 } from './karma-wallet.model'
 import { KarmaWalletService } from './karma-wallet.service'
 
 const ICON_BASE = '/assets/icons/karmawallet-v2'
-
-/* Fallback copy for a failure the server sent no wording for */
 const GENERIC_REDEEM_ERROR = 'We could not convert your Karma Points. Please try again.'
 const SUMMARY_ERROR = 'We could not load your conversion limit. Please try again.'
-
-/* Fixed English names rather than toLocaleString, so the copy cannot shift with the runtime
-   locale and the tests stay deterministic. */
 const MONTH_NAMES = [
   'January', 'February', 'March', 'April', 'May', 'June',
   'July', 'August', 'September', 'October', 'November', 'December',
@@ -31,8 +30,6 @@ const MONTH_SHORT = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Se
   selector: 'ws-app-karma-redeem-dialog',
   templateUrl: './karma-redeem-dialog.component.html',
   styleUrls: ['./karma-redeem-dialog.component.scss'],
-  // Needed to reach the Material dialog surface, which is this component's ancestor.
-  // Every selector in the stylesheet is scoped under .krd or .krd-dialog-panel.
   encapsulation: ViewEncapsulation.None,
   standalone: false,
 })
@@ -45,7 +42,6 @@ export class KarmaRedeemDialogComponent implements OnInit, OnDestroy {
     karmaPoints: '/assets/icons/home-v2/karma-badge.svg',
   }
 
-  /* Cap, balance and reset date all come from the one wallet summary response */
   summary: IKarmaWalletSummary = { ...EMPTY_KARMA_WALLET_SUMMARY }
   readonly conversionRate = KARMA_CONVERSION_RATE
 
@@ -55,17 +51,15 @@ export class KarmaRedeemDialogComponent implements OnInit, OnDestroy {
   referenceDate = new Date()
   submitState: 'idle' | 'submitting' | 'pending' = 'idle'
 
-  pollIntervalMs = 1500
-  pollLimit = 12
-
   private readonly destroy$ = new Subject<void>()
   private readonly stopPolling$ = new Subject<void>()
-  private pollCount = 0
 
   constructor(
     private dialogRef: MatDialogRef<KarmaRedeemDialogComponent>,
     private karmaWalletSvc: KarmaWalletService,
     private snackBar: MatSnackBar,
+    private events: EventService,
+    @Inject(MAT_DIALOG_DATA) private data: IKarmaRedeemDialogData | null,
   ) { }
 
   private openSnackbar(primaryMsg: string, duration: number = 5000) {
@@ -75,6 +69,11 @@ export class KarmaRedeemDialogComponent implements OnInit, OnDestroy {
   }
 
   ngOnInit() {
+    if (this.data && this.data.summary) {
+      this.summary = this.data.summary
+      this.loading = false
+      return
+    }
     this.karmaWalletSvc.getWalletSummary().pipe(
       takeUntil(this.destroy$),
     ).subscribe({
@@ -102,12 +101,11 @@ export class KarmaRedeemDialogComponent implements OnInit, OnDestroy {
     return Math.floor(this.amount / rate)
   }
 
-  /* Width of the orange fill: how much of the monthly cap is still convertible */
   get progressPercent(): number {
     if (!this.summary.monthlyCap) {
       return 0
     }
-    const ratio = this.summary.convertibleThisMonth / this.summary.monthlyCap
+    const ratio = this.summary.convertedThisMonth / this.summary.monthlyCap
     return Math.max(0, Math.min(100, ratio * 100))
   }
 
@@ -206,6 +204,7 @@ export class KarmaRedeemDialogComponent implements OnInit, OnDestroy {
     if (!this.canConvert) {
       return
     }
+    this.raiseClick('convert-karma-points-convert', this.amount)
     this.submitState = 'submitting'
     /* Client-generated: it is what makes a retry idempotent and what the status poll asks for */
     const requestId = newRequestId()
@@ -216,13 +215,14 @@ export class KarmaRedeemDialogComponent implements OnInit, OnDestroy {
     }).pipe(
       takeUntil(this.destroy$),
     ).subscribe({
-      next: accepted => this.pollRedeemStatus(accepted.requestId || requestId),
+      next: accepted => this.readRedeemStatus(accepted.requestId || requestId),
       /* A 400 from the pre-publish validation lands here, carrying the server's own wording */
       error: err => this.onRedeemFailed(readApiError(err)),
     })
   }
 
   cancel() {
+    this.raiseClick('convert-karma-points-cancel', 0)
     this.stopPolling$.next()
     if (this.submitState === 'pending') {
       this.dialogRef.close({ pending: true })
@@ -230,17 +230,44 @@ export class KarmaRedeemDialogComponent implements OnInit, OnDestroy {
     }
     this.dialogRef.close()
   }
+  private raiseClick(id: string, points: number) {
+    this.events.dispatchEvent<WsEvents.IWsEventTelemetryInteract>({
+      eventType: WsEvents.WsEventType.Telemetry,
+      eventLogLevel: WsEvents.WsEventLogLevel.Info,
+      data: {
+        eventSubType: WsEvents.EnumTelemetrySubType.Interact,
+        edata: {
+          id,
+          type: WsEvents.EnumInteractTypes.CLICK,
+          subType: `${points}`,
+        },
+        object: {},
+        pageContext: { pageId: KARMA_WALLET_PAGE_ID },
+      },
+      pageContext: { module: KARMA_WALLET_ENV },
+      from: '',
+      to: 'Telemetry',
+    })
+  }
 
-  private pollRedeemStatus(requestId: string) {
-    this.pollCount = 0
+  private readRedeemStatus(requestId: string) {
     this.karmaWalletSvc.getRedeemStatus(requestId).pipe(
-      repeat({ delay: () => timer(this.pollIntervalMs) }),
       takeUntil(this.stopPolling$),
       takeUntil(this.destroy$),
     ).subscribe({
       next: status => this.onRedeemStatus(status),
-      error: err => this.onRedeemFailed(readApiError(err)),
+      error: err => this.onStatusPollFailed(err),
     })
+  }
+
+  private onStatusPollFailed(err: any) {
+    this.stopPolling$.next()
+    const status = err && err.status
+    if (status === 403 || status === 404 || status === 0) {
+      this.submitState = 'pending'
+      return
+    }
+    this.onRedeemFailed(readApiError(err))
   }
 
   private onRedeemStatus(status: IKarmaRedeemStatusResult) {
@@ -259,12 +286,8 @@ export class KarmaRedeemDialogComponent implements OnInit, OnDestroy {
       this.onRedeemFailed(status.errorMessage || '')
       return
     }
-
-    this.pollCount += 1
-    if (this.pollCount >= this.pollLimit) {
-      this.stopPolling$.next()
-      this.submitState = 'pending'
-    }
+    this.stopPolling$.next()
+    this.submitState = 'pending'
   }
   private onRedeemFailed(message: string) {
     this.stopPolling$.next()
