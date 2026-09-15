@@ -516,6 +516,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
       ) {
         this.routeChangeInProgress = false
         this.currentUrl = event.url
+        this.syncActiveMenuItemFromUrl(this.currentUrl)
 
         if (this.currentUrl.includes('/public/home')) {
           this.customHeight = true
@@ -978,6 +979,33 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
         break
       default:
         this.menuBarDetails.activeItemCode = event.code
+    }
+  }
+
+  // Sync sidebar highlight with the current URL for all navigation types.
+  private syncActiveMenuItemFromUrl(url: string): void {
+    if (!this.menuBarDetails) {
+      return
+    }
+    const basePath = (url || '').split('?')[0].split('#')[0]
+    let matchedCode: string | undefined
+    if (basePath.includes('/page/home')) {
+      matchedCode = 'home'
+    } else if (basePath.includes('/app/globalsearch') && url.includes('tab=explore-content')) {
+      matchedCode = 'explore'
+    } else if (basePath.includes('/app/marketplace')) {
+      matchedCode = 'marketplace'
+    } else if (basePath.includes('/app/seeAll') && url.includes('key=continueLearning')) {
+      matchedCode = 'my_learning'
+    } else if (basePath.includes('/app/competencies')) {
+      matchedCode = 'learner_passbook'
+    } else if (basePath.includes('/app/discussion-forum')) {
+      matchedCode = 'discuss'
+    } else if (basePath.includes('/app/event-hub')) {
+      matchedCode = 'events'
+    }
+    if (matchedCode && matchedCode !== this.menuBarDetails.activeItemCode) {
+      this.menuBarDetails.activeItemCode = matchedCode
     }
   }
 
