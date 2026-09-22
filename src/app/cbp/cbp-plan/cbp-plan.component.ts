@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import {
   NsContent,
+  stampContentType,
 } from '@sunbird-cb/collection'
 /* tslint:disable */
 import _ from 'lodash'
@@ -20,6 +21,14 @@ import { InitService } from '../../services/init.service'
 dayjs.extend(isSameOrBefore)
 dayjs.extend(isSameOrAfter)
 dayjs.extend(isBetween)
+
+/**
+ * The two ends of the due date, as the time duration filter names them. Both are read off the
+ * plan duration the list stamps on each plan rather than measured against today, so they stay
+ * correct for a plan year that has already ended.
+ */
+const PLAN_DURATION_OVERDUE = NsCardContent.ACBPConst.OVERDUE
+const PLAN_DURATION_UPCOMING = 'upcoming'
 @Component({
     selector: 'ws-cbp-plan',
     templateUrl: './cbp-plan.component.html',
@@ -59,22 +68,46 @@ export class CbpPlanComponent implements OnInit {
   contentCompletedStatus = 2
   /** Years offered by the year filter — from cbp.json's `planYears`. */
   planYearList: string[] = []
+  /** Years the filter offers when cbp.json configures no `planYears`, newest first. */
+  private readonly defaultPlanYears = ['2027-28', '2026-27', '2025-26']
   /** Financial year the page falls back to when none is selected or passed in. */
   currentPlanYear = ''
   /** Year `cbpOriginalData` was fetched for — what a new selection is compared against. */
   loadedPlanYear = ''
+  /**
+   * The enrolment dictionary, held for the life of the page. It is the same whatever plan
+   * year is selected, so re-reading it on every year change only slowed the switch down.
+   */
+  private enrolmentDictionary?: Record<string, any>
+  // A year is fetched only when it is the selected one. The page used to warm every year in
+  // `planYearList` in the background, which meant landing here POSTed cbplan/v3/user/dictionary
+  // once per configured year (2025-26 and 2027-28 alongside the year actually being shown).
+  // Selecting a year re-enters getCbPlans(), which is the only place that request is made.
   /** Plan types offered by the plan type filter, as {id, name} — from cbp.json's `planTypes`. */
   planTypeList: any[] = []
   /**
    * The three buckets a plan falls into, offered when cbp.json configures no `planTypes` of
    * its own. They are mutually exclusive by design — the same split the home strips use:
-   * APAR, an AI-drafted plan, or an ordinary training plan (everything else).
+   * APAR, an AI-drafted plan, or an ordinary CBP plan (everything else).
    */
   private readonly defaultPlanTypes = [
     { id: 'apar', name: 'APAR' },
-    { id: 'nonapar', name: 'Non-APAR' },
+    { id: 'nonapar', name: 'CBP Plan' },
     { id: 'aicbp', name: 'AI CBP' },
   ]
+
+  private readonly planTypeAliases: Record<string, string> = {
+    apar: 'apar',
+    nonapar: 'nonapar',
+    cbplan: 'nonapar',
+    cbp: 'nonapar',
+    trainingplan: 'nonapar',
+    training: 'nonapar',
+    aicbp: 'aicbp',
+    aiplan: 'aicbp',
+    aigenerated: 'aicbp',
+    draftaicbpplan: 'aicbp',
+  }
   constructor(
     private activatedRoute: ActivatedRoute,
     private widgetSvc: WidgetUserServiceLib,
@@ -100,23 +133,18 @@ export class CbpPlanComponent implements OnInit {
     }
     this.resolvePlanYears()
     this.resolvePlanTypes()
-    // The strips still link here with ?isApar=true; APAR is a plan type now, not a toggle.
-    if (this.activatedRoute.snapshot.queryParamMap.get('isApar') === 'true') {
-      this.filterObjData.planType = 'apar'
-    }
+    // The strips carry the tab they were showing onto "View All", so open on that plan type
+    // rather than on all of them.
+    this.filterObjData.planType = this.resolvePlanTypeFromQuery()
     // The CBP strips carry the year they were showing onto "View All", so honour it here
     // rather than always opening on the current one.
     this.filterObjData.planYear = this.activatedRoute.snapshot.queryParamMap.get('planYear') || this.currentPlanYear
-    this.upcommingList = this.transformSkeletonToWidgets(this.cbpAllConfig.cbpUpcomingStrips)
-    this.overDueList = this.transformSkeletonToWidgets(this.cbpAllConfig.cbpUpcomingStrips)
-    this.aparList = this.transformSkeletonToWidgets(this.cbpAllConfig.cbpUpcomingStrips)
-    this.contentFeedList = this.transformSkeletonToWidgets(this.getFeedStrip())
     this.getCbPlans()
   }
 
   /**
-   * The year filter's options come from cbp.json (`planYears`). Falls back to the current
-   * financial year alone if the config omits them, so the filter is never empty.
+   * The year filter's options come from cbp.json (`planYears`). Falls back to
+   * `defaultPlanYears` if the config omits them, so the filter is never empty.
    *
    * The default year is the current financial year — the one the API itself defaults to —
    * unless the configured list doesn't include it, in which case the newest configured
@@ -127,7 +155,7 @@ export class CbpPlanComponent implements OnInit {
     this.planYearList = Array.isArray(configured) && configured.length ? configured : []
     const financialYear = this.widgetSvc.getCurrentFinancialYear()
     if (!this.planYearList.length) {
-      this.planYearList = [financialYear]
+      this.planYearList = [...this.defaultPlanYears]
     }
     this.currentPlanYear = this.planYearList.includes(financialYear) ? financialYear : this.planYearList[0]
   }
@@ -155,11 +183,81 @@ export class CbpPlanComponent implements OnInit {
     }
   }
 
+
+  private resolvePlanTypeFromQuery(): string {
+    const params = this.activatedRoute.snapshot.queryParamMap
+    const hints = ['planType', 'category', 'tabSelected']
+      .map(param => params.get(param))
+      .concat(params.get('isApar') === 'true' ? ['apar'] : [])
+    for (const hint of hints) {
+      const resolved = hint ? this.matchOfferedPlanType(hint) : ''
+      if (resolved) {
+        return resolved
+      }
+    }
+    return ''
+  }
+
+  /**
+   * Maps a plan type hint onto one of `planTypeList`'s own ids, comparing against both id and
+   * label with case, spacing and punctuation stripped, so "Training Plan", "training-plan"
+   * and "trainingPlan" all land on the same entry, and falling back to `planTypeAliases` for
+   * the buckets the strips and the filter name differently.
+   *
+   * A hint that matches nothing offered resolves to '' rather than to itself: the feed would
+   * happily show a chip for it, but the filter panel has no radio to select, leaving a plan
+   * type in effect that the user cannot see or clear from the panel.
+   */
+  private matchOfferedPlanType(hint: string): string {
+    const wanted = this.slugifyPlanType(hint)
+    if (!wanted) {
+      return ''
+    }
+    const direct = this.planTypeList.find((planType: any) =>
+      this.slugifyPlanType(planType.id) === wanted || this.slugifyPlanType(planType.name) === wanted)
+    if (direct) {
+      return direct.id
+    }
+    const bucket = this.planTypeAliases[wanted]
+    if (!bucket) {
+      return ''
+    }
+    const aliased = this.planTypeList.find((planType: any) =>
+      this.planTypeAliases[this.slugifyPlanType(planType.id)] === bucket
+      || this.planTypeAliases[this.slugifyPlanType(planType.name)] === bucket)
+    return aliased ? aliased.id : ''
+  }
+
+  /**
+   * Reduces a plan type id, label or pill name to something comparable: lower case, letters
+   * and digits only, and singular.
+   *
+   * The trailing "s" goes because the two configs disagree on number as well as wording —
+   * the pill arrives as "training-plans" where cbp.json's plan type is "Training plan". Both
+   * sides of every comparison run through here, so dropping it cannot make two genuinely
+   * different names collide unless they already differed only by that "s".
+   */
+  private slugifyPlanType(value: any): string {
+    return String(value || '').toLowerCase().replace(/[^a-z0-9]/g, '').replace(/s$/, '')
+  }
+
   async getCbPlans() {
     this.cbpLoader = true
+    // A year change re-enters here with the previous year's cards still on screen. Swapping
+    // them for skeletons is what tells the user the switch is in flight — otherwise the page
+    // reads as already showing the new year, only with the old year's plans in it.
+    this.showPlanSkeletons()
     // Year-scoped on the server: a different year is a different request, cached per year.
     this.loadedPlanYear = this.filterObjData.planYear
-    let response = await this.widgetSvc.fetchCbpPlanListV3(this.filterObjData.planYear).toPromise()
+    // This page is the only caller that asks the server to enrich the response, and it always
+    // refreshes rather than reading the year's cache — the strips populate that same cache with
+    // unenriched results, so reading it here would serve their payload and never send the
+    // enriched request at all.
+    let response = await this.widgetSvc.fetchCbpPlanListV3(this.filterObjData.planYear, true, true).toPromise()
+    // the cached plan item is a reduced projection (WidgetUserServiceLib.toReducedCbpData) that
+    // drops contentType, so derive it back from the categories the projection does keep - on
+    // this page the plan item IS the card's content, and the cards branch on contentType
+    response = (response || []).map(stampContentType)
     response = await this.stampEnrolmentStatus(response)
     if (response?.length) {
       this.cbpOriginalData = response
@@ -303,14 +401,20 @@ export class CbpPlanComponent implements OnInit {
    * (direct navigation to /cbp can beat the startup pre-load).
    */
   private async getEnrolmentDictionary(): Promise<Record<string, any>> {
+    if (this.enrolmentDictionary) {
+      return this.enrolmentDictionary
+    }
     try {
       const cached = await this.indexedDbSvc.getEnrollmentDetails()
       if (cached && Object.keys(cached).length) {
+        this.enrolmentDictionary = cached
         return cached
       }
-      return await this.initSvc.fetchEnrolmentDictionary()
+      this.enrolmentDictionary = await this.initSvc.fetchEnrolmentDictionary()
+      return this.enrolmentDictionary
     } catch {
-      // no enrolment data => cards simply render without a progress tag
+      // no enrolment data => cards simply render without a progress tag. Deliberately not
+      // memoised, so the next year change gets another go at fetching it.
       return {}
     }
   }
@@ -367,6 +471,42 @@ export class CbpPlanComponent implements OnInit {
     }
     return itemType === selected
   }
+  /**
+   * The same split the sidebar sections and the stat tiles count by: a plan is overdue once its
+   * end date has passed, whatever plan year it belongs to. `planDuration` is stamped on every
+   * plan when the list is built ('overdue' | 'upcoming' | 'success'); the end date is compared
+   * directly only for an item that reaches here without it.
+   */
+  private isOverduePlan(data: any): boolean {
+    if (data && data.planDuration) {
+      return data.planDuration === PLAN_DURATION_OVERDUE
+    }
+    return dayjs(data && data.endDate).isBefore(dayjs(), 'day')
+  }
+
+  /**
+   * Puts skeleton cards in place of every list the page renders, so a fetch — the first one
+   * or the one a year change triggers — reads as loading instead of as data.
+   *
+   * The sidebar timeline reads `upcomingUncompleted`/`overdueUncompleted`, which are derived
+   * from the loaded cards rather than assigned directly, so they get placeholders of their
+   * own; without them the timeline keeps the previous year's plans until the request lands.
+   */
+  private showPlanSkeletons() {
+    if (!this.cbpAllConfig) {
+      return
+    }
+    this.upcommingList = this.transformSkeletonToWidgets(this.cbpAllConfig.cbpUpcomingStrips)
+    this.overDueList = this.transformSkeletonToWidgets(this.cbpAllConfig.cbpUpcomingStrips)
+    this.aparList = this.transformSkeletonToWidgets(this.cbpAllConfig.cbpUpcomingStrips)
+    this.upcomingUncompleted = this.upcommingList
+    this.overdueUncompleted = this.overDueList
+    this.contentFeedList = this.transformSkeletonToWidgets(this.getFeedStrip())
+    // the stats tiles show their own skeleton while cbpLoader is set; clearing the counts
+    // keeps the previous year's numbers from being what those tiles fall back to
+    this.usersCbpCount = undefined
+  }
+
   private transformSkeletonToWidgets(
     strip: any
   ) {
@@ -468,6 +608,13 @@ export class CbpPlanComponent implements OnInit {
         filterAppliedonLocal = filterAppliedonLocal ? true : false
         finalFilterValue = (filterAppliedonLocal ? finalFilterValue : this.filteredData).filter((data: any) => {
           if (filterValue['timeDuration'].some((time: any) => {
+            // 'overdue' / 'upcoming' name the whole side of the due date rather than a rolling
+            // window, and are what the sidebar sections link to. Those sections count every plan
+            // whose end date has passed, so answering them with "the last 3 months" dropped
+            // everything overdue for longer than that — the whole of a plan year already ended.
+            if (time === PLAN_DURATION_OVERDUE || time === PLAN_DURATION_UPCOMING) {
+              return this.isOverduePlan(data) === (time === PLAN_DURATION_OVERDUE)
+            }
             const count = Number(time.slice(0, -2))
             if (time.includes('sw')) {
               // tslint:disable-next-line: max-line-length
