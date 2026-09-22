@@ -1,9 +1,9 @@
 import { Component, OnInit, Input, EventEmitter, Output, ViewChild } from '@angular/core'
-import 'brace'
-// import 'brace/ext/language_tools'
-import 'brace/mode/json'
-import 'brace/snippets/json'
-import 'brace/theme/textmate'
+// import 'brace'
+// // import 'brace/ext/language_tools'
+// import 'brace/mode/json'
+// import 'brace/snippets/json'
+// import 'brace/theme/textmate'
 
 @Component({
   selector: 'ws-auth-ace-editor',

@@ -23,7 +23,7 @@ import { firstValueFrom, forkJoin, of } from 'rxjs'
 import { catchError, map } from 'rxjs/operators'
 import { v4 as uuid } from 'uuid'
 // import { NPSGridService, BtnSettingsService } from '@sunbird-cb/collection'
-import { ContentDictionaryService } from '@sunbird-cb/consumption'
+//import { ContentDictionaryService } from '@sunbird-cb/consumption'
 import moment from 'moment'
 import { TranslateService } from '@ngx-translate/core'
 import { SbUiResolverService } from '@sunbird-cb/resolver-v2'
@@ -63,7 +63,7 @@ export class InitService {
     private enrollSvc: WidgetEnrollService,
     private netCoreService: NetCoreService,
     private commonDataSvc: CommonDataService,
-    private contentDictionarySvc: ContentDictionaryService,
+    // private contentDictionarySvc: ContentDictionaryService,
     private formSvc: FormExtService,
     private indexedDbSvc: IndexedDbService,
 
@@ -212,9 +212,9 @@ export class InitService {
         await this.fetchUserEnrollDetails()
         // pre-load the content dictionary only when enabled via global-config apis.content.dictionary
         if (this.configSvc.globalConfig?.apis?.content?.dictionary?.enabled) {
-          this.contentDictionarySvc.getDictionary().subscribe({
-            error: (err: any) => this.logger.warn('InitService: Failed to pre-load content dictionary', err),
-          })
+          // this.contentDictionarySvc.getDictionary().subscribe({
+          //   error: (err: any) => this.logger.warn('InitService: Failed to pre-load content dictionary', err),
+          // })
         }
         // pre-load the enrolment dictionary so the cards that look up their own id
         // already have it cached by the time they render. Deliberately not awaited:

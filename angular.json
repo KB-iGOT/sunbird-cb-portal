@@ -54,10 +54,6 @@
                 "input": "node_modules/@sunbird-cb/design-system/src/tokens/_index.scss",
                 "bundleName": "design-utilities"
               },
-              {
-                "input": "src/styles/libraries.scss",
-                "bundleName": "libraries"
-              },
               "node_modules/material-icons/iconfont/material-icons.scss",
               "src/styles/mat-typography.scss",
               "src/styles/styles.scss",
@@ -74,7 +70,6 @@
             ],
             "scripts": [
               "node_modules/shepherd.js/dist/js/shepherd.min.js",
-              "src/js/smartechclient.js"
             ],
             "aot": true,
             "extractLicenses": false,
@@ -232,13 +227,7 @@
           "builder": "@angular-devkit/build-angular:dev-server",
           "options": {
             "port": 3000,
-            "buildTarget": "fusion:build",
-            "prebundle": {
-              "exclude": [
-                "@sunbird-cb/design-system",
-                "@sunbird-cb/consumption"
-              ]
-            }
+            "buildTarget": "fusion:build"
           },
           "configurations": {
             "production": {
