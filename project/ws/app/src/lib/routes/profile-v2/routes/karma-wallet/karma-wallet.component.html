@@ -35,9 +35,9 @@
   <section class="kw__stats" aria-label="Karma coin summary"
     [attr.aria-busy]="summaryLoading ? 'true' : null">
 
-    <!-- Skeleton until the summary resolves. Inside the same section so the grid, and the
-         walkthrough's .kw__stats anchor, are there either way. -->
-    <ng-container *ngIf="summaryLoading; else summarySettled">
+    <!-- Skeleton until the summary resolves, and in place of the cards if it fails. Inside the same
+         section so the grid, and the walkthrough's .kw__stats anchor, are there either way. -->
+    <ng-container *ngIf="showSummarySkeleton; else statCards">
       <div class="kw-stat kw-stat--skeleton" *ngFor="let slot of skeletonSlots; let i = index"
         aria-hidden="true">
         <span class="kw-skel kw-skel--label"></span>
@@ -48,22 +48,6 @@
         <span class="kw-skel kw-skel--hint"></span>
       </div>
     </ng-container>
-
-    <!-- Settled either way: the failed call gets a standing retry where the cards would be,
-         rather than a snackbar the user cannot act on once it has gone. -->
-    <ng-template #summarySettled>
-      <div class="kw-stats-error" *ngIf="summaryError; else statCards" role="alert">
-        <mat-icon class="kw-stats-error__icon" aria-hidden="true">error_outline</mat-icon>
-        <div class="kw-stats-error__text">
-          <div class="kw-stats-error__title">Something went wrong</div>
-          <div class="kw-stats-error__detail">{{ summaryError }}</div>
-        </div>
-        <!-- --retry, not --ghost: the walkthrough anchors step 4 on the first .kw__btn--ghost
-             in the document, and that has to stay the header's Convert button. -->
-        <button type="button" class="kw__btn kw__btn--retry kw-stats-error__retry"
-          (click)="retrySummary()">Retry</button>
-      </div>
-    </ng-template>
 
     <ng-template #statCards>
     <div class="kw-stat">

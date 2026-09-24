@@ -101,6 +101,12 @@ export class KarmaWalletTourComponent implements OnDestroy {
     this.close('skipped')
   }
 
+  stop() {
+    if (this.active) {
+      this.close('skipped')
+    }
+  }
+
   @HostListener('document:keydown.escape')
   onEscape() {
     if (this.active) {

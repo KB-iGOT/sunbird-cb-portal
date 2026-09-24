@@ -154,8 +154,7 @@ $kw-row-pad: 17px;
   cursor: pointer;
   transition: background-color 0.2s ease, border-color 0.2s ease;
 
-  &--ghost,
-  &--retry {
+  &--ghost {
     // Transparent, not white: reads white on the light page and stays correct in dark mode.
     border: 2px solid var(--color-primary-500);
     background: transparent;
@@ -199,8 +198,7 @@ $kw-row-pad: 17px;
     }
   }
 
-  .kw__btn--ghost,
-  .kw__btn--retry {
+  .kw__btn--ghost {
     border-color: var(--environment-icon-overall-primary-bandw);
     color: var(--environment-icon-overall-primary-bandw);
 
@@ -227,46 +225,6 @@ $kw-row-pad: 17px;
   gap: 30px;
   margin-bottom: 32px;
 }
-.kw-stats-error {
-  grid-column: 1 / -1;
-  display: flex;
-  align-items: center;
-  gap: 16px;
-  min-height: 150px;
-  padding: 16px 24px;
-  border: 2px solid transparent;
-  border-radius: 12px;
-  background: var(--environment-cards-overall-cards-primary);
-}
-
-.kw-stats-error__icon {
-  flex: none;
-  color: $kw-debit;
-}
-
-.kw-stats-error__text {
-  flex: 1 1 auto;
-  min-width: 0;
-}
-
-.kw-stats-error__title {
-  font-size: 16px;
-  font-weight: 700;
-  line-height: 22px;
-  color: $kw-ink-strong;
-}
-
-.kw-stats-error__detail {
-  margin-top: 4px;
-  font-size: 14px;
-  line-height: 20px;
-  color: $kw-ink-muted;
-}
-
-.kw-stats-error__retry {
-  flex: none;
-}
-
 .kw-stat--skeleton {
   gap: 12px;
   justify-content: center;
@@ -817,11 +775,6 @@ $kw-row-pad: 17px;
   .kw {
     padding: 16px 16px 40px;
   }
-  .kw-stats-error {
-    flex-direction: column;
-    align-items: flex-start;
-  }
-
   .kw__header {
     flex-direction: column;
     align-items: flex-start;
