@@ -1000,7 +1000,7 @@ $kw-row-pad: 17px;
 
   &__card {
     display: flex;
-    align-items: flex-start;
+    align-items: center;
     gap: 12px;
     padding: 20px 24px;
     border-radius: 8px;
@@ -1013,18 +1013,13 @@ $kw-row-pad: 17px;
 
   &__icon {
     flex-shrink: 0;
-    width: 25px;
-    height: 25px;
-    font-size: 25px;
-    line-height: 25px;
-    margin-top: 0;
+    display: block;
   }
 
   &__spinner {
     flex-shrink: 0;
     width: 20px;
     height: 20px;
-    margin-top: 1px;
     border: 2px solid var(--color-primary-100, #ede9fe);
     border-top-color: var(--color-primary-500, #4c1d95);
     border-radius: 50%;
@@ -1045,19 +1040,17 @@ $kw-row-pad: 17px;
     line-height: 20px;
   }
   &__card--success {
-    background: #e9f7ef;
+    background: #1d892317;
 
-    .kw-last__icon { color: #1e8e3e; }
-    .kw-last__title { color: #146c33; }
+    .kw-last__title { color: #1d8923; }
     .kw-last__text { color: var(--color-tertiary-300) }
   }
 
   /* the wallet could not complete it */
   &__card--failed {
-    background: #fdecef;
+    background: #ce444424;
 
-    .kw-last__icon { color: #d1274b; }
-    .kw-last__title { color: #b3163a; }
+    .kw-last__title { color: #d13924; }
     .kw-last__text { color: var(--color-tertiary-300); }
   }
 

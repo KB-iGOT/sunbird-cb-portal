@@ -81,6 +81,8 @@ function shortMonth(index: number): string {
 export class KarmaWalletComponent implements OnInit, OnDestroy {
   readonly icons = {
     karmaCoin: `${ICON_BASE}/karmacoin.svg`,
+    success: `${ICON_BASE}/success.svg`,
+    invalid: `${ICON_BASE}/invalid.svg`,
     /* TODO: no karmawallet-v2 equivalent supplied yet, so this still resolves from home-v2 */
     karmaPoints: '/assets/icons/home-v2/karma-badge.svg',
   }
@@ -100,6 +102,7 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
         <li><b>Unconverted Karma</b> - Karma Points yet to be converted.</li>
       </ul>`,
       placement: 'bottom',
+      scrollAnchor: '.kw__header',
     },
     {
       selector: '.kw__history',
@@ -107,8 +110,7 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
       body: `View your complete Karma Coin transaction history. Filter by time period or
         transaction type - All, Earned, or Redeemed - to quickly find transactions and track
         your running balance.`,
-      /* right, so the section title and tabs stay readable behind it */
-      placement: 'right',
+      placement: 'top',
     },
     {
       selector: '.kw__btn--primary',
@@ -810,7 +812,7 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
   private buildGroups() {
     const grouped = new Map<string, IKarmaCoinTxnGroup>()
     this.pendingConversion = this.transactions
-      .find(txn => isTxnStatus(txn.status, TXN_STATUS_IN_PROGRESS)) || null
+      .find(txn => txn.type === 'earned' && isTxnStatus(txn.status, TXN_STATUS_IN_PROGRESS)) || null
     this.buildLastTransactions()
     /* an unsettled conversion reads as the banner above, never as a history row */
     const settled = this.transactions

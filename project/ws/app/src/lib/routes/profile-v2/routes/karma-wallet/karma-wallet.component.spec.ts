@@ -725,6 +725,18 @@ describe('KarmaWalletComponent', () => {
     })
   })
 
+  it('should keep Convert available while only a redemption is in progress', () => {
+    serviceStub.getTransactions.mockReturnValue(of([toCoinRow({ ...ROWS[1], status: 'IN_PROGRESS' })]))
+
+    expect(load().canRedeem).toBe(true)
+  })
+
+  it('should disable Convert while a conversion is in progress', () => {
+    serviceStub.getTransactions.mockReturnValue(of([toCoinRow({ ...ROWS[3], status: 'IN_PROGRESS' })]))
+
+    expect(load().canRedeem).toBe(false)
+  })
+
   it('should refuse to open the redeem dialog while redemption is switched off', () => {
     component.summary = { ...component.summary, redeemEnabled: false }
     expect(component.canRedeem).toBe(false)

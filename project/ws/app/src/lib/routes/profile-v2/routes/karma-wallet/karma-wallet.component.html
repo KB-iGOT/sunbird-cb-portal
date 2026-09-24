@@ -130,8 +130,8 @@
   <ng-template #lastCard let-txn let-credit="credit">
     <div class="kw-last__card" [ngClass]="'kw-last__card--' + txnState(txn)" role="status">
       <span class="kw-last__spinner" *ngIf="txnState(txn) === 'progress'" aria-hidden="true"></span>
-      <mat-icon class="kw-last__icon" *ngIf="txnState(txn) === 'success'">check_circle</mat-icon>
-      <mat-icon class="kw-last__icon" *ngIf="txnState(txn) === 'failed'">error</mat-icon>
+      <img class="kw-last__icon" *ngIf="txnState(txn) === 'success'" [src]="icons.success" alt="" aria-hidden="true">
+      <img class="kw-last__icon" *ngIf="txnState(txn) === 'failed'" [src]="icons.invalid" alt="" aria-hidden="true">
 
       <div class="kw-last__body" [ngSwitch]="txnState(txn)">
         <ng-container *ngSwitchCase="'progress'">
