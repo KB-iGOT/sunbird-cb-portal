@@ -138,7 +138,7 @@
           <p class="kw-last__title" *ngIf="credit">Coins Earned &middot; In Progress ( {{ txnPoints(txn) | number }} KP
             &rarr; {{ txnCoins(txn) | number }} KC )</p>
           <p class="kw-last__title" *ngIf="!credit">Coins Redeemed &middot; In Progress ( {{ txnCoins(txn) | number }}
-            KC )</p>
+            KC{{ txn.courseName ? ' for ' + txn.courseName : '' }} )</p>
           <p class="kw-last__text">Please refresh this page to view the status of your latest transaction.</p>
         </ng-container>
 
