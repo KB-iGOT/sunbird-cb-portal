@@ -9,7 +9,6 @@ import {
   CardTransformerService,
   CardType,
   CardViewModel,
-  CommonMethodsService,
   ContentDictionaryService,
   IBreadcrumbItem,
   IUserCbpPlan,
@@ -41,7 +40,6 @@ export class PlanDetailComponent implements OnInit {
   private readonly cardTransformer = inject(CardTransformerService)
   private readonly enrollSvc = inject(WidgetEnrollService)
   private readonly userCbpPlansSvc = inject(UserCbpPlansService)
-  private readonly commonSvc = inject(CommonMethodsService)
   private readonly translate = inject(TranslateService)
   private readonly destroyRef = inject(DestroyRef)
 
@@ -82,7 +80,6 @@ export class PlanDetailComponent implements OnInit {
     })
     return map
   })
-  private readonly caCourseIds = signal<string[]>([])
   private readonly langTick = signal(0)
   /**
    * Listing plan-type key handed over in the URL by the card that was clicked, used only
@@ -163,34 +160,57 @@ export class PlanDetailComponent implements OnInit {
   readonly completedCourses = computed(() =>
     this.courses().filter(course => this.isCompleted(course.identifier)).length)
 
-  /** CA courses are flagged the same way the course card flags them. */
+  /**
+   * The courses this plan's comprehensive assessment covers — flagged in applyContents from the
+   * plan's own `mandatory` marks, and only when the plan actually links a CA.
+   *
+   * Deliberately NOT the `comprehensiveAssessmentCourseUnits` list CommonMethodsService keeps:
+   * that holds the course units of every CA assigned to the user, so a plan with no CA of its
+   * own showed "CA Courses Completed" for courses some other plan's CA happened to cover.
+   */
   readonly caCourses = computed(() => {
-    const caIds = this.caCourseIds()
-    return this.courses().filter(course =>
-      caIds.includes(course.identifier) || !!(course.metadata as any)?.isCA)
+    if (!this.raw()?.comprehensiveAssessment) {
+      return []
+    }
+    return this.courses().filter(course => !!(course.metadata as any)?.isCA)
   })
 
   readonly completedCaCourses = computed(() =>
     this.caCourses().filter(course => this.isCompleted(course.identifier)).length)
 
   /**
-   * The assessment unlocks once every course in the plan is complete. The read response says
-   * nothing about this, so it is derived — an empty plan leaves it locked rather than
-   * unlocking on a vacuous "all zero courses done".
+   * Ids of the courses that gate the assessment: the ones the plan marks `mandatory`.
+   *
+   * Taken from the plan rather than from `courses()`, because a card is only built for content
+   * the dictionary resolved — gating on the cards would silently drop a mandatory course whose
+   * metadata failed to load, and unlock the assessment early.
+   */
+  readonly gatingCourseIds = computed<string[]>(() =>
+    (this.raw()?.contentList ?? [])
+      .filter(item => !!item?.mandatory && !!item?.identifier)
+      .map(item => item.identifier))
+
+  /**
+   * The assessment unlocks once every MANDATORY course in the plan is complete. The read
+   * response says nothing about the state itself, so it is derived from that flag — the same
+   * rule the assessment's own TOC page applies, so the two screens cannot disagree.
+   *
+   * Optional courses never gate it, and a plan with nothing mandatory has nothing to wait on,
+   * so its assessment is available from the start.
    */
   readonly assessmentState = computed<AssessmentState>(() => {
     const assessment = this.assessment()
     if (assessment && this.isCompleted(assessment.identifier)) {
       return 'completed'
     }
-    const total = this.totalCourses()
-    return total > 0 && this.completedCourses() === total ? 'available' : 'locked'
+    const gating = this.gatingCourseIds()
+    return gating.every(identifier => this.isCompleted(identifier)) ? 'available' : 'locked'
   })
 
   readonly assessmentStateKey = computed(() => {
     switch (this.assessmentState()) {
       case 'completed': return 'cardcontentv2.completed'
-      case 'available': return 'planDetail.available'
+      case 'available': return 'planDetail.unlocked'
       default: return 'planDetail.locked'
     }
   })
@@ -198,7 +218,6 @@ export class PlanDetailComponent implements OnInit {
   // ── Lifecycle ──────────────────────────────────────────────────────────────
   ngOnInit(): void {
     this.primeTranslations()
-    this.caCourseIds.set(this.parseCaCourseIds())
 
     // Both maps, because the plan year in the query string decides whether this page needs
     // the read API at all — see resolvePlan$. distinctUntilChanged keeps an unrelated query
@@ -335,7 +354,13 @@ export class PlanDetailComponent implements OnInit {
       // V4 sends null where the read endpoint omits the field. Falsy either way, but the
       // declared types here are `string | undefined`, so the nulls are dropped.
       planType: plan.planType || undefined,
-      comprehensiveAssessment: plan.comprehensiveAssessment || undefined,
+      // The dictionary now sends the CA id as `caLinkedId` (it used to be
+      // `comprehensiveAssessment`); the library caches plans verbatim, so an entry written
+      // before the rename can still carry the old name.
+      comprehensiveAssessment:
+        (plan as IUserCbpPlan & { caLinkedId?: string | null }).caLinkedId
+        || plan.comprehensiveAssessment
+        || undefined,
     }
   }
 
@@ -354,6 +379,10 @@ export class PlanDetailComponent implements OnInit {
       isApar: planType === 'APAR',
       ...(planType === 'AICBP' ? { planTypeV2: 'AICBP' } : {}),
     }
+
+    // `mandatory` only means "covered by the CA" when there is a CA. A plan without one can
+    // still mark courses mandatory, and those must not pick up the CA chip or the rail count.
+    const hasCa = !!raw.comprehensiveAssessment
 
     const toCard = (id: string, mandatory = false): CardViewModel | null => {
       const content = contents?.[id]
@@ -379,7 +408,7 @@ export class PlanDetailComponent implements OnInit {
     // PlansService.normaliseContentList — so this works cached or fetched.
     this.courses.set(
       raw.contentList
-        .map(item => toCard(item?.identifier, !!item?.mandatory))
+        .map(item => toCard(item?.identifier, hasCa && !!item?.mandatory))
         .filter((card): card is CardViewModel => !!card))
 
     this.assessment.set(raw.comprehensiveAssessment ? toCard(raw.comprehensiveAssessment) : null)
@@ -433,16 +462,6 @@ export class PlanDetailComponent implements OnInit {
       return false
     }
     return entry.completionPercentage === 100 || entry.status === 2
-  }
-
-  /** Ids of the user's CA course units, stored by CommonMethodsService as a JSON string. */
-  private parseCaCourseIds(): string[] {
-    try {
-      const parsed = JSON.parse(this.commonSvc.getCourseUnitIds() || '[]')
-      return Array.isArray(parsed) ? parsed : []
-    } catch {
-      return []
-    }
   }
 
   /** The loaded plan's own type, or the URL's hint while it is still loading. */
