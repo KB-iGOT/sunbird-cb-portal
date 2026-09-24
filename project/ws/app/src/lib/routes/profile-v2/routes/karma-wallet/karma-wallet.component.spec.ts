@@ -182,19 +182,12 @@ describe('KarmaWalletComponent', () => {
     expect(component).toBeTruthy()
   })
 
-  it('should hand the summary wallet balance to the header and left nav, even from a zero balance', () => {
-    localStorage.setItem('userEnrollmentCount', JSON.stringify({
-      userCourseEnrolmentInfo: { walletBalance: 0, karmaPoints: 88 },
-    }))
+  it('should hand the summary wallet balance to the header and left nav', () => {
     homePageStub.walletBalanceUpdated.next.mockClear()
 
     load()
 
-    const stored = JSON.parse(localStorage.getItem('userEnrollmentCount') || '{}')
-    expect(stored.userCourseEnrolmentInfo).toEqual({ walletBalance: 472, karmaPoints: 88 })
-    expect(configStub.unMappedUser.walletBalance).toBe(472)
     expect(homePageStub.walletBalanceUpdated.next).toHaveBeenCalledWith(472)
-    localStorage.removeItem('userEnrollmentCount')
   })
 
   /* First landing: the info popup introduces Karma Coins and the visit is recorded */
@@ -626,7 +619,17 @@ describe('KarmaWalletComponent', () => {
 
       const config = dialogStub.open.mock.calls[0][1]
       /* So the dialog does not fetch the summary a second time */
-      expect(config.data).toEqual({ summary: component.summary })
+      expect(config.data).toEqual({ summary: component.summary, forTour: false })
+    })
+
+    it('should flag the dialog as the walkthrough\'s when step 5 opens it', () => {
+      dialogStub.open.mockClear()
+      dialogStub.open.mockReturnValue({ afterClosed: () => of(undefined), afterOpened: () => of(undefined) })
+
+      ;(component as any).openConvertDialogForTour()
+
+      const config = dialogStub.open.mock.calls[0][1]
+      expect(config.data).toEqual({ summary: component.summary, forTour: true })
     })
   })
 

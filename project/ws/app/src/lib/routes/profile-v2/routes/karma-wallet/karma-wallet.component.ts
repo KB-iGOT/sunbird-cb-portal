@@ -619,7 +619,7 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
     if (this.tourDialogRef) {
       return Promise.resolve()
     }
-    this.tourDialogRef = this.openRedeemDialog()
+    this.tourDialogRef = this.openRedeemDialog(true)
     return new Promise<void>(resolve => {
       this.tourDialogRef!.afterOpened().subscribe(() => resolve())
     })
@@ -645,9 +645,9 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
     this.openRedeemDialog()
   }
 
-  private openRedeemDialog(): MatDialogRef<KarmaRedeemDialogComponent> {
+  private openRedeemDialog(forTour = false): MatDialogRef<KarmaRedeemDialogComponent> {
     const ref = this.dialog.open(KarmaRedeemDialogComponent, {
-      data: { summary: this.summary },
+      data: { forTour, summary: this.summary },
       width: '652px',
       maxWidth: '94vw',
       maxHeight: '90vh',
