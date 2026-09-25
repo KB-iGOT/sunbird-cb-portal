@@ -13,6 +13,7 @@ import { of, Subject } from 'rxjs'
 import { catchError, switchMap, takeUntil } from 'rxjs/operators'
 import { KarmaCoinsInfoDialogComponent } from './karma-coins-info-dialog.component'
 import { KarmaRedeemDialogComponent } from './karma-redeem-dialog.component'
+import { KarmaWalletErrorDialogComponent } from './karma-wallet-error-dialog.component'
 import {
   EMPTY_KARMA_WALLET_SUMMARY,
   IKarmaCoinTransaction,
@@ -67,6 +68,10 @@ function shortMonth(index: number): string {
   return (MONTH_NAMES[index] || '').slice(0, 3)
 }
 
+function isHistoryRangeRefusal(err: any): boolean {
+  return !!(err && err.error && err.error.params && err.error.params.err === 'HISTORY_RANGE_EXCEEDED')
+}
+
 @Component({
   selector: 'ws-app-karma-wallet',
   templateUrl: './karma-wallet.component.html',
@@ -81,6 +86,8 @@ function shortMonth(index: number): string {
 export class KarmaWalletComponent implements OnInit, OnDestroy {
   readonly icons = {
     karmaCoin: `${ICON_BASE}/karmacoin.svg`,
+    success: `${ICON_BASE}/success.svg`,
+    invalid: `${ICON_BASE}/invalid.svg`,
     /* TODO: no karmawallet-v2 equivalent supplied yet, so this still resolves from home-v2 */
     karmaPoints: '/assets/icons/home-v2/karma-badge.svg',
   }
@@ -100,6 +107,7 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
         <li><b>Unconverted Karma</b> - Karma Points yet to be converted.</li>
       </ul>`,
       placement: 'bottom',
+      scrollAnchor: '.kw__header',
     },
     {
       selector: '.kw__history',
@@ -107,8 +115,7 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
       body: `View your complete Karma Coin transaction history. Filter by time period or
         transaction type - All, Earned, or Redeemed - to quickly find transactions and track
         your running balance.`,
-      /* right, so the section title and tabs stay readable behind it */
-      placement: 'right',
+      placement: 'top',
     },
     {
       selector: '.kw__btn--primary',
@@ -188,6 +195,10 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
   private autoOpenConvert = false
   converting = false
   private convertingAccepted = false
+  private loadErrorShown = false
+  private initialLoaded = { summary: false, history: false }
+  private initialLoadDone = false
+  private cameFromApp = false
   pendingConversion: IKarmaCoinTransaction | null = null
   lastCredit: IKarmaCoinTransaction | null = null
   lastDebit: IKarmaCoinTransaction | null = null
@@ -204,17 +215,49 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
     private homePageSvc: HomePageService,
   ) { }
 
-  /* Every API failure on this page is reported here and nowhere else */
   private openSnackbar(primaryMsg: string, duration: number = 5000) {
     this.snackBar.open(primaryMsg, 'X', {
       duration,
     })
   }
 
+  private markInitialLoaded(part: 'summary' | 'history') {
+    if (this.initialLoadDone || this.loadErrorShown) {
+      return
+    }
+    this.initialLoaded[part] = true
+    if (this.initialLoaded.summary && this.initialLoaded.history) {
+      this.initialLoadDone = true
+      this.openInfoOnFirstVisit(this.startWalkthroughOnce())
+      this.openConvertOnce()
+    }
+  }
+
+  private reportLoadFailure(err: any) {
+    if ((err && err.status === 419) || this.loadErrorShown) {
+      return
+    }
+    this.loadErrorShown = true
+    if (this.tour) {
+      this.tour.stop()
+    }
+    this.dialog.closeAll()
+    this.dialog.open(KarmaWalletErrorDialogComponent, {
+      data: { canGoBack: this.cameFromApp },
+      width: '470px',
+      maxWidth: '94vw',
+      autoFocus: false,
+      disableClose: true,
+      backdropClass: 'kwe-dialog-backdrop',
+      scrollStrategy: new NoopScrollStrategy(),
+    })
+  }
+
   ngOnInit() {
+    const navigation = this.router.lastSuccessfulNavigation
+    this.cameFromApp = !!(navigation && navigation.previousNavigation)
     this.raisePageImpression()
     this.autoStartWalkthrough = this.route.snapshot.queryParamMap.get('walkthrough') === 'true'
-    this.openInfoOnFirstVisit(this.startWalkthroughOnce())
     this.autoOpenConvert = this.route.snapshot.queryParamMap.get('convert') === 'true'
 
     this.fetchSummary()
@@ -222,15 +265,22 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
     this.historyRequest$.pipe(
       switchMap(request => this.karmaWalletSvc.getTransactions(request).pipe(
         catchError(err => {
-          this.openSnackbar(readApiError(err) || HISTORY_ERROR)
-          return of([] as IKarmaCoinTransaction[])
+          if (isHistoryRangeRefusal(err)) {
+            this.openSnackbar(readApiError(err) || HISTORY_ERROR)
+          } else {
+            this.reportLoadFailure(err)
+          }
+          return of(null)
         }),
       )),
       takeUntil(this.destroy$),
     ).subscribe(transactions => {
-      this.transactions = transactions || []
+      this.transactions = (!this.summaryError && transactions) || []
       this.buildGroups()
       this.loading = false
+      if (transactions) {
+        this.markInitialLoaded('history')
+      }
     })
 
     this.fetchTransactions()
@@ -281,6 +331,10 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
     return Math.max(0, Math.min(100, ratio * 100))
   }
 
+  get showSummarySkeleton(): boolean {
+    return this.summaryLoading || !!this.summaryError || this.loadErrorShown
+  }
+
   get canRedeem(): boolean {
     return this.summary.redeemEnabled && !this.pendingConversion
   }
@@ -298,6 +352,13 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
 
   /* A conversion the wallet could not complete; the row stays, flagged */
   /* 'progress' | 'failed' | 'success' - a row with no status at all has settled */
+  isNotTruncated(el: HTMLElement): boolean {
+    if (!el) {
+      return true
+    }
+    return el.scrollWidth <= el.clientWidth
+  }
+
   txnState(txn: IKarmaCoinTransaction | null): string {
     if (!txn) {
       return ''
@@ -619,7 +680,7 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
     if (this.tourDialogRef) {
       return Promise.resolve()
     }
-    this.tourDialogRef = this.openRedeemDialog()
+    this.tourDialogRef = this.openRedeemDialog(true)
     return new Promise<void>(resolve => {
       this.tourDialogRef!.afterOpened().subscribe(() => resolve())
     })
@@ -641,13 +702,17 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
     if (!this.canRedeem) {
       return
     }
+    if (this.autoOpenConvert) {
+      this.autoOpenConvert = false
+      this.clearConvertParam()
+    }
     this.raiseClick('convert-karma-points')
     this.openRedeemDialog()
   }
 
-  private openRedeemDialog(): MatDialogRef<KarmaRedeemDialogComponent> {
+  private openRedeemDialog(forTour = false): MatDialogRef<KarmaRedeemDialogComponent> {
     const ref = this.dialog.open(KarmaRedeemDialogComponent, {
-      data: { summary: this.summary },
+      data: { forTour, summary: this.summary },
       width: '652px',
       maxWidth: '94vw',
       maxHeight: '90vh',
@@ -711,10 +776,6 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
       queryParams: { key: 'karmaTracks', tabSelected: 'Providers' },
     })
   }
-  retrySummary() {
-    this.fetchSummary()
-  }
-
   private fetchSummary() {
     this.summaryLoading = true
     this.summaryError = ''
@@ -722,15 +783,32 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$),
     ).subscribe({
       next: summary => {
+
+        let enrollList: any
+        if (localStorage.getItem('userEnrollmentCount')) {
+          enrollList = JSON.parse(localStorage.getItem('userEnrollmentCount') || '')
+          if (enrollList && enrollList.userCourseEnrolmentInfo && enrollList.userCourseEnrolmentInfo.walletBalance) {
+            enrollList.userCourseEnrolmentInfo.walletBalance = summary.walletBalance
+          }
+          localStorage.removeItem('userEnrollmentCount')
+          localStorage.setItem('userEnrollmentCount', JSON.stringify(enrollList))
+        }
+
+        if (this.configSvc.unMappedUser) {
+          this.configSvc.unMappedUser.walletBalance = summary.walletBalance
+        }
+
         this.homePageSvc.walletBalanceUpdated.next(summary.walletBalance)
         this.summary = summary
         this.summaryLoading = false
-        this.openConvertOnce()
+        this.markInitialLoaded('summary')
       },
       error: err => {
         const message = readApiError(err) || SUMMARY_ERROR
         this.summaryError = message
-        this.openSnackbar(message)
+        this.transactions = []
+        this.buildGroups()
+        this.reportLoadFailure(err)
         this.summaryLoading = false
       },
     })
@@ -810,7 +888,7 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
   private buildGroups() {
     const grouped = new Map<string, IKarmaCoinTxnGroup>()
     this.pendingConversion = this.transactions
-      .find(txn => isTxnStatus(txn.status, TXN_STATUS_IN_PROGRESS)) || null
+      .find(txn => txn.type === 'earned' && isTxnStatus(txn.status, TXN_STATUS_IN_PROGRESS)) || null
     this.buildLastTransactions()
     /* an unsettled conversion reads as the banner above, never as a history row */
     const settled = this.transactions
