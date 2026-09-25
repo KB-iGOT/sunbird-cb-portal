@@ -3,7 +3,7 @@ import { MatSnackBar } from '@angular/material/snack-bar'
 import { ActivatedRoute, Router } from '@angular/router'
 import { ConfigurationsService, EventService, TelemetryService } from '@sunbird-cb/utils-v2'
 import { $t } from '@project-sunbird/telemetry-sdk'
-import { Observable, of, throwError } from 'rxjs'
+import { Observable, of, Subject, throwError } from 'rxjs'
 import { delay } from 'rxjs/operators'
 
 import { KARMA_WALLET_DATE_FORMATS, KarmaWalletComponent } from './karma-wallet.component'
@@ -15,6 +15,9 @@ import {
   IKarmaWalletSummary,
 } from './karma-wallet.model'
 import { KarmaWalletService, toCoinRow } from './karma-wallet.service'
+import { KarmaWalletErrorDialogComponent } from './karma-wallet-error-dialog.component'
+import { KarmaCoinsInfoDialogComponent } from './karma-coins-info-dialog.component'
+import { KarmaRedeemDialogComponent } from './karma-redeem-dialog.component'
 import { HomePageService } from 'src/app/services/home-page.service'
 
 /**
@@ -121,7 +124,7 @@ describe('KarmaWalletComponent', () => {
   let routeStub: { snapshot: { queryParamMap: { get: jest.Mock } } }
   let eventsStub: { dispatchEvent: jest.Mock }
   let snackBarStub: { open: jest.Mock }
-  let dialogStub: { open: jest.Mock }
+  let dialogStub: { open: jest.Mock, closeAll: jest.Mock }
   let serviceStub: {
     getWalletSummary: jest.Mock, getTransactions: jest.Mock, redeem: jest.Mock,
     updateProfileDetails: jest.Mock,
@@ -163,7 +166,7 @@ describe('KarmaWalletComponent', () => {
     eventsStub = { dispatchEvent: jest.fn() }
     snackBarStub = { open: jest.fn() }
     dialogResult = undefined
-    dialogStub = { open: jest.fn(() => ({ afterClosed: () => of(dialogResult) })) }
+    dialogStub = { open: jest.fn(() => ({ afterClosed: () => of(dialogResult) })), closeAll: jest.fn() }
     serviceStub = {
       getWalletSummary: jest.fn(() => of(SUMMARY)),
       getTransactions: jest.fn(transactionsFor),
@@ -182,19 +185,20 @@ describe('KarmaWalletComponent', () => {
     expect(component).toBeTruthy()
   })
 
-  it('should hand the summary wallet balance to the header and left nav, even from a zero balance', () => {
-    localStorage.setItem('userEnrollmentCount', JSON.stringify({
-      userCourseEnrolmentInfo: { walletBalance: 0, karmaPoints: 88 },
-    }))
+  it('should hand the summary wallet balance to the header and left nav', () => {
     homePageStub.walletBalanceUpdated.next.mockClear()
 
     load()
 
-    const stored = JSON.parse(localStorage.getItem('userEnrollmentCount') || '{}')
-    expect(stored.userCourseEnrolmentInfo).toEqual({ walletBalance: 472, karmaPoints: 88 })
-    expect(configStub.unMappedUser.walletBalance).toBe(472)
     expect(homePageStub.walletBalanceUpdated.next).toHaveBeenCalledWith(472)
-    localStorage.removeItem('userEnrollmentCount')
+  })
+
+  it('should keep the user read wallet balance in step with the summary', () => {
+    configStub.unMappedUser.walletBalance = 4
+
+    load()
+
+    expect(configStub.unMappedUser.walletBalance).toBe(472)
   })
 
   /* First landing: the info popup introduces Karma Coins and the visit is recorded */
@@ -489,77 +493,204 @@ describe('KarmaWalletComponent', () => {
     expect(component.summaryLoading).toBe(false)
   })
 
-  it('should clear the skeleton when the summary call fails', () => {
+  it('should keep the skeleton in place of the cards when the summary call fails', () => {
     serviceStub.getWalletSummary.mockReturnValue(throwError(() => ({ status: 500, error: {} })))
 
     const failing = load()
 
-    /* Otherwise the placeholder would sit there for good */
     expect(failing.summaryLoading).toBe(false)
+    expect(failing.showSummarySkeleton).toBe(true)
   })
 
-  it('should surface the server wording when the summary call fails', () => {
-    serviceStub.getWalletSummary.mockReturnValue(throwError(
-      () => ({ status: 400, error: { params: { errmsg: 'Wallet is not enabled' } } })))
+  describe('load failure popup', () => {
+    const errorPopups = () =>
+      dialogStub.open.mock.calls.filter((c: any[]) => c[0] === KarmaWalletErrorDialogComponent)
 
-    load()
+    beforeEach(() => {
+      dialogStub.open.mockClear()
+      snackBarStub.open.mockClear()
+    })
 
-    /* The response's own message, in preference to our fallback copy */
-    expect(snackBarStub.open).toHaveBeenCalledWith(
-      'Wallet is not enabled', 'X', { duration: 5000 })
-  })
+    it('should show the popup, and no snackbar, when the summary call fails', () => {
+      serviceStub.getWalletSummary.mockReturnValue(throwError(() => ({ status: 500, error: {} })))
 
-  it('should report a failed summary call in the snackbar', () => {
-    serviceStub.getWalletSummary.mockReturnValue(throwError(() => ({ status: 500, error: {} })))
+      load()
 
-    load()
+      expect(errorPopups().length).toBe(1)
+      expect(errorPopups()[0][1]).toEqual(expect.objectContaining({
+        disableClose: true, backdropClass: 'kwe-dialog-backdrop', data: { canGoBack: false },
+      }))
+      expect(snackBarStub.open).not.toHaveBeenCalled()
+    })
 
-    expect(snackBarStub.open).toHaveBeenCalledWith(
-      'We could not load your Karma Coin Wallet. Please try again.', 'X', { duration: 5000 })
-  })
+    it('should leave the history empty when the summary call fails', () => {
+      serviceStub.getWalletSummary.mockReturnValue(throwError(() => ({ status: 500, error: {} })))
 
-  it('should stand a retry where the cards would be when the summary call fails', () => {
-    serviceStub.getWalletSummary.mockReturnValue(throwError(
-      () => ({ status: 400, error: { params: { errmsg: 'Wallet is not enabled' } } })))
+      const failing = load()
 
-    const failing = load()
+      expect(failing.hasTransactions).toBe(false)
+      expect(failing.lastCredit).toBeNull()
+      expect(failing.lastDebit).toBeNull()
+    })
 
-    /* The template swaps the four cards for the error panel off this, and shows the server's
-       own wording under the "Something went wrong" heading */
-    expect(failing.summaryError).toBe('Wallet is not enabled')
+    it('should empty a history that arrived before the summary call failed', () => {
+      const summary$ = new Subject<any>()
+      serviceStub.getWalletSummary.mockReturnValue(summary$)
+
+      const failing = load()
+      expect(failing.hasTransactions).toBe(true)
+
+      summary$.error({ status: 500, error: {} })
+
+      expect(failing.hasTransactions).toBe(false)
+      expect(failing.lastCredit).toBeNull()
+      expect(failing.lastDebit).toBeNull()
+    })
+
+    it('should show the popup when the history call fails', () => {
+      serviceStub.getTransactions.mockReturnValue(throwError(() => ({ status: 500, error: {} })))
+
+      load()
+
+      expect(errorPopups().length).toBe(1)
+      expect(snackBarStub.open).not.toHaveBeenCalled()
+    })
+
+    it('should show the summary skeleton when only the history call fails', () => {
+      serviceStub.getTransactions.mockReturnValue(throwError(() => ({ status: 500, error: {} })))
+
+      const failing = load()
+
+      expect(failing.summaryError).toBe('')
+      expect(failing.showSummarySkeleton).toBe(true)
+    })
+
+    it('should show a single popup when both calls fail', () => {
+      serviceStub.getWalletSummary.mockReturnValue(throwError(() => ({ status: 500, error: {} })))
+      serviceStub.getTransactions.mockReturnValue(throwError(() => ({ status: 500, error: {} })))
+
+      const failing = load()
+
+      expect(errorPopups().length).toBe(1)
+      expect(failing.showSummarySkeleton).toBe(true)
+    })
+
+    it('should close the other wallet dialogs and stop a running tour first', () => {
+      const failing = build()
+      const tourStub = { start: jest.fn(), stop: jest.fn() }
+      ;(failing as any).tour = tourStub
+      serviceStub.getWalletSummary.mockReturnValue(throwError(() => ({ status: 500, error: {} })))
+
+      failing.ngOnInit()
+
+      expect(tourStub.stop).toHaveBeenCalled()
+      expect(dialogStub.closeAll).toHaveBeenCalled()
+      expect(errorPopups().length).toBe(1)
+    })
+
+    it('should leave an expired session to the login redirect', () => {
+      serviceStub.getWalletSummary.mockReturnValue(throwError(() => ({ status: 419, error: {} })))
+
+      load()
+
+      expect(errorPopups().length).toBe(0)
+    })
+
+    describe('the popups the page opens on arrival', () => {
+      const opened = (dialog: any) => dialogStub.open.mock.calls.filter((c: any[]) => c[0] === dialog).length
+      const arriveWith = (param: 'walkthrough' | 'convert') => {
+        routeStub.snapshot.queryParamMap.get = jest.fn((key: string) => (key === param ? 'true' : null))
+      }
+
+      it('should not open the walkthrough popup when the summary call fails', () => {
+        arriveWith('walkthrough')
+        serviceStub.getWalletSummary.mockReturnValue(throwError(() => ({ status: 500, error: {} })))
+
+        load()
+
+        expect(opened(KarmaCoinsInfoDialogComponent)).toBe(0)
+        expect(errorPopups().length).toBe(1)
+      })
+
+      it('should not open the walkthrough popup when the history call fails', () => {
+        arriveWith('walkthrough')
+        serviceStub.getTransactions.mockReturnValue(throwError(() => ({ status: 500, error: {} })))
+
+        load()
+
+        expect(opened(KarmaCoinsInfoDialogComponent)).toBe(0)
+        expect(errorPopups().length).toBe(1)
+      })
+
+      it('should neither show nor record the first visit when a call fails', () => {
+        configStub.unMappedUser.profileDetails.karma_wallet_tour = { visited: false }
+        serviceStub.getTransactions.mockReturnValue(throwError(() => ({ status: 500, error: {} })))
+
+        load()
+
+        expect(opened(KarmaCoinsInfoDialogComponent)).toBe(0)
+        expect(serviceStub.updateProfileDetails).not.toHaveBeenCalled()
+      })
+
+      it('should not open the convert dialog from ?convert=true when a call fails', () => {
+        arriveWith('convert')
+        serviceStub.getTransactions.mockReturnValue(throwError(() => ({ status: 500, error: {} })))
+
+        load()
+
+        expect(opened(KarmaRedeemDialogComponent)).toBe(0)
+        expect(errorPopups().length).toBe(1)
+      })
+
+      it('should wait for the history as well as the summary before opening the walkthrough popup', () => {
+        arriveWith('walkthrough')
+        const history$ = new Subject<any>()
+        serviceStub.getTransactions.mockReturnValue(history$)
+
+        load()
+        expect(opened(KarmaCoinsInfoDialogComponent)).toBe(0)
+
+        history$.next([])
+        expect(opened(KarmaCoinsInfoDialogComponent)).toBe(1)
+      })
+
+      it('should not open a second convert dialog when the user clicks Convert before the history arrives', () => {
+        arriveWith('convert')
+        const history$ = new Subject<any>()
+        serviceStub.getTransactions.mockReturnValue(history$)
+
+        const loaded = load()
+        loaded.redeemKarmaPoints()
+        history$.next([])
+
+        expect(opened(KarmaRedeemDialogComponent)).toBe(1)
+      })
+
+      it('should open the convert dialog from ?convert=true once both calls succeed', () => {
+        arriveWith('convert')
+
+        load()
+
+        expect(opened(KarmaRedeemDialogComponent)).toBe(1)
+        expect(errorPopups().length).toBe(0)
+      })
+    })
+
+    it('should keep the one-year lookback refusal in the snackbar, not the popup', () => {
+      component.selectPeriod('custom')
+      component.customStart = new Date(2024, 0, 1)
+      component.onCustomEndChange(new Date(2026, 7, 26))
+
+      expect(snackBarStub.open).toHaveBeenCalledWith(
+        'You can view history for up to the last 1 year only.', 'X', { duration: 5000 })
+      expect(errorPopups().length).toBe(0)
+      expect(component.showSummarySkeleton).toBe(false)
+    })
   })
 
   it('should leave no error behind when the summary resolves', () => {
     expect(component.summaryError).toBe('')
-  })
-
-  it('should refill the cards when Retry succeeds', () => {
-    serviceStub.getWalletSummary.mockReturnValueOnce(throwError(() => ({ status: 500, error: {} })))
-
-    const failing = load()
-    expect(failing.summaryError).not.toBe('')
-
-    /* The stub is back to the good response for the second call */
-    failing.retrySummary()
-
-    expect(failing.summaryError).toBe('')
-    expect(failing.summaryLoading).toBe(false)
-    expect(failing.summary.walletBalance).toBe(472)
-  })
-
-  it('should retry only the summary, leaving the history table alone', () => {
-    serviceStub.getWalletSummary.mockReturnValueOnce(throwError(() => ({ status: 500, error: {} })))
-
-    const failing = load()
-    /* Counted from here, not from zero: beforeEach has already loaded a component off the
-       same stubs */
-    const summaryCalls = serviceStub.getWalletSummary.mock.calls.length
-    const historyCalls = serviceStub.getTransactions.mock.calls.length
-
-    failing.retrySummary()
-
-    expect(serviceStub.getWalletSummary.mock.calls.length).toBe(summaryCalls + 1)
-    expect(serviceStub.getTransactions.mock.calls.length).toBe(historyCalls)
+    expect(component.showSummarySkeleton).toBe(false)
   })
 
   it('should map the summary response onto the four cards', () => {
@@ -626,7 +757,17 @@ describe('KarmaWalletComponent', () => {
 
       const config = dialogStub.open.mock.calls[0][1]
       /* So the dialog does not fetch the summary a second time */
-      expect(config.data).toEqual({ summary: component.summary })
+      expect(config.data).toEqual({ summary: component.summary, forTour: false })
+    })
+
+    it('should flag the dialog as the walkthrough\'s when step 5 opens it', () => {
+      dialogStub.open.mockClear()
+      dialogStub.open.mockReturnValue({ afterClosed: () => of(undefined), afterOpened: () => of(undefined) })
+
+      ;(component as any).openConvertDialogForTour()
+
+      const config = dialogStub.open.mock.calls[0][1]
+      expect(config.data).toEqual({ summary: component.summary, forTour: true })
     })
   })
 
@@ -720,6 +861,26 @@ describe('KarmaWalletComponent', () => {
       component.selectPeriod('lastMonth')
       expect(component.groups.map(g => g.label)).toEqual(['JUL 2026'])
     })
+  })
+
+  it('should enable the course name tooltip only when the name is cut off', () => {
+    const el = (scrollWidth: number, clientWidth: number) => ({ scrollWidth, clientWidth } as HTMLElement)
+
+    expect(component.isNotTruncated(el(320, 180))).toBe(false)
+    expect(component.isNotTruncated(el(120, 180))).toBe(true)
+    expect(component.isNotTruncated(null as any)).toBe(true)
+  })
+
+  it('should keep Convert available while only a redemption is in progress', () => {
+    serviceStub.getTransactions.mockReturnValue(of([toCoinRow({ ...ROWS[1], status: 'IN_PROGRESS' })]))
+
+    expect(load().canRedeem).toBe(true)
+  })
+
+  it('should disable Convert while a conversion is in progress', () => {
+    serviceStub.getTransactions.mockReturnValue(of([toCoinRow({ ...ROWS[3], status: 'IN_PROGRESS' })]))
+
+    expect(load().canRedeem).toBe(false)
   })
 
   it('should refuse to open the redeem dialog while redemption is switched off', () => {
