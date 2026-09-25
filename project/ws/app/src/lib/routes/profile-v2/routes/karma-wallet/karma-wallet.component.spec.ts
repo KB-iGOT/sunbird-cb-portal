@@ -193,6 +193,14 @@ describe('KarmaWalletComponent', () => {
     expect(homePageStub.walletBalanceUpdated.next).toHaveBeenCalledWith(472)
   })
 
+  it('should keep the user read wallet balance in step with the summary', () => {
+    configStub.unMappedUser.walletBalance = 4
+
+    load()
+
+    expect(configStub.unMappedUser.walletBalance).toBe(472)
+  })
+
   /* First landing: the info popup introduces Karma Coins and the visit is recorded */
   it('should open the karma coins info popup when karma_wallet_tour has not been visited', () => {
     configStub.unMappedUser.profileDetails.karma_wallet_tour = { visited: false, skipped: false }

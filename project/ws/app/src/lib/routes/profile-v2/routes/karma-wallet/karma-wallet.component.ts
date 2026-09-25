@@ -783,6 +783,21 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
       takeUntil(this.destroy$),
     ).subscribe({
       next: summary => {
+
+        let enrollList: any
+        if (localStorage.getItem('userEnrollmentCount')) {
+          enrollList = JSON.parse(localStorage.getItem('userEnrollmentCount') || '')
+          if (enrollList && enrollList.userCourseEnrolmentInfo && enrollList.userCourseEnrolmentInfo.walletBalance) {
+            enrollList.userCourseEnrolmentInfo.walletBalance = summary.walletBalance
+          }
+          localStorage.removeItem('userEnrollmentCount')
+          localStorage.setItem('userEnrollmentCount', JSON.stringify(enrollList))
+        }
+
+        if (this.configSvc.unMappedUser) {
+          this.configSvc.unMappedUser.walletBalance = summary.walletBalance
+        }
+
         this.homePageSvc.walletBalanceUpdated.next(summary.walletBalance)
         this.summary = summary
         this.summaryLoading = false
