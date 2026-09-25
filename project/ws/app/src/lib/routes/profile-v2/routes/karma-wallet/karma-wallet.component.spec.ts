@@ -855,6 +855,14 @@ describe('KarmaWalletComponent', () => {
     })
   })
 
+  it('should enable the course name tooltip only when the name is cut off', () => {
+    const el = (scrollWidth: number, clientWidth: number) => ({ scrollWidth, clientWidth } as HTMLElement)
+
+    expect(component.isNotTruncated(el(320, 180))).toBe(false)
+    expect(component.isNotTruncated(el(120, 180))).toBe(true)
+    expect(component.isNotTruncated(null as any)).toBe(true)
+  })
+
   it('should keep Convert available while only a redemption is in progress', () => {
     serviceStub.getTransactions.mockReturnValue(of([toCoinRow({ ...ROWS[1], status: 'IN_PROGRESS' })]))
 

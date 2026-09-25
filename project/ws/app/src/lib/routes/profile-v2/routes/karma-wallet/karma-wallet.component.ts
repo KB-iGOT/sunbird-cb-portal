@@ -352,6 +352,13 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
 
   /* A conversion the wallet could not complete; the row stays, flagged */
   /* 'progress' | 'failed' | 'success' - a row with no status at all has settled */
+  isNotTruncated(el: HTMLElement): boolean {
+    if (!el) {
+      return true
+    }
+    return el.scrollWidth <= el.clientWidth
+  }
+
   txnState(txn: IKarmaCoinTransaction | null): string {
     if (!txn) {
       return ''

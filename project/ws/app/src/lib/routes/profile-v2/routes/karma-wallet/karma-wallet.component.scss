@@ -986,6 +986,27 @@ $kw-row-pad: 17px;
     line-height: 22px;
   }
 
+  &__body {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+
+  &__title--one-line {
+    display: flex;
+    min-width: 0;
+    white-space: nowrap;
+  }
+
+  &__title-fixed {
+    flex-shrink: 0;
+  }
+
+  &__course {
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
   &__text {
     margin: 2px 0 0;
     font-size: 13px;
