@@ -1014,17 +1014,17 @@ $kw-row-pad: 17px;
     line-height: 20px;
   }
   &__card--success {
-    background: #1d892317;
+    background: var(--environment-cards-system-cards-success-o-9);
 
-    .kw-last__title { color: #1d8923; }
+    .kw-last__title { color: var(--text-system-text-success); }
     .kw-last__text { color: var(--color-tertiary-300) }
   }
 
   /* the wallet could not complete it */
   &__card--failed {
-    background: #ce444424;
+    background: var(--environment-cards-system-cards-error-o-14);
 
-    .kw-last__title { color: #d13924; }
+    .kw-last__title { color: var(--text-system-text-error); }
     .kw-last__text { color: var(--color-tertiary-300); }
   }
 
