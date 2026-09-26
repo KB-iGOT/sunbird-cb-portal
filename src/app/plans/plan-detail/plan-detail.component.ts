@@ -161,8 +161,8 @@ export class PlanDetailComponent implements OnInit {
     this.courses().filter(course => this.isCompleted(course.identifier)).length)
 
   /**
-   * The courses this plan's comprehensive assessment covers — every course in the plan, flagged
-   * in applyContents, and only when the plan actually links a CA.
+   * The courses this plan's comprehensive assessment covers — the ones the plan marks
+   * `mandatory`, flagged in applyContents, and only when the plan actually links a CA.
    *
    * Deliberately NOT the `comprehensiveAssessmentCourseUnits` list CommonMethodsService keeps:
    * that holds the course units of every CA assigned to the user, so a plan with no CA of its
@@ -388,8 +388,8 @@ export class PlanDetailComponent implements OnInit {
       ...(planType === 'AICBP' ? { planTypeV2: 'AICBP' } : {}),
     }
 
-    // Every course in a plan that links a CA is a CA course, mandatory or not — `mandatory`
-    // only decides what gates the assessment (gatingCourseIds). A plan without a CA tags none.
+    // Only the courses the plan marks `mandatory` are CA courses — the same ones that gate the
+    // assessment (gatingCourseIds). A plan without a CA tags none, mandatory or not.
     const hasCa = !!raw.comprehensiveAssessment
 
     const toCard = (id: string, isCa = false): CardViewModel | null => {
@@ -412,7 +412,7 @@ export class PlanDetailComponent implements OnInit {
 
     this.courses.set(
       raw.contentList
-        .map(item => toCard(item?.identifier, hasCa))
+        .map(item => toCard(item?.identifier, hasCa && !!item?.mandatory))
         .filter((card): card is CardViewModel => !!card))
 
     this.assessment.set(raw.comprehensiveAssessment ? toCard(raw.comprehensiveAssessment) : null)

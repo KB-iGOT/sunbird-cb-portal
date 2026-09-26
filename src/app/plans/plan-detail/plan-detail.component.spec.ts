@@ -610,20 +610,20 @@ describe('PlanDetailComponent', () => {
   })
 
   // ── CA courses ─────────────────────────────────────────────────────────────
-  describe('courses in a plan with a linked CA count as CA', () => {
+  describe('mandatory courses in a plan with a linked CA count as CA', () => {
     const withMandatory = (over: any = { comprehensiveAssessment: 'do_ca' }) =>
       plansSvc.readPlan.mockReturnValue(of(rawPlan({
         contentList: [{ identifier: 'do_1', mandatory: true }, { identifier: 'do_2', mandatory: false }],
         ...over,
       })))
 
-    it('marks every course CA on the card itself, mandatory or not', async () => {
+    it('marks only the mandatory course CA on the card itself, where the chip reads it', async () => {
       withMandatory()
       component.ngOnInit()
       await settle()
 
       expect((component.courses()[0] as any).isCA).toBe(true)
-      expect((component.courses()[1] as any).isCA).toBe(true)
+      expect((component.courses()[1] as any).isCA).toBeUndefined()
     })
 
     it('also passes it through the transformer, where the rail count reads it', async () => {
@@ -632,7 +632,7 @@ describe('PlanDetailComponent', () => {
       await settle()
 
       expect((component.courses()[0].metadata as any).isCA).toBe(true)
-      expect((component.courses()[1].metadata as any).isCA).toBe(true)
+      expect((component.courses()[1].metadata as any).isCA).toBeUndefined()
     })
 
     it('does not tag the assessment card itself as a CA course', async () => {
@@ -643,14 +643,14 @@ describe('PlanDetailComponent', () => {
       expect((component.assessment() as any).isCA).toBeUndefined()
     })
 
-    it('counts every course in the rail, completed ones separately', async () => {
+    it('counts mandatory courses in the rail, completed ones separately', async () => {
       withMandatory()
       enrollSvc.fetchEnrollContentData.mockReturnValue(
         of({ result: { courses: [{ collectionId: 'do_1', completionPercentage: 100 }] } }))
       component.ngOnInit()
       await settle()
 
-      expect(component.caCourses().length).toBe(2)
+      expect(component.caCourses().length).toBe(1)
       expect(component.completedCaCourses()).toBe(1)
     })
 
@@ -693,9 +693,9 @@ describe('PlanDetailComponent', () => {
       await settle()
 
       expect(plansSvc.readPlan).not.toHaveBeenCalled()
-      // cachedPlan() marks do_1 mandatory and do_2 not; both are CA courses.
+      // cachedPlan() marks do_1 mandatory and do_2 not.
       expect((component.courses()[0] as any).isCA).toBe(true)
-      expect((component.courses()[1] as any).isCA).toBe(true)
+      expect((component.courses()[1] as any).isCA).toBeUndefined()
     })
   })
 })
