@@ -63,6 +63,7 @@ import { LibNotificationsService } from '@sunbird-cb/notification'
 import { HomePageService } from '../../services/home-page.service'
 import { trigger, style, animate, transition } from '@angular/animations'
 import { DialogBoxComponent } from '../dialog-box/dialog-box.component'
+import { isKarmaWalletTourSnoozed } from '../app-tour/karma-wallet-tour-snooze'
 import * as _ from 'lodash'
 
 // Anchor on the "Achievement" heading in profile-view-v2, scrolled to from the bottom nav
@@ -114,6 +115,8 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
   // Add more prefixes here when another route needs the same treatment.
   fullWidthMobileRoutes = ['/app/learn/bharat-kalp']
   isFullWidthMobileRoute = signal(false)
+  surfaceBackgroundRoutes = ['/app/person-profile/karma-wallet','/app/plans']
+  usesSurfaceBackground = signal(false)
   navBarOpenStatusBasedOnNav = signal(true)
   openStatusUserSelection = signal(true)
   // The sidebar only pushes page content on the home page. Everywhere else it is an overlay
@@ -200,6 +203,12 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
       this.configSvc.unMappedUser.profileDetails.get_started_tour_v2) {
       this.showTour = this.configSvc.unMappedUser.profileDetails.get_started_tour_v2.skipped ||
         this.configSvc.unMappedUser.profileDetails.get_started_tour_v2.visited
+    }
+    if (this.configSvc.unMappedUser && this.configSvc.unMappedUser.profileDetails) {
+      const karmaWalletTour = this.configSvc.unMappedUser.profileDetails.karma_wallet_tour
+      const snoozed = isKarmaWalletTourSnoozed(this.configSvc.unMappedUser.id)
+      this.karmaWalletVideoPending = !snoozed && (!karmaWalletTour || karmaWalletTour.video_visited !== true)
+      this.karmaWalletTourPending = !snoozed && (!karmaWalletTour || karmaWalletTour.visited !== true)
     }
     this.mobileAppsSvc.init()
     this.openIntro()
@@ -347,6 +356,8 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
   processed: any
   loginToken: any
   showTour = false
+  karmaWalletVideoPending = false
+  karmaWalletTourPending = false
   currentRouteData: any = []
   loggedinUser = !!(this.configSvc.userProfile && this.configSvc.userProfile.userId)
   headerFooterConfigData: any = null
@@ -403,6 +414,9 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
     this.mobileAppsSvc.mobileTopHeaderVisibilityStatus.subscribe((status: any) => {
       this.mobileTopHeaderVisibilityStatus = status
     })
+    this.homePageSvc.walletBalanceUpdated.subscribe((walletBalance: number) => {
+      this.updateAchievementWalletBalance(walletBalance)
+    })
     this.configSvc.updateTourGuideMethod(this.showTour)
     // this.route.queryParams
     //   .subscribe(_params => {
@@ -441,6 +455,11 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
         this.mobileAppsSvc.clearGlobalSearchForHomePage.next(true)
         // Fetch mandatory notification when navigating to home
         // this.commonDataSvc.fetchMandatoryNotification()
+        // clicking the karmayogi icon from the explore screen redirects here without
+        // going through onNavItemClicked, so the explore highlight would otherwise stick
+        if (this.menuBarDetails.activeItemCode === 'explore') {
+          this.menuBarDetails.activeItemCode = ''
+        }
       } else {
         this.isHomePage.set(false)
         this.mobileAppsSvc.clearGlobalSearchForHomePage.next(false)
@@ -496,7 +515,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
           }
         }
 
-        if (event.url.includes('/viewer')) {
+        if (event.url.includes('/viewer') || event.url.includes('/public/toc')) {
           this.viewerPage = true
         } else {
           this.viewerPage = false
@@ -532,6 +551,10 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
 
         this.isFullWidthMobileRoute.set(
           this.fullWidthMobileRoutes.some(route => this.currentUrl.startsWith(route))
+        )
+
+        this.usesSurfaceBackground.set(
+          this.surfaceBackgroundRoutes.some(route => this.currentUrl.startsWith(route))
         )
 
         if (
@@ -640,6 +663,15 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
                 case 'karma_points':
                   const karmaPoints = _.get(parsed, 'userCourseEnrolmentInfo.karmaPoints', 0)
                   item.value = `${karmaPoints} Karma Points`
+                  /* Was absent while this was the last case; required now that one follows,
+                     or karma_points would fall through and take the coins value. */
+                  break
+                case 'karma_coins':
+                  const walletBalance = _.get(parsed, 'userCourseEnrolmentInfo.walletBalance', 0)
+                  item.value = `${walletBalance} Karma Coins`
+                  break
+                default:
+                  break
               }
             })
           }
@@ -727,6 +759,15 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
       this.navBarOpenStatusBasedOnNav.set(false)
       this.leftNavBarIsOpen.set(false)
     }
+  }
+
+  private updateAchievementWalletBalance(walletBalance: number) {
+    const coinsItem = this.achievementsSection?.items?.find((item: any) => item.code === 'karma_coins')
+    if (!coinsItem) {
+      return
+    }
+    coinsItem.value = `${walletBalance || 0} Karma Coins`
+    this.sendDetailsChangedEvent(this.achievementsSection)
   }
 
   sendDetailsChangedEvent(newAchievements: any) {

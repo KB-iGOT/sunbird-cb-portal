@@ -1,10 +1,10 @@
 import { Injectable } from '@angular/core'
 import { HttpClient } from '@angular/common/http'
-import { catchError, map, Observable, of } from 'rxjs'
+import { catchError, map, Observable, of, tap } from 'rxjs'
 
 import { environment } from '../../../src/environments/environment'
 const API_END_POINTS = {
-  FORM_READ: '/apis/v1/form/read',
+  FORM_READ: '/apis/proxies/v8/formsConfig/v1/read',
 }
 @Injectable({
   providedIn: 'root',
@@ -23,23 +23,35 @@ export class FormEnvConfigService {
     try {
       let payload = {
         "request": {
+          "name": "portal_global_env",
           "type": "page",
           "subType": "globalenv",
-          "action": "page-configuration",
-          "component": "portal",
-          "rootOrgId": "*"
+          "portal": "portal",
+          "criteria": {
+            "role": "PUBLIC",
+            "rootOrg": "*"
+          },
+          "clientVersion": 1.0
         }
       }
-      const response: any = await this.globalEnvConfigReadData(payload)
+      await this.globalEnvConfigReadData(payload).subscribe({
+        next: (response) => {
+          console.log('globalEnvConfigReadData response:', response)
+          console.log('response-', response)
+          const formConfig = response?.data || response
 
-      const formConfig = response?.data || response
+          if (!formConfig) {
+            console.warn('FormConfig API returned empty response')
+            return
+          }
 
-      if (!formConfig) {
-        console.warn('FormConfig API returned empty response')
-        return
-      }
+          this.setApiEnvironmentValues(formConfig)
+        },
+        error: (error) => {
+          console.error('globalEnvConfigReadData error:', error)
+        }
+      })
 
-      this.setApiEnvironmentValues(formConfig)
 
     } catch (error) {
       console.error(
@@ -56,58 +68,82 @@ export class FormEnvConfigService {
 
   private setApiEnvironmentValues(formConfig: any): void {
 
-    /**
-     * ONLY PUT FIELDS HERE THAT SHOULD COME FROM FORMCONFIG API.
-     *
-     * Example:
-     *
-     * API:
-     * {
-     *   "azureHost": "...",
-     *   "contentHost": "...",
-     *   "channelId": "..."
-     * }
-     *
-     * Then those fields will override the values from env.json.
-     */
 
-    const apiEnvironmentValues: Partial<typeof environment> = {
-      // Example fields:
-      portals: formConfig.portals
-    }
-    console.log('environment formConfig', formConfig)
-    Object.keys(apiEnvironmentValues).forEach((key) => {
-      const value = apiEnvironmentValues[key as keyof typeof apiEnvironmentValues]
+    const windowEnv = this.getWindowEnv()
 
-      // Only override when API actually returned a value.
-      if (value !== undefined && value !== null) {
-        (environment as any)[key] = value
-      }
-    })
+    Object.assign(windowEnv, formConfig)
+
+    // ---------------------------------------
+    // Update Angular environment
+    // ---------------------------------------
+
+    Object.assign(environment, formConfig)
   }
 
   globalEnvConfigReadData(payload: any): Observable<any> {
 
-    console.log('payload', payload)
+    console.log('payload:', payload)
+
     return this.formReadData(payload).pipe(
-      map((rData: any) => {
-        console.log('rData--', rData)
-        const finalData = rData && rData.result.form.data
-        return (finalData)
+
+      tap({
+        next: (response) => {
+          console.log('3. FORM_READ RESPONSE:', response)
+        },
+        error: (error) => {
+          console.error('3. FORM_READ ERROR:', error)
+        },
+        complete: () => {
+          console.log('4. FORM_READ COMPLETE')
+        }
       }),
-      catchError((_error: any) => {
-        alert(2)
-        return this.http.get(`/assets/configurations/global.env.json`).pipe(
-          map(data => (data)),
-          catchError(err => of({ data: null, error: err })),
-        )
-      }
-      ),
+
+      map((rData: any) => {
+
+        console.log('rData--:', rData)
+
+        const finalData = rData?.result?.data
+
+        console.log('finalData--:', finalData)
+
+        return finalData
+      }),
+
+      catchError((error: any) => {
+
+        console.error('FORM_READ API ERROR:', error)
+
+        return this.http
+          .get(`/assets/configurations/global.env.json`)
+          .pipe(
+            tap((data) => {
+              console.log('Fallback global.env.json:', data)
+            }),
+
+            map((data: any) => data),
+
+            catchError((fallbackError) => {
+
+              console.error(
+                'Fallback global.env.json ERROR:',
+                fallbackError
+              )
+
+              return of({
+                data: null,
+                error: fallbackError
+              })
+            })
+          )
+      })
     )
   }
-
   formReadData(request: any): Observable<any> {
     console.log('API_END_POINTS.FORM_READ', API_END_POINTS.FORM_READ)
-    return this.http.post<any>(API_END_POINTS.FORM_READ, request)
+    return this.http.post<any>(`${API_END_POINTS.FORM_READ}`, request)
+  }
+
+  private getWindowEnv(): { [key: string]: any } {
+    return (window as { [key: string]: any })['env'] || {}
   }
 }

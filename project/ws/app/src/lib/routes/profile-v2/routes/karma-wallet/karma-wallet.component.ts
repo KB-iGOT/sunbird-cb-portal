@@ -1,0 +1,928 @@
+import { Component, OnDestroy, OnInit, ViewChild } from '@angular/core'
+import { ActivatedRoute, Router } from '@angular/router'
+import { MatDatepicker } from '@angular/material/datepicker'
+import {
+  DateAdapter, MAT_DATE_FORMATS, MAT_DATE_LOCALE, MatDateFormats, NativeDateAdapter,
+} from '@angular/material/core'
+import { MatDialog, MatDialogRef } from '@angular/material/dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
+import { ConfigurationsService, EventService, TelemetryService, WsEvents } from '@sunbird-cb/utils-v2'
+import { $t } from '@project-sunbird/telemetry-sdk'
+import { NoopScrollStrategy } from '@angular/cdk/overlay'
+import { of, Subject } from 'rxjs'
+import { catchError, switchMap, takeUntil } from 'rxjs/operators'
+import { KarmaCoinsInfoDialogComponent } from './karma-coins-info-dialog.component'
+import { KarmaRedeemDialogComponent } from './karma-redeem-dialog.component'
+import { KarmaWalletErrorDialogComponent } from './karma-wallet-error-dialog.component'
+import {
+  EMPTY_KARMA_WALLET_SUMMARY,
+  IKarmaCoinTransaction,
+  IKarmaCoinTxnGroup,
+  IKarmaTransactionsRequest,
+  IKarmaWalletPeriodOption,
+  IKarmaWalletSummary,
+  IKarmaWalletTab,
+  KARMA_WALLET_ENV,
+  KARMA_WALLET_PAGE_ID,
+  isTxnStatus,
+  readApiError,
+  TXN_STATUS_FAILED,
+  TXN_STATUS_IN_PROGRESS,
+  TKarmaWalletPeriod,
+} from './karma-wallet.model'
+import { KarmaWalletService } from './karma-wallet.service'
+import { HomePageService } from 'src/app/services/home-page.service'
+import { IKarmaTourAction, IKarmaTourStep } from './karma-wallet-tour.model'
+import { KarmaWalletTourComponent } from './karma-wallet-tour.component'
+
+const ICON_BASE = '/assets/icons/karmawallet-v2'
+const MONTH_LABELS = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC']
+const RECENT_DAYS = 30
+const LOOKBACK_YEARS = 1
+const END_BEFORE_START = 'The end date cannot be earlier than the start date.'
+const HISTORY_ERROR = 'We could not load your coin history. Please try again.'
+const SUMMARY_ERROR = 'We could not load your Karma Coin Wallet. Please try again.'
+const CONVERSION_ERROR = 'We could not convert your Karma Points. Please try again.'
+const KARMA_POINTS_ROUTE = '/app/person-profile/karma-points'
+const KARMA_POINTS_PAGE_ID = 'app/person-profile'
+const KARMA_POINTS_URI = 'app/person-profile/karma-points?from=karma-wallet'
+/* the coin-history range pickers must read as DD/MM/YYYY, not the en-US M/D/YYYY default */
+export const KARMA_WALLET_DATE_FORMATS: MatDateFormats = {
+  parse: {
+    dateInput: { day: '2-digit', month: '2-digit', year: 'numeric' },
+  },
+  display: {
+    dateInput: { day: '2-digit', month: '2-digit', year: 'numeric' },
+    monthYearLabel: { year: 'numeric', month: 'short' },
+    dateA11yLabel: { year: 'numeric', month: 'long', day: 'numeric' },
+    monthYearA11yLabel: { year: 'numeric', month: 'long' },
+  },
+}
+
+const MONTH_NAMES = [
+  'January', 'February', 'March', 'April', 'May', 'June',
+  'July', 'August', 'September', 'October', 'November', 'December',
+]
+
+function shortMonth(index: number): string {
+  return (MONTH_NAMES[index] || '').slice(0, 3)
+}
+
+function isHistoryRangeRefusal(err: any): boolean {
+  return !!(err && err.error && err.error.params && err.error.params.err === 'HISTORY_RANGE_EXCEEDED')
+}
+
+@Component({
+  selector: 'ws-app-karma-wallet',
+  templateUrl: './karma-wallet.component.html',
+  styleUrls: ['./karma-wallet.component.scss'],
+  standalone: false,
+  providers: [
+    { provide: MAT_DATE_LOCALE, useValue: 'en-GB' },
+    { provide: DateAdapter, useClass: NativeDateAdapter },
+    { provide: MAT_DATE_FORMATS, useValue: KARMA_WALLET_DATE_FORMATS },
+  ],
+})
+export class KarmaWalletComponent implements OnInit, OnDestroy {
+  readonly icons = {
+    karmaCoin: `${ICON_BASE}/karmacoin.svg`,
+    success: `${ICON_BASE}/success.svg`,
+    invalid: `${ICON_BASE}/invalid.svg`,
+    /* TODO: no karmawallet-v2 equivalent supplied yet, so this still resolves from home-v2 */
+    karmaPoints: '/assets/icons/home-v2/karma-badge.svg',
+  }
+
+  @ViewChild('tour') private tour!: KarmaWalletTourComponent
+
+  private tourDialogRef: MatDialogRef<KarmaRedeemDialogComponent> | null = null
+
+  readonly tourSteps: IKarmaTourStep[] = [
+    {
+      selector: '.kw__stats',
+      title: 'Your Karma stats at a glance',
+      body: `<ul>
+        <li><b>Wallet Balance</b> - Coins available to redemption on Marketplace courses.</li>
+        <li><b>Pending Conversion</b> - Karma Points being converted / pending conversion into coins.</li>
+        <li><b>Total Converted</b> - Your lifetime Karma Points converted into Karma Coins.</li>
+        <li><b>Unconverted Karma</b> - Karma Points yet to be converted.</li>
+      </ul>`,
+      placement: 'bottom',
+      scrollAnchor: '.kw__header',
+    },
+    {
+      selector: '.kw__history',
+      title: 'Every transaction, tracked',
+      body: `View your complete Karma Coin transaction history. Filter by time period or
+        transaction type - All, Earned, or Redeemed - to quickly find transactions and track
+        your running balance.`,
+      placement: 'top',
+    },
+    {
+      selector: '.kw__btn--primary',
+      title: 'Redeem Your Karma Coins',
+      body: `Use your Karma Coins to redeem courses from the marketplace and unlock new
+        learning opportunities.`,
+      placement: 'bottom',
+      radius: 6,
+    },
+    {
+      selector: '.kw__btn--ghost',
+      title: 'Convert Karma Points',
+      body: `Whenever you're ready to turn points into spendable coins, click "Convert Karma
+        Points." To try it now, press Next to continue the tour.`,
+      placement: 'bottom',
+      radius: 6,
+    },
+    {
+      selector: '.krd__entry',
+      title: 'Type an amount to convert',
+      body: `Enter how many Karma Points you'd like to convert. "Convertible this month" shows
+        your monthly limit of up to 300 KP and how many points are already pending conversion.`,
+      placement: 'bottom',
+      before: () => this.openConvertDialogForTour(),
+      onBack: () => this.closeConvertDialogForTour(),
+    },
+    {
+      selector: '.krd__btn--primary',
+      title: 'Confirm the conversion',
+      body: `Once value is entered, tap Convert to instantly turn your points into Karma Coins.
+        The coins are added immediately and are ready to spend on Marketplace courses.`,
+      placement: 'left',
+      radius: 6,
+    },
+  ]
+
+  /* The one place the tabs are mapped onto the transactions request's `type` filter */
+  readonly tabs: IKarmaWalletTab[] = [
+    { value: 'all', label: 'All', apiType: 'ALL' },
+    { value: 'earned', label: 'Earned', apiType: 'CREDIT' },
+    { value: 'redeemed', label: 'Redeemed', apiType: 'DEBIT' },
+  ]
+
+  /* One per summary card, so the skeleton lays out on the same grid as the real thing */
+  readonly skeletonSlots = [0, 1, 2, 3]
+
+  readonly periodOptions: IKarmaWalletPeriodOption[] = [
+    { value: 'recent', label: 'Recent' },
+    { value: 'currentMonth', label: 'Current Month' },
+    { value: 'lastMonth', label: 'Last Month' },
+    { value: 'last3Months', label: 'Last 3 Months' },
+    { value: 'last6Months', label: 'Last 6 Months' },
+    { value: 'custom', label: 'Custom Date' },
+  ]
+
+  summary: IKarmaWalletSummary = { ...EMPTY_KARMA_WALLET_SUMMARY }
+
+  activeTab: IKarmaWalletTab['value'] = 'all'
+  activePeriod: TKarmaWalletPeriod = 'recent'
+  groups: IKarmaCoinTxnGroup[] = []
+  loading = true
+  summaryLoading = true
+  summaryError = ''
+  customStart: Date | null = null
+  customEnd: Date | null = null
+  customError = ''
+
+  @ViewChild('customStartPicker') customStartPicker?: MatDatepicker<Date>
+  referenceDate = new Date()
+
+  private transactions: IKarmaCoinTransaction[] = []
+  private expandedKey: string | null = null
+  private readonly historyRequest$ = new Subject<IKarmaTransactionsRequest>()
+  private readonly destroy$ = new Subject<void>()
+  private autoStartWalkthrough = false
+  /* arriving from the marketplace's Insufficient Karma Coins popup */
+  private autoOpenConvert = false
+  converting = false
+  private convertingAccepted = false
+  private loadErrorShown = false
+  private initialLoaded = { summary: false, history: false }
+  private initialLoadDone = false
+  private cameFromApp = false
+  pendingConversion: IKarmaCoinTransaction | null = null
+  lastCredit: IKarmaCoinTransaction | null = null
+  lastDebit: IKarmaCoinTransaction | null = null
+
+  constructor(
+    private router: Router,
+    private route: ActivatedRoute,
+    private dialog: MatDialog,
+    private telemetrySvc: TelemetryService,
+    private events: EventService,
+    private karmaWalletSvc: KarmaWalletService,
+    private snackBar: MatSnackBar,
+    private configSvc: ConfigurationsService,
+    private homePageSvc: HomePageService,
+  ) { }
+
+  private openSnackbar(primaryMsg: string, duration: number = 5000) {
+    this.snackBar.open(primaryMsg, 'X', {
+      duration,
+    })
+  }
+
+  private markInitialLoaded(part: 'summary' | 'history') {
+    if (this.initialLoadDone || this.loadErrorShown) {
+      return
+    }
+    this.initialLoaded[part] = true
+    if (this.initialLoaded.summary && this.initialLoaded.history) {
+      this.initialLoadDone = true
+      this.openInfoOnFirstVisit(this.startWalkthroughOnce())
+      this.openConvertOnce()
+    }
+  }
+
+  private reportLoadFailure(err: any) {
+    if ((err && err.status === 419) || this.loadErrorShown) {
+      return
+    }
+    this.loadErrorShown = true
+    if (this.tour) {
+      this.tour.stop()
+    }
+    this.dialog.closeAll()
+    this.dialog.open(KarmaWalletErrorDialogComponent, {
+      data: { canGoBack: this.cameFromApp },
+      width: '470px',
+      maxWidth: '94vw',
+      autoFocus: false,
+      disableClose: true,
+      backdropClass: 'kwe-dialog-backdrop',
+      scrollStrategy: new NoopScrollStrategy(),
+    })
+  }
+
+  ngOnInit() {
+    const navigation = this.router.lastSuccessfulNavigation
+    this.cameFromApp = !!(navigation && navigation.previousNavigation)
+    this.raisePageImpression()
+    this.autoStartWalkthrough = this.route.snapshot.queryParamMap.get('walkthrough') === 'true'
+    this.autoOpenConvert = this.route.snapshot.queryParamMap.get('convert') === 'true'
+
+    this.fetchSummary()
+
+    this.historyRequest$.pipe(
+      switchMap(request => this.karmaWalletSvc.getTransactions(request).pipe(
+        catchError(err => {
+          if (isHistoryRangeRefusal(err)) {
+            this.openSnackbar(readApiError(err) || HISTORY_ERROR)
+          } else {
+            this.reportLoadFailure(err)
+          }
+          return of(null)
+        }),
+      )),
+      takeUntil(this.destroy$),
+    ).subscribe(transactions => {
+      this.transactions = (!this.summaryError && transactions) || []
+      this.buildGroups()
+      this.loading = false
+      if (transactions) {
+        this.markInitialLoaded('history')
+      }
+    })
+
+    this.fetchTransactions()
+  }
+
+  ngOnDestroy() {
+    this.destroy$.next()
+    this.destroy$.complete()
+  }
+
+  get activePeriodLabel(): string {
+    const selected = this.periodOptions.find(option => option.value === this.activePeriod)
+    return selected ? selected.label : ''
+  }
+
+  /* Month the conversion figures belong to, e.g. 'August' - the API's yearMonth, not the clock */
+  get currentMonthLabel(): string {
+    const parts = (this.summary.yearMonth || '').split('-')
+    const month = Number(parts[1])
+    const index = parts.length === 2 && month >= 1 && month <= 12
+      ? month - 1
+      : this.referenceDate.getMonth()
+    return MONTH_NAMES[index]
+  }
+
+  get monthlyLimitReached(): boolean {
+    return this.summary.convertibleThisMonth <= 0 &&
+      this.summary.convertedThisMonth >= this.summary.monthlyCap &&
+      this.summary.monthlyCap > 0
+  }
+
+  get capResetsOnLabel(): string {
+    const parts = (this.summary.capResetsOn || '').split('-')
+    const month = Number(parts[1])
+    const day = Number(parts[2])
+    if (parts.length === 3 && month >= 1 && month <= 12 && day >= 1) {
+      return `${day} ${shortMonth(month - 1)}`
+    }
+    const next = new Date(this.referenceDate.getFullYear(), this.referenceDate.getMonth() + 1, 1)
+    return `1 ${shortMonth(next.getMonth())}`
+  }
+
+  get conversionProgress(): number {
+    if (!this.summary.monthlyCap) {
+      return 0
+    }
+    const ratio = this.summary.convertedThisMonth / this.summary.monthlyCap
+    return Math.max(0, Math.min(100, ratio * 100))
+  }
+
+  get showSummarySkeleton(): boolean {
+    return this.summaryLoading || !!this.summaryError || this.loadErrorShown
+  }
+
+  get canRedeem(): boolean {
+    return this.summary.redeemEnabled && !this.pendingConversion
+  }
+
+  /* 'Conversion in progress - 4 KP -> 4 KC' on the banner, both sides off the row itself */
+  get pendingConversionCoins(): number {
+    return this.pendingConversion ? this.pendingConversion.amount : 0
+  }
+
+  get pendingConversionPoints(): number {
+    const points = this.pendingConversion && this.pendingConversion.pointsToConvert
+    /* pointsToConvert only rides along on POINTS_CONVERSION rows */
+    return points === undefined || points === null ? this.pendingConversionCoins : points
+  }
+
+  /* A conversion the wallet could not complete; the row stays, flagged */
+  /* 'progress' | 'failed' | 'success' - a row with no status at all has settled */
+  isNotTruncated(el: HTMLElement): boolean {
+    if (!el) {
+      return true
+    }
+    return el.scrollWidth <= el.clientWidth
+  }
+
+  txnState(txn: IKarmaCoinTransaction | null): string {
+    if (!txn) {
+      return ''
+    }
+    if (isTxnStatus(txn.status, TXN_STATUS_IN_PROGRESS)) {
+      return 'progress'
+    }
+    return isTxnStatus(txn.status, TXN_STATUS_FAILED) ? 'failed' : 'success'
+  }
+
+  /* The Karma Points side: what addinfo reports once settled, what the row asked for until then */
+  txnPoints(txn: IKarmaCoinTransaction | null): number {
+    if (!txn) {
+      return 0
+    }
+    const points = txn.pointsConverted === undefined ? txn.pointsToConvert : txn.pointsConverted
+    return Number(points === undefined ? txn.amount : points) || 0
+  }
+
+  txnCoins(txn: IKarmaCoinTransaction | null): number {
+    return txn ? Number(txn.amount) || 0 : 0
+  }
+
+  isFailed(txn: IKarmaCoinTransaction): boolean {
+    return isTxnStatus(txn.status, TXN_STATUS_FAILED)
+  }
+
+  get hasTransactions(): boolean {
+    return this.groups.some(group => group.transactions.length > 0)
+  }
+
+  get emptyMessage(): string {
+    return 'No transactions found for the selected date range. Please try a different date range.'
+  }
+
+  openKarmaCoinsInfo() {
+    this.dialog.open(KarmaCoinsInfoDialogComponent, {
+      width: '608px',
+      maxWidth: '94vw',
+      maxHeight: '90vh',
+      autoFocus: false,
+      panelClass: 'kci-dialog-panel',
+      backdropClass: 'kci-dialog-backdrop',
+      scrollStrategy: new NoopScrollStrategy(),
+    }).afterClosed().subscribe((closedVia: any) => {
+      /* The dialog reports which control dismissed it; fall back if it closed some other way */
+      if (closedVia === 'walkthrough') {
+        this.startWalkthrough()
+      }
+    })
+  }
+
+  selectTab(tab: IKarmaWalletTab['value']) {
+    if (this.activeTab === tab) {
+      return
+    }
+    this.activeTab = tab
+    this.fetchTransactions()
+  }
+
+  selectPeriod(period: TKarmaWalletPeriod) {
+    /* Re-picking Custom Date is how the calendar is reopened, so it is not a no-op */
+    if (this.activePeriod === period) {
+      if (period === 'custom') {
+        this.openCustomStartPicker()
+      }
+      return
+    }
+    this.activePeriod = period
+
+    if (period === 'custom') {
+      this.startCustomRange()
+      return
+    }
+
+    this.customError = ''
+    this.fetchTransactions()
+  }
+
+  get minSelectableDate(): Date {
+    const ref = this.referenceDate
+    return new Date(ref.getFullYear() - LOOKBACK_YEARS, ref.getMonth(), ref.getDate())
+  }
+
+  get maxSelectableDate(): Date {
+    return this.referenceDate
+  }
+
+  onCustomStartChange(value: Date | null) {
+    this.customStart = value
+    this.applyCustomRange()
+  }
+
+  onCustomEndChange(value: Date | null) {
+    this.customEnd = value
+    this.applyCustomRange()
+  }
+
+  private startCustomRange() {
+    if (!this.customStart || !this.customEnd) {
+      const ref = this.referenceDate
+      this.customStart = new Date(ref.getFullYear(), ref.getMonth(), ref.getDate() - RECENT_DAYS)
+      this.customEnd = new Date(ref.getFullYear(), ref.getMonth(), ref.getDate())
+    }
+    this.customError = ''
+    this.fetchTransactions()
+    this.openCustomStartPicker()
+  }
+
+  private openCustomStartPicker() {
+    /* The fields sit behind an *ngIf, so they do not exist until this change is rendered */
+    setTimeout(() => {
+      if (this.customStartPicker) {
+        this.customStartPicker.open()
+      }
+    })
+  }
+
+  private applyCustomRange() {
+    if (!this.customStart || !this.customEnd) {
+      this.customError = ''
+      return
+    }
+
+    if (this.customEnd.getTime() < this.customStart.getTime()) {
+      /* Same day at both ends is a valid one-day range; only a true inversion is refused */
+      this.customError = END_BEFORE_START
+      this.groups = []
+      return
+    }
+
+    this.customError = ''
+    this.fetchTransactions()
+  }
+
+  toggleGroup(group: IKarmaCoinTxnGroup) {
+    this.expandedKey = group.expanded ? '' : group.key
+    this.groups.forEach(row => {
+      row.expanded = row.key === this.expandedKey
+    })
+  }
+
+  viewUnredeemedKarmaPoints() {
+    this.raiseClick('view-more', 'unconverted-karma')
+    this.raiseKarmaPointsImpression()
+    this.router.navigate([KARMA_POINTS_ROUTE], {
+      queryParams: { from: 'karma-wallet' },
+    })
+  }
+
+  /* The karma points page the View More link leads to, reported from here */
+  private raiseKarmaPointsImpression() {
+    const pData = this.telemetrySvc.pData || {}
+    try {
+      $t.impression(
+        {
+          pageid: KARMA_POINTS_PAGE_ID,
+          type: 'page',
+          uri: KARMA_POINTS_URI,
+        },
+        {
+          context: {
+            pdata: { ...pData, id: pData.id },
+            env: KARMA_WALLET_ENV,
+          },
+          object: {},
+        },
+      )
+    } catch (err) {
+    }
+  }
+  /* profileDetails as it arrives from /apis/proxies/v8/api/user/v2/read */
+  private walletTourStatus(): any {
+    const profileDetails = this.configSvc.unMappedUser && this.configSvc.unMappedUser.profileDetails
+    return (profileDetails && profileDetails.karma_wallet_tour) || {}
+  }
+
+  /* First landing on the wallet: introduce Karma Coins, then never again for this user.
+     `alreadyOpen` is the ?walkthrough=true link having opened the same dialog a moment ago. */
+  private openInfoOnFirstVisit(alreadyOpen: boolean) {
+    const walletTour = this.walletTourStatus()
+    if (walletTour.visited === true) {
+      return
+    }
+    if (!alreadyOpen) {
+      this.openKarmaCoinsInfo()
+    }
+    this.markWalletTourVisited(walletTour)
+  }
+
+  /* Merged, not replaced: the home page tour keeps video_visited / skipped in the same object */
+  private markWalletTourVisited(walletTour: any) {
+    const userId = this.configSvc.unMappedUser && this.configSvc.unMappedUser.id
+    const karmaWalletTour = { ...walletTour, visited: true, video_visited:true }
+    /* kept in step in memory, the read api only runs once per session */
+    if (this.configSvc.unMappedUser && this.configSvc.unMappedUser.profileDetails) {
+      this.configSvc.unMappedUser.profileDetails.karma_wallet_tour = karmaWalletTour
+    }
+    if (!userId) {
+      return
+    }
+    const reqUpdates = {
+      request: {
+        userId,
+        profileDetails: { karma_wallet_tour: karmaWalletTour },
+      },
+    }
+    /* a failed patch only means the popup returns next session; it is not worth a snackbar */
+    this.karmaWalletSvc.updateProfileDetails(reqUpdates).pipe(
+      takeUntil(this.destroy$),
+      catchError(() => of(null)),
+    ).subscribe()
+  }
+
+  /* True when it opened the info dialog, so the first-visit check does not stack a second one */
+  private startWalkthroughOnce(): boolean {
+    if (!this.autoStartWalkthrough) {
+      return false
+    }
+    this.autoStartWalkthrough = false
+    this.clearWalkthroughParam()
+    this.openKarmaCoinsInfo()
+    return true
+  }
+
+  private openConvertOnce() {
+    if (!this.autoOpenConvert) {
+      return
+    }
+    this.autoOpenConvert = false
+    this.clearConvertParam()
+    this.redeemKarmaPoints()
+  }
+
+  private clearConvertParam() {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { convert: null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    })
+  }
+
+  private clearWalkthroughParam() {
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: { walkthrough: null },
+      queryParamsHandling: 'merge',
+      replaceUrl: true,
+    })
+  }
+
+  startWalkthrough() {
+    this.raiseWalkthroughClick()
+    this.tour.start(this.tourSteps)
+  }
+
+  private raiseWalkthroughClick() {
+    this.raiseClick('start-walkthrough', 'what-is-karma-coins')
+  }
+
+  onTourAction(event: IKarmaTourAction) {
+    this.raiseGuidedTourClick(`step-${event.step}-${event.action}`)
+  }
+
+  private raiseGuidedTourClick(id: string) {
+    this.raiseClick(id, 'guided-tour')
+  }
+
+  private raiseClick(id: string, subType?: string) {
+    const edata: WsEvents.ITelemetryEdata = {
+      id,
+      type: WsEvents.EnumInteractTypes.CLICK,
+    }
+    if (subType) {
+      edata.subType = subType
+    }
+    this.events.dispatchEvent<WsEvents.IWsEventTelemetryInteract>({
+      eventType: WsEvents.WsEventType.Telemetry,
+      eventLogLevel: WsEvents.WsEventLogLevel.Info,
+      data: {
+        edata,
+        eventSubType: WsEvents.EnumTelemetrySubType.Interact,
+        object: {},
+        pageContext: { pageId: KARMA_WALLET_PAGE_ID },
+      },
+      pageContext: { module: KARMA_WALLET_ENV },
+      from: '',
+      to: 'Telemetry',
+    })
+  }
+
+  private raisePageImpression() {
+    const pData = this.telemetrySvc.pData || {}
+    try {
+      $t.impression(
+        {
+          pageid: KARMA_WALLET_PAGE_ID,
+          type: 'page',
+          uri: KARMA_WALLET_PAGE_ID,
+        },
+        {
+          context: {
+            pdata: { ...pData, id: pData.id },
+            env: KARMA_WALLET_ENV,
+          },
+          object: {},
+        },
+      )
+    } catch (err) {
+    }
+  }
+
+  onTourFinished() {
+    this.closeConvertDialogForTour()
+  }
+
+  private openConvertDialogForTour(): Promise<void> {
+    if (this.tourDialogRef) {
+      return Promise.resolve()
+    }
+    this.tourDialogRef = this.openRedeemDialog(true)
+    return new Promise<void>(resolve => {
+      this.tourDialogRef!.afterOpened().subscribe(() => resolve())
+    })
+  }
+
+  private closeConvertDialogForTour(): Promise<void> {
+    if (!this.tourDialogRef) {
+      return Promise.resolve()
+    }
+    const ref = this.tourDialogRef
+    this.tourDialogRef = null
+    return new Promise<void>(resolve => {
+      ref.afterClosed().subscribe(() => resolve())
+      ref.close()
+    })
+  }
+
+  redeemKarmaPoints() {
+    if (!this.canRedeem) {
+      return
+    }
+    if (this.autoOpenConvert) {
+      this.autoOpenConvert = false
+      this.clearConvertParam()
+    }
+    this.raiseClick('convert-karma-points')
+    this.openRedeemDialog()
+  }
+
+  private openRedeemDialog(forTour = false): MatDialogRef<KarmaRedeemDialogComponent> {
+    const ref = this.dialog.open(KarmaRedeemDialogComponent, {
+      data: { forTour, summary: this.summary },
+      width: '652px',
+      maxWidth: '94vw',
+      maxHeight: '90vh',
+      autoFocus: false,
+      panelClass: 'krd-dialog-panel',
+      backdropClass: 'krd-dialog-backdrop',
+      disableClose: true,
+      scrollStrategy: new NoopScrollStrategy(),
+    })
+    ref.afterClosed().subscribe((result: any) => {
+      if (result && result.converting) {
+        this.runConversion(result.converting)
+        return
+      }
+      if (result && result.redeemed) {
+        this.fetchSummary()
+        this.fetchTransactions()
+      }
+    })
+    return ref
+  }
+
+  /* The conversion runs here rather than in the dialog: the dialog closes as Convert is
+     pressed, and a request tied to it would be cancelled with it. */
+  private runConversion(request: { requestId: string, pointsToConvert: number }) {
+    this.converting = true
+    this.karmaWalletSvc.redeem({ request }).pipe(
+      takeUntil(this.destroy$),
+    ).subscribe({
+      next: result => this.onConversionResult(result),
+      error: err => this.onConversionFailed(readApiError(err)),
+    })
+  }
+
+  private onConversionResult(result: any) {
+    if (result && result.status === 'FAILED') {
+      this.onConversionFailed(result.errorMessage || '')
+      return
+    }
+    this.convertingAccepted = true
+  }
+
+  private onConversionFailed(message: string) {
+    this.converting = false
+    this.convertingAccepted = false
+    this.openSnackbar(message || CONVERSION_ERROR)
+  }
+  closeConverting() {
+    const reload = this.convertingAccepted
+    this.converting = false
+    this.convertingAccepted = false
+    if (reload) {
+      this.fetchSummary()
+      this.fetchTransactions()
+    }
+  }
+
+  useKarmaCoins() {
+    this.raiseClick('redeem-karma-coins')
+    this.router.navigate(['/app/seeAll'], {
+      queryParams: { key: 'karmaTracks', tabSelected: 'Providers' },
+    })
+  }
+  private fetchSummary() {
+    this.summaryLoading = true
+    this.summaryError = ''
+    this.karmaWalletSvc.getWalletSummary().pipe(
+      takeUntil(this.destroy$),
+    ).subscribe({
+      next: summary => {
+
+        let enrollList: any
+        if (localStorage.getItem('userEnrollmentCount')) {
+          enrollList = JSON.parse(localStorage.getItem('userEnrollmentCount') || '')
+          if (enrollList && enrollList.userCourseEnrolmentInfo && enrollList.userCourseEnrolmentInfo.walletBalance) {
+            enrollList.userCourseEnrolmentInfo.walletBalance = summary.walletBalance
+          }
+          localStorage.removeItem('userEnrollmentCount')
+          localStorage.setItem('userEnrollmentCount', JSON.stringify(enrollList))
+        }
+
+        if (this.configSvc.unMappedUser) {
+          this.configSvc.unMappedUser.walletBalance = summary.walletBalance
+        }
+
+        this.homePageSvc.walletBalanceUpdated.next(summary.walletBalance)
+        this.summary = summary
+        this.summaryLoading = false
+        this.markInitialLoaded('summary')
+      },
+      error: err => {
+        const message = readApiError(err) || SUMMARY_ERROR
+        this.summaryError = message
+        this.transactions = []
+        this.buildGroups()
+        this.reportLoadFailure(err)
+        this.summaryLoading = false
+      },
+    })
+  }
+
+  /* Asks the API for the active tab over the active period */
+  private fetchTransactions() {
+    this.loading = true
+    this.historyRequest$.next(this.transactionRequest())
+  }
+
+  private transactionRequest(): IKarmaTransactionsRequest {
+    const tab = this.tabs.find(option => option.value === this.activeTab)
+    return {
+      request: {
+        ...this.periodWindow(),
+        type: tab ? tab.apiType : 'ALL',
+      },
+    }
+  }
+
+  /* Always a complete window: the endpoint rejects a request missing either bound */
+  private periodWindow(): { startDate: string, endDate: string } {
+    const ref = this.referenceDate
+    const monthStart = (monthsBack: number) =>
+      new Date(ref.getFullYear(), ref.getMonth() - monthsBack, 1)
+    /* Day 0 of a month is the last day of the one before it */
+    const monthEnd = (monthsBack: number) =>
+      new Date(ref.getFullYear(), ref.getMonth() - monthsBack + 1, 0)
+    const window = (start: Date, end: Date) =>
+      ({ startDate: this.toApiDate(start), endDate: this.toApiDate(end) })
+
+    switch (this.activePeriod) {
+      case 'currentMonth':
+        return window(monthStart(0), ref)
+      case 'lastMonth':
+        return window(monthStart(1), monthEnd(1))
+      case 'last3Months':
+        return window(monthStart(3), monthEnd(1))
+      case 'last6Months':
+        return window(monthStart(6), monthEnd(1))
+      /* Recent: a rolling 30 days through today, both ends inclusive */
+      case 'custom':
+      default: {
+        if (this.activePeriod === 'custom' && this.customStart && this.customEnd) {
+          return window(this.customStart, this.customEnd)
+        }
+        const start = new Date(ref.getFullYear(), ref.getMonth(), ref.getDate() - RECENT_DAYS)
+        return window(start, ref)
+      }
+    }
+  }
+
+  /* 'YYYY-MM-DD' from the local date parts - toISOString would shift the day westward */
+  private toApiDate(date: Date): string {
+    const month = `${date.getMonth() + 1}`.padStart(2, '0')
+    const day = `${date.getDate()}`.padStart(2, '0')
+    return `${date.getFullYear()}-${month}-${day}`
+  }
+
+  private buildLastTransactions() {
+    const rows = this.transactions
+    if (this.activeTab === 'earned') {
+      this.lastCredit = rows.length ? rows[0] : null
+      this.lastDebit = null
+      return
+    }
+    if (this.activeTab === 'redeemed') {
+      this.lastDebit = rows.length ? rows[0] : null
+      this.lastCredit = null
+      return
+    }
+    this.lastCredit = rows.find(txn => txn.type === 'earned') || null
+    this.lastDebit = rows.find(txn => txn.type === 'redeemed') || null
+  }
+
+  private buildGroups() {
+    const grouped = new Map<string, IKarmaCoinTxnGroup>()
+    this.pendingConversion = this.transactions
+      .find(txn => txn.type === 'earned' && isTxnStatus(txn.status, TXN_STATUS_IN_PROGRESS)) || null
+    this.buildLastTransactions()
+    /* an unsettled conversion reads as the banner above, never as a history row */
+    const settled = this.transactions
+      .filter(txn => !isTxnStatus(txn.status, TXN_STATUS_IN_PROGRESS))
+    settled.forEach(txn => {
+      const date = new Date(txn.date)
+      const key = `${date.getFullYear()}-${`${date.getMonth() + 1}`.padStart(2, '0')}`
+      if (!grouped.has(key)) {
+        grouped.set(key, {
+          key,
+          label: `${MONTH_LABELS[date.getMonth()]} ${date.getFullYear()}`,
+          expanded: false,
+          transactions: [],
+        })
+      }
+      const group = grouped.get(key)
+      if (group) {
+        group.transactions.push(txn)
+      }
+    })
+
+    /* Always newest-first; the dropdown now narrows the period rather than flipping order */
+    const groups = Array.from(grouped.values())
+    groups.sort((a, b) => a.key < b.key ? 1 : (a.key > b.key ? -1 : 0))
+    groups.forEach(group => {
+      group.transactions.sort((a, b) => a.date < b.date ? 1 : (a.date > b.date ? -1 : 0))
+    })
+    /* the newest month stands open until the user picks another one - or closes them all */
+    const stillThere = this.expandedKey !== null &&
+      (this.expandedKey === '' || groups.some(group => group.key === this.expandedKey))
+    this.expandedKey = stillThere ? this.expandedKey : (groups.length ? groups[0].key : null)
+    groups.forEach(group => {
+      group.expanded = group.key === this.expandedKey
+    })
+    this.groups = groups
+  }
+}

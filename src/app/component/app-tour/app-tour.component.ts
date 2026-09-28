@@ -1,8 +1,30 @@
-import { Component, HostListener, Input, OnChanges } from '@angular/core'
+import { Component, EventEmitter, HostListener, Input, OnChanges, OnDestroy, Output, ViewChild } from '@angular/core'
+import { NavigationCancel, NavigationEnd, NavigationError, Router } from '@angular/router'
+import { MatDialog } from '@angular/material/dialog'
+import { Subscription } from 'rxjs'
+import { filter, take } from 'rxjs/operators'
 import { ProgressIndicatorLocation, GuidedTour, Orientation, GuidedTourService } from 'igot-cb-tour-guide'
 import { UtilityService, EventService, WsEvents, ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { UserProfileService } from '@ws/app'
 import { TranslateService } from '@ngx-translate/core'
+import { AppTourVideoComponent } from '../app-tour-video/app-tour-video.component'
+import { isKarmaWalletTourSnoozed, snoozeKarmaWalletTour } from './karma-wallet-tour-snooze'
+
+// the header wallet entry point the coach mark points at, newest markup first
+const WALLET_ANCHOR_SELECTORS = ['.karma-wallet-btn', '.karma-coins-chip']
+const KARMA_WALLET_ROUTE = '/app/person-profile/karma-wallet'
+const CARD_WIDTH = 300
+const CARD_GAP = 12
+const SPOT_PADDING = 6
+const VIEWPORT_MARGIN = 12
+const ARROW_INSET = 20
+const KARMA_WALLET_ENV = 'Karma Wallet'
+const HOME_PAGE_ID = 'app/home'
+/* the header renders after <app-tour> in root, so the anchor is waited for: 40 x 100ms */
+const ANCHOR_RETRIES = 40
+const ANCHOR_INTERVAL = 100
+const DIALOG_SETTLE = 1000
+let videoPopupDoneFor = ''
 @Component({
   selector: 'app-tour',
   templateUrl: './app-tour.component.html',
@@ -11,7 +33,7 @@ import { TranslateService } from '@ngx-translate/core'
   standalone: false
 })
 
-export class AppTourComponent implements OnChanges {
+export class AppTourComponent implements OnChanges, OnDestroy {
 
   @Input() showOnlyIgotKarmayogi = false
   progressIndicatorLocation = ProgressIndicatorLocation.TopOfTourBlock
@@ -25,9 +47,33 @@ export class AppTourComponent implements OnChanges {
   showVideoTour = false
   isMobile = false
   hideCloseBtn = false
+  karmaWalletVideoPending = false
+  // karma_wallet_tour.visited is not true yet, so the wallet coach mark still has to be shown
+  karmaWalletTourPending = false
+  getStartedPending = true
+  showWalletCoachMark = false
+  walletSpot = { top: 0, left: 0, width: 0, height: 0 }
+  walletCard = { top: 0, left: 0, width: 0, arrowLeft: 0 }
+  startVideoIndex = 0
+  private dialogOpenedSub?: Subscription
+  private dialogWait?: Subscription
+  private dialogSettleTimer?: ReturnType<typeof setTimeout>
+  @ViewChild(AppTourVideoComponent) tourVideo?: AppTourVideoComponent
+  @Output() closed = new EventEmitter<void>()
   @HostListener('document:keydown', ['$event']) onKeydownHandler(event: KeyboardEvent) {
-    if (event.key === 'Escape') {
-      this.skipTour('', '')
+    if (event.key !== 'Escape' || this.dialogWait) {
+      return
+    }
+    if (this.showWalletCoachMark) {
+      this.skipWalletTour()
+      return
+    }
+    this.closeModal()
+  }
+
+  @HostListener('window:resize') onWindowResize() {
+    if (this.showWalletCoachMark) {
+      this.measureWalletCoachMark()
     }
   }
   // tslint:disable-next-line
@@ -168,19 +214,39 @@ export class AppTourComponent implements OnChanges {
     private configSvc: ConfigurationsService,
     private events: EventService,
     private userProfileSvc: UserProfileService,
-    private translate: TranslateService) {
+    private router: Router,
+    private translate: TranslateService,
+    private dialog: MatDialog) {
     if (localStorage.getItem('websiteLanguage')) {
       this.translate.setDefaultLang('en')
       const lang = localStorage.getItem('websiteLanguage')!
       this.translate.use(lang)
     }
     this.isMobile = this.utilitySvc.isMobile
+    this.readTourProgress()
     this.raiseGetStartedStartTelemetry()
+    this.dialogOpenedSub = this.dialog.afterOpened.subscribe(() => this.stepAsideForDialog())
+  }
+
+  ngOnDestroy(): void {
+    this.dialogOpenedSub?.unsubscribe()
+    this.dialogWait?.unsubscribe()
+    clearTimeout(this.dialogSettleTimer)
   }
   ngOnChanges(): void {
-    if (this.showOnlyIgotKarmayogi) {
+    if (!this.showOnlyIgotKarmayogi) {
+      return
+    }
+    if ((this.getStartedPending || this.karmaWalletVideoPending) && !this.videoPopupDoneThisSession()) {
       this.starVideoPlayer()
-      this.updateTourstatus({ visited: true, skipped: false })
+      if (this.getStartedPending) {
+        this.updateTourstatus({ visited: true, skipped: false })
+      }
+      return
+    }
+    // videos already seen; the wallet walkthrough prompt is all that is left
+    if (this.karmaWalletTourPending) {
+      this.openWalletCoachMark()
     }
   }
   updateTourstatus(status: any) {
@@ -193,6 +259,240 @@ export class AppTourComponent implements OnChanges {
     this.userProfileSvc.editProfileDetails(reqUpdates).subscribe((_res: any) => {
       // console.log("re s ", res )
     })
+  }
+
+  // profileDetails as it arrives from /apis/proxies/v8/api/user/v2/read
+  private karmaWalletTourStatus(): any {
+    const profileDetails = this.configSvc.unMappedUser && this.configSvc.unMappedUser.profileDetails
+    return (profileDetails && profileDetails.karma_wallet_tour) || {}
+  }
+
+  private readTourProgress(): void {
+    const profileDetails = this.configSvc.unMappedUser && this.configSvc.unMappedUser.profileDetails
+    const getStarted = (profileDetails && profileDetails.get_started_tour_v2) || {}
+    this.getStartedPending = !(getStarted.visited || getStarted.skipped)
+    const snoozed = isKarmaWalletTourSnoozed(this.configSvc.unMappedUser && this.configSvc.unMappedUser.id)
+    this.karmaWalletVideoPending = !snoozed && this.karmaWalletTourStatus().video_visited !== true
+    this.karmaWalletTourPending = !snoozed && this.karmaWalletTourStatus().visited !== true
+    this.startVideoIndex = (!this.getStartedPending && this.karmaWalletVideoPending) ? 1 : 0
+  }
+  /* Recorded as the video starts, not when it finishes: someone who plays it and closes the
+     dialog half way has seen it, and should not be shown it again. */
+  onWalletVideoStarted(): void {
+    this.markWalletVideoVisited()
+    this.raiseTemeletyInterat('karma-wallet-video-played', 'video')
+  }
+
+  private markWalletVideoVisited(): void {
+    if (!this.karmaWalletVideoPending) {
+      return
+    }
+    this.karmaWalletVideoPending = false
+    const karmaWalletTour = { visited: false, skipped: false, video_visited: true }
+    const reqUpdates = {
+      request: {
+        userId: this.configSvc.unMappedUser.id,
+        profileDetails: { karma_wallet_tour: karmaWalletTour },
+      },
+    }
+    this.userProfileSvc.editProfileDetails(reqUpdates).subscribe((_res: any) => {
+      // console.log("re s ", res )
+    })
+    // keep the in-memory profile in step, the read api only runs once per session
+    if (this.configSvc.unMappedUser && this.configSvc.unMappedUser.profileDetails) {
+      this.configSvc.unMappedUser.profileDetails.karma_wallet_tour = karmaWalletTour
+    }
+  }
+
+  onVideosCompleted(): void {
+    this.markVideoPopupDone()
+    /* normally already done on play; this covers a browser that never fired it */
+    this.markWalletVideoVisited()
+    this.raiseTemeletyInterat('karma-wallet-video-completed', 'video')
+    if (!this.showOnlyIgotKarmayogi) {
+      return
+    }
+    this.showpopup = false
+    this.showVideoTour = false
+    this.closePopupIcon = false
+    if (this.karmaWalletTourPending) {
+      this.openWalletCoachMark()
+      return
+    }
+    this.finishWalletCoachMark()
+  }
+
+  //karma wallet coach mark
+  private openWalletCoachMark(attempt: number = 0): void {
+    this.showpopup = false
+    this.showVideoTour = false
+    this.showCompletePopup = false
+    this.closePopupIcon = false
+    if (this.dialog.openDialogs.length) {
+      this.waitForDialogs()
+      return
+    }
+    if (!this.findWalletAnchor()) {
+      if (attempt < ANCHOR_RETRIES) {
+        setTimeout(() => this.openWalletCoachMark(attempt + 1), ANCHOR_INTERVAL)
+        return
+      }
+      // no wallet entry point on this screen - do not strand the user behind a backdrop
+      this.finishWalletCoachMark()
+      return
+    }
+    this.noScroll = true
+    this.showWalletCoachMark = true
+    this.measureWalletCoachMark()
+    this.raiseTemeletyInterat('karma-wallet-coachmark', 'karma-wallet')
+  }
+
+  private markVideoPopupDone(): void {
+    videoPopupDoneFor = (this.configSvc.unMappedUser && this.configSvc.unMappedUser.id) || ''
+  }
+
+  private videoPopupDoneThisSession(): boolean {
+    const userId = this.configSvc.unMappedUser && this.configSvc.unMappedUser.id
+    return !!userId && videoPopupDoneFor === userId
+  }
+
+  private waitForDialogs(): void {
+    if (this.dialogWait) {
+      return
+    }
+    this.dialogWait = this.dialog.afterAllClosed.pipe(take(1)).subscribe(() => {
+      this.dialogSettleTimer = setTimeout(() => this.afterDialogsSettled(), DIALOG_SETTLE)
+    })
+  }
+
+  private waitForNavigation(): void {
+    this.dialogWait = this.router.events.pipe(
+      filter(event => event instanceof NavigationEnd || event instanceof NavigationCancel || event instanceof NavigationError),
+      take(1),
+    ).subscribe(() => {
+      this.dialogSettleTimer = setTimeout(() => this.afterDialogsSettled(), DIALOG_SETTLE)
+    })
+  }
+
+  private afterDialogsSettled(): void {
+    this.dialogWait = undefined
+    if (this.router.currentNavigation()) {
+      this.waitForNavigation()
+      return
+    }
+    if (isKarmaWalletTourSnoozed(this.configSvc.unMappedUser && this.configSvc.unMappedUser.id)) {
+      this.karmaWalletTourPending = false
+      this.closed.emit()
+      return
+    }
+    this.openWalletCoachMark()
+  }
+
+  private stepAsideForDialog(): void {
+    if (!this.showWalletCoachMark) {
+      return
+    }
+    this.showWalletCoachMark = false
+    this.noScroll = false
+    this.waitForDialogs()
+  }
+
+  private findWalletAnchor(): HTMLElement | null {
+    for (const selector of WALLET_ANCHOR_SELECTORS) {
+      const element = document.querySelector(selector) as HTMLElement | null
+      if (element) {
+        return element
+      }
+    }
+    return null
+  }
+
+  private measureWalletCoachMark(): void {
+    const anchor = this.findWalletAnchor()
+    if (!anchor) {
+      return
+    }
+    const rect = anchor.getBoundingClientRect()
+    this.walletSpot = {
+      top: rect.top - SPOT_PADDING,
+      left: rect.left - SPOT_PADDING,
+      width: rect.width + (SPOT_PADDING * 2),
+      height: rect.height + (SPOT_PADDING * 2),
+    }
+    const width = Math.min(CARD_WIDTH, window.innerWidth - (VIEWPORT_MARGIN * 2))
+    const anchorCentre = rect.left + (rect.width / 2)
+    const left = Math.max(
+      VIEWPORT_MARGIN,
+      Math.min(anchorCentre - (width / 2), window.innerWidth - width - VIEWPORT_MARGIN),
+    )
+    this.walletCard = {
+      width,
+      left,
+      top: rect.bottom + CARD_GAP,
+      arrowLeft: Math.max(ARROW_INSET, Math.min(anchorCentre - left, width - ARROW_INSET)),
+    }
+  }
+
+  exploreWalletTour(): void {
+    this.persistWalletTour({ visited: true, skipped: false, video_visited: true })
+    this.raiseWalkthroughStartTelemetry()
+    this.finishWalletCoachMark()
+    this.router.navigate([KARMA_WALLET_ROUTE], { queryParams: { walkthrough: 'true' } })
+  }
+
+  skipWalletTour(): void {
+    this.persistWalletTour({ visited: !this.karmaWalletVideoPending, skipped: true, video_visited: !this.karmaWalletVideoPending })
+    if (this.karmaWalletVideoPending) {
+      snoozeKarmaWalletTour(this.configSvc.unMappedUser.id)
+    }
+    this.raiseTemeletyInterat('karma-wallet-coachmark-skip', 'karma-wallet')
+    this.finishWalletCoachMark()
+  }
+
+  private persistWalletTour(karmaWalletTour: any): void {
+    this.karmaWalletTourPending = karmaWalletTour.visited !== true
+    const reqUpdates = {
+      request: {
+        userId: this.configSvc.unMappedUser.id,
+        profileDetails: { karma_wallet_tour: karmaWalletTour },
+      },
+    }
+    this.userProfileSvc.editProfileDetails(reqUpdates).subscribe((_res: any) => {
+      // console.log("re s ", res )
+    })
+    if (this.configSvc.unMappedUser && this.configSvc.unMappedUser.profileDetails) {
+      this.configSvc.unMappedUser.profileDetails.karma_wallet_tour = karmaWalletTour
+    }
+  }
+
+  /* env comes off the top level pageContext, the edata pageid off data.pageContext */
+  private raiseWalkthroughStartTelemetry(): void {
+    this.events.dispatchEvent<WsEvents.IWsEventTelemetryInteract>({
+      eventType: WsEvents.WsEventType.Telemetry,
+      eventLogLevel: WsEvents.WsEventLogLevel.Info,
+      data: {
+        eventSubType: WsEvents.EnumTelemetrySubType.Interact,
+        edata: {
+          type: WsEvents.EnumInteractTypes.CLICK,
+          subType: 'guided-tour',
+          id: 'start-walkthrough',
+          pageid: HOME_PAGE_ID,
+        },
+        object: {},
+        pageContext: { pageId: HOME_PAGE_ID },
+      },
+      pageContext: { module: KARMA_WALLET_ENV },
+      from: '',
+      to: 'Telemetry',
+    })
+  }
+
+  private finishWalletCoachMark(): void {
+    this.showWalletCoachMark = false
+    this.noScroll = false
+    this.raiseGetStartedEndTelemetry()
+    this.configSvc.updateTourGuideMethod(true)
+    this.closed.emit()
   }
 
   emitFromVideo(event: any) {
@@ -228,8 +528,11 @@ export class AppTourComponent implements OnChanges {
   }
 
   public skipTour(screen: string, subType: string): void {
+    this.markVideoPopupDone()
     // localStorage.setItem('tourGuide',JSON.stringify({'disable': true}) )
-    this.updateTourstatus({ visited: true, skipped: true })
+    if (this.getStartedPending) {
+      this.updateTourstatus({ visited: true, skipped: true })
+    }
     this.configSvc.updateTourGuideMethod(true)
     if (screen.length > 0 && subType.length > 0) {
       this.raiseTemeletyInterat(screen, subType)
@@ -247,12 +550,17 @@ export class AppTourComponent implements OnChanges {
     this.showVideoTour = false
     this.showCompletePopup = false
     this.closePopupIcon = false
+    if (this.showOnlyIgotKarmayogi && this.karmaWalletTourPending) {
+      this.openWalletCoachMark()
+    } else {
+      this.closed.emit()
+    }
     setTimeout(() => {
       // tslint:disable-next-line
       this.guidedTourService && this.guidedTourService.skipTour()
       // tslint:disable-next-line: align
     }, 2000)
-    if (this.isMobile) {
+    if (this.isMobile && this.getStartedPending) {
       // tslint:disable-next-line: align
       // @ts-ignore
       setTimeout(() => {
@@ -275,6 +583,7 @@ export class AppTourComponent implements OnChanges {
   }
 
   onCongrats(): void {
+    this.closed.emit()
     this.showCompletePopup = false
     localStorage.setItem('tourGuide', JSON.stringify({ 'disable': true }))
     this.configSvc.updateTourGuideMethod(true)
@@ -368,6 +677,9 @@ export class AppTourComponent implements OnChanges {
   }
 
   closeModal() {
+    if (this.showVideoTour && this.tourVideo && this.tourVideo.advanceToWalletVideo()) {
+      return
+    }
     this.skipTour('', '')
   }
 

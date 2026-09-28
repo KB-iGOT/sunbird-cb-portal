@@ -9,7 +9,7 @@ import {
   EventEmitter,
 } from '@angular/core'
 import { GbSearchService } from '../../services/gb-search.service'
-import { IndexedDbService } from '../../services/indexed-db.service'
+import { IndexedDbService } from '@sunbird-cb/utils-v2'
 import {
   ConfigurationsService,
   EventService,
@@ -44,6 +44,7 @@ import {
 import { environment } from '../../../../../../../../../src/environments/environment'
 import { NetworkV2Service } from '../../../network-v2/services/network-v2.service'
 import moment from 'moment'
+import { ContentDictionaryService } from '@sunbird-cb/consumption'
 
 @Component({
   selector: 'ws-app-learn-search',
@@ -148,7 +149,8 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
     private langtranslations: MultilingualTranslationsService,
     private userService: WidgetUserService,
     private networkV2Service: NetworkV2Service,
-    private indexedDbService: IndexedDbService
+    private indexedDbService: IndexedDbService,
+    private contentDictionarySvc: ContentDictionaryService,
   ) {
     if (localStorage.getItem('websiteLanguage')) {
       this.translate.setDefaultLang('en')
@@ -354,27 +356,30 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
     }
     this.searchRequestCourse.request.query = this.statedata?.param
 
-    const result = await this.searchV3Service.searchCoursesv4(this.searchRequestCourse)
+    const result = await this.searchV3Service.searchCoursesv5(this.searchRequestCourse)
 
+    let enrichedContent: any[] = []
     if (result.result && result.result.content && Array.isArray(result.result.content)) {
       const formContextList: any[] = []
       const formRefMap: Record<string, any> = {}
+      const identifiers: string[] = result.result.content
+        .map((c: any) => c.identifier)
+        .filter(Boolean)
+      enrichedContent = identifiers.length
+        ? (await forkJoin(identifiers.map((id: string) => this.contentDictionarySvc.getContent(id))).toPromise() as any[]).filter(Boolean)
+        : []
 
-      const enrollmentDetailsFromDB = _.get(this.enrollmentDetails, 'result.response', null)
-      if (enrollmentDetailsFromDB) {
-        for (const content of result?.result?.content) {
-          const enrollmentDetails = enrollmentDetailsFromDB[content.identifier]
-          if (content?.completionSurveyLink && content?.identifier && enrollmentDetails && enrollmentDetails?.completionPercentage === 100) {
-            const sID = content.completionSurveyLink.split('surveys/')
-            const formId = sID[1]
+      for (const content of enrichedContent) {
+        if (content?.completionSurveyLink && content?.identifier) {
+          const sID = content.completionSurveyLink.split('surveys/')
+          const formId = sID[1]
 
-            if (formId) {
-              formContextList.push({
-                formId,
-                contextId: content.identifier,
-              })
-              formRefMap[content.identifier] = content
-            }
+          if (formId) {
+            formContextList.push({
+              formId,
+              contextId: content.identifier,
+            })
+            formRefMap[content.identifier] = content
           }
         }
       }
@@ -392,16 +397,14 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
           }
         }
       }
-      // result.result.content = enrichedResults;
     }
     if (result.result && result.result.content) {
-      this.courseSearchResults = result.result.content
+      this.courseSearchResults = enrichedContent
       this.courseSearchTotalCount = result.result?.count
       this.coursesFacets = result.result?.facets || []
 
       this.combinedFacets = []
       this.combinedFacets = [...this.combinedFacets, (result.result?.facets || [])]
-      // });
     } else {
       this.courseSearchResults = []
       this.courseSearchTotalCount = 0
@@ -1509,7 +1512,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       // Store enrollmentDetails in IndexedDB
       if (responses.enrollmentDetails && responses.enrollmentDetails.result && responses.enrollmentDetails.result.response) {
         this.indexedDbService.setEnrollmentDetails(responses.enrollmentDetails.result.response)
-          .catch(error => console.error('Failed to store enrollmentDetails in IndexedDB:', error))
+          .catch((error: any) => console.error('Failed to store enrollmentDetails in IndexedDB:', error))
       }
     })
   }

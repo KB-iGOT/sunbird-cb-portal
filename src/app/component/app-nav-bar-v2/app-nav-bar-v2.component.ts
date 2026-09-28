@@ -252,14 +252,16 @@ export class AppNavBarV2Component implements OnInit, OnChanges, OnDestroy {
         this.hideKPOnNav.set(false)
       }
 
-      if (event.url.includes('/page/home')) {
-        this.filteredPrimaryNavbarConfig = this.primaryNavbarConfig
+      const themedRoute = this.supportsThemeToggle(event.url)
+      if (themedRoute) {
+        this.filteredPrimaryNavbarConfig = this.withoutDisabledItems(this.primaryNavbarConfig)
         const themeMode = this.themeSvc.currentTheme
         this.themeSvc.setTheme(themeMode)
       }
       this.setActiveRouteFromUrl(event.url)
-      if (!event.url.includes('/page/home')) {
-        this.filteredPrimaryNavbarConfig = this.removeThemeToggleFromConfig(this.primaryNavbarConfig)
+      if (!themedRoute) {
+        this.filteredPrimaryNavbarConfig =
+          this.withoutDisabledItems(this.removeThemeToggleFromConfig(this.primaryNavbarConfig))
         this.themeSvc.applyTheme('light')
       }
     })
@@ -286,6 +288,9 @@ export class AppNavBarV2Component implements OnInit, OnChanges, OnDestroy {
       this.primaryNavbarBackground = this.configSvc.primaryNavBar
       this.pageNavbar = this.configSvc.pageNavBar
       this.primaryNavbarConfig = this.configSvc.primaryNavBarConfig
+      // The router can finish its first navigation before this component exists, in which
+      // case no NavigationEnd follows — so decide from the current URL too, or a direct load
+      // of a themed route would render the header with no toggle.
     }
 
     if (this.configSvc.appsConfig) {
@@ -330,170 +335,6 @@ export class AppNavBarV2Component implements OnInit, OnChanges, OnDestroy {
     }
   }
 
-  // setPrimaryConfig() {
-  //   this.primaryNavbarConfig = {
-  //     "mediumScreen": {
-  //       "left": [],
-  //       "right": [
-  //         {
-  //           "type": "langSelect",
-  //           "config": {
-  //             "actionBtnId": "feature_langselect",
-  //             "toolTip": "Language",
-  //             "className": "fixtopMargin",
-  //             "config": {
-  //               "actionBtnId": "feature_langselect",
-  //               "type": "card-mini",
-  //               "hideTitle": true
-  //             }
-  //           }
-  //         },
-  //         {
-  //           type: 'themeToggle'
-  //         },
-  //         {
-  //           "type": "fontButton",
-  //           "config": {
-  //             "actionBtnId": "feature_mydashboard",
-  //             "toolTip": "My Dashboard",
-  //             "className": "fixtopMargin",
-  //             "config": {
-  //               "actionBtnId": "feature_mydashboard",
-  //               "type": "card-mini",
-  //               "hideTitle": true
-  //             }
-  //           }
-  //         },
-  //         {
-  //           "type": "notificationBell",
-  //           "config": {
-  //             "actionBtnId": "feature_notification",
-  //             "toolTip": "Notification",
-  //             "className": "fixtopMargin",
-  //             "config": {
-  //               "actionBtnId": "feature_notification",
-  //               "type": "card-mini",
-  //               "hideTitle": true
-  //             }
-  //           }
-  //         },
-  //         {
-  //           "type": "widgetButton",
-  //           "config": {
-  //             "widgetType": "actionButton",
-  //             "widgetSubType": "actionButtonProfile",
-  //             "widgetData": {
-  //               "disableViewProfile": true,
-  //               "disableAllFeatures": true,
-  //               "disableSettings": true,
-  //               "removeClass": true
-  //             }
-  //           }
-  //         }
-  //       ]
-  //     },
-  //     "smallScreen": {
-  //       "left": [
-  //         {
-  //           "type": "featureButton",
-  //           "config": {
-  //             "actionBtnId": "feature_catalog",
-  //             "config": {
-  //               "type": "card-mini"
-  //             }
-  //           }
-  //         },
-  //         {
-  //           "type": "featureButton",
-  //           "config": {
-  //             "actionBtnId": "feature_profile",
-  //             "config": {
-  //               "type": "card-mini"
-  //             }
-  //           }
-  //         }
-  //       ],
-  //       "right": [
-  //         {
-  //           "type": "featureButton",
-  //           "config": {
-  //             "actionBtnId": "feature_search",
-  //             "config": {
-  //               "type": "card-mini"
-  //             }
-  //           }
-  //         }
-  //       ],
-  //       "all": [
-  //         {
-  //           "type": "iconButton",
-  //           "config": {
-  //             "icon": "home",
-  //             "path": "/page/home",
-  //             "label": "home"
-  //           }
-  //         },
-  //         {
-  //           "type": "explorerButton",
-  //           "config": {
-  //             "icon": "explorer",
-  //             "path": "/page/learn",
-  //             "label": "explore"
-  //           }
-  //         },
-  //         {
-  //           "type": "iconButton",
-  //           "config": {
-  //             "icon": "search",
-  //             "path": "/app/search/home",
-  //             "label": "search"
-  //           }
-  //         },
-  //         {
-  //           "type": "iconButton",
-  //           "config": {
-  //             "key": "continueLearning",
-  //             "icon": "learn",
-  //             "path": "/app/seeAll",
-  //             "label": "my learnings"
-  //           }
-  //         }
-  //       ]
-  //     },
-  //     "secondary": {
-  //       "left": [
-  //         {
-  //           "type": "featureButton",
-  //           "config": {
-  //             "actionBtnId": "feature_home",
-  //             "config": {
-  //               "type": "mat-button"
-  //             }
-  //           }
-  //         },
-  //         {
-  //           "type": "featureButton",
-  //           "config": {
-  //             "actionBtnId": "feature_goals",
-  //             "config": {
-  //               "type": "mat-button"
-  //             }
-  //           }
-  //         },
-  //         {
-  //           "type": "featureButton",
-  //           "config": {
-  //             "actionBtnId": "feature_account",
-  //             "config": {
-  //               "type": "mat-button"
-  //             }
-  //           }
-  //         }
-  //       ],
-  //       "right": []
-  //     }
-  //   }
-  // }
 
   getMyCount() {
     this.notificationsService.getNotificationsData().subscribe(
@@ -556,6 +397,27 @@ export class AppNavBarV2Component implements OnInit, OnChanges, OnDestroy {
 
   translateLabels(label: string, type: any): string {
     return this.langtranslations.translateLabelWithoutspace(label, type, '')
+  }
+
+  private readonly themedRoutes = [
+    '/page/home',
+    '/app/person-profile/karma-wallet',
+    '/app/plans'
+  ]
+
+  private supportsThemeToggle(url: string): boolean {
+    return this.themedRoutes.some(route => url.includes(route))
+  }
+
+  withoutDisabledItems(config: NsInstanceConfig.IPrimaryNavbarConfig | null): NsInstanceConfig.IPrimaryNavbarConfig | null {
+    if (!config || !config.mediumScreen || !config.mediumScreen.right) {
+      return config
+    }
+
+    const filteredConfig = JSON.parse(JSON.stringify(config))
+    filteredConfig.mediumScreen.right = filteredConfig.mediumScreen.right
+      .filter((item: any) => item && item.enabled !== false)
+    return filteredConfig
   }
 
   removeThemeToggleFromConfig(config: NsInstanceConfig.IPrimaryNavbarConfig | null): NsInstanceConfig.IPrimaryNavbarConfig | null {
