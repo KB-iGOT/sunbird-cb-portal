@@ -359,17 +359,22 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
     if (result.result && result.result.content && Array.isArray(result.result.content)) {
       const formContextList: any[] = []
       const formRefMap: Record<string, any> = {}
-      for (const content of result.result.content) {
-        if (content?.completionSurveyLink && content?.identifier) {
-          const sID = content.completionSurveyLink.split('surveys/')
-          const formId = sID[1]
 
-          if (formId) {
-            formContextList.push({
-              formId,
-              contextId: content.identifier,
-            })
-            formRefMap[content.identifier] = content
+      const enrollmentDetailsFromDB = _.get(this.enrollmentDetails, 'result.response', null)
+      if (enrollmentDetailsFromDB) {
+        for (const content of result?.result?.content) {
+          const enrollmentDetails = enrollmentDetailsFromDB[content.identifier]
+          if (content?.completionSurveyLink && content?.identifier && enrollmentDetails && enrollmentDetails?.completionPercentage === 100) {
+            const sID = content.completionSurveyLink.split('surveys/')
+            const formId = sID[1]
+
+            if (formId) {
+              formContextList.push({
+                formId,
+                contextId: content.identifier,
+              })
+              formRefMap[content.identifier] = content
+            }
           }
         }
       }
@@ -756,7 +761,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
         this.searchRequestCommunities.orderDirection = 'desc'
       } else if (this.seeAllResult === SearchCategory.People) {
         delete this.searchRequestPeoples?.sort_by?.firstName
-        this.searchRequestPeoples.sort_by.createdOn = 'desc'
+        this.searchRequestPeoples.sort_by.createdDate = 'desc'
       } else if (this.seeAllResult === SearchCategory.Resources) {
         this.searchRequestResources.request.sort_by.createdOn = 'desc'
       }
@@ -1373,6 +1378,9 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       } else if (this.seeAllResult === SearchCategory.Events) {
         this.searchRequestEvents.request.sort_by = {}
         await this.searchEvents()
+      } else if (this.seeAllResult === SearchCategory.People) {
+        this.searchRequestPeoples.sort_by = {}
+        await this.searchPeople()
       } else if (this.seeAllResult === SearchCategory.Resources) {
         this.searchRequestResources.request.sort_by = {}
         await this.searchResources()
@@ -1399,7 +1407,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
         await this.searchcommunities()
       } else if (this.seeAllResult === SearchCategory.People) {
         delete this.searchRequestPeoples?.sort_by?.firstName
-        this.searchRequestPeoples.sort_by.createdOn = 'desc'
+        this.searchRequestPeoples.sort_by.createdDate = 'desc'
         await this.searchPeople()
       } else if (this.seeAllResult === SearchCategory.Resources) {
         this.searchRequestResources.request.sort_by.createdOn = 'desc'
