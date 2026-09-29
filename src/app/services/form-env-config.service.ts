@@ -23,25 +23,18 @@ export class FormEnvConfigService {
     try {
       let payload = {
         "request": {
-          "name": "portal_global_env",
+          "name": "portal_global_env_config",
           "type": "page",
           "subType": "globalenv",
           "portal": "portal",
-          "criteria": {
-            "role": "PUBLIC",
-            "rootOrg": "*"
-          },
           "clientVersion": 1.0
         }
       }
       await this.globalEnvConfigReadData(payload).subscribe({
         next: (response) => {
-          console.log('globalEnvConfigReadData response:', response)
-          console.log('response-', response)
           const formConfig = response?.data || response
 
           if (!formConfig) {
-            console.warn('FormConfig API returned empty response')
             return
           }
 
@@ -82,53 +75,28 @@ export class FormEnvConfigService {
 
   globalEnvConfigReadData(payload: any): Observable<any> {
 
-    console.log('payload:', payload)
-
     return this.formReadData(payload).pipe(
 
-      tap({
-        next: (response) => {
-          console.log('3. FORM_READ RESPONSE:', response)
-        },
-        error: (error) => {
-          console.error('3. FORM_READ ERROR:', error)
-        },
-        complete: () => {
-          console.log('4. FORM_READ COMPLETE')
-        }
-      }),
+      tap(),
 
       map((rData: any) => {
 
-        console.log('rData--:', rData)
-
         const finalData = rData?.result?.data
-
-        console.log('finalData--:', finalData)
 
         return finalData
       }),
 
-      catchError((error: any) => {
-
-        console.error('FORM_READ API ERROR:', error)
+      catchError(() => {
 
         return this.http
           .get(`/assets/configurations/global.env.json`)
           .pipe(
-            tap((data) => {
-              console.log('Fallback global.env.json:', data)
+            tap(() => {
             }),
 
             map((data: any) => data),
 
             catchError((fallbackError) => {
-
-              console.error(
-                'Fallback global.env.json ERROR:',
-                fallbackError
-              )
-
               return of({
                 data: null,
                 error: fallbackError
@@ -139,7 +107,6 @@ export class FormEnvConfigService {
     )
   }
   formReadData(request: any): Observable<any> {
-    console.log('API_END_POINTS.FORM_READ', API_END_POINTS.FORM_READ)
     return this.http.post<any>(`${API_END_POINTS.FORM_READ}`, request)
   }
 
