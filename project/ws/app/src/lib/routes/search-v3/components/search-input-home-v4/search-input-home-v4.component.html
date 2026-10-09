@@ -24,9 +24,10 @@
         }
 
         <input matInput type="text" role="combobox" class="global-search-input-element" accesskey="S" #searchInput
-          matTooltipClass="right-nav-tooltip" [matTooltip]="placeHolder()" id="global-search-input" i18n-placeholder="search content"
-          [placeholder]="placeHolder()" i18-aria-label aria-label="search content" (focus)="openSearchTemplateF()"
-          [formControl]="queryControl" maxlength="100" (input)="loaderSearching.set(true)" autocomplete="off" />
+          matTooltipClass="right-nav-tooltip" [matTooltip]="placeHolder()" id="global-search-input"
+          i18n-placeholder="search content" [placeholder]="placeHolder()" i18-aria-label aria-label="search content"
+          (focus)="openSearchTemplateF()" [formControl]="queryControl" maxlength="100"
+          (input)="loaderSearching.set(true)" autocomplete="off" />
 
         <div class="search-actions" matSuffix>
           @if (queryControl.value && !loaderSearching()) {
@@ -50,13 +51,21 @@
         <div class="search-categories mb-4">
           <mat-chip-listbox class="mat-chip-list-content" [multiple]="false" [hideSingleSelectionIndicator]="true">
             @for (category of categories; track category.value) {
+            <!-- <mat-chip-option [removable]="false" [highlighted]="false" [disableRipple]="true" [selectable]="false"
+                [selected]="selectedSearchCategory().includes(category.value)" (click)="toggleSearchCategory(category.value)"
+                class="category-chip"
+                [ngClass]="{'selected-search-category active': selectedSearchCategory().includes(category.value)}">
+                @if (category.icon) {
+                <mat-icon [svgIcon]="category.icon" class="mr-1 categories-icon"></mat-icon>
+                }
+                {{ category.label }}
+              </mat-chip-option> -->
             <mat-chip-option [removable]="false" [highlighted]="false" [disableRipple]="true" [selectable]="false"
-              [selected]="category.value === selectedSearchCategory()" (click)="selectSearchCategory(category.value)"
-              class="category-chip"
-              [ngClass]="{'selected-search-category active': category.value === selectedSearchCategory()}">
-              @if (category.icon) {
-              <mat-icon [svgIcon]="category.icon" class="mr-1 categories-icon"></mat-icon>
-              }
+              (click)="toggleSearchCategory(category.value)" class="category-chip">
+              <mat-checkbox [checked]="selectedSearchCategory().includes(category.value)"
+                (change)="onCategoryCheckboxChange($event, category.value)" (click)="$event.stopPropagation()"
+                class="mr-1 category-checkbox">
+              </mat-checkbox>
               {{ category.label }}
             </mat-chip-option>
             }
@@ -76,7 +85,7 @@
           @for (query of recentSearches; track query.timestamp) {
           <mat-list-item class="recent-search-list">
             <a class="text-left text-xs font-normal recent-search-text courser-pointer flex flex-1 recent_link items-center"
-              (click)="goToSearchItem(query)">
+              (click)="selectRecentSearchQuery(query)">
               <img src="/assets/icons/top-nav/search.svg" alt="searchicon" class="search-home-icon mr-1">
               <span>{{ query?.search_query }}</span>
             </a>

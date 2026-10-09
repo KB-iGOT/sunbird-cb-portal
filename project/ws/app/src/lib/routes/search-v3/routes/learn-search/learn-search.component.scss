@@ -13,6 +13,30 @@
   font-weight: bold !important;
 }
 
+.result-meta {
+  height: 49px
+}
+
+.uniform-heading {
+  /* stylelint-disable */
+  font: 600 20px Montserrat;
+  /* stylelint-enable */
+  margin-top: 0;
+}
+
+// Phase 2 left-filter-click-to-scroll (scrollToCategory): keeps the scrolled-to section's
+// heading clear of the sticky top header instead of landing flush with the viewport top.
+.scroll-section {
+  scroll-margin-top: 100px;
+}
+
+// Uniform gap between sections, as flex-gap instead of margin-top on .scroll-section - a
+// margin stays even when a section is hidden (not searched/no longer selected), leaving a
+// stray gap above whichever section renders next. Gap only appears between actual siblings.
+.search-sections {
+  gap: 70px;
+}
+
 .filternames {
   .myfilter-custom {
     background: RGBA(0, 0, 0, 0.08);
@@ -25,6 +49,17 @@
     font-size: 20px;
     vertical-align: middle;
     line-height: 12px;
+  }
+}
+
+.showingResult {
+  /* stylelint-disable */
+  font: 600 17px Montserrat;
+  /* stylelint-enable */
+  color: var(--color-tertiary-300);
+
+  .searchQuery {
+    color: var(--color-tertiary-500) !important;
   }
 }
 
@@ -205,6 +240,7 @@
   /* stylelint-enable */
   font-weight: 400;
   line-height: 16.8px;
+  margin-bottom: 0px !important;
 }
 
 .mt-4 {

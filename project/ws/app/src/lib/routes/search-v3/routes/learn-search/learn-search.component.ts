@@ -7,13 +7,15 @@ import {
   SimpleChanges,
   Output,
   EventEmitter,
+  signal,
 } from '@angular/core'
 import { GbSearchService } from '../../services/gb-search.service'
-import { IndexedDbService } from '@sunbird-cb/utils-v2'
 import {
   ConfigurationsService,
   EventService,
+  IndexedDbService,
   MultilingualTranslationsService,
+  UtilityService,
   ValueService,
 } from '@sunbird-cb/utils-v2'
 import { ActivatedRoute, Router } from '@angular/router'
@@ -46,6 +48,25 @@ import { NetworkV2Service } from '../../../network-v2/services/network-v2.servic
 import moment from 'moment'
 import { ContentDictionaryService } from '@sunbird-cb/consumption'
 
+// Matches the `seeAllResult`/`isCategoryActive` section keys used throughout this component's template.
+export enum SearchResultCardCategory {
+  Courses = 'courses',
+  Events = 'events',
+  Peoples = 'peoples',
+  Communities = 'communities',
+  Resources = 'resources',
+  ExternalContents = 'external-contents',
+}
+
+const SEARCH_RESULT_CARD_SUBTYPE: { [key in SearchResultCardCategory]: string } = {
+  [SearchResultCardCategory.Courses]: 'search-result-card-content',
+  [SearchResultCardCategory.Events]: 'search-result-card-events',
+  [SearchResultCardCategory.Peoples]: 'search-result-card-people',
+  [SearchResultCardCategory.Communities]: 'search-result-card-communities',
+  [SearchResultCardCategory.Resources]: 'search-result-card-resources',
+  [SearchResultCardCategory.ExternalContents]: 'search-result-card-external-content',
+}
+
 @Component({
   selector: 'ws-app-learn-search',
   templateUrl: './learn-search.component.html',
@@ -54,6 +75,10 @@ import { ContentDictionaryService } from '@sunbird-cb/consumption'
 })
 export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
   @Input() searchQuery!: { query: string; nlp: string; searchCategory: string }
+  // Full category list parsed by GlobalSearchComponent from the (possibly comma-separated)
+  // `category` query param. searchQuery.searchCategory only ever carries the first entry, so
+  // this is what drives the Phase 2 multi-category branch below.
+  @Input() searchCategories: string[] = [];
   @Input() userValue = '';
   @Input() paramFilters: any = [];
   @Input() filtersPanel!: string
@@ -78,7 +103,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
   veifiedKarmayogi = false;
   noResultMessage = '';
   recommendedUsers: any
-  seeAllResult: string = '';
+  seeAllResult = '';
   allResultsDepartmentName = new Set<string>();
 
   courseSearchTotalCount = 0;
@@ -87,6 +112,20 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
   communitiesSearchTotalCount = 0;
   resourcesSearchTotalCount = 0;
   externalSearchTotalCount = 0;
+
+  get categoryCounts(): { [key: string]: number } {
+    if (this.searchContentLoader || this.searchPeopleLoader) {
+      return {}
+    }
+    return {
+      courses: this.courseSearchTotalCount,
+      events: this.eventSearchTotalCount,
+      peoples: this.peopleSearchTotalCount,
+      communities: this.communitiesSearchTotalCount,
+      resources: this.resourcesSearchTotalCount,
+      'external-contents': this.externalSearchTotalCount,
+    }
+  }
 
   courseSearchResults: any[] = [];
   eventsSearchResults: any[] = [];
@@ -131,13 +170,16 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
   queryParams: any
   typesOfEventsFilters: any
   competencyFactet: any = [];
-  searchSortFilter: string = '';
+  searchSortFilter = '';
   searchPeopleLoader = false;
   filtersChipFromLearn: string[] = [];
   shouldReturnFromHere = false
   isExploreContentTab = false;
   applySelectedFilters: any = []
   compentencyKeyExist = false
+  isGlobalSearch = signal(false)
+  showREsultsCorrection = signal(false)
+  readonly resultCardCategory = SearchResultCardCategory
   constructor(
     private searchV3Service: GbSearchService,
     private configSvc: ConfigurationsService,
@@ -150,6 +192,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
     private userService: WidgetUserService,
     private networkV2Service: NetworkV2Service,
     private indexedDbService: IndexedDbService,
+    private utilitySvc: UtilityService,
     private contentDictionarySvc: ContentDictionaryService,
   ) {
     if (localStorage.getItem('websiteLanguage')) {
@@ -168,6 +211,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnInit() {
+    this.setIsGlobalSearch()
     if (
       this.configSvc.userProfile &&
       this.configSvc.userProfile.departmentName
@@ -200,6 +244,13 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
     localStorage.removeItem(SearchConstantLocalStorage.SortType)
   }
 
+  setIsGlobalSearch() {
+    this.isGlobalSearch.set(this.router.url.includes('app/globalsearch'))
+  }
+
+  setResultsCorrection() {
+    this.showREsultsCorrection.set(this.searchQuery?.query?.toLowerCase() !== this.searchQuery?.nlp?.toLowerCase())
+  }
   async loadEnrollmentDetailsFromCache() {
     try {
       const cachedData = await this.indexedDbService.getEnrollmentDetails()
@@ -212,15 +263,13 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async ngOnChanges(changes: SimpleChanges) {
+    this.setResultsCorrection()
     if (
       this.configSvc.unMappedUser &&
       this.configSvc.unMappedUser.profileDetails
     ) {
       this.veifiedKarmayogi =
-        this.configSvc.unMappedUser.profileDetails.profileStatus &&
-          this.configSvc.unMappedUser.profileDetails.profileStatus === 'VERIFIED'
-          ? true
-          : false
+        this.configSvc.unMappedUser.profileDetails.profileStatus === 'VERIFIED'
     }
     if (changes['paramFilters'] && changes['paramFilters'].currentValue && changes['paramFilters'].currentValue.length) {
       this.searchContentLoader = true
@@ -238,12 +287,17 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       return
     }
 
+    const searchCategoriesChanged = !!changes['searchCategories'] &&
+      (changes['searchCategories'].currentValue || []).join(',') !==
+      (changes['searchCategories'].previousValue || []).join(',')
+
     if (
       (changes.searchQuery &&
         changes.searchQuery.currentValue?.query !==
         changes.searchQuery.previousValue?.query) ||
       changes.searchQuery.currentValue?.searchCategory !==
-      changes.searchQuery.previousValue?.searchCategory
+      changes.searchQuery.previousValue?.searchCategory ||
+      searchCategoriesChanged
     ) {
       this.searchContentLoader = true
       if (!this.isExploreContentTab) {
@@ -256,18 +310,16 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
         path: 'Search',
       }
 
-      if (changes.searchQuery.currentValue?.searchCategory) {
+      if (this.isMultiCategorySearch) {
+        // Phase 2: only the pills selected in Search V4 - reuses the existing "no category"
+        // multi-section layout below (seeAllResult stays '' from resetAllSearchParams), just
+        // restricted to the selected categories instead of every enabled one.
+        await this.searchEnabledCategories(this.searchCategories)
+      } else if (changes.searchQuery.currentValue?.searchCategory) {
         const category = changes.searchQuery.currentValue?.searchCategory || ''
         this.seeAllResults(category)
       } else {
-        if (this.isCategoryEnabled(SearchCategory.Courses)) { await this.searchCourses() }
-        if (this.isCategoryEnabled(SearchCategory.Events)) { await this.searchEvents() }
-        if (this.isCategoryEnabled(SearchCategory.People)) { await this.searchPeople() }
-        if (this.isCategoryEnabled(SearchCategory.Communities)) { await this.searchcommunities() }
-        if (this.isCategoryEnabled(SearchCategory.Resources)) { await this.searchResources() }
-        if (this.isCategoryEnabled(SearchCategory.ExternalContents)) { await this.searchExternalContents() }
-
-        this.searchContentLoader = false
+        await this.searchEnabledCategories()
       }
 
       this.updateNoResultMessage(this.statedata.param)
@@ -285,12 +337,15 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       : userDetails.firstname
   }
 
-  applyTelemetry(event: any, index: number) {
-    this.raiseTelemetry(event, index)
+  applyTelemetry(event: any, index: number, category: SearchResultCardCategory) {
+    this.raiseTelemetry(event, index, category)
   }
 
-  raiseTelemetry(content: any, i: number) {
-    if (content) {
+  raiseTelemetry(content: any, i: number, category: SearchResultCardCategory) {
+    if (!content) {
+      return
+    }
+    if (!this.isGlobalSearch()) {
       this.events.raiseInteractTelemetry(
         {
           type: 'click',
@@ -302,18 +357,40 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
           id: content.identifier || '',
           type: content.contentType,
           rollup: {},
-          ver: content.version ? `${content.version}${''}` : '',
+          ver: content.version ? `${content.version}` : '',
         },
         {}
       )
+      return
     }
+
+    const actualQuery = this.searchQuery?.query || ''
+    const correctedQuery = this.searchQuery?.nlp || ''
+    const isCorrected = !!(correctedQuery && correctedQuery !== actualQuery)
+
+    // Forces context.env to 'Search' for this interact call - raiseInteractTelemetry's own
+    // pageContext argument is only honored for edata.pageid, not for env (see TelemetryService's
+    // addInteractListener, which reads env from utilitySvc.routeData rather than the per-call
+    // pageContext override). Safe to mutate: the next real navigation always resets it.
+    this.utilitySvc.setRouteData([{ module: 'Search', pageId: 'app/globalsearch' }])
+    this.events.raiseInteractTelemetry(
+      {
+        type: 'click',
+        subType: SEARCH_RESULT_CARD_SUBTYPE[category],
+        id: content.identifier || '',
+      },
+      {
+        id: correctedQuery || actualQuery,
+        type: isCorrected ? 'search-query-corrected' : 'search-query-not-corrected',
+        rollup: { l1: actualQuery },
+      },
+      { module: 'Search' }
+    )
   }
 
   ngOnDestroy() {
     if (this.defaultSideNavBarOpenedSubscription) {
-      if (this.defaultSideNavBarOpenedSubscription) {
-        this.defaultSideNavBarOpenedSubscription.unsubscribe()
-      }
+      this.defaultSideNavBarOpenedSubscription.unsubscribe()
     }
 
     this.destroy$.next()
@@ -567,11 +644,6 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
     for (const element of competency) {
       if (this.seeAllResult === SearchCategory.Courses) {
         if (filterFlag) {
-          // const searchRequestCourse = new SearchV4Request([
-          //   this.competencyAreaNameKey,
-          //   this.competencyThemeKey,
-          //   this.competencySubThemeKey,
-          // ]);
           this.searchRequestCourse.request.query = this.statedata?.param
           this.searchRequestCourse.request.filters[this.competencyAreaNameKey] =
             element
@@ -1068,9 +1140,42 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
     return searchConfig[key] !== false
   }
 
-  async applyFilterFromLearn(selectedFilters: { [key: string]: any }) {
-    console.log('selectedFilters', selectedFilters)
+  isCategoryActive(categoryValue: string): boolean {
+    if (!this.isCategoryEnabled(categoryValue)) {
+      return false
+    }
+    if (this.searchCategories.length > 1) {
+      return this.searchCategories.includes(categoryValue)
+    }
+    return true
+  }
 
+  // Drives the result-meta header's visibility: once loading settles, show it as long as
+  // some category was actually part of the search, regardless of whether it found anything.
+  get hasActiveSearchCategory(): boolean {
+    return ['courses', 'events', 'peoples', 'communities', 'resources', 'external-contents']
+      .some(category => this.isCategoryActive(category))
+  }
+
+  get isMultiCategorySearch(): boolean {
+    return this.searchCategories.length > 1
+  }
+
+  // Searches every category enabled in global-config, optionally restricted to onlyCategories
+  // (Phase 2's multi-pill selection). Leaves seeAllResult untouched ('' from resetAllSearchParams),
+  // which is what makes the template render one header+cards section per populated category.
+  async searchEnabledCategories(onlyCategories?: string[]) {
+    const shouldSearch = (category: string) =>
+      this.isCategoryEnabled(category) && (!onlyCategories || onlyCategories.includes(category))
+
+    if (shouldSearch(SearchCategory.Courses)) { await this.searchCourses() }
+    if (shouldSearch(SearchCategory.Events)) { await this.searchEvents() }
+    if (shouldSearch(SearchCategory.People)) { await this.searchPeople() }
+    if (shouldSearch(SearchCategory.Communities)) { await this.searchcommunities() }
+    if (shouldSearch(SearchCategory.Resources)) { await this.searchResources() }
+    if (shouldSearch(SearchCategory.ExternalContents)) { await this.searchExternalContents() }
+
+    this.searchContentLoader = false
   }
 
   // Delete the empty request param from resuest body
@@ -1551,6 +1656,20 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
     window.scrollTo({ top: 0, behavior: 'smooth' })
   }
 
+  // One shared, manually computed offset for every category so they all land at the exact
+  // same distance from the header, rather than depending on scrollIntoView/scroll-margin-top,
+  // which can differ slightly between sections depending on each one's own box model.
+  private readonly categoryScrollClearance = 123
+
+  scrollToCategory(category: string): void {
+    const element = document.getElementById(category)
+    if (!element) {
+      return
+    }
+    const targetTop = window.pageYOffset + element.getBoundingClientRect().top - this.categoryScrollClearance
+    window.scrollTo({ top: Math.max(targetTop, 0), behavior: 'smooth' })
+  }
+
   constructQueryParam(category: any) {
     const params = this.activated.snapshot.queryParams
 
@@ -1575,51 +1694,44 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
 
     let serverTime = moment()
     serverTime = serverTime.add(5, 'hours').add(30, 'minutes')
-    serverTime.format('YYYY-MM-DD HH:mm:ss'),
-      // Display the server time
-      /* tslint:disable */
-      // console.log("Server Time: ", serverTime.format('YYYY-MM-DD HH:mm:ss'));
-      // console.log('eventName', eventName)
-      // console.log('userIdentifier', userIdentifier)
+    /* tslint:disable */
 
 
 
-      events.forEach((event: any) => {
-        if (
-          event.startDate &&
-          event.endDate &&
-          event.startTime &&
-          event.endTime
+    events.forEach((event: any) => {
+      if (
+        event.startDate &&
+        event.endDate &&
+        event.startTime &&
+        event.endTime
+      ) {
+        // Conver current time into milliseconds
+        let currentTime = new Date(serverTime.toString()).getTime() / 1000
+        // Combining date and time for start event
+        let evenStarttDate =
+          new Date(`${event.startDate} ${event.startTime}`).getTime() / 1000
+        // Combining date and time for end event
+        let eventEndDate =
+          new Date(`${event.endDate} ${event.endTime}`).getTime() / 1000
+        if (currentTime > eventEndDate) {
+          if (this.typesOfEventsFilters.includes('past events')) {
+            processedEvents.push(event)
+          }
+        } else if (
+          (currentTime <= eventEndDate &&
+            currentTime >= evenStarttDate)
         ) {
-          // Conver current time into milliseconds
-          let currentTime = new Date(serverTime.toString()).getTime() / 1000
-          // Combining date and time for start event
-          let evenStarttDate =
-            new Date(`${event.startDate} ${event.startTime}`).getTime() / 1000
-          // Combining date and time for end event
-          let eventEndDate =
-            new Date(`${event.endDate} ${event.endTime}`).getTime() / 1000
-          if (currentTime > eventEndDate) {
-            if (this.typesOfEventsFilters.includes('past events')) {
-              processedEvents.push(event)
-            }
-          } else if (
-            (currentTime <= eventEndDate &&
-              currentTime >= evenStarttDate)
-          ) {
-            console.log('in live')
-            if (this.typesOfEventsFilters.includes('live')) {
-              event.showLive = true
-              processedEvents.push(event)
-            }
-          } else {
-            console.log('in upcoming')
-            if (this.typesOfEventsFilters.includes('upcoming')) {
-              processedEvents.push(event)
-            }
+          if (this.typesOfEventsFilters.includes('live')) {
+            event.showLive = true
+            processedEvents.push(event)
+          }
+        } else {
+          if (this.typesOfEventsFilters.includes('upcoming')) {
+            processedEvents.push(event)
           }
         }
-      })
+      }
+    })
     return processedEvents
   }
 
@@ -1682,7 +1794,6 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       })
     }
 
-    console.log('Event counts by type:', eventCounts)
     this.typesOfEventsFilters = eventCounts
   }
 

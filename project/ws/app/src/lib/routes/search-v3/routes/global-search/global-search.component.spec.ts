@@ -1,6 +1,6 @@
 import { GlobalSearchComponent } from './global-search.component';
 import { ParamMap } from '@angular/router';
-import { of } from 'rxjs';
+import { NEVER, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 describe('GlobalSearchComponent', () => {
@@ -8,6 +8,7 @@ describe('GlobalSearchComponent', () => {
   let mockActivatedRoute: any;
   let mockTranslateService: any;
   let mockConfigService: any;
+  let mockLangTranslations: any;
   let mockRouter: any;
   let originalLocalStorage: Storage;
   let originalEnvironment: any;
@@ -82,6 +83,10 @@ describe('GlobalSearchComponent', () => {
       navigate: jest.fn(),
     };
 
+    mockLangTranslations = {
+      languageSelectedObservable: NEVER,
+    };
+
     mockActivatedRoute = {
       queryParamMap: of(createParamMap({})), // Default empty params
       parent: {},
@@ -92,7 +97,8 @@ describe('GlobalSearchComponent', () => {
       mockActivatedRoute,
       mockTranslateService,
       mockConfigService,
-      mockRouter
+      mockRouter,
+      mockLangTranslations
     );
   });
 
@@ -110,7 +116,8 @@ describe('GlobalSearchComponent', () => {
       mockActivatedRoute,
       mockTranslateService,
       mockConfigService,
-      mockRouter
+      mockRouter,
+      mockLangTranslations
     );
     
     // Assert
@@ -128,7 +135,8 @@ describe('GlobalSearchComponent', () => {
       mockActivatedRoute,
       mockTranslateService,
       mockConfigService,
-      mockRouter
+      mockRouter,
+      mockLangTranslations
     );
     
     // Assert
@@ -185,6 +193,49 @@ describe('GlobalSearchComponent', () => {
     expect(component.userValue).toBe('moderatedCourses');
   });
 
+  it('should parse a comma-separated category param into searchCategories', () => {
+    // Arrange
+    mockActivatedRoute.queryParamMap = of(createParamMap({
+      q: 'search-term',
+      category: 'courses,events,external-contents'
+    }));
+
+    // Act
+    component.ngOnInit();
+
+    // Assert
+    expect(component.searchCategories).toEqual(['courses', 'events', 'external-contents']);
+    expect(component.searchParam.searchCategory).toBe('courses');
+  });
+
+  it('should parse a single-value category param into a single-item searchCategories list', () => {
+    // Arrange
+    mockActivatedRoute.queryParamMap = of(createParamMap({
+      q: 'search-term',
+      category: 'courses'
+    }));
+
+    // Act
+    component.ngOnInit();
+
+    // Assert
+    expect(component.searchCategories).toEqual(['courses']);
+  });
+
+  it('should default searchCategories to an empty list when category param is absent', () => {
+    // Arrange
+    mockActivatedRoute.queryParamMap = of(createParamMap({
+      q: 'search-term'
+    }));
+
+    // Act
+    component.ngOnInit();
+
+    // Assert
+    expect(component.searchCategories).toEqual([]);
+    expect(component.searchParam.searchCategory).toBe('');
+  });
+
   it('should update selectedTab when "tab" query param is present', () => {
     // Arrange
     mockActivatedRoute.queryParamMap = of(createParamMap({
@@ -201,7 +252,7 @@ describe('GlobalSearchComponent', () => {
   it('should set searchparamFilters when "f" query param is present', () => {
     // Arrange
     const filterJSON = JSON.stringify({
-      contentType: ['Course'],
+      primaryCategory: ['Course'],
       'competencies_v3.name': ['comp1', 'comp2'],
       'topics': ['topic1', 'topic2']
     });
@@ -216,24 +267,8 @@ describe('GlobalSearchComponent', () => {
     // Assert
     expect(component.searchparamFilters).toEqual([
       {
-        mainType: 'primaryCategory',
-        name: 'course',
-        count: '',
-        ischecked: true,
-      },
-      {
-        mainType: 'competencies_v3.name',
-        name: 'competencies_v3.name',
-        count: '',
-        values: ['comp1', 'comp2'],
-        ischecked: true,
-      },
-      {
-        mainType: 'topics',
-        name: 'topics',
-        count: '',
-        values: ['topic1', 'topic2'],
-        ischecked: true,
+        mainType: 'course',
+        subType: ['Course'],
       },
     ]);
   });

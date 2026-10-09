@@ -15,6 +15,8 @@ import { TranslateService } from '@ngx-translate/core'
 import {
   ConfigurationsService,
   MultilingualTranslationsService,
+  TelemetryService,
+  UtilityService,
 } from '@sunbird-cb/utils-v2'
 import {
   CATEGORY_TYPE,
@@ -31,10 +33,10 @@ import { environment } from '../../../../../../../../../src/environments/environ
 import { ActivatedRoute } from '@angular/router'
 import { MatRadioChange } from '@angular/material/radio'
 @Component({
-    selector: 'ws-app-search-filters',
-    templateUrl: './search-filters.component.html',
-    styleUrls: ['./search-filters.component.scss'],
-    standalone: false
+  selector: 'ws-app-search-filters',
+  templateUrl: './search-filters.component.html',
+  styleUrls: ['./search-filters.component.scss'],
+  standalone: false
 })
 export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
   @Input() newfacets!: any
@@ -42,9 +44,11 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
   @Output() appliedFilter = new EventEmitter<{ [key: string]: any }>();
   @Output() constructQueryParam = new EventEmitter<string>();
   @Output() applyFilterFromLearn = new EventEmitter<{ [key: string]: any }>();
+  @Output() categorySelected = new EventEmitter<string>();
   @Input() karmayogiBadge: any
   competencyFactet: any
   @Input() typesOfEvents: any
+  @Input() categoryCounts: { [key: string]: number } = {}
 
   private subscription: Subscription = new Subscription();
   queryParams: any
@@ -88,6 +92,10 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
   filterQueryTopic = '';
 
   searchCategory = '';
+  // Full category list parsed from the (possibly comma-separated) `category` query param - see
+  // Phase 1's serialization in search-input-home-v4.component.ts. Length > 1 means multiple
+  // pills were selected in Search V4, which switches this panel into a read-only category list.
+  searchCategories: string[] = [];
   searchQuery = '';
   isExploreContentTab = false
   isAllContentSelected = true
@@ -97,6 +105,8 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
     private translate: TranslateService,
     private langtranslations: MultilingualTranslationsService, // private router: Router
     private configSvc: ConfigurationsService,
+    private telemetrySvc: TelemetryService,
+    private utilitySvc: UtilityService
 
   ) {
     if (localStorage.getItem('websiteLanguage')) {
@@ -192,6 +202,18 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
     this.isExploreContentTab = !!params['tab']
 
     this.searchCategory = params['category']
+    this.searchCategories = (params['category'] || '')
+      .split(',')
+      .map((c: string) => c.trim())
+      .filter(Boolean)
+    if (this.isMultiCategorySearch) {
+      // Multi-pill selection from Search V4: show only the selected categories, as a plain
+      // list - no checkbox tree, no "Filter By" header, no selection interaction. Ordered to
+      this.categoryType = this.categoryTypeDup.filter((type) =>
+        this.searchCategories.includes(type.name)
+      )
+      return
+    }
 
     if (this.searchCategory) {
       this.categoryType = this.categoryTypeDup.filter(
@@ -422,6 +444,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
       if (!this.selectedFilters[categoryType].includes(type)) {
         this.selectedFilters[categoryType].push(type)
       }
+      this.raiseFilterInteractTelemetry(categoryType, type)
     } else {
       this.selectedFilters[categoryType] = this.selectedFilters[
         categoryType
@@ -439,7 +462,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
 
     const types = this.categoryTypeDup.map((category) => category.name)
     if (types.includes(type) && !option.isChecked) {
-      this.constructQueryParam.emit('')
+      this.constructQueryParam.emit(this.activated.snapshot.queryParams['category'] || '')
     }
 
     if (categoryType === 'contentType' && this.isAllContentSelected) {
@@ -460,17 +483,99 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
 
     this.appliedFilter.emit(this.selectedFilters)
     this.selectedFilterChips = this.refactorFilterData(this.selectedFilters)
+    this.raiseFilterInteractTelemetry(radioType, type)
+  }
 
+  private resolveFilterSubtype(categoryType: string): string {
+    const topLevelCategoryNames = this.categoryTypeDup
+      .map((category: any) => category.name)
+      .filter((name: string) => name)
+    if (topLevelCategoryNames.includes(categoryType)) {
+      return 'content-type'
+    }
+    switch (categoryType) {
+      case 'contentType':
+        return 'content-type'
+      case 'avgRating':
+        return 'ratings'
+      case 'language':
+        return 'languages'
+      case 'organisation':
+        return 'organisation'
+      case this.competencyAreaNameKey:
+        return 'competency-area'
+      case this.competencyThemeKey:
+        return 'competency-theme'
+      case this.competencySubThemeKey:
+        return 'competency-sub-theme'
+      case 'typeOfEvents':
+        return 'type-of-events'
+      case 'profileDetails.professionalDetails.designation':
+        return 'designation'
+      default:
+        return this.toHyphenCase(categoryType)
+    }
+  }
+
+  private toHyphenCase(value: string): string {
+    return String(value)
+      .replace(/\./g, '-')
+      .replace(/([a-z0-9])([A-Z])/g, '$1-$2')
+      .toLowerCase()
+  }
+
+  private normalizeFilterId(value: string): string {
+    return String(value || '').trim().toLowerCase().replace(/[\s_]+/g, '-')
+  }
+
+  private raiseFilterInteractTelemetry(categoryType: string, value: string) {
+    this.utilitySvc.setRouteData([{ module: 'Search', pageId: 'page/home' }])
+    const queryParams = this.activated.snapshot.queryParams
+    const actualQuery = queryParams['q'] || ''
+    const correctedQuery = queryParams['search'] || ''
+    const isCorrected = !!(correctedQuery && correctedQuery !== actualQuery)
+    const subType = this.resolveFilterSubtype(categoryType)
+    const id = subType === 'ratings'
+      ? `rating-${this.normalizeFilterId(value)}`
+      : this.normalizeFilterId(value)
+
+    this.telemetrySvc.raiseInteractWithEnv(
+      {
+        type: 'click',
+        subType,
+        id,
+        pageid: '/page/home',
+      },
+      {
+        id: correctedQuery || actualQuery,
+        type: isCorrected ? 'search-query-corrected' : 'search-query-not-corrected',
+        rollup: { l1: actualQuery },
+      },
+      'Search',
+      [],
+    )
   }
 
   togoleThemes(competency: any) {
     competency['showAll'] = !competency['showAll']
   }
 
+  get isMultiCategorySearch(): boolean {
+    return this.searchCategories.length > 1
+  }
+
   get filtersAppliedCount(): number {
     return Object.entries(this.selectedFilters).filter(
       ([_, arr]) => Array.isArray(arr) && arr.length > 0
     ).length
+  }
+
+  get showClearAllControls(): boolean {
+    return this.filtersAppliedCount > 1
+  }
+
+  get visibleFilterChips() {
+    return this.selectedFilterChips?.slice(1) ?? []
   }
 
   refactorFilterData(
@@ -482,7 +587,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
     const returnedData = _.flatMap(data, (values, key) =>
       values.map((value) => ({
         type: key,
-        value: value === 'Courses' ? 'Contents' : this.formatValue(value),
+        value: this.getFilterChipValue(value),
       }))
     )
     this.categoriseByFacet(returnedData)
@@ -512,6 +617,19 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
       return this.formatSectorName(value)
     }
     return this.capitalizeFirstLetter(value)
+  }
+
+  private getFilterChipValue(value: string): string {
+    if (value === 'Courses') {
+      return 'Contents'
+    }
+    if (value === 'Resources') {
+      return 'Amrit Gyaan Kosh'
+    }
+    if (value === 'External Contents') {
+      return 'Marketplace'
+    }
+    return this.formatValue(value)
   }
 
   private reverseFormatSectorName(formattedName: string): string {
@@ -627,12 +745,20 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   clearAllFilters() {
+    const keepChip = this.selectedFilterChips?.[0]
+
     Object.keys(this.selectedFilters).forEach((key) => {
+      if (keepChip && key === keepChip.type) {
+        return
+      }
       this.selectedFilters[key] = []
     })
 
     if (!this.isExploreContentTab) {
       _.forEach(this.categoryType, (category) => {
+        if (keepChip && category.name === keepChip.type) {
+          return
+        }
         category.isChecked = false
         _.forEach(category.filters, (filter) => {
           filter.isChecked = false
@@ -648,11 +774,11 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
       })
     })
 
+    this.selectedFilterChips = keepChip ? [keepChip] : []
     this.appliedFilter.emit(this.selectedFilters)
-    this.selectedFilterChips = []
 
     if (!this.isExploreContentTab) {
-      this.constructQueryParam.emit('')
+      this.constructQueryParam.emit(this.activated.snapshot.queryParams['category'] || '')
     }
   }
 
@@ -854,6 +980,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
 
     this.appliedFilter.emit(this.selectedFilters)
     this.selectedFilterChips = this.refactorFilterData(this.selectedFilters)
+    this.raiseFilterInteractTelemetry('contentType', 'all-content')
   }
 
   getSelectedFilter(item: any) {
