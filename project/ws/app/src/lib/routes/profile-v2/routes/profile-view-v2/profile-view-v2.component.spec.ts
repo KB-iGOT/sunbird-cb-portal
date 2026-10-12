@@ -214,6 +214,72 @@ describe('ProfileViewV2Component', () => {
     });
   });
 
+  describe('Not My User Flags', () => {
+    const runGetProfileDetailsFromRoutes = (unMappedUser: any) => {
+      jest.spyOn(component, 'patchProfileDetails').mockImplementation();
+      jest.spyOn(component, 'setUserStats').mockImplementation();
+      jest.spyOn(component, 'patchEntries').mockImplementation();
+      jest.spyOn(component, 'checkIsMentor').mockImplementation();
+
+      (component as any).configSvc = { ...mockConfigSvc, unMappedUser };
+      (component as any).activatedRoute.data = {
+        subscribe: (cb: any) => cb({})
+      };
+
+      component.getProfileDetailsFromRoutes();
+    };
+
+    it('should set isNotMyUserAndIgotOrg when profileStatus is not-my-user and department is igot', () => {
+      runGetProfileDetailsFromRoutes({
+        profileDetails: {
+          profileStatus: 'not-my-user',
+          employmentDetails: { departmentName: 'igot' }
+        }
+      });
+
+      expect(component.isNotMyUser).toBe(true);
+      expect(component.isIgotOrg).toBe(true);
+      expect(component.isNotMyUserAndIgotOrg).toBe(true);
+      expect(component.isNotMyUserAndNotIgotOrg).toBe(false);
+    });
+
+    it('should set isNotMyUserAndNotIgotOrg when profileStatus is not-my-user and department is not igot', () => {
+      runGetProfileDetailsFromRoutes({
+        profileDetails: {
+          profileStatus: 'not-my-user',
+          employmentDetails: { departmentName: 'some-other-dept' }
+        }
+      });
+
+      expect(component.isNotMyUser).toBe(true);
+      expect(component.isIgotOrg).toBe(false);
+      expect(component.isNotMyUserAndIgotOrg).toBe(false);
+      expect(component.isNotMyUserAndNotIgotOrg).toBe(true);
+    });
+
+    it('should keep both flags false when profileStatus is not not-my-user', () => {
+      runGetProfileDetailsFromRoutes({
+        profileDetails: {
+          profileStatus: 'verified',
+          employmentDetails: { departmentName: 'igot' }
+        }
+      });
+
+      expect(component.isNotMyUser).toBe(false);
+      expect(component.isNotMyUserAndIgotOrg).toBe(false);
+      expect(component.isNotMyUserAndNotIgotOrg).toBe(false);
+    });
+
+    it('should default flags to false when unMappedUser is missing', () => {
+      runGetProfileDetailsFromRoutes(undefined);
+
+      expect(component.isNotMyUser).toBe(false);
+      expect(component.isIgotOrg).toBe(false);
+      expect(component.isNotMyUserAndIgotOrg).toBe(false);
+      expect(component.isNotMyUserAndNotIgotOrg).toBe(false);
+    });
+  });
+
   describe('User Stats', () => {
     it('should set user stats correctly', () => {
       component.profileData = {
