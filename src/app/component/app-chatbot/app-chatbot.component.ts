@@ -782,8 +782,6 @@ export class AppChatbotComponent implements OnInit, AfterViewChecked, OnChanges 
     let languageStg: any = JSON.parse(localStorage.getItem('faq-languages') || '{}')
     if (languageStg.length > 0) {
       this.language = languageStg
-    } else {
-      this.getLanguages()
     }
 
     if (localStg && languageStg) {
@@ -809,9 +807,6 @@ export class AppChatbotComponent implements OnInit, AfterViewChecked, OnChanges 
         }
         this.getQns()
         this.getCategories()
-      } else {
-        this.getLanguages()
-        // this.getData()
       }
     }
   }

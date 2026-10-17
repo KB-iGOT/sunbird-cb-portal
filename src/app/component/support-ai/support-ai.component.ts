@@ -128,7 +128,6 @@ export class SupportAIComponent implements OnInit, OnChanges, AfterViewInit, Aft
     this.userInfo = this.configSvc && this.configSvc.userProfile
     // this.aiGlobalSearch()
     // this.startNewSupportAISearch()
-    this.checkForApiCalls()
     this.enableScroll()
     // tslint:disable-next-line: max-line-length
     this.userIcon = this.userInfo && this.userInfo.profileImageUrl ? this.userInfo.profileImageUrl : ''
