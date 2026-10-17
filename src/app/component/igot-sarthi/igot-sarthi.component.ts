@@ -116,7 +116,6 @@ export class IGotSarthiComponent implements OnInit, AfterViewInit, AfterViewChec
     })
     this.userInfo = this.configSvc && this.configSvc.userProfile
     // this.aiGlobalSearch()
-    this.checkForApiCalls()
     this.enableScroll()
     // tslint:disable-next-line: max-line-length
     this.userIcon = this.userInfo && this.userInfo.profileImageUrl ? this.userInfo.profileImageUrl : ''
