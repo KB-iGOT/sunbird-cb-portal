@@ -1,3 +1,4 @@
+import { TestBed } from '@angular/core/testing';
 import { of } from 'rxjs';
 import { ProfileViewV2Component } from './profile-view-v2.component';
 
@@ -83,6 +84,10 @@ const mockHomePageService = {
   getLearnerLeaderboardCached: jest.fn().mockReturnValue({ pipe: jest.fn().mockReturnValue({ subscribe: jest.fn() }) })
 };
 
+const mockEnrollmentSummaryState = {
+  loading$: of(false),
+};
+
 describe('ProfileViewV2Component', () => {
   let component: ProfileViewV2Component;
 
@@ -136,8 +141,9 @@ describe('ProfileViewV2Component', () => {
       writable: true
     });
 
-    // Create component instance
-    component = new ProfileViewV2Component(
+    // Create component instance - inside an injection context, because the component
+    // resolves DestroyRef with inject() in a field initialiser
+    component = TestBed.runInInjectionContext(() => new ProfileViewV2Component(
       mockDialog as any,
       mockActivatedRoute as any,
       mockProfileV2RevampService as any,
@@ -152,8 +158,9 @@ describe('ProfileViewV2Component', () => {
       mockCommonDataService as any,
       mockRouter as any,
       mockNetCoreService as any,
-      mockHomePageService as any
-    );
+      mockHomePageService as any,
+      mockEnrollmentSummaryState as any
+    ));
   });
 
   describe('Component Initialization', () => {
