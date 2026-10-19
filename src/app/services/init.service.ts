@@ -22,13 +22,11 @@ import _ from 'lodash'
 import { firstValueFrom, forkJoin, of } from 'rxjs'
 import { catchError, map } from 'rxjs/operators'
 import { v4 as uuid } from 'uuid'
-import { NPSGridService } from '@sunbird-cb/collection'
-import { ContentDictionaryService } from '@sunbird-cb/consumption'
+import { BtnSettingsService, EnrollmentSummaryStateService, NPSGridService } from '@sunbird-cb/collection'
 import moment from 'moment'
 import { TranslateService } from '@ngx-translate/core'
 import { SbUiResolverService } from '@sunbird-cb/resolver-v2'
 import { NetCoreService } from './netcore.service'
-import { BtnSettingsService } from '@sunbird-cb/collection'
 import { CommonDataService } from './common-data.service'
 import { FormExtService } from './form-ext.service'
 import { FormEnvConfigService } from './form-env-config.service'
@@ -64,9 +62,9 @@ export class InitService {
     private enrollSvc: WidgetEnrollService,
     private netCoreService: NetCoreService,
     private commonDataSvc: CommonDataService,
-    private contentDictionarySvc: ContentDictionaryService,
     private formSvc: FormExtService,
     private formConfigService: FormEnvConfigService,
+    private readonly enrollmentSummaryState: EnrollmentSummaryStateService,
 
     @Inject(APP_BASE_HREF) private baseHref: string,
     domSanitizer: DomSanitizer,
@@ -194,6 +192,8 @@ export class InitService {
       || window.location.href.includes('/certs')
       || window.location.href.includes('/achievements')
       || window.location.href.includes('/crp/')
+    // environment values come first: everything after this (form reads, user read) runs on them
+    await this.loadEnvironment()
     if (!isPublicPreviewOrCreator) {
       await this.globalConfigData()
     }
@@ -207,21 +207,14 @@ export class InitService {
       this.setTelemetrySessionId()
       if (!path.startsWith('/public') && !isPublic) {
         await this.fetchStartUpDetails()
-        await this.fetchUserEnrollDetails()
-        // pre-load the content dictionary only when enabled via global-config apis.content.dictionary
-        if (this.configSvc.globalConfig?.apis?.content?.dictionary?.enabled) {
-          this.contentDictionarySvc.getDictionary().subscribe({
-            error: (err: any) => this.logger.warn('InitService: Failed to pre-load content dictionary', err),
-          })
-        }
+        this.loadEnrollmentSummaryInBackground()
+        // the content dictionary is not preloaded: ContentDictionaryService fetches it on the
+        // first lookup, so routes that never show a content card (TOC, profile) skip it
 
       } else if (path.includes('/public/welcome')) {
         await this.fetchStartUpDetails()
       } else if (window.location.href.includes('editMode=true') && window.location.href.includes('_rc')) {
         await this.fetchStartUpDetails()
-      } else {
-        // public routes have no session: the protected env read would 419
-        await this.formConfigService.loadPublicEnvironmentConfig()
       }
 
       // detail: depends only on userID
@@ -375,6 +368,26 @@ export class InitService {
     return publicConfig
   }
 
+  /**
+   * Loads the environment config before anything else in init. Routes that go on to read the
+   * user (the same ones that call fetchStartUpDetails below) have a session and use the
+   * protected read; the rest have none - the protected read would 419 - so use the public one.
+   */
+  private async loadEnvironment(): Promise<void> {
+    const href = window.location.href
+    const path = window.location.pathname
+    const isPublic = href.includes('/public/') || href.includes('/helpcenter') || href.includes('&preview=true')
+      || href.includes('/certs') || href.includes('/achievements') || href.includes('/crp/')
+    const hasSession = (!path.startsWith('/public') && !isPublic)
+      || path.includes('/public/welcome')
+      || (href.includes('editMode=true') && href.includes('_rc'))
+    if (hasSession) {
+      await this.formConfigService.loadEnvironmentConfig()
+    } else {
+      await this.formConfigService.loadPublicEnvironmentConfig()
+    }
+  }
+
   private async globalConfigData(): Promise<any> {
     try {
       const request = {
@@ -396,6 +409,18 @@ export class InitService {
       this.configSvc.globalConfigLoadFailed = true
     }
     return this.configSvc.globalConfig
+  }
+
+  /**
+   * The enrolment summary must not block app load: fire it in the background and let the
+   * widgets that read `userEnrollmentCount` show a skeleton until it settles.
+   */
+  loadEnrollmentSummaryInBackground(): Promise<void> {
+    this.enrollmentSummaryState.start()
+    return this.fetchUserEnrollDetails()
+      .then(() => undefined)
+      .catch((err: any) => this.logger.warn('InitService: Failed to load enrolment summary', err))
+      .finally(() => this.enrollmentSummaryState.done())
   }
 
   private async fetchUserEnrollDetails(): Promise<NsInstanceConfig.IConfig> {
@@ -534,9 +559,18 @@ export class InitService {
       console.warn('First login API is disabled')
       return
     }
+    // login/entry records a login, so call it once per login session, not on every refresh.
+    // The flag is keyed by userId and lives in localStorage, which logout / session expiry clear
+    const userId = this.configSvc.userProfile?.userId
+    if (userId && localStorage.getItem('loginEntryLogged') === userId) {
+      return
+    }
     const isFirstEverLogin = !localStorage.getItem('firsLogin')
     try {
       const res: any = await firstValueFrom(this.http.get<any>(firstLoginUrl))
+      if (userId) {
+        localStorage.setItem('loginEntryLogged', userId)
+      }
       if (res && res.result && isFirstEverLogin) {
         this.configSvc.isNewUser = this.resolveIsNewUser(res.result)
         localStorage.setItem('firsLogin', 'true')
@@ -573,7 +607,6 @@ export class InitService {
       }
 
       try {
-        await this.formConfigService.loadEnvironmentConfig()
         userPidProfile = await this.http
           .get<any>(profileUrl)
           .pipe(map((res: any) => {
@@ -698,7 +731,6 @@ export class InitService {
 
       const profileByIdUrl = `${profileBaseUrl}/${this.configSvc.unMappedUser.id}`
       try {
-        await this.formConfigService.loadEnvironmentConfig()
         userPidProfile = await this.http
           .get<any>(profileByIdUrl)
           .pipe(map((res: any) => {

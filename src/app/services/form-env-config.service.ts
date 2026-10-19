@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http'
 import { catchError, firstValueFrom, map, Observable, of, tap } from 'rxjs'
 
 import { environment } from '../../../src/environments/environment'
-import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 const API_END_POINTS = {
   FORM_READ: '/apis/proxies/v8/formsConfig/v1/read',
   PUBLIC_FORM_READ: '/apis/v1/form/read',
@@ -13,7 +12,7 @@ const API_END_POINTS = {
 })
 export class FormEnvConfigService {
 
-  constructor(private http: HttpClient, private configSvc: ConfigurationsService) { }
+  constructor(private http: HttpClient) { }
 
   /**
    * Loads environment values from FormConfig API.
@@ -22,7 +21,6 @@ export class FormEnvConfigService {
    * they are explicitly included in API_ENVIRONMENT_KEYS.
    */
   async loadEnvironmentConfig(): Promise<void> {
-    console.log('configSvc--', this.configSvc)
     try {
       let payload = {
         "request": {
@@ -33,20 +31,14 @@ export class FormEnvConfigService {
           "clientVersion": 1.0
         }
       }
-      await this.globalEnvConfigReadData(payload).subscribe({
-        next: (response) => {
-          const formConfig = response?.data || response
-
-          if (!formConfig) {
-            return
-          }
-
-          this.setApiEnvironmentValues(formConfig)
-        },
-        error: (error) => {
-          console.error('globalEnvConfigReadData error:', error)
-        }
-      })
+      // awaited for real: init reads these values right after, so they must be applied first.
+      // globalEnvConfigReadData never errors - it falls back to the static global.env.json
+      const response = await firstValueFrom(this.globalEnvConfigReadData(payload))
+      const formConfig = response?.data || response
+      // both reads failed: the fallback is { data: null, error }, not config - keep env.json values
+      if (formConfig && !formConfig.error) {
+        this.setApiEnvironmentValues(formConfig)
+      }
 
 
     } catch (error) {

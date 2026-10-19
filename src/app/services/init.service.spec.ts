@@ -16,8 +16,7 @@ jest.mock('@sunbird-cb/utils-v2', () => ({
   WidgetEnrollService: class { },
   DomainConfService: class { },
 }))
-jest.mock('@sunbird-cb/collection', () => ({ NPSGridService: class { }, BtnSettingsService: class { } }))
-jest.mock('@sunbird-cb/consumption', () => ({ ContentDictionaryService: class { } }))
+jest.mock('@sunbird-cb/collection', () => ({ NPSGridService: class { }, BtnSettingsService: class { }, EnrollmentSummaryStateService: class { } }))
 jest.mock('./netcore.service', () => ({ NetCoreService: class { } }))
 jest.mock('./common-data.service', () => ({ CommonDataService: class { } }))
 jest.mock('./form-ext.service', () => ({ FormExtService: class { } }))
@@ -38,8 +37,8 @@ describe('InitService', () => {
   let enrollSvc: any
   let netCoreService: any
   let commonDataSvc: any
-  let contentDictionarySvc: any
   let formSvc: any
+  let enrollmentSummaryState: any
   let formConfigService: any
   let domSanitizer: any
   let iconRegistry: any
@@ -150,7 +149,7 @@ describe('InitService', () => {
       trackEvent: jest.fn(),
     }
     commonDataSvc = { checkAndCacheNlw2026Eligibility: jest.fn() }
-    contentDictionarySvc = { getDictionary: jest.fn().mockReturnValue(of({})) }
+    enrollmentSummaryState = { start: jest.fn(), done: jest.fn() }
     formSvc = {
       formConfigReadData: jest.fn((req: any) => of({
         result: { data: req.request.subType === 'global-web' ? globalConfig : appConfig },
@@ -164,7 +163,7 @@ describe('InitService', () => {
     iconRegistry = { addSvgIcon: jest.fn() }
     service = new InitService(
       logger, configSvc, domainConfSvc, widgetResolver, sbUiResolver, settingsSvc, userPreference, http, npsSvc,
-      translate, enrollSvc, netCoreService, commonDataSvc, contentDictionarySvc, formSvc, formConfigService,
+      translate, enrollSvc, netCoreService, commonDataSvc, formSvc, formConfigService, enrollmentSummaryState,
       '/', domSanitizer, iconRegistry,
     )
   })
@@ -215,20 +214,23 @@ describe('InitService', () => {
       expect(configSvc.globalConfig).toBe(globalConfig)
       expect(configSvc.userProfile.userId).toBe('u1')
       expect(configSvc.userProfileV2.firstName).toBe('John')
-      expect(contentDictionarySvc.getDictionary).toHaveBeenCalled()
       expect(settingsSvc.initializePrefChanges).toHaveBeenCalled()
       expect(localStorage.getItem('firsLogin')).toBe('true')
       expect(configSvc.isNewUser).toBe(false)
       expect(localStorage.getItem('telemetrySessionId')).toBeTruthy()
     })
 
-    it('logs a warning when dictionary preload fails and replaces previous subscription', async () => {
-      contentDictionarySvc.getDictionary.mockReturnValue(throwError(() => new Error('x')))
+    it('does not preload the content dictionary at startup', async () => {
+      routes['/profile'] = { result: { response: fullProfile() } }
       await service.init()
-      expect(logger.warn).toHaveBeenCalledWith('InitService: Failed to pre-load content dictionary', expect.any(Error))
+      const urls = [...http.get.mock.calls, ...(http.post?.mock?.calls || [])].map((c: any[]) => String(c[0]))
+      expect(urls.some(u => u.includes('dictionary'))).toBe(false)
+    })
+
+    it('replaces the previous profile subscription on re-init', async () => {
+      await service.init()
       const first = service.updateProfileSubscription
       const unsubSpy = jest.spyOn(first, 'unsubscribe')
-      globalConfig.apis.content.dictionary.enabled = false
       await service.init()
       expect(unsubSpy).toHaveBeenCalled()
     })
@@ -251,6 +253,38 @@ describe('InitService', () => {
       expect(http.get).toHaveBeenCalledWith('/profile')
     })
 
+    it('loads the environment config before any form read', async () => {
+      const order: string[] = []
+      formConfigService.loadEnvironmentConfig.mockImplementation(async () => { order.push('env') })
+      formSvc.formConfigReadData.mockImplementation((req: any) => {
+        order.push(req.request.subType)
+        return of({ result: { data: req.request.subType === 'global-web' ? globalConfig : appConfig } })
+      })
+      routes['/profile'] = { result: { response: fullProfile() } }
+      await service.init()
+      expect(order[0]).toBe('env')
+      expect(order).toEqual(['env', 'global-web', 'application-config-web'])
+      expect(formConfigService.loadEnvironmentConfig).toHaveBeenCalledTimes(1)
+      expect(formConfigService.loadPublicEnvironmentConfig).not.toHaveBeenCalled()
+    })
+
+    it('uses the session env read on the welcome and creator routes', async () => {
+      setUrl('/public/welcome')
+      await service.init()
+      setUrl('/app?editMode=true&_rc=1')
+      await service.init()
+      expect(formConfigService.loadEnvironmentConfig).toHaveBeenCalledTimes(2)
+      expect(formConfigService.loadPublicEnvironmentConfig).not.toHaveBeenCalled()
+    })
+
+    it('does not reload the environment when the profile is refreshed', async () => {
+      await service.init()
+      formConfigService.loadEnvironmentConfig.mockClear()
+      configSvc.updateProfileObservable.next(true)
+      await new Promise(resolve => setTimeout(resolve, 0))
+      expect(formConfigService.loadEnvironmentConfig).not.toHaveBeenCalled()
+    })
+
     it('loads profile for creator editMode routes', async () => {
       setUrl('/app?editMode=true&_rc=1')
       await service.init()
@@ -261,7 +295,8 @@ describe('InitService', () => {
       setUrl('/public/other')
       const result = await service.init()
       expect(result).toBe(true)
-      expect(formConfigService.loadPublicEnvironmentConfig).toHaveBeenCalled()
+      expect(formConfigService.loadPublicEnvironmentConfig).toHaveBeenCalledTimes(1)
+      expect(formConfigService.loadEnvironmentConfig).not.toHaveBeenCalled()
       expect(http.get).not.toHaveBeenCalledWith('/profile')
     })
 
