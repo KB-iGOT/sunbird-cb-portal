@@ -4,7 +4,7 @@ import { Observable, throwError } from 'rxjs'
 import { ConfigurationsService, AuthKeycloakService } from '@sunbird-cb/utils-v2'
 import { catchError } from 'rxjs/operators'
 import { MatSnackBar } from '@angular/material/snack-bar'
-import { NOTIFICATION_TIME } from '@sunbird-cb/collection'
+// import { NOTIFICATION_TIME } from '@sunbird-cb/collection' 
 // import 'rxjs/add/operator/do'
 
 @Injectable({
@@ -67,7 +67,7 @@ export class AppInterceptorService implements HttpInterceptor {
               switch (error.status) {
                 case 0:
                   if (localUrl.includes('localhost')) {
-                    this.snackBar.open('Please login Again and Apply new TOKEN', undefined, { duration: NOTIFICATION_TIME * 3 })
+                    this.snackBar.open('Please login Again and Apply new TOKEN', undefined, { duration: 2000 * 3 })
 
                     // this.authSvc.logout()
                     this.authSvc.force_logout()
