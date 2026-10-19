@@ -253,6 +253,38 @@ describe('InitService', () => {
       expect(http.get).toHaveBeenCalledWith('/profile')
     })
 
+    it('loads the environment config before any form read', async () => {
+      const order: string[] = []
+      formConfigService.loadEnvironmentConfig.mockImplementation(async () => { order.push('env') })
+      formSvc.formConfigReadData.mockImplementation((req: any) => {
+        order.push(req.request.subType)
+        return of({ result: { data: req.request.subType === 'global-web' ? globalConfig : appConfig } })
+      })
+      routes['/profile'] = { result: { response: fullProfile() } }
+      await service.init()
+      expect(order[0]).toBe('env')
+      expect(order).toEqual(['env', 'global-web', 'application-config-web'])
+      expect(formConfigService.loadEnvironmentConfig).toHaveBeenCalledTimes(1)
+      expect(formConfigService.loadPublicEnvironmentConfig).not.toHaveBeenCalled()
+    })
+
+    it('uses the session env read on the welcome and creator routes', async () => {
+      setUrl('/public/welcome')
+      await service.init()
+      setUrl('/app?editMode=true&_rc=1')
+      await service.init()
+      expect(formConfigService.loadEnvironmentConfig).toHaveBeenCalledTimes(2)
+      expect(formConfigService.loadPublicEnvironmentConfig).not.toHaveBeenCalled()
+    })
+
+    it('does not reload the environment when the profile is refreshed', async () => {
+      await service.init()
+      formConfigService.loadEnvironmentConfig.mockClear()
+      configSvc.updateProfileObservable.next(true)
+      await new Promise(resolve => setTimeout(resolve, 0))
+      expect(formConfigService.loadEnvironmentConfig).not.toHaveBeenCalled()
+    })
+
     it('loads profile for creator editMode routes', async () => {
       setUrl('/app?editMode=true&_rc=1')
       await service.init()
@@ -263,7 +295,8 @@ describe('InitService', () => {
       setUrl('/public/other')
       const result = await service.init()
       expect(result).toBe(true)
-      expect(formConfigService.loadPublicEnvironmentConfig).toHaveBeenCalled()
+      expect(formConfigService.loadPublicEnvironmentConfig).toHaveBeenCalledTimes(1)
+      expect(formConfigService.loadEnvironmentConfig).not.toHaveBeenCalled()
       expect(http.get).not.toHaveBeenCalledWith('/profile')
     })
 

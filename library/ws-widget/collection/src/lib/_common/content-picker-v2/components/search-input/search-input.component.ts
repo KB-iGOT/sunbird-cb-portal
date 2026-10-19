@@ -38,6 +38,12 @@ export class SearchInputComponent implements OnInit, OnDestroy {
   }
 
   getSearchConfig() {
+    // served from global-config (searchData); search.json is only the fallback
+    const fromGlobalConfig = this.configSvc.globalConfig?.searchData
+    if (fromGlobalConfig) {
+      this.availableLanguages = (fromGlobalConfig.search?.languageSearch || []).map((locale: string) => locale.toLowerCase())
+      return
+    }
     const url = `${this.configSvc.sitePath}/feature/search.json`
     this.widgetContentSvc.fetchConfig(url).subscribe(
       config => {

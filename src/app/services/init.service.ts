@@ -192,6 +192,8 @@ export class InitService {
       || window.location.href.includes('/certs')
       || window.location.href.includes('/achievements')
       || window.location.href.includes('/crp/')
+    // environment values come first: everything after this (form reads, user read) runs on them
+    await this.loadEnvironment()
     if (!isPublicPreviewOrCreator) {
       await this.globalConfigData()
     }
@@ -213,9 +215,6 @@ export class InitService {
         await this.fetchStartUpDetails()
       } else if (window.location.href.includes('editMode=true') && window.location.href.includes('_rc')) {
         await this.fetchStartUpDetails()
-      } else {
-        // public routes have no session: the protected env read would 419
-        await this.formConfigService.loadPublicEnvironmentConfig()
       }
 
       // detail: depends only on userID
@@ -367,6 +366,26 @@ export class InitService {
       this.configSvc.iGOTAIConfig = publicConfig.iGOTAI.web
     }
     return publicConfig
+  }
+
+  /**
+   * Loads the environment config before anything else in init. Routes that go on to read the
+   * user (the same ones that call fetchStartUpDetails below) have a session and use the
+   * protected read; the rest have none - the protected read would 419 - so use the public one.
+   */
+  private async loadEnvironment(): Promise<void> {
+    const href = window.location.href
+    const path = window.location.pathname
+    const isPublic = href.includes('/public/') || href.includes('/helpcenter') || href.includes('&preview=true')
+      || href.includes('/certs') || href.includes('/achievements') || href.includes('/crp/')
+    const hasSession = (!path.startsWith('/public') && !isPublic)
+      || path.includes('/public/welcome')
+      || (href.includes('editMode=true') && href.includes('_rc'))
+    if (hasSession) {
+      await this.formConfigService.loadEnvironmentConfig()
+    } else {
+      await this.formConfigService.loadPublicEnvironmentConfig()
+    }
   }
 
   private async globalConfigData(): Promise<any> {
@@ -588,7 +607,6 @@ export class InitService {
       }
 
       try {
-        await this.formConfigService.loadEnvironmentConfig()
         userPidProfile = await this.http
           .get<any>(profileUrl)
           .pipe(map((res: any) => {
@@ -713,7 +731,6 @@ export class InitService {
 
       const profileByIdUrl = `${profileBaseUrl}/${this.configSvc.unMappedUser.id}`
       try {
-        await this.formConfigService.loadEnvironmentConfig()
         userPidProfile = await this.http
           .get<any>(profileByIdUrl)
           .pipe(map((res: any) => {
