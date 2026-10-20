@@ -1,6 +1,6 @@
-// Picked up automatically by the Angular builder. JIT generates only the utilities that
-// appear in the content files below, instead of shipping the full prebuilt
-// tailwindcss/dist/utilities.min.css (~2.8 MB) in libraries.css.
+// Picked up automatically by the Angular builder. Instead of shipping the full prebuilt
+// tailwindcss/dist/utilities.min.css (~2.8 MB) in libraries.css, generate the same classes
+// and purge every one that doesn't appear in the content files below.
 
 // grid-layout builds these at runtime (`${responsiveSuffix}:${sizeSuffix}`, `p-${gutter}`,
 // `-mx-${gutter}`), so they never appear literally in source and must be safelisted.
@@ -14,8 +14,9 @@ const spacing = ['0', '1', '2', '3', '4', '5', '6', '8', '10', '12']
 const unescapeJs = content => content.replace(/\\[nrt"'`]/g, ' ')
 
 module.exports = {
-  mode: 'jit',
   purge: {
+    // Without this, classic mode only purges when NODE_ENV=production, which ng build doesn't set.
+    enabled: true,
     content: [
       './src/**/*.{html,ts}',
       './project/**/*.{html,ts}',
