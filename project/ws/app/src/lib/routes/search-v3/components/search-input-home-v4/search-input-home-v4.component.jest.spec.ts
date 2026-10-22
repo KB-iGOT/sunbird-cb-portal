@@ -1,3 +1,5 @@
+import { readFileSync } from 'fs'
+import { join } from 'path'
 import { of, Subject } from 'rxjs'
 import { ActivatedRoute, Router } from '@angular/router'
 import { ElementRef, inject } from '@angular/core'
@@ -410,6 +412,52 @@ describe('SearchInputHomeV4Component (No TestBed)', () => {
       expect(event.preventDefault).toHaveBeenCalled()
       expect(updateSpy).toHaveBeenCalledWith('react')
     })
+
+    it('trims the query before searching', () => {
+      const event = { preventDefault: jest.fn() } as any
+      const updateSpy = jest.spyOn(component, 'updateQuery').mockResolvedValue(undefined)
+      component.queryControl.setValue('  react  ')
+      component.onSearchSubmit(event)
+      expect(updateSpy).toHaveBeenCalledWith('react')
+    })
+
+    it.each(['', '   ', null])('does not search for blank query %p', (value) => {
+      const event = { preventDefault: jest.fn() } as any
+      const updateSpy = jest.spyOn(component, 'updateQuery').mockResolvedValue(undefined)
+      component.queryControl.setValue(value)
+      component.onSearchSubmit(event)
+      expect(event.preventDefault).toHaveBeenCalled()
+      expect(updateSpy).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('isSearchEnabled', () => {
+    it.each([
+      ['', false],
+      ['   ', false],
+      [null, false],
+      [' a ', true],
+      ['react', true],
+    ])('for %p returns %p', (value, expected) => {
+      component.queryControl.setValue(value as string | null)
+      expect(component.isSearchEnabled).toBe(expected)
+    })
+  })
+
+  describe('submitSearch', () => {
+    it('calls updateQuery with trimmed text', () => {
+      const updateSpy = jest.spyOn(component, 'updateQuery').mockResolvedValue(undefined)
+      component.queryControl.setValue(' angular ')
+      component.submitSearch()
+      expect(updateSpy).toHaveBeenCalledWith('angular')
+    })
+
+    it('does nothing for whitespace-only text', () => {
+      const updateSpy = jest.spyOn(component, 'updateQuery').mockResolvedValue(undefined)
+      component.queryControl.setValue('   ')
+      component.submitSearch()
+      expect(updateSpy).not.toHaveBeenCalled()
+    })
   })
 
   describe('updateQuery', () => {
@@ -789,7 +837,7 @@ describe('SearchInputHomeV4Component (No TestBed)', () => {
       component.clearSearchText()
       jest.runAllTimers()
       expect(resetSpy).toHaveBeenCalled()
-      expect(updateSpy).toHaveBeenCalledWith('')
+      expect(updateSpy).not.toHaveBeenCalled()
       expect(component.openSearchTemplate()).toBe(true)
       jest.useRealTimers()
     })
@@ -1091,6 +1139,31 @@ describe('SearchInputHomeV4Component (No TestBed)', () => {
       ;(component as any).searchSubscription = undefined
       ;(component as any).querySubscription = undefined
       expect(() => component.ngOnDestroy()).not.toThrow()
+    })
+  })
+
+  // The component uses ViewEncapsulation.None, so its styles are global. These guard the mobile
+  // layout of the search panel and make sure those rules can't leak onto other pages that reuse
+  // the same class names (.search-container, .search-categories).
+  describe('mobile styles', () => {
+    const scss = readFileSync(join(__dirname, 'search-input-home-v4.component.scss'), 'utf8')
+    const mobileBlock = scss.slice(scss.indexOf('@media (max-width: 768px) {'))
+
+    it('keeps the search panel aligned with the search bar and in the page flow', () => {
+      expect(mobileBlock).toMatch(
+        /\.search-input-home-v4 \.search-container \{[^}]*position: static;[^}]*width: 100%;[^}]*min-width: 0;/
+      )
+    })
+
+    it('compacts the category chips', () => {
+      expect(mobileBlock).toMatch(
+        /\.search-input-home-v4 \.search-categories \{[^}]*--mat-checkbox-state-layer-size: 24px;/
+      )
+    })
+
+    it('no longer uses fixed min-widths for small screens', () => {
+      expect(scss).not.toMatch(/@media \(max-width: 360px\)/)
+      expect(scss).not.toMatch(/@media \(min-width:\s*361px\) and \(max-width: 480px\)/)
     })
   })
 })

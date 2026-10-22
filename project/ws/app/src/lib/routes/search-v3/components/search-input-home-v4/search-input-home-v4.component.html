@@ -1,5 +1,5 @@
 @if (!disableMenu()) {
-<div class="flex items-center border search-v3 search-border w-full" id="app-search-bar">
+<div class="flex items-center border search-v3 search-border search-input-home-v4 w-full" id="app-search-bar">
   @if (languageSearch()?.length) {
   <div [ngClass]="{'border-right': languageSearch()?.length}" class="flex items-center">
     @if (languageSearch()?.length && languageSearch()?.length > 1) {
@@ -37,7 +37,7 @@
           }
 
           <button mat-flat-button type="button" class="mat-btn-flat global-search"
-            [ngClass]="{'disabled-search-btn': !queryControl.value}" (click)="updateQuery(queryControl.value || '')">
+            [ngClass]="{'disabled-search-btn': !isSearchEnabled}" (click)="submitSearch()">
             {{'gyaanKarmayogi.search' | translate}}
           </button>
         </div>
@@ -122,7 +122,7 @@
 
         @if (allSearchResultsEnabled && allSearchResults().length > 0 && queryControl.value) {
         <div class="see-all-results">
-          <a mat-button (click)="updateQuery(queryControl.value || '')">See all the results...</a>
+          <a mat-button (click)="submitSearch()">See all the results...</a>
         </div>
         }
       </div>
