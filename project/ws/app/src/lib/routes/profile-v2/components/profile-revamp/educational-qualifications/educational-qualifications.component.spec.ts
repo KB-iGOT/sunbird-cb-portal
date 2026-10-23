@@ -7,6 +7,14 @@ import { educationalQualifications } from '../../../models/profile-revamp.model'
 import { EducationalQualificationsComponent } from './educational-qualifications.component'
 import { ProfileV2RevampService } from '../../../services/profile-v2-revamp.service'
 
+// lodash is a plain CJS module; exposing it as an ES module keeps its members spy-able
+jest.mock('lodash', () => {
+  const actual = jest.requireActual('lodash')
+  return { __esModule: true, ...actual, default: actual }
+})
+
+const educationConfig = { defaultUrl: '', urlConfigPath: 'profileV1ExtendedEducation', apiConfig: undefined }
+
 describe('EducationalQualificationsComponent', () => {
   let component: EducationalQualificationsComponent
   let fixture: ComponentFixture<EducationalQualificationsComponent>
@@ -57,7 +65,7 @@ describe('EducationalQualificationsComponent', () => {
     }
 
     mockProfileV2RevampService = {
-      fetchProfileEntries: jest.fn()
+      fetchProfileEntryList: jest.fn()
     }
 
     mockSnackBar = {
@@ -167,34 +175,34 @@ describe('EducationalQualificationsComponent', () => {
     })
 
     it('should fetch educational qualifications successfully', () => {
-      mockProfileV2RevampService.fetchProfileEntries.mockReturnValue(of(mockApiResponse))
+      mockProfileV2RevampService.fetchProfileEntryList.mockReturnValue(of(mockApiResponse))
       const lodashGetSpy = jest.spyOn(_, 'get')
 
       component.getEducationalQualificationsList()
 
-      expect(mockProfileV2RevampService.fetchProfileEntries).toHaveBeenCalledWith('test-user-123', 'education')
+      expect(mockProfileV2RevampService.fetchProfileEntryList).toHaveBeenCalledWith(educationConfig, 'test-user-123', 'education')
       expect(lodashGetSpy).toHaveBeenCalledWith(mockApiResponse, 'result.response.educationalQualifications', [])
       expect(component.educationalQualificationsList).toEqual(mockApiResponse.result.response.educationalQualifications)
     })
 
     it('should handle empty response', () => {
       const emptyResponse = null
-      mockProfileV2RevampService.fetchProfileEntries.mockReturnValue(of(emptyResponse))
+      mockProfileV2RevampService.fetchProfileEntryList.mockReturnValue(of(emptyResponse))
 
       component.getEducationalQualificationsList()
 
-      expect(mockProfileV2RevampService.fetchProfileEntries).toHaveBeenCalledWith('test-user-123', 'education')
+      expect(mockProfileV2RevampService.fetchProfileEntryList).toHaveBeenCalledWith(educationConfig, 'test-user-123', 'education')
       expect(component.educationalQualificationsList).toEqual([])
     })
 
     it('should handle api error and show snackbar', () => {
       const errorResponse = { message: 'API Error' }
-      mockProfileV2RevampService.fetchProfileEntries.mockReturnValue(throwError(errorResponse))
+      mockProfileV2RevampService.fetchProfileEntryList.mockReturnValue(throwError(errorResponse))
       const snackbarSpy = jest.spyOn(component as any, 'openSnackbar')
 
       component.getEducationalQualificationsList()
 
-      expect(mockProfileV2RevampService.fetchProfileEntries).toHaveBeenCalledWith('test-user-123', 'education')
+      expect(mockProfileV2RevampService.fetchProfileEntryList).toHaveBeenCalledWith(educationConfig, 'test-user-123', 'education')
       expect(snackbarSpy).toHaveBeenCalledWith('Something went wrong while fetching educational qualifications, please try again later', 2000)
     })
 
@@ -203,11 +211,11 @@ describe('EducationalQualificationsComponent', () => {
 
       component.getEducationalQualificationsList()
 
-      expect(mockProfileV2RevampService.fetchProfileEntries).not.toHaveBeenCalled()
+      expect(mockProfileV2RevampService.fetchProfileEntryList).not.toHaveBeenCalled()
     })
 
     it('should handle null error response', () => {
-      mockProfileV2RevampService.fetchProfileEntries.mockReturnValue(throwError(null))
+      mockProfileV2RevampService.fetchProfileEntryList.mockReturnValue(throwError(null))
       const snackbarSpy = jest.spyOn(component as any, 'openSnackbar')
 
       component.getEducationalQualificationsList()
@@ -328,7 +336,7 @@ describe('EducationalQualificationsComponent', () => {
   describe('Edge Cases', () => {
     it('should handle undefined lodash get result', () => {
       const responseWithoutEducation = { result: { response: {} } }
-      mockProfileV2RevampService.fetchProfileEntries.mockReturnValue(of(responseWithoutEducation))
+      mockProfileV2RevampService.fetchProfileEntryList.mockReturnValue(of(responseWithoutEducation))
 
       component.getEducationalQualificationsList()
 
@@ -337,7 +345,7 @@ describe('EducationalQualificationsComponent', () => {
 
     it('should handle malformed API response', () => {
       const malformedResponse = { data: 'invalid' }
-      mockProfileV2RevampService.fetchProfileEntries.mockReturnValue(of(malformedResponse))
+      mockProfileV2RevampService.fetchProfileEntryList.mockReturnValue(of(malformedResponse))
 
       component.getEducationalQualificationsList()
 

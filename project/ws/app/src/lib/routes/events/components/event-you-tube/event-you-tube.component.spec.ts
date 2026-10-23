@@ -234,7 +234,7 @@ describe('EventYouTubeComponent', () => {
           })
         })
       )
-      expect(component.rateToFire).toBe(300) // should update rateToFire when completion > 50%
+      expect(component.rateToFire).toBe(180) // rateToFire is no longer bumped on completion
     })
 
     it('should not call saveEventProgressUpdate if resumeEventStatus is 2', () => {

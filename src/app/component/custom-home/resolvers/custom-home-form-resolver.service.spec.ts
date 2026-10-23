@@ -1,16 +1,19 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing'
+import { autoMock } from 'src/testing/auto-mock'
+import { FormExtService } from '../../../services/form-ext.service'
 
-import { CustomHomeFormResolverService } from './custom-home-form-resolver.service';
+import { CustomHomeFormResolverService } from './custom-home-form-resolver.service'
 
 describe('CustomHomeFormResolverService', () => {
-  let service: CustomHomeFormResolverService;
-
-  beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(CustomHomeFormResolverService);
-  });
+  beforeEach(() => TestBed.configureTestingModule({
+    providers: [
+      CustomHomeFormResolverService,
+      { provide: FormExtService, useValue: autoMock() },
+    ],
+  }))
 
   it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
-});
+    const service: CustomHomeFormResolverService = TestBed.inject(CustomHomeFormResolverService)
+    expect(service).toBeTruthy()
+  })
+})

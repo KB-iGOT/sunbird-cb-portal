@@ -1,16 +1,19 @@
-import { TestBed } from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing'
+import { EventService } from '@sunbird-cb/utils-v2'
+import { autoMock } from 'src/testing/auto-mock'
 
-import { ResourceDownloadHelperService } from './resource-download-helper.service';
+import { ResourceDownloadHelperService } from './resource-download-helper.service'
 
 describe('ResourceDownloadHelperService', () => {
-  let service: ResourceDownloadHelperService;
-
-  beforeEach(() => {
-    TestBed.configureTestingModule({});
-    service = TestBed.inject(ResourceDownloadHelperService);
-  });
+  beforeEach(() => TestBed.configureTestingModule({
+    providers: [
+      ResourceDownloadHelperService,
+      { provide: EventService, useValue: autoMock() },
+    ],
+  }))
 
   it('should be created', () => {
-    expect(service).toBeTruthy();
-  });
-});
+    const service: ResourceDownloadHelperService = TestBed.inject(ResourceDownloadHelperService)
+    expect(service).toBeTruthy()
+  })
+})

@@ -54,18 +54,18 @@ describe('MentorsComponent', () => {
   describe('Component Initialization', () => {
     it('should create component with default values', () => {
       expect(component).toBeTruthy()
-      expect(component.paginationSize).toBe(10)
-      expect(component.paginationSizeOptions).toEqual([10, 20, 30, 40])
+      expect(component.paginationSize).toBe(12)
+      expect(component.paginationSizeOptions).toEqual([12, 24, 36, 48])
       expect(component.paginationPage).toBe(1)
       expect(component.totalItemsCount).toBe(0)
-      expect(component.defaultPaginationSize).toBe(10)
+      expect(component.defaultPaginationSize).toBe(12)
       expect(component.mentorsList).toEqual([])
       expect(component.mentorsListLoading).toBe(false)
       expect(component.mentorsGetSubscription).toBeUndefined()
     })
 
     it('should initialize with correct pagination size options', () => {
-      expect(component.paginationSizeOptions).toEqual([10, 20, 30, 40])
+      expect(component.paginationSizeOptions).toEqual([12, 24, 36, 48])
     })
 
     it('should initialize with empty mentors list', () => {

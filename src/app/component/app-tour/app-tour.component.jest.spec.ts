@@ -44,7 +44,12 @@ describe('AppTourComponent (No TestBed)', () => {
       instant: jest.fn().mockImplementation((key: string) => key),
     }
 
-    mockRouter = { navigate: jest.fn(), currentNavigation: jest.fn(() => null), events: new Subject<any>() }
+    mockRouter = {
+      navigate: jest.fn(),
+      url: '/page/home',
+      currentNavigation: jest.fn(() => null),
+      events: new Subject<any>(),
+    }
 
     mockDialog = { openDialogs: [], afterOpened: new Subject<any>(), afterAllClosed: new Subject<void>() }
 
@@ -60,7 +65,7 @@ describe('AppTourComponent (No TestBed)', () => {
       mockUserProfileSvc,
       mockRouter,
       mockTranslate,
-      mockDialog as any
+      mockDialog as any,
     )
   })
 

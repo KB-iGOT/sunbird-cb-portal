@@ -8,7 +8,7 @@ export class ConfigResolverService  {
 
   constructor(private configSvc: ConfigurationsService) { }
 
-  resolve(_route: ActivatedRouteSnapshot, _state: RouterStateSnapshot): Observable<NsInstanceConfig.IConfig> {
+  resolve(_route: ActivatedRouteSnapshot, _state: RouterStateSnapshot): Observable<IResolveResponse<NsInstanceConfig.IConfig>> {
 
     const result: IResolveResponse<NsInstanceConfig.IConfig> = {
       data: this.configSvc.instanceConfig,

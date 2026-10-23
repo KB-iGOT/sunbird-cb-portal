@@ -56,7 +56,7 @@ describe('SeeAllComponent', () => {
   });
 
   it('should transform contents into widgets', () => {
-    const contents: any = [{ identifier: 'id1', batch: 'batch1' }];
+    const contents: any = [{ event: { identifier: 'id1' }, batch: 'batch1' }];
     const widgets = component.transformContentsToWidgets(contents, {});
     expect(widgets.length).toBe(1);
     expect(widgets[0].widgetData.content.identifier).toBe('id1');

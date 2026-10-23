@@ -45,7 +45,7 @@ describe('EventsV2Component', () => {
           userEventEnrolmentInfo: {
             eventsAttended: '220',
             eventsEnrolled: '18',
-            hoursSpentOnEvents: 125
+            hoursSpentOnEvents: 7500
           }
         }
       }))
@@ -122,8 +122,8 @@ describe('EventsV2Component', () => {
   });
 
   it('should convert minutes to hours and minutes format', () => {
-    expect(component.convertMinutesToHoursAndMinutes(125)).toBe('2h 5m');
-    expect(component.convertMinutesToHoursAndMinutes(60)).toBe('1h 0m');
+    expect(component.convertMinutesToHoursAndMinutes(7500)).toBe('2h 5m');
+    expect(component.convertMinutesToHoursAndMinutes(3600)).toBe('1h 0m');
     expect(component.convertMinutesToHoursAndMinutes(0)).toBe('0h 0m');
     expect(component.convertMinutesToHoursAndMinutes(undefined as any)).toBe('0h 0m');
   });

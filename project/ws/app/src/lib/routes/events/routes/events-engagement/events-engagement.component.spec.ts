@@ -24,7 +24,8 @@ describe('EventsEngagementComponent', () => {
     component = new EventsEngagementComponent(
       mockBottomSheetRef,
       null,
-      mockLangTranslations
+      mockLangTranslations,
+      { navigate: jest.fn() } as any
     );
   });
 
@@ -41,7 +42,8 @@ describe('EventsEngagementComponent', () => {
     component = new EventsEngagementComponent(
       mockBottomSheetRef,
       mockData,
-      mockLangTranslations
+      mockLangTranslations,
+      { navigate: jest.fn() } as any
     );
     
     expect(component.myEngagements).toEqual(mockData.engagements);

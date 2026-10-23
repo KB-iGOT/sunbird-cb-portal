@@ -8,6 +8,9 @@ describe('ProfilePrimaryDetailsComponent (Jest, no TestBed)', () => {
   let mockMatSnackBar: any
   let mockConfigService: any
   let mockDialog: any
+  let mockRoute: any
+  let mockRouter: any
+  let mockEvents: any
 
   beforeEach(() => {
     mockProfileV2RevampSvc = {
@@ -26,12 +29,18 @@ describe('ProfilePrimaryDetailsComponent (Jest, no TestBed)', () => {
       }
     }
     mockDialog = { open: jest.fn().mockReturnValue({ afterClosed: jest.fn().mockReturnValue(of(true)) }) }
+    mockRoute = { fragment: of(null) }
+    mockRouter = { navigate: jest.fn() }
+    mockEvents = { raiseInteractTelemetry: jest.fn() }
 
     component = new ProfilePrimaryDetailsComponent(
       mockProfileV2RevampSvc,
       mockMatSnackBar,
       mockConfigService,
-      mockDialog
+      mockDialog,
+      mockRoute,
+      mockRouter,
+      mockEvents
     )
 
     component.primaryDetails = { group: 'Test Group', designation: 'Test Designation' }
@@ -72,10 +81,13 @@ describe('ProfilePrimaryDetailsComponent (Jest, no TestBed)', () => {
     }
     mockProfileV2RevampSvc.fetchApprovalDetails.mockReturnValue(of(mockResponse))
     component.getApprovedFields()
-    expect(mockProfileV2RevampSvc.fetchApprovalDetails).toHaveBeenCalledWith({
-      serviceName: 'profile',
-      applicationStatus: 'APPROVED'
-    })
+    expect(mockProfileV2RevampSvc.fetchApprovalDetails).toHaveBeenCalledWith(
+      { defaultUrl: '', urlConfigPath: 'userWFApplicationFieldsSearch', apiConfig: undefined },
+      {
+        serviceName: 'profile',
+        applicationStatus: 'APPROVED'
+      }
+    )
     expect(component.groupApprovedTime).toBe(1640995200000)
     expect(component.designationApprovedTime).toBe(1640995300000)
   })

@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core'
-import { MatDialog, MatSnackBar, MatTableDataSource } from '@angular/material'
+import { MatDialog } from '@angular/material/dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
+import { MatTableDataSource } from '@angular/material/table'
 import { ActivatedRoute, Router } from '@angular/router'
 import { NsAutoComplete } from '@sunbird-cb/collection'
 import { IManageUser, IUserRoleDetail } from '../system-roles-management.model'

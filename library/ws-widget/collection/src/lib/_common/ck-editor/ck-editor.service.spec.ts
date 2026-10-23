@@ -1,12 +1,16 @@
 import { TestBed } from '@angular/core/testing'
 
-import { CkEditorService } from './ck-editor.service'
+import { CKEditorService } from './ck-editor.service'
 
-describe('CkEditorService', () => {
-  beforeEach(() => TestBed.configureTestingModule({}))
+describe('CKEditorService', () => {
+  beforeEach(() => TestBed.configureTestingModule({
+    providers: [
+      CKEditorService,
+    ],
+  }))
 
   it('should be created', () => {
-    const service: CkEditorService = TestBed.inject(CkEditorService)
+    const service: CKEditorService = TestBed.inject(CKEditorService)
     expect(service).toBeTruthy()
   })
 })

@@ -70,7 +70,7 @@ export class MyContentService {
             ? content[v as keyof NSContent.IContentMeta]
             : JSON.parse(
               JSON.stringify(
-                this.authInitService.authConfig[v as keyof IFormMeta].defaultValue[
+                this.authInitService.authConfig[v as keyof IFormMeta]!.defaultValue[
                   content.contentType
                   // tslint:disable-next-line: ter-computed-property-spacing
                 ][0].value,

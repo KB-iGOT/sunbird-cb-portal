@@ -58,12 +58,12 @@ describe('AllRecommendationsComponent', () => {
       expect(component).toBeTruthy();
       expect(component.title).toBe('NetworkLandingPage.peopleYouMayKnow');
       expect(component.recommendationList).toEqual([]);
-      expect(component.paginationSize).toBe(10);
-      expect(component.paginationSizeOptions).toEqual([10, 20, 30, 40]);
+      expect(component.paginationSize).toBe(12);
+      expect(component.paginationSizeOptions).toEqual([12, 24, 36, 48]);
       expect(component.paginationPage).toBe(1);
       expect(component.totalItemsCount).toBe(0);
       expect(component.recommendationListLoading).toBe(false);
-      expect(component.defaultPaginationSize).toBe(10);
+      expect(component.defaultPaginationSize).toBe(12);
     });
 
     it('should call getRecommendationsList on ngOnInit', () => {
@@ -278,10 +278,10 @@ describe('AllRecommendationsComponent', () => {
   describe('Component Properties', () => {
     it('should maintain correct pagination size options', () => {
       expect(component.paginationSizeOptions).toHaveLength(4);
-      expect(component.paginationSizeOptions).toContain(10);
-      expect(component.paginationSizeOptions).toContain(20);
-      expect(component.paginationSizeOptions).toContain(30);
-      expect(component.paginationSizeOptions).toContain(40);
+      expect(component.paginationSizeOptions).toContain(12);
+      expect(component.paginationSizeOptions).toContain(24);
+      expect(component.paginationSizeOptions).toContain(36);
+      expect(component.paginationSizeOptions).toContain(48);
     });
 
     it('should allow setting recommendation list', () => {

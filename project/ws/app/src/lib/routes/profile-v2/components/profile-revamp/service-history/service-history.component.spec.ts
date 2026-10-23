@@ -15,7 +15,7 @@ describe('ServiceHistoryComponent (Jest, no TestBed)', () => {
     mockDatePipe = { transform: jest.fn(() => 'Jan 2020') }
     mockDialogRef = { close: jest.fn() }
     mockData = { userId: 'user1', isCurrentUser: true, currentDesignation: 'Dev', currentOrgName: 'Org' }
-    mockProfileV2RevampSvc = { fetchProfileEntries: jest.fn() }
+    mockProfileV2RevampSvc = { fetchProfileEntryList: jest.fn() }
     mockSnackBar = { open: jest.fn() }
     mockCdr = { detectChanges: jest.fn() }
 
@@ -90,17 +90,21 @@ describe('ServiceHistoryComponent (Jest, no TestBed)', () => {
     component.userId = 'user1'
     const mockList = [{ orgName: 'Org', designation: 'Dev' }]
     const mockResponse = { result: { response: { serviceHistory: mockList } } }
-    mockProfileV2RevampSvc.fetchProfileEntries.mockReturnValue(of(mockResponse))
+    mockProfileV2RevampSvc.fetchProfileEntryList.mockReturnValue(of(mockResponse))
     jest.spyOn(component, 'formateData').mockImplementation(() => {})
     component.getServiceHistoryList()
-    expect(mockProfileV2RevampSvc.fetchProfileEntries).toHaveBeenCalledWith('user1', 'serviceHistory')
+    expect(mockProfileV2RevampSvc.fetchProfileEntryList).toHaveBeenCalledWith(
+      { defaultUrl: '', urlConfigPath: 'profileV1ExtendedServiceHistory', apiConfig: null },
+      'user1',
+      'serviceHistory'
+    )
     expect(component.serviceHistoryList).toEqual(mockList)
     expect(component.formateData).toHaveBeenCalled()
   })
 
   it('should handle error in getServiceHistoryList', () => {
     component.userId = 'user1'
-    mockProfileV2RevampSvc.fetchProfileEntries.mockReturnValue(throwError({ error: 'err' }))
+    mockProfileV2RevampSvc.fetchProfileEntryList.mockReturnValue(throwError({ error: 'err' }))
     jest.spyOn(component, 'openSnackbar')
     component.getServiceHistoryList()
     expect(component.openSnackbar).toHaveBeenCalledWith(
@@ -112,7 +116,7 @@ describe('ServiceHistoryComponent (Jest, no TestBed)', () => {
   it('should not fetch if userId is empty', () => {
     component.userId = ''
     component.getServiceHistoryList()
-    expect(mockProfileV2RevampSvc.fetchProfileEntries).not.toHaveBeenCalled()
+    expect(mockProfileV2RevampSvc.fetchProfileEntryList).not.toHaveBeenCalled()
   })
 
   it('should call formateData in ngOnChanges if serviceHistoryDetails exists', () => {

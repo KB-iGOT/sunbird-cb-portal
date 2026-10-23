@@ -1,5 +1,5 @@
 import { Component, OnInit, ViewChild, OnDestroy } from '@angular/core'
-import { PageEvent } from '@angular/material'
+import { PageEvent } from '@angular/material/paginator'
 import { LearningAnalyticsService } from '../../services/learning-analytics.service'
 import { MatPaginator } from '@angular/material/paginator'
 import { NsAnalytics } from '../../models/learning-analytics.model'

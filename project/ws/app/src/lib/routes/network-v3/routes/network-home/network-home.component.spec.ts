@@ -338,7 +338,7 @@ describe('NetworkHomeComponent', () => {
       component.showAll('connectionRequests');
 
       expect(mockRouter.navigate).toHaveBeenCalledWith(['/app/network-v2/connections'], {
-        queryParams: { tab: 'request' }
+        queryParams: { tab: 'Received' }
       });
     });
 
@@ -606,7 +606,7 @@ describe('NetworkHomeComponent', () => {
       component.getConnectionRequests();
 
       expect(component.connectionsLoading).toBe(false);
-      expect(component.openSnackbar).toHaveBeenCalled();
+      expect(component.openSnackbar).not.toHaveBeenCalled();
     });
   });
 

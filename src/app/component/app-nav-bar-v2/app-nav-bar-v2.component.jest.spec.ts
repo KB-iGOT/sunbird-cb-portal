@@ -1,5 +1,18 @@
+import { TestBed } from '@angular/core/testing'
 import { AppNavBarV2Component } from './app-nav-bar-v2.component'
 import { of, Subject, BehaviorSubject } from 'rxjs'
+
+// these are only referenced in the standalone imports; loading them for real pulls in the
+// @ws/app barrel and learn-search.component, which does not compile against the installed utils-v2
+jest.mock('../../header/header.module', () => ({ HeaderModule: class HeaderModule { } }))
+jest.mock('../top-right-nav-bar-v2/top-right-nav-bar-v2.component', () => ({
+  TopRightNavBarV2Component: class TopRightNavBarV2Component { },
+}))
+jest.mock('../../../../project/ws/app/src/lib/routes/search-v3/components/search-input-home-v4/search-input-home-v4.component', () => ({
+  SearchInputHomeV4Component: class SearchInputHomeV4Component { },
+}))
+// @sunbird-cb/design-system ships untranspiled ES module sources that jest cannot load
+jest.mock('@sunbird-cb/design-system', () => ({ ThemeService: class ThemeService { } }))
 
 describe('AppNavBarV2Component (No TestBed)', () => {
   let component: AppNavBarV2Component
@@ -15,7 +28,31 @@ describe('AppNavBarV2Component (No TestBed)', () => {
   let mockNotificationsService: any
   let mockLibNotificationsService: any
   let mockDomainConfSvc: any
+  let mockThemeSvc: any
+  let mockRestrictionSvc: any
+  let mockBreakpointObserver: any
+  let mockEnrollmentSummaryState: any
   let routerEventsSubject: Subject<any>
+
+  // input() and output() need an injection context, so construct through TestBed
+  const createComponent = () => TestBed.runInInjectionContext(() => new AppNavBarV2Component(
+    mockDomSanitizer,
+    mockConfigSvc,
+    mockTourService,
+    mockRouter,
+    mockTranslate,
+    mockEvents,
+    mockLangTranslations,
+    mockUrlService,
+    mockUserSvc,
+    mockNotificationsService,
+    mockLibNotificationsService,
+    mockDomainConfSvc,
+    mockThemeSvc,
+    mockRestrictionSvc,
+    mockBreakpointObserver,
+    mockEnrollmentSummaryState,
+  ))
 
   beforeEach(() => {
     routerEventsSubject = new Subject()
@@ -78,6 +115,7 @@ describe('AppNavBarV2Component (No TestBed)', () => {
 
     mockRouter = {
       events: routerEventsSubject.asObservable(),
+      url: '/page/home',
       navigate: jest.fn(),
       navigateByUrl: jest.fn(),
     }
@@ -121,29 +159,34 @@ describe('AppNavBarV2Component (No TestBed)', () => {
       getDomainRedirectPath: jest.fn().mockReturnValue('/page/home'),
     }
 
-    jest.spyOn(localStorage, 'getItem').mockImplementation((key: string) => {
+    mockThemeSvc = {
+      currentTheme: 'light',
+      setTheme: jest.fn(),
+      applyTheme: jest.fn(),
+    }
+
+    mockRestrictionSvc = {
+      isNotMyUser: false,
+    }
+
+    mockBreakpointObserver = {
+      observe: jest.fn().mockReturnValue(of({ matches: false })),
+    }
+
+    mockEnrollmentSummaryState = {
+      loading$: of(false),
+    }
+
+    jest.spyOn(Storage.prototype, 'getItem').mockImplementation((key: string) => {
       if (key === 'websiteLanguage') return null
       if (key === 'activeRoute') return 'home'
       if (key === 'userEnrollmentCount') return JSON.stringify({ userCourseEnrolmentInfo: { karmaPoints: 100 } })
       return null
     })
-    jest.spyOn(localStorage, 'setItem').mockImplementation(() => { })
-    jest.spyOn(localStorage, 'removeItem').mockImplementation(() => { })
+    jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => { })
+    jest.spyOn(Storage.prototype, 'removeItem').mockImplementation(() => { })
 
-    component = new AppNavBarV2Component(
-      mockDomSanitizer,
-      mockConfigSvc,
-      mockTourService,
-      mockRouter,
-      mockTranslate,
-      mockEvents,
-      mockLangTranslations,
-      mockUrlService,
-      mockUserSvc,
-      mockNotificationsService,
-      mockLibNotificationsService,
-      mockDomainConfSvc
-    )
+    component = createComponent()
   })
 
   afterEach(() => {
@@ -163,20 +206,7 @@ describe('AppNavBarV2Component (No TestBed)', () => {
 
   it('should set isHelpMenuRestricted to true when restricted', () => {
     mockConfigSvc.restrictedFeatures = new Set(['helpNavBarMenu'])
-    const comp = new AppNavBarV2Component(
-      mockDomSanitizer,
-      mockConfigSvc,
-      mockTourService,
-      mockRouter,
-      mockTranslate,
-      mockEvents,
-      mockLangTranslations,
-      mockUrlService,
-      mockUserSvc,
-      mockNotificationsService,
-      mockLibNotificationsService,
-      mockDomainConfSvc
-    )
+    const comp = createComponent()
     expect(comp.isHelpMenuRestricted).toBe(true)
     if (comp.enrollInterval) clearInterval(comp.enrollInterval)
   })
@@ -208,9 +238,8 @@ describe('AppNavBarV2Component (No TestBed)', () => {
       expect(component.isTourGuideAvailable()).toBe(true)
     })
 
-    it('should set disableMenu when user is not-my-user and igot org', () => {
-      mockConfigSvc.unMappedUser.profileDetails.profileStatus = 'not-my-user'
-      mockConfigSvc.unMappedUser.profileDetails.employmentDetails.departmentName = 'igot'
+    it('should set disableMenu when the restriction service flags a not-my-user', () => {
+      mockRestrictionSvc.isNotMyUser = true
       component.ngOnInit()
       expect(component.disableMenu()).toBe(true)
     })
@@ -333,10 +362,10 @@ describe('AppNavBarV2Component (No TestBed)', () => {
   })
 
   describe('openExploreMenu', () => {
-    it('should set activeRoute and emit to configSvc', () => {
+    it('should set activeRoute and navigate to explore', () => {
       component.openExploreMenu()
       expect(component.activeRoute()).toBe('explore')
-      expect(mockConfigSvc.openExploreMenuForMWeb.value).toBe(true)
+      expect(mockRouter.navigate).toHaveBeenCalledWith(['/app/explore'])
     })
   })
 
@@ -348,7 +377,7 @@ describe('AppNavBarV2Component (No TestBed)', () => {
     })
 
     it('should not update when localStorage is empty', () => {
-      jest.spyOn(localStorage, 'getItem').mockReturnValue(null)
+      jest.spyOn(Storage.prototype, 'getItem').mockReturnValue(null)
       component.karmaPointLoading.set(true)
       component.getKarmaCount()
       expect(component.karmaPointLoading()).toBe(true)

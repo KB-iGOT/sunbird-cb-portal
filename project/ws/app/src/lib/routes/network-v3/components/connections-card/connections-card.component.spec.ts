@@ -275,7 +275,7 @@ describe('ConnectionsCardComponent', () => {
         status: 'Approved'
       });
       expect(component.otherUserProfile.connectionStatus).toBe('Approved');
-      expect(getCountOfSpy).toHaveBeenCalledWith(['Approved', 'Requested']);
+      expect(getCountOfSpy).toHaveBeenCalledWith(['Approved', 'Pending']);
     });
 
     it('should handle error response', () => {
@@ -296,7 +296,7 @@ describe('ConnectionsCardComponent', () => {
 
       // Test Rejected action
       component.updateConnection('Rejected');
-      expect(getCountOfSpy).toHaveBeenCalledWith(['Requested']);
+      expect(getCountOfSpy).toHaveBeenCalledWith(['Pending']);
 
       // Test Withdrawn action
       component.updateConnection('Withdrawn');

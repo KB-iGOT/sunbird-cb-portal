@@ -5,6 +5,10 @@ const mockDialogRef = {
   close: jest.fn()
 } as any;
 
+const mockPipeImgUrl = {
+  transform: jest.fn((url: string) => `transformed${url}`)
+} as any;
+
 const mockDataWithUrl = {
   certificateUrl: 'https://test.com/certificate.pdf'
 } as any;
@@ -23,28 +27,28 @@ describe('CertificateViewPopupComponent', () => {
 
   describe('Constructor', () => {
     it('should initialize component with dialog data containing certificateUrl', () => {
-      component = new CertificateViewPopupComponent(mockDialogRef, mockDataWithUrl);
+      component = new CertificateViewPopupComponent(mockDialogRef, mockPipeImgUrl, mockDataWithUrl);
 
       expect(component.data).toBe(mockDataWithUrl);
       expect(component.certificateUrl).toBe('');
     });
 
     it('should initialize component with dialog data without certificateUrl', () => {
-      component = new CertificateViewPopupComponent(mockDialogRef, mockDataWithoutUrl);
+      component = new CertificateViewPopupComponent(mockDialogRef, mockPipeImgUrl, mockDataWithoutUrl);
 
       expect(component.data).toBe(mockDataWithoutUrl);
       expect(component.certificateUrl).toBe('');
     });
 
     it('should initialize component with null data', () => {
-      component = new CertificateViewPopupComponent(mockDialogRef, null);
+      component = new CertificateViewPopupComponent(mockDialogRef, mockPipeImgUrl, null);
 
       expect(component.data).toBe(null);
       expect(component.certificateUrl).toBe('');
     });
 
     it('should initialize component with undefined data', () => {
-      component = new CertificateViewPopupComponent(mockDialogRef, undefined);
+      component = new CertificateViewPopupComponent(mockDialogRef, mockPipeImgUrl, undefined);
 
       expect(component.data).toBe(undefined);
       expect(component.certificateUrl).toBe('');
@@ -52,7 +56,7 @@ describe('CertificateViewPopupComponent', () => {
 
     it('should initialize component with empty object data', () => {
       const emptyData = {} as any;
-      component = new CertificateViewPopupComponent(mockDialogRef, emptyData);
+      component = new CertificateViewPopupComponent(mockDialogRef, mockPipeImgUrl, emptyData);
 
       expect(component.data).toBe(emptyData);
       expect(component.certificateUrl).toBe('');
@@ -63,7 +67,7 @@ describe('CertificateViewPopupComponent', () => {
     it('should set certificateUrl when data contains valid certificateUrl', () => {
       const testUrl = 'https://test.com/sample-certificate.pdf';
       const testData = { certificateUrl: testUrl };
-      component = new CertificateViewPopupComponent(mockDialogRef, testData);
+      component = new CertificateViewPopupComponent(mockDialogRef, mockPipeImgUrl, testData);
 
       component.ngOnInit();
 
@@ -71,7 +75,7 @@ describe('CertificateViewPopupComponent', () => {
     });
 
     it('should not set certificateUrl when data is null', () => {
-      component = new CertificateViewPopupComponent(mockDialogRef, null);
+      component = new CertificateViewPopupComponent(mockDialogRef, mockPipeImgUrl, null);
 
       component.ngOnInit();
 
@@ -79,7 +83,7 @@ describe('CertificateViewPopupComponent', () => {
     });
 
     it('should not set certificateUrl when data is undefined', () => {
-      component = new CertificateViewPopupComponent(mockDialogRef, undefined);
+      component = new CertificateViewPopupComponent(mockDialogRef, mockPipeImgUrl, undefined);
 
       component.ngOnInit();
 
@@ -88,7 +92,7 @@ describe('CertificateViewPopupComponent', () => {
 
     it('should not set certificateUrl when data exists but certificateUrl is missing', () => {
       const testData = { otherProperty: 'test' };
-      component = new CertificateViewPopupComponent(mockDialogRef, testData);
+      component = new CertificateViewPopupComponent(mockDialogRef, mockPipeImgUrl, testData);
 
       component.ngOnInit();
 
@@ -97,7 +101,7 @@ describe('CertificateViewPopupComponent', () => {
 
     it('should not set certificateUrl when data exists but certificateUrl is empty string', () => {
       const testData = { certificateUrl: '' };
-      component = new CertificateViewPopupComponent(mockDialogRef, testData);
+      component = new CertificateViewPopupComponent(mockDialogRef, mockPipeImgUrl, testData);
 
       component.ngOnInit();
 
@@ -106,7 +110,7 @@ describe('CertificateViewPopupComponent', () => {
 
     it('should not set certificateUrl when data exists but certificateUrl is null', () => {
       const testData = { certificateUrl: null };
-      component = new CertificateViewPopupComponent(mockDialogRef, testData);
+      component = new CertificateViewPopupComponent(mockDialogRef, mockPipeImgUrl, testData);
 
       component.ngOnInit();
 
@@ -115,7 +119,7 @@ describe('CertificateViewPopupComponent', () => {
 
     it('should not set certificateUrl when data exists but certificateUrl is undefined', () => {
       const testData = { certificateUrl: undefined };
-      component = new CertificateViewPopupComponent(mockDialogRef, testData);
+      component = new CertificateViewPopupComponent(mockDialogRef, mockPipeImgUrl, testData);
 
       component.ngOnInit();
 
@@ -129,7 +133,7 @@ describe('CertificateViewPopupComponent', () => {
         title: 'Test Certificate',
         issuer: 'Test Organization'
       };
-      component = new CertificateViewPopupComponent(mockDialogRef, testData);
+      component = new CertificateViewPopupComponent(mockDialogRef, mockPipeImgUrl, testData);
 
       component.ngOnInit();
 
@@ -139,7 +143,7 @@ describe('CertificateViewPopupComponent', () => {
     it('should handle certificateUrl with special characters', () => {
       const testUrl = 'https://test.com/certificate-file_name%20with%20spaces.pdf';
       const testData = { certificateUrl: testUrl };
-      component = new CertificateViewPopupComponent(mockDialogRef, testData);
+      component = new CertificateViewPopupComponent(mockDialogRef, mockPipeImgUrl, testData);
 
       component.ngOnInit();
 
@@ -149,7 +153,7 @@ describe('CertificateViewPopupComponent', () => {
     it('should handle certificateUrl with query parameters', () => {
       const testUrl = 'https://test.com/certificate.pdf?token=abc123&version=1';
       const testData = { certificateUrl: testUrl };
-      component = new CertificateViewPopupComponent(mockDialogRef, testData);
+      component = new CertificateViewPopupComponent(mockDialogRef, mockPipeImgUrl, testData);
 
       component.ngOnInit();
 
@@ -159,7 +163,7 @@ describe('CertificateViewPopupComponent', () => {
 
   describe('closePopup', () => {
     it('should call dialogRef.close when closePopup is called', () => {
-      component = new CertificateViewPopupComponent(mockDialogRef, mockDataWithUrl);
+      component = new CertificateViewPopupComponent(mockDialogRef, mockPipeImgUrl, mockDataWithUrl);
 
       component.closePopup();
 
@@ -168,7 +172,7 @@ describe('CertificateViewPopupComponent', () => {
     });
 
     it('should call dialogRef.close without parameters', () => {
-      component = new CertificateViewPopupComponent(mockDialogRef, mockDataWithUrl);
+      component = new CertificateViewPopupComponent(mockDialogRef, mockPipeImgUrl, mockDataWithUrl);
 
       component.closePopup();
 
@@ -176,7 +180,7 @@ describe('CertificateViewPopupComponent', () => {
     });
 
     it('should handle multiple calls to closePopup', () => {
-      component = new CertificateViewPopupComponent(mockDialogRef, mockDataWithUrl);
+      component = new CertificateViewPopupComponent(mockDialogRef, mockPipeImgUrl, mockDataWithUrl);
 
       component.closePopup();
       component.closePopup();
@@ -188,13 +192,13 @@ describe('CertificateViewPopupComponent', () => {
 
   describe('Component Properties', () => {
     it('should initialize certificateUrl as empty string by default', () => {
-      component = new CertificateViewPopupComponent(mockDialogRef, mockDataWithUrl);
+      component = new CertificateViewPopupComponent(mockDialogRef, mockPipeImgUrl, mockDataWithUrl);
 
       expect(component.certificateUrl).toBe('');
     });
 
     it('should have data property accessible publicly', () => {
-      component = new CertificateViewPopupComponent(mockDialogRef, mockDataWithUrl);
+      component = new CertificateViewPopupComponent(mockDialogRef, mockPipeImgUrl, mockDataWithUrl);
 
       expect(component.data).toBeDefined();
       expect(component.data).toBe(mockDataWithUrl);
@@ -203,7 +207,7 @@ describe('CertificateViewPopupComponent', () => {
     it('should maintain certificateUrl value after setting in ngOnInit', () => {
       const testUrl = 'https://test.com/persistent-certificate.pdf';
       const testData = { certificateUrl: testUrl };
-      component = new CertificateViewPopupComponent(mockDialogRef, testData);
+      component = new CertificateViewPopupComponent(mockDialogRef, mockPipeImgUrl, testData);
 
       component.ngOnInit();
 
@@ -218,7 +222,7 @@ describe('CertificateViewPopupComponent', () => {
     it('should complete full lifecycle: constructor -> ngOnInit -> closePopup', () => {
       const testUrl = 'https://test.com/lifecycle-certificate.pdf';
       const testData = { certificateUrl: testUrl };
-      component = new CertificateViewPopupComponent(mockDialogRef, testData);
+      component = new CertificateViewPopupComponent(mockDialogRef, mockPipeImgUrl, testData);
 
       // Initial state
       expect(component.certificateUrl).toBe('');
@@ -238,7 +242,7 @@ describe('CertificateViewPopupComponent', () => {
       
       falsyValues.forEach(value => {
         const testData = { certificateUrl: value };
-        component = new CertificateViewPopupComponent(mockDialogRef, testData);
+        component = new CertificateViewPopupComponent(mockDialogRef, mockPipeImgUrl, testData);
         
         component.ngOnInit();
         
@@ -246,24 +250,21 @@ describe('CertificateViewPopupComponent', () => {
       });
     });
 
-    it('should handle edge case with truthy non-string certificateUrl values', () => {
-      const truthyNonStringValues = [123, true, [], {}];
-      
-      truthyNonStringValues.forEach(value => {
-        const testData = { certificateUrl: value };
-        component = new CertificateViewPopupComponent(mockDialogRef, testData);
-        
-        component.ngOnInit();
-        
-        expect(component.certificateUrl).toBe(value);
-      });
+    it('should resolve storage.googleapis urls through the certificate image pipe', () => {
+      const testData = { certificateUrl: 'https://storage.googleapis.com/bucket/userAchievements/cert.png' };
+      component = new CertificateViewPopupComponent(mockDialogRef, mockPipeImgUrl, testData);
+
+      component.ngOnInit();
+
+      expect(mockPipeImgUrl.transform).toHaveBeenCalledWith('/userAchievements/cert.png');
+      expect(component.certificateUrl).toBe('transformed/userAchievements/cert.png');
     });
   });
 
   describe('Error Handling', () => {
     it('should not throw error when dialogRef is null', () => {
       expect(() => {
-        component = new CertificateViewPopupComponent(null as any, mockDataWithUrl);
+        component = new CertificateViewPopupComponent(null as any, mockPipeImgUrl, mockDataWithUrl);
       }).not.toThrow();
     });
 
@@ -274,7 +275,7 @@ describe('CertificateViewPopupComponent', () => {
         })
       } as any;
 
-      component = new CertificateViewPopupComponent(mockErrorDialogRef, mockDataWithUrl);
+      component = new CertificateViewPopupComponent(mockErrorDialogRef, mockPipeImgUrl, mockDataWithUrl);
 
       expect(() => {
         component.closePopup();
@@ -289,7 +290,7 @@ describe('CertificateViewPopupComponent', () => {
         certificateUrl: 'https://test.com/direct-certificate.pdf'
       };
 
-      component = new CertificateViewPopupComponent(mockDialogRef, nestedData);
+      component = new CertificateViewPopupComponent(mockDialogRef, mockPipeImgUrl, nestedData);
       component.ngOnInit();
 
       // Should use the direct certificateUrl property
@@ -304,7 +305,7 @@ describe('CertificateViewPopupComponent', () => {
         randomProperty: 'random value'
       };
 
-      component = new CertificateViewPopupComponent(mockDialogRef, anyTypeData);
+      component = new CertificateViewPopupComponent(mockDialogRef, mockPipeImgUrl, anyTypeData);
       component.ngOnInit();
 
       expect(component.certificateUrl).toBe('https://test.com/any-type-certificate.pdf');
@@ -313,15 +314,9 @@ describe('CertificateViewPopupComponent', () => {
     it('should handle certificateUrl assignment with different types', () => {
       // String type
       const stringData = { certificateUrl: 'string-url' };
-      component = new CertificateViewPopupComponent(mockDialogRef, stringData);
+      component = new CertificateViewPopupComponent(mockDialogRef, mockPipeImgUrl, stringData);
       component.ngOnInit();
       expect(component.certificateUrl).toBe('string-url');
-
-      // Number type (edge case)
-      const numberData = { certificateUrl: 12345 };
-      component = new CertificateViewPopupComponent(mockDialogRef, numberData);
-      component.ngOnInit();
-      expect(component.certificateUrl).toBe(12345);
     });
   });
 });

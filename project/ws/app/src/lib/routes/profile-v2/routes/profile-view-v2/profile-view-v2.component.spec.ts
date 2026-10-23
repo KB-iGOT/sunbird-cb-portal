@@ -67,6 +67,7 @@ jest.mock('@angular/core', () => ({
   inject: jest.fn(() => ({ onDestroy: jest.fn() })),
 }));
 
+import { autoMock } from 'src/testing/auto-mock';
 import { ProfileViewV2Component } from './profile-view-v2.component';
 
 // Mock all dependencies
@@ -85,7 +86,8 @@ const mockActivatedRoute = {
   parent: { snapshot: { data: { pageData: { data: {} } } } }
 };
 
-const mockProfileV2RevampService = {
+// any service method a test does not stub falls back to an auto-mock
+const mockProfileV2RevampService: any = Object.assign(autoMock(), {
   getGroups: jest.fn().mockReturnValue({ pipe: jest.fn().mockReturnValue({ subscribe: jest.fn() }) }),
   getDesignations: jest.fn().mockReturnValue({ subscribe: jest.fn() }),
   fetchProfile: jest.fn().mockReturnValue({ subscribe: jest.fn() }),
@@ -102,8 +104,8 @@ const mockProfileV2RevampService = {
   getInsightsData: jest.fn().mockReturnValue({ pipe: jest.fn().mockReturnValue({ subscribe: jest.fn() }) }),
   updateDegree: jest.fn().mockReturnValue({ subscribe: jest.fn() }),
   updateInstitution: jest.fn().mockReturnValue({ subscribe: jest.fn() }),
-  handleTranslateTo: jest.fn().mockReturnValue('Translated Text')
-};
+  handleTranslateTo: jest.fn().mockReturnValue('Translated Text'),
+});
 
 const mockSnackBar = {
   open: jest.fn()
@@ -161,7 +163,7 @@ describe('ProfileViewV2Component', () => {
   beforeEach(() => {
     // Reset all mocks
     jest.clearAllMocks();
-    
+
     // Mock localStorage
     Object.defineProperty(window, 'localStorage', {
       value: {
@@ -238,8 +240,10 @@ describe('ProfileViewV2Component', () => {
       expect(component.isCurrentUser).toBe(false);
       expect(component.userId).toBe('');
       expect(component.profileCompletionPercentage).toBe(0);
+      expect(component.profileCompletionPercentage).toBe(0);
       expect(component.activeRoutId).toBe('about-me');
       expect(component.connectionStatus).toBe('Connect');
+      expect(component.userStats).toHaveLength(5);
       expect(component.userStats).toHaveLength(5);
       expect(component.profileRoutes).toHaveLength(5);
     });
@@ -266,7 +270,7 @@ describe('ProfileViewV2Component', () => {
 
     it('should set default language if websiteLanguage exists in localStorage', () => {
       (window.localStorage.getItem as jest.Mock).mockReturnValue('fr');
-      
+
       component.ngOnInit();
 
       expect(mockTranslateService.setDefaultLang).toHaveBeenCalledWith('en');
@@ -363,6 +367,7 @@ describe('ProfileViewV2Component', () => {
 
     it('should generate initials correctly for single name', () => {
       component.primaryDetails = { firstname: 'John' };
+      component.primaryDetails = { firstname: 'John' };
 
       component.getInitials();
 
@@ -370,6 +375,7 @@ describe('ProfileViewV2Component', () => {
     });
 
     it('should generate initials correctly for multiple names', () => {
+      component.primaryDetails = { firstname: 'John Doe' };
       component.primaryDetails = { firstname: 'John Doe' };
 
       component.getInitials();
@@ -389,6 +395,7 @@ describe('ProfileViewV2Component', () => {
   describe('User Stats', () => {
     it('should set user stats correctly', () => {
       component.profileData = {
+        walletBalance: 20,
         karmaPoints: 100,
         certificateCount: 5,
         postCount: 10,
@@ -560,6 +567,7 @@ describe('ProfileViewV2Component', () => {
         userDepartmentTo: 'Target Department'
       });
       expect(getConnectionStatusSpy).toHaveBeenCalled();
+      expect(getConnectionStatusSpy).toHaveBeenCalled();
       expect(openSnackbarSpy).toHaveBeenCalledWith('Connection request sent successfully');
     });
 
@@ -648,11 +656,11 @@ describe('ProfileViewV2Component', () => {
       const mockResponse = {
         result: {
           data: [
-            { 
-              name: 'Rejected Org', 
-              group: 'Rejected Group', 
+            {
+              name: 'Rejected Org',
+              group: 'Rejected Group',
               comment: 'Rejection comment',
-              lastUpdatedOn: 789012 
+              lastUpdatedOn: 789012
             }
           ]
         }
@@ -739,7 +747,7 @@ describe('ProfileViewV2Component', () => {
   describe('Entry Filtering', () => {
     it('should filter profile routes', () => {
       const initialRoutesLength = component.profileRoutes.length;
-      
+
       component.filterProfileRoutes('about-me');
 
       expect(component.profileRoutes.length).toBe(initialRoutesLength - 1);
@@ -774,9 +782,9 @@ describe('ProfileViewV2Component', () => {
 
     it('should unsubscribe on destroy', () => {
       const unsubscribeSpy = jest.spyOn(component['destroySubject$'], 'unsubscribe');
-      
+
       component.ngOnDestroy();
-      
+
       expect(unsubscribeSpy).toHaveBeenCalled();
     });
   });
@@ -794,6 +802,7 @@ describe('ProfileViewV2Component', () => {
       const oldDetails = { uuid: 'test-uuid' };
       component.userId = 'test-user';
 
+      mockProfileV2RevampService.updateDegree.mockReturnValue(of({}));
       mockProfileV2RevampService.updateDegree.mockReturnValue(of({}));
 
       const result = await component.generateEducationalQualificationsFormBody(educationalQualifications, oldDetails);
@@ -833,7 +842,7 @@ describe('ProfileViewV2Component', () => {
     it('should open service history list dialog', () => {
       component.userId = 'test-user';
       component.isCurrentUser = true;
-      
+
       component.openProfileEntryListDialog('Service History');
 
       expect(mockDialog.open).toHaveBeenCalled();
@@ -842,7 +851,7 @@ describe('ProfileViewV2Component', () => {
     it('should open educational qualifications list dialog', () => {
       component.userId = 'test-user';
       component.isCurrentUser = true;
-      
+
       component.openProfileEntryListDialog('Educational qualifications');
 
       expect(mockDialog.open).toHaveBeenCalled();
@@ -851,7 +860,7 @@ describe('ProfileViewV2Component', () => {
     it('should open achievements list dialog', () => {
       component.userId = 'test-user';
       component.isCurrentUser = true;
-      
+
       component.openProfileEntryListDialog('Achievements');
 
       expect(mockDialog.open).toHaveBeenCalled();

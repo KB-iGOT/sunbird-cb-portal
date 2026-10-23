@@ -106,7 +106,7 @@ describe('EventService', () => {
         expect(response).toEqual(mockResponse)
       })
 
-      const req = httpMock.expectOne(`/apis/proxies/v8/user/events/list/${mockUserId}`)
+      const req = httpMock.expectOne(`/apis/proxies/v8/user/events/v2/list/${mockUserId}`)
       expect(req.request.method).toBe('POST')
       expect(req.request.body).toEqual(mockRequest)
       req.flush(mockResponse)

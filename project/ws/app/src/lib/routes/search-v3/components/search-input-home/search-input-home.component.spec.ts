@@ -1,5 +1,5 @@
 import { SearchInputHomeComponent } from './search-input-home.component';
-import { Subject } from 'rxjs';
+import { of, Subject } from 'rxjs';
 import { SearchCategory } from '../../models/search-v3.model';
 
 describe('SearchInputHomeComponent', () => {
@@ -12,6 +12,9 @@ describe('SearchInputHomeComponent', () => {
   let mockERef: any;
   let mockSearchV3Service: any;
   let mockContSvc: any;
+  let mockMobileAppsService: any;
+  let mockDomainConfSvc: any;
+  let clearGlobalSearch: Subject<any>;
   let queryParamMap: Subject<any>;
 
   beforeEach(() => {
@@ -64,6 +67,11 @@ describe('SearchInputHomeComponent', () => {
     };
     
     mockSearchV3Service = {
+      recentCreate: jest.fn().mockResolvedValue({}),
+      recentRead: jest.fn().mockReturnValue(of({})),
+      recentDeleteByUser: jest.fn().mockReturnValue(of({})),
+      recentDeleteByTime: jest.fn().mockReturnValue(of({})),
+      fetchSearchDataByCategory: jest.fn().mockReturnValue(of({})),
       searchCoursesv4: jest.fn().mockResolvedValue({
         result: {
           content: [
@@ -106,6 +114,19 @@ describe('SearchInputHomeComponent', () => {
       })
     };
 
+    clearGlobalSearch = new Subject();
+    mockMobileAppsService = {
+      clearGlobalSearchForHomePage: clearGlobalSearch.asObservable()
+    };
+
+    mockDomainConfSvc = {
+      isSearchCategoriesEnabled: jest.fn().mockReturnValue(true),
+      getSearchCategoriesConfig: jest.fn().mockReturnValue(null),
+      isSearchCategoryEnabled: jest.fn().mockReturnValue(true),
+      isConfigEnabled: jest.fn().mockReturnValue(true),
+      isApiEnabled: jest.fn().mockReturnValue(true)
+    };
+
     component = new SearchInputHomeComponent(
       mockActivatedRoute,
       mockRouter,
@@ -114,7 +135,9 @@ describe('SearchInputHomeComponent', () => {
       mockRoute,
       mockERef,
       mockSearchV3Service,
-      mockContSvc
+      mockContSvc,
+      mockMobileAppsService,
+      mockDomainConfSvc
     );
 
     // Mock document methods
@@ -125,8 +148,8 @@ describe('SearchInputHomeComponent', () => {
     });
 
     // Spy on component methods
-    jest.spyOn(component, 'searchFromQuery').mockImplementation(jest.fn());
-    jest.spyOn(component, 'searchInNLP').mockImplementation(jest.fn());
+    jest.spyOn(component, 'searchFromQuery').mockResolvedValue(undefined);
+    jest.spyOn(component, 'searchInNLP').mockResolvedValue(undefined);
   });
 
   afterEach(() => {
@@ -143,7 +166,7 @@ describe('SearchInputHomeComponent', () => {
     expect(component.disableMenu).toBe(false);
     expect(component.openSearchTemplate).toBe(false);
     expect(component.loaderSearching).toBe(false);
-    expect(component.selectedSearchCategory).toBe(SearchCategory.All);
+    expect(component.selectedSearchCategory).toBe(SearchCategory.Courses);
   });
 
   it('should initialize query control with value from activated route', () => {
@@ -256,9 +279,12 @@ describe('SearchInputHomeComponent', () => {
         queryParams: {
           q: 'test query',
           search: 'processed query',
-          category: null  // The actual value passed, not SearchCategory.All
-        },
-        queryParamsHandling: 'merge'
+          category: null,  // The actual value passed, not SearchCategory.All
+          p: null,
+          f: null,
+          tab: null,
+          filtersPanel: 'show'
+        }
       }
     );
     

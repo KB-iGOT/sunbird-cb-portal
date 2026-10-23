@@ -1,6 +1,12 @@
 import * as _ from 'lodash';
 import { AchievementsComponent } from './achievements.component';
 
+// lodash is a plain CJS module; exposing it as an ES module keeps its members spy-able
+jest.mock('lodash', () => {
+  const actual = jest.requireActual('lodash');
+  return { __esModule: true, ...actual, default: actual };
+});
+
 describe('AchievementsComponent (Jest, no TestBed)', () => {
   let component: any;
   let mockDialogRef: any;
@@ -9,21 +15,24 @@ describe('AchievementsComponent (Jest, no TestBed)', () => {
   let mockSnackBar: any;
   let mockDialog: any;
   let mockCdr: any;
+  let mockPipeImgUrl: any;
 
   beforeEach(() => {
     mockDialogRef = { close: jest.fn() };
     mockData = { userId: 'user1', isCurrentUser: true };
-    mockProfileV2RevampSvc = { fetchProfileEntries: jest.fn() };
+    mockProfileV2RevampSvc = { listAchievements: jest.fn() };
     mockSnackBar = { open: jest.fn() };
     mockDialog = { open: jest.fn() };
     mockCdr = { detectChanges: jest.fn() };
+    mockPipeImgUrl = { transform: jest.fn((url: string) => url) };
     component = new AchievementsComponent(
       mockDialogRef,
       mockData,
       mockProfileV2RevampSvc,
       mockSnackBar,
       mockDialog,
-      mockCdr
+      mockCdr,
+      mockPipeImgUrl
     );
   });
 
@@ -44,7 +53,8 @@ describe('AchievementsComponent (Jest, no TestBed)', () => {
       mockProfileV2RevampSvc,
       mockSnackBar,
       mockDialog,
-      mockCdr
+      mockCdr,
+      mockPipeImgUrl
     );
     expect(c.userId).toBe('');
     expect(c.isPopup).toBe(false);
@@ -66,22 +76,25 @@ describe('AchievementsComponent (Jest, no TestBed)', () => {
 
   it('should fetch achievements and set achievementsList', () => {
     const mockAchievements = [{ id: 1 }, { id: 2 }];
-    const mockResponse = { result: { response: { achievements: mockAchievements } } };
+    const mockResponse = { result: { search_results: { data: mockAchievements } } };
     component.userId = 'user1';
-    mockProfileV2RevampSvc.fetchProfileEntries.mockReturnValue({
+    mockProfileV2RevampSvc.listAchievements.mockReturnValue({
       subscribe: ({ next }: any) => next(mockResponse)
     });
     jest.spyOn(_, 'get');
     component.getAchievementsList();
-    expect(mockProfileV2RevampSvc.fetchProfileEntries).toHaveBeenCalledWith('user1', 'achievement');
+    expect(mockProfileV2RevampSvc.listAchievements).toHaveBeenCalledWith(
+      { apiConfig: component.apiConfig, urlConfigPath: 'achievementList', defaultUrl: '' },
+      'user1'
+    );
     expect(component.achievementsList).toEqual(mockAchievements);
     expect(mockCdr.detectChanges).toHaveBeenCalled();
-    expect(_.get).toHaveBeenCalledWith(mockResponse, 'result.response.achievements', []);
+    expect(_.get).toHaveBeenCalledWith(mockResponse, 'result.search_results.data', []);
   });
 
   it('should handle error in getAchievementsList', () => {
     component.userId = 'user1';
-    mockProfileV2RevampSvc.fetchProfileEntries.mockReturnValue({
+    mockProfileV2RevampSvc.listAchievements.mockReturnValue({
       subscribe: ({ error }: any) => error('err')
     });
     const spy = jest.spyOn(component as any, 'openSnackbar').mockImplementation(() => {});
@@ -92,7 +105,7 @@ describe('AchievementsComponent (Jest, no TestBed)', () => {
   it('should not call API if userId is empty', () => {
     component.userId = '';
     component.getAchievementsList();
-    expect(mockProfileV2RevampSvc.fetchProfileEntries).not.toHaveBeenCalled();
+    expect(mockProfileV2RevampSvc.listAchievements).not.toHaveBeenCalled();
   });
 
   it('should emit openProfileEntryEditDialog if not popup', () => {

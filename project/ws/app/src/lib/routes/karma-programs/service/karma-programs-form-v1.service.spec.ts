@@ -1,9 +1,17 @@
+import { provideHttpClient } from '@angular/common/http'
+import { provideHttpClientTesting } from '@angular/common/http/testing'
 import { TestBed } from '@angular/core/testing'
 
 import { KarmaProgramsFormV1Service } from './karma-programs-form-v1.service'
 
 describe('KarmaProgramsFormV1Service', () => {
-  beforeEach(() => TestBed.configureTestingModule({}))
+  beforeEach(() => TestBed.configureTestingModule({
+    providers: [
+      KarmaProgramsFormV1Service,
+      provideHttpClient(),
+      provideHttpClientTesting(),
+    ],
+  }))
 
   it('should be created', () => {
     const service: KarmaProgramsFormV1Service = TestBed.inject(KarmaProgramsFormV1Service)

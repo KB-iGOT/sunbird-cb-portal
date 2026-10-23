@@ -1,6 +1,17 @@
 import { TopRightNavBarV2Component } from './top-right-nav-bar-v2.component'
 import { of, Subject, BehaviorSubject } from 'rxjs'
 
+// the @ws/app barrel transitively pulls in learn-search.component, which does not compile
+// against the installed @sunbird-cb/utils-v2, so only the dialogs used here are provided
+jest.mock('@ws/app', () => ({
+  DialogBoxComponent: class DialogBoxComponent { },
+  SurveyPopupComponent: class SurveyPopupComponent { },
+  VerificationRequestDialogComponent: class VerificationRequestDialogComponent { },
+}))
+
+// @sunbird-cb/design-system ships untranspiled ES module sources that jest cannot load
+jest.mock('@sunbird-cb/design-system', () => ({ ThemeService: class ThemeService { } }))
+
 // Mock inject() since this component uses inject() pattern
 jest.mock('@angular/core', () => {
   const actual = jest.requireActual('@angular/core')
@@ -99,32 +110,12 @@ describe('TopRightNavBarV2Component (No TestBed)', () => {
       changeFont: jest.fn(),
     }
 
-    jest.spyOn(localStorage, 'getItem').mockImplementation((key: string) => {
+    jest.spyOn(Storage.prototype, 'getItem').mockImplementation((key: string) => {
       if (key === 'websiteLanguage') return 'en'
       if (key === 'setting') return 'normal-typography'
       return null
     })
-    jest.spyOn(localStorage, 'setItem').mockImplementation(() => { })
-
-    // Since this component uses inject(), we need to manually construct and assign
-    // We'll create a partial instance and manually set up the methods
-    const { inject } = require('@angular/core')
-    const injectMocks: any = {
-      MatDialog: mockDialog,
-      HomePageService: mockHomePageService,
-      ConfigurationsService: mockConfigSvc,
-      MultilingualTranslationsService: mockLangTranslations,
-      TranslateService: mockTranslate,
-      HttpClient: mockHttp,
-      DomSanitizer: mockSanitizer,
-      EventService: mockEvents,
-      MatSnackBar: mockSnackBar,
-      Router: mockRouter,
-      NotificationsService: mockNotificationsService,
-      RootService: mockRootService,
-      ThemeService: mockThemeSvc,
-      BtnSettingsService: mockBtnSettingsSvc,
-    }
+    jest.spyOn(Storage.prototype, 'setItem').mockImplementation(() => { })
 
     // Since inject() pattern makes unit testing without TestBed tricky,
     // we'll test using a manually constructed object approach

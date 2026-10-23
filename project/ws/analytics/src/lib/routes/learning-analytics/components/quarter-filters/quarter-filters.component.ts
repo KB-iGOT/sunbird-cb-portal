@@ -1,6 +1,7 @@
 import { Component, EventEmitter, OnInit, Output, ElementRef, ViewChild } from '@angular/core'
 import { UntypedFormControl } from '@angular/forms'
-import { MatDatepickerInputEvent, MatSnackBar } from '@angular/material'
+import { MatDatepickerInputEvent } from '@angular/material/datepicker'
+import { MatSnackBar } from '@angular/material/snack-bar'
 import { NsAnalytics } from '../../models/learning-analytics.model'
 
 import { QuarterServiceService } from '../../services/quarter-filter.service'

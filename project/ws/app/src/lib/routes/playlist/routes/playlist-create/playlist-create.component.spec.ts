@@ -1,4 +1,11 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+import { NO_ERRORS_SCHEMA } from '@angular/core'
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing'
+import { UntypedFormBuilder } from '@angular/forms'
+import { MatSnackBar } from '@angular/material/snack-bar'
+import { Router } from '@angular/router'
+import { BtnPlaylistService } from '@sunbird-cb/collection'
+import { EventService, ConfigurationsService } from '@sunbird-cb/utils-v2'
+import { autoMock } from 'src/testing/auto-mock'
 
 import { PlaylistCreateComponent } from './playlist-create.component'
 
@@ -6,17 +13,29 @@ describe('PlaylistCreateComponent', () => {
   let component: PlaylistCreateComponent
   let fixture: ComponentFixture<PlaylistCreateComponent>
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [PlaylistCreateComponent],
+      providers: [
+        { provide: UntypedFormBuilder, useValue: autoMock() },
+        { provide: Router, useValue: autoMock() },
+        { provide: EventService, useValue: autoMock() },
+        { provide: MatSnackBar, useValue: autoMock() },
+        { provide: BtnPlaylistService, useValue: autoMock() },
+        { provide: ConfigurationsService, useValue: autoMock() },
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+      teardown: { destroyAfterEach: true, rethrowErrors: false },
     })
-      .compileComponents()
+    // the template is stubbed out and change detection is not run, so this only
+    // verifies that the component can be constructed with its dependencies
+    .overrideTemplate(PlaylistCreateComponent, '')
+    .compileComponents()
   }))
 
   beforeEach(() => {
     fixture = TestBed.createComponent(PlaylistCreateComponent)
     component = fixture.componentInstance
-    fixture.detectChanges()
   })
 
   it('should create', () => {

@@ -2,7 +2,7 @@ import { Component, OnInit, Inject, ViewChild, ElementRef } from '@angular/core'
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 import { ENTER, COMMA } from '@angular/cdk/keycodes'
 import { UntypedFormGroup, UntypedFormBuilder } from '@angular/forms'
-import { MatChipInputEvent } from '@angular/material'
+import { MatChipInputEvent } from '@angular/material/chips'
 export interface IDialogData {
   animal: string
   name: string

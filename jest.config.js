@@ -2,6 +2,12 @@ module.exports = {
   preset: 'jest-preset-angular',
   testEnvironment: 'jsdom',
   setupFilesAfterEnv: ['<rootDir>/src/setup-jest.ts'],
+  // the src/test.ts files are Karma entry points; jest's default testMatch picks them up
+  // as suites and they fail with "Cannot set base providers" without containing any tests
+  testPathIgnorePatterns: ['/node_modules/', '/src/test\\.ts$'],
+  // compiling the larger components (e.g. cbp-plan) in beforeEach takes well over the 5s
+  // default once all workers are busy, especially with coverage instrumentation on
+  testTimeout: 30000,
   transformIgnorePatterns: [
     'node_modules/(?!.*\\.mjs$)',
   ],

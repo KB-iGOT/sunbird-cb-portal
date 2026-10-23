@@ -1,9 +1,9 @@
 import { of, throwError } from 'rxjs';
-import { profileEntriesResolver } from './profile-entries.resolver';
+import { profileResolver } from './profile.resolver';
 
 // Mock implementations
 const mockProfileV2RevampService = {
-  fetchProfileEntries: jest.fn()
+  fetchProfile: jest.fn()
 } as any;
 
 const mockConfigurationsService = {
@@ -20,8 +20,8 @@ const mockActivatedRouteSnapshot = {
 
 const mockRouterStateSnapshot = {} as any;
 
-describe('profileEntriesResolver', () => {
-  let resolver: profileEntriesResolver;
+describe('profileResolver', () => {
+  let resolver: profileResolver;
   let profileService: any;
   let configService: any;
   let route: any;
@@ -37,7 +37,7 @@ describe('profileEntriesResolver', () => {
     // Clear all mock calls
     jest.clearAllMocks();
     
-    resolver = new profileEntriesResolver(profileService, configService);
+    resolver = new profileResolver(profileService, configService);
   });
 
   describe('resolve method', () => {
@@ -54,12 +54,12 @@ describe('profileEntriesResolver', () => {
       };
 
       route.routeConfig = { path: 'me' };
-      profileService.fetchProfileEntries = jest.fn().mockReturnValue(of(mockResponse));
+      profileService.fetchProfile = jest.fn().mockReturnValue(of(mockResponse));
 
       resolver.resolve(route, state).subscribe((result: any) => {
         expect(result.data).toEqual(mockProfileData);
         expect(result.error).toBeNull();
-        expect(profileService.fetchProfileEntries).toHaveBeenCalledWith('default-user-id');
+        expect(profileService.fetchProfile).toHaveBeenCalledWith(expect.any(Object), 'default-user-id', false);
         done();
       });
     });
@@ -78,12 +78,12 @@ describe('profileEntriesResolver', () => {
 
       route.routeConfig = { path: 'profile/:userId' };
       route.params = { userId: 'route-param-user-id' };
-      profileService.fetchProfileEntries = jest.fn().mockReturnValue(of(mockResponse));
+      profileService.fetchProfile = jest.fn().mockReturnValue(of(mockResponse));
 
       resolver.resolve(route, state).subscribe((result: any) => {
         expect(result.data).toEqual(mockProfileData);
         expect(result.error).toBeNull();
-        expect(profileService.fetchProfileEntries).toHaveBeenCalledWith('route-param-user-id');
+        expect(profileService.fetchProfile).toHaveBeenCalledWith(expect.any(Object), 'route-param-user-id', true);
         done();
       });
     });
@@ -103,12 +103,12 @@ describe('profileEntriesResolver', () => {
       route.routeConfig = { path: 'profile' };
       route.params = {};
       route.queryParams = { userId: 'query-param-user-id' };
-      profileService.fetchProfileEntries = jest.fn().mockReturnValue(of(mockResponse));
+      profileService.fetchProfile = jest.fn().mockReturnValue(of(mockResponse));
 
       resolver.resolve(route, state).subscribe((result: any) => {
         expect(result.data).toEqual(mockProfileData);
         expect(result.error).toBeNull();
-        expect(profileService.fetchProfileEntries).toHaveBeenCalledWith('query-param-user-id');
+        expect(profileService.fetchProfile).toHaveBeenCalledWith(expect.any(Object), 'query-param-user-id', true);
         done();
       });
     });
@@ -128,12 +128,12 @@ describe('profileEntriesResolver', () => {
       route.routeConfig = { path: 'profile' };
       route.params = {};
       route.queryParams = {};
-      profileService.fetchProfileEntries = jest.fn().mockReturnValue(of(mockResponse));
+      profileService.fetchProfile = jest.fn().mockReturnValue(of(mockResponse));
 
       resolver.resolve(route, state).subscribe((result: any) => {
         expect(result.data).toEqual(mockProfileData);
         expect(result.error).toBeNull();
-        expect(profileService.fetchProfileEntries).toHaveBeenCalledWith('default-user-id');
+        expect(profileService.fetchProfile).toHaveBeenCalledWith(expect.any(Object), 'default-user-id', false);
         done();
       });
     });
@@ -154,12 +154,12 @@ describe('profileEntriesResolver', () => {
       route.params = {};
       route.queryParams = {};
       configService.userProfile = null;
-      profileService.fetchProfileEntries = jest.fn().mockReturnValue(of(mockResponse));
+      profileService.fetchProfile = jest.fn().mockReturnValue(of(mockResponse));
 
       resolver.resolve(route, state).subscribe((result: any) => {
         expect(result.data).toEqual(mockProfileData);
         expect(result.error).toBeNull();
-        expect(profileService.fetchProfileEntries).toHaveBeenCalledWith('');
+        expect(profileService.fetchProfile).toHaveBeenCalledWith(expect.any(Object), '', true);
         done();
       });
     });
@@ -178,12 +178,12 @@ describe('profileEntriesResolver', () => {
 
       route.routeConfig = null;
       route.params = { userId: 'param-user-id' };
-      profileService.fetchProfileEntries = jest.fn().mockReturnValue(of(mockResponse));
+      profileService.fetchProfile = jest.fn().mockReturnValue(of(mockResponse));
 
       resolver.resolve(route, state).subscribe((result: any) => {
         expect(result.data).toEqual(mockProfileData);
         expect(result.error).toBeNull();
-        expect(profileService.fetchProfileEntries).toHaveBeenCalledWith('param-user-id');
+        expect(profileService.fetchProfile).toHaveBeenCalledWith(expect.any(Object), 'param-user-id', true);
         done();
       });
     });
@@ -192,12 +192,12 @@ describe('profileEntriesResolver', () => {
       const mockError = new Error('Profile service error');
 
       route.routeConfig = { path: 'me' };
-      profileService.fetchProfileEntries = jest.fn().mockReturnValue(throwError(mockError));
+      profileService.fetchProfile = jest.fn().mockReturnValue(throwError(mockError));
 
       resolver.resolve(route, state).subscribe((result: any) => {
         expect(result.data).toBeNull();
         expect(result.error).toEqual(mockError);
-        expect(profileService.fetchProfileEntries).toHaveBeenCalledWith('default-user-id');
+        expect(profileService.fetchProfile).toHaveBeenCalledWith(expect.any(Object), 'default-user-id', false);
         done();
       });
     });
@@ -208,12 +208,12 @@ describe('profileEntriesResolver', () => {
       };
 
       route.routeConfig = { path: 'me' };
-      profileService.fetchProfileEntries = jest.fn().mockReturnValue(of(mockResponse));
+      profileService.fetchProfile = jest.fn().mockReturnValue(of(mockResponse));
 
       resolver.resolve(route, state).subscribe((result: any) => {
-        expect(result.data).toBeUndefined();
+        expect(result.data).toEqual({});
         expect(result.error).toBeNull();
-        expect(profileService.fetchProfileEntries).toHaveBeenCalledWith('default-user-id');
+        expect(profileService.fetchProfile).toHaveBeenCalledWith(expect.any(Object), 'default-user-id', false);
         done();
       });
     });
@@ -224,12 +224,12 @@ describe('profileEntriesResolver', () => {
       };
 
       route.routeConfig = { path: 'me' };
-      profileService.fetchProfileEntries = jest.fn().mockReturnValue(of(mockResponse));
+      profileService.fetchProfile = jest.fn().mockReturnValue(of(mockResponse));
 
       resolver.resolve(route, state).subscribe((result: any) => {
-        expect(result.data).toBeUndefined();
+        expect(result.data).toEqual({});
         expect(result.error).toBeNull();
-        expect(profileService.fetchProfileEntries).toHaveBeenCalledWith('default-user-id');
+        expect(profileService.fetchProfile).toHaveBeenCalledWith(expect.any(Object), 'default-user-id', false);
         done();
       });
     });
@@ -238,12 +238,12 @@ describe('profileEntriesResolver', () => {
       const mockResponse = {};
 
       route.routeConfig = { path: 'me' };
-      profileService.fetchProfileEntries = jest.fn().mockReturnValue(of(mockResponse));
+      profileService.fetchProfile = jest.fn().mockReturnValue(of(mockResponse));
 
       resolver.resolve(route, state).subscribe((result: any) => {
-        expect(result.data).toBeUndefined();
+        expect(result.data).toEqual({});
         expect(result.error).toBeNull();
-        expect(profileService.fetchProfileEntries).toHaveBeenCalledWith('default-user-id');
+        expect(profileService.fetchProfile).toHaveBeenCalledWith(expect.any(Object), 'default-user-id', false);
         done();
       });
     });
@@ -263,12 +263,12 @@ describe('profileEntriesResolver', () => {
       route.routeConfig = { path: 'profile/:userId' };
       route.params = { userId: 'route-param-user-id' };
       route.queryParams = { userId: 'query-param-user-id' };
-      profileService.fetchProfileEntries = jest.fn().mockReturnValue(of(mockResponse));
+      profileService.fetchProfile = jest.fn().mockReturnValue(of(mockResponse));
 
       resolver.resolve(route, state).subscribe((result: any) => {
         expect(result.data).toEqual(mockProfileData);
         expect(result.error).toBeNull();
-        expect(profileService.fetchProfileEntries).toHaveBeenCalledWith('route-param-user-id');
+        expect(profileService.fetchProfile).toHaveBeenCalledWith(expect.any(Object), 'route-param-user-id', true);
         done();
       });
     });
@@ -289,12 +289,12 @@ describe('profileEntriesResolver', () => {
       route.params = {};
       route.queryParams = {};
       configService.userProfile = undefined;
-      profileService.fetchProfileEntries = jest.fn().mockReturnValue(of(mockResponse));
+      profileService.fetchProfile = jest.fn().mockReturnValue(of(mockResponse));
 
       resolver.resolve(route, state).subscribe((result: any) => {
         expect(result.data).toEqual(mockProfileData);
         expect(result.error).toBeNull();
-        expect(profileService.fetchProfileEntries).toHaveBeenCalledWith('');
+        expect(profileService.fetchProfile).toHaveBeenCalledWith(expect.any(Object), '', true);
         done();
       });
     });

@@ -13,7 +13,8 @@ import { MatDialog } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { NSContent } from '../../../../../../../../interface/content'
 import { IAuthSteps } from '../../../../../../../../interface/auth-stepper'
-import { IActionButtonConfig } from '../../../../../../../../interface/action-button'
+import { IActionButton, IActionButtonConfig } from '../../../../../../../../interface/action-button'
+import { NSApiRequest } from '../../../../../../../../interface/apiRequest'
 import { EditorContentService } from '../../../../../services/editor-content.service'
 import { AuthInitService } from '../../../../../../../../services/init.service'
 import { LoaderService } from '../../../../../../../../services/loader.service'
@@ -100,7 +101,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
       this.routerSubscription = this.activateRoute.parent.parent.data.subscribe(data => {
         const contentDataMap = new Map<string, NSContent.IContentMeta>()
         data.contents.map((v: { content: NSContent.IContentMeta; data: any }) => {
-          this.storeService.parentNode.push(v.content.identifier)
+          this.storeService.parentNode.push(v.content.identifier!)
           this.resolverService.buildTreeAndMap(
             v.content,
             contentDataMap,
@@ -293,7 +294,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
         operation:
           commentsForm.controls.action.value === 'accept' ||
             ['Draft', 'Live'].includes(
-              this.contentService.originalContent[this.currentParentId].status,
+              this.contentService.originalContent[this.currentParentId].status!,
             )
             ? 1
             : 0,
@@ -308,7 +309,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
             .forwardBackward(
               body,
               this.currentParentId,
-              this.contentService.originalContent[this.currentParentId].status,
+              this.contentService.originalContent[this.currentParentId].status!,
             )
             .pipe(
               mergeMap(() =>
@@ -339,7 +340,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
           })
           this.contents = this.contents.filter(v => v.identifier !== this.currentParentId)
           if (this.contents.length) {
-            this.contentService.changeActiveCont.next(this.contents[0].identifier)
+            this.contentService.changeActiveCont.next(this.contents[0].identifier!)
           } else {
             this.router.navigateByUrl('/author/home')
           }
@@ -578,7 +579,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
           if (confirm) {
             this.contents = this.contents.filter(v => v.identifier !== this.currentParentId)
             if (this.contents.length) {
-              this.contentService.changeActiveCont.next(this.contents[0].identifier)
+              this.contentService.changeActiveCont.next(this.contents[0].identifier!)
             } else {
               this.router.navigateByUrl('/author/home')
             }
@@ -610,7 +611,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
         })
         this.contents = this.contents.filter(v => v.identifier !== this.currentParentId)
         if (this.contents.length) {
-          this.contentService.changeActiveCont.next(this.contents[0].identifier)
+          this.contentService.changeActiveCont.next(this.contents[0].identifier!)
         } else {
           this.router.navigateByUrl('/author/home')
         }
@@ -695,7 +696,7 @@ export class CollectionComponent implements OnInit, OnDestroy {
     return (
       this.accessControlSvc.hasRole(['editor', 'admin']) ||
       (['Draft', 'Live'].includes(
-        this.contentService.originalContent[this.currentParentId].status,
+        this.contentService.originalContent[this.currentParentId].status!,
       ) &&
         this.contentService.originalContent[this.currentParentId].creatorContacts.find(
           v => v.id === this.accessControlSvc.userId,

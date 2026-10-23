@@ -1,3 +1,5 @@
+import { TestBed } from '@angular/core/testing'
+
 import { NoConnectionV2Component } from './no-connection-v2.component'
 
 describe('NoConnectionV2Component (No TestBed)', () => {
@@ -5,7 +7,8 @@ describe('NoConnectionV2Component (No TestBed)', () => {
 
   beforeEach(() => {
     jest.useFakeTimers()
-    component = new NoConnectionV2Component()
+    component = TestBed.runInInjectionContext(() => new NoConnectionV2Component())
+    TestBed.tick()
   })
 
   afterEach(() => {
@@ -40,6 +43,7 @@ describe('NoConnectionV2Component (No TestBed)', () => {
 
     it('should hide display after 3 seconds', () => {
       window.dispatchEvent(new Event('offline'))
+      TestBed.tick()
       expect(component.display()).toBe(true)
       jest.advanceTimersByTime(3000)
       expect(component.display()).toBe(false)
@@ -47,8 +51,10 @@ describe('NoConnectionV2Component (No TestBed)', () => {
 
     it('should reset hide timeout on subsequent events', () => {
       window.dispatchEvent(new Event('offline'))
+      TestBed.tick()
       jest.advanceTimersByTime(2000)
       window.dispatchEvent(new Event('online'))
+      TestBed.tick()
       jest.advanceTimersByTime(2000)
       // Should still be displayed because timer was reset
       expect(component.display()).toBe(true)

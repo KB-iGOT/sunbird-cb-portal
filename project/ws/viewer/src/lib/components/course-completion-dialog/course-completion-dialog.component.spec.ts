@@ -1,5 +1,6 @@
 
-import { AppTocService } from '@sunbird-cb/toc'
+import { AppTocService, TocConfigService } from '@sunbird-cb/toc'
+import { ActivatedRoute } from '@angular/router'
 import { LoggerService, MultilingualTranslationsService, EventService } from '@sunbird-cb/utils-v2'
 import { TranslateService } from '@ngx-translate/core'
 import { RatingService } from '@sunbird-cb/collection'
@@ -12,6 +13,8 @@ describe('CourseCompletionDialogComponent', () => {
 
     const ratingSvc: Partial<RatingService> = {}
     const tocSvc: Partial<AppTocService> = {}
+    const tocConfigSvc: Partial<TocConfigService> = {}
+    const activatedRoute: Partial<ActivatedRoute> = {}
     const loggerSvc: Partial<LoggerService> = {}
     const translate: Partial<TranslateService> = {}
     const dialogRef: Partial<MatDialogRef<CourseCompletionDialogComponent>> = {}
@@ -23,12 +26,14 @@ describe('CourseCompletionDialogComponent', () => {
         component = new CourseCompletionDialogComponent(
             ratingSvc as RatingService,
             tocSvc as AppTocService,
+            tocConfigSvc as TocConfigService,
+            activatedRoute as ActivatedRoute,
             loggerSvc as LoggerService,
             translate as TranslateService,
             dialogRef as MatDialogRef<CourseCompletionDialogComponent>,
             langtranslations as MultilingualTranslationsService,
             events as EventService,
-            data
+            data,
         )
     })
 

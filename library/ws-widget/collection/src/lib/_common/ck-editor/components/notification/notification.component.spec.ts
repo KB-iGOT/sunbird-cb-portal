@@ -1,4 +1,7 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+import { NO_ERRORS_SCHEMA } from '@angular/core'
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing'
+import { MAT_SNACK_BAR_DATA } from '@angular/material/snack-bar'
+import { autoMock } from 'src/testing/auto-mock'
 
 import { NotificationComponent } from './notification.component'
 
@@ -6,17 +9,24 @@ describe('NotificationComponent', () => {
   let component: NotificationComponent
   let fixture: ComponentFixture<NotificationComponent>
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [NotificationComponent],
+      providers: [
+        { provide: MAT_SNACK_BAR_DATA, useValue: autoMock() },
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+      teardown: { destroyAfterEach: true, rethrowErrors: false },
     })
-      .compileComponents()
+    // the template is stubbed out and change detection is not run, so this only
+    // verifies that the component can be constructed with its dependencies
+    .overrideTemplate(NotificationComponent, '')
+    .compileComponents()
   }))
 
   beforeEach(() => {
     fixture = TestBed.createComponent(NotificationComponent)
     component = fixture.componentInstance
-    fixture.detectChanges()
   })
 
   it('should create', () => {

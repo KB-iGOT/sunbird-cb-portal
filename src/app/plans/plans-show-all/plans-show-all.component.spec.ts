@@ -744,7 +744,7 @@ describe('PlansShowAllComponent', () => {
       component.ngOnInit()
 
       expect(component.pageTitle()).toBe('plansShowAll.allPlans')
-      expect(component.breadcrumbData()[2].title).toBe('plansShowAll.allPlans')
+      expect(component.breadcrumbData()[1].title).toBe('plansShowAll.allPlans')
     })
   })
 
@@ -766,22 +766,22 @@ describe('PlansShowAllComponent', () => {
   })
 
   describe('breadcrumb', () => {
-    it('trails Home > Plans > plan type, with the plan type as the current page', () => {
+    it('trails Home > plan type, with the plan type as the current page', () => {
       component.ngOnInit()
       const crumbs = component.breadcrumbData()
 
       expect(crumbs.map(crumb => crumb.title)).toEqual([
-        'plansShowAll.home', 'plansShowAll.plans', 'plansShowAll.aparPlan',
+        'plansShowAll.home', 'plansShowAll.aparPlan',
       ])
-      expect(crumbs[1].url).toBe('/app/plans')
-      expect(crumbs[2].url).toBeUndefined()
+      expect(crumbs[0].url).toBe('/page/home')
+      expect(crumbs[1].url).toBeUndefined()
     })
 
     it('names the plan type being viewed', () => {
       build({ planType: 'aicbp' })
       component.ngOnInit()
 
-      expect(component.breadcrumbData()[2].title).toBe('plansShowAll.aiCbpDraftPlan')
+      expect(component.breadcrumbData()[1].title).toBe('plansShowAll.aiCbpDraftPlan')
     })
   })
 

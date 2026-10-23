@@ -18,6 +18,7 @@ describe('ProfileEntryEditComponent', () => {
       getDegreesList: jest.fn().mockReturnValue({ subscribe: jest.fn((cb: any) => cb({ result: { degreesList: { degrees: [] } } })) }),
       getInstitutionsList: jest.fn().mockReturnValue({ subscribe: jest.fn((cb: any) => cb({ result: { institutionList: { institutions: [] } } })) }),
       updateAchievementPic: jest.fn().mockReturnValue({ subscribe: jest.fn((cb: any) => cb({ result: { url: '/userAchievements/test.png' } })) }),
+      fetchCompetencyV6: jest.fn().mockReturnValue({ subscribe: jest.fn() }),
     };
     mockSnackBar = { open: jest.fn() };
     mockPipeImgUrl = { transform: jest.fn().mockReturnValue('mockedUrl') };
@@ -35,7 +36,7 @@ describe('ProfileEntryEditComponent', () => {
             setValidators: jest.fn(),
             updateValueAndValidity: jest.fn(),
             markAsTouched: jest.fn(),
-            valueChanges: { pipe: jest.fn().mockReturnValue({ subscribe: jest.fn() }) },
+            valueChanges: { pipe: jest.fn().mockReturnValue({ subscribe: jest.fn() }), subscribe: jest.fn() },
             reset: jest.fn(),
             touched: false,
             hasError: jest.fn().mockReturnValue(false),
@@ -167,13 +168,11 @@ describe('ProfileEntryEditComponent', () => {
     expect(component.serviceHistoryValueChangeFunctions).toHaveBeenCalled();
   });
 
-  it('should call getDegreesList, getInstitutionsList, educationFormValuChange in createEducationalQualificationsForm', () => {
-    component.getDegreesList = jest.fn();
-    component.getInstitutionsList = jest.fn();
+  it('should call generateYearsList, educationFormValuChange in createEducationalQualificationsForm', () => {
+    component.generateYearsList = jest.fn();
     component.educationFormValuChange = jest.fn();
     component.createEducationalQualificationsForm();
-    expect(component.getDegreesList).toHaveBeenCalled();
-    expect(component.getInstitutionsList).toHaveBeenCalled();
+    expect(component.generateYearsList).toHaveBeenCalled();
     expect(component.educationFormValuChange).toHaveBeenCalled();
   });
 
@@ -195,6 +194,7 @@ describe('ProfileEntryEditComponent', () => {
 
   it('should call openSnackbar with error in getdesignationsMeta error', () => {
     component.selctedOrgDetails = { rootOrgId: 'root' };
+    component.selectedOrgHasDesignations = true;
     mockProfileV2RevampService.searchIgotDesignation = jest.fn().mockReturnValue({
       subscribe: ({ error }: any) => error({}),
     });
@@ -277,21 +277,21 @@ describe('ProfileEntryEditComponent', () => {
     expect(setValue).not.toHaveBeenCalled();
   });
 
-  it('should call openSnackbar with error in getDegreesList error', () => {
-    mockProfileV2RevampService.getDegreesList = jest.fn().mockReturnValue({
+  it('should call openSnackbar with error in getEducationalQualifications degree error', () => {
+    mockProfileV2RevampService.getEducationsQualificationsSearch = jest.fn().mockReturnValue({
       subscribe: ({ error }: any) => error({}),
     });
     component.openSnackbar = jest.fn();
-    component.getDegreesList();
+    component.getEducationalQualifications('degree');
     expect(component.openSnackbar).toHaveBeenCalled();
   });
 
-  it('should call openSnackbar with error in getInstitutionsList error', () => {
-    mockProfileV2RevampService.getInstitutionsList = jest.fn().mockReturnValue({
+  it('should call openSnackbar with error in getEducationalQualifications institute error', () => {
+    mockProfileV2RevampService.getEducationsQualificationsSearch = jest.fn().mockReturnValue({
       subscribe: ({ error }: any) => error({}),
     });
     component.openSnackbar = jest.fn();
-    component.getInstitutionsList();
+    component.getEducationalQualifications('institute');
     expect(component.openSnackbar).toHaveBeenCalled();
   });
 
@@ -306,7 +306,7 @@ describe('ProfileEntryEditComponent', () => {
       disable: jest.fn(),
     });
     component.pipeImgUrl = { transform: jest.fn() };
-    component.saveImage({ name: 'test.png' });
+    component.saveImage(new File(['test'], 'test.png', { type: 'image/png' }));
     expect(component.openSnackbar).toHaveBeenCalledWith('fail');
   });
 
@@ -325,16 +325,16 @@ describe('ProfileEntryEditComponent', () => {
     expect(enable).toHaveBeenCalled();
   });
 
-  it('should call openSnackbar if file is not image in onFileSelected', () => {
+  it('should call openSnackbar if file type is not supported in onFileSelected', () => {
     component.openSnackbar = jest.fn();
-    component.onFileSelected([{ type: 'application/pdf' }]);
-    expect(component.openSnackbar).toHaveBeenCalledWith('Only images are supported');
+    component.onFileSelected([{ type: 'text/plain' }]);
+    expect(component.openSnackbar).toHaveBeenCalledWith('Only PNG, JPG, JPEG and PDF files are supported');
   });
 
-  it('should call openSnackbar if image size > 500KB in onFileSelected', () => {
+  it('should call openSnackbar if file size > 5MB in onFileSelected', () => {
     component.openSnackbar = jest.fn();
-    component.onFileSelected([{ type: 'image/png', size: 600 * 1024 }]);
-    expect(component.openSnackbar).toHaveBeenCalledWith('Selected image size is more than 500KB.');
+    component.onFileSelected([{ type: 'image/png', size: 6000 * 1024 }]);
+    expect(component.openSnackbar).toHaveBeenCalledWith('Selected file size is more than 5MB.');
   });
 
   it('should call saveImage if file is image and size < 500KB in onFileSelected', () => {
@@ -463,6 +463,7 @@ describe('ProfileEntryEditComponent - Additional Cases', () => {
       getDegreesList: jest.fn().mockReturnValue({ subscribe: jest.fn((cb: any) => cb({ result: { degreesList: { degrees: [] } } })) }),
       getInstitutionsList: jest.fn().mockReturnValue({ subscribe: jest.fn((cb: any) => cb({ result: { institutionList: { institutions: [] } } })) }),
       updateAchievementPic: jest.fn().mockReturnValue({ subscribe: jest.fn((cb: any) => cb({ result: { url: '/userAchievements/test.png' } })) }),
+      fetchCompetencyV6: jest.fn().mockReturnValue({ subscribe: jest.fn() }),
     };
     mockSnackBar = { open: jest.fn() };
     mockPipeImgUrl = { transform: jest.fn().mockReturnValue('mockedUrl') };
@@ -534,17 +535,17 @@ describe('ProfileEntryEditComponent - Additional Cases', () => {
   });
 
   it('should call valueChanges in serviceHistoryValueChangeFunctions', () => {
-    component.entryForm.get = jest.fn().mockReturnValue({ valueChanges: { pipe: jest.fn().mockReturnValue({ subscribe: jest.fn() }) } });
+    component.entryForm.get = jest.fn().mockReturnValue({ valueChanges: { pipe: jest.fn().mockReturnValue({ subscribe: jest.fn() }), subscribe: jest.fn() } });
     expect(() => component.serviceHistoryValueChangeFunctions()).not.toThrow();
   });
 
   it('should call valueChanges in educationFormValuChange', () => {
-    component.entryForm.get = jest.fn().mockReturnValue({ valueChanges: { pipe: jest.fn().mockReturnValue({ subscribe: jest.fn() }) } });
+    component.entryForm.get = jest.fn().mockReturnValue({ valueChanges: { pipe: jest.fn().mockReturnValue({ subscribe: jest.fn() }), subscribe: jest.fn() } });
     expect(() => component.educationFormValuChange()).not.toThrow();
   });
 
   it('should call valueChanges in valueChanges', () => {
-    component.entryForm.get = jest.fn().mockReturnValue({ valueChanges: { pipe: jest.fn().mockReturnValue({ subscribe: jest.fn() }) } });
+    component.entryForm.get = jest.fn().mockReturnValue({ valueChanges: { pipe: jest.fn().mockReturnValue({ subscribe: jest.fn() }), subscribe: jest.fn() } });
     expect(() => component.valueChanges()).not.toThrow();
   });
 
@@ -555,9 +556,9 @@ describe('ProfileEntryEditComponent - Additional Cases', () => {
     component.entryForm.get = jest.fn().mockReturnValue({ patchValue, updateValueAndValidity, disable });
     component.pipeImgUrl = { transform: jest.fn().mockReturnValue('mockedUrl') };
     mockProfileV2RevampService.updateAchievementPic = jest.fn().mockReturnValue({
-      subscribe: (cb: any) => cb({ result: { url: '/userAchievements/test.png' } }),
+      subscribe: ({ next }: any) => next({ result: { url: '/userAchievements/test.png' } }),
     });
-    expect(() => component.saveImage({ name: 'test.png' })).not.toThrow();
+    expect(() => component.saveImage(new File(['test'], 'test.png', { type: 'image/png' }))).not.toThrow();
     expect(patchValue).toHaveBeenCalled();
     expect(updateValueAndValidity).toHaveBeenCalled();
     expect(disable).toHaveBeenCalled();

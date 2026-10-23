@@ -138,7 +138,7 @@ describe('PeopleSuggestionsComponent', () => {
   describe('connect', () => {
     it('should call sendConnectionRequest with person', () => {
       const mockPerson = { id: 'test-id' }
-      const sendConnectionRequestSpy = jest.spyOn(component, 'sendConnectionRequest')
+      const sendConnectionRequestSpy = jest.spyOn(component, 'sendConnectionRequest').mockImplementation(() => { })
 
       component.connect(mockPerson)
 

@@ -207,7 +207,7 @@ export class MyContentComponent implements OnInit, OnDestroy {
       })
     }
     if (this.queryFilter) {
-      delete requestData.request.sort
+      delete (requestData.request as { sort?: unknown }).sort
     }
     if (
       [
@@ -321,7 +321,7 @@ export class MyContentComponent implements OnInit, OnDestroy {
   deleteContent(request: NSContent.IContentMeta) {
     this.loadService.changeLoad.next(true)
     this.myContSvc
-      .deleteContent(request.identifier, request.contentType === 'Knowledge Board')
+      .deleteContent(request.identifier!, request.contentType === 'Knowledge Board')
       .subscribe(
         () => {
           this.loadService.changeLoad.next(false)
@@ -358,7 +358,7 @@ export class MyContentComponent implements OnInit, OnDestroy {
 
   restoreContent(request: NSContent.IContentMeta) {
     this.loadService.changeLoad.next(true)
-    this.myContSvc.restoreContent(request.identifier).subscribe(
+    this.myContSvc.restoreContent(request.identifier!).subscribe(
       () => {
         this.loadService.changeLoad.next(false)
         this.snackBar.openFromComponent(NotificationComponent, {
@@ -392,7 +392,7 @@ export class MyContentComponent implements OnInit, OnDestroy {
 
   createContent(request: NSContent.IContentMeta) {
     this.loadService.changeLoad.next(true)
-    this.myContSvc.createInAnotherLanguage(request.identifier, request.locale).subscribe(
+    this.myContSvc.createInAnotherLanguage(request.identifier!, request.locale).subscribe(
       (id: string) => {
         this.loadService.changeLoad.next(false)
         this.snackBar.openFromComponent(NotificationComponent, {
@@ -483,7 +483,7 @@ export class MyContentComponent implements OnInit, OnDestroy {
 
   unPublishOrDraft(request: NSContent.IContentMeta) {
     this.loadService.changeLoad.next(true)
-    this.myContSvc.upPublishOrDraft(request.identifier, request.status !== 'Unpublished').subscribe(
+    this.myContSvc.upPublishOrDraft(request.identifier!, request.status !== 'Unpublished').subscribe(
       () => {
         this.loadService.changeLoad.next(false)
         this.snackBar.openFromComponent(NotificationComponent, {

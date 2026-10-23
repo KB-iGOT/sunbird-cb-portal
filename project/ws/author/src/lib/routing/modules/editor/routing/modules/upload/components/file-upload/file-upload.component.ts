@@ -1,3 +1,4 @@
+/// <reference types="zip.js" />
 import { ValueService } from '@sunbird-cb/utils-v2'
 import {
   Component,
@@ -405,14 +406,14 @@ export class FileUploadComponent implements OnInit {
       ) {
         if (
           currentMeta[v] ||
-          (this.authInitService.authConfig[v as keyof IFormMeta].type === 'boolean' &&
+          (this.authInitService.authConfig[v as keyof IFormMeta]!.type === 'boolean' &&
             currentMeta[v] === false)
         ) {
           meta[v] = currentMeta[v]
         } else {
           meta[v] = JSON.parse(
             JSON.stringify(
-              this.authInitService.authConfig[v as keyof IFormMeta].defaultValue[
+              this.authInitService.authConfig[v as keyof IFormMeta]!.defaultValue[
                 originalMeta.contentType
                 // tslint:disable-next-line: ter-computed-property-spacing
               ][0].value,
@@ -435,7 +436,7 @@ export class FileUploadComponent implements OnInit {
       this.duration = Math.round(content.duration)
       this.enableUpload = true
     }
-    content.src = URL.createObjectURL(this.file)
+    content.src = URL.createObjectURL(this.file as File)
   }
 
   extractFile() {

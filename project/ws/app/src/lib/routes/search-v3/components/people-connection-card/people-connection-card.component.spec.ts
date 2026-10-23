@@ -193,6 +193,7 @@ describe('PeopleConnectionCardComponent', () => {
 
       component.unmappedUser = {
         userId: 'user456',
+        rootOrgName: 'Marketing Org',
         employmentDetails: {
           departmentName: 'Marketing'
         }
@@ -215,7 +216,7 @@ describe('PeopleConnectionCardComponent', () => {
         userDepartmentFrom: 'Engineering',
         userIdTo: 'user456',
         userNameTo: 'id456',
-        userDepartmentTo: ''
+        userDepartmentTo: 'Marketing Org'
       });
 
       expect(emitSpy).toHaveBeenCalledWith('connection-updated');

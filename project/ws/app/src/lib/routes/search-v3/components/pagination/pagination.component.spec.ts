@@ -84,8 +84,8 @@ describe('PaginationComponent', () => {
       // Assert
       expect(component.showingArray.length).toBe(0);
       expect(component.pagination.dividedPagination).toBe(0);
-      expect(component.pagination.lower).toBe('');
-      expect(component.pagination.upper).toBe('');
+      expect(component.pagination.lower).toBe(0);
+      expect(component.pagination.upper).toBe(0);
     });
 
     it('should handle partial page correctly', () => {

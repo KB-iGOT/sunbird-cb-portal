@@ -60,13 +60,13 @@ export class CollectionResolverService {
         editable,
         parentId,
         id: this.uniqueId,
-        identifier: currContent.identifier,
+        identifier: currContent.identifier!,
         category: this.getCategory(currContent),
         childLoaded: !this.lazyLoad.has(this.getCategory(currContent)),
         children: [],
       }
-      map.set(currContent.identifier, currContent)
-      uniqueIdMap.set(treeStructure.id, currContent.identifier)
+      map.set(currContent.identifier!, currContent)
+      uniqueIdMap.set(treeStructure.id, currContent.identifier!)
       const uniqueIds = lexIdMap.get(treeStructure.identifier)
       if (uniqueIds) {
         uniqueIds.push(treeStructure.id)
@@ -223,7 +223,7 @@ export class CollectionResolverService {
       ? this.authInitService.collectionConfig.enabledRole.includes('reviewer')
       : content.status === 'Reviewed'
         ? this.authInitService.collectionConfig.enabledRole.includes('publisher')
-        : ['Draft', 'Live'].includes(content.status)
+        : ['Draft', 'Live'].includes(content.status!)
           ? this.authInitService.collectionConfig.enabledRole.includes('author')
           : this.accessService.hasRole(['admin'])
   }

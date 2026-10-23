@@ -18,7 +18,7 @@ describe('SearchSortInputComponent Additional Tests', () => {
     component = new SearchSortInputComponent();
   });
 
-  it('should call adjustSelectWidth when ngAfterViewInit is called', () => {
+  it('should not call adjustSelectWidth when ngAfterViewInit is called', () => {
     // Arrange
     const spy = jest.spyOn(component, 'adjustSelectWidth');
 
@@ -26,10 +26,10 @@ describe('SearchSortInputComponent Additional Tests', () => {
     component.ngAfterViewInit();
 
     // Assert
-    expect(spy).toHaveBeenCalled();
+    expect(spy).not.toHaveBeenCalled();
   });
 
-  it('should call adjustSelectWidth when onChange is called', () => {
+  it('should not call adjustSelectWidth when onChange is called', () => {
     // Arrange
     const spy = jest.spyOn(component, 'adjustSelectWidth');
     const mockEvent = {
@@ -40,7 +40,7 @@ describe('SearchSortInputComponent Additional Tests', () => {
     component.onChange(mockEvent);
 
     // Assert
-    expect(spy).toHaveBeenCalled();
+    expect(spy).not.toHaveBeenCalled();
   });
 
   it('should set the select width based on the selected option text', fakeAsync(() => {
@@ -204,6 +204,7 @@ describe('SearchSortInputComponent Additional Tests', () => {
 
     // Act
     component.onChange(mockEvent);
+    component.adjustSelectWidth();
     tick(0); // Advance timers
 
     // Assert

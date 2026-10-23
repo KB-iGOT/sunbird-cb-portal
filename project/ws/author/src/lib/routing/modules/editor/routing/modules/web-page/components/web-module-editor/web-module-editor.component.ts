@@ -386,7 +386,7 @@ export class WebModuleEditorComponent implements OnInit, OnDestroy {
           a.URL = STREAM_FILES + a.title
         })
       } else {
-        delete e.audio
+        delete (e as Partial<ModuleObj>).audio
       }
     })
     const changedPages = this.userData[this.currentId].pages.filter(e => e.isBdchanged)
@@ -477,7 +477,7 @@ export class WebModuleEditorComponent implements OnInit, OnDestroy {
           if (confirm) {
             this.allContents = this.allContents.filter(v => v.identifier !== this.currentId)
             if (this.allContents.length) {
-              this.metaContentService.changeActiveCont.next(this.allContents[0].identifier)
+              this.metaContentService.changeActiveCont.next(this.allContents[0].identifier!)
             } else {
               this.router.navigateByUrl('/author/home')
             }
@@ -507,7 +507,7 @@ export class WebModuleEditorComponent implements OnInit, OnDestroy {
             this.showNotification(Notify.SUCCESS)
             this.allContents = this.allContents.filter(v => v.identifier !== this.currentId)
             if (this.allContents.length) {
-              this.metaContentService.changeActiveCont.next(this.allContents[0].identifier)
+              this.metaContentService.changeActiveCont.next(this.allContents[0].identifier!)
             } else {
               this.router.navigateByUrl('/author/home')
             }
@@ -529,7 +529,7 @@ export class WebModuleEditorComponent implements OnInit, OnDestroy {
 
   isDirectPublish(): boolean {
     return (
-      ['Draft', 'Live'].includes(this.metaContentService.originalContent[this.currentId].status) &&
+      ['Draft', 'Live'].includes(this.metaContentService.originalContent[this.currentId].status!) &&
       this.isPublisherSame()
     )
   }
@@ -541,7 +541,7 @@ export class WebModuleEditorComponent implements OnInit, OnDestroy {
         operation:
           commentsForm.controls.action.value === 'accept' ||
             ['Draft', 'Live'].includes(
-              this.metaContentService.originalContent[this.currentId].status,
+              this.metaContentService.originalContent[this.currentId].status!,
             )
             ? ((this.accessService.authoringConfig.isMultiStepFlow && this.isDirectPublish()) ||
               !this.accessService.authoringConfig.isMultiStepFlow) &&
@@ -564,7 +564,7 @@ export class WebModuleEditorComponent implements OnInit, OnDestroy {
             .forwardBackward(
               body,
               this.currentId,
-              this.metaContentService.originalContent[this.currentId].status,
+              this.metaContentService.originalContent[this.currentId].status!,
             )
             .pipe(
               mergeMap(() =>
@@ -595,7 +595,7 @@ export class WebModuleEditorComponent implements OnInit, OnDestroy {
           })
           this.allContents = this.allContents.filter(v => v.identifier !== this.currentId)
           if (this.allContents.length) {
-            this.metaContentService.changeActiveCont.next(this.allContents[0].identifier)
+            this.metaContentService.changeActiveCont.next(this.allContents[0].identifier!)
           } else {
             this.router.navigateByUrl('/author/home')
           }
@@ -760,8 +760,8 @@ export class WebModuleEditorComponent implements OnInit, OnDestroy {
   }
 
   changeContent(data: NSContent.IContentMeta) {
-    this.currentId = data.identifier
-    this.metaContentService.changeActiveCont.next(data.identifier)
+    this.currentId = data.identifier!
+    this.metaContentService.changeActiveCont.next(data.identifier!)
     this.selectedPage = 0
   }
 
@@ -854,7 +854,7 @@ export class WebModuleEditorComponent implements OnInit, OnDestroy {
 
   canDelete() {
     return this.accessService.hasRole(['editor', 'admin']) ||
-      (['Draft', 'Live'].includes(this.metaContentService.originalContent[this.currentId].status) &&
+      (['Draft', 'Live'].includes(this.metaContentService.originalContent[this.currentId].status!) &&
         this.metaContentService.originalContent[this.currentId].creatorContacts.find(v => v.id === this.accessService.userId)
       )
   }

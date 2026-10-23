@@ -41,6 +41,7 @@ describe('InitService', () => {
   let contentDictionarySvc: any
   let formSvc: any
   let formConfigService: any
+  let enrollmentSummaryState: any
   let domSanitizer: any
   let iconRegistry: any
   let routes: Record<string, any>
@@ -162,9 +163,11 @@ describe('InitService', () => {
     }
     domSanitizer = { bypassSecurityTrustResourceUrl: jest.fn((u: string) => u) }
     iconRegistry = { addSvgIcon: jest.fn() }
+    enrollmentSummaryState = { start: jest.fn(), done: jest.fn() }
     service = new InitService(
       logger, configSvc, domainConfSvc, widgetResolver, sbUiResolver, settingsSvc, userPreference, http, npsSvc,
       translate, enrollSvc, netCoreService, commonDataSvc, contentDictionarySvc, formSvc, formConfigService,
+      enrollmentSummaryState,
       '/', domSanitizer, iconRegistry,
     )
   })
@@ -891,5 +894,10 @@ describe('InitService', () => {
       await service.netCoreUserLoginSetup()
       expect(netCoreService.netCoreUserLoginSetup).not.toHaveBeenCalled()
     })
+  })
+
+  it('should register the custom svg icons on construction', () => {
+    expect(iconRegistry.addSvgIcon).toHaveBeenCalledWith('pin', expect.anything())
+    expect(iconRegistry.addSvgIcon).toHaveBeenCalledWith('facebook', expect.anything())
   })
 })
