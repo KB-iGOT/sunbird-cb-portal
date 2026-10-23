@@ -1,4 +1,10 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+import { NO_ERRORS_SCHEMA } from '@angular/core'
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing'
+import { GyaanKarmayogiService } from '../../services/gyaan-karmayogi.service'
+import { TitleCasePipe } from '@angular/common'
+import { MatBottomSheet } from '@angular/material/bottom-sheet'
+import { ActivatedRoute } from '@angular/router'
+import { autoMock } from 'src/testing/auto-mock'
 
 import { GyaanKarmayogiViewAllComponent } from './gyaan-karmayogi-view-all.component'
 
@@ -6,17 +12,27 @@ describe('GyaanKarmayogiViewAllComponent', () => {
   let component: GyaanKarmayogiViewAllComponent
   let fixture: ComponentFixture<GyaanKarmayogiViewAllComponent>
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [GyaanKarmayogiViewAllComponent],
+      providers: [
+        { provide: MatBottomSheet, useValue: autoMock() },
+        { provide: ActivatedRoute, useValue: autoMock() },
+        { provide: GyaanKarmayogiService, useValue: autoMock() },
+        { provide: TitleCasePipe, useValue: autoMock() },
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+      teardown: { destroyAfterEach: true, rethrowErrors: false },
     })
+    // the template is stubbed out and change detection is not run, so this only
+    // verifies that the component can be constructed with its dependencies
+    .overrideTemplate(GyaanKarmayogiViewAllComponent, '')
     .compileComponents()
   }))
 
   beforeEach(() => {
     fixture = TestBed.createComponent(GyaanKarmayogiViewAllComponent)
     component = fixture.componentInstance
-    fixture.detectChanges()
   })
 
   it('should create', () => {

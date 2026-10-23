@@ -3,7 +3,7 @@ import { of } from 'rxjs'
 import { videoJsInitializer } from '@sunbird-cb/collection'
 
 // Mock the videojs-util functions
-jest.mock('../../../../../../../../../library/ws-widget/collection/src/lib/_services/videojs-util', () => ({
+jest.mock('@sunbird-cb/collection', () => ({
   videoJsInitializer: jest.fn().mockImplementation(() => ({
     player: {
       dispose: jest.fn()
@@ -60,7 +60,13 @@ jest.mock('@sunbird-cb/utils-v2', () => ({
 }))
 
 // Mock videojs
-jest.mock('video.js', () => jest.fn())
+jest.mock('video.js', () => {
+  const videojs: any = jest.fn()
+  videojs.getComponent = jest.fn(() => class { })
+  videojs.registerComponent = jest.fn()
+  videojs.registerPlugin = jest.fn()
+  return { __esModule: true, default: videojs }
+})
 
 describe('EventVideoPlayerComponent', () => {
   let component: EventVideoPlayerComponent
@@ -389,6 +395,7 @@ describe('EventVideoPlayerComponent', () => {
       60, // progress (event data duration)
       3600, // timeSpent
       "", // lastTimeAccessed (not set in this test)
+      true, // video ended counts as fully watched
     )
 
     // Restore mocks

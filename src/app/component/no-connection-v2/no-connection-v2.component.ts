@@ -30,6 +30,9 @@ export class NoConnectionV2Component implements OnDestroy {
   private handleConnectionChange(online: boolean) {
     this.isOnline.set(online)
     this.display.set(true)
+    // when the banner is already visible, setting display to true again does not
+    // re-run the effect, so the hide timer has to be restarted here
+    this.scheduleHide()
   }
 
   private scheduleHide() {

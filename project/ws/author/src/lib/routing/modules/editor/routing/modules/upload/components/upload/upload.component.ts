@@ -163,7 +163,7 @@ export class UploadComponent implements OnInit, OnDestroy {
   }
 
   changeContent(content: NSContent.IContentMeta) {
-    this.contentService.changeActiveCont.next(content.identifier)
+    this.contentService.changeActiveCont.next(content.identifier!)
   }
 
   save(nextAction?: string) {
@@ -278,7 +278,7 @@ export class UploadComponent implements OnInit, OnDestroy {
         operation:
           commentsForm.controls.action.value === 'accept' ||
             ['Draft', 'Live'].includes(
-              this.contentService.originalContent[this.currentContent].status,
+              this.contentService.originalContent[this.currentContent].status!,
             )
             ? ((this.accessService.authoringConfig.isMultiStepFlow && this.isDirectPublish()) ||
               !this.accessService.authoringConfig.isMultiStepFlow) &&
@@ -301,7 +301,7 @@ export class UploadComponent implements OnInit, OnDestroy {
             .forwardBackward(
               body,
               this.currentContent,
-              this.contentService.originalContent[this.currentContent].status,
+              this.contentService.originalContent[this.currentContent].status!,
             )
             .pipe(
               mergeMap(() =>
@@ -332,7 +332,7 @@ export class UploadComponent implements OnInit, OnDestroy {
           })
           this.contents = this.contents.filter(v => v.identifier !== this.currentContent)
           if (this.contents.length) {
-            this.contentService.changeActiveCont.next(this.contents[0].identifier)
+            this.contentService.changeActiveCont.next(this.contents[0].identifier!)
           } else {
             this.router.navigateByUrl('/author/home')
           }
@@ -499,7 +499,7 @@ export class UploadComponent implements OnInit, OnDestroy {
           if (confirm) {
             this.contents = this.contents.filter(v => v.identifier !== this.currentContent)
             if (this.contents.length) {
-              this.contentService.changeActiveCont.next(this.contents[0].identifier)
+              this.contentService.changeActiveCont.next(this.contents[0].identifier!)
             } else {
               this.router.navigateByUrl('/author/home')
             }
@@ -519,7 +519,7 @@ export class UploadComponent implements OnInit, OnDestroy {
 
   isDirectPublish(): boolean {
     return (
-      ['Draft', 'Live'].includes(this.contentService.originalContent[this.currentContent].status) &&
+      ['Draft', 'Live'].includes(this.contentService.originalContent[this.currentContent].status!) &&
       this.isPublisherSame()
     )
   }
@@ -537,7 +537,7 @@ export class UploadComponent implements OnInit, OnDestroy {
         })
         this.contents = this.contents.filter(v => v.identifier !== this.currentContent)
         if (this.contents.length) {
-          this.contentService.changeActiveCont.next(this.contents[0].identifier)
+          this.contentService.changeActiveCont.next(this.contents[0].identifier!)
         } else {
           this.router.navigateByUrl('/author/home')
         }
@@ -620,7 +620,7 @@ export class UploadComponent implements OnInit, OnDestroy {
 
   canDelete() {
     return this.accessService.hasRole(['editor', 'admin']) ||
-      (['Draft', 'Live'].includes(this.contentService.originalContent[this.currentContent].status) &&
+      (['Draft', 'Live'].includes(this.contentService.originalContent[this.currentContent].status!) &&
         this.contentService.originalContent[this.currentContent].creatorContacts.find(v => v.id === this.accessService.userId)
       )
   }

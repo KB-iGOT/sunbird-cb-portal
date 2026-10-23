@@ -1,12 +1,19 @@
 import { TestBed } from '@angular/core/testing'
+import { DatePipe } from '@angular/common'
+import { autoMock } from 'src/testing/auto-mock'
 
-import { QuarterFilterService } from './quarter-filter.service'
+import { QuarterServiceService } from './quarter-filter.service'
 
-describe('QuarterFilterService', () => {
-  beforeEach(() => TestBed.configureTestingModule({}))
+describe('QuarterServiceService', () => {
+  beforeEach(() => TestBed.configureTestingModule({
+    providers: [
+      QuarterServiceService,
+      { provide: DatePipe, useValue: autoMock() },
+    ],
+  }))
 
   it('should be created', () => {
-    const service: QuarterFilterService = TestBed.inject(QuarterFilterService)
+    const service: QuarterServiceService = TestBed.inject(QuarterServiceService)
     expect(service).toBeTruthy()
   })
 })

@@ -288,7 +288,7 @@ describe('CommonDataService', () => {
 
       service.getOrgDetails(false)
 
-      expect(readCustomSpy).toHaveBeenCalledWith(false)
+      expect(readCustomSpy).toHaveBeenCalledWith(false, ['f1'])
       expect(mockUserProfileService.readOrgData).not.toHaveBeenCalled()
     })
 
@@ -318,7 +318,7 @@ describe('CommonDataService', () => {
       service.getOrgDetails(false)
 
       expect(mockUserProfileService.readOrgData).toHaveBeenCalledWith({ request: { organisationId: 'org-456' } })
-      expect(readCustomSpy).toHaveBeenCalledWith(false)
+      expect(readCustomSpy).toHaveBeenCalledWith(false, ['f1'])
     })
 
     it('should update player status and check mandatory notification via the API path when not popup-eligible', () => {

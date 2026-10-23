@@ -29,7 +29,7 @@ export class TenantAdminService {
   }
 
   async getAllSources(): Promise<IResponseAllSources[]> {
-    return await this.http.get<IResponseAllSources[]>(API_ENDPOINTS.getAllSources).toPromise()
+    return (await this.http.get<IResponseAllSources[]>(API_ENDPOINTS.getAllSources).toPromise()) as IResponseAllSources[]
   }
 
   async registerUsers(data: any) {

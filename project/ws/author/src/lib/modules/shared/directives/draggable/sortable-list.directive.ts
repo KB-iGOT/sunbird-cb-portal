@@ -117,7 +117,7 @@ export class SortableListDirective implements AfterContentInit, OnDestroy, After
           clientRect.top + this.elementRef.nativeElement.children[0].children[1].scrollTop
         this.newClientRect.bottom =
           clientRect.bottom + this.elementRef.nativeElement.children[0].children[1].scrollTop
-        return this.newClientRect
+        return this.newClientRect as ClientRect
       }
     )
   }

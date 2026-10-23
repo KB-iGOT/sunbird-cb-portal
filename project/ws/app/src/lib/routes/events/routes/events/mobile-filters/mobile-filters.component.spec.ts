@@ -6,6 +6,8 @@ describe('MobileFiltersComponent', () => {
   let mockDatePipe: any;
   let mockBottomSheetRef: any;
   let mockData: any;
+  let mockTranslate: any;
+  let mockLangTranslations: any;
 
   beforeEach(() => {
     // Mock dependencies
@@ -24,6 +26,16 @@ describe('MobileFiltersComponent', () => {
 
     mockBottomSheetRef = {
       dismiss: jest.fn()
+    };
+
+    mockTranslate = {
+      setDefaultLang: jest.fn(),
+      use: jest.fn(),
+    };
+
+    mockLangTranslations = {
+      translateLabel: jest.fn((label: string) => label),
+      translateActualLabel: jest.fn((label: string) => label),
     };
 
     mockData = {
@@ -56,6 +68,8 @@ describe('MobileFiltersComponent', () => {
       mockData,
       mockSnackBar,
       mockDatePipe,
+      mockTranslate,
+      mockLangTranslations,
       mockBottomSheetRef
     );
 
@@ -85,6 +99,8 @@ describe('MobileFiltersComponent', () => {
       mockData,
       mockSnackBar,
       mockDatePipe,
+      mockTranslate,
+      mockLangTranslations,
       mockBottomSheetRef
     );
 
@@ -163,7 +179,7 @@ describe('MobileFiltersComponent', () => {
       component.startDate = '2025-03-01';
       component.endDate = '2025-03-15';
 
-      component.changeSelection(true, 'eventStatus', { name: 'Live Events' }, {});
+      component.changeStatus({ name: 'Live Events' }, 'eventStatus');
 
       expect(component.selectedFilters.eventDate).toBeUndefined();
       expect(component.selectedFilters.dateRange).toBeUndefined();

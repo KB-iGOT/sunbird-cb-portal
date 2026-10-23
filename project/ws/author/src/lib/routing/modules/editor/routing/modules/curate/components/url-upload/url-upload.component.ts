@@ -145,7 +145,7 @@ export class UrlUploadComponent implements OnInit {
       ) {
         if (
           currentMeta[v] ||
-          (this.initService.authConfig[v as keyof IFormMeta].type === 'boolean' &&
+          (this.initService.authConfig[v as keyof IFormMeta]!.type === 'boolean' &&
             meta[v] === false)
         ) {
           meta[v] = currentMeta[v]
@@ -153,7 +153,7 @@ export class UrlUploadComponent implements OnInit {
         } else {
           meta[v] = JSON.parse(
             JSON.stringify(
-              this.initService.authConfig[v as keyof IFormMeta].defaultValue[
+              this.initService.authConfig[v as keyof IFormMeta]!.defaultValue[
                 originalMeta.contentType
                 // tslint:disable-next-line: ter-computed-property-spacing
               ][0].value,

@@ -4,7 +4,15 @@ import { ActivatedRoute, Router } from '@angular/router';
 import { TranslateService } from '@ngx-translate/core';
 import { ConfigurationsService, EventService, WsEvents } from '@sunbird-cb/utils-v2';
 import * as _ from 'lodash';
+import { of } from 'rxjs';
 import { LeftMenuItemComponent } from './left-menu-item.component';
+import { SettingsService } from '../../settings.service';
+
+// lodash is a plain CJS module; exposing it as an ES module keeps its members spy-able
+jest.mock('lodash', () => {
+  const actual = jest.requireActual('lodash');
+  return { __esModule: true, ...actual, default: actual };
+});
 
 const mockEventService = { raiseInteractTelemetry: jest.fn() };
 const mockConfigurationsService = {
@@ -17,6 +25,7 @@ const mockConfigurationsService = {
   updateTourGuideMethod: jest.fn()
 };
 const mockRouter = { navigate: jest.fn() };
+const mockSettingsService = { resetPassword: jest.fn().mockReturnValue(of({})) };
 const mockActivatedRoute = { snapshot: {}, params: {}, queryParams: {} };
 const mockTranslateService = {
   setDefaultLang: jest.fn(),
@@ -51,7 +60,8 @@ describe('LeftMenuItemComponent', () => {
         { provide: ConfigurationsService, useValue: mockConfigurationsService },
         { provide: Router, useValue: mockRouter },
         { provide: ActivatedRoute, useValue: mockActivatedRoute },
-        { provide: TranslateService, useValue: mockTranslateService }
+        { provide: TranslateService, useValue: mockTranslateService },
+        { provide: SettingsService, useValue: mockSettingsService }
       ]
     }).compileComponents();
 

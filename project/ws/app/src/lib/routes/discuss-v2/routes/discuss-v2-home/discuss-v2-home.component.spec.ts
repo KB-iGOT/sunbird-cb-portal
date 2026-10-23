@@ -1,20 +1,56 @@
 import { DiscussV2HomeComponent } from './discuss-v2-home.component';
-import { Router } from '@angular/router';
+import { ElementRef } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
 
 describe('DiscussV2HomeComponent', () => {
   let component: DiscussV2HomeComponent;
   let mockRouter: jest.Mocked<Router>;
+  let mockActivatedRoute: any;
+  let elementRef: ElementRef;
 
   beforeEach(() => {
+    jest.spyOn(console, 'log').mockImplementation(() => {});
     mockRouter = {
       navigate: jest.fn(),
     } as any;
+    mockActivatedRoute = {
+      snapshot: {
+        data: {
+          pageData: { data: { feedsWidgetData: { feeds: true }, communityWidgetData: { community: true } } },
+        },
+      },
+    };
+    elementRef = new ElementRef(document.createElement('div'));
 
-    component = new DiscussV2HomeComponent(mockRouter);
+    component = new DiscussV2HomeComponent(mockRouter, mockActivatedRoute as ActivatedRoute, elementRef);
+  });
+
+  afterEach(() => {
+    component.ngOnDestroy();
+    jest.restoreAllMocks();
   });
 
   it('should create', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should read widget data from the route', () => {
+    expect(component.feedsWidgetData).toEqual({ feeds: true } as any);
+    expect(component.communityWidgetData).toEqual({ community: true });
+  });
+
+  it('should click the my communities tab when it is the initial tab', () => {
+    mockActivatedRoute.snapshot.data.initialTab = 'my_communities';
+    const tab = document.createElement('div');
+    tab.className = 'mat-mdc-tab';
+    tab.textContent = ' My Communities ';
+    const clickSpy = jest.spyOn(tab, 'click');
+    elementRef.nativeElement.appendChild(tab);
+    component = new DiscussV2HomeComponent(mockRouter, mockActivatedRoute as ActivatedRoute, elementRef);
+
+    component.ngAfterViewInit();
+
+    expect(clickSpy).toHaveBeenCalled();
   });
 
   it('should initialize shortCutData with correct values', () => {

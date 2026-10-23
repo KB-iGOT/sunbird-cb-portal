@@ -1,12 +1,14 @@
 import { UserStatsComponent } from './user-stats.component';
 import { UserStats } from '../../../models/profile-revamp.model';
 import { Router } from '@angular/router';
-import { EventService } from '@sunbird-cb/utils-v2';
+import { EventService, TelemetryService, UtilityService } from '@sunbird-cb/utils-v2';
 
 describe('UserStatsComponent', () => {
   let component: UserStatsComponent;
   let mockRouter: jest.Mocked<Router>;
   let mockEventSvc: { raiseInteractTelemetry: jest.Mock };
+  let mockUtilitySvc: { setRouteData: jest.Mock };
+  let mockTelemetrySvc: { sendEmptyObjectForNextInteract: jest.Mock };
 
   /* The Wallet Balance card as the profile page builds it */
   const walletStat: UserStats = {
@@ -24,9 +26,16 @@ describe('UserStatsComponent', () => {
     } as any;
 
     mockEventSvc = { raiseInteractTelemetry: jest.fn() };
+    mockUtilitySvc = { setRouteData: jest.fn() };
+    mockTelemetrySvc = { sendEmptyObjectForNextInteract: jest.fn() };
 
     // Create component instance
-    component = new UserStatsComponent(mockRouter, mockEventSvc as unknown as EventService);
+    component = new UserStatsComponent(
+      mockRouter,
+      mockEventSvc as unknown as EventService,
+      mockUtilitySvc as unknown as UtilityService,
+      mockTelemetrySvc as unknown as TelemetryService,
+    );
 
     // Initialize component properties
     component.userStats = [];
@@ -633,7 +642,14 @@ describe('UserStatsComponent', () => {
       expect(object).toEqual({});
       /* pageid comes off the context, not off edata - the listener reads it from
          data.pageContext.pageId. Without this the route would give '/app/person-profile/me'. */
-      expect(pageContext).toEqual({ pageId: 'app/person-profile/me' });
+      expect(pageContext).toEqual({ pageId: 'app/person-profile/me', module: 'Profile' });
+    });
+
+    it('should set the route data and clear the next-interact object before raising the event', () => {
+      component.viewAll(walletStat);
+
+      expect(mockUtilitySvc.setRouteData).toHaveBeenCalledWith([{ module: 'Profile', pageId: 'app/person-profile/me' }]);
+      expect(mockTelemetrySvc.sendEmptyObjectForNextInteract).toHaveBeenCalledTimes(1);
     });
 
     it('should still navigate to the wallet after raising the event', () => {

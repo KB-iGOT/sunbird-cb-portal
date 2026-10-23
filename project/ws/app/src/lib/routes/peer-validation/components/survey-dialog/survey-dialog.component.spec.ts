@@ -1,5 +1,7 @@
 import { of, throwError, Subject } from 'rxjs'
+import { TestBed } from '@angular/core/testing'
 import { FormBuilder, FormArray } from '@angular/forms'
+import { MAT_DIALOG_DATA } from '@angular/material/dialog'
 import { SurveyDialogComponent } from './survey-dialog.component'
 import { NSPeerValidation } from '../../models/peer-validation.model'
 
@@ -50,16 +52,17 @@ describe('SurveyDialogComponent', () => {
     snackBarMock = { open: jest.fn() }
     renderer2Mock = { setStyle: jest.fn(), removeStyle: jest.fn() }
 
-    component = new SurveyDialogComponent(
+    TestBed.configureTestingModule({
+      providers: [{ provide: MAT_DIALOG_DATA, useValue: makeSurveyData() }],
+    })
+    component = TestBed.runInInjectionContext(() => new SurveyDialogComponent(
       dialogRefMock,
-      makeSurveyData(),
-      document as any,
       fb,
       renderer2Mock,
       peerValidationServiceMock,
       dialogMock,
       snackBarMock
-    )
+    ))
   })
 
   // ─── ngOnInit ──────────────────────────────────────────────────────────────

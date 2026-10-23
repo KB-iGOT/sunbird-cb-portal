@@ -22,7 +22,11 @@ describe('NetworkComponent', () => {
   let mockSnackBar: any;
   let mockConfigService: any;
   let mockTranslateService: any;
+  let mockMobileAppsService: any;
+  let mockRouter: any;
+  let mockLangTranslations: any;
   let mockConnectionsUpdates$: Subject<any>;
+  let languageSelected$: Subject<any>;
 
   beforeEach(() => {
     // Create mock services
@@ -53,12 +57,28 @@ describe('NetworkComponent', () => {
       use: jest.fn()
     };
 
+    mockMobileAppsService = {
+      mobileTopHeaderVisibilityStatus: { next: jest.fn() }
+    };
+
+    mockRouter = {
+      navigate: jest.fn()
+    };
+
+    languageSelected$ = new Subject();
+    mockLangTranslations = {
+      languageSelectedObservable: languageSelected$
+    };
+
     // Create component instance
     component = new NetworkComponent(
       mockNetworkingService,
       mockSnackBar,
       mockConfigService,
-      mockTranslateService
+      mockTranslateService,
+      mockMobileAppsService,
+      mockRouter,
+      mockLangTranslations
     );
 
     // Reset mocks
@@ -111,6 +131,37 @@ describe('NetworkComponent', () => {
         routeId: 'mentors',
         imageUrl: './assets/icons/book_read.svg'
       });
+    });
+  });
+
+  describe('Constructor side effects', () => {
+    it('should hide the mobile top header', () => {
+      component = new NetworkComponent(
+        mockNetworkingService,
+        mockSnackBar,
+        mockConfigService,
+        mockTranslateService,
+        mockMobileAppsService,
+        mockRouter,
+        mockLangTranslations
+      );
+      expect(mockMobileAppsService.mobileTopHeaderVisibilityStatus.next).toHaveBeenCalledWith(false);
+    });
+
+    it('should update language when language selection changes', () => {
+      mockLocalStorage.getItem.mockReturnValue('hi');
+
+      languageSelected$.next('hi');
+
+      expect(mockTranslateService.setDefaultLang).toHaveBeenCalledWith('en');
+      expect(mockTranslateService.use).toHaveBeenCalledWith('hi');
+    });
+  });
+
+  describe('navigateHome', () => {
+    it('should navigate to home page', () => {
+      component.navigateHome();
+      expect(mockRouter.navigate).toHaveBeenCalledWith(['/page/home']);
     });
   });
 

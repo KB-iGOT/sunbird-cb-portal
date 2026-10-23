@@ -85,6 +85,7 @@ describe('RootComponent', () => {
   let mockLibNotificationsService: any
   let mockHomePageSvc: any
   let mockBreakpointObserver: any
+  let mockEnrollmentSummaryState: any
   let walletBalanceUpdated: Subject<number>
 
   const createComponent = (): any => new (RootComponent as any)(
@@ -111,6 +112,7 @@ describe('RootComponent', () => {
     mockLibNotificationsService,
     mockHomePageSvc,
     mockBreakpointObserver,
+    mockEnrollmentSummaryState,
   )
 
   const setPath = (path: string) => {
@@ -204,6 +206,7 @@ describe('RootComponent', () => {
     mockBreakpointObserver = {
       observe: jest.fn().mockReturnValue(of({ matches: false })),
     }
+    mockEnrollmentSummaryState = { loading$: of(false) }
     ; (environment as any).production = true
 
     component = createComponent()

@@ -8,8 +8,8 @@ describe('GlobalSearchComponent', () => {
   let mockActivatedRoute: any;
   let mockTranslateService: any;
   let mockConfigService: any;
-  let mockLangTranslations: any;
   let mockRouter: any;
+  let mockLangTranslations: any;
   let originalLocalStorage: Storage;
   let originalEnvironment: any;
 
@@ -58,7 +58,7 @@ describe('GlobalSearchComponent', () => {
         })
       };
     })();
-    
+
     Object.defineProperty(global, 'localStorage', {
       value: localStorageMock
     });
@@ -110,7 +110,7 @@ describe('GlobalSearchComponent', () => {
     // Arrange
     jest.clearAllMocks(); // Clear any previous calls
     localStorage.setItem('websiteLanguage', 'hi');
-    
+
     // Act
     component = new GlobalSearchComponent(
       mockActivatedRoute,
@@ -119,7 +119,7 @@ describe('GlobalSearchComponent', () => {
       mockRouter,
       mockLangTranslations
     );
-    
+
     // Assert
     expect(mockTranslateService.setDefaultLang).toHaveBeenCalledWith('en');
     expect(mockTranslateService.use).toHaveBeenCalledWith('hi');
@@ -129,7 +129,7 @@ describe('GlobalSearchComponent', () => {
     // Arrange
     jest.clearAllMocks(); // Clear any previous calls
     localStorage.removeItem('websiteLanguage');
-    
+
     // Act
     component = new GlobalSearchComponent(
       mockActivatedRoute,
@@ -138,7 +138,7 @@ describe('GlobalSearchComponent', () => {
       mockRouter,
       mockLangTranslations
     );
-    
+
     // Assert
     expect(mockTranslateService.setDefaultLang).not.toHaveBeenCalled();
     expect(mockTranslateService.use).not.toHaveBeenCalled();
@@ -147,7 +147,7 @@ describe('GlobalSearchComponent', () => {
   it('should set compentencyKey from configService', () => {
     // Act
     component.ngOnInit();
-    
+
     // Assert - Make sure environment is properly set up
     expect(environment.compentencyVersionKey).toBe('v3');
     expect(mockConfigService.compentency.v3).toBeDefined();
@@ -256,7 +256,7 @@ describe('GlobalSearchComponent', () => {
       'competencies_v3.name': ['comp1', 'comp2'],
       'topics': ['topic1', 'topic2']
     });
-    
+
     mockActivatedRoute.queryParamMap = of(createParamMap({
       f: filterJSON
     }));
@@ -289,10 +289,10 @@ describe('GlobalSearchComponent', () => {
   it('should translate correctly using the translateService', () => {
     // Arrange
     mockTranslateService.instant.mockReturnValue('Translated Text');
-    
+
     // Act
     const result = component.translateTo('Menu Name');
-    
+
     // Assert
     expect(mockTranslateService.instant).toHaveBeenCalledWith('globalsearch.MenuName');
     expect(result).toBe('Translated Text');
@@ -301,10 +301,10 @@ describe('GlobalSearchComponent', () => {
   it('should call router.navigate with correct params when filterSelectcategory is called', () => {
     // Arrange
     const queryParams = { category: 'Learning' };
-    
+
     // Act
     component.filterSelectcategory(queryParams);
-    
+
     // Assert
     expect(mockRouter.navigate).toHaveBeenCalledWith(
       [],

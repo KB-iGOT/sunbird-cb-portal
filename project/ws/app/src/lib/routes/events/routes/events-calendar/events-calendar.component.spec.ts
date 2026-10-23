@@ -46,7 +46,7 @@ describe('EventsCalendarComponent', () => {
     } as any
 
     eventServiceMock = {
-      getUserEnrollEvents: jest.fn()
+      getUserEnrollEvents: jest.fn().mockReturnValue(of({ result: { events: [] } }))
     } as any
 
     matSnackBarMock = {
@@ -83,7 +83,7 @@ describe('EventsCalendarComponent', () => {
       configSvcMock,
       routerMock,
       bottomSheetRefMock,
-      null, // No data provided initially
+      {}, // the module provides an empty object when no data is passed
       langtranslationsMock,
       eventsMock
     )
@@ -102,7 +102,7 @@ describe('EventsCalendarComponent', () => {
     expect(component.selected.getDate()).toBe(today.getDate())
     expect(component.selected.getMonth()).toBe(today.getMonth())
     expect(component.selected.getFullYear()).toBe(today.getFullYear())
-    expect(component.selectedDateText).toBe('19 Mar 2025')
+    expect(component.selectedDateText).toBe('Today')
     expect(component.currentMonthYearText).toBe('19 Mar 2025')
     expect(eventServiceMock.getUserEnrollEvents).toHaveBeenCalled()
   })
@@ -145,7 +145,10 @@ describe('EventsCalendarComponent', () => {
       {
         request: {
           retiredCoursesEnabled: true,
-          status: 'All'
+          status: 'All',
+          calendarEventEnabled: true,
+          eventStartDate: '19 Mar 2025',
+          eventEndDate: '19 Mar 2025',
         }
       }
     )
@@ -247,7 +250,7 @@ describe('EventsCalendarComponent', () => {
     datePipeMock.transform.mockReturnValueOnce('20 Mar 2025')
 
     // Call method
-    component.selectDate(newDate)
+    component.selectDate({ date: newDate, isPrevisDate: false })
 
     // Expectations
     expect(component.selected).toBe(newDate)

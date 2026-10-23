@@ -1,31 +1,69 @@
-import { TestBed, inject } from '@angular/core/testing'
-import { ConfigService } from '@sunbird/shared'
-import { LearnerService } from './../learner/learner.service'
-import { provideHttpClientTesting } from '@angular/common/http/testing'
-import { mockResponseData } from './certificate.service.spec.data'
+import { TestBed } from '@angular/core/testing'
+import { ConfigurationsService } from '@sunbird-cb/utils-v2'
+import { ApiService } from '@ws/author'
+import { of } from 'rxjs'
+
 import { CertificateService } from './certificate.service'
-import { of as observableOf, Observable } from 'rxjs'
-import { provideHttpClient, withInterceptorsFromDi } from '@angular/common/http';
 
 describe('CertificateService', () => {
-  beforeEach(() => TestBed.configureTestingModule({
-    imports: [],
-    providers: [ConfigService, LearnerService, provideHttpClient(withInterceptorsFromDi()), provideHttpClientTesting()]
-}))
+  let service: CertificateService
+  const apiServiceMock = {
+    post: jest.fn().mockReturnValue(of({})),
+    get: jest.fn().mockReturnValue(of({})),
+  }
+
+  beforeEach(() => {
+    jest.clearAllMocks()
+    TestBed.configureTestingModule({
+      providers: [
+        { provide: ApiService, useValue: apiServiceMock },
+        { provide: ConfigurationsService, useValue: {} },
+      ],
+    })
+    service = TestBed.inject(CertificateService)
+  })
 
   it('should be created', () => {
-    const service: CertificateService = TestBed.inject(CertificateService)
     expect(service).toBeTruthy()
   })
 
-  it('should call validateCertificate API', inject([],
-                                                   () => {
-      const certificateService = TestBed.inject(CertificateService)
-      const learnerService = TestBed.inject(LearnerService)
-      const params = { request: { certId: '123456', accessCode: 'QWERTY', verifySignature: 'true' } }
-      spyOn(learnerService, 'post').and.returnValue(observableOf(mockResponseData.validateCertificateCodeData))
-      certificateService.validateCertificate(params)
-      const options = { url: 'certreg/v1/certs/validate', data: params }
-      expect(learnerService.post).toHaveBeenCalledWith(options)
+  it('should call validateCertificate API', () => {
+    const params = { request: { certId: '123456', accessCode: 'QWERTY', verifySignature: 'true' } }
+    service.validateCertificate(params)
+    expect(apiServiceMock.post).toHaveBeenCalledWith('/api/certreg/v2/certs/validate', params)
+  })
+
+  it('should call validateMileStoneCertificate API', () => {
+    const params = { request: { certId: '123456' } }
+    service.validateMileStoneCertificate(params)
+    expect(apiServiceMock.post).toHaveBeenCalledWith('/api/certreg/v2/achievement/validate', params)
+  })
+
+  it('should call download certificate APIs', () => {
+    service.downloadCertificate('c1')
+    expect(apiServiceMock.get).toHaveBeenCalledWith('/api/certreg/v2/certs/download/c1')
+    service.downloadCertificate_v2('c2')
+    expect(apiServiceMock.get).toHaveBeenCalledWith('apis/protected/v8/cohorts/course/batch/cert/download/c2')
+  })
+
+  it('should call searchCertificate API with the recipient id', () => {
+    service.searchCertificate('u1')
+    expect(apiServiceMock.post).toHaveBeenCalledWith('/api/certreg/v1/certs/search', expect.objectContaining({
+      request: expect.objectContaining({
+        query: { bool: { must: [{ match_phrase: { 'recipient.id': 'u1' } }] } },
+        size: 50,
+      }),
     }))
+  })
+
+  it('should call validateEnrollmentEligibility API', () => {
+    service.validateEnrollmentEligibility('do_1', 'p1')
+    expect(apiServiceMock.post).toHaveBeenCalledWith('/apis/proxies/v8/cios-enroll/v1/validation', { courseId: 'do_1', partnerId: 'p1' })
+  })
+
+  it('should call consentSubmit API', () => {
+    const request = { a: 1 }
+    service.consentSubmit(request)
+    expect(apiServiceMock.post).toHaveBeenCalledWith('/apis/proxies/v8/consent/v1/acknowledge', request)
+  })
 })

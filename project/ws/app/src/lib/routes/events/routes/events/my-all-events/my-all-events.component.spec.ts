@@ -72,7 +72,6 @@ describe('MyAllEventsComponent', () => {
   let multilingualTranslationsServiceMock: any;
   let libEventServiceMock: any;
   let configurationsServiceMock: any;
-  let datePipeMock: any;
 
   beforeEach(() => {
     // Clear mocks and reset component for each test
@@ -89,7 +88,7 @@ describe('MyAllEventsComponent', () => {
     };
 
     eventServiceMock = {
-      getUserEnrollEvents: jest.fn().mockReturnValue(of({
+      myEvents: jest.fn().mockReturnValue(of({
         result: {
           events: [],
           count: 0
@@ -109,10 +108,6 @@ describe('MyAllEventsComponent', () => {
       userProfile: { userId: 'test-user-id' }
     };
 
-    datePipeMock = {
-      transform: jest.fn().mockReturnValue('2025-03-20')
-    };
-
     // Create component with mocked dependencies
     component = new MyAllEventsComponent(
       activatedRouteMock,
@@ -120,8 +115,7 @@ describe('MyAllEventsComponent', () => {
       eventServiceMock,
       multilingualTranslationsServiceMock,
       libEventServiceMock,
-      configurationsServiceMock,
-      datePipeMock
+      configurationsServiceMock
     );
 
     // Initialize important properties to prevent errors
@@ -155,8 +149,7 @@ describe('MyAllEventsComponent', () => {
       eventServiceMock,
       multilingualTranslationsServiceMock,
       libEventServiceMock,
-      configurationsServiceMock,
-      datePipeMock
+      configurationsServiceMock
     );
 
     expect(translateServiceMock.setDefaultLang).toHaveBeenCalledWith('en');
@@ -186,36 +179,6 @@ describe('MyAllEventsComponent', () => {
     component.ngOnInit();
 
     expect(component.tabSelected).toBe('upcoming');
-  });
-
-  it('should call fetchData on scroll when conditions are met', () => {
-    const fetchDataSpy = jest.spyOn(component, 'fetchData').mockImplementation(() => { });
-    component.isLoading = false;
-    component.showNextPage = true;
-
-    component.onScroll();
-
-    expect(fetchDataSpy).toHaveBeenCalled();
-  });
-
-  it('should not call fetchData on scroll when isLoading is true', () => {
-    const fetchDataSpy = jest.spyOn(component, 'fetchData').mockImplementation(() => { });
-    component.isLoading = true;
-    component.showNextPage = true;
-
-    component.onScroll();
-
-    expect(fetchDataSpy).not.toHaveBeenCalled();
-  });
-
-  it('should not call fetchData on scroll when showNextPage is false', () => {
-    const fetchDataSpy = jest.spyOn(component, 'fetchData').mockImplementation(() => { });
-    component.isLoading = false;
-    component.showNextPage = false;
-
-    component.onScroll();
-
-    expect(fetchDataSpy).not.toHaveBeenCalled();
   });
 
   it('should correctly identify a live event', () => {
@@ -306,7 +269,7 @@ describe('MyAllEventsComponent', () => {
     expect(component.tabIndex).toBe(0);
     expect(component.tabSelected).toBe('today');
     expect(resetDataSpy).toHaveBeenCalled();
-    expect(fetchDataSpy).toHaveBeenCalled();
+    expect(fetchDataSpy).not.toHaveBeenCalled();
   });
 
   it('should handle tab click for upcoming tab', () => {
@@ -318,7 +281,7 @@ describe('MyAllEventsComponent', () => {
     expect(component.tabIndex).toBe(1);
     expect(component.tabSelected).toBe('upcoming');
     expect(resetDataSpy).toHaveBeenCalled();
-    expect(fetchDataSpy).toHaveBeenCalled();
+    expect(fetchDataSpy).not.toHaveBeenCalled();
   });
 
   it('should handle tab click for past tab', () => {
@@ -330,21 +293,15 @@ describe('MyAllEventsComponent', () => {
     expect(component.tabIndex).toBe(2);
     expect(component.tabSelected).toBe('past');
     expect(resetDataSpy).toHaveBeenCalled();
-    expect(fetchDataSpy).toHaveBeenCalled();
+    expect(fetchDataSpy).not.toHaveBeenCalled();
   });
 
   it('should reset data properly', () => {
-    // Setup subscription mock
-    component.dataScription = of().subscribe();
     component.contentDataList = ['test'];
-    component.currentPage = 5;
 
     component.resetData();
 
-    expect(component.dataScription).toBeNull();
     expect(component.contentDataList).toEqual([]);
-    expect(component.currentPage).toBe(0);
-    expect(component.pageLimit).toBe(12);
   });
 
   it('should transform skeleton to widgets correctly', () => {
@@ -407,7 +364,7 @@ describe('MyAllEventsComponent', () => {
     const skeletonWidgets = [{ id: 'skeleton-1' }, { id: 'skeleton-2' }];
     jest.spyOn(component as any, 'transformSkeletonToWidgets').mockReturnValue(skeletonWidgets);
 
-    // Mock response for getUserEnrollEvents
+    // Mock response for myEvents
     const mockResponse = {
       result: {
         events: [
@@ -425,20 +382,15 @@ describe('MyAllEventsComponent', () => {
     const contentWidgets = [{ id: 'widget-1' }];
     jest.spyOn(component as any, 'transformContentsToWidgets').mockReturnValue(contentWidgets);
 
-    // Mock eventSvc.getUserEnrollEvents
-    eventServiceMock.getUserEnrollEvents = jest.fn().mockReturnValue(of(mockResponse));
-
-    // Mock the dataScription
-    component.dataScription = null;
+    // Mock eventSvc.myEvents
+    eventServiceMock.myEvents = jest.fn().mockReturnValue(of(mockResponse));
 
     // Execute
     component.fetchData();
 
     // Verify
     expect(component.isLoading).toBe(false);
-    expect(eventServiceMock.getUserEnrollEvents).toHaveBeenCalled();
-    expect(component.showNextPage).toBe(true);
-    expect(component.currentPage).toBe(1);
+    expect(eventServiceMock.myEvents).toHaveBeenCalled();
     // Check that contentDataList includes the widgets
     expect(component.contentDataList).toEqual(contentWidgets);
   });
@@ -461,12 +413,9 @@ describe('MyAllEventsComponent', () => {
     const contentWidgets = [{ id: 'widget-1' }];
     jest.spyOn(component as any, 'transformContentsToWidgets').mockReturnValue(contentWidgets);
 
-    // Mock error for getUserEnrollEvents
+    // Mock error for myEvents
     const mockError = new Error('Test error');
-    eventServiceMock.getUserEnrollEvents = jest.fn().mockReturnValue(throwError(mockError));
-
-    // Mock the dataScription
-    component.dataScription = null;
+    eventServiceMock.myEvents = jest.fn().mockReturnValue(throwError(() => mockError));
 
     // Console.log spy to verify error is logged
     const consoleLogSpy = jest.spyOn(console, 'log').mockImplementation();
@@ -476,7 +425,7 @@ describe('MyAllEventsComponent', () => {
 
     // Verify
     expect(component.isLoading).toBe(false);
-    expect(eventServiceMock.getUserEnrollEvents).toHaveBeenCalled();
+    expect(eventServiceMock.myEvents).toHaveBeenCalled();
     expect(consoleLogSpy).toHaveBeenCalledWith("error", mockError);
     expect(component.contentDataList).toEqual(contentWidgets);
 

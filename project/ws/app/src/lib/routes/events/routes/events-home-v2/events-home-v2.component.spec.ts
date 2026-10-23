@@ -15,7 +15,7 @@ describe('EventsHomeV2Component', () => {
     mockRouter = {
       navigate: jest.fn(),
     } as any;
-    component = new EventsHomeV2Component(mockRouter);
+    component = new EventsHomeV2Component(mockRouter, {} as any, {} as any);
   });
 
   it('should create the component', () => {

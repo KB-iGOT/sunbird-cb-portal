@@ -119,7 +119,7 @@ describe('ConnectionsComponent', () => {
             { name: 'approved', count: 5 },
             { name: 'received', count: 3 },
             { name: 'requested', count: 2 },
-            { name: 'blocked', count: 1 }
+            { name: 'blocked outgoing', count: 1 }
           ]
         }]
       }
@@ -489,7 +489,7 @@ describe('ConnectionsComponent', () => {
 
   describe('All States List', () => {
     it('should contain all required states', () => {
-      expect(component.allStatesList).toEqual(['Approved', 'Received', 'Pending', 'Blocked'])
+      expect(component.allStatesList).toEqual(['Approved', 'Pending', 'Blocked'])
     })
   })
 })

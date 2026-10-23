@@ -226,7 +226,7 @@ export class ContentStripV2Component implements OnInit {
       )
     }
     if (strip.stripConfig) {
-      this.cardSubtype = strip.stripConfig.cardSubType || 'standard'
+      this.cardSubtype = (strip.stripConfig.cardSubType || 'standard') as ContentStripV2Component['cardSubtype']
       this.getPath('stripConfig', 'postCardForSearch').setValue('true')
     }
     this.pickerContentData = pickerContent

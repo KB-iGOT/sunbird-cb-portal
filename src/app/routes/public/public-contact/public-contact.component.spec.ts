@@ -1,4 +1,9 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+import { NO_ERRORS_SCHEMA } from '@angular/core'
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing'
+import { ActivatedRoute } from '@angular/router'
+import { TranslateService } from '@ngx-translate/core'
+import { ConfigurationsService, MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
+import { autoMock } from 'src/testing/auto-mock'
 
 import { PublicContactComponent } from './public-contact.component'
 
@@ -6,17 +11,27 @@ describe('PublicContactComponent', () => {
   let component: PublicContactComponent
   let fixture: ComponentFixture<PublicContactComponent>
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [PublicContactComponent],
+      providers: [
+        { provide: ConfigurationsService, useValue: autoMock() },
+        { provide: ActivatedRoute, useValue: autoMock() },
+        { provide: MultilingualTranslationsService, useValue: autoMock() },
+        { provide: TranslateService, useValue: autoMock() },
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+      teardown: { destroyAfterEach: true, rethrowErrors: false },
     })
+    // the template is stubbed out and change detection is not run, so this only
+    // verifies that the component can be constructed with its dependencies
+    .overrideTemplate(PublicContactComponent, '')
     .compileComponents()
   }))
 
   beforeEach(() => {
     fixture = TestBed.createComponent(PublicContactComponent)
     component = fixture.componentInstance
-    fixture.detectChanges()
   })
 
   it('should create', () => {

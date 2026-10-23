@@ -1,10 +1,18 @@
+import { TestBed } from '@angular/core/testing'
 import { HeaderV2Component } from './header-v2.component'
 import { of, BehaviorSubject } from 'rxjs'
+
+// the nav bar is only referenced in the standalone imports; loading it for real pulls in the
+// @ws/app barrel and learn-search.component, which does not compile against the installed utils-v2
+jest.mock('../../component/app-nav-bar-v2/app-nav-bar-v2.component', () => ({
+  AppNavBarV2Component: class AppNavBarV2Component { },
+}))
 
 describe('HeaderV2Component (No TestBed)', () => {
   let component: HeaderV2Component
   let mockValueSvc: any
   let mockMobileAppsService: any
+  let mockDomainConfSvc: any
 
   beforeEach(() => {
     mockValueSvc = {
@@ -15,10 +23,15 @@ describe('HeaderV2Component (No TestBed)', () => {
       mobileTopHeaderVisibilityStatus: new BehaviorSubject(true),
     }
 
-    component = new HeaderV2Component(
+    mockDomainConfSvc = {
+      isConfigEnabled: jest.fn().mockReturnValue(true),
+    }
+
+    component = TestBed.runInInjectionContext(() => new HeaderV2Component(
       mockValueSvc,
-      mockMobileAppsService
-    )
+      mockMobileAppsService,
+      mockDomainConfSvc,
+    ))
   })
 
   it('should create the component', () => {
@@ -26,7 +39,7 @@ describe('HeaderV2Component (No TestBed)', () => {
   })
 
   it('should have default leftNavBarOpen as false', () => {
-    expect(component.leftNavBarOpen).toBe(false)
+    expect(component.leftNavBarOpen()).toBe(false)
   })
 
   it('should have isXSmall$ from valueSvc', () => {

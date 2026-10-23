@@ -153,8 +153,8 @@ export class QuizComponent implements OnInit, OnDestroy {
   }
 
   changeContent(data: NSContent.IContentMeta) {
-    this.currentId = data.identifier
-    this.metaContentService.changeActiveCont.next(data.identifier)
+    this.currentId = data.identifier!
+    this.metaContentService.changeActiveCont.next(data.identifier!)
   }
 
   /**
@@ -421,7 +421,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           if (confirm) {
             this.allContents = this.allContents.filter(v => v.identifier !== this.currentId)
             if (this.allContents.length) {
-              this.metaContentService.changeActiveCont.next(this.allContents[0].identifier)
+              this.metaContentService.changeActiveCont.next(this.allContents[0].identifier!)
             } else {
               this.router.navigateByUrl('/author/home')
             }
@@ -474,7 +474,7 @@ export class QuizComponent implements OnInit, OnDestroy {
             this.showNotification(Notify.SUCCESS)
             this.allContents = this.allContents.filter(v => v.identifier !== this.currentId)
             if (this.allContents.length) {
-              this.metaContentService.changeActiveCont.next(this.allContents[0].identifier)
+              this.metaContentService.changeActiveCont.next(this.allContents[0].identifier!)
             } else {
               this.router.navigateByUrl('/author/home')
             }
@@ -593,7 +593,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   isDirectPublish(): boolean {
     return (
-      ['Draft', 'Live'].includes(this.metaContentService.originalContent[this.currentId].status) &&
+      ['Draft', 'Live'].includes(this.metaContentService.originalContent[this.currentId].status!) &&
       this.isPublisherSame()
     )
   }
@@ -605,7 +605,7 @@ export class QuizComponent implements OnInit, OnDestroy {
         operation:
           commentsForm.controls.action.value === 'accept' ||
             ['Draft', 'Live'].includes(
-              this.metaContentService.originalContent[this.currentId].status,
+              this.metaContentService.originalContent[this.currentId].status!,
             )
             ? ((this.accessControl.authoringConfig.isMultiStepFlow && this.isDirectPublish()) ||
               !this.accessControl.authoringConfig.isMultiStepFlow) &&
@@ -628,7 +628,7 @@ export class QuizComponent implements OnInit, OnDestroy {
             .forwardBackward(
               body,
               this.currentId,
-              this.metaContentService.originalContent[this.currentId].status,
+              this.metaContentService.originalContent[this.currentId].status!,
             )
             .pipe(
               mergeMap(() =>
@@ -659,7 +659,7 @@ export class QuizComponent implements OnInit, OnDestroy {
           })
           this.allContents = this.allContents.filter(v => v.identifier !== this.currentId)
           if (this.allContents.length) {
-            this.metaContentService.changeActiveCont.next(this.allContents[0].identifier)
+            this.metaContentService.changeActiveCont.next(this.allContents[0].identifier!)
           } else {
             this.router.navigateByUrl('/author/home')
           }
@@ -753,7 +753,7 @@ export class QuizComponent implements OnInit, OnDestroy {
 
   canDelete() {
     return this.accessControl.hasRole(['editor', 'admin']) ||
-      (['Draft', 'Live'].includes(this.metaContentService.originalContent[this.currentId].status) &&
+      (['Draft', 'Live'].includes(this.metaContentService.originalContent[this.currentId].status!) &&
         this.metaContentService.originalContent[this.currentId].creatorContacts.find(v => v.id === this.accessControl.userId)
       )
   }

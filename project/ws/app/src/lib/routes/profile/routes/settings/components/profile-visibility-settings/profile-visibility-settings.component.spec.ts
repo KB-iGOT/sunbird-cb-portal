@@ -5,7 +5,14 @@ import * as _ from 'lodash'
 
 import { ProfileVisibilitySettingsComponent } from './profile-visibility-settings.component'
 import { SettingsService } from '../../settings.service'
-import { ConfigurationsService } from '@sunbird-cb/utils-v2'
+import { ConfigurationsService, MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
+import { TranslateModule } from '@ngx-translate/core'
+
+// lodash is a plain CJS module; exposing it as an ES module keeps its members spy-able
+jest.mock('lodash', () => {
+  const actual = jest.requireActual('lodash')
+  return { __esModule: true, ...actual, default: actual }
+})
 
 // Mock services
 const mockSettingsService = {
@@ -23,6 +30,11 @@ const mockSnackBar = {
   open: jest.fn()
 } as any
 
+const mockLangTranslations = {
+  languageSelectedObservable: of(),
+  translateActualLabel: jest.fn((label: string) => label)
+} as any
+
 describe('ProfileVisibilitySettingsComponent', () => {
   let component: ProfileVisibilitySettingsComponent
   let fixture: ComponentFixture<ProfileVisibilitySettingsComponent>
@@ -32,10 +44,12 @@ describe('ProfileVisibilitySettingsComponent', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [ProfileVisibilitySettingsComponent],
+      imports: [TranslateModule.forRoot()],
       providers: [
         { provide: SettingsService, useValue: mockSettingsService },
         { provide: ConfigurationsService, useValue: mockConfigurationsService },
-        { provide: MatSnackBar, useValue: mockSnackBar }
+        { provide: MatSnackBar, useValue: mockSnackBar },
+        { provide: MultilingualTranslationsService, useValue: mockLangTranslations }
       ]
     }).compileComponents()
 
@@ -126,7 +140,7 @@ describe('ProfileVisibilitySettingsComponent', () => {
 
       component.getUserDetails()
 
-      expect(component.getMapedValues).toHaveBeenCalledWith('public')
+      expect(component.getMapedValues).toHaveBeenCalledWith(0)
     })
   })
 

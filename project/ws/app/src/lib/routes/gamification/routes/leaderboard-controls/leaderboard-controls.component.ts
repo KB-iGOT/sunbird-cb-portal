@@ -12,13 +12,13 @@ import {
   IHallOfFameItem,
   EDurationTypeRouteParam,
   ILeaderboardPrevNext,
-} from '../../../../routes/leaderboard/models/leaderboard.model'
-import { LeaderboardService } from '../../../../routes/leaderboard/services/leaderboard.service'
+  LeaderboardService,
+} from './leaderboard-controls.model'
 
 @Component({
     selector: 'ws-app-leaderboard',
-    templateUrl: './leaderboard.component.html',
-    styleUrls: ['./leaderboard.component.scss'],
+    templateUrl: './leaderboard-controls.component.html',
+    styleUrls: ['./leaderboard-controls.component.scss'],
     standalone: false
 })
 export class LeaderboardComponent implements OnInit, OnDestroy {

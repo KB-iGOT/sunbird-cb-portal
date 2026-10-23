@@ -1,6 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing'
 import { ReactiveFormsModule } from '@angular/forms'
-import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
+import { MatDialog, MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { NoopAnimationsModule } from '@angular/platform-browser/animations'
 
@@ -14,6 +14,13 @@ import { MatNativeDateModule } from '@angular/material/core'
 import { MatRadioModule } from '@angular/material/radio'
 import { MatSelectModule } from '@angular/material/select'
 import { MatTooltipModule } from '@angular/material/tooltip'
+import { MatAutocompleteModule } from '@angular/material/autocomplete'
+import { TranslateModule } from '@ngx-translate/core'
+import { ConfigurationsService } from '@sunbird-cb/utils-v2'
+import { autoMock } from 'src/testing/auto-mock'
+
+import { ProfileV2RevampService } from '../../services/profile-v2-revamp.service'
+import { OtpService } from '../../../user-profile/services/otp.services'
 
 import {
   DynamicEntryEditComponent,
@@ -44,14 +51,20 @@ function createComponent(
       MatRadioModule,
       MatSelectModule,
       MatTooltipModule,
+      MatAutocompleteModule,
+      TranslateModule.forRoot(),
     ],
     providers: [
-      { provide: MatDialogRef, useValue: { close: jasmine.createSpy('close') } },
+      { provide: MatDialogRef, useValue: { close: jest.fn() } },
       {
         provide: MAT_DIALOG_DATA,
-        useValue: { header, entryDetails, editConfig },
+        useValue: { header, entryDetails, editConfig: { fields: editConfig } },
       },
-      { provide: MatSnackBar, useValue: { open: jasmine.createSpy('open') } },
+      { provide: MatSnackBar, useValue: { open: jest.fn() } },
+      { provide: ProfileV2RevampService, useValue: autoMock() },
+      { provide: ConfigurationsService, useValue: { userProfile: { userId: 'user-id' } } },
+      { provide: MatDialog, useValue: { open: jest.fn() } },
+      { provide: OtpService, useValue: autoMock() },
     ],
   }).compileComponents()
 
@@ -149,7 +162,7 @@ describe('DynamicEntryEditComponent', () => {
       const ctrl = fixture.componentInstance.entryForm.get('fname')!
       ctrl.setValue('')
       ctrl.markAsTouched()
-      expect(ctrl.hasError('required')).toBeTrue()
+      expect(ctrl.hasError('required')).toBe(true)
     })
 
     it('should add maxLength validator', () => {
@@ -158,7 +171,7 @@ describe('DynamicEntryEditComponent', () => {
       const ctrl = fixture.componentInstance.entryForm.get('bio')!
       ctrl.setValue('toolongvalue')
       ctrl.markAsTouched()
-      expect(ctrl.hasError('maxlength')).toBeTrue()
+      expect(ctrl.hasError('maxlength')).toBe(true)
     })
 
     it('should add URL pattern validator for url type', () => {
@@ -167,7 +180,7 @@ describe('DynamicEntryEditComponent', () => {
       const ctrl = fixture.componentInstance.entryForm.get('link')!
       ctrl.setValue('not-a-url')
       ctrl.markAsTouched()
-      expect(ctrl.hasError('pattern')).toBeTrue()
+      expect(ctrl.hasError('pattern')).toBe(true)
     })
   })
 
@@ -205,7 +218,7 @@ describe('DynamicEntryEditComponent', () => {
     it('should return true when no conditionalOn is set', () => {
       const config: FieldConfig[] = [{ type: 'text', key: 'field' }]
       const fixture = createComponent(config)
-      expect(fixture.componentInstance.isFieldVisible(config[0])).toBeTrue()
+      expect(fixture.componentInstance.isFieldVisible(config[0])).toBe(true)
     })
 
     it('should show field when === condition matches', () => {
@@ -218,7 +231,7 @@ describe('DynamicEntryEditComponent', () => {
       ]
       const fixture = createComponent(config)
       fixture.componentInstance.entryForm.get('degree')!.setValue('Other')
-      expect(fixture.componentInstance.isFieldVisible(config[1])).toBeTrue()
+      expect(fixture.componentInstance.isFieldVisible(config[1])).toBe(true)
     })
 
     it('should hide field when === condition does not match', () => {
@@ -231,7 +244,7 @@ describe('DynamicEntryEditComponent', () => {
       ]
       const fixture = createComponent(config)
       fixture.componentInstance.entryForm.get('degree')!.setValue('MBA')
-      expect(fixture.componentInstance.isFieldVisible(config[1])).toBeFalse()
+      expect(fixture.componentInstance.isFieldVisible(config[1])).toBe(false)
     })
 
     it('should apply !== operator correctly', () => {
@@ -244,9 +257,9 @@ describe('DynamicEntryEditComponent', () => {
       ]
       const fixture = createComponent(config)
       fixture.componentInstance.entryForm.get('working')!.setValue(false)
-      expect(fixture.componentInstance.isFieldVisible(config[1])).toBeTrue()
+      expect(fixture.componentInstance.isFieldVisible(config[1])).toBe(true)
       fixture.componentInstance.entryForm.get('working')!.setValue(true)
-      expect(fixture.componentInstance.isFieldVisible(config[1])).toBeFalse()
+      expect(fixture.componentInstance.isFieldVisible(config[1])).toBe(false)
     })
   })
 
@@ -280,7 +293,7 @@ describe('DynamicEntryEditComponent', () => {
     it('should reject unsupported file types', () => {
       const config: FieldConfig[] = [{ type: 'image', key: 'doc', accept: '.png,.pdf' }]
       const fixture = createComponent(config)
-      const snackBar: jasmine.Spy = TestBed.inject(MatSnackBar).open as jasmine.Spy
+      const snackBar: jest.Mock = TestBed.inject(MatSnackBar).open as jest.Mock
 
       const files = { 0: makeFile('test.exe', 0.1, 'application/x-msdownload'), length: 1 } as unknown as FileList
       fixture.componentInstance.onFileSelected(config[0], files)
@@ -290,7 +303,7 @@ describe('DynamicEntryEditComponent', () => {
     it('should reject files exceeding maxSizeMB', () => {
       const config: FieldConfig[] = [{ type: 'image', key: 'doc', accept: '.png', maxSizeMB: 1 }]
       const fixture = createComponent(config)
-      const snackBar: jasmine.Spy = TestBed.inject(MatSnackBar).open as jasmine.Spy
+      const snackBar: jest.Mock = TestBed.inject(MatSnackBar).open as jest.Mock
 
       const files = { 0: makeFile('big.png', 2, 'image/png'), length: 1 } as unknown as FileList
       fixture.componentInstance.onFileSelected(config[0], files)
@@ -326,7 +339,7 @@ describe('DynamicEntryEditComponent', () => {
     it('hasError() should return false when control is untouched', () => {
       const config: FieldConfig[] = [{ type: 'text', key: 'f', required: true }]
       const fixture = createComponent(config)
-      expect(fixture.componentInstance.hasError('f', 'required')).toBeFalse()
+      expect(fixture.componentInstance.hasError('f', 'required')).toBe(false)
     })
 
     it('hasError() should return true when control is touched and invalid', () => {
@@ -334,7 +347,7 @@ describe('DynamicEntryEditComponent', () => {
       const fixture = createComponent(config)
       const ctrl = fixture.componentInstance.entryForm.get('f')!
       ctrl.markAsTouched()
-      expect(fixture.componentInstance.hasError('f', 'required')).toBeTrue()
+      expect(fixture.componentInstance.hasError('f', 'required')).toBe(true)
     })
 
     it('getFirstError() should return null for valid untouched control', () => {
@@ -363,22 +376,22 @@ describe('DynamicEntryEditComponent', () => {
     it('should mark all controls touched and NOT close dialog when form is invalid', () => {
       const config: FieldConfig[] = [{ type: 'text', key: 'name', required: true }]
       const fixture = createComponent(config)
-      const dialogRef = TestBed.inject(MatDialogRef) as jasmine.SpyObj<MatDialogRef<DynamicEntryEditComponent>>
+      const dialogRef = TestBed.inject(MatDialogRef) as jest.Mocked<MatDialogRef<DynamicEntryEditComponent>>
 
       fixture.componentInstance.handleSubmit()
       expect(dialogRef.close).not.toHaveBeenCalled()
-      expect(fixture.componentInstance.entryForm.get('name')!.touched).toBeTrue()
+      expect(fixture.componentInstance.entryForm.get('name')!.touched).toBe(true)
     })
 
     it('should close dialog with formValue when form is valid', () => {
       const config: FieldConfig[] = [{ type: 'text', key: 'name' }]
       const fixture = createComponent(config)
-      const dialogRef = TestBed.inject(MatDialogRef) as jasmine.SpyObj<MatDialogRef<DynamicEntryEditComponent>>
+      const dialogRef = TestBed.inject(MatDialogRef) as jest.Mocked<MatDialogRef<DynamicEntryEditComponent>>
       fixture.componentInstance.entryForm.get('name')!.setValue('Alice')
 
       fixture.componentInstance.handleSubmit()
       expect(dialogRef.close).toHaveBeenCalledWith(
-        jasmine.objectContaining({ formValue: jasmine.objectContaining({ name: 'Alice' }) }),
+        expect.objectContaining({ name: 'Alice' }),
       )
     })
   })
@@ -388,7 +401,7 @@ describe('DynamicEntryEditComponent', () => {
   describe('handleCancel()', () => {
     it('should close dialog without a value', () => {
       const fixture = createComponent([])
-      const dialogRef = TestBed.inject(MatDialogRef) as jasmine.SpyObj<MatDialogRef<DynamicEntryEditComponent>>
+      const dialogRef = TestBed.inject(MatDialogRef) as jest.Mocked<MatDialogRef<DynamicEntryEditComponent>>
       fixture.componentInstance.handleCancel()
       expect(dialogRef.close).toHaveBeenCalledWith()
     })

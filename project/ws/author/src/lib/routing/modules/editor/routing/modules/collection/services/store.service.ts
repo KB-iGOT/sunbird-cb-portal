@@ -149,7 +149,7 @@ export class CollectionStoreService {
     try {
       const contents = await this.editorService.readMultipleContent(ids).toPromise()
       const contentDataMap = new Map<string, NSContent.IContentMeta>()
-      contents.map((v, index) => {
+      contents!.map((v, index) => {
         this.contentService.setOriginalMeta(v)
         const treeStructure = this.resolver.buildTreeAndMap(
           v,
@@ -196,10 +196,10 @@ export class CollectionStoreService {
         ...(meta.additionalMeta || {}),
       }
       const content = await this.editorService.createAndReadContent(requestBody).toPromise()
-      this.contentService.setOriginalMeta(content)
+      this.contentService.setOriginalMeta(content!)
       const contentDataMap = new Map<string, NSContent.IContentMeta>()
       const treeStructure = this.resolver.buildTreeAndMap(
-        content,
+        content!,
         contentDataMap,
         this.flatNodeMap,
         this.uniqueIdMap,

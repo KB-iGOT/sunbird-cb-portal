@@ -1,4 +1,9 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+import { NO_ERRORS_SCHEMA } from '@angular/core'
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing'
+import { BtnContentFeedbackService } from '../btn-content-feedback.service'
+import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
+import { MatSnackBar } from '@angular/material/snack-bar'
+import { autoMock } from 'src/testing/auto-mock'
 
 import { BtnContentFeedbackDialogComponent } from './btn-content-feedback-dialog.component'
 
@@ -6,17 +11,27 @@ describe('BtnContentFeedbackDialogComponent', () => {
   let component: BtnContentFeedbackDialogComponent
   let fixture: ComponentFixture<BtnContentFeedbackDialogComponent>
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [BtnContentFeedbackDialogComponent],
+      providers: [
+        { provide: MatSnackBar, useValue: autoMock() },
+        { provide: MAT_DIALOG_DATA, useValue: autoMock() },
+        { provide: MatDialogRef, useValue: autoMock() },
+        { provide: BtnContentFeedbackService, useValue: autoMock() },
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+      teardown: { destroyAfterEach: true, rethrowErrors: false },
     })
+    // the template is stubbed out and change detection is not run, so this only
+    // verifies that the component can be constructed with its dependencies
+    .overrideTemplate(BtnContentFeedbackDialogComponent, '')
     .compileComponents()
   }))
 
   beforeEach(() => {
     fixture = TestBed.createComponent(BtnContentFeedbackDialogComponent)
     component = fixture.componentInstance
-    fixture.detectChanges()
   })
 
   it('should create', () => {

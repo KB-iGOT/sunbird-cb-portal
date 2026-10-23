@@ -1,12 +1,19 @@
+import { HttpClient } from '@angular/common/http'
 import { TestBed } from '@angular/core/testing'
+import { autoMock } from 'src/testing/auto-mock'
 
-import { ContentStripMultipleService } from './content-strip-multiple.service'
+import { ContentStripVerticalService } from './content-strip-vertical.service'
 
-describe('ContentStripMultipleService', () => {
-  beforeEach(() => TestBed.configureTestingModule({}))
+describe('ContentStripVerticalService', () => {
+  beforeEach(() => TestBed.configureTestingModule({
+    providers: [
+      ContentStripVerticalService,
+      { provide: HttpClient, useValue: autoMock() },
+    ],
+  }))
 
   it('should be created', () => {
-    const service: ContentStripMultipleService = TestBed.inject(ContentStripMultipleService)
+    const service: ContentStripVerticalService = TestBed.inject(ContentStripVerticalService)
     expect(service).toBeTruthy()
   })
 })

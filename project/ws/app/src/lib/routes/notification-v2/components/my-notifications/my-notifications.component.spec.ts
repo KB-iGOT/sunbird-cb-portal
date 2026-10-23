@@ -1,10 +1,39 @@
+import { of, Subject } from 'rxjs'
+import { environment } from 'src/environments/environment'
+
+import { SurveyPopupComponent } from '../../../peer-validation/components/survey-popup/survey-popup.component'
+import { VerificationRequestDialogComponent } from '../../../peer-validation/components/verification-request-dialog/verification-request-dialog.component'
 import { MyNotificationsComponent } from './my-notifications.component'
 
 describe('MyNotificationsComponent', () => {
   let component: MyNotificationsComponent
   let translateMock: any
   let langtranslationsMock: any
-  let routerMock: any
+  let notificationsServiceMock: any
+  let snackBarMock: any
+  let dialogMock: any
+  let configServiceMock: any
+  let eventsMock: any
+  let libNotificationsServiceMock: any
+  let routeMock: any
+  let matDialogMock: any
+  let peerValidationServiceMock: any
+  let handleClick$: Subject<any>
+  let afterClosed$: Subject<any>
+
+  const createComponent = () => new MyNotificationsComponent(
+    translateMock,
+    langtranslationsMock,
+    notificationsServiceMock,
+    snackBarMock,
+    dialogMock,
+    configServiceMock,
+    eventsMock,
+    libNotificationsServiceMock,
+    routeMock,
+    matDialogMock,
+    peerValidationServiceMock,
+  )
 
   beforeEach(() => {
     translateMock = {
@@ -15,21 +44,33 @@ describe('MyNotificationsComponent', () => {
     langtranslationsMock = {
       languageSelectedObservable: {
         subscribe: jest.fn((cb: any) => {
-          // Mock subscription callback
           cb()
         }),
       },
     }
 
-    routerMock = {
-      navigate: jest.fn(),
+    handleClick$ = new Subject<any>()
+    afterClosed$ = new Subject<any>()
+    notificationsServiceMock = {
+      handleRedirection: jest.fn(),
+      handleConetentRedirection: jest.fn(),
     }
+    snackBarMock = { open: jest.fn() }
+    dialogMock = { open: jest.fn().mockReturnValue({ afterClosed: () => afterClosed$ }) }
+    configServiceMock = {
+      unMappedUser: { roles: ['PUBLIC'] },
+      userProfile: { firstName: 'John', lastName: 'Doe' },
+    }
+    eventsMock = { raiseInteractTelemetry: jest.fn() }
+    libNotificationsServiceMock = { _handleClick: handleClick$ }
+    routeMock = { fragment: of('peer') }
+    matDialogMock = { open: jest.fn().mockReturnValue({ afterClosed: () => afterClosed$ }) }
+    peerValidationServiceMock = { notificationSubmitted$: new Subject<void>() }
 
-    // Clear and set localStorage for test
     localStorage.clear()
     localStorage.setItem('websiteLanguage', 'fr')
 
-    component = new MyNotificationsComponent(translateMock, langtranslationsMock, routerMock)
+    component = createComponent()
   })
 
   it('should set language from localStorage on init', () => {
@@ -39,64 +80,79 @@ describe('MyNotificationsComponent', () => {
   })
 
   it('should update language on languageSelectedObservable emit', () => {
-    // Already covered by the subscribe callback during initialization
     expect(translateMock.use).toHaveBeenCalledWith('fr')
     expect(component.selectedLanguage).toBe('fr')
   })
 
-  it('should navigate to TOC for LEARN category', () => {
+  it('should read roles and route fragment', () => {
+    expect(component.roles).toEqual(['PUBLIC'])
+    expect(component.fragment).toBe('peer')
+  })
+
+  it('should handle content redirection on library notification click', () => {
+    handleClick$.next({ identifier: 'do_1' })
+    expect(notificationsServiceMock.handleConetentRedirection).toHaveBeenCalledWith({ identifier: 'do_1' })
+  })
+
+  it('should delegate redirection to notifications service for regular notifications', () => {
     const notification: any = {
+      notification_id: 'n1',
       category: 'LEARN',
-      message: {
-        id: '123'
-      }
+      message: { id: '123' },
     }
     component.redirectTo(notification)
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/app/toc/123'])
+    expect(eventsMock.raiseInteractTelemetry).toHaveBeenCalledWith(
+      { type: 'click', subType: 'notification-engine', id: 'n1' },
+      {},
+      { module: 'Home' },
+    )
+    expect(notificationsServiceMock.handleRedirection).toHaveBeenCalledWith(notification, environment, ['PUBLIC'], snackBarMock)
   })
 
-  it('should navigate to event hub for EVENT category', () => {
+  it('should open verification popup for PEER_REVIEW_ASSIGNED notifications', () => {
     const notification: any = {
-      category: 'EVENT',
-      message: {
-        id: '456'
-      }
+      category: 'PEER_VALIDATION',
+      sub_category: 'PEER_REVIEW_ASSIGNED',
+      notification_id: 'n2',
+      message: { data: [{ requestedName: 'Jane', courseName: 'Course A' }] },
     }
     component.redirectTo(notification)
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/app/event-hub/home/456'])
+    expect(matDialogMock.open).toHaveBeenCalledWith(VerificationRequestDialogComponent, expect.objectContaining({
+      data: expect.objectContaining({ requestedName: 'Jane', courseName: 'Course A', notificationId: 'n2' }),
+    }))
+    afterClosed$.next('ignored')
+    expect(notification.status).toBe('IGNORED')
   })
 
-  it('should navigate to discussion forum for DISCUSSION category', () => {
+  it('should open survey popup for peer evaluation notifications', () => {
     const notification: any = {
-      category: 'DISCUSSION',
-      message: {
-        communityId: 'comm1',
-        postId: 'post1'
-      }
+      category: 'PEER_VALIDATION',
+      sub_category: 'PEER_EVALUATION_ASSIGNED',
+      message: { data: [{ courseName: 'Course B', completionDate: '2024-01-05T12:00:00' }] },
     }
     component.redirectTo(notification)
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/app/discussion-forum-v2/community/comm1/post1'])
+    expect(matDialogMock.open).toHaveBeenCalledWith(SurveyPopupComponent, expect.objectContaining({
+      data: expect.objectContaining({ learnerName: 'John Doe', courseName: 'Course B', completionDate: '05-01-2024' }),
+    }))
+    peerValidationServiceMock.notificationSubmitted$.next()
+    expect(notification.status).toBe('SUBMITTED')
   })
 
-  it('should navigate to person profile for NETWORK with ACCEPTED_CONNECTION_REQUEST sub_category', () => {
-    const notification: any = {
-      category: 'NETWORK',
-      sub_category: 'ACCEPTED_CONNECTION_REQUEST',
-      message: {
-        id: 'user123'
-      }
-    }
-    component.redirectTo(notification)
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/app/person-profile/user123'])
+  it('should show snackbar when survey is already submitted', () => {
+    component.openSurveypopup({ status: 'SUBMITTED', message: {} })
+    expect(snackBarMock.open).toHaveBeenCalledWith('You have already completed the survey.', 'X', { duration: 3000 })
+    expect(matDialogMock.open).not.toHaveBeenCalled()
   })
 
-  it('should navigate to connection requests for NETWORK with SEND_CONNECTION_REQUEST sub_category', () => {
-    const notification: any = {
-      category: 'NETWORK',
-      sub_category: 'SEND_CONNECTION_REQUEST',
-      message: {}
-    }
-    component.redirectTo(notification)
-    expect(routerMock.navigate).toHaveBeenCalledWith(['/app/network-v2/connection-requests'])
+  it('should show snackbar when review is already submitted', () => {
+    component.openVerificationPopup({ status: 'APPROVED', message: {} })
+    expect(snackBarMock.open).toHaveBeenCalledWith('You have already submitted the review.', 'X', { duration: 3000 })
+    expect(matDialogMock.open).not.toHaveBeenCalled()
+  })
+
+  it('should format dates', () => {
+    expect(component.formatDate('')).toBe('')
+    expect(component.formatDate('invalid')).toBe('invalid')
+    expect(component.formatDate('2024-03-09T12:00:00')).toBe('09-03-2024')
   })
 })

@@ -58,7 +58,7 @@ describe('profileEntriesResolver', () => {
       resolver.resolve(route, state).subscribe((result: any) => {
         expect(result.data).toEqual(mockResponse.result.response);
         expect(result.error).toBeNull();
-        expect(profileService.fetchProfileEntries).toHaveBeenCalledWith('default-user-id');
+        expect(profileService.fetchProfileEntries).toHaveBeenCalledWith(expect.any(Object), 'default-user-id', 'all', false);
         done();
       });
     });
@@ -81,7 +81,7 @@ describe('profileEntriesResolver', () => {
       resolver.resolve(route, state).subscribe((result: any) => {
         expect(result.data).toEqual(mockResponse.result.response);
         expect(result.error).toBeNull();
-        expect(profileService.fetchProfileEntries).toHaveBeenCalledWith('route-param-user-id');
+        expect(profileService.fetchProfileEntries).toHaveBeenCalledWith(expect.any(Object), 'route-param-user-id', 'all', true);
         done();
       });
     });
@@ -105,7 +105,7 @@ describe('profileEntriesResolver', () => {
       resolver.resolve(route, state).subscribe((result: any) => {
         expect(result.data).toEqual(mockResponse.result.response);
         expect(result.error).toBeNull();
-        expect(profileService.fetchProfileEntries).toHaveBeenCalledWith('query-param-user-id');
+        expect(profileService.fetchProfileEntries).toHaveBeenCalledWith(expect.any(Object), 'query-param-user-id', 'all', true);
         done();
       });
     });
@@ -129,7 +129,7 @@ describe('profileEntriesResolver', () => {
       resolver.resolve(route, state).subscribe((result: any) => {
         expect(result.data).toEqual(mockResponse.result.response);
         expect(result.error).toBeNull();
-        expect(profileService.fetchProfileEntries).toHaveBeenCalledWith('default-user-id');
+        expect(profileService.fetchProfileEntries).toHaveBeenCalledWith(expect.any(Object), 'default-user-id', 'all', false);
         done();
       });
     });
@@ -154,7 +154,7 @@ describe('profileEntriesResolver', () => {
       resolver.resolve(route, state).subscribe((result: any) => {
         expect(result.data).toEqual(mockResponse.result.response);
         expect(result.error).toBeNull();
-        expect(profileService.fetchProfileEntries).toHaveBeenCalledWith('');
+        expect(profileService.fetchProfileEntries).toHaveBeenCalledWith(expect.any(Object), '', 'all', true);
         done();
       });
     });
@@ -177,7 +177,7 @@ describe('profileEntriesResolver', () => {
       resolver.resolve(route, state).subscribe((result: any) => {
         expect(result.data).toEqual(mockResponse.result.response);
         expect(result.error).toBeNull();
-        expect(profileService.fetchProfileEntries).toHaveBeenCalledWith('param-user-id');
+        expect(profileService.fetchProfileEntries).toHaveBeenCalledWith(expect.any(Object), 'param-user-id', 'all', true);
         done();
       });
     });
@@ -191,7 +191,7 @@ describe('profileEntriesResolver', () => {
       resolver.resolve(route, state).subscribe((result: any) => {
         expect(result.data).toBeNull();
         expect(result.error).toEqual(mockError);
-        expect(profileService.fetchProfileEntries).toHaveBeenCalledWith('default-user-id');
+        expect(profileService.fetchProfileEntries).toHaveBeenCalledWith(expect.any(Object), 'default-user-id', 'all', false);
         done();
       });
     });
@@ -207,7 +207,7 @@ describe('profileEntriesResolver', () => {
       resolver.resolve(route, state).subscribe((result: any) => {
         expect(result.data).toBeUndefined();
         expect(result.error).toBeNull();
-        expect(profileService.fetchProfileEntries).toHaveBeenCalledWith('default-user-id');
+        expect(profileService.fetchProfileEntries).toHaveBeenCalledWith(expect.any(Object), 'default-user-id', 'all', false);
         done();
       });
     });
@@ -223,7 +223,7 @@ describe('profileEntriesResolver', () => {
       resolver.resolve(route, state).subscribe((result: any) => {
         expect(result.data).toBeUndefined();
         expect(result.error).toBeNull();
-        expect(profileService.fetchProfileEntries).toHaveBeenCalledWith('default-user-id');
+        expect(profileService.fetchProfileEntries).toHaveBeenCalledWith(expect.any(Object), 'default-user-id', 'all', false);
         done();
       });
     });
@@ -237,7 +237,7 @@ describe('profileEntriesResolver', () => {
       resolver.resolve(route, state).subscribe((result: any) => {
         expect(result.data).toBeUndefined();
         expect(result.error).toBeNull();
-        expect(profileService.fetchProfileEntries).toHaveBeenCalledWith('default-user-id');
+        expect(profileService.fetchProfileEntries).toHaveBeenCalledWith(expect.any(Object), 'default-user-id', 'all', false);
         done();
       });
     });
@@ -261,7 +261,7 @@ describe('profileEntriesResolver', () => {
       resolver.resolve(route, state).subscribe((result: any) => {
         expect(result.data).toEqual(mockResponse.result.response);
         expect(result.error).toBeNull();
-        expect(profileService.fetchProfileEntries).toHaveBeenCalledWith('route-param-user-id');
+        expect(profileService.fetchProfileEntries).toHaveBeenCalledWith(expect.any(Object), 'route-param-user-id', 'all', true);
         done();
       });
     });
@@ -286,7 +286,7 @@ describe('profileEntriesResolver', () => {
       resolver.resolve(route, state).subscribe((result: any) => {
         expect(result.data).toEqual(mockResponse.result.response);
         expect(result.error).toBeNull();
-        expect(profileService.fetchProfileEntries).toHaveBeenCalledWith('');
+        expect(profileService.fetchProfileEntries).toHaveBeenCalledWith(expect.any(Object), '', 'all', true);
         done();
       });
     });

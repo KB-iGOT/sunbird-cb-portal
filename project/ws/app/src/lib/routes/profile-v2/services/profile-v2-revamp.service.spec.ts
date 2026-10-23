@@ -3,10 +3,15 @@ import { ProfileV2RevampService } from './profile-v2-revamp.service';
 // import { TranslateService } from '@ngx-translate/core';
 import { of, throwError } from 'rxjs';
 
+// the service mutates configDetails.defaultUrl, so every call gets a fresh object
+const cfg = (): any => ({ defaultUrl: '', urlConfigPath: '' });
+
 describe('ProfileV2RevampService', () => {
   let service: ProfileV2RevampService;
   let mockHttpClient: any;
   let mockTranslateService: any;
+  let mockConfigService: any;
+  let mockCommonMethodsService: any;
 
   const mockProfile = {
     id: 'user123',
@@ -44,7 +49,17 @@ describe('ProfileV2RevampService', () => {
       use: jest.fn()
     };
 
-    service = new ProfileV2RevampService(mockHttpClient, mockTranslateService);
+    mockConfigService = {
+      userProfileV2: {},
+      globalConfig: {}
+    };
+
+    // resolve every config driven url to its default endpoint
+    mockCommonMethodsService = {
+      getEnabledUrl: jest.fn((configDetails: any) => configDetails.defaultUrl)
+    };
+
+    service = new ProfileV2RevampService(mockHttpClient, mockTranslateService, mockConfigService, mockCommonMethodsService);
   });
 
   afterEach(() => {
@@ -68,7 +83,7 @@ describe('ProfileV2RevampService', () => {
       const userId = 'user123';
       mockHttpClient.get.mockReturnValue(of(mockProfile));
 
-      service.fetchProfile(userId).subscribe((result: any) => {
+      service.fetchProfile(cfg(), userId, true).subscribe((result: any) => {
         expect(result).toEqual(mockProfile);
         expect(mockHttpClient.get).toHaveBeenCalledWith('/apis/proxies/v8/user/profile/v1/basic/user123');
         done();
@@ -80,7 +95,7 @@ describe('ProfileV2RevampService', () => {
       const error = new Error('Network error');
       mockHttpClient.get.mockReturnValue(throwError(error));
 
-      service.fetchProfile(userId).subscribe({
+      service.fetchProfile(cfg(), userId, true).subscribe({
         next: () => fail('Should have failed'),
         error: (err) => {
           expect(err).toBe(error);
@@ -93,8 +108,8 @@ describe('ProfileV2RevampService', () => {
       const userId = '';
       mockHttpClient.get.mockReturnValue(of(mockProfile));
 
-      service.fetchProfile(userId).subscribe(() => {
-        expect(mockHttpClient.get).toHaveBeenCalledWith('/apis/proxies/v8/user/profile/v1/basic/');
+      service.fetchProfile(cfg(), userId, true).subscribe(() => {
+        expect(mockHttpClient.get).toHaveBeenCalledWith('/apis/proxies/v8/user/profile/v1/basic');
         done();
       });
     });
@@ -106,7 +121,7 @@ describe('ProfileV2RevampService', () => {
       const response = { success: true };
       mockHttpClient.post.mockReturnValue(of(response));
 
-      service.updateProfileDetails(requestBody).subscribe((result: any) => {
+      service.updateProfileDetails(cfg(), requestBody).subscribe((result: any) => {
         expect(result).toEqual(response);
         expect(mockHttpClient.post).toHaveBeenCalledWith('/apis/proxies/v8/user/v1/extPatch', requestBody);
         done();
@@ -118,7 +133,7 @@ describe('ProfileV2RevampService', () => {
       const error = new Error('Update failed');
       mockHttpClient.post.mockReturnValue(throwError(error));
 
-      service.updateProfileDetails(requestBody).subscribe({
+      service.updateProfileDetails(cfg(), requestBody).subscribe({
         next: () => fail('Should have failed'),
         error: (err) => {
           expect(err).toBe(error);
@@ -130,7 +145,7 @@ describe('ProfileV2RevampService', () => {
     it('should handle null request body', (done) => {
       mockHttpClient.post.mockReturnValue(of({ success: true }));
 
-      service.updateProfileDetails(null).subscribe(() => {
+      service.updateProfileDetails(cfg(), null).subscribe(() => {
         expect(mockHttpClient.post).toHaveBeenCalledWith('/apis/proxies/v8/user/v1/extPatch', null);
         done();
       });
@@ -144,7 +159,7 @@ describe('ProfileV2RevampService', () => {
       const response = { url: 'profile-pic-url' };
       mockHttpClient.post.mockReturnValue(of(response));
 
-      service.updateProfilePic(formData).subscribe((result: any) => {
+      service.updateProfilePic(formData, cfg()).subscribe((result: any) => {
         expect(result).toEqual(response);
         expect(mockHttpClient.post).toHaveBeenCalledWith('/apis/proxies/v8/storage/profilePhotoUpload/profileImage', formData);
         done();
@@ -156,7 +171,7 @@ describe('ProfileV2RevampService', () => {
       const error = new Error('Upload failed');
       mockHttpClient.post.mockReturnValue(throwError(error));
 
-      service.updateProfilePic(formData).subscribe({
+      service.updateProfilePic(formData, cfg()).subscribe({
         next: () => fail('Should have failed'),
         error: (err) => {
           expect(err).toBe(error);
@@ -173,7 +188,7 @@ describe('ProfileV2RevampService', () => {
       const response = { url: 'banner-pic-url' };
       mockHttpClient.post.mockReturnValue(of(response));
 
-      service.updateBannerPic(formData).subscribe((result: any) => {
+      service.updateBannerPic(cfg(), formData).subscribe((result: any) => {
         expect(result).toEqual(response);
         expect(mockHttpClient.post).toHaveBeenCalledWith('/apis/proxies/v8/storage/profilePhotoUpload/profileBanner', formData);
         done();
@@ -185,7 +200,7 @@ describe('ProfileV2RevampService', () => {
       const error = new Error('Banner upload failed');
       mockHttpClient.post.mockReturnValue(throwError(error));
 
-      service.updateBannerPic(formData).subscribe({
+      service.updateBannerPic(cfg(), formData).subscribe({
         next: () => fail('Should have failed'),
         error: (err) => {
           expect(err).toBe(error);
@@ -200,7 +215,7 @@ describe('ProfileV2RevampService', () => {
       const userId = 'user123';
       mockHttpClient.get.mockReturnValue(of(mockApiResponse));
 
-      service.fetchProfileEntries(userId).subscribe((result: any) => {
+      service.fetchProfileEntries(cfg(), userId, 'all', true).subscribe((result: any) => {
         expect(result).toEqual(mockApiResponse);
         expect(mockHttpClient.get).toHaveBeenCalledWith('/apis/proxies/v8/user/profile/v1/extended/all/user123');
         done();
@@ -212,7 +227,7 @@ describe('ProfileV2RevampService', () => {
       const entryType = 'serviceHistory';
       mockHttpClient.get.mockReturnValue(of(mockApiResponse));
 
-      service.fetchProfileEntries(userId, entryType).subscribe((result: any) => {
+      service.fetchProfileEntries(cfg(), userId, entryType, true).subscribe((result: any) => {
         expect(result).toEqual(mockApiResponse);
         expect(mockHttpClient.get).toHaveBeenCalledWith('/apis/proxies/v8/user/profile/v1/extended/serviceHistory/user123');
         done();
@@ -224,7 +239,7 @@ describe('ProfileV2RevampService', () => {
       const error = new Error('Fetch failed');
       mockHttpClient.get.mockReturnValue(throwError(error));
 
-      service.fetchProfileEntries(userId).subscribe({
+      service.fetchProfileEntries(cfg(), userId, 'all', true).subscribe({
         next: () => fail('Should have failed'),
         error: (err) => {
           expect(err).toBe(error);
@@ -242,7 +257,7 @@ describe('ProfileV2RevampService', () => {
 
       service.getRecommendedUsers(formBody).subscribe((result: any) => {
         expect(result).toEqual(response);
-        expect(mockHttpClient.post).toHaveBeenCalledWith('/apis/protected/v8/connections/v2/connections/recommended', formBody);
+        expect(mockHttpClient.post).toHaveBeenCalledWith('/apis/proxies/v8/connections/v3/connections/recommended', formBody);
         done();
       });
     });
@@ -296,9 +311,9 @@ describe('ProfileV2RevampService', () => {
       const response = { communities: [] };
       mockHttpClient.post.mockReturnValue(of(response));
 
-      service.getCommunities(formBody).subscribe((result: any) => {
+      service.getCommunities(cfg(), formBody).subscribe((result: any) => {
         expect(result).toEqual(response);
-        expect(mockHttpClient.post).toHaveBeenCalledWith('/apis/proxies/v8/community/v1/search', formBody);
+        expect(mockHttpClient.post).toHaveBeenCalledWith('/apis/proxies/v8/community/v1/popular', formBody);
         done();
       });
     });
@@ -308,7 +323,7 @@ describe('ProfileV2RevampService', () => {
       const error = new Error('Community search failed');
       mockHttpClient.post.mockReturnValue(throwError(error));
 
-      service.getCommunities(formBody).subscribe({
+      service.getCommunities(cfg(), formBody).subscribe({
         next: () => fail('Should have failed'),
         error: (err) => {
           expect(err).toBe(error);
@@ -356,7 +371,7 @@ describe('ProfileV2RevampService', () => {
       const response = { cadres: [] };
       mockHttpClient.get.mockReturnValue(of(response));
 
-      service.fetchCadre().subscribe((result: any) => {
+      service.fetchCadre(cfg()).subscribe((result: any) => {
         expect(result).toEqual(response);
         expect(mockHttpClient.get).toHaveBeenCalledWith('/apis/proxies/v8/data/v2/system/settings/get/cadreConfig');
         done();
@@ -367,7 +382,7 @@ describe('ProfileV2RevampService', () => {
       const error = new Error('Cadre fetch failed');
       mockHttpClient.get.mockReturnValue(throwError(error));
 
-      service.fetchCadre().subscribe({
+      service.fetchCadre(cfg()).subscribe({
         next: () => fail('Should have failed'),
         error: (err) => {
           expect(err).toBe(error);
@@ -382,7 +397,7 @@ describe('ProfileV2RevampService', () => {
       const response = { languages: ['English', 'Hindi'] };
       mockHttpClient.get.mockReturnValue(of(response));
 
-      service.getMasterLanguages().subscribe((result: any) => {
+      service.getMasterLanguages(cfg()).subscribe((result: any) => {
         expect(result).toEqual(response);
         expect(mockHttpClient.get).toHaveBeenCalledWith('/apis/protected/v8/user/profileRegistry/getMasterLanguages');
         done();
@@ -393,7 +408,7 @@ describe('ProfileV2RevampService', () => {
       const error = new Error('Languages fetch failed');
       mockHttpClient.get.mockReturnValue(throwError(error));
 
-      service.getMasterLanguages().subscribe({
+      service.getMasterLanguages(cfg()).subscribe({
         next: () => fail('Should have failed'),
         error: (err) => {
           expect(err).toBe(error);
@@ -409,7 +424,7 @@ describe('ProfileV2RevampService', () => {
       const response = { organizations: [] };
       mockHttpClient.post.mockReturnValue(of(response));
 
-      service.getOrgSearch(formBody).subscribe((result: any) => {
+      service.getOrgSearch(formBody, cfg()).subscribe((result: any) => {
         expect(result).toEqual(response);
         expect(mockHttpClient.post).toHaveBeenCalledWith('/apis/proxies/v8/org/v1/search', formBody);
         done();
@@ -421,7 +436,7 @@ describe('ProfileV2RevampService', () => {
       const error = new Error('Org search failed');
       mockHttpClient.post.mockReturnValue(throwError(error));
 
-      service.getOrgSearch(formBody).subscribe({
+      service.getOrgSearch(formBody, cfg()).subscribe({
         next: () => fail('Should have failed'),
         error: (err) => {
           expect(err).toBe(error);
@@ -457,40 +472,12 @@ describe('ProfileV2RevampService', () => {
     });
   });
 
-  describe('getDesignations', () => {
-    it('should get designations successfully', (done) => {
-      const req = { query: 'engineer' };
-      const response = { designations: [] };
-      mockHttpClient.get.mockReturnValue(of(response));
-
-      service.getDesignations(req).subscribe((result: any) => {
-        expect(result).toEqual(response);
-        expect(mockHttpClient.get).toHaveBeenCalledWith('/apis/proxies/v8/user/v1/positions');
-        done();
-      });
-    });
-
-    it('should handle get designations error', (done) => {
-      const req = { query: 'manager' };
-      const error = new Error('Designations fetch failed');
-      mockHttpClient.get.mockReturnValue(throwError(error));
-
-      service.getDesignations(req).subscribe({
-        next: () => fail('Should have failed'),
-        error: (err) => {
-          expect(err).toBe(error);
-          done();
-        }
-      });
-    });
-  });
-
   describe('getGroups', () => {
     it('should get groups successfully', (done) => {
       const response = { groups: [] };
       mockHttpClient.get.mockReturnValue(of(response));
 
-      service.getGroups().subscribe((result: any) => {
+      service.getGroups(cfg()).subscribe((result: any) => {
         expect(result).toEqual(response);
         expect(mockHttpClient.get).toHaveBeenCalledWith('/api/user/v1/groups');
         done();
@@ -501,7 +488,7 @@ describe('ProfileV2RevampService', () => {
       const error = new Error('Groups fetch failed');
       mockHttpClient.get.mockReturnValue(throwError(error));
 
-      service.getGroups().subscribe({
+      service.getGroups(cfg()).subscribe({
         next: () => fail('Should have failed'),
         error: (err) => {
           expect(err).toBe(error);
@@ -516,7 +503,7 @@ describe('ProfileV2RevampService', () => {
       const response = { states: [] };
       mockHttpClient.get.mockReturnValue(of(response));
 
-      service.getStatesList().subscribe((result: any) => {
+      service.getStatesList(cfg()).subscribe((result: any) => {
         expect(result).toEqual(response);
         expect(mockHttpClient.get).toHaveBeenCalledWith('/apis/proxies/v8/extendedprofile/list/states');
         done();
@@ -527,7 +514,7 @@ describe('ProfileV2RevampService', () => {
       const error = new Error('States fetch failed');
       mockHttpClient.get.mockReturnValue(throwError(error));
 
-      service.getStatesList().subscribe({
+      service.getStatesList(cfg()).subscribe({
         next: () => fail('Should have failed'),
         error: (err) => {
           expect(err).toBe(error);
@@ -543,7 +530,7 @@ describe('ProfileV2RevampService', () => {
       const response = { districts: [] };
       mockHttpClient.post.mockReturnValue(of(response));
 
-      service.getDistrictsList(state).subscribe((result: any) => {
+      service.getDistrictsList(cfg(), state).subscribe((result: any) => {
         expect(result).toEqual(response);
         expect(mockHttpClient.post).toHaveBeenCalledWith(
           'apis/proxies/v8/extendedprofile/list/districts',
@@ -558,7 +545,7 @@ describe('ProfileV2RevampService', () => {
       const error = new Error('Districts fetch failed');
       mockHttpClient.post.mockReturnValue(throwError(error));
 
-      service.getDistrictsList(state).subscribe({
+      service.getDistrictsList(cfg(), state).subscribe({
         next: () => fail('Should have failed'),
         error: (err) => {
           expect(err).toBe(error);
@@ -572,7 +559,7 @@ describe('ProfileV2RevampService', () => {
       const response = { districts: [] };
       mockHttpClient.post.mockReturnValue(of(response));
 
-      service.getDistrictsList(state).subscribe(() => {
+      service.getDistrictsList(cfg(), state).subscribe(() => {
         expect(mockHttpClient.post).toHaveBeenCalledWith(
           'apis/proxies/v8/extendedprofile/list/districts',
           { contextName: '' }
@@ -640,7 +627,7 @@ describe('ProfileV2RevampService', () => {
       const response = { success: true };
       mockHttpClient.post.mockReturnValue(of(response));
 
-      service.updateDegree(requestBody).subscribe((result: any) => {
+      service.updateDegree(requestBody, cfg()).subscribe((result: any) => {
         expect(result).toEqual(response);
         expect(mockHttpClient.post).toHaveBeenCalledWith('apis/proxies/v8/masterdata/update/degree', requestBody);
         done();
@@ -652,7 +639,7 @@ describe('ProfileV2RevampService', () => {
       const error = new Error('Degree update failed');
       mockHttpClient.post.mockReturnValue(throwError(error));
 
-      service.updateDegree(requestBody).subscribe({
+      service.updateDegree(requestBody, cfg()).subscribe({
         next: () => fail('Should have failed'),
         error: (err) => {
           expect(err).toBe(error);
@@ -668,7 +655,7 @@ describe('ProfileV2RevampService', () => {
       const response = { success: true };
       mockHttpClient.post.mockReturnValue(of(response));
 
-      service.updateInstitution(requestBody).subscribe((result: any) => {
+      service.updateInstitution(requestBody, cfg()).subscribe((result: any) => {
         expect(result).toEqual(response);
         expect(mockHttpClient.post).toHaveBeenCalledWith('apis/proxies/v8/masterdata/update/institution', requestBody);
         done();
@@ -680,7 +667,7 @@ describe('ProfileV2RevampService', () => {
       const error = new Error('Institution update failed');
       mockHttpClient.post.mockReturnValue(throwError(error));
 
-      service.updateInstitution(requestBody).subscribe({
+      service.updateInstitution(requestBody, cfg()).subscribe({
         next: () => fail('Should have failed'),
         error: (err) => {
           expect(err).toBe(error);
@@ -697,7 +684,7 @@ describe('ProfileV2RevampService', () => {
       const response = { url: 'achievement-pic-url' };
       mockHttpClient.post.mockReturnValue(of(response));
 
-      service.updateAchievementPic(formData).subscribe((result: any) => {
+      service.updateAchievementPic(formData, cfg()).subscribe((result: any) => {
         expect(result).toEqual(response);
         expect(mockHttpClient.post).toHaveBeenCalledWith('/apis/proxies/v8/storage/profilePhotoUpload/userAchievements', formData);
         done();
@@ -709,7 +696,7 @@ describe('ProfileV2RevampService', () => {
       const error = new Error('Achievement upload failed');
       mockHttpClient.post.mockReturnValue(throwError(error));
 
-      service.updateAchievementPic(formData).subscribe({
+      service.updateAchievementPic(formData, cfg()).subscribe({
         next: () => fail('Should have failed'),
         error: (err) => {
           expect(err).toBe(error);
@@ -725,7 +712,7 @@ describe('ProfileV2RevampService', () => {
       const response = { success: true };
       mockHttpClient.post.mockReturnValue(of(response));
 
-      service.addEntriesToProfile(requestBody).subscribe((result: any) => {
+      service.addEntriesToProfile(requestBody, cfg()).subscribe((result: any) => {
         expect(result).toEqual(response);
         expect(mockHttpClient.post).toHaveBeenCalledWith('/apis/proxies/v8/user/profile/v1/extended', requestBody);
         done();
@@ -737,7 +724,7 @@ describe('ProfileV2RevampService', () => {
       const error = new Error('Add entries failed');
       mockHttpClient.post.mockReturnValue(throwError(error));
 
-      service.addEntriesToProfile(requestBody).subscribe({
+      service.addEntriesToProfile(requestBody, cfg()).subscribe({
         next: () => fail('Should have failed'),
         error: (err) => {
           expect(err).toBe(error);
@@ -753,7 +740,7 @@ describe('ProfileV2RevampService', () => {
       const response = { success: true };
       mockHttpClient.put.mockReturnValue(of(response));
 
-      service.updateEntriesOfProfile(requestBody).subscribe((result: any) => {
+      service.updateEntriesOfProfile(cfg(), requestBody).subscribe((result: any) => {
         expect(result).toEqual(response);
         expect(mockHttpClient.put).toHaveBeenCalledWith('/apis/proxies/v8/user/profile/v1/extended/update', requestBody);
         done();
@@ -765,7 +752,7 @@ describe('ProfileV2RevampService', () => {
       const error = new Error('Update entries failed');
       mockHttpClient.put.mockReturnValue(throwError(error));
 
-      service.updateEntriesOfProfile(requestBody).subscribe({
+      service.updateEntriesOfProfile(cfg(), requestBody).subscribe({
         next: () => fail('Should have failed'),
         error: (err) => {
           expect(err).toBe(error);
@@ -781,9 +768,9 @@ describe('ProfileV2RevampService', () => {
       const response = { success: true };
       mockHttpClient.delete.mockReturnValue(of(response));
 
-      service.deleteEntriesOfProfile(requestBody).subscribe((result: any) => {
+      service.deleteEntriesOfProfile(requestBody, cfg()).subscribe((result: any) => {
         expect(result).toEqual(response);
-        expect(mockHttpClient.delete).toHaveBeenCalledWith('/apis/proxies/v8/user/profile/v1/extended/delete', requestBody);
+        expect(mockHttpClient.delete).toHaveBeenCalledWith('/apis/proxies/v8/user/profile/v1/extended/delete', { body: requestBody });
         done();
       });
     });
@@ -793,7 +780,7 @@ describe('ProfileV2RevampService', () => {
       const error = new Error('Delete entries failed');
       mockHttpClient.delete.mockReturnValue(throwError(error));
 
-      service.deleteEntriesOfProfile(requestBody).subscribe({
+      service.deleteEntriesOfProfile(requestBody, cfg()).subscribe({
         next: () => fail('Should have failed'),
         error: (err) => {
           expect(err).toBe(error);
@@ -808,7 +795,7 @@ describe('ProfileV2RevampService', () => {
       const response = { domains: [] };
       mockHttpClient.get.mockReturnValue(of(response));
 
-      service.getWhiteListDomain().subscribe((result: any) => {
+      service.getWhiteListDomain(cfg()).subscribe((result: any) => {
         expect(result).toEqual(response);
         expect(mockHttpClient.get).toHaveBeenCalledWith('apis/proxies/v8/user/v1/email/approvedDomains');
         done();
@@ -819,7 +806,7 @@ describe('ProfileV2RevampService', () => {
       const error = new Error('Whitelist domain fetch failed');
       mockHttpClient.get.mockReturnValue(throwError(error));
 
-      service.getWhiteListDomain().subscribe({
+      service.getWhiteListDomain(cfg()).subscribe({
         next: () => fail('Should have failed'),
         error: (err) => {
           expect(err).toBe(error);
@@ -835,7 +822,7 @@ describe('ProfileV2RevampService', () => {
       const response = { approvals: [] };
       mockHttpClient.post.mockReturnValue(of(response));
 
-      service.fetchApprovalDetails(requestBody).subscribe((result: any) => {
+      service.fetchApprovalDetails(cfg(), requestBody).subscribe((result: any) => {
         expect(result).toEqual(response);
         expect(mockHttpClient.post).toHaveBeenCalledWith('/apis/proxies/v8/workflow/v2/userWFApplicationFieldsSearch', requestBody);
         done();

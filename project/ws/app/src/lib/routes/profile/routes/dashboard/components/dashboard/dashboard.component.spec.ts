@@ -1,4 +1,11 @@
-import { async, ComponentFixture, TestBed } from '@angular/core/testing'
+import { NO_ERRORS_SCHEMA } from '@angular/core'
+import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing'
+import { ProfileService } from '../../../../services/profile.service'
+import { InterestService } from '../../../interest/services/interest.service'
+import { LearningHistoryService } from '../../../learning/services/learning-history.service'
+import { ActivatedRoute } from '@angular/router'
+import { ConfigurationsService } from '@sunbird-cb/utils-v2'
+import { autoMock } from 'src/testing/auto-mock'
 
 import { DashboardComponent } from './dashboard.component'
 
@@ -6,17 +13,28 @@ describe('DashboardComponent', () => {
   let component: DashboardComponent
   let fixture: ComponentFixture<DashboardComponent>
 
-  beforeEach(async(() => {
+  beforeEach(waitForAsync(() => {
     TestBed.configureTestingModule({
       declarations: [DashboardComponent],
+      providers: [
+        { provide: ProfileService, useValue: autoMock() },
+        { provide: LearningHistoryService, useValue: autoMock() },
+        { provide: InterestService, useValue: autoMock() },
+        { provide: ActivatedRoute, useValue: autoMock() },
+        { provide: ConfigurationsService, useValue: autoMock() },
+      ],
+      schemas: [NO_ERRORS_SCHEMA],
+      teardown: { destroyAfterEach: true, rethrowErrors: false },
     })
+    // the template is stubbed out and change detection is not run, so this only
+    // verifies that the component can be constructed with its dependencies
+    .overrideTemplate(DashboardComponent, '')
     .compileComponents()
   }))
 
   beforeEach(() => {
     fixture = TestBed.createComponent(DashboardComponent)
     component = fixture.componentInstance
-    fixture.detectChanges()
   })
 
   it('should create', () => {

@@ -21,18 +21,18 @@ describe('PeerValidationService', () => {
   // ─── getAllUsers ─────────────────────────────────────────────────────────────
 
   describe('getAllUsers', () => {
-    it('should POST to SEARCH_USERS with provided rootOrgId and query', (done) => {
+    it('should POST to SEARCH_USERS with configSvc rootOrgId and query', (done) => {
       httpMock.post.mockReturnValue(of({ result: [] }))
-      service.getAllUsers('customOrg', 'test query').subscribe(() => {
+      service.getAllUsers('test query').subscribe(() => {
         expect(httpMock.post).toHaveBeenCalledWith(
           '/apis/proxies/v8/user/v1/search',
-          { request: { query: 'test query', filters: { rootOrgId: 'customOrg' } } }
+          { request: { query: 'test query', filters: { rootOrgId: 'testOrgId' } } }
         )
         done()
       })
     })
 
-    it('should fall back to configSvc rootOrgId when not supplied', (done) => {
+    it('should default query to empty string', (done) => {
       httpMock.post.mockReturnValue(of({}))
       service.getAllUsers().subscribe(() => {
         expect(httpMock.post).toHaveBeenCalledWith(
@@ -60,34 +60,10 @@ describe('PeerValidationService', () => {
   // ─── getAllUsersBySurveyCreator ───────────────────────────────────────────────
 
   describe('getAllUsersBySurveyCreator', () => {
-    it('should use result.response.rootOrgId from user response', (done) => {
-      httpMock.get.mockReturnValue(of({ result: { response: { rootOrgId: 'orgA' } } }))
+    it('should search users of the current user rootOrg', (done) => {
       httpMock.post.mockReturnValue(of({}))
-      service.getAllUsersBySurveyCreator('creator1').subscribe(() => {
-        expect(httpMock.post).toHaveBeenCalledWith(
-          '/apis/proxies/v8/user/v1/search',
-          { request: { query: '', filters: { rootOrgId: 'orgA' } } }
-        )
-        done()
-      })
-    })
-
-    it('should fall back to result.rootOrgId', (done) => {
-      httpMock.get.mockReturnValue(of({ result: { rootOrgId: 'orgB' } }))
-      httpMock.post.mockReturnValue(of({}))
-      service.getAllUsersBySurveyCreator('creator2').subscribe(() => {
-        expect(httpMock.post).toHaveBeenCalledWith(
-          '/apis/proxies/v8/user/v1/search',
-          { request: { query: '', filters: { rootOrgId: 'orgB' } } }
-        )
-        done()
-      })
-    })
-
-    it('should fall back to configSvc rootOrgId', (done) => {
-      httpMock.get.mockReturnValue(of({ result: {} }))
-      httpMock.post.mockReturnValue(of({}))
-      service.getAllUsersBySurveyCreator('creator3').subscribe(() => {
+      service.getAllUsersBySurveyCreator().subscribe(() => {
+        expect(httpMock.get).not.toHaveBeenCalled()
         expect(httpMock.post).toHaveBeenCalledWith(
           '/apis/proxies/v8/user/v1/search',
           { request: { query: '', filters: { rootOrgId: 'testOrgId' } } }

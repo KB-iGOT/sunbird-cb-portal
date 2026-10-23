@@ -76,6 +76,8 @@ describe('ViewAllComponent', () => {
   let bottomSheetMock: any;
   let snackbarMock: any;
   let translateServiceMock: any;
+  let langTranslationsMock: any;
+  let configServiceMock: any;
 
   beforeEach(() => {
     // Clear mocks and reset component for each test
@@ -83,6 +85,7 @@ describe('ViewAllComponent', () => {
 
     // Initialize mock services
     activatedRouteMock = {
+      snapshot: { data: {} },
       queryParamMap: of({ params: {} })
     };
 
@@ -118,6 +121,14 @@ describe('ViewAllComponent', () => {
       use: jest.fn()
     };
 
+    langTranslationsMock = {
+      translateActualLabel: jest.fn((label: string) => label)
+    };
+
+    configServiceMock = {
+      userProfile: { userRootOrg: { id: 'org-id' } }
+    };
+
     // Create component with mocked dependencies
     component = new ViewAllComponent(
       activatedRouteMock,
@@ -126,7 +137,9 @@ describe('ViewAllComponent', () => {
       bottomSheetMock,
       snackbarMock,
       translateServiceMock,
-      routerMock
+      routerMock,
+      langTranslationsMock,
+      configServiceMock
     );
 
     // Initialize important properties to prevent errors
@@ -160,7 +173,9 @@ describe('ViewAllComponent', () => {
       bottomSheetMock,
       snackbarMock,
       translateServiceMock,
-      routerMock
+      routerMock,
+      langTranslationsMock,
+      configServiceMock
     );
 
     expect(translateServiceMock.setDefaultLang).toHaveBeenCalledWith('en');
@@ -220,20 +235,26 @@ describe('ViewAllComponent', () => {
     const fetchDataSpy = jest.spyOn(component, 'fetchData').mockImplementation(() => { });
     component.isLoading = false;
     component.showNextPage = true;
+    jest.useFakeTimers();
 
-    component.onScroll();
+    component.onScroll(new Event('scroll'));
+    jest.advanceTimersByTime(500);
 
     expect(fetchDataSpy).toHaveBeenCalled();
+    jest.useRealTimers();
   });
 
   it('should not call fetchData on scroll when isLoading is true', () => {
     const fetchDataSpy = jest.spyOn(component, 'fetchData').mockImplementation(() => { });
     component.isLoading = true;
     component.showNextPage = true;
+    jest.useFakeTimers();
 
-    component.onScroll();
+    component.onScroll(new Event('scroll'));
+    jest.advanceTimersByTime(500);
 
     expect(fetchDataSpy).not.toHaveBeenCalled();
+    jest.useRealTimers();
   });
 
 

@@ -57,14 +57,8 @@ describe('UserSearchTableComponent', () => {
   describe('ngOnInit', () => {
     it('should fetch users on init', () => {
       component.ngOnInit()
-      expect(peerValidationServiceMock.getAllUsers).toHaveBeenCalledWith(undefined, '')
+      expect(peerValidationServiceMock.getAllUsers).toHaveBeenCalledWith('')
       expect(component.filteredUsers.length).toBe(2)
-    })
-
-    it('should use contextOrgId when provided', () => {
-      component.contextOrgId = 'org1'
-      component.ngOnInit()
-      expect(peerValidationServiceMock.getAllUsers).toHaveBeenCalledWith('org1', '')
     })
   })
 
@@ -98,7 +92,7 @@ describe('UserSearchTableComponent', () => {
         searchQuery: new SimpleChange('', 'angular', false),
       })
       jest.runAllTimers()
-      expect(peerValidationServiceMock.getAllUsers).toHaveBeenCalledWith(undefined, 'angular')
+      expect(peerValidationServiceMock.getAllUsers).toHaveBeenCalledWith('angular')
       jest.useRealTimers()
     })
   })
