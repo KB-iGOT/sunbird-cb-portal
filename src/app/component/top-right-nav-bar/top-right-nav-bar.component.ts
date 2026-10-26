@@ -17,6 +17,7 @@ import { SurveyPopupComponent } from '@ws/app'
 import { VerificationRequestDialogComponent } from '@ws/app'
 import { RootService } from '../root/root.service'
 import { NotificationsService } from '../../services/notifications.service'
+import { CommonDataService } from '../../services/common-data.service'
 
 @Component({
   selector: 'ws-top-right-nav-bar',
@@ -47,7 +48,8 @@ export class TopRightNavBarComponent implements OnInit, OnChanges, OnDestroy {
     private rootService: RootService,
     private matDialog: MatDialogNew,
     private libNotificationsService: LibNotificationsService,
-    public domainConfSvc: DomainConfService) {
+    public domainConfSvc: DomainConfService,
+    private commonDataSvc: CommonDataService) {
     if (localStorage.getItem('websiteLanguage')) {
       this.translate.setDefaultLang('en')
       let lang = JSON.stringify(localStorage.getItem('websiteLanguage'))
@@ -386,9 +388,7 @@ export class TopRightNavBarComponent implements OnInit, OnChanges, OnDestroy {
     if (this.configSvc.iGOTAIConfig && this.configSvc.iGOTAIConfig?.supportAI && this.configSvc.iGOTAIConfig?.supportAI?.all) {
       this.enableSupportAI = true
       this.rootService.openSupportAIChatbot.next(true)
-    } else if (this.configSvc.iGOTAIConfig && this.configSvc.iGOTAIConfig?.supportAI && this.configSvc.iGOTAIConfig?.supportAI?.forOrg && this.configSvc.iGOTAIConfig?.supportAI?.forOrg?.length
-      && this.configSvc.iGOTAIConfig?.supportAI?.forOrg?.includes(this.configSvc.userProfile?.rootOrgId)
-    ) {
+    } else if (this.commonDataSvc.isEnabledForMinistryOrState(this.configSvc.iGOTAIConfig?.supportAI)) {
       this.enableSupportAI = true
       this.rootService.openSupportAIChatbot.next(true)
     } else {

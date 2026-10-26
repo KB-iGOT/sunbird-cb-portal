@@ -606,6 +606,45 @@ describe('CommonDataService', () => {
     })
   })
 
+  describe('getMinistryOrStateId', () => {
+    it('should return the ministryOrStateId of a ministry/state mapped root org', () => {
+      mockConfigSvc.userProfile.userRootOrg = { ministryOrStateType: 'Ministry', ministryOrStateId: 'ministry-1' }
+      expect(service.getMinistryOrStateId()).toBe('ministry-1')
+    })
+
+    it('should return the rootOrgId for an spv root org', () => {
+      mockConfigSvc.userProfile.userRootOrg = { ministryOrStateType: 'SPV', ministryOrStateId: 'ministry-1' }
+      expect(service.getMinistryOrStateId()).toBe('org-456')
+    })
+
+    it('should fall back to the rootOrgId when userRootOrg has no ministryOrStateId', () => {
+      mockConfigSvc.userProfile.userRootOrg = null
+      expect(service.getMinistryOrStateId()).toBe('org-456')
+    })
+  })
+
+  describe('isEnabledForMinistryOrState', () => {
+    beforeEach(() => {
+      mockConfigSvc.userProfile.userRootOrg = { ministryOrStateType: 'state', ministryOrStateId: 'state-1' }
+    })
+
+    it('should be true when the user ministry/state is in forMinistryOrStateId', () => {
+      expect(service.isEnabledForMinistryOrState({ forMinistryOrStateId: ['state-1', 'ministry-2'] })).toBe(true)
+    })
+
+    it('should be false when the user ministry/state is not in forMinistryOrStateId', () => {
+      expect(service.isEnabledForMinistryOrState({ forMinistryOrStateId: ['ministry-2'] })).toBe(false)
+    })
+
+    it('should ignore the old forOrg list', () => {
+      expect(service.isEnabledForMinistryOrState({ forOrg: ['state-1', 'org-456'] })).toBe(false)
+    })
+
+    it('should be false when the feature config is missing', () => {
+      expect(service.isEnabledForMinistryOrState(undefined)).toBe(false)
+    })
+  })
+
   describe('getNlw2026CertifiedStatus', () => {
     it('should return the cached value from localStorage when present', done => {
       mockLocalStorage.getItem.mockReturnValue('true')

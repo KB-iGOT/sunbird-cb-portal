@@ -25,6 +25,7 @@ import { SurveyPopupComponent } from '@ws/app'
 import { VerificationRequestDialogComponent } from '@ws/app'
 import { RootService } from '../root/root.service'
 import { NotificationsService } from '../../services/notifications.service'
+import { CommonDataService } from '../../services/common-data.service'
 import { ThemeService } from '@sunbird-cb/design-system'
 import { BtnSettingsService } from '@sunbird-cb/collection'
 import { environment } from '../../../environments/environment'
@@ -112,6 +113,7 @@ export class TopRightNavBarV2Component implements OnInit, OnDestroy {
   private btnSettingsSvc = inject(BtnSettingsService)
   private utilitySvc = inject(UtilityService)
   private telemetrySvc = inject(TelemetryService)
+  private commonDataSvc = inject(CommonDataService)
 
   private dialogRef: any
   private subs: Subscription[] = []
@@ -414,10 +416,7 @@ export class TopRightNavBarV2Component implements OnInit, OnDestroy {
     if (aiConfig?.supportAI?.all) {
       this.enableSupportAI.set(true)
       this.rootService.openSupportAIChatbot.next(true)
-    } else if (
-      aiConfig?.supportAI?.forOrg?.length &&
-      aiConfig.supportAI.forOrg.includes(this.configSvc.userProfile?.rootOrgId)
-    ) {
+    } else if (this.commonDataSvc.isEnabledForMinistryOrState(aiConfig?.supportAI)) {
       this.enableSupportAI.set(true)
       this.rootService.openSupportAIChatbot.next(true)
     } else {
