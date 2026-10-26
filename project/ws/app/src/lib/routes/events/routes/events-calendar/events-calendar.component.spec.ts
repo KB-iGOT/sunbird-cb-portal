@@ -188,8 +188,11 @@ describe('EventsCalendarComponent', () => {
   it('should check if a date has events', () => {
     // Setup
     component.userEventsList = mockUserEventsList
-    const dateWithEvent = new Date('2025-03-19')
-    const dateWithoutEvent = new Date('2025-03-21')
+    // the component always builds calendar dates via local-time components
+    // (new Date(year, month, day)), so the test input must match that shape
+    // rather than a UTC-parsed ISO string, or the comparison becomes timezone-dependent
+    const dateWithEvent = new Date(2025, 2, 19)
+    const dateWithoutEvent = new Date(2025, 2, 21)
 
     // Test for date with event
     const hasEvent = component.hasEvent(dateWithEvent)
@@ -198,7 +201,7 @@ describe('EventsCalendarComponent', () => {
     const hasNoEvent = component.hasEvent(dateWithoutEvent)
 
     // Expectations
-    expect(hasEvent).toBeFalsy()
+    expect(hasEvent).toBeTruthy()
     expect(hasNoEvent).toBeFalsy()
   })
 
@@ -261,33 +264,23 @@ describe('EventsCalendarComponent', () => {
 
   it('should get selected date events and mark live events', () => {
     // Setup
-    component.selected = new Date('2025-03-19')
-    const global: any = {}
+    component.selected = new Date(2025, 2, 19)
     component.userEventsList = mockUserEventsList
 
     // Mock current time to be during event1
-    const realDate = Date
-    global.Date = class extends Date {
-      constructor(...args: any[]) {
-        if (args.length === 0) {
-          // When called as new Date() without args, return a specific time
-          super('2025-03-19T11:00:00.000Z') // During event1
-        } else {
-          super(args[0], args[1], args[2], args[3], args[4], args[5], args[6])
-        }
-      }
-    } as any
+    jest.useFakeTimers()
+    jest.setSystemTime(new Date('2025-03-19T11:00:00.000Z'))
 
     // Call method
     component.getSelectedDateEvents()
 
     // Restore Date
-    global.Date = realDate
+    jest.useRealTimers()
 
     // Expectations
-    expect(component.selectedDateEvents.length).toBe(0)
-    // expect(component.selectedDateEvents[0].identifier).toBe('event1');
-    // expect(component.selectedDateEvents[0].isLive).toBeTruthy();
+    expect(component.selectedDateEvents.length).toBe(1)
+    expect(component.selectedDateEvents[0].identifier).toBe('event1')
+    expect(component.selectedDateEvents[0].isLive).toBeTruthy()
   })
 
   it('should translate labels correctly', () => {
