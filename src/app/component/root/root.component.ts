@@ -213,50 +213,6 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
     }
     this.mobileAppsSvc.init()
     this.openIntro()
-    const locationOrigin = location.origin
-
-    CsModule.instance.init({
-      core: {
-        httpAdapter: 'HttpClientBrowserAdapter',
-        global: {
-          channelId: '', // required
-          producerId: '', // required
-          deviceId: '', // required
-          sessionId: '',
-        },
-        api: {
-          host: `${locationOrigin}/apis/proxies/v8`, // default host
-          // host: 'http://localhost:3004/proxies/v8', // default host
-          // host: 'http://localhost:3002', // default host
-          authentication: {
-            // bearerToken: "", // optional
-            // userToken: "5574b3c5-16ca-49d8-8059-705304f2c7fb"
-            // bearerToken: this.loginToken,
-            // optional
-          },
-        },
-      },
-      services: {
-        groupServiceConfig: {
-          apiPath: '/learner/group/v1',
-          dataApiPath: '/learner/data/v1/group',
-          updateGroupGuidelinesApiPath: '/learner/group/membership/v1',
-        },
-        userServiceConfig: {
-          apiPath: '/learner/user/v2',
-        },
-        formServiceConfig: {
-          apiPath: '/learner/data/v1/form',
-        },
-        courseServiceConfig: {
-          apiPath: '/learner/course/v1',
-          certRegistrationApiPath: '/learner/certreg/v2/certs',
-        },
-        discussionServiceConfig: {
-          apiPath: '/discussion',
-        },
-      },
-    })
   }
 
   get navBarRequired(): boolean {
@@ -300,8 +256,13 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
    * take /app/learn/bharat-kalp/see-all full screen too.
    */
   private isFullScreenBharatKalp(url: string): boolean {
-    const path = (url || '').split('?')[0].split('#')[0].replace(/\/+$/, '')
-    return path === '/app/learn/bharat-kalp'
+    const path = (url || '').split('?')[0].split('#')[0]
+    // drop trailing slashes with a plain scan rather than a backtracking regex
+    let end = path.length
+    while (end > 0 && path.charAt(end - 1) === '/') {
+      end -= 1
+    }
+    return path.slice(0, end) === '/app/learn/bharat-kalp'
   }
 
   get showMenuBardetails(): boolean {
@@ -409,6 +370,50 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
     // tslint: disable
   }
   ngOnInit() {
+    const locationOrigin = location.origin
+
+    CsModule.instance.init({
+      core: {
+        httpAdapter: 'HttpClientBrowserAdapter',
+        global: {
+          channelId: '', // required
+          producerId: '', // required
+          deviceId: '', // required
+          sessionId: '',
+        },
+        api: {
+          host: `${locationOrigin}/apis/proxies/v8`, // default host
+          // host: 'http://localhost:3004/proxies/v8', // default host
+          // host: 'http://localhost:3002', // default host
+          authentication: {
+            // bearerToken: "", // optional
+            // userToken: "5574b3c5-16ca-49d8-8059-705304f2c7fb"
+            // bearerToken: this.loginToken,
+            // optional
+          },
+        },
+      },
+      services: {
+        groupServiceConfig: {
+          apiPath: '/learner/group/v1',
+          dataApiPath: '/learner/data/v1/group',
+          updateGroupGuidelinesApiPath: '/learner/group/membership/v1',
+        },
+        userServiceConfig: {
+          apiPath: '/learner/user/v2',
+        },
+        formServiceConfig: {
+          apiPath: '/learner/data/v1/form',
+        },
+        courseServiceConfig: {
+          apiPath: '/learner/course/v1',
+          certRegistrationApiPath: '/learner/certreg/v2/certs',
+        },
+        discussionServiceConfig: {
+          apiPath: '/discussion',
+        },
+      },
+    })
     this.independenceDayBanner = this.configSvc?.overrideThemeChanges?.independenceDayBanner || {}
     // let showTour = localStorage.getItem('tourGuide')? JSON.parse(localStorage.getItem('tourGuide')||''): {}
     // this.showTour = showTour && showTour.disable ? showTour.disable : false

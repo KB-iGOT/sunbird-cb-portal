@@ -558,7 +558,7 @@ export class PublicCrpComponent {
         phone: `${this.registrationForm.value.mobile}` || '',
         // position: this.registrationForm.value.position.name || '',
         group: this.registrationForm.value.group || '',
-        source: `${environment.name}.${this.portalID}` || '',
+        source: `${environment.name}.${this.portalID}`,
         orgName: this.heirarchyObject.orgName || '',
         channel: this.heirarchyObject.channel || '',
         organisationType: this.heirarchyObject.sbOrgType || '',
@@ -779,16 +779,16 @@ export class PublicCrpComponent {
     const userAgent = navigator.userAgent
     // Windows Phone must come first because its UA also contains "Android"
     if (/windows phone/i.test(userAgent)) {
-      window.open('https://play.google.com/store/apps/details?id=com.igot.karmayogibharat&hl=en&gl=US', '_blank')
+      window.open('https://play.google.com/store/apps/details?id=com.igot.karmayogibharat&hl=en&gl=US', '_blank', 'noopener,noreferrer')
     }
 
     if (/android/i.test(userAgent)) {
-      window.open('https://play.google.com/store/apps/details?id=com.igot.karmayogibharat&hl=en&gl=US', '_blank')
+      window.open('https://play.google.com/store/apps/details?id=com.igot.karmayogibharat&hl=en&gl=US', '_blank', 'noopener,noreferrer')
     }
 
     // iOS detection from: http://stackoverflow.com/a/9039885/177710
     if (/iPad|iPhone|iPod/.test(userAgent)) {
-      window.open('https://apps.apple.com/in/app/igot-karmayogi/id6443949491', '_blank')
+      window.open('https://apps.apple.com/in/app/igot-karmayogi/id6443949491', '_blank', 'noopener,noreferrer')
     }
   }
 

@@ -1105,12 +1105,10 @@ export class SupportAIComponent implements OnInit, OnChanges, AfterViewInit, Aft
           continue
         }
 
-        if (name.charAt(i) === name.charAt(i)) {
-          initials += name.charAt(i)
+        initials += name.charAt(i)
 
-          if (initials.length === 2) {
-            break
-          }
+        if (initials.length === 2) {
+          break
         }
       }
     }

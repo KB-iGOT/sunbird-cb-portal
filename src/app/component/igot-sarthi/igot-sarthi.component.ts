@@ -1100,11 +1100,15 @@ export class IGotSarthiComponent implements OnInit, AfterViewInit, AfterViewChec
   get userInitials() {
     return this.initials
   }
+  /** Uniform float in [0, 1) from the Web Crypto API, used in place of Math.random(). */
+  private secureRandom(): number {
+    return crypto.getRandomValues(new Uint32Array(1))[0] / 4294967296
+  }
   private createInititals(name: any): void {
-    const randomIndex = Math.floor(Math.random() * Math.floor(this.colors.length))
+    const randomIndex = Math.floor(this.secureRandom() * Math.floor(this.colors.length))
     this.circleColor = this.colors[randomIndex]
     if (this.randomcolors) {
-      const randomIndex1 = Math.floor(Math.random() * Math.floor(this.randomcolors.length))
+      const randomIndex1 = Math.floor(this.secureRandom() * Math.floor(this.randomcolors.length))
       this.circleColor = this.randomcolors[randomIndex1]
     }
     let initials = ''
@@ -1118,12 +1122,10 @@ export class IGotSarthiComponent implements OnInit, AfterViewInit, AfterViewChec
           continue
         }
 
-        if (name.charAt(i) === name.charAt(i)) {
-          initials += name.charAt(i)
+        initials += name.charAt(i)
 
-          if (initials.length === 2) {
-            break
-          }
+        if (initials.length === 2) {
+          break
         }
       }
     }

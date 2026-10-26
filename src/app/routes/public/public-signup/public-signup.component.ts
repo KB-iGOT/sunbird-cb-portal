@@ -1250,7 +1250,7 @@ export class PublicSignupComponent implements OnInit, OnDestroy {
               phone: `${this.registrationFormStepTwo.value.mobile}` || '',
               // position: this.registrationFormStepOne.value.position.name || '',
               group: this.registrationFormStepTwo.value.group || '',
-              source: `${environment.name}.${this.portalID}` || '',
+              source: `${environment.name}.${this.portalID}`,
               orgName,
               channel,
               organisationType,
@@ -2226,14 +2226,8 @@ export class PublicSignupComponent implements OnInit, OnDestroy {
           //   this.masterData['ministry'] = _.uniqBy(combined, (it: any) => (it?.identifier || '').toLowerCase())
           // }
 
-          if (!this.masterData['organisationBackup'] || reqOffset === 0) {
-            const combined = (this.masterData['organisationBackup'] || []).concat(mapped)
-            this.masterData['organisationBackup'] = _.uniqBy(combined, (it: any) => (it?.identifier || '').toLowerCase())
-            // this.masterData['organisationBackup'] = mapped
-          } else {
-            const combined = (this.masterData['organisationBackup'] || []).concat(mapped)
-            this.masterData['organisationBackup'] = _.uniqBy(combined, (it: any) => (it?.identifier || '').toLowerCase())
-          }
+          const combined = (this.masterData['organisationBackup'] || []).concat(mapped)
+          this.masterData['organisationBackup'] = _.uniqBy(combined, (it: any) => (it?.identifier || '').toLowerCase())
 
           // If server returned no new items, mark as no-more-data to stop further scroll requests
           if (!mapped || mapped?.length === 0) {
