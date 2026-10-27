@@ -1192,6 +1192,30 @@ describe('ProfileViewV2Component - extended coverage', () => {
       expect(c.achievementStats.find((s: any) => s.key === 'rank').value).toBe('--');
     });
 
+    it('shows only the cards enabled in profileConfig.achievementStats and skips the leaderboard without rank', () => {
+      c.profileConfig = { achievementStats: { badges: { enabled: true }, learningHours: { enabled: true }, rank: { enabled: false } } };
+      homeSvc.getLearnerLeaderboardCached.mockClear();
+      c.setAchievementStats();
+      expect(c.achievementStats.map((s: any) => s.key)).toEqual(['badges', 'learningHours']);
+      expect(homeSvc.getLearnerLeaderboardCached).not.toHaveBeenCalled();
+    });
+
+    it('reads achievementStats from the page-data root when profileConfig has none', () => {
+      c.profileConfig = {};
+      c.pageData = { achievementStats: { rank: { enabled: true }, walletBalance: { enabled: true } } };
+      homeSvc.getLearnerLeaderboardCached.mockClear();
+      c.setAchievementStats();
+      expect(c.achievementStats.map((s: any) => s.key)).toEqual(['rank', 'walletBalance']);
+      expect(homeSvc.getLearnerLeaderboardCached).toHaveBeenCalled();
+    });
+
+    it('keeps every card when no achievementStats config is present', () => {
+      c.profileConfig = {};
+      c.pageData = {};
+      c.setAchievementStats();
+      expect(c.achievementStats.length).toBe(5);
+    });
+
     it('toOrdinal and toHoursAndMinutes format values', () => {
       expect([1, 2, 3, 4, 11, 12, 13, 21, 22, 23, 101].map((n: number) => c.toOrdinal(n)))
         .toEqual(['1st', '2nd', '3rd', '4th', '11th', '12th', '13th', '21st', '22nd', '23rd', '101st']);
@@ -1318,6 +1342,25 @@ describe('ProfileViewV2Component - extended coverage', () => {
       expect(c.hasCurrentEmploymentDetails).toBe(true);
       configSvc.userRoles.add('volunteer');
       expect(c.isVolunteerUser).toBe(true);
+    });
+
+    it('isLeaderboardEnabled prefers an explicit flag, then the leaderboard API flag, then defaults on', () => {
+      c.profileConfig = {};
+      c.pageData = {};
+      expect(c.isLeaderboardEnabled).toBe(true);
+      c.pageData = { apiConfig: { leaderboard: { learnerLeaderboard: { enabled: false } } } };
+      expect(c.isLeaderboardEnabled).toBe(false);
+      c.pageData.leaderboard = { enabled: true };
+      expect(c.isLeaderboardEnabled).toBe(true);
+      c.profileConfig = { leaderboard: { enabled: false } };
+      expect(c.isLeaderboardEnabled).toBe(false);
+    });
+
+    it('isWeeklyClapsEnabled follows weeklyClaps.enableCard and defaults on', () => {
+      c.pageData = {};
+      expect(c.isWeeklyClapsEnabled).toBe(true);
+      c.pageData = { weeklyClaps: { enableCard: false } };
+      expect(c.isWeeklyClapsEnabled).toBe(false);
     });
   });
 
