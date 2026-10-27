@@ -23,7 +23,6 @@ import { firstValueFrom, forkJoin, of } from 'rxjs'
 import { catchError, map } from 'rxjs/operators'
 import { v4 as uuid } from 'uuid'
 import { BtnSettingsService, EnrollmentSummaryStateService, NPSGridService } from '@sunbird-cb/collection'
-import { ContentDictionaryService } from '@sunbird-cb/consumption'
 import moment from 'moment'
 import { TranslateService } from '@ngx-translate/core'
 import { SbUiResolverService } from '@sunbird-cb/resolver-v2'
@@ -63,7 +62,6 @@ export class InitService {
     private enrollSvc: WidgetEnrollService,
     private netCoreService: NetCoreService,
     private commonDataSvc: CommonDataService,
-    private contentDictionarySvc: ContentDictionaryService,
     private formSvc: FormExtService,
     private formConfigService: FormEnvConfigService,
     private readonly enrollmentSummaryState: EnrollmentSummaryStateService,
@@ -208,12 +206,8 @@ export class InitService {
       if (!path.startsWith('/public') && !isPublic) {
         await this.fetchStartUpDetails()
         this.loadEnrollmentSummaryInBackground()
-        // pre-load the content dictionary only when enabled via global-config apis.content.dictionary
-        if (this.configSvc.globalConfig?.apis?.content?.dictionary?.enabled) {
-          this.contentDictionarySvc.getDictionary().subscribe({
-            error: (err: any) => this.logger.warn('InitService: Failed to pre-load content dictionary', err),
-          })
-        }
+        // the content dictionary is not preloaded: ContentDictionaryService fetches it on the
+        // first lookup, so routes that never show a content card (TOC, profile) skip it
 
       } else if (path.includes('/public/welcome')) {
         await this.fetchStartUpDetails()

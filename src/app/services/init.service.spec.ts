@@ -16,8 +16,7 @@ jest.mock('@sunbird-cb/utils-v2', () => ({
   WidgetEnrollService: class { },
   DomainConfService: class { },
 }))
-jest.mock('@sunbird-cb/collection', () => ({ NPSGridService: class { }, BtnSettingsService: class { } }))
-jest.mock('@sunbird-cb/consumption', () => ({ ContentDictionaryService: class { } }))
+jest.mock('@sunbird-cb/collection', () => ({ NPSGridService: class { }, BtnSettingsService: class { }, EnrollmentSummaryStateService: class { } }))
 jest.mock('./netcore.service', () => ({ NetCoreService: class { } }))
 jest.mock('./common-data.service', () => ({ CommonDataService: class { } }))
 jest.mock('./form-ext.service', () => ({ FormExtService: class { } }))
@@ -38,8 +37,8 @@ describe('InitService', () => {
   let enrollSvc: any
   let netCoreService: any
   let commonDataSvc: any
-  let contentDictionarySvc: any
   let formSvc: any
+  let enrollmentSummaryState: any
   let formConfigService: any
   let domSanitizer: any
   let iconRegistry: any
@@ -150,7 +149,7 @@ describe('InitService', () => {
       trackEvent: jest.fn(),
     }
     commonDataSvc = { checkAndCacheNlw2026Eligibility: jest.fn() }
-    contentDictionarySvc = { getDictionary: jest.fn().mockReturnValue(of({})) }
+    enrollmentSummaryState = { start: jest.fn(), done: jest.fn() }
     formSvc = {
       formConfigReadData: jest.fn((req: any) => of({
         result: { data: req.request.subType === 'global-web' ? globalConfig : appConfig },
@@ -164,7 +163,7 @@ describe('InitService', () => {
     iconRegistry = { addSvgIcon: jest.fn() }
     service = new InitService(
       logger, configSvc, domainConfSvc, widgetResolver, sbUiResolver, settingsSvc, userPreference, http, npsSvc,
-      translate, enrollSvc, netCoreService, commonDataSvc, contentDictionarySvc, formSvc, formConfigService,
+      translate, enrollSvc, netCoreService, commonDataSvc, formSvc, formConfigService, enrollmentSummaryState,
       '/', domSanitizer, iconRegistry,
     )
   })
@@ -215,20 +214,23 @@ describe('InitService', () => {
       expect(configSvc.globalConfig).toBe(globalConfig)
       expect(configSvc.userProfile.userId).toBe('u1')
       expect(configSvc.userProfileV2.firstName).toBe('John')
-      expect(contentDictionarySvc.getDictionary).toHaveBeenCalled()
       expect(settingsSvc.initializePrefChanges).toHaveBeenCalled()
       expect(localStorage.getItem('firsLogin')).toBe('true')
       expect(configSvc.isNewUser).toBe(false)
       expect(localStorage.getItem('telemetrySessionId')).toBeTruthy()
     })
 
-    it('logs a warning when dictionary preload fails and replaces previous subscription', async () => {
-      contentDictionarySvc.getDictionary.mockReturnValue(throwError(() => new Error('x')))
+    it('does not preload the content dictionary at startup', async () => {
+      routes['/profile'] = { result: { response: fullProfile() } }
       await service.init()
-      expect(logger.warn).toHaveBeenCalledWith('InitService: Failed to pre-load content dictionary', expect.any(Error))
+      const urls = [...http.get.mock.calls, ...(http.post?.mock?.calls || [])].map((c: any[]) => String(c[0]))
+      expect(urls.some(u => u.includes('dictionary'))).toBe(false)
+    })
+
+    it('replaces the previous profile subscription on re-init', async () => {
+      await service.init()
       const first = service.updateProfileSubscription
       const unsubSpy = jest.spyOn(first, 'unsubscribe')
-      globalConfig.apis.content.dictionary.enabled = false
       await service.init()
       expect(unsubSpy).toHaveBeenCalled()
     })
