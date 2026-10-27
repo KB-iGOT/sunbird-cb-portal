@@ -1,5 +1,6 @@
 FROM node:22.23.4
 
+
 RUN mkdir -p /app && chown -R node:node /app
 WORKDIR /app
 COPY --chown=node:node . .
