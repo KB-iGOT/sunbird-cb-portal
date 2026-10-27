@@ -457,6 +457,13 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
   // Karma points, badges and learning hours all come off the cached enrolment payload the rest of
   // the app reads (see the My Achievements sidebar section); only the rank needs the leaderboard.
   setAchievementStats() {
+    // achievementStats (under profileConfig or at the page-data root) picks which cards a tenant
+    // shows; without it every card shows
+    const achievementStatsConfig = _.get(this.profileConfig, 'achievementStats') || _.get(this.pageData, 'achievementStats')
+    if (achievementStatsConfig) {
+      this.achievementStats = this.achievementStats.filter(stat => _.get(achievementStatsConfig, [stat.key, 'enabled'], false))
+    }
+
     // skeleton while the summary is in flight, re-read every time it lands
     this.enrollmentSummaryState.loading$
       .pipe(takeUntilDestroyed(this.destroyRef))
@@ -475,6 +482,10 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
         } catch (_e) { /* keep the placeholder values */ }
       })
 
+    // rank is the only card that needs the leaderboard, so skip the call when it is switched off
+    if (!this.achievementStats.some(stat => stat.key === 'rank')) {
+      return
+    }
     this.homePageSvc.getLearnerLeaderboardCached()
       .pipe(takeUntil(this.destroySubject$))
       .subscribe((res: any) => {
@@ -694,6 +705,20 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
     return this.connectionStatus !== 'Blocked Incoming' &&
       this.connectionStatus !== 'Blocked Outgoing' &&
       this.connectionStatus !== 'Pending'
+  }
+
+  // leaderboard switch and weekly claps card default to on when a tenant's config leaves them out;
+  // without an explicit leaderboard flag, a switched-off leaderboard API hides the view too
+  get isLeaderboardEnabled(): boolean {
+    const config = _.get(this.profileConfig, 'leaderboard') || _.get(this.pageData, 'leaderboard')
+    if (_.has(config, 'enabled')) {
+      return config.enabled
+    }
+    return _.get(this.pageData, 'apiConfig.leaderboard.learnerLeaderboard.enabled', true)
+  }
+
+  get isWeeklyClapsEnabled(): boolean {
+    return _.get(this.pageData, 'weeklyClaps.enableCard', true)
   }
 
   get shouldShowUserStatsDesktop(): boolean {
