@@ -65,6 +65,7 @@ export class ViewerComponent implements OnInit, OnDestroy, AfterViewChecked {
   enrollmentList: any
   hierarchyData: any
   enrolledCourseData: any
+  lockCertificate = false
   batchData: any
   tocStructure: any
   hasTocStructure = false
@@ -214,6 +215,9 @@ export class ViewerComponent implements OnInit, OnDestroy, AfterViewChecked {
         // console.log('this.content',data)
         if (data.content && data.content.data) {
           this.content = data.content.data
+          if (!this.forPreview) {
+            this.setCertificateObj()
+          }
 
           this.contentMIMEType = data.content.data.mimeType
         }
@@ -471,6 +475,10 @@ export class ViewerComponent implements OnInit, OnDestroy, AfterViewChecked {
     if (this.collectionId && this.enrollmentList) {
       const enrolledCourseData = this.widgetLibServ.getEnrolledDataFromList(this.enrollmentList.courses, this.collectionId)
       this.enrolledCourseData = enrolledCourseData
+      if (!this.forPreview) {
+        this.setCertificateObj()
+        this.checkCertificateLock()
+      }
       if (enrolledCourseData && enrolledCourseData.batch) {
         this.batchData = {
           content: [enrolledCourseData.batch],
@@ -802,29 +810,52 @@ export class ViewerComponent implements OnInit, OnDestroy, AfterViewChecked {
     localStorage.removeItem('currentPlayerSubtitleOff')
   }
 
-  downloadCertificate(courseData: any): void {
-    if (courseData && courseData.issuedCertificates && courseData.issuedCertificates.length) {
-      const certificate: any = courseData.issuedCertificates.sort((a: any, b: any) =>
-        new Date(a.lastIssuedOn).getTime() - new Date(b.lastIssuedOn).getTime())
-
-      const certificateId = certificate?.issuedCertificates?.[0].identifier
-      this.widgetServ.downloadCert(certificateId).subscribe((response: any) => {
-        if (this.content) {
-          this.content['certificateObj'] = {
-            certData: response.result.printUri,
-            certId: certificateId,
-          }
-        }
-
-        if (this.hierarchyData) {
-          this.hierarchyData['certificateObj'] = {
-            certData: response.result.printUri,
-            certId: certificateId,
-          }
-        }
-      })
+  setCertificateObj(): void {
+    const issuedCertificates = this.enrolledCourseData && this.enrolledCourseData.issuedCertificates
+    if (!issuedCertificates || !issuedCertificates.length) {
+      return
     }
+    const certificate: any = [...issuedCertificates].sort((a: any, b: any) =>
+      new Date(b.lastIssuedOn).getTime() - new Date(a.lastIssuedOn).getTime())[0]
+    const certificateObj = { certId: certificate.identifier, certData: '' }
+    if (this.hierarchyData && !(this.hierarchyData.certificateObj && this.hierarchyData.certificateObj.certId)) {
+      this.hierarchyData['certificateObj'] = { ...certificateObj }
+    }
+    if (this.content && !(this.content['certificateObj'] && this.content['certificateObj'].certId)) {
+      this.content['certificateObj'] = { ...certificateObj }
+    }
+  }
 
+  // Same rule as the TOC page: when a completion survey applies, the certificate stays
+  // locked until the learner has submitted it.
+  checkCertificateLock(): void {
+    const surveyConfig = this.configSvc.instanceConfig && this.configSvc.instanceConfig.completionSurvey
+    const courseData = this.contentReadData
+    const surveyLink = courseData && courseData.completionSurveyLink
+    const enrolment = this.enrolledCourseData
+    if (!surveyConfig || !surveyConfig.enabled || !courseData || !surveyLink || !enrolment ||
+      !(enrolment.completedOn >= surveyConfig.startDate)) {
+      return
+    }
+    const surveyId = surveyLink.split('surveys/')[1]
+    // Locked while the check is in flight, so the certificate never shows before the answer
+    this.lockCertificate = true
+    this.tocSvc.getApllicationsById(surveyId, courseData.identifier).subscribe(
+      (res: any) => {
+        const response = res && res.result && res.result.response
+        this.lockCertificate = !(response && Object.keys(response).length > 0)
+      },
+      () => {
+        this.lockCertificate = false
+      },
+    )
+  }
+
+  // The survey form lives on the TOC page, which opens it on load while the certificate is locked
+  openCompletionSurvey(open: boolean): void {
+    if (open && this.collectionId) {
+      this.router.navigateByUrl(`app/toc/${this.collectionId}/overview`)
+    }
   }
 
   getTocConfig() {
