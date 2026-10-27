@@ -37,6 +37,7 @@ describe('TopRightNavBarV2Component (No TestBed)', () => {
   let mockRootService: any
   let mockThemeSvc: any
   let mockBtnSettingsSvc: any
+  let mockCommonDataSvc: any
 
   beforeEach(() => {
     mockDialog = {
@@ -110,6 +111,10 @@ describe('TopRightNavBarV2Component (No TestBed)', () => {
       changeFont: jest.fn(),
     }
 
+    mockCommonDataSvc = {
+      isEnabledForMinistryOrState: jest.fn().mockReturnValue(false),
+    }
+
     jest.spyOn(Storage.prototype, 'getItem').mockImplementation((key: string) => {
       if (key === 'websiteLanguage') return 'en'
       if (key === 'setting') return 'normal-typography'
@@ -136,6 +141,7 @@ describe('TopRightNavBarV2Component (No TestBed)', () => {
       ; (component as any).rootService = mockRootService
       ; (component as any).themeSvc = mockThemeSvc
       ; (component as any).btnSettingsSvc = mockBtnSettingsSvc
+      ; (component as any).commonDataSvc = mockCommonDataSvc
       ; (component as any).subs = []
       ; (component as any).zohoUrl = '/assets/static-data/zoho-code.html'
       ; (component as any).fontClasses = ['x-small-typography', 'small-typography', 'normal-typography', 'large-typography', 'x-large-typography']
@@ -387,10 +393,19 @@ describe('TopRightNavBarV2Component (No TestBed)', () => {
       expect(mockRootService.openSupportAIChatbot.value).toBe(true)
     })
 
-    it('should open support AI when org is in forOrg list', () => {
-      mockConfigSvc.iGOTAIConfig = { supportAI: { forOrg: ['org-1'] } }
+    it('should open support AI when the user ministry/state is in forMinistryOrStateId list', () => {
+      mockConfigSvc.iGOTAIConfig = { supportAI: { forMinistryOrStateId: ['ministry-1'] } }
+      mockCommonDataSvc.isEnabledForMinistryOrState.mockReturnValue(true)
       component.openSupportChatBot()
+      expect(mockCommonDataSvc.isEnabledForMinistryOrState).toHaveBeenCalledWith(mockConfigSvc.iGOTAIConfig.supportAI)
       expect(component.enableSupportAI()).toBe(true)
+    })
+
+    it('should open zoho form when the user ministry/state is not in forMinistryOrStateId list', () => {
+      mockConfigSvc.iGOTAIConfig = { supportAI: { forMinistryOrStateId: ['other-ministry'] } }
+      jest.spyOn(component, 'getZohoForm').mockImplementation(() => { })
+      component.openSupportChatBot()
+      expect(component.getZohoForm).toHaveBeenCalled()
     })
 
     it('should open zoho form when no AI config', () => {

@@ -7,6 +7,7 @@ import { of, Subject } from 'rxjs'
 import { AppChatbotComponent } from './app-chatbot.component'
 import { RootService } from './../root/root.service'
 import { ZohoSupportService } from '../../services/zoho-support.service'
+import { CommonDataService } from '../../services/common-data.service'
 
 // The component only imports the Zoho dialog to open it; stub it so the spec does not
 // pull in the whole @ws/app library.
@@ -28,6 +29,9 @@ describe('AppChatbotComponent', () => {
     getChatData: jest.fn(() => of({})),
     iGOTAIChatHistory: [],
   }
+  const mockCommonDataSvc: any = {
+    isEnabledForMinistryOrState: jest.fn(() => false),
+  }
 
   beforeEach(async () => {
     localStorage.clear()
@@ -42,6 +46,7 @@ describe('AppChatbotComponent', () => {
         { provide: ZohoSupportService, useValue: { getZohoHtml: jest.fn(() => of('')) } },
         { provide: MatDialog, useValue: { open: jest.fn() } },
         { provide: Router, useValue: { events: new Subject() } },
+        { provide: CommonDataService, useValue: mockCommonDataSvc },
       ],
       // Child components, cdkDrag, clickOutside and Material elements are not under test here.
       schemas: [NO_ERRORS_SCHEMA],
@@ -53,6 +58,48 @@ describe('AppChatbotComponent', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy()
+  })
+
+  describe('iGOTAI features enabled by forMinistryOrStateId', () => {
+    const initWithConfig = (iGOTAIConfig: any, enabledForMinistryOrState: boolean) => {
+      mockConfigSvc.iGOTAIConfig = iGOTAIConfig
+      mockCommonDataSvc.isEnabledForMinistryOrState.mockReturnValue(enabledForMinistryOrState)
+      component.rootOrgId = 'org-1'
+      component.iGOTAIConfigLoaded = true
+      component.enableSupportAI = false
+      component.enableIGOTAIFlag = false
+      component.ngOnInit()
+    }
+
+    afterEach(() => {
+      mockConfigSvc.iGOTAIConfig = {}
+      mockCommonDataSvc.isEnabledForMinistryOrState.mockReturnValue(false)
+    })
+
+    it('should enable sarthi when the user ministry/state is listed', () => {
+      const iGOTAI = { forMinistryOrStateId: ['ministry-1'], allDesignation: true }
+      initWithConfig({ iGOTAI }, true)
+      expect(mockCommonDataSvc.isEnabledForMinistryOrState).toHaveBeenCalledWith(iGOTAI)
+      expect(component.enableIGOTAIFlag).toBe(true)
+      expect(component.currentFilter).toBe('sarthi')
+    })
+
+    it('should enable support AI when the user ministry/state is listed', () => {
+      const supportAI = { forMinistryOrStateId: ['ministry-1'] }
+      initWithConfig({ supportAI }, true)
+      expect(mockCommonDataSvc.isEnabledForMinistryOrState).toHaveBeenCalledWith(supportAI)
+      expect(component.enableSupportAI).toBe(true)
+      expect(component.currentFilter).toBe('support-ai')
+    })
+
+    it('should keep sarthi and support AI disabled when the user ministry/state is not listed', () => {
+      initWithConfig({
+        iGOTAI: { forMinistryOrStateId: ['other-ministry'], allDesignation: true },
+        supportAI: { forMinistryOrStateId: ['other-ministry'] },
+      }, false)
+      expect(component.enableIGOTAIFlag).toBe(false)
+      expect(component.enableSupportAI).toBe(false)
+    })
   })
 
   describe('chatbot panel', () => {

@@ -155,9 +155,7 @@ export class ViewerTocComponent implements OnInit, OnDestroy {
       else if (this.configSvc.iGOTAIConfig?.aiTutor?.forDesignation?.includes(this.userDesignation)) {
         this.enableAITutorFlag = true
       }
-    } else if (this.configSvc.iGOTAIConfig && this.configSvc.iGOTAIConfig?.aiTutor && this.configSvc.iGOTAIConfig?.aiTutor?.forOrg && this.configSvc.iGOTAIConfig?.aiTutor?.forOrg?.length &&
-      this.configSvc.iGOTAIConfig?.aiTutor?.forOrg?.includes(this.configSvc.userProfile?.rootOrgId)
-    ) {
+    } else if (this.isEnabledForMinistryOrState(this.configSvc.iGOTAIConfig?.aiTutor)) {
       if (this.configSvc.iGOTAIConfig?.aiTutor?.allDesignation) {
         this.enableAITutorFlag = true
       }
@@ -350,6 +348,22 @@ export class ViewerTocComponent implements OnInit, OnDestroy {
       this.viewerDataServiceSubscription.unsubscribe()
     }
   }
+
+  /**
+   * Whether an iGOTAI feature config enables it for the user's ministry/state (forMinistryOrStateId).
+   * Mirrors CommonDataService.getMinistryOrStateId in the portal app, which this lib can't import:
+   * SPV orgs have no ministry/state above them, so their own rootOrgId is matched.
+   */
+  private isEnabledForMinistryOrState(featureConfig: any): boolean {
+    const ministryOrStateIds: string[] = _.get(featureConfig, 'forMinistryOrStateId') || []
+    const userRootOrg = _.get(this.configSvc, 'userProfile.userRootOrg') || {}
+    const rootOrgId = _.get(this.configSvc, 'userProfile.rootOrgId') || ''
+    const ministryOrStateId = (userRootOrg.ministryOrStateType || '').toLowerCase() === 'spv'
+      ? rootOrgId
+      : (userRootOrg.ministryOrStateId || rootOrgId)
+    return !!ministryOrStateId && ministryOrStateIds.includes(ministryOrStateId)
+  }
+
   changeTocMode() {
     if (this.tocMode === 'FLAT') {
       this.tocMode = 'TREE'

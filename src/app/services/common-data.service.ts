@@ -387,6 +387,22 @@ export class CommonDataService {
     return _.get(languageBasedContent, `${language}.${contentKey}`, '') || _.get(languageBasedContent, `english.${contentKey}`, '')
   }
 
+  getMinistryOrStateId(): string {
+    const userRootOrg = _.get(this.configSvc, 'userProfile.userRootOrg') || {}
+    const rootOrgId = _.get(this.configSvc, 'userProfile.rootOrgId') || ''
+    if ((userRootOrg.ministryOrStateType || '').toLowerCase() === 'spv') {
+      return rootOrgId
+    }
+
+    return userRootOrg.ministryOrStateId || rootOrgId
+  }
+
+  isEnabledForMinistryOrState(featureConfig: any): boolean {
+    const ministryOrStateIds: string[] = _.get(featureConfig, 'forMinistryOrStateId') || []
+    const ministryOrStateId = this.getMinistryOrStateId()
+    return !!ministryOrStateId && ministryOrStateIds.includes(ministryOrStateId)
+  }
+
   /**
    * Get NLW 2026 certification eligibility.
    * First checks localStorage cache to avoid unnecessary API calls.
