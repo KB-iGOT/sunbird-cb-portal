@@ -64,7 +64,11 @@ export class AppFooterComponent implements OnInit {
     })
   }
 
-  async ngOnInit() {
+  ngOnInit() {
+    this.initFooter()
+  }
+
+  private async initFooter() {
     this.showFooter = this.domainConfSvc.isConfigEnabled('components.footer', 'enabled')
     this.showLinks = this.domainConfSvc.isConfigEnabled('components.footer', 'showLinks')
     this.showCopyright = this.domainConfSvc.isConfigEnabled('components.footer', 'showCopyright')

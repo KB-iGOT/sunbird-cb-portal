@@ -4,7 +4,7 @@
   <!-- Notification Bell -->
   @if (item()?.type === 'notificationBell' && rnc.section === 'notification' && rnc.active) {
   <li class="notification-icon flex items-center cursor-pointer mt-2.5">
-    <div #notificationTrigger [matMenuTriggerFor]="menu" class="relative" (click)="onBellClick()"
+    <div #notificationTrigger [matMenuTriggerFor]="menu" class="relative" role="button" (click)="onBellClick()"
       matTooltipClass="right-nav-tooltip" [matTooltip]="'Notifications'"
       (keydown.enter)="$event.preventDefault(); notificationTrigger.click(); onBellClick();" tabindex="0"
       (keydown.escape)="$event.preventDefault(); notificationTrigger.click();">

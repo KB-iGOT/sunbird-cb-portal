@@ -21,7 +21,7 @@ body {
 }
 
 .top-nav .logo {
-  font-family: Montserrat;
+  font-family: Montserrat, sans-serif;
   font-weight: 700;
   font-size: 16px;
   color: #1B4CA1;
@@ -68,7 +68,7 @@ body {
   padding: 6px 14px;
   font-size: 13px;
   cursor: pointer;
-  font-family: Lato;
+  font-family: Lato, sans-serif;
 }
 
 /* Sub Nav */
@@ -86,7 +86,7 @@ body {
   text-decoration: none;
   font-size: 14px;
   color: #555;
-  font-family: Lato;
+  font-family: Lato, sans-serif;
   border-bottom: 2px solid transparent;
   white-space: nowrap;
 }
@@ -106,7 +106,7 @@ body {
   font-weight: 600;
   border: none;
   cursor: pointer;
-  font-family: Lato;
+  font-family: Lato, sans-serif;
   margin-right: 8px;
 }
 
@@ -119,7 +119,7 @@ body {
 .page-title {
   font-size: 13px;
   color: #333;
-  font-family: Lato;
+  font-family: Lato, sans-serif;
   margin-bottom: 12px;
   font-weight: bold
 }
@@ -134,7 +134,7 @@ body {
 .tab-row .tab {
   padding: 6px 16px;
   font-size: 14px;
-  font-family: Lato;
+  font-family: Lato, sans-serif;
   color: #666;
   cursor: pointer;
   border-bottom: 2px solid transparent;
@@ -153,7 +153,7 @@ body {
 }
 
 .welcome-section h2 {
-  font-family: Montserrat;
+  font-family: Montserrat, sans-serif;
   font-weight: 600;
   font-size: 20px;
   color: #000;
@@ -163,7 +163,7 @@ body {
 .welcome-section p {
   font-size: 14px;
   color: #666;
-  font-family: Lato;
+  font-family: Lato, sans-serif;
 }
 
 /* Stats Cards */
@@ -186,7 +186,7 @@ body {
 }
 
 .stat-card .stat-label {
-  font-family: Montserrat;
+  font-family: Montserrat, sans-serif;
   font-weight: 600;
   font-size: 16px;
   color: #202224;
@@ -217,7 +217,7 @@ body {
 }
 
 .stat-card .stat-value {
-  font-family: Montserrat;
+  font-family: Montserrat, sans-serif;
   font-weight: 600;
   font-size: 28px;
   color: #202224;
@@ -233,7 +233,7 @@ body {
 .inner-tab-row .tab {
   padding: 6px 16px;
   font-size: 14px;
-  font-family: Lato;
+  font-family: Lato, sans-serif;
   color: #666;
   cursor: pointer;
   border-bottom: 2px solid transparent;
@@ -266,7 +266,7 @@ body {
 }
 
 .panel-header .panel-title {
-  font-family: Montserrat;
+  font-family: Montserrat, sans-serif;
   font-weight: 600;
   font-size: 16px;
   color: #000;
@@ -312,7 +312,7 @@ body {
   flex: 1;
   color: #333;
   /* Paragraph 2/Regular */
-  font-family: Inter;
+  font-family: Inter, serif;
   font-size: 14px;
   font-style: normal;
   font-weight: 400;
@@ -321,25 +321,21 @@ body {
 }
 
 .badge-progress-item .continue-btn {
-  border-radius: 75px;
   border: 1px solid var(--Primary-KB-Primary-Light, #1B4CA1);
   color: #1B4CA1 !important;
   border-radius: 20px;
   padding: 6px 16px;
-  font-size: 12px;
   cursor: pointer;
-  font-family: Lato;
   display: flex;
   align-items: center;
   gap: 6px;
   margin-right: 16px;
   white-space: nowrap;
   background: white;
-  color: var(--Primary-KB-Primary-Light, #1B4CA1);
   text-align: center;
 
   /* Button */
-  font-family: Lato;
+  font-family: Lato, sans-serif;
   font-size: 14px;
   font-style: normal;
   font-weight: 700;
@@ -352,7 +348,7 @@ body {
 }
 
 .badge-progress-item .pct {
-  font-family: Montserrat;
+  font-family: Montserrat, sans-serif;
   font-weight: 600;
   font-size: 14px;
   color: #333;
@@ -426,7 +422,7 @@ body {
   padding: 0 6px;
   width: 100%;
   font-size: 11px;
-  font-family: Montserrat;
+  font-family: Montserrat, sans-serif;
   font-weight: 600;
   line-height: 1.3;
   margin-top: 4px;

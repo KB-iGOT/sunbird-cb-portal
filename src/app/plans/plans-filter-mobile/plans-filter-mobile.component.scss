@@ -6,7 +6,7 @@
   flex-direction: column;
   height: 100%;
   background: var(--environment-application-backgrounds-card-background);
-  font-family: 'Noto Sans';
+  font-family: 'Noto Sans', sans-serif;
 
   &__header {
     display: flex;
@@ -18,7 +18,7 @@
   }
 
   &__title {
-    font: 600 16px 'Noto Sans';
+    font: 600 16px 'Noto Sans', sans-serif;
     color: var(--text-bandw-black-sub-heading);
   }
 
@@ -29,7 +29,7 @@
     border: 0;
     background: transparent;
     color: var(--text-system-text-error);
-    font: 500 13px 'Noto Sans';
+    font: 500 13px 'Noto Sans', sans-serif;
     cursor: pointer;
   }
 
@@ -62,7 +62,7 @@
     border-left: 3px solid transparent;
     background: transparent;
     text-align: left;
-    font: 500 13px 'Noto Sans';
+    font: 500 13px 'Noto Sans', sans-serif;
     color: var(--text-bandw-black-captions);
     cursor: pointer;
 
@@ -83,7 +83,7 @@
 
   &__pane-title {
     margin: 0 0 12px;
-    font: 600 14px 'Noto Sans';
+    font: 600 14px 'Noto Sans', sans-serif;
     color: var(--text-bandw-black-sub-heading);
   }
 
@@ -94,7 +94,7 @@
   }
 
   &__option {
-    font: 400 14px 'Noto Sans';
+    font: 400 14px 'Noto Sans', sans-serif;
   }
 
   &__footer {
@@ -109,7 +109,7 @@
     height: 52px;
     border: 0;
     background: transparent;
-    font: 600 14px 'Noto Sans';
+    font: 600 14px 'Noto Sans', sans-serif;
     color: var(--text-button-text-link);
     cursor: pointer;
 

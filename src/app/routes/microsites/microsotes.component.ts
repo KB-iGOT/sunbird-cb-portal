@@ -876,7 +876,7 @@ export class MicrosotesComponent implements OnInit {
           this.contentSvc.searchV6(request).subscribe(results => {
               resolve({ results })
             },                                        (error: any) => {
-              reject(error)
+              reject(error instanceof Error ? error : new Error(error?.message || 'Content search failed'))
             },
           )
         }

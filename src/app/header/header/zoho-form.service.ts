@@ -229,11 +229,14 @@ export class ZohoFormService {
     fileNameSpan.textContent = fileName
 
     const closeLink = document.createElement('a')
-    closeLink.href = 'javascript:;'
+    closeLink.href = '#'
     closeLink.className = 'zsfilebrowseAttachment'
     closeLink.id = 'fileclose_' + fileId
     closeLink.textContent = '×'
-    closeLink.onclick = () => this.removeFileAttachment(fileId)
+    closeLink.onclick = (event: MouseEvent) => {
+      event.preventDefault()
+      this.removeFileAttachment(fileId)
+    }
 
     fileDiv.appendChild(fileNameSpan)
     fileDiv.appendChild(closeLink)
@@ -528,7 +531,7 @@ export class ZohoFormService {
 
         // Email validation
         if (fieldName === 'Email') {
-          const emailRegex = /^([\w_][\w\-_.+'&]*)@(?=.{4,256}$)(([\w]+)([\-_]*[\w])*[\.])+[a-zA-Z]{2,22}$/
+          const emailRegex = /^([\w_][\w\-_.+'&]*)@(?=.{4,256}$)(\w+(?:-+\w+)*\.)+[a-zA-Z]{2,22}$/
           if (!emailRegex.test(field.value)) {
             alert('Enter a valid email address')
             field.focus()
@@ -592,7 +595,7 @@ export class ZohoFormService {
         const sparrowEmail = sparrowEmailInput.value.trim()
 
         const sparrowRegex =
-          /^([\w_][\w\-_.+'&]*)@(?=.{4,256}$)(([\w]+)([\-_]*[\w])*[\.])+[a-zA-Z]{2,22}$/
+          /^([\w_][\w\-_.+'&]*)@(?=.{4,256}$)(\w+(?:-+\w+)*\.)+[a-zA-Z]{2,22}$/
 
         if (!sparrowRegex.test(sparrowEmail)) {
           alert('Enter a valid Sparrow email ID')

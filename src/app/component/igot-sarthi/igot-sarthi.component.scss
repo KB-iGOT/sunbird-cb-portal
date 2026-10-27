@@ -364,7 +364,7 @@
       max-width: 85%;
       height: 100%;
       word-break: break-word;
-      ::ng-deep markdown * {
+      ::ng-deep .chat-markdown * {
         margin: 0;
         width: 100%;
         word-wrap: break-word;
@@ -372,7 +372,7 @@
     }
   }
   .recommended-question-desc {
-    ::ng-deep markdown * {
+    ::ng-deep .chat-markdown * {
       margin: 0;
       width: 100%;
       word-wrap: break-word;
@@ -544,7 +544,7 @@
   }
   ::ng-deep .disable-scroll {
     overflow-x: hidden !important;
-    overflow: hidden;
+    overflow-y: hidden;
   }
   @media only screen and (max-width: 600px) {
     .chatbot {
@@ -644,7 +644,6 @@
 
   .initials {
     color: #ffffff;
-    font-size: 10px;
     line-height: 12px;
     font-size: 14px;
     letter-spacing: 0.2625px;
@@ -1007,7 +1006,7 @@
   resize: none;
   overflow: hidden;
   font-size: 14px;
-  font-family: Lato;
+  font-family: Lato, sans-serif;
   box-sizing: border-box;
   min-height: 32px;
   padding-top: 5px;
@@ -1046,7 +1045,7 @@
 }
 
 .recommended-question-desc {
-  ::ng-deep markdown pre {
+  ::ng-deep .chat-markdown pre {
     all: unset;            /* Remove all default browser styling */
     display: revert;       /* Revert display to default for each tag (optional but useful) */
     box-sizing: border-box;

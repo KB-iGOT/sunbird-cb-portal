@@ -4,7 +4,7 @@
             <!-- //NOSONAR -->
             <li class="notification-icon"
                 *ngIf="item.type === 'notificationBell' && rnc.section === 'notification' && rnc.active && domainConfSvc.isConfigEnabled('components.header', 'notification')">
-                <div #notificationTrigger [matMenuTriggerFor]="menu" class="relative" (click)="onBellClick()"
+                <div #notificationTrigger [matMenuTriggerFor]="menu" class="relative" role="button" (click)="onBellClick()"
                     title="Notifications"
                     (keydown.enter)="$event.preventDefault(); notificationTrigger.click(); onBellClick();" tabindex="0"
                     (keydown.escape)="$event.preventDefault(); notificationTrigger.click();">

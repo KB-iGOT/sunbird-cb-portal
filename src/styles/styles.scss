@@ -1563,7 +1563,7 @@ ngx-guided-tour {
   font-weight: normal;
   color: #000 !important;
   letter-spacing: normal !important;
-  font-family: Lato;
+  font-family: Lato, sans-serif;
 }
 
 // Active tab text
@@ -1705,7 +1705,7 @@ ngx-guided-tour {
   font-size: 16px;
   font-weight: 600;
   line-height: 24px;
-  font-family: Montserrat;
+  font-family: Montserrat, sans-serif;
   letter-spacing: normal;
   margin: 0 0 16px;
   color: #000;
@@ -2114,7 +2114,7 @@ ws-widget-btn-page-back-nav .mat-mdc-icon-button {
 .mat-typography .mat-body,
 .mat-typography .mat-body-2,
 .mat-typography {
-  font: 400 14px / 21px Lato;
+  font: 400 14px / 21px Lato, sans-serif;
   letter-spacing: normal;
   color: #000
 }
@@ -2225,9 +2225,8 @@ ws-widget-btn-page-back-nav .mat-mdc-icon-button {
 
 .mat-mdc-menu-content,
 .mat-mdc-menu-content .mat-mdc-menu-item .mat-mdc-menu-item-text {
-  line-height: 30px;
   padding: 0 6px;
-  font: 400 14px / 21px Lato !important;
+  font: 400 14px / 21px Lato, sans-serif !important;
 }
 
 .mat-mdc-menu-panel {
@@ -2309,7 +2308,7 @@ ws-widget-btn-page-back-nav .mat-mdc-icon-button {
   font-size: 20px;
   font-weight: 600;
   line-height: 30px;
-  font-family: Montserrat;
+  font-family: Montserrat, sans-serif;
   letter-spacing: normal;
   margin: 0 0 16px;
 }
@@ -2318,7 +2317,7 @@ ws-widget-btn-page-back-nav .mat-mdc-icon-button {
   font-size: 14px;
   font-weight: 700;
   line-height: 21px;
-  font-family: Lato;
+  font-family: Lato, sans-serif;
   letter-spacing: normal;
   margin: 0 0 16px;
 }
@@ -2373,7 +2372,7 @@ ws-widget-btn-page-back-nav .mat-mdc-icon-button {
     font-size: 24px !important;
     font-weight: 600 !important;
     line-height: 36px;
-    font-family: Montserrat;
+    font-family: Montserrat, sans-serif;
     letter-spacing: normal;
     margin: 16px 0 16px !important;
   }

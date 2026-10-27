@@ -406,7 +406,7 @@ export class FilterComponent implements OnInit {
     const normalised: any = {}
     Object.keys(this.filterObjEmpty).forEach((key: string) => {
       const value = source[key]
-      normalised[key] = Array.isArray(value) ? value.slice().sort() : (value || '')
+      normalised[key] = Array.isArray(value) ? value.slice().sort((a: any, b: any) => (String(a) < String(b) ? -1 : String(a) > String(b) ? 1 : 0)) : (value || '')
     })
     return JSON.stringify(normalised)
   }

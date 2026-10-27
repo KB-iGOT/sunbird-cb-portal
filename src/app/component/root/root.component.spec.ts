@@ -218,10 +218,9 @@ describe('RootComponent', () => {
   })
 
   describe('constructor', () => {
-    it('should create and initialise the sdk and mobile service', () => {
+    it('should create and initialise the mobile service', () => {
       expect(component).toBeTruthy()
       expect(mockMobileAppsSvc.init).toHaveBeenCalled()
-      expect((CsModule as any).instance.init).toHaveBeenCalled()
     })
 
     it('should use leftNavBar from instance config', () => {
@@ -913,6 +912,7 @@ describe('RootComponent', () => {
 
     it('should wire up subscriptions and services', () => {
       component.ngOnInit()
+      expect((CsModule as any).instance.init).toHaveBeenCalled()
       expect(mockBtnBackSvc.initialize).toHaveBeenCalled()
       expect(mockConfigSvc.updateTourGuideMethod).toHaveBeenCalled()
       mockMobileAppsSvc.mobileTopHeaderVisibilityStatus.next(false)
