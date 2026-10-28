@@ -350,18 +350,20 @@ export class ViewerTocComponent implements OnInit, OnDestroy {
   }
 
   /**
-   * Whether an iGOTAI feature config enables it for the user's ministry/state (forMinistryOrStateId).
-   * Mirrors CommonDataService.getMinistryOrStateId in the portal app, which this lib can't import:
+   * Whether an iGOTAI feature config enables it for the user's org (forOrg) or ministry/state (forMinistryOrStateId).
+   * Mirrors CommonDataService.isEnabledForMinistryOrState in the portal app, which this lib can't import:
    * SPV orgs have no ministry/state above them, so their own rootOrgId is matched.
    */
   private isEnabledForMinistryOrState(featureConfig: any): boolean {
+    const orgIds: string[] = _.get(featureConfig, 'forOrg') || []
     const ministryOrStateIds: string[] = _.get(featureConfig, 'forMinistryOrStateId') || []
     const userRootOrg = _.get(this.configSvc, 'userProfile.userRootOrg') || {}
     const rootOrgId = _.get(this.configSvc, 'userProfile.rootOrgId') || ''
     const ministryOrStateId = (userRootOrg.ministryOrStateType || '').toLowerCase() === 'spv'
       ? rootOrgId
       : (userRootOrg.ministryOrStateId || rootOrgId)
-    return !!ministryOrStateId && ministryOrStateIds.includes(ministryOrStateId)
+    return (!!rootOrgId && orgIds.includes(rootOrgId))
+      || (!!ministryOrStateId && ministryOrStateIds.includes(ministryOrStateId))
   }
 
   changeTocMode() {

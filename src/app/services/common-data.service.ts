@@ -397,10 +397,14 @@ export class CommonDataService {
     return userRootOrg.ministryOrStateId || rootOrgId
   }
 
+  /** Enabled when forOrg lists the user's rootOrgId or forMinistryOrStateId lists their ministry/state. */
   isEnabledForMinistryOrState(featureConfig: any): boolean {
+    const orgIds: string[] = _.get(featureConfig, 'forOrg') || []
     const ministryOrStateIds: string[] = _.get(featureConfig, 'forMinistryOrStateId') || []
+    const rootOrgId = _.get(this.configSvc, 'userProfile.rootOrgId') || ''
     const ministryOrStateId = this.getMinistryOrStateId()
-    return !!ministryOrStateId && ministryOrStateIds.includes(ministryOrStateId)
+    return (!!rootOrgId && orgIds.includes(rootOrgId))
+      || (!!ministryOrStateId && ministryOrStateIds.includes(ministryOrStateId))
   }
 
   /**

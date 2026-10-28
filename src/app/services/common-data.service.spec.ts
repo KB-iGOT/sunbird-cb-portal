@@ -636,8 +636,17 @@ describe('CommonDataService', () => {
       expect(service.isEnabledForMinistryOrState({ forMinistryOrStateId: ['ministry-2'] })).toBe(false)
     })
 
-    it('should ignore the old forOrg list', () => {
-      expect(service.isEnabledForMinistryOrState({ forOrg: ['state-1', 'org-456'] })).toBe(false)
+    it('should be true when the user rootOrgId is in forOrg', () => {
+      expect(service.isEnabledForMinistryOrState({ forOrg: ['org-456'] })).toBe(true)
+    })
+
+    it('should be false when neither forOrg nor forMinistryOrStateId matches', () => {
+      expect(service.isEnabledForMinistryOrState({ forOrg: ['state-1'], forMinistryOrStateId: ['ministry-2'] })).toBe(false)
+    })
+
+    it('should be true when only one of forOrg and forMinistryOrStateId matches', () => {
+      expect(service.isEnabledForMinistryOrState({ forOrg: ['org-456'], forMinistryOrStateId: ['ministry-2'] })).toBe(true)
+      expect(service.isEnabledForMinistryOrState({ forOrg: ['org-999'], forMinistryOrStateId: ['state-1'] })).toBe(true)
     })
 
     it('should be false when the feature config is missing', () => {
