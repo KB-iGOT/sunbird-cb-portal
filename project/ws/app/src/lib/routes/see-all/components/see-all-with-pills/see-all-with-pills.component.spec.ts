@@ -1,4 +1,6 @@
 // @ts-nocheck
+import { readFileSync } from 'fs'
+import { join } from 'path'
 import { of } from 'rxjs'
 
 // Mock the SeeAllService module before importing the component to avoid heavy deps
@@ -18,11 +20,17 @@ describe('SeeAllWithPillsComponent (no TestBed)', () => {
   const sampleStrip = { key: 'k1', tabs: [{ value: 't1', pillsData: [{ value: 'p1' }] }], viewMoreUrl: { loaderConfig: { cardSubType: 'card-portrait-skeleton' } }, request: {} }
   const mockSeeAllSvc: any = {
     getSeeAllConfigJson: jest.fn().mockResolvedValue({ newHomeStrip: [{ strips: [sampleStrip] }], assessmentData: [] }),
+    getSeeAllFormsConfigJson: jest.fn().mockResolvedValue({ newHomeStrip: [{ strips: [sampleStrip] }], assessmentData: [] }),
+    getSeeAllTabsConfig: jest.fn().mockResolvedValue(null),
     searchV6: jest.fn().mockReturnValue(of({ result: { content: [] } })),
     trendingContentSearch: jest.fn().mockReturnValue(of({ result: { responseKey: [] } })),
     getApplicationsById: jest.fn().mockReturnValue(of({ result: { response: [] } })),
   }
-  const mockConfigSvc: any = { userProfile: { userId: 'u1', rootOrgId: 'r1' } }
+  const mockConfigSvc: any = {
+    userProfile: { userId: 'u1', rootOrgId: 'r1' },
+    userProfileV2: { userRoles: [] },
+    userRoles: new Set<string>(),
+  }
   const mockEventSvc: any = { raiseInteractTelemetry: jest.fn(), broadcast: jest.fn() }
   const mockMulti: any = { translateLabel: jest.fn().mockReturnValue('translated') }
   const mockEnroll: any = {
@@ -32,6 +40,8 @@ describe('SeeAllWithPillsComponent (no TestBed)', () => {
   }
 
   beforeEach(() => {
+    mockConfigSvc.userProfileV2.userRoles = []
+    mockConfigSvc.userRoles = new Set<string>()
     component = new SeeAllWithPillsComponent(
       mockActivated,
       mockSeeAllSvc,
@@ -44,6 +54,46 @@ describe('SeeAllWithPillsComponent (no TestBed)', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy()
+  })
+
+  describe('getExploreContentRoute', () => {
+    it('keeps the Events route unchanged without query parameters', () => {
+      const tab = { label: 'Events' }
+
+      expect(component.getExploreContentRoute(tab)).toBe('/app/event-hub/home')
+      expect(component.getExploreContentQueryParams(tab)).toBeNull()
+    })
+
+    it('routes volunteers to volunteer global search with explore-content parameters', () => {
+      mockConfigSvc.userRoles.add('volunteer')
+      const tab = { label: 'Courses' }
+
+      expect(component.getExploreContentRoute(tab)).toBe('/app/globalsearch/volunteer')
+      expect(component.getExploreContentQueryParams(tab)).toEqual({
+        q: '',
+        tab: 'explore-content',
+        category: 'course',
+        filtersPanel: 'show',
+      })
+    })
+
+    it('routes other users to regular global search with course parameters', () => {
+      const tab = { label: 'Courses' }
+
+      expect(component.getExploreContentRoute(tab)).toBe('/app/globalsearch')
+      expect(component.getExploreContentQueryParams(tab)).toEqual({
+        q: '',
+        category: 'courses',
+        filtersPanel: 'show',
+      })
+    })
+
+    it('recognizes volunteer roles from the profile fallback used by global search', () => {
+      mockConfigSvc.userProfileV2.userRoles = [{ role: 'Volunteer' }]
+
+      expect(component.getExploreContentRoute({ label: 'Courses' }))
+        .toBe('/app/globalsearch/volunteer')
+    })
   })
 
   it('ngOnInit should set seeAllPageConfig and contentDataList when config has matching key', async () => {
@@ -147,6 +197,23 @@ describe('SeeAllWithPillsComponent (no TestBed)', () => {
     component.pageSize = 50;
     component.loadMore();
     expect(component.pageSize).toBeGreaterThan(50);
+  });
+
+  // My Learning cards should start from the left on desktop; centering is only for mobile widths.
+  describe('continue learning card grid styles', () => {
+    const scss = readFileSync(join(__dirname, 'see-all-with-pills.component.scss'), 'utf8');
+    const baseBlock = scss.match(/\n\.continue-learning-responsive-card-grid \{[\s\S]*?\n\}/)[0];
+    const mobileBlock = scss.slice(scss.indexOf('@media only screen and (max-width: 768px) {\n    .continue-learning-responsive-card-grid'));
+
+    it('does not center the cards outside the mobile breakpoint', () => {
+      expect(baseBlock).not.toMatch(/justify-content/);
+    });
+
+    it('centers the cards on mobile widths', () => {
+      expect(mobileBlock).toMatch(
+        /^@media only screen and \(max-width: 768px\) \{\s*\.continue-learning-responsive-card-grid \{\s*justify-content: center !important;/
+      );
+    });
   });
 
 })

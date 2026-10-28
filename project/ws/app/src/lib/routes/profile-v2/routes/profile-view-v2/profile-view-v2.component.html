@@ -495,7 +495,8 @@
           <div class="ach-heading mt-4" id="achievement-section">{{ 'profileInfo.achievement' | translate }}</div>
 
           <!-- Segmented switch: stats and leaderboard share the section instead of stacking -->
-          <div class="ach-switch" role="tablist" [attr.aria-label]="'profileInfo.achievement' | translate">
+          <div class="ach-switch" role="tablist" [attr.aria-label]="'profileInfo.achievement' | translate"
+            *ngIf="isLeaderboardEnabled">
             <button type="button" class="ach-switch-btn" role="tab"
               [class.ach-switch-btn--active]="achievementView === 'stats'"
               [attr.aria-selected]="achievementView === 'stats'" (click)="achievementView = 'stats'">
@@ -510,7 +511,7 @@
             </button>
           </div>
 
-          <div class="ach-stats" *ngIf="achievementView === 'stats'" role="list">
+          <div class="ach-stats" *ngIf="achievementView === 'stats' || !isLeaderboardEnabled" role="list">
             <div class="ach-stat-card" *ngFor="let stat of achievementStats" role="listitem"
               [attr.aria-label]="(stat.label | translate) + ': ' + stat.value">
               <img class="ach-stat-icon" [src]="stat.icon" alt="" aria-hidden="true">
@@ -523,12 +524,12 @@
             </div>
           </div>
 
-          <div class="flex" id="my-leaderboard-section" *ngIf="achievementView === 'leaderboard'">
+          <div class="flex" id="my-leaderboard-section" *ngIf="isLeaderboardEnabled && achievementView === 'leaderboard'">
             <ws-karma-leaderboard-v2 class="w-full" [embedded]="true"></ws-karma-leaderboard-v2>
           </div>
 
           <!-- Weekly claps belongs to the statistics view; the leaderboard view ends at the card -->
-          <div id="my-weekly-claps" *ngIf="achievementView === 'stats'">
+          <div id="my-weekly-claps" *ngIf="(achievementView === 'stats' || !isLeaderboardEnabled) && isWeeklyClapsEnabled">
             <sb-uic-weekly-claps-card-v2 [weeklyData]="weeklyClapsData" [insightsData]="insightsData"
               [isLoading]="insightsDataLoading"></sb-uic-weekly-claps-card-v2>
           </div>
