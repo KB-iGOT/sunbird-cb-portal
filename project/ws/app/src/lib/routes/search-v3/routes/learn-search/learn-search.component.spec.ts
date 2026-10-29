@@ -80,7 +80,7 @@ describe('LearnSearchComponent (No TestBed)', () => {
       mockTranslate,
       mockRouter,
       mockLangtranslations,
-      mockUserService,
+      // mockUserService,
       mockNetworkV2Service,
       mockIndexedDbService,
       mockUtilitySvc,
@@ -203,7 +203,8 @@ describe('LearnSearchComponent (No TestBed)', () => {
       expect(component.currentUserDept).toBe('Dept')
       expect(component.defaultThumbnail).toBe('thumb.png')
       expect(component.statedata).toEqual({ param: 'abc', path: 'Search' })
-      expect(mockUserService.fetchCbpPlanList).toHaveBeenCalled()
+      // CBP plan API is no longer called from search
+      expect(mockUserService.fetchCbpPlanList).not.toHaveBeenCalled()
       expect(mockEnrolementDictionarySvc.getEnrolementDictionary).toHaveBeenCalled()
       expect(mockSearchV3Service.microCredentialsSearch).toHaveBeenCalled()
     })
