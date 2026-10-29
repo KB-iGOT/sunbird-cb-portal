@@ -1,4 +1,7 @@
-import { FormBuilder, FormArray } from '@angular/forms'
+import { CommonModule } from '@angular/common'
+import { NO_ERRORS_SCHEMA } from '@angular/core'
+import { ComponentFixture, TestBed } from '@angular/core/testing'
+import { FormBuilder, FormArray, ReactiveFormsModule } from '@angular/forms'
 import { SurveyQuestionsComponent } from './survey-questions.component'
 import { NSPeerValidation } from '../../../../models/peer-validation.model'
 
@@ -41,6 +44,35 @@ describe('SurveyQuestionsComponent', () => {
       const questions = [makeQuestion()]
       component.form = buildForm(questions)
       expect(component.responses).toBeInstanceOf(FormArray)
+    })
+  })
+
+  // ─── textarea character limit ─────────────────────────────────────────────
+
+  describe('textarea character limit', () => {
+    let fixture: ComponentFixture<SurveyQuestionsComponent>
+
+    beforeEach(async () => {
+      await TestBed.configureTestingModule({
+        declarations: [SurveyQuestionsComponent],
+        imports: [CommonModule, ReactiveFormsModule],
+        schemas: [NO_ERRORS_SCHEMA],
+      }).compileComponents()
+
+      fixture = TestBed.createComponent(SurveyQuestionsComponent)
+    })
+
+    it('should use 1000 as the default maxlength and character-count limit', () => {
+      const questions = [makeQuestion()]
+      fixture.componentInstance.questions = questions
+      fixture.componentInstance.form = buildForm(questions)
+      fixture.detectChanges()
+
+      const textarea = fixture.nativeElement.querySelector('textarea') as HTMLTextAreaElement
+      const characterCount = fixture.nativeElement.querySelector('.char-count') as HTMLElement
+
+      expect(textarea.maxLength).toBe(1000)
+      expect(characterCount.textContent?.replace(/\s/g, '')).toBe('0/1000')
     })
   })
 
