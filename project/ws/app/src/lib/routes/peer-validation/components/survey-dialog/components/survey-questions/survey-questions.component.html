@@ -22,10 +22,10 @@
 
     <!-- TextArea Question -->
     <div *ngIf="question.type === 'textArea'" class="text-container">
-      <textarea [formControl]="responses.at(i)" [maxlength]="question.maxLength || 300" rows="4" class="text-input"
+      <textarea [formControl]="responses.at(i)" [maxlength]="question.maxLength || 1000" rows="4" class="text-input"
         placeholder="Type your response here..."></textarea>
       <div class="char-count">
-        {{ responses.at(i).value?.length || 0 }}/{{ question.maxLength || 300 }}
+        {{ responses.at(i).value?.length || 0 }}/{{ question.maxLength || 1000 }}
       </div>
     </div>
 
