@@ -1,4 +1,5 @@
-<div class="profile-editor-container flex flex-col gap-4">
+<div class="profile-editor-container flex flex-col gap-4"
+  [class.profile-editor-container--profile]="header === 'Profile'">
   <!-- #region(Header) -->
   <div class="profile-editor-header flex justify-between items-center">
     <div class="header-title">{{ header }}</div>

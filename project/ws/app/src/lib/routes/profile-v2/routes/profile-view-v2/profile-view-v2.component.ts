@@ -21,7 +21,7 @@ import { environment } from 'src/environments/environment'
 import { ConfigurationsService, EventService, MultilingualTranslationsService, PipeCertificateImageURL, WsEvents } from '@sunbird-cb/utils-v2'
 import { TransferRequestComponent } from '../../components/transfer-request/transfer-request.component'
 import { WithdrawRequestComponent } from '../../components/withdraw-request/withdraw-request.component'
-import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout'
+import { BreakpointObserver } from '@angular/cdk/layout'
 import { TranslateService } from '@ngx-translate/core'
 import { DatePipe } from '@angular/common'
 import { buildWeeklyClapsData, ConfigDetails, ConfirmationDialogComponent, NlwCertificateDialogComponent, NlwCertificateDialogData } from '@sunbird-cb/consumption'
@@ -294,7 +294,7 @@ export class ProfileViewV2Component implements OnInit, AfterViewInit, OnDestroy 
       }
     })
 
-    this.breakpointObserver.observe([Breakpoints.Handset])
+    this.breakpointObserver.observe(['(max-width: 768px)'])
       .subscribe(result => {
         this.isMobile = result.matches
         this.setAboutMeButton()
