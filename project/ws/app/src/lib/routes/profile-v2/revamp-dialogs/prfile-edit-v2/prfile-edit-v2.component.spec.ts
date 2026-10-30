@@ -6,6 +6,8 @@ import { PrfileEditV2Component } from './prfile-edit-v2.component'
 import { FormBuilder } from '@angular/forms'
 import { of, throwError, Subject } from 'rxjs'
 import { HttpErrorResponse } from '@angular/common/http'
+import { readFileSync } from 'fs'
+import { join } from 'path'
 
 
 describe('PrfileEditV2Component (Jest, no TestBed)', () => {
@@ -457,6 +459,15 @@ describe('PrfileEditV2Component (Jest, no TestBed)', () => {
     component.profileForm.get('cadreName').setValue('')
     component.profileForm.get('cadreBatch').setValue('')
     expect(component.showCentralDeputation).toBe(false)
+  })
+
+  describe('responsive dialog alignment styles', () => {
+    const scss = readFileSync(join(__dirname, 'prfile-edit-v2.component.scss'), 'utf8')
+
+    it('gives the host full width so the profile editor can center within the dialog surface', () => {
+      expect(scss).toMatch(/:host\s*\{[^}]*display:\s*block;[^}]*width:\s*100%;[^}]*\}/)
+      expect(scss).toMatch(/\.profile-editor-container\s*\{[^}]*margin:\s*0 auto;/)
+    })
   })
 
   // Use all variables to avoid lint errors
