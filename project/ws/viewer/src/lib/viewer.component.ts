@@ -902,8 +902,17 @@ export class ViewerComponent implements OnInit, OnDestroy, AfterViewChecked {
 
   async manipulateHierarchyData() {
     if (!this.forPreview) {
-      // First, map completion percentage to hierarchy structure
-      await this.tocSvc.mapCompletionPercentageProgram(this.hierarchyData, this.enrollmentList.courses, this.collectionId || '')
+      // First, map completion percentage to hierarchy structure. A failed progress read
+      // (read/content-progres) used to reject here and abort the rest of the viewer setup,
+      // breaking the whole player page: carry on without progress - the enrolment data
+      // still fills the hashmap below.
+      try {
+        await this.tocSvc.mapCompletionPercentageProgram(this.hierarchyData, this.enrollmentList?.courses, this.collectionId || '')
+      } catch (error) {
+        // tslint:disable-next-line: no-console
+        console.error('[Viewer] progress mapping failed, continuing without it', error)
+        this.tocSvc.contentLoader.next(false)
+      }
 
       // Then check and update module-wise data
       this.tocSvc.checkModuleWiseData(this.hierarchyData)

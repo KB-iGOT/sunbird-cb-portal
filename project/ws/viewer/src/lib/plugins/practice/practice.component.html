@@ -4,7 +4,8 @@
   [primaryCategory]="primaryCategory" [canAttempt]="canAttempt" [noOfQuestions]="noOfQuestions"
   (userSelection)="getSections($event)" [coursePrimaryCategory]="coursePrimaryCategory"
   [courseCategory]="courseCategory" [instructionAssessment]="instructionAssessment" [quizData]="quizData"
-  [selectedAssessmentCompatibilityLevel]="selectedAssessmentCompatibilityLevel" [forPreview]="forPreview">
+  [selectedAssessmentCompatibilityLevel]="selectedAssessmentCompatibilityLevel" [forPreview]="forPreview"
+  [contextCategory]="contextCategory">
 </viewer-overview>
 
 <!-- Overlay Loader -->
@@ -88,7 +89,7 @@
             </mat-progress-bar>
           </div>
           <ng-container *ngIf="current_Question && !process">
-            <viewer-question #questionsReference [id]="'question' + (currentQuestionIndex + 1)"
+            <viewer-question [contextCategory]="contextCategory" #questionsReference [id]="'question' + (currentQuestionIndex + 1)"
               [markedQuestions]="markedQuestions" [artifactUrl]="artifactUrl"
               [questionNumber]="getSelectedQuestionNumber(currentQuestionIndex)" [total]="secQuestions.length"
               [viewState]="viewState" [question]="current_Question"
@@ -649,7 +650,7 @@
               </mat-progress-bar>
             </div>
             <ng-container *ngIf="current_Question && !process">
-              <viewer-question #questionsReference [id]="'question' + (currentQuestionIndex + 1)"
+              <viewer-question [contextCategory]="contextCategory" #questionsReference [id]="'question' + (currentQuestionIndex + 1)"
                 [markedQuestions]="markedQuestions" [artifactUrl]="artifactUrl"
                 [questionNumber]="getSelectedQuestionNumber(currentQuestionIndex)" [total]="secQuestions.length"
                 [viewState]="viewState" [question]="current_Question"
@@ -1196,7 +1197,7 @@
         </div>
         <div>
           <ng-container *ngIf="current_Question && !process">
-            <viewer-question #questionsReference [id]="'question' + (currentQuestionIndex + 1)"
+            <viewer-question [contextCategory]="contextCategory" #questionsReference [id]="'question' + (currentQuestionIndex + 1)"
               [markedQuestions]="markedQuestions" [artifactUrl]="artifactUrl"
               [questionNumber]="getSelectedQuestionNumber(currentQuestionIndex)" [total]="secQuestions.length"
               [viewState]="viewState" [question]="current_Question"
@@ -1227,7 +1228,7 @@
             </div>
             <ng-container *ngIf="current_Question && !process">
 
-              <viewer-question #questionsReference [id]="'question' + (currentQuestionIndex + 1)"
+              <viewer-question [contextCategory]="contextCategory" #questionsReference [id]="'question' + (currentQuestionIndex + 1)"
                 [markedQuestions]="markedQuestions" [artifactUrl]="artifactUrl"
                 [questionNumber]="getSelectedQuestionNumber(currentQuestionIndex)" [total]="secQuestions.length"
                 [viewState]="viewState" [question]="current_Question"
@@ -1398,7 +1399,7 @@
         [ngClass]="assessmentType !== 'optionalWeightage' ? 'justify-between' : 'justify-right'">
         <div class="flex" *ngIf="assessmentType !== 'optionalWeightage'">
           <div>
-            <viewer-question #questionsReference [id]="'question' + (currentQuestionIndex + 1)"
+            <viewer-question [contextCategory]="contextCategory" #questionsReference [id]="'question' + (currentQuestionIndex + 1)"
               [markedQuestions]="markedQuestions" [artifactUrl]="artifactUrl"
               [questionNumber]="getSelectedQuestionNumber(currentQuestionIndex)" [total]="secQuestions.length"
               [viewState]="viewState" [question]="current_Question"
@@ -1796,7 +1797,7 @@
         </div>
         <div>
           <ng-container *ngIf="current_Question && !process">
-            <viewer-question #questionsReference [id]="'question' + (currentQuestionIndex + 1)"
+            <viewer-question [contextCategory]="contextCategory" #questionsReference [id]="'question' + (currentQuestionIndex + 1)"
               [markedQuestions]="markedQuestions" [artifactUrl]="artifactUrl"
               [questionNumber]="getSelectedQuestionNumber(currentQuestionIndex)" [total]="secQuestions.length"
               [viewState]="viewState" [question]="current_Question"
@@ -1967,7 +1968,7 @@
             </mat-progress-bar>
           </div>
           <ng-container *ngIf="current_Question && !process">
-            <viewer-question #questionsReference [id]="'question' + (currentQuestionIndex + 1)"
+            <viewer-question [contextCategory]="contextCategory" #questionsReference [id]="'question' + (currentQuestionIndex + 1)"
               [markedQuestions]="markedQuestions" [artifactUrl]="artifactUrl"
               [questionNumber]="getSelectedQuestionNumber(currentQuestionIndex)" [total]="secQuestions.length"
               [viewState]="viewState" [question]="current_Question"
@@ -2003,7 +2004,7 @@
       <div class="flex flex-col justify-between mt-4">
         <div>
           <div *ngIf="assessmentType !== 'optionalWeightage'">
-            <viewer-question #questionsReference [id]="'question' + (currentQuestionIndex + 1)"
+            <viewer-question [contextCategory]="contextCategory" #questionsReference [id]="'question' + (currentQuestionIndex + 1)"
               [markedQuestions]="markedQuestions" [artifactUrl]="artifactUrl"
               [questionNumber]="getSelectedQuestionNumber(currentQuestionIndex)" [total]="secQuestions.length"
               [viewState]="viewState" [question]="current_Question"

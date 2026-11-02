@@ -1,4 +1,33 @@
-<div class="campaign-microsite box-border flex flex-col gap-6 md:gap-8 w-full mx-auto px-4 py-6 lg:py-12">
+<!-- Outside pageAvailability's window: only this screen, none of the page sections (and none of their API calls) -->
+@if (gate(); as gate) {
+  <div class="cm-gate" role="status">
+    <div class="cm-gate__card" [class.cm-gate__card--closed]="gate.state === 'closed'">
+      <div class="cm-gate__icon" aria-hidden="true">
+        @if (gate.state === 'closed') {
+          <svg viewBox="0 0 48 48" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <rect x="7" y="10" width="34" height="31" rx="4" />
+            <path d="M7 19h34M16 6v8M32 6v8M19 26l10 10M29 26L19 36" />
+          </svg>
+        } @else {
+          <svg viewBox="0 0 48 48" width="40" height="40" fill="none" stroke="currentColor" stroke-width="2.5"
+            stroke-linecap="round" stroke-linejoin="round">
+            <rect x="7" y="10" width="34" height="31" rx="4" />
+            <path d="M7 19h34M16 6v8M32 6v8" />
+            <circle cx="24" cy="30" r="7" />
+            <path d="M24 26.5V30l2.5 2" />
+          </svg>
+        }
+      </div>
+      <h1 class="cm-gate__title">{{ gate.title }}</h1>
+      <p class="cm-gate__text">{{ gate.description }}</p>
+      @if (gate.buttonText && gate.buttonUrl) {
+        <a class="cm-gate__button" [routerLink]="gate.buttonUrl">{{ gate.buttonText }}</a>
+      }
+    </div>
+  </div>
+} @else {
+<div class="campaign-microsite box-border flex flex-col gap-6 md:gap-8 w-full mx-auto  py-6 lg:py-12">
   @for (section of sectionList(); track section.key) {
     <section [id]="section.key" class="w-full" [class.container]="!!section.wrapperClass">
       @for (column of section.column; track column.key) {
@@ -21,7 +50,7 @@
               @case ('keyHighlightsSection') {
                 @if (!isColumnHidden(column.key)) {
                   <div class="flex items-center justify-center w-full">
-                    <div [class]="column.data?.containerClass || 'container'">
+                    <div [class]="column.data?.containerClass || 'container P-0'">
                       <sb-uic-key-highlights (emptyResponse)="hideKeyHighlight($event, column.key)"
                         [formData]="column.data" [mode]="isMobile ? 'mobile' : 'desktop'">
                       </sb-uic-key-highlights>
@@ -43,13 +72,27 @@
                                 [eventDetails]="eventDetails()">
                               </ws-app-programme-milestones>
                             }
-                            <!-- Case Studies: homepage content strip + course cards -->
+                            <!-- Case Studies: new content strip, cards built from the metadata in the config -->
                             @case ('caseStudies') {
-                              @if (caseStudiesStrip(); as contentStrip) {
+                              @if (caseStudies(); as cs) {
                                 <section class="w-full" id="caseStudies">
-                                  <sb-uic-content-strip-with-tabs [widgetData]="contentStrip"
-                                    (emptyResponse)="caseStudiesEmpty.set($event)">
-                                  </sb-uic-content-strip-with-tabs>
+                                  @if (cs.header) {
+                                    <h2 class="case-studies__title">{{ cs.header }}</h2>
+                                  }
+                                  <sb-uic-content-strips [contentConfig]="cs.contentConfig"></sb-uic-content-strips>
+                                </section>
+                              }
+                            }
+                            <!-- Strip with pills: each pill's cards come from its own contentConfig -->
+                            @case ('contentPills') {
+                              @if (contentPills(); as cp) {
+                                <section class="w-full" id="contentPills">
+                                  @if (cp.header) {
+                                    <h2 class="case-studies__title">{{ cp.header }}</h2>
+                                  }
+                                  <sb-uic-content-strip-with-pills [pills]="cp.pills" [defaultPillKey]="cp.defaultPillKey"
+                                    [section]="cp.section">
+                                  </sb-uic-content-strip-with-pills>
                                 </section>
                               }
                             }
@@ -68,3 +111,4 @@
     </section>
   }
 </div>
+}

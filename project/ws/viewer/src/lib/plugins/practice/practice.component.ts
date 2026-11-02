@@ -30,6 +30,8 @@ import { environment } from 'src/environments/environment'
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser'
 import { ViewerHeaderSideBarToggleService } from './../../viewer-header-side-bar-toggle.service'
 import { FinalAssessmentPopupComponent } from './components/final-assessment-popup/final-assessment-popup.component'
+import { QUESTIONNAIRE_INTROS } from './components/overview/overview.component'
+import { getViewerRedirect, VIEWER_REDIRECT_PARAM } from '../../microsite-redirect.util'
 import { MatDialog } from '@angular/material/dialog'
 import { MatSidenav } from '@angular/material/sidenav'
 import { MatSnackBar, MatSnackBarConfig as MatSnackBarConfig } from '@angular/material/snack-bar'
@@ -546,6 +548,33 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
       const pageContent = htmlData.substr(start, this.charactersPerPage)
       this.instructionAssessment.push(pageContent)
     }
+  }
+
+  /** e.g. 'Baseline Assessment'; the overview shows a questionnaire intro for some categories */
+  /** Baseline / Endline questionnaire (contextCategory listed in QUESTIONNAIRE_INTROS) */
+  get isQuestionnaire(): boolean {
+    return !!QUESTIONNAIRE_INTROS[this.contextCategory]
+  }
+
+  /**
+   * After a questionnaire is submitted: back to the page that opened the player (`redirectUrl` in
+   * the URL, e.g. the campaign microsite), otherwise the course TOC as before.
+   */
+  leaveQuestionnaire() {
+    this.showOverlay = false
+    this.viewerHeaderSideBarToggleService.visibilityStatus.next(true)
+    const redirect = getViewerRedirect(this.router, this.activatedRoute.snapshot.queryParams[VIEWER_REDIRECT_PARAM])
+    if (redirect) {
+      this.router.navigateByUrl(redirect.fullUrl)
+      return
+    }
+    const collectionId = this.collectionId || this.activatedRoute.snapshot.queryParams.collectionId
+    this.router.navigateByUrl(`${this.forPreview ? 'public' : 'app'}/toc/${collectionId}/overview`)
+  }
+
+  get contextCategory(): string {
+    return this.viewerDataSvc.resource?.contextCategory
+      || this.widgetContentService.currentMetaData?.content?.data?.contextCategory || ''
   }
 
   get getTimeLimit(): number {
@@ -3090,6 +3119,10 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
 
   showAssessmentPopup(popupData: any) {
     popupData['canAttempt'] = this.canAttempt
+    // Baseline / Endline questionnaires: the "thank you" popup offers OK instead of Reattempt, and
+    // closing it in any way (OK, X, a click outside) leaves the player - see leaveQuestionnaire
+    const questionnaireDone = popupData.assessmentType === 'optionalWeightage' && this.isQuestionnaire
+    popupData['questionnaireDone'] = questionnaireDone
     const dialogRef = this.dialog.open(FinalAssessmentPopupComponent, {
       data: popupData,
       width: popupData.assessmentType === 'optionalWeightage' ? '300px' : '1000px',
@@ -3100,6 +3133,10 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
     })
     // dialogRef.componentInstance.xyz = this.configSvc
     dialogRef.afterClosed().subscribe((result: any) => {
+      if (questionnaireDone) {
+        this.leaveQuestionnaire()
+        return
+      }
       if (result) {
         switch (result) {
           case 'yes':

@@ -55,4 +55,62 @@ describe('OverviewComponent', () => {
 
     expect(dialog.open).toHaveBeenCalled()
   })
+
+  describe('questionnaire (contextCategory "Baseline Assessment")', () => {
+    const el = () => fixture.nativeElement as HTMLElement
+    const show = (setup: () => void) => {
+      setup()
+      component.ngOnChanges()
+      fixture.detectChanges()
+    }
+    const buttonTexts = () => Array.from(el().querySelectorAll('button span.padding-xs')).map(span => span.textContent?.trim())
+
+    it('shows the intro and "Start Questionnaire", hides time / summary / consent, and Start needs no consent', () => {
+      show(() => {
+        component.contextCategory = 'Baseline Assessment'
+        component.selectedAssessmentCompatibilityLevel = 7
+        component.primaryCategory = NsContent.EPrimaryCategory.PRACTICE_RESOURCE
+        component.noOfQuestions = 5
+        component.timeLimit = 600
+      })
+      expect(el().querySelector('.questionnaire-intro__heading')?.textContent?.trim()).toBe('About this baseline questionnaire')
+      expect(el().querySelector('.questionnaire-intro__text')?.textContent).toContain('first milestone of the Leadership as a Mission workshop')
+      expect(buttonTexts().every(text => text === 'Start Questionnaire')).toBe(true)
+      expect(buttonTexts().length).toBeGreaterThan(0)
+      expect(el().querySelector('.summary-standalone')).toBeNull()
+      expect(el().querySelector('.consent-checkbox')).toBeNull()
+      expect(el().querySelector('img[src*="timer.svg"]')).toBeNull()
+      expect(component.consentGiven).toBe(true)
+    })
+
+    it('falls back to the route content\'s contextCategory', () => {
+      component.contentData = { contextCategory: 'Baseline Assessment' }
+      expect(component.questionnaire?.start).toBe('Start Questionnaire')
+    })
+
+    it('"Endline Assessment" gets the endline intro and Start Questionnaire', () => {
+      show(() => {
+        component.contextCategory = 'Endline Assessment'
+        component.selectedAssessmentCompatibilityLevel = 7
+        component.primaryCategory = NsContent.EPrimaryCategory.PRACTICE_RESOURCE
+      })
+      expect(component.questionnaire?.start).toBe('Start Questionnaire')
+      expect(el().querySelector('.questionnaire-intro__heading')?.textContent?.trim()).toBe('About this endline questionnaire')
+      expect(el().querySelector('.questionnaire-intro__text')?.textContent).toContain('final milestone of your journey')
+      expect(el().querySelector('.summary-standalone')).toBeNull()
+      expect(component.consentGiven).toBe(true)
+    })
+
+    it('other assessments keep the summary, consent and normal button', () => {
+      show(() => {
+        component.contextCategory = 'Final Milestone Assessment'
+        component.selectedAssessmentCompatibilityLevel = 7
+        component.primaryCategory = NsContent.EPrimaryCategory.PRACTICE_RESOURCE
+      })
+      expect(component.questionnaire).toBeUndefined()
+      expect(el().querySelector('.questionnaire-intro')).toBeNull()
+      expect(el().querySelector('.summary-standalone')).not.toBeNull()
+      expect(component.consentGiven).toBe(false)
+    })
+  })
 })

@@ -5,7 +5,7 @@
         <mat-icon class="close-icon">close</mat-icon>
     </button>
     <button *ngIf="assessmentData?.assessmentType === 'optionalWeightage'" mat-icon-button class="close-button"
-        [mat-dialog-close]="'initial'">
+        [mat-dialog-close]="assessmentData?.questionnaireDone ? 'ok' : 'initial'">
         <mat-icon class="close-icon">close</mat-icon>
     </button>
     <ng-container
@@ -76,7 +76,14 @@
                 <p class="thank-you mt-2">Thank you for taking the test</p>
                 <p class="text-center">Your detailed analysis will be shared with you soon.</p>
             </div>
-            <div class="flex flex-col align-center justify-center">
+            <!-- Baseline / Endline questionnaires: OK leaves the player instead of offering a reattempt -->
+            <div class="flex flex-col align-center justify-center" *ngIf="assessmentData?.questionnaireDone">
+                <button mat-button class="flex justify-center items-center px-4 gap-2 blue-full-no-attempt"
+                    (click)="closePopup('ok')">
+                    <span>OK</span>
+                </button>
+            </div>
+            <div class="flex flex-col align-center justify-center" *ngIf="!assessmentData?.questionnaireDone">
                 <button mat-button class="flex justify-center items-center px-4 reAttempt gap-2"
                     (click)="closePopup('retake')">
                     <img class="vertical-middle" src="/assets/icons/final-assessment/reattempt.svg">
