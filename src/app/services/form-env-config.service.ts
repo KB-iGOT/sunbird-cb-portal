@@ -3,6 +3,7 @@ import { HttpClient } from '@angular/common/http'
 import { catchError, firstValueFrom, map, Observable, of, tap } from 'rxjs'
 
 import { environment } from '../../../src/environments/environment'
+import { FormCatalogService } from './form-catalog.service'
 const API_END_POINTS = {
   FORM_READ: '/apis/proxies/v8/formsConfig/v1/read',
   PUBLIC_FORM_READ: '/apis/v1/form/read',
@@ -12,7 +13,7 @@ const API_END_POINTS = {
 })
 export class FormEnvConfigService {
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private formCatalog: FormCatalogService) { }
 
   /**
    * Loads environment values from FormConfig API.
@@ -132,7 +133,8 @@ export class FormEnvConfigService {
     )
   }
   formReadData(request: any): Observable<any> {
-    return this.http.post<any>(`${API_END_POINTS.FORM_READ}`, request)
+    // catalogue-resolved read by id when available; direct profile-resolved read otherwise
+    return this.formCatalog.read(request) || this.http.post<any>(`${API_END_POINTS.FORM_READ}`, request)
   }
 
   private getWindowEnv(): { [key: string]: any } {

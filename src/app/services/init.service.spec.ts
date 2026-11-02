@@ -40,6 +40,7 @@ describe('InitService', () => {
   let formSvc: any
   let enrollmentSummaryState: any
   let formConfigService: any
+  let formCatalog: any
   let domSanitizer: any
   let iconRegistry: any
   let routes: Record<string, any>
@@ -159,11 +160,13 @@ describe('InitService', () => {
       loadEnvironmentConfig: jest.fn().mockResolvedValue(undefined),
       loadPublicEnvironmentConfig: jest.fn().mockResolvedValue(undefined),
     }
+    // catalogue unavailable: load() resolves false, no preloaded user read, reads use the direct API
+    formCatalog = { load: jest.fn().mockResolvedValue(false), takeUserRead: jest.fn().mockReturnValue(null) }
     domSanitizer = { bypassSecurityTrustResourceUrl: jest.fn((u: string) => u) }
     iconRegistry = { addSvgIcon: jest.fn() }
     service = new InitService(
       logger, configSvc, domainConfSvc, widgetResolver, sbUiResolver, settingsSvc, userPreference, http, npsSvc,
-      translate, enrollSvc, netCoreService, commonDataSvc, formSvc, formConfigService, enrollmentSummaryState,
+      translate, enrollSvc, netCoreService, commonDataSvc, formSvc, formConfigService, formCatalog, enrollmentSummaryState,
       '/', domSanitizer, iconRegistry,
     )
   })

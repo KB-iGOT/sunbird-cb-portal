@@ -29,6 +29,7 @@ import { SbUiResolverService } from '@sunbird-cb/resolver-v2'
 import { NetCoreService } from './netcore.service'
 import { CommonDataService } from './common-data.service'
 import { FormExtService } from './form-ext.service'
+import { FormCatalogService } from './form-catalog.service'
 import { FormEnvConfigService } from './form-env-config.service'
 /* tslint:enable */
 
@@ -64,6 +65,7 @@ export class InitService {
     private commonDataSvc: CommonDataService,
     private formSvc: FormExtService,
     private formConfigService: FormEnvConfigService,
+    private formCatalog: FormCatalogService,
     private readonly enrollmentSummaryState: EnrollmentSummaryStateService,
 
     @Inject(APP_BASE_HREF) private baseHref: string,
@@ -382,6 +384,9 @@ export class InitService {
       || path.includes('/public/welcome')
       || (href.includes('editMode=true') && href.includes('_rc'))
     if (hasSession) {
+      // catalogue + user read in parallel: every form read below resolves against it on the client,
+      // and fetchStartUpDetails() reuses the same user-read response
+      await this.formCatalog.load()
       await this.formConfigService.loadEnvironmentConfig()
     } else {
       await this.formConfigService.loadPublicEnvironmentConfig()
@@ -607,12 +612,19 @@ export class InitService {
       }
 
       try {
-        userPidProfile = await this.http
-          .get<any>(profileUrl)
-          .pipe(map((res: any) => {
-            apiResponse = res
-            return _.get(res, 'result.response')
-          })).toPromise()
+        // FormCatalogService.load() already read the user on the default URL; reuse that response
+        const preloadedRead = profileUrl === '/apis/proxies/v8/api/user/v2/read' ? this.formCatalog.takeUserRead() : null
+        if (preloadedRead) {
+          apiResponse = preloadedRead
+          userPidProfile = _.get(preloadedRead, 'result.response')
+        } else {
+          userPidProfile = await this.http
+            .get<any>(profileUrl)
+            .pipe(map((res: any) => {
+              apiResponse = res
+              return _.get(res, 'result.response')
+            })).toPromise()
+        }
         if (userPidProfile && userPidProfile.roles && userPidProfile.roles.length > 0 &&
           this.hasRole(userPidProfile.roles)) {
           this.setTelemetrySessionId()

@@ -3,6 +3,7 @@ import { Injectable } from '@angular/core'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { Observable, of } from 'rxjs'
 import { catchError, map } from 'rxjs/operators'
+import { FormCatalogService } from './form-catalog.service'
 
 const API_END_POINTS = {
   FORM_READ: '/apis/v1/form/read',
@@ -15,7 +16,8 @@ export class FormExtService {
 
   constructor(
     private http: HttpClient,
-    public configSvc: ConfigurationsService
+    public configSvc: ConfigurationsService,
+    private formCatalog: FormCatalogService,
   ) {
 
   }
@@ -43,6 +45,7 @@ export class FormExtService {
 
 
   formConfigReadData(request: any): Observable<any> {
-    return this.http.post<any>(API_END_POINTS.FORM_CONFIG_READ, request)
+    // catalogue-resolved read by id when available; direct profile-resolved read otherwise
+    return this.formCatalog.read(request) || this.http.post<any>(API_END_POINTS.FORM_CONFIG_READ, request)
   }
 }

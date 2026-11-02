@@ -14,7 +14,9 @@ describe('FormEnvConfigService', () => {
     Object.keys(environment).forEach(key => delete environment[key])
     ;(window as any).env = {}
     http = { post: jest.fn(), get: jest.fn() }
-    service = new FormEnvConfigService(http)
+    // catalogue not loaded → the service falls through to the direct formsConfig read
+    const formCatalog: any = { read: jest.fn().mockReturnValue(null) }
+    service = new FormEnvConfigService(http, formCatalog)
     jest.spyOn(console, 'error').mockImplementation(() => { })
   })
 
