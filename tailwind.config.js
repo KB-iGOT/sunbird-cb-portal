@@ -21,7 +21,9 @@ module.exports = {
       './src/**/*.{html,ts}',
       './project/**/*.{html,ts}',
       './library/**/*.{html,ts}',
-      './node_modules/@sunbird-cb/**/*.{html,mjs,js}',
+      // `*` before `**`: glob's `**` doesn't enter symlinks, and a locally linked package
+      // (npm link to sb-cb-ui-components/.../dist) is one, so its classes would all be purged
+      './node_modules/@sunbird-cb/*/**/*.{html,mjs,js}',
     ],
     transform: {
       mjs: unescapeJs,

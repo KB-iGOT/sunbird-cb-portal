@@ -41,7 +41,7 @@ import {
 import { forkJoin, Observable, Subject } from 'rxjs'
 import {
   NsContent,
-  WidgetUserService,
+  // WidgetUserService,
 } from '@sunbird-cb/collection'
 import { environment } from '../../../../../../../../../src/environments/environment'
 import { NetworkV2Service } from '../../../network-v2/services/network-v2.service'
@@ -202,7 +202,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
     private translate: TranslateService,
     private router: Router,
     private langtranslations: MultilingualTranslationsService,
-    private userService: WidgetUserService,
+    // private userService: WidgetUserService,
     private networkV2Service: NetworkV2Service,
     private indexedDbService: IndexedDbService,
     private utilitySvc: UtilityService,
@@ -1698,10 +1698,10 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       // Cast: the consumption library bundles its own rxjs copy, so its Observable type
       // is not assignable to the portal's rxjs Observable.
       enrollmentDetails: this.enrolementDictionarySvc.getEnrolementDictionary() as unknown as Observable<any>,
-      cbpPlan: this.userService.fetchCbpPlanList(),
+      // cbpPlan: this.userService.fetchCbpPlanList(),
     }).subscribe((responses) => {
       this.enrollmentDetails = responses.enrollmentDetails || {}
-      this.cbpPlanList = responses.cbpPlan || []
+      // this.cbpPlanList = responses.cbpPlan || []
 
       // Store enrollmentDetails in IndexedDB
       if (responses.enrollmentDetails) {

@@ -383,6 +383,16 @@
       word-break: break-word;
     }
   }
+
+  @media (max-width: 375px) {
+    .mobile-footer-fixed-nav-list-item-container {
+      column-gap: 2px;
+    }
+
+    .mobile-footer-fixed-nav-list-item {
+      flex-basis: auto;
+    }
+  }
 }
 
 .ml-search {
