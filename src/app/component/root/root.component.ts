@@ -62,6 +62,7 @@ import { UrlService } from '../../shared/url.service'
 import { LibNotificationsService } from '@sunbird-cb/notification'
 import { HomePageService } from '../../services/home-page.service'
 import { reloadForStaleBuild } from '../../services/stale-build-recovery'
+import { FormConfigService } from '@sunbird-cb/consumption'
 import { trigger, style, animate, transition } from '@angular/animations'
 import { DialogBoxComponent } from '../dialog-box/dialog-box.component'
 import { isKarmaWalletTourSnoozed } from '../app-tour/karma-wallet-tour-snooze'
@@ -155,6 +156,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
     private homePageSvc: HomePageService,
     private readonly breakpointObserver: BreakpointObserver,
     private readonly enrollmentSummaryState: EnrollmentSummaryStateService,
+    private formConfigSvc: FormConfigService,
   ) {
     effect(() => {
       if (this.leftNavBarIsOpen()) {
@@ -388,6 +390,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
   // used on the global-config error screen: force_logout works without any
   // loaded configuration (same path as the auth interceptor)
   logout() {
+    this.formConfigSvc.clearCache()
     this.authSvc.force_logout()
   }
 

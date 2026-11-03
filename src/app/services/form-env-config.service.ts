@@ -3,8 +3,8 @@ import { HttpClient } from '@angular/common/http'
 import { catchError, firstValueFrom, map, Observable, of, tap } from 'rxjs'
 
 import { environment } from '../../../src/environments/environment'
+import { FormConfigService } from '@sunbird-cb/consumption'
 const API_END_POINTS = {
-  FORM_READ: '/apis/proxies/v8/formsConfig/v1/read',
   PUBLIC_FORM_READ: '/apis/v1/form/read',
 }
 @Injectable({
@@ -12,28 +12,21 @@ const API_END_POINTS = {
 })
 export class FormEnvConfigService {
 
-  constructor(private http: HttpClient) { }
+  constructor(private http: HttpClient, private formConfigSvc: FormConfigService) { }
 
   /**
    * Loads environment values from FormConfig API.
+   * The globalenv form is picked by FormConfigService (readFormDetails/portal, then readById);
+   * its criteria match any user, so it can load before the user read.
    *
    * Values already loaded from env.json remain untouched unless
    * they are explicitly included in API_ENVIRONMENT_KEYS.
    */
-  async loadEnvironmentConfig(): Promise<void> {
+  async loadEnvironmentConfig(user: any = null): Promise<void> {
     try {
-      let payload = {
-        "request": {
-          "name": "portal_global_env_config",
-          "type": "page",
-          "subType": "globalenv",
-          "portal": "portal",
-          "clientVersion": 1.0
-        }
-      }
       // awaited for real: init reads these values right after, so they must be applied first.
       // globalEnvConfigReadData never errors - it falls back to the static global.env.json
-      const response = await firstValueFrom(this.globalEnvConfigReadData(payload))
+      const response = await firstValueFrom(this.globalEnvConfigReadData(user))
       const formConfig = response?.data || response
       // both reads failed: the fallback is { data: null, error }, not config - keep env.json values
       if (formConfig && !formConfig.error) {
@@ -98,9 +91,9 @@ export class FormEnvConfigService {
     Object.assign(environment, formConfig)
   }
 
-  globalEnvConfigReadData(payload: any): Observable<any> {
+  globalEnvConfigReadData(user: any): Observable<any> {
 
-    return this.formReadData(payload).pipe(
+    return this.formConfigSvc.getForm(user, 'portal', 'globalenv', 1).pipe(
 
       tap(),
 
@@ -131,10 +124,6 @@ export class FormEnvConfigService {
       })
     )
   }
-  formReadData(request: any): Observable<any> {
-    return this.http.post<any>(`${API_END_POINTS.FORM_READ}`, request)
-  }
-
   private getWindowEnv(): { [key: string]: any } {
     return (window as { [key: string]: any })['env'] || {}
   }

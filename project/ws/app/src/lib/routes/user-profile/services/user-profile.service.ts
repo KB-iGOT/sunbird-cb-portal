@@ -10,10 +10,10 @@ import {
   IUserProfileDetailsFromRegistry,
   IProfileMetaApiData,
 } from '../models/user-profile.model'
-import { map } from 'rxjs/operators'
+import { map, tap } from 'rxjs/operators'
 // tslint:disable
 import _ from 'lodash'
-import { CommonMethodsService, ConfigDetails } from '@sunbird-cb/consumption'
+import { CommonMethodsService, ConfigDetails, FormConfigService } from '@sunbird-cb/consumption'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 // tslint:enable
 
@@ -56,7 +56,8 @@ export class UserProfileService {
     private http: HttpClient,
     private translateService: TranslateService,
     private commonMethodsService: CommonMethodsService,
-    private configSvc: ConfigurationsService
+    private configSvc: ConfigurationsService,
+    private formConfigSvc: FormConfigService,
   ) {
     if (localStorage.getItem('websiteLanguage')) {
       this.translateService.setDefaultLang('en')
@@ -71,12 +72,15 @@ export class UserProfileService {
     return this.translateService.instant(translationKey)
   }
 
+  // profile edits can change which form a user gets, so drop cached form configs
   editProfileDetails(data: any) {
     return this.http.post<any>(API_ENDPOINTS.editProfileDetails, data)
+      .pipe(tap(() => this.formConfigSvc.clearCache()))
   }
 
   editProfileDetailsV3(data: any) {
     return this.http.post<any>(API_ENDPOINTS.editProfileDetailsV3, data)
+      .pipe(tap(() => this.formConfigSvc.clearCache()))
   }
 
   updatePrimaryEmailDetails(data: any) {

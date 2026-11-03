@@ -29,8 +29,8 @@ import { SbUiResolverService } from '@sunbird-cb/resolver-v2'
 import { CommonMethodsService } from '@sunbird-cb/consumption'
 import { NetCoreService } from './netcore.service'
 import { CommonDataService } from './common-data.service'
-import { FormExtService } from './form-ext.service'
 import { FormEnvConfigService } from './form-env-config.service'
+import { FormConfigService } from '@sunbird-cb/consumption'
 /* tslint:enable */
 
 // global-config apicache key with how long (seconds) the saved enrolment summary is reused
@@ -42,6 +42,8 @@ const ENROLLMENT_SUMMARY_CACHE_KEY = 'summaryTime'
 export class InitService {
   private baseUrl = this.configSvc.baseUrl
   updateProfileSubscription: any | null = null
+  // one user read per init, shared by the form selection and fetchStartUpDetails
+  private userRead: Promise<any> | null = null
 
   httpOptions = {
     headers: new HttpHeaders({
@@ -66,7 +68,7 @@ export class InitService {
     private enrollSvc: WidgetEnrollService,
     private netCoreService: NetCoreService,
     private commonDataSvc: CommonDataService,
-    private formSvc: FormExtService,
+    private formConfigSvc: FormConfigService,
     private formConfigService: FormEnvConfigService,
     private readonly enrollmentSummaryState: EnrollmentSummaryStateService,
     private commonMethodsSvc: CommonMethodsService,
@@ -197,12 +199,16 @@ export class InitService {
       || window.location.href.includes('/certs')
       || window.location.href.includes('/achievements')
       || window.location.href.includes('/crp/')
+    this.userRead = null
+    let user: any = null
     // environment values come first: everything after this (form reads, user read) runs on them
     await this.loadEnvironment()
     if (!isPublicPreviewOrCreator) {
-      await this.globalConfigData()
+      // the user is read first: the global-web and application config forms are picked from it
+      user = await this.prefetchUser()
+      await this.globalConfigData(user)
     }
-    await this.fetchDefaultConfig(isPublicPreviewOrCreator)
+    await this.fetchDefaultConfig(isPublicPreviewOrCreator, user)
 
     // Invalid User
     try {
@@ -320,7 +326,7 @@ export class InitService {
     }
   }
 
-  private async fetchDefaultConfig(useStaticConfig = false): Promise<NsInstanceConfig.IConfig> {
+  private async fetchDefaultConfig(useStaticConfig = false, user: any = null): Promise<NsInstanceConfig.IConfig> {
     let publicConfig: NsInstanceConfig.IConfig | any
     try {
       if (useStaticConfig) {
@@ -328,15 +334,9 @@ export class InitService {
         publicConfig = await firstValueFrom(this.http
           .get<NsInstanceConfig.IConfig>(`${this.baseUrl}/application.config.json`))
       } else {
-        const request = {
-          request: {
-            type: 'page',
-            subType: 'application-config-web',
-            portal: 'portal',
-            clientVersion: this.configSvc?.globalConfig?.formClientVersion?.['application-config-web'] || 1.0,
-          },
-        }
-        const response: any = await firstValueFrom(this.formSvc.formConfigReadData(request))
+        const clientVersion = this.configSvc?.globalConfig?.formClientVersion?.['application-config-web'] || 1.0
+        const response: any = await firstValueFrom(
+          this.formConfigSvc.getForm(user, 'portal', 'application-config-web', clientVersion))
         publicConfig = response?.result?.data || response?.result?.form?.data
       }
       if (!publicConfig) {
@@ -393,17 +393,9 @@ export class InitService {
     }
   }
 
-  private async globalConfigData(): Promise<any> {
+  private async globalConfigData(user: any): Promise<any> {
     try {
-      const request = {
-        request: {
-          subType: 'global-web',
-          type: 'page',
-          portal: 'portal',
-          clientVersion: 2.0,
-        },
-      }
-      const response: any = await firstValueFrom(this.formSvc.formConfigReadData(request))
+      const response: any = await firstValueFrom(this.formConfigSvc.getForm(user, 'portal', 'global-web', 2.0))
       this.configSvc.globalConfig = response.result.data
     } catch (e) {
       // the global-web form config is mandatory — when the API fails the app
@@ -625,12 +617,8 @@ export class InitService {
       }
 
       try {
-        userPidProfile = await this.http
-          .get<any>(profileUrl)
-          .pipe(map((res: any) => {
-            apiResponse = res
-            return _.get(res, 'result.response')
-          })).toPromise()
+        apiResponse = await this.readUserProfile(profileUrl)
+        userPidProfile = _.get(apiResponse, 'result.response')
         if (userPidProfile && userPidProfile.roles && userPidProfile.roles.length > 0 &&
           this.hasRole(userPidProfile.roles)) {
           this.setTelemetrySessionId()
@@ -731,6 +719,28 @@ export class InitService {
       }
     } else {
       return { group: [], profileDetailsStatus: true, roles: new Set(['Public']), tncStatus: true, isActive: true }
+    }
+  }
+
+  // The backend fails when the read api is called twice, so the prefetch in init() and
+  // fetchStartUpDetails() share one request
+  private readUserProfile(profileUrl: string): Promise<any> {
+    if (!this.userRead) {
+      this.userRead = firstValueFrom(this.http.get<any>(profileUrl))
+    }
+    return this.userRead
+  }
+
+  // a failed read is left for fetchStartUpDetails() to handle, the forms then fall back
+  private async prefetchUser(): Promise<any> {
+    const profileUrl = this.domainConfSvc.getApiUrl('user', 'profile', '/apis/proxies/v8/api/user/v2/read')
+    if (!profileUrl) {
+      return null
+    }
+    try {
+      return _.get(await this.readUserProfile(profileUrl), 'result.response') || null
+    } catch (e) {
+      return null
     }
   }
 
