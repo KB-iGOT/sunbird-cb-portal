@@ -54,7 +54,7 @@ import { SwUpdate } from '@angular/service-worker'
 import { environment } from '../../../environments/environment'
 import { MatDialog } from '@angular/material/dialog'
 import { DialogConfirmComponent } from '../dialog-confirm/dialog-confirm.component'
-import { combineLatest, concat, interval, of, Subscription } from 'rxjs'
+import { combineLatest, concat, interval, Observable, of, Subscription } from 'rxjs'
 // import { iGOTAIService } from './../../services/igot-ai.service'
 import { CommonDataService } from '../../services/common-data.service'
 import { UserRestrictionService } from '../../services/user-restriction.service'
@@ -342,7 +342,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
     .observe(['(min-width: 600px) and (max-width: 1024px)'])
     .pipe(map(state => state.matches))
   // Desktop-only: sidebar-driven widths (navBarOpenContent/navBarCloseContent) must not apply on mobile or tab
-  isDesktopView$ = combineLatest([this.isXSmall$, this.isTabView$]).pipe(
+  isDesktopView$ = combineLatest<[boolean, boolean]>([this.isXSmall$ as unknown as Observable<boolean>, this.isTabView$]).pipe(
     map(([isXSmall, isTabView]) => !isXSmall && !isTabView)
   )
   routeChangeInProgress = false
@@ -605,6 +605,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
         const objectType = _.get(this.route.snapshot, 'queryParams.primaryCategory', '')
         this.raiseAppStartTelemetry()
         if (data.pageContext.pageId && data.pageContext.module) {
+          this.telemetrySvc.sendEmptyObjectForNextInteract()
           this.telemetrySvc.impression(data, objectType)
         } else {
           this.telemetrySvc.impression()
