@@ -137,6 +137,20 @@ describe('MilestonePopupComponent', () => {
       expect(closed).toHaveBeenCalledTimes(1)
     })
 
+    it('offers mobileImage to phones (below 768px) and keeps image for wider screens', () => {
+      render(['notStarted', 'locked', 'locked', 'locked'], { ...withImage, mobileImage: 'https://example.com/mobile.png' })
+      const source = el.querySelector<HTMLSourceElement>('picture source')
+      expect(source?.getAttribute('media')).toBe('(max-width: 767px)')
+      expect(source?.getAttribute('srcset')).toBe('https://example.com/mobile.png')
+      expect(el.querySelector('.mp-image')?.getAttribute('src')).toBe(IMAGE)
+    })
+
+    it('has no phone source without a usable mobileImage', () => {
+      render(['notStarted', 'locked', 'locked', 'locked'], { ...withImage, mobileImage: '<MOBILE_IMAGE_URL>' })
+      expect(el.querySelector('picture source')).toBeNull()
+      expect(el.querySelector('.mp-image')?.getAttribute('src')).toBe(IMAGE)
+    })
+
     it('falls back to the text popup when the image fails to load', () => {
       render(['notStarted', 'locked', 'locked', 'locked'], withImage)
       el.querySelector('.mp-image')?.dispatchEvent(new Event('error'))

@@ -137,19 +137,21 @@ export function assessmentUnlockAt(
 
 /**
  * Event button: not registered -> Register (whatever the phase);
- * registered -> Event yet to start (disabled) / Join event / View recording, by phase.
+ * registered -> Event yet to start / Join event / View recording, by phase. "Event yet to start" is
+ * disabled unless the milestone has `openBeforeStart`, which lets it open the player early.
  */
 export function eventCta(
   phase: TEventPhase,
   isEnrolled: boolean,
   labels: NsCampaignMicrosite.IMilestoneLabels['event'],
+  openBeforeStart = false,
 ): IEventCta {
   if (!isEnrolled) {
     return { label: labels.register, disabled: false }
   }
   switch (phase) {
     case 'upcoming':
-      return { label: labels.upcoming, disabled: true }
+      return { label: labels.upcoming, disabled: !openBeforeStart }
     case 'live':
       return { label: labels.join, disabled: false }
     default:
@@ -361,7 +363,8 @@ export class ProgrammeMilestonesComponent {
           }
         }
         case 'event':
-          return eventCta(eventPhase(milestone, now), this.statusSvc.isEventEnrolled(milestone.identifier), labels.event)
+          return eventCta(eventPhase(milestone, now), this.statusSvc.isEventEnrolled(milestone.identifier), labels.event,
+            !!milestone.openBeforeStart)
         case 'survey':
           if (state !== 'completed') {
             return { label: labels.survey.start, disabled: false }
@@ -570,6 +573,7 @@ export class ProgrammeMilestonesComponent {
   /**
    * Not registered -> register (event enroll API), then open the player unless the event has not started yet.
    * Registered -> open the player once the event has started (the button is disabled before that).
+   * With `openBeforeStart` the player opens before the start too.
    */
   private async openEvent(milestone: NsCampaignMicrosite.IMilestone): Promise<void> {
     if (this.enrollingOrder() !== null) {
@@ -590,11 +594,11 @@ export class ProgrammeMilestonesComponent {
       }
       // re-read statuses so the button moves on from Register
       this.refresh.update(count => count + 1)
-      if (phase === 'upcoming') {
+      if (phase === 'upcoming' && !milestone.openBeforeStart) {
         this.snackBar.open(this.labels().event.registered, 'X', { duration: 5000 })
         return
       }
-    } else if (phase === 'upcoming') {
+    } else if (phase === 'upcoming' && !milestone.openBeforeStart) {
       return
     }
     const route = buildPlayerRoute(milestone, configValue(milestone.batchId))

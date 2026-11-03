@@ -14,7 +14,13 @@
 
     @if (showImage()) {
     <!-- Image-only popup (config.image); falls back to the text version if it fails to load -->
-    <img class="mp-image block" [src]="config()?.image" [alt]="imageAlt()" (error)="imageFailed.set(true)" />
+    <!-- `mobileImage` on phones when configured; a failed load of either falls back to the text version -->
+    <picture class="mp-picture block">
+      @if (mobileImage()) {
+      <source media="(max-width: 767px)" [attr.srcset]="mobileImage()" />
+      }
+      <img class="mp-image block" [src]="config()?.image" [alt]="imageAlt()" (error)="imageFailed.set(true)" />
+    </picture>
     } @else {
 
     <!-- Header -->

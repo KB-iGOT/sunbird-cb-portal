@@ -63,6 +63,11 @@ export class MilestonePopupComponent {
   /** Image-only popup: a usable `image` URL that has not failed to load */
   readonly showImage = computed(() => isUsableUrl(this.config()?.image) && !this.imageFailed())
   readonly imageAlt = computed(() => this.config()?.imageAlt || this.config()?.title || '')
+  /** Phone artwork (`mobileImage`), used below 768px when it is a usable URL */
+  readonly mobileImage = computed(() => {
+    const url = this.config()?.mobileImage
+    return isUsableUrl(url) ? url! : ''
+  })
 
   readonly steps = computed<IMilestonePopupStepView[]>(() => {
     const configSteps = this.config()?.steps || []
