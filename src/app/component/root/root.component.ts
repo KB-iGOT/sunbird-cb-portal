@@ -605,6 +605,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
         const objectType = _.get(this.route.snapshot, 'queryParams.primaryCategory', '')
         this.raiseAppStartTelemetry()
         if (data.pageContext.pageId && data.pageContext.module) {
+          this.telemetrySvc.sendEmptyObjectForNextInteract()
           this.telemetrySvc.impression(data, objectType)
         } else {
           this.telemetrySvc.impression()
