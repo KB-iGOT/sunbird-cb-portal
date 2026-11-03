@@ -101,6 +101,14 @@ describe('GbSearchService (No TestBed)', () => {
   })
 
   describe('getSearchConfig', () => {
+    it('uses globalConfig.searchData without fetching search.json', async () => {
+      const searchData = { search: { tabs: [{ phraseSearch: true }] } }
+      mockConfigSrv.globalConfig = { searchData }
+      const result = await service.getSearchConfig()
+      expect(mockHttp.get).not.toHaveBeenCalled()
+      expect(result).toBe(searchData)
+    })
+
     it('should fetch and cache the config on first call', async () => {
       mockHttp.get.mockReturnValue({ toPromise: jest.fn().mockResolvedValue({ search: {} }) })
       const result = await service.getSearchConfig()

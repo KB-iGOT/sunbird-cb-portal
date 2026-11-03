@@ -207,9 +207,6 @@ export class AppChatbotComponent implements OnInit, AfterViewChecked, OnChanges 
     const email = environment.supportEmail || 'mission.karmayogi@gov.in'
     this.callText = `<a class='hint-text' target='_blank' href='https://bit.ly/44MJlo4'>Teams Call</a>&nbsp;`
     this.emailText = `<a class='hint-text' target='_blank' href='mailto:${email}'>${email}.</a>`
-    this.zohoSupportSvc.getZohoHtml().subscribe((res: any) => {
-      this.zohoHtml = res
-    })
   }
   scrollSupportContainerToBottom() {
     let chatbotContent = document.getElementById('chatbot-content')
@@ -782,8 +779,6 @@ export class AppChatbotComponent implements OnInit, AfterViewChecked, OnChanges 
     let languageStg: any = JSON.parse(localStorage.getItem('faq-languages') || '{}')
     if (languageStg.length > 0) {
       this.language = languageStg
-    } else {
-      this.getLanguages()
     }
 
     if (localStg && languageStg) {
@@ -809,9 +804,6 @@ export class AppChatbotComponent implements OnInit, AfterViewChecked, OnChanges 
         }
         this.getQns()
         this.getCategories()
-      } else {
-        this.getLanguages()
-        // this.getData()
       }
     }
   }
@@ -928,19 +920,26 @@ export class AppChatbotComponent implements OnInit, AfterViewChecked, OnChanges 
     }
   }
 
+  // the support snippet is fetched on first open, not on load: most sessions never open it
   getZohoForm() {
-    const dialogRef = this.dialog.open(ZohoDialogComponent, {
-      width: '45%',
-      data: {
-        view: 'zohoform',
-        value: this.zohoHtml,
+    this.zohoSupportSvc.getZohoHtml().subscribe({
+      next: (res: any) => {
+        this.zohoHtml = res
+        const dialogRef = this.dialog.open(ZohoDialogComponent, {
+          width: '45%',
+          data: {
+            view: 'zohoform',
+            value: this.zohoHtml,
+          },
+        })
+        dialogRef.afterClosed().subscribe(() => {
+        })
+        setTimeout(() => {
+          this.callXMLRequest()
+        }, 0)
       },
+      error: (err: any) => console.error('Failed to load the support form', err),
     })
-    dialogRef.afterClosed().subscribe(() => {
-    })
-    setTimeout(() => {
-      this.callXMLRequest()
-    }, 0)
   }
 
   callXMLRequest() {

@@ -82,10 +82,6 @@ export class TopRightNavBarComponent implements OnInit, OnChanges, OnDestroy {
         this.dialogRef.close()
       }
     }))
-
-    this.subscriptions.add(this.zohoSupportSvc.getZohoHtml().subscribe(res => {
-      this.zohoHtml = res
-    }))
   }
 
   ngOnChanges() {
@@ -131,19 +127,26 @@ export class TopRightNavBarComponent implements OnInit, OnChanges, OnDestroy {
     this.configSvc.languageTranslationFlag.next(true)
   }
 
+  // the support snippet is fetched on first open, not on load: most sessions never open it
   getZohoForm() {
-    const dialogRef = this.dialog.open(ZohoDialogComponent, {
-      width: '45%',
-      data: {
-        view: 'zohoform',
-        value: this.zohoHtml,
+    this.zohoSupportSvc.getZohoHtml().subscribe({
+      next: (res: any) => {
+        this.zohoHtml = res
+        const dialogRef = this.dialog.open(ZohoDialogComponent, {
+          width: '45%',
+          data: {
+            view: 'zohoform',
+            value: this.zohoHtml,
+          },
+        })
+        dialogRef.afterClosed().subscribe(() => {
+        })
+        setTimeout(() => {
+          this.callXMLRequest()
+        }, 0)
       },
+      error: (err: any) => console.error('Failed to load the support form', err),
     })
-    dialogRef.afterClosed().subscribe(() => {
-    })
-    setTimeout(() => {
-      this.callXMLRequest()
-    }, 0)
   }
 
   openDialog(): void {
