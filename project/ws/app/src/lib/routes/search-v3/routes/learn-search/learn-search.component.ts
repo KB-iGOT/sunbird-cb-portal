@@ -443,6 +443,22 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
+  // Converts "2026-04-04 19:13:29.113000+0000" (or an epoch value) to epoch milliseconds
+  toEpochMs(value: any): number {
+    if (!value) {
+      return 0
+    }
+    if (typeof value === 'number') {
+      return value
+    }
+    const iso = String(value)
+      .trim()
+      .replace(' ', 'T')
+      .replace(/(\.\d{3})\d*/, '$1')
+      .replace(/([+-]\d{2})(\d{2})$/, '$1:$2')
+    return new Date(iso).getTime()
+  }
+
   async searchCourses() {
     if (this.searchRequestCourse && this.searchRequestCourse['request'] && Object.keys(this.searchRequestCourse['request']['filters'])) {
       if (this.searchRequestCourse['request']['filters']['courseCategory']?.length === 0) {
@@ -473,7 +489,8 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
           const enrollmentDetails = enrollmentDetailsFromDB[content.identifier]
           if (content?.completionSurveyLink && content?.identifier && enrollmentDetails &&
             (Number(enrollmentDetails?.completionPercentage) === 100 ||
-              (_.isNil(enrollmentDetails?.completionPercentage) && Number(enrollmentDetails?.status) === 2))) {
+              (_.isNil(enrollmentDetails?.completionPercentage) && Number(enrollmentDetails?.status) === 2))
+            && this.toEpochMs(enrollmentDetails?.completedOn) >= Number(this.configSvc.instanceConfig?.completionSurvey?.startDate)) {
             const sID = content.completionSurveyLink.split('surveys/')
             const formId = sID[1]
 
