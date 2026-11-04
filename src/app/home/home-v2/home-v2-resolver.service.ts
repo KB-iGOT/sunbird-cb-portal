@@ -2,8 +2,8 @@ import { HttpClient } from '@angular/common/http'
 import { Injectable, inject } from '@angular/core'
 import { Router } from '@angular/router'
 import { ConfigurationsService, IResolveResponse } from '@sunbird-cb/utils-v2'
+import { FormConfigService } from '@sunbird-cb/consumption'
 import { Observable, map, catchError, of, switchMap } from 'rxjs'
-import { FormExtService } from '../../services/form-ext.service'
 
 @Injectable({
   providedIn: 'root',
@@ -12,7 +12,7 @@ export class HomeV2ResolverService {
   private readonly configSvc = inject(ConfigurationsService)
   private readonly router = inject(Router)
   private readonly http = inject(HttpClient)
-  private readonly formSvc = inject(FormExtService)
+  private readonly formConfigSvc = inject(FormConfigService)
 
   constructor() { }
 
@@ -27,15 +27,9 @@ export class HomeV2ResolverService {
     }
     const baseUrl = this.configSvc.sitePath
     const homeConfig = this.http.get<any>(`${baseUrl}/page/home-v2.json`).pipe(catchError(() => of(null)))
-    const request = {
-      request: {
-        type: 'page',
-        subType: 'home',
-        portal: 'portal',
-        clientVersion: this.configSvc?.globalConfig?.formClientVersion?.['home'] || 1.0,
-      },
-    }
-    const response$ = this.formSvc.formConfigReadData(request).pipe(catchError(() => of(null)))
+    const clientVersion = this.configSvc?.globalConfig?.formClientVersion?.['home'] || 1.0
+    const response$ = this.formConfigSvc.getForm(this.configSvc?.unMappedUser, 'portal', 'home', clientVersion)
+      .pipe(catchError(() => of(null)))
 
     return response$.pipe(
       switchMap(responseRes => {

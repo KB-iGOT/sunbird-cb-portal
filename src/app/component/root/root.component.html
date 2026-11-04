@@ -35,12 +35,14 @@
 </div>
 <ng-container *ngIf="!configSvc.globalConfigLoadFailed">
   @if(independenceDayBanner?.isEnabled && isHomePage() && (isXSmall$ | async) === false) {
-    <div class="banner-independence-day">
-      <img [src]="independenceDayBanner?.desktop?.imageUrl" [alt]="independenceDayBanner?.desktop?.onTopText">
-      <span>{{independenceDayBanner?.desktop?.onTopText}}</span>
-    </div>
+  <div class="banner-independence-day">
+    <img [src]="independenceDayBanner?.desktop?.imageUrl" [alt]="independenceDayBanner?.desktop?.onTopText">
+    <span>{{independenceDayBanner?.desktop?.onTopText}}</span>
+  </div>
   }
-  <div class="flex gap-0 root-container" [style.background-color]="isHomePage() || usesSurfaceBackground() ? 'var(--surface-primary)' : '#F3F5F9'" [ngClass]="independenceDayBanner?.isEnabled && isHomePage() ? 'banner-active' : ''"
+  <div class="flex gap-0 root-container"
+    [style.background-color]="isHomePage() || usesSurfaceBackground() ? 'var(--surface-primary)' : '#F3F5F9'"
+    [ngClass]="independenceDayBanner?.isEnabled && isHomePage() ? 'banner-active' : ''"
     [style.margin-top]="independenceDayBanner?.isEnabled && isHomePage() && (isXSmall$ | async) === false ? '48px' : '0px'">
     @if ((isXSmall$ | async) === false && showMenuBardetails && (isTabView$ | async) === false) {
     <div class="w-fit">
@@ -91,10 +93,12 @@
       <!-- </ws-widget-sticky-header> -->
       <div class="flex justify-center" [ngClass]="{
         'height-adjust': showHeader,
+        'volunteer-user': configSvc.userRoles && configSvc.userRoles.has('volunteer'),
         'navBarOpenContent': sidebarPushesContent() && (isDesktopView$ | async) && showMenuBardetails,
         'navBarCloseContent': !isHomePage() && (isDesktopView$ | async) && showMenuBardetails,
         'w-full': (isTabView$ | async) === true,
-        'mobileTopVisableHeightAdjust': mobileTopHeaderVisibilityStatus && !viewerPage,
+        'mobileTopVisableHeightAdjust': mobileTopHeaderVisibilityStatus &&
+          (!configSvc.userRoles?.has('volunteer') || (independenceDayBanner?.isEnabled && isHomePage())) && !viewerPage,
       'height-on-bottom custom-scroll':
         (isXSmall$ | async) === true &&  true && isShowNavbar,
         'height-adjust-setup' : isSetupPage,
@@ -141,10 +145,10 @@
         *ngIf="showNavbar && showFooter && headerFooterConfigData && !hideHeaderAndFooter" [isHomePage]="isHomePage()"
         [hideFooterSection]="hideFooterSection" [headerFooterConfigData]="headerFooterConfigData">
       </ws-app-footer>
-
+      <!-- Fixed the navbar vanishing Issue in Mweb screen. -->
+      <!-- *ngIf="navBarRequired && (isXSmall$ | async) === true && !hideHeaderAndFooter" [mode]="'bottom'"> -->
       <ws-app-nav-bar-v2 class="bottom-nav-bar" [hidden]="!isShowNavbar || !showBottomNav"
-        (viewAchivements)="viewMyActivities()"
-        *ngIf="navBarRequired && (isXSmall$ | async) === true && !hideHeaderAndFooter" [mode]="'bottom'">
+        (viewAchivements)="viewMyActivities()" *ngIf="navBarRequired && !hideHeaderAndFooter" [mode]="'bottom'">
       </ws-app-nav-bar-v2>
       <ng-container #previewContainer></ng-container>
       <input #appUpdateTitle type="hidden" i18n-value value="App Update" />
