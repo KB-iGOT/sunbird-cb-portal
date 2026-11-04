@@ -1,0 +1,18 @@
+:host {
+  display: block;
+  background: var(--surface-primary, #FFFFFF);
+}
+
+.campaign-microsite {
+  max-width: 1096px;
+
+  .container {
+    box-sizing: border-box;
+  }
+}
+
+@media (min-width: 768px) {
+  .cm-area {
+    grid-column: span var(--cm-span, 12) / span var(--cm-span, 12);
+  }
+}

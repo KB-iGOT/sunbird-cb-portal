@@ -1,6 +1,8 @@
 <div class="home-content m-5">
     <sb-uic-contetn-sections (cardClicked)="cardClicked($event)"></sb-uic-contetn-sections>
 </div>
+<!-- Campaign promo popup (mock until the client design / Netcore popup is ready) -->
+<ws-campaign-popup></ws-campaign-popup>
 <div class="footer footer-update-mobile-number"
     *ngIf="isNudgeOpen && !canShowCustomAttrOpen && isDialogEnabled('profileUpdateNudge')">
     <!-- //NOSONAR -->

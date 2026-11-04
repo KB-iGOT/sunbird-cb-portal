@@ -44,6 +44,7 @@ import { InSightSideBarModule } from '../component/in-sight-side-bar/in-sight-si
 import { CardsModule, CardCourseV2Component } from '@sunbird-cb/consumption'
 import { KarmaLeaderboardV2Module } from './home-v2/karma-leaderboard-v2/karma-leaderboard-v2.module'
 import { InSpotlightV2Module } from './home-v2/in-spotlight-v2/in-spotlight-v2.module'
+import { CampaignPopupComponent } from './home-v2/campaign-popup/campaign-popup.component'
 @NgModule({
     declarations: [
         HomeComponent,
@@ -97,6 +98,7 @@ import { InSpotlightV2Module } from './home-v2/in-spotlight-v2/in-spotlight-v2.m
         CardCourseV2Component,
         KarmaLeaderboardV2Module,
         InSpotlightV2Module,
+        CampaignPopupComponent,
     ],
     exports: [
         HeaderModule,
