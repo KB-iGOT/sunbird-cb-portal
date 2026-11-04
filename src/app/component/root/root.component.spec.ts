@@ -86,6 +86,7 @@ describe('RootComponent', () => {
   let mockHomePageSvc: any
   let mockBreakpointObserver: any
   let mockEnrollmentSummaryState: any
+  const mockFormConfigSvc = { clearCache: jest.fn() }
   let walletBalanceUpdated: Subject<number>
 
   const createComponent = (): any => new (RootComponent as any)(
@@ -113,6 +114,7 @@ describe('RootComponent', () => {
     mockHomePageSvc,
     mockBreakpointObserver,
     mockEnrollmentSummaryState,
+    mockFormConfigSvc,
   )
 
   const setPath = (path: string) => {
@@ -209,7 +211,7 @@ describe('RootComponent', () => {
     mockBreakpointObserver = {
       observe: jest.fn().mockReturnValue(of({ matches: false })),
     }
-    ; (environment as any).production = true
+      ; (environment as any).production = true
 
     component = createComponent()
   })
@@ -370,6 +372,7 @@ describe('RootComponent', () => {
 
     it('logout should force logout', () => {
       component.logout()
+      expect(mockFormConfigSvc.clearCache).toHaveBeenCalled()
       expect(mockAuthSvc.force_logout).toHaveBeenCalled()
     })
 

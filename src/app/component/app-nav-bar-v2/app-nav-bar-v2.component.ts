@@ -411,7 +411,8 @@ export class AppNavBarV2Component implements OnInit, OnChanges, OnDestroy {
   private readonly themedRoutes = [
     '/page/home',
     '/app/person-profile/karma-wallet',
-    '/app/plans'
+    '/app/plans',
+    '/app/leadership-as-mission-2026',
   ]
 
   private supportsThemeToggle(url: string): boolean {

@@ -21,7 +21,9 @@ module.exports = {
       './src/**/*.{html,ts}',
       './project/**/*.{html,ts}',
       './library/**/*.{html,ts}',
-      './node_modules/@sunbird-cb/**/*.{html,mjs,js}',
+      // `*/` first: glob's `**` doesn't descend into symlinked dirs, so an npm-linked
+      // package (e.g. a local @sunbird-cb/consumption build) would otherwise be skipped.
+      './node_modules/@sunbird-cb/*/**/*.{html,mjs,js}',
     ],
     transform: {
       mjs: unescapeJs,

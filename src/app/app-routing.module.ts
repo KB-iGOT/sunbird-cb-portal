@@ -353,6 +353,21 @@ const routes: Routes = [
       pageData: PageResolve,
     },
   },
+  {
+    path: 'app/leadership-as-mission-2026',
+    loadComponent: () =>
+      import('./routes/microsites/campaign/campaign-microsite.component').then(m => m.CampaignMicrositeComponent),
+    canActivate: [GeneralGuard],
+    data: {
+      module: 'Campaign Microsite',
+      pageId: 'app/leadership-as-mission-2026',
+      pageKey: 'campaign-microsite',
+      pageType: 'feature',
+    },
+    resolve: {
+      pageData: PageResolve,
+    },
+  },
   // {
   //   path: 'app/discussion-forum',
   //   pathMatch: 'full',
