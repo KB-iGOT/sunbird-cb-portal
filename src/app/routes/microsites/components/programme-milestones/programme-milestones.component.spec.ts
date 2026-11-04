@@ -98,6 +98,12 @@ describe('ProgrammeMilestonesComponent', () => {
       expect(statusSvc.resolveStates.mock.calls[0][0].map((m: any) => m.order)).toEqual([1, 2, 3])
       expect(cards().map(card => card.milestone.order)).toEqual([1, 2, 3])
     })
+
+    it('hides disabled milestones and keeps each card on its own state', () => {
+      statusSvc.resolveStates.mockReturnValue(of(['completed', 'locked', 'notStarted']))
+      render({ items: [milestone(1), milestone(2, { enabled: false }), milestone(3)] })
+      expect(cards().map(card => [card.milestone.order, card.state])).toEqual([[1, 'completed'], [3, 'notStarted']])
+    })
   })
 
   describe('status (guide §7 stages 2, 4)', () => {
