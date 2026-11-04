@@ -1,5 +1,7 @@
-import { Component, computed, inject, signal } from '@angular/core'
+import { ApplicationRef, Component, computed, inject, signal } from '@angular/core'
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { ActivatedRoute } from '@angular/router'
+import { TranslateService } from '@ngx-translate/core'
 import { ContentStripWithTabsLibModule, KeyHighlightsModule, SlidersLibModule } from '@sunbird-cb/consumption'
 import { UtilityService } from '@sunbird-cb/utils-v2'
 import { cloneDeep } from 'lodash'
@@ -15,6 +17,8 @@ import { ProgrammeMilestonesComponent } from '../components/programme-milestones
 export class CampaignMicrositeComponent {
   private readonly route = inject(ActivatedRoute)
   private readonly utilitySvc = inject(UtilityService)
+  private readonly translate = inject(TranslateService)
+  private readonly appTranslate = inject(ApplicationRef).injector.get(TranslateService)
 
   private readonly pageConfig = signal<NsCampaignMicrosite.IPageConfig | undefined>(
     this.route.snapshot.data?.pageData?.data,
@@ -46,6 +50,14 @@ export class CampaignMicrositeComponent {
     })
     return contentStrip
   })
+
+  constructor() {
+    if (this.translate !== this.appTranslate) {
+      this.translate.setDefaultLang('en')
+      this.translate.use(this.appTranslate.currentLang || localStorage.getItem('websiteLanguage') || 'en')
+      this.appTranslate.onLangChange.pipe(takeUntilDestroyed()).subscribe(({ lang }) => this.translate.use(lang))
+    }
+  }
 
   /** Areas to render for a `mainContentSection` column, empty ones dropped */
   contentAreas(data: NsCampaignMicrosite.IMainContent | undefined): NsCampaignMicrosite.IContentArea[] {

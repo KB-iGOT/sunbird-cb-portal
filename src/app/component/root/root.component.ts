@@ -119,12 +119,17 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
   isFullWidthMobileRoute = signal(false)
   surfaceBackgroundRoutes = ['/app/person-profile/karma-wallet', '/app/plans']
   usesSurfaceBackground = signal(false)
+  // Routes laid out like the home page: white ground, docked sidebar that keeps the user's
+  // open/closed choice, and the overrideThemeChanges background.
+  homeLayoutRoutes = ['/app/leadership-as-mission-2026']
+  usesHomeLayout = signal(false)
+  hasHomeLayout = computed(() => this.isHomePage() || this.usesHomeLayout())
   navBarOpenStatusBasedOnNav = signal(true)
   openStatusUserSelection = signal(true)
-  // The sidebar only pushes page content on the home page. Everywhere else it is an overlay
+  // The sidebar only pushes page content on home-layout pages. Everywhere else it is an overlay
   // drawer (see isOverlayMode in sb-uic-dynamic-sidebar), so opening it must leave the header
   // and main content exactly where they are instead of reflowing them.
-  sidebarPushesContent = computed(() => this.isHomePage() && this.leftNavBarIsOpen())
+  sidebarPushesContent = computed(() => this.hasHomeLayout() && this.leftNavBarIsOpen())
 
   independenceDayBanner: any
 
@@ -468,6 +473,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
         this.isHomePage.set(false)
         this.mobileAppsSvc.clearGlobalSearchForHomePage.next(false)
       }
+      this.usesHomeLayout.set(this.isHomeLayoutRoute(this.currUrl))
       this.setNavOpenStatus()
       if (event && event.url) {
         if (event.url.includes('/app/network-v2') && window.innerWidth <= 768) {
@@ -485,11 +491,11 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
           this.isSetupPage = true
         }
       }
-      if (window.location.pathname.includes('/page/home')) {
-        this.hideFooterSection.set(true)
+      const onHomePage = window.location.pathname.includes('/page/home')
+      this.hideFooterSection.set(onHomePage)
+      if (onHomePage || this.isHomeLayoutRoute(window.location.pathname)) {
         this.changeBg26Jan()
       } else {
-        this.hideFooterSection.set(false)
         this.removeBg26Jan()
       }
 
@@ -787,8 +793,12 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
 
   }
 
+  isHomeLayoutRoute(url: string): boolean {
+    return this.homeLayoutRoutes.some(route => url.startsWith(route))
+  }
+
   setNavOpenStatus() {
-    if (this.isHomePage()) {
+    if (this.hasHomeLayout()) {
       this.navBarOpenStatusBasedOnNav.set(this.openStatusUserSelection())
       this.leftNavBarIsOpen.set(this.openStatusUserSelection())
     } else {

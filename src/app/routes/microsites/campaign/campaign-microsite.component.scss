@@ -11,6 +11,51 @@
   }
 }
 
+#caseStudies {
+  container-type: inline-size;
+
+  // Card titles are div.mat-subheading-1 too; only the strip heading is a <p>.
+  ::ng-deep p.mat-subheading-1 {
+    font-family: 'Noto Sans', sans-serif;
+    font-size: 22px;
+    font-weight: 600;
+    line-height: normal;
+    color: var(--text-bandw-black-heading, #1B2133);
+
+    @container (max-width: 519px) {
+      font-size: 18px;
+    }
+  }
+
+  ::ng-deep .card-standard-container {
+    border: 1px solid var(--border-strong, rgba(0, 0, 0, 0.16));
+    background: var(--environment-application-backgrounds-card-background, #FFFFFF);
+
+    mat-card-content {
+      background: var(--environment-application-backgrounds-card-background, #FFFFFF);
+    }
+
+    .title-text {
+      color: var(--text-bandw-black-sub-heading, rgba(0, 0, 0, 0.80));
+    }
+
+    .org-text,
+    .rating-session span {
+      color: var(--text-bandw-black-captions, rgba(0, 0, 0, 0.72));
+    }
+  }
+}
+
+:host-context([data-theme='dark']) #caseStudies ::ng-deep .course_v2 {
+  border-color: transparent;
+  background: var(--surface-tertiary);
+
+  .ws-mat-black60-text,
+  .mat-icon {
+    color: var(--text-bandw-black-body) !important;
+  }
+}
+
 @media (min-width: 768px) {
   .cm-area {
     grid-column: span var(--cm-span, 12) / span var(--cm-span, 12);

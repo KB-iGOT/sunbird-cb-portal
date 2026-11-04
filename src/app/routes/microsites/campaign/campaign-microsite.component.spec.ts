@@ -1,6 +1,7 @@
 import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core'
 import { TestBed } from '@angular/core/testing'
 import { ActivatedRoute } from '@angular/router'
+import { TranslateModule, TranslateService, TranslateStore } from '@ngx-translate/core'
 import { UtilityService } from '@sunbird-cb/utils-v2'
 import { CampaignMicrositeComponent } from './campaign-microsite.component'
 
@@ -14,9 +15,9 @@ describe('CampaignMicrositeComponent', () => {
     eventDetails: { startDate: '05-07-2026', endDate: '28-11-2026' },
   }
 
-  function create(routeData: any, isMobile = false) {
+  function create(routeData: any, isMobile = false, pageProviders: any[] = [], beforeCreate?: () => void) {
     TestBed.configureTestingModule({
-      imports: [CampaignMicrositeComponent],
+      imports: [CampaignMicrositeComponent, TranslateModule.forRoot()],
       providers: [
         { provide: ActivatedRoute, useValue: { snapshot: { data: routeData } } },
         { provide: UtilityService, useValue: { isMobile } },
@@ -24,10 +25,38 @@ describe('CampaignMicrositeComponent', () => {
     })
     // Shared consumption components are not under test here
     TestBed.overrideComponent(CampaignMicrositeComponent, {
-      set: { imports: [], schemas: [CUSTOM_ELEMENTS_SCHEMA] },
+      set: { imports: [], schemas: [CUSTOM_ELEMENTS_SCHEMA], providers: pageProviders },
     })
+    beforeCreate?.()
     return TestBed.createComponent(CampaignMicrositeComponent).componentInstance
   }
+
+  describe('page TranslateService', () => {
+    // Stands in for the isolated service ContentStripWithTabsLibModule's forRoot creates
+    const ownService = [TranslateService, { provide: TranslateStore, useClass: TranslateStore }]
+    const pageTranslate = (component: CampaignMicrositeComponent) => (component as any).translate as TranslateService
+
+    afterEach(() => localStorage.removeItem('websiteLanguage'))
+
+    it('follows the app language and its changes', () => {
+      const component = create({}, false, ownService, () => TestBed.inject(TranslateService).use('hi'))
+      expect(pageTranslate(component)).not.toBe(TestBed.inject(TranslateService))
+      expect(pageTranslate(component).currentLang).toBe('hi')
+      TestBed.inject(TranslateService).use('ta')
+      expect(pageTranslate(component).currentLang).toBe('ta')
+    })
+
+    it('falls back to the website language when the app has none', () => {
+      localStorage.setItem('websiteLanguage', 'bn')
+      expect(pageTranslate(create({}, false, ownService)).currentLang).toBe('bn')
+    })
+
+    it('leaves the app service alone when the page shares it', () => {
+      const component = create({})
+      expect(pageTranslate(component)).toBe(TestBed.inject(TranslateService))
+      expect(pageTranslate(component).currentLang).toBeUndefined()
+    })
+  })
 
   it('should read enabled sections from the resolved page config', () => {
     const component = create({ pageData: { data: pageConfig } })

@@ -8,22 +8,8 @@ import { MatFormFieldModule } from '@angular/material/form-field'
 import { MatIconModule } from '@angular/material/icon'
 import { MatInputModule } from '@angular/material/input'
 import { RouterModule, Routes } from '@angular/router'
-import { PageResolve } from '@sunbird-cb/utils-v2'
 
 const routes: Routes = [
-  {
-    path: 'campaign',
-    loadComponent: () => import('./campaign/campaign-microsite.component').then(m => m.CampaignMicrositeComponent),
-    data: {
-      module: 'Campaign Microsite',
-      pageId: 'app/microsites/campaign',
-      pageKey: 'campaign-microsite',
-      pageType: 'feature',
-    },
-    resolve: {
-      pageData: PageResolve,
-    },
-  },
   { path: '', component: MicrosotesComponent },
 ]
 
