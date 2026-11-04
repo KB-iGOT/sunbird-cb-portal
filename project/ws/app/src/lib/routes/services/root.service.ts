@@ -7,8 +7,6 @@ const PROXY_CREATE_V8 = '/apis/proxies/v8'
 
 const API_END_POINTS = {
   CREATE_USER_API: `${PROXY_CREATE_V8}/discussion/user/v1/create`,
-  LANGUAGES: '/api/faq/v1/assistant/available/language',
-  CONFIG: '/api/faq/v1/assistant/configs/language',
   AI_GLOBAL_SEARCH: `${PROXY_CREATE_V8}/chatbot/v3/search`,
   AI_CHAT_FEEDBACK:`${PROXY_CREATE_V8}/chatbot/v3/feedbacks/save`,
   AI_GLOBAL_INTERNET_SEARCH: `${PROXY_CREATE_V8}/chatbot/v3/global/search`,
@@ -61,14 +59,6 @@ export class RootService {
     const cpath = path ? `; path=${path}` : ''
     document.cookie = `${name}=${value}; ${expires}${cpath}`
   }
-  getChatData(tabType: any): any {
-    return this.http.post<any>(`${API_END_POINTS.CONFIG}`, tabType)
-  }
-
-  getLangugages(): Observable<any> {
-    return this.http.get<any>(`${API_END_POINTS.LANGUAGES}`)
-  }
-
   aiGlobalSearch(requestBody:any, chatId:any, userID:any): Observable<any> {
     return this.http.post<any>(`${API_END_POINTS.AI_GLOBAL_SEARCH}?chatID=${chatId}&userID=${userID}`, requestBody).pipe(
       catchError(error => {

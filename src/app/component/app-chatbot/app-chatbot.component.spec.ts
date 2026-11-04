@@ -24,8 +24,6 @@ describe('AppChatbotComponent', () => {
   }
   const mockRootSvc: any = {
     openSupportAIChatbot: new Subject<boolean>(),
-    getLangugages: jest.fn(() => of({})),
-    getChatData: jest.fn(() => of({})),
     iGOTAIChatHistory: [],
   }
 

@@ -205,32 +205,6 @@ export class AiTutorComponent implements OnInit, AfterViewInit, AfterViewChecked
     return this.localization[this.selectedLaguage]['showmore'] || 'Show More'
   }
 
-  getData() {
-    const lang: any = {
-      information: 'IN',
-      issue: 'IS'
-    }
-    const tabType: any = {
-      lang: this.selectedLaguage,
-      config_type: lang[this.currentFilter]
-    }
-    this.displayLoader = true
-    this.chatbotService.getChatData(tabType).subscribe((res: any) => {
-      if (res && res.payload && res.payload.config) {
-        this.setDataToLocalStorage(res.payload.config)
-        this.checkForApiCalls()
-        // this.initData(res.payload.config)
-        this.displayLoader = false
-      }
-    })
-  }
-  setDataToLocalStorage(data: any) {
-    let localObject: any = {}
-    localObject = JSON.parse(localStorage.getItem('faq') || '{}')
-    localObject[this.selectedLaguage] = { ...localObject[this.selectedLaguage], [this.currentFilter]: data }
-    localStorage.setItem('faq', JSON.stringify(localObject))
-    this.toggleFilter(this.currentFilter === 'information' ? 'information' : this.currentFilter)
-  }
 
   initData(_getData: any) {
     // tslint:disable-next-line
@@ -481,8 +455,6 @@ export class AiTutorComponent implements OnInit, AfterViewInit, AfterViewChecked
     let languageStg: any = JSON.parse(localStorage.getItem('faq-languages') || '{}')
     if (languageStg.length > 0) {
       this.language = languageStg
-    } else {
-      this.getLanguages()
     }
 
     if (localStg && languageStg) {
@@ -508,9 +480,6 @@ export class AiTutorComponent implements OnInit, AfterViewInit, AfterViewChecked
         }
         this.getQns()
         this.getCategories()
-      } else {
-        this.getLanguages()
-        // this.getData()
       }
     }
   }
@@ -540,19 +509,6 @@ export class AiTutorComponent implements OnInit, AfterViewInit, AfterViewChecked
   sortCategory(): any {
     // tslint:disable-next-line: max-line-length
     return this.categories.sort((a: any, b: any) => a['priority'] > b['priority'] ? 1 : a['priority'] === b['priority'] ? 0 : -1)
-  }
-
-  getLanguages() {
-    this.displayLoader = true
-    this.chatbotService.getLangugages().subscribe((resp: any) => {
-      if (resp && resp.status && resp.status.code === 200) {
-        this.language = resp.payload.languages
-        localStorage.setItem('faq-languages', JSON.stringify(resp.payload.languages))
-        localStorage.setItem('selectedLanguage', this.selectedLaguage)
-        this.getData()
-        this.displayLoader = false
-      }
-    })
   }
 
   ngAfterViewChecked() {
