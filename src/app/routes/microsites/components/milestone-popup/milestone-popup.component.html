@@ -1,0 +1,92 @@
+<div class="mp-backdrop fixed inset-0 flex items-center justify-center p-4" (click)="closed.emit()">
+  <div class="mp-dialog relative flex flex-col w-full overflow-hidden rounded-2xl" role="dialog" aria-modal="true"
+    aria-labelledby="mp-title" (click)="$event.stopPropagation()">
+
+    <button type="button" class="mp-close absolute top-4 right-4 flex items-center justify-center w-10 h-10 p-0 rounded-full cursor-pointer"
+      [attr.aria-label]="labels.close | translate" (click)="closed.emit()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
+      </svg>
+    </button>
+
+    <!-- Header -->
+    <header class="mp-header flex flex-col items-center gap-3 px-12 py-8 md:py-10 text-center">
+      @if (config()?.eyebrow) {
+      <p class="mp-eyebrow m-0 text-xs font-bold uppercase tracking-widest">{{ config()?.eyebrow }}</p>
+      }
+      <h2 id="mp-title" class="mp-title m-0 text-2xl md:text-3xl font-bold leading-tight whitespace-pre-line">{{ config()?.title }}</h2>
+      @if (config()?.description) {
+      <p class="mp-description m-0 text-sm md:text-base leading-relaxed">{{ config()?.description }}</p>
+      }
+    </header>
+
+    <!-- Steps, then note and footer -->
+    <div class="mp-body flex flex-col gap-6 px-6 md:px-12 pt-8 pb-6">
+      <ol class="mp-steps grid gap-6 m-0 p-0 list-none">
+        @for (step of steps(); track step.number; let last = $last) {
+        <li class="flex flex-col gap-3">
+          <div class="flex items-center gap-4">
+            <span class="mp-step__label text-sm font-semibold uppercase tracking-widest whitespace-nowrap">{{ step.label || (labels.milestone | translate: { number: step.number }) }}</span>
+            @if (!last) {
+            <span class="mp-step__line flex-1" aria-hidden="true"></span>
+            }
+          </div>
+
+          <span class="mp-step__icon flex items-center justify-center w-14 h-14 rounded-full" [class]="'mp-step__icon--' + step.color" aria-hidden="true">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+              stroke-linecap="round" stroke-linejoin="round">
+              @switch (step.icon) {
+              @case ('event') {
+              <rect x="3" y="4" width="18" height="18" rx="2" />
+              <path d="M16 2v4M8 2v4M3 10h18" />
+              }
+              @case ('progress') {
+              <path d="M3 3v18h18" />
+              <path d="m19 9-5 5-4-4-3 3" />
+              }
+              @case ('pledge') {
+              <rect x="4" y="11" width="16" height="11" rx="2" />
+              <path d="M8 11V7a4 4 0 0 1 8 0v4" />
+              }
+              @default {
+              <rect x="3" y="3" width="18" height="18" rx="2" />
+              <path d="m9 12 2 2 4-4" />
+              }
+              }
+            </svg>
+          </span>
+
+          <div class="flex flex-col gap-2">
+            <h3 class="mp-step__title m-0 text-lg font-semibold">{{ step.title }}</h3>
+            @if (step.description) {
+            <p class="mp-step__description m-0 text-sm leading-relaxed">{{ step.description }}</p>
+            }
+          </div>
+
+          <span class="mp-step__status self-start px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
+            [class]="'mp-step__status--' + step.tone">{{ step.status | translate: { number: step.number - 1 } }}</span>
+        </li>
+        }
+      </ol>
+
+      @if (config()?.note) {
+      <div class="mp-note flex items-center gap-3 px-6 py-4 rounded-xl text-sm leading-relaxed">
+        <svg class="mp-note__icon flex-shrink-0" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+          stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <rect x="3" y="11" width="18" height="11" rx="2" />
+          <path d="M7 11V7a5 5 0 0 1 9.9-1" />
+        </svg>
+        <p class="m-0" [innerHTML]="config()?.note"></p>
+      </div>
+      }
+
+      <footer class="flex flex-wrap items-center justify-between gap-4">
+        <p class="mp-help m-0 text-sm leading-relaxed">{{ config()?.helpText }}</p>
+        @if (cta(); as action) {
+        <button #cta type="button" class="mp-cta px-8 py-3 border-0 rounded-full text-base font-bold cursor-pointer"
+          (click)="onStart()">{{ action.label | translate: { number: action.number } }} →</button>
+        }
+      </footer>
+    </div>
+  </div>
+</div>
