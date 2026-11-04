@@ -172,6 +172,7 @@ describe('RootComponent', () => {
     mockTelemetrySvc = {
       impression: jest.fn(),
       sendEmptyObjectForNextInteract: jest.fn(),
+      sendEmptyObjectForNextImpression: jest.fn(),
     }
     mockEventSvc = {
       dispatchEvent: jest.fn(),
@@ -1103,10 +1104,10 @@ describe('RootComponent', () => {
 
     it('should reset the telemetry object before raising an impression with a page context', () => {
       const order: string[] = []
-      mockTelemetrySvc.sendEmptyObjectForNextInteract.mockImplementation(() => order.push('reset'))
+      mockTelemetrySvc.sendEmptyObjectForNextImpression.mockImplementation(() => order.push('reset'))
       mockTelemetrySvc.impression.mockImplementation(() => order.push('impression'))
       emitEnd('/app/x')
-      expect(mockTelemetrySvc.sendEmptyObjectForNextInteract).toHaveBeenCalledTimes(1)
+      expect(mockTelemetrySvc.sendEmptyObjectForNextImpression).toHaveBeenCalledTimes(1)
       expect(order).toEqual(['reset', 'impression'])
     })
 
@@ -1114,16 +1115,16 @@ describe('RootComponent', () => {
       mockRoute.snapshot.root.firstChild = { data: { pageKey: 'globalsearch' }, firstChild: null }
       mockRoute.snapshot.queryParams = { q: 'java' }
       emitEnd('/app/globalsearch')
-      expect(mockTelemetrySvc.sendEmptyObjectForNextInteract).toHaveBeenCalledTimes(1)
+      expect(mockTelemetrySvc.sendEmptyObjectForNextImpression).toHaveBeenCalledTimes(1)
     })
 
     it('should not reset the telemetry object when the page context is incomplete', () => {
       mockUtilitySvc.routeData = { pageId: 'home', module: '' }
       emitEnd('/app/x')
-      expect(mockTelemetrySvc.sendEmptyObjectForNextInteract).not.toHaveBeenCalled()
+      expect(mockTelemetrySvc.sendEmptyObjectForNextImpression).not.toHaveBeenCalled()
       mockUtilitySvc.routeData = { pageId: '', module: 'home' }
       emitEnd('/app/x')
-      expect(mockTelemetrySvc.sendEmptyObjectForNextInteract).not.toHaveBeenCalled()
+      expect(mockTelemetrySvc.sendEmptyObjectForNextImpression).not.toHaveBeenCalled()
       expect(mockTelemetrySvc.impression).toHaveBeenCalledWith()
     })
 
