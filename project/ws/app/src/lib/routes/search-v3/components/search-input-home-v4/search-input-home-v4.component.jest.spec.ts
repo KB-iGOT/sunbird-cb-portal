@@ -510,6 +510,17 @@ describe('SearchInputHomeV4Component (No TestBed)', () => {
       expect(nlpSpy).not.toHaveBeenCalled()
       expect(processSpy).toHaveBeenCalledWith('')
     })
+
+    it('searches with the user text when nlp answers 202 (service resolves null)', async () => {
+      component.responseNlpQuery.set('previous keyword')
+      mockGbSearchSvc.nlpSearch.mockResolvedValue(null)
+      component.ref = (() => 'panel') as any
+      await component.updateQuery('angular')
+      expect(component.responseNlpQuery()).toBe('')
+      expect(mockRouter.navigate).toHaveBeenCalledWith([], expect.objectContaining({
+        queryParams: expect.objectContaining({ q: 'angular', search: null }),
+      }))
+    })
   })
 
   describe('updateRecentSearchQuery', () => {

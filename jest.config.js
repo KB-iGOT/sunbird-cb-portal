@@ -31,7 +31,9 @@ module.exports = {
   // tsconfig sets baseUrl to the repo root, so sources import each other with
   // root-relative paths like 'project/ws/author/...'. jest resolves from
   // node_modules only unless the root is on the module search path too.
-  modulePaths: ['<rootDir>'],
+  // <rootDir>/node_modules: jest follows symlinks, so a locally linked @sunbird-cb package
+  // looks for its own imports in the folder it links to; fall back to this project's packages
+  modulePaths: ['<rootDir>', '<rootDir>/node_modules'],
   coverageReporters: ["clover", "json", "lcov", "text", "text-summary"],
   collectCoverage: true,
   testResultsProcessor: "jest-sonar-reporter",

@@ -115,10 +115,6 @@ describe('RootComponent', () => {
     mockEnrollmentSummaryState,
   )
 
-  const setPath = (path: string) => {
-    window.history.pushState({}, '', path)
-  }
-
   beforeEach(() => {
     // jsdom logs 'not implemented' for window.location.reload()
     jest.spyOn(console, 'error').mockImplementation(() => undefined)
@@ -209,7 +205,7 @@ describe('RootComponent', () => {
     mockBreakpointObserver = {
       observe: jest.fn().mockReturnValue(of({ matches: false })),
     }
-    ; (environment as any).production = true
+      ; (environment as any).production = true
 
     component = createComponent()
   })
@@ -370,6 +366,7 @@ describe('RootComponent', () => {
 
     it('logout should force logout', () => {
       component.logout()
+      expect(mockFormConfigSvc.clearCache).toHaveBeenCalled()
       expect(mockAuthSvc.force_logout).toHaveBeenCalled()
     })
 

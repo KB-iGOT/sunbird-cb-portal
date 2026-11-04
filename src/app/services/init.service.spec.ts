@@ -19,7 +19,7 @@ jest.mock('@sunbird-cb/utils-v2', () => ({
 jest.mock('@sunbird-cb/collection', () => ({ NPSGridService: class { }, BtnSettingsService: class { }, EnrollmentSummaryStateService: class { } }))
 jest.mock('./netcore.service', () => ({ NetCoreService: class { } }))
 jest.mock('./common-data.service', () => ({ CommonDataService: class { } }))
-jest.mock('./form-ext.service', () => ({ FormExtService: class { } }))
+jest.mock('@sunbird-cb/consumption', () => ({ FormConfigService: class { } }))
 jest.mock('./form-env-config.service', () => ({ FormEnvConfigService: class { } }))
 
 describe('InitService', () => {
@@ -37,7 +37,7 @@ describe('InitService', () => {
   let enrollSvc: any
   let netCoreService: any
   let commonDataSvc: any
-  let formSvc: any
+  let formConfigSvc: any
   let enrollmentSummaryState: any
   let formConfigService: any
   let domSanitizer: any
@@ -150,9 +150,9 @@ describe('InitService', () => {
     }
     commonDataSvc = { checkAndCacheNlw2026Eligibility: jest.fn() }
     enrollmentSummaryState = { start: jest.fn(), done: jest.fn() }
-    formSvc = {
-      formConfigReadData: jest.fn((req: any) => of({
-        result: { data: req.request.subType === 'global-web' ? globalConfig : appConfig },
+    formConfigSvc = {
+      getForm: jest.fn((_user: any, _portal: string, subType: string) => of({
+        result: { data: subType === 'global-web' ? globalConfig : appConfig },
       })),
     }
     formConfigService = {
@@ -163,7 +163,7 @@ describe('InitService', () => {
     iconRegistry = { addSvgIcon: jest.fn() }
     service = new InitService(
       logger, configSvc, domainConfSvc, widgetResolver, sbUiResolver, settingsSvc, userPreference, http, npsSvc,
-      translate, enrollSvc, netCoreService, commonDataSvc, formSvc, formConfigService, enrollmentSummaryState,
+      translate, enrollSvc, netCoreService, commonDataSvc, formConfigSvc, formConfigService, enrollmentSummaryState,
       '/', domSanitizer, iconRegistry,
     )
   })
@@ -220,6 +220,28 @@ describe('InitService', () => {
       expect(localStorage.getItem('telemetrySessionId')).toBeTruthy()
     })
 
+    it('reads the user once, first, and picks the global and application config forms for it', async () => {
+      const user = fullProfile()
+      routes['/profile'] = { result: { response: user } }
+      await service.init()
+      const profileReads = http.get.mock.calls.filter((c: any[]) => c[0] === '/profile')
+      expect(profileReads.length).toBe(1)
+      expect(http.get.mock.invocationCallOrder[0]).toBeLessThan(formConfigSvc.getForm.mock.invocationCallOrder[0])
+      expect(formConfigSvc.getForm).toHaveBeenCalledWith(user, 'portal', 'global-web', 2)
+      expect(formConfigSvc.getForm).toHaveBeenCalledWith(user, 'portal', 'application-config-web', 2)
+      // the globalenv form matches any user, so the env values load before the user read
+      expect(formConfigService.loadEnvironmentConfig).toHaveBeenCalledWith()
+    })
+
+    it('flags the global config as failed when the user read fails', async () => {
+      routes['/profile'] = new Error('x')
+      formConfigSvc.getForm.mockImplementation((u: any) => u ? of({}) : throwError(() => new Error('no form')))
+      const result = await service.init()
+      expect(formConfigSvc.getForm).toHaveBeenCalledWith(null, 'portal', 'global-web', 2)
+      expect(configSvc.globalConfigLoadFailed).toBe(true)
+      expect(result).toBe(false)
+    })
+
     it('does not preload the content dictionary at startup', async () => {
       routes['/profile'] = { result: { response: fullProfile() } }
       await service.init()
@@ -248,7 +270,7 @@ describe('InitService', () => {
     it('skips the global config on public routes and loads the welcome page profile', async () => {
       setUrl('/public/welcome')
       await service.init()
-      expect(formSvc.formConfigReadData).not.toHaveBeenCalled()
+      expect(formConfigSvc.getForm).not.toHaveBeenCalled()
       expect(http.get).toHaveBeenCalledWith('/base/application.config.json')
       expect(http.get).toHaveBeenCalledWith('/profile')
     })
@@ -256,9 +278,9 @@ describe('InitService', () => {
     it('loads the environment config before any form read', async () => {
       const order: string[] = []
       formConfigService.loadEnvironmentConfig.mockImplementation(async () => { order.push('env') })
-      formSvc.formConfigReadData.mockImplementation((req: any) => {
-        order.push(req.request.subType)
-        return of({ result: { data: req.request.subType === 'global-web' ? globalConfig : appConfig } })
+      formConfigSvc.getForm.mockImplementation((_user: any, _portal: string, subType: string) => {
+        order.push(subType)
+        return of({ result: { data: subType === 'global-web' ? globalConfig : appConfig } })
       })
       routes['/profile'] = { result: { response: fullProfile() } }
       await service.init()
@@ -396,9 +418,7 @@ describe('InitService', () => {
     it('loads from the form api and applies the config', async () => {
       const result = await (service as any).fetchDefaultConfig()
       expect(result).toBe(appConfig)
-      expect(formSvc.formConfigReadData).toHaveBeenCalledWith(expect.objectContaining({
-        request: expect.objectContaining({ clientVersion: 1.0 }),
-      }))
+      expect(formConfigSvc.getForm).toHaveBeenCalledWith(null, 'portal', 'application-config-web', 1.0)
       expect(localStorage.getItem('npsCategory')).toBe('cat')
       expect(configSvc.activeOrg).toBe('o1')
       expect(configSvc.iGOTAIConfig).toEqual({ w: 1 })
@@ -415,11 +435,9 @@ describe('InitService', () => {
 
     it('uses the client version from global config and reads form.data variants', async () => {
       configSvc.globalConfig = globalConfig
-      formSvc.formConfigReadData.mockReturnValue(of({ result: { form: { data: appConfig } } }))
+      formConfigSvc.getForm.mockReturnValue(of({ result: { form: { data: appConfig } } }))
       await (service as any).fetchDefaultConfig()
-      expect(formSvc.formConfigReadData).toHaveBeenCalledWith(expect.objectContaining({
-        request: expect.objectContaining({ clientVersion: 2 }),
-      }))
+      expect(formConfigSvc.getForm).toHaveBeenCalledWith(null, 'portal', 'application-config-web', 2)
       expect(configSvc.instanceConfig).toBe(appConfig)
     })
 
@@ -434,7 +452,7 @@ describe('InitService', () => {
       delete appConfig.telemetryConfig
       setUrl('/public/x')
       await (service as any).fetchDefaultConfig(true)
-      expect(formSvc.formConfigReadData).not.toHaveBeenCalled()
+      expect(formConfigSvc.getForm).not.toHaveBeenCalled()
       expect(localStorage.getItem('npsCategory')).toBeNull()
       expect(configSvc.iGOTAIConfig).toBeUndefined()
     })
@@ -446,7 +464,7 @@ describe('InitService', () => {
     })
 
     it('falls back to the static file when the form api fails or is empty', async () => {
-      formSvc.formConfigReadData.mockReturnValue(of(null))
+      formConfigSvc.getForm.mockReturnValue(of(null))
       await (service as any).fetchDefaultConfig()
       expect(http.get).toHaveBeenCalledWith('/base/application.config.json')
       expect(configSvc.instanceConfig).toBe(appConfig)
@@ -471,7 +489,7 @@ describe('InitService', () => {
     })
 
     it('flags a load failure', async () => {
-      formSvc.formConfigReadData.mockReturnValue(throwError(() => new Error('x')))
+      formConfigSvc.getForm.mockReturnValue(throwError(() => new Error('x')))
       expect(await (service as any).globalConfigData()).toEqual({})
       expect(configSvc.globalConfigLoadFailed).toBe(true)
     })
