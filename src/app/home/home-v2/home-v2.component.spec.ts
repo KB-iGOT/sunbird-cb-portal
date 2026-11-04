@@ -178,6 +178,39 @@ describe('HomeV2Component', () => {
   })
 
   describe('getListPendingApproval', () => {
+    beforeEach(() => {
+      mockConfigSvc.unMappedUser.profileDetails.profileStatus = 'PENDING'
+    })
+
+    it('should not call the workflow API when the profile is already VERIFIED', () => {
+      mockConfigSvc.unMappedUser.profileDetails.profileStatus = 'VERIFIED'
+      mockUserProfileService.listApprovalPendingFields.mockClear()
+
+      ; (component as any).getListPendingApproval()
+
+      expect(mockUserProfileService.listApprovalPendingFields).not.toHaveBeenCalled()
+      expect(component.isNudgeOpen).toBe(false)
+    })
+
+    it('should not call the workflow API when the profileUpdateNudge dialog is disabled', () => {
+      mockCommonDataSvc.isDialogEnabled.mockReturnValue(false)
+      mockUserProfileService.listApprovalPendingFields.mockClear()
+
+      ; (component as any).getListPendingApproval()
+
+      expect(mockUserProfileService.listApprovalPendingFields).not.toHaveBeenCalled()
+      expect(component.isNudgeOpen).toBe(false)
+    })
+
+    it('should not call the workflow API when there is no user id', () => {
+      mockConfigSvc.unMappedUser = {}
+      mockUserProfileService.listApprovalPendingFields.mockClear()
+
+      ; (component as any).getListPendingApproval()
+
+      expect(mockUserProfileService.listApprovalPendingFields).not.toHaveBeenCalled()
+    })
+
     it('should store the pending approval list when non-empty', () => {
       mockUserProfileService.listApprovalPendingFields.mockReturnValue(of({ result: { data: [{ id: 1 }] } }))
       const nudgeSpy = jest.spyOn(component as any, 'handleUpdateMobileNudge').mockImplementation(() => undefined)

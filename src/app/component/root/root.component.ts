@@ -7,7 +7,6 @@ import {
   computed,
   effect,
   ElementRef,
-  HostListener,
   OnInit,
   signal,
   // TemplateRef,
@@ -61,6 +60,7 @@ import { UserRestrictionService } from '../../services/user-restriction.service'
 import { UrlService } from '../../shared/url.service'
 import { LibNotificationsService } from '@sunbird-cb/notification'
 import { HomePageService } from '../../services/home-page.service'
+import { reloadForStaleBuild } from '../../services/stale-build-recovery'
 import { FormConfigService } from '@sunbird-cb/consumption'
 import { trigger, style, animate, transition } from '@angular/animations'
 import { DialogBoxComponent } from '../dialog-box/dialog-box.component'
@@ -380,13 +380,6 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
   currUrl = ''
   detailsChanged = signal(false)
   otherDetailsChanged = signal(false)
-  @HostListener('window:unload', ['$event'])
-  unloadHandler(event: any) {
-    if (event && event.type === 'unload') {
-      // this.authSvc.logout()
-    }
-  }
-
   reloadPage() {
     window.location.reload()
   }
@@ -530,6 +523,9 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
         } else {
           this.viewerPage = false
         }
+        // shows the progress bar until NavigationEnd / Cancel / Error below clears it, so a
+        // click on a page whose files or data are still loading visibly does something
+        this.routeChangeInProgress = true
         this.changeDetector.detectChanges()
       } else if (
         event instanceof NavigationEnd ||
@@ -949,8 +945,9 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
     // `unrecoverable` fires for exactly that - the cached version references assets the
     // server no longer has. A full reload is the only way out: it fetches the current
     // index.html, which names the chunks that do exist.
-    this.swUpdate.unrecoverable.subscribe(() => {
-      window.location.reload()
+    // reloadForStaleBuild reloads at most once per 30 s, so this cannot loop
+    this.swUpdate.unrecoverable.subscribe(event => {
+      reloadForStaleBuild(`service worker: ${event && event.reason}`)
     })
 
     // Look for a new deployment once the app settles, then every six hours. Without

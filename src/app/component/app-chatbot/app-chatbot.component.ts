@@ -1,6 +1,5 @@
 import { AfterViewChecked, OnChanges, Component, ElementRef, Input, OnInit, Renderer2, ViewChild } from '@angular/core'
 import { ConfigurationsService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
-// import { ChatbotService } from './chatbot.service'
 import { RootService } from './../root/root.service'
 import { environment } from 'src/environments/environment'
 import { NavigationEnd, Router } from '@angular/router'
@@ -314,32 +313,6 @@ export class AppChatbotComponent implements OnInit, AfterViewChecked, OnChanges 
     return this.localization[this.selectedLaguage]['showmore'] || 'Show More'
   }
 
-  getData() {
-    const lang: any = {
-      information: 'IN',
-      issue: 'IS'
-    }
-    const tabType: any = {
-      lang: this.selectedLaguage,
-      config_type: lang[this.currentFilter]
-    }
-    this.displayLoader = false
-    this.chatbotService.getChatData(tabType).subscribe((res: any) => {
-      if (res && res.payload && res.payload.config) {
-        this.setDataToLocalStorage(res.payload.config)
-        this.checkForApiCalls()
-        // this.initData(res.payload.config)
-        this.displayLoader = false
-      }
-    })
-  }
-  setDataToLocalStorage(data: any) {
-    let localObject: any = {}
-    localObject = JSON.parse(localStorage.getItem('faq') || '{}')
-    localObject[this.selectedLaguage] = { ...localObject[this.selectedLaguage], [this.currentFilter]: data }
-    localStorage.setItem('faq', JSON.stringify(localObject))
-    this.toggleFilter(this.currentFilter === 'information' ? 'information' : this.currentFilter)
-  }
 
   initData(_getData: any) {
     // tslint:disable-next-line
@@ -833,19 +806,6 @@ export class AppChatbotComponent implements OnInit, AfterViewChecked, OnChanges 
   sortCategory(): any {
     // tslint:disable-next-line: max-line-length
     return this.categories.sort((a: any, b: any) => a['priority'] > b['priority'] ? 1 : a['priority'] === b['priority'] ? 0 : -1)
-  }
-
-  getLanguages() {
-    this.displayLoader = false
-    this.chatbotService.getLangugages().subscribe((resp: any) => {
-      if (resp && resp.status && resp.status.code === 200) {
-        this.language = resp.payload.languages
-        localStorage.setItem('faq-languages', JSON.stringify(resp.payload.languages))
-        localStorage.setItem('selectedLanguage', this.selectedLaguage)
-        this.getData()
-        this.displayLoader = false
-      }
-    })
   }
 
   ngAfterViewChecked() {
