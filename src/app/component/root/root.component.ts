@@ -54,7 +54,7 @@ import { SwUpdate } from '@angular/service-worker'
 import { environment } from '../../../environments/environment'
 import { MatDialog } from '@angular/material/dialog'
 import { DialogConfirmComponent } from '../dialog-confirm/dialog-confirm.component'
-import { combineLatest, concat, interval, of, Subscription } from 'rxjs'
+import { combineLatest, concat, interval, Observable, of, Subscription } from 'rxjs'
 // import { iGOTAIService } from './../../services/igot-ai.service'
 import { CommonDataService } from '../../services/common-data.service'
 import { UserRestrictionService } from '../../services/user-restriction.service'
@@ -120,12 +120,17 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
   isFullWidthMobileRoute = signal(false)
   surfaceBackgroundRoutes = ['/app/person-profile/karma-wallet', '/app/plans']
   usesSurfaceBackground = signal(false)
+  // Routes laid out like the home page: white ground, docked sidebar that keeps the user's
+  // open/closed choice, and the overrideThemeChanges background.
+  homeLayoutRoutes = ['/app/leadership-as-mission-2026']
+  usesHomeLayout = signal(false)
+  hasHomeLayout = computed(() => this.isHomePage() || this.usesHomeLayout())
   navBarOpenStatusBasedOnNav = signal(true)
   openStatusUserSelection = signal(true)
-  // The sidebar only pushes page content on the home page. Everywhere else it is an overlay
+  // The sidebar only pushes page content on home-layout pages. Everywhere else it is an overlay
   // drawer (see isOverlayMode in sb-uic-dynamic-sidebar), so opening it must leave the header
   // and main content exactly where they are instead of reflowing them.
-  sidebarPushesContent = computed(() => this.isHomePage() && this.leftNavBarIsOpen())
+  sidebarPushesContent = computed(() => this.hasHomeLayout() && this.leftNavBarIsOpen())
 
   independenceDayBanner: any
 
@@ -345,7 +350,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
     .observe(['(min-width: 600px) and (max-width: 1024px)'])
     .pipe(map(state => state.matches))
   // Desktop-only: sidebar-driven widths (navBarOpenContent/navBarCloseContent) must not apply on mobile or tab
-  isDesktopView$ = combineLatest([this.isXSmall$, this.isTabView$]).pipe(
+  isDesktopView$ = combineLatest<[boolean, boolean]>([this.isXSmall$ as unknown as Observable<boolean>, this.isTabView$]).pipe(
     map(([isXSmall, isTabView]) => !isXSmall && !isTabView)
   )
   routeChangeInProgress = false
@@ -469,6 +474,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
         this.isHomePage.set(false)
         this.mobileAppsSvc.clearGlobalSearchForHomePage.next(false)
       }
+      this.usesHomeLayout.set(this.isHomeLayoutRoute(this.currUrl))
       this.setNavOpenStatus()
       if (event && event.url) {
         if (event.url.includes('/app/network-v2') && window.innerWidth <= 768) {
@@ -486,11 +492,11 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
           this.isSetupPage = true
         }
       }
-      if (window.location.pathname.includes('/page/home')) {
-        this.hideFooterSection.set(true)
+      const onHomePage = window.location.pathname.includes('/page/home')
+      this.hideFooterSection.set(onHomePage)
+      if (onHomePage || this.isHomeLayoutRoute(window.location.pathname)) {
         this.changeBg26Jan()
       } else {
-        this.hideFooterSection.set(false)
         this.removeBg26Jan()
       }
 
@@ -612,6 +618,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
         const objectType = _.get(this.route.snapshot, 'queryParams.primaryCategory', '')
         this.raiseAppStartTelemetry()
         if (data.pageContext.pageId && data.pageContext.module) {
+          this.telemetrySvc.sendEmptyObjectForNextImpression()
           this.telemetrySvc.impression(data, objectType)
         } else {
           this.telemetrySvc.impression()
@@ -791,8 +798,12 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
 
   }
 
+  isHomeLayoutRoute(url: string): boolean {
+    return this.homeLayoutRoutes.some(route => url.startsWith(route))
+  }
+
   setNavOpenStatus() {
-    if (this.isHomePage()) {
+    if (this.hasHomeLayout()) {
       this.navBarOpenStatusBasedOnNav.set(this.openStatusUserSelection())
       this.leftNavBarIsOpen.set(this.openStatusUserSelection())
     } else {

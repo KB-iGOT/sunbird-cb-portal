@@ -157,6 +157,8 @@ export class AppTourVideoComponent implements OnInit, OnDestroy {
 
   private raiseKarmaWalletVideoImpression() {
     const pData = this.telemetrySvc.pData || {}
+    this.telemetrySvc.sendEmptyObjectForNextImpression()
+    this.telemetrySvc.resetGlobalObjectIfNeeded({})
     try {
       $t.impression(
         {
@@ -173,6 +175,8 @@ export class AppTourVideoComponent implements OnInit, OnDestroy {
         },
       )
     } catch (err) {
+    } finally {
+      this.telemetrySvc.restoreGlobalObjectIfNeeded({}, false)
     }
   }
 

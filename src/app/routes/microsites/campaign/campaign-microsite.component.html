@@ -1,0 +1,70 @@
+<div class="campaign-microsite box-border flex flex-col gap-6 md:gap-8 w-full mx-auto px-4 py-6 lg:py-12">
+  @for (section of sectionList(); track section.key) {
+    <section [id]="section.key" class="w-full" [class.container]="!!section.wrapperClass">
+      @for (column of section.column; track column.key) {
+        @if (column?.enabled) {
+          <div [id]="column.key" [class]="'col-span-' + (column.colspan || 12)">
+            @switch (column.key) {
+
+              <!-- Banner carousel -->
+              @case ('topSection') {
+                @if (column.data?.sliderData?.sliders?.length) {
+                  <div class="w-full">
+                    <sb-uic-sliders [widgetData]="column.data.sliderData.sliders"
+                      [styleData]="column.data.sliderData.styleData">
+                    </sb-uic-sliders>
+                  </div>
+                }
+              }
+
+              <!-- Key highlights -->
+              @case ('keyHighlightsSection') {
+                @if (!isColumnHidden(column.key)) {
+                  <div class="flex items-center justify-center w-full">
+                    <div [class]="column.data?.containerClass || 'container'">
+                      <sb-uic-key-highlights (emptyResponse)="hideKeyHighlight($event, column.key)"
+                        [formData]="column.data" [mode]="isMobile ? 'mobile' : 'desktop'">
+                      </sb-uic-key-highlights>
+                    </div>
+                  </div>
+                }
+              }
+
+              <!-- individualSection widgets, positioned by config (left/right on desktop, mobileKeys on mobile) -->
+              @case ('mainContentSection') {
+                <div class="w-full" [class]="column.data?.containerClass || ''">
+                  <div class="grid grid-cols-12 gap-6 md:gap-8">
+                    @for (area of contentAreas(column.data); track $index) {
+                      <div class="cm-area col-span-12 flex flex-col gap-6 md:gap-8 min-w-0" [style.--cm-span]="area.colspan || 12">
+                        @for (widgetKey of area.data; track widgetKey) {
+                          @switch (widgetKey) {
+                            @case ('programmeMilestones') {
+                              <ws-app-programme-milestones [config]="individualSection().programmeMilestones"
+                                [eventDetails]="eventDetails()">
+                              </ws-app-programme-milestones>
+                            }
+                            <!-- Case Studies: homepage content strip + course cards -->
+                            @case ('caseStudies') {
+                              @if (caseStudiesStrip(); as contentStrip) {
+                                <section class="w-full" id="caseStudies">
+                                  <sb-uic-content-strip-with-tabs [widgetData]="contentStrip"
+                                    (emptyResponse)="caseStudiesEmpty.set($event)">
+                                  </sb-uic-content-strip-with-tabs>
+                                </section>
+                              }
+                            }
+                          }
+                        }
+                      </div>
+                    }
+                  </div>
+                </div>
+              }
+
+            }
+          </div>
+        }
+      }
+    </section>
+  }
+</div>

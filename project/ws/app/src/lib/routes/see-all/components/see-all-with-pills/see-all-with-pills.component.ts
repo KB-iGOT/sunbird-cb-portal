@@ -13,7 +13,7 @@ import { ConfigurationsService, EventService, MultilingualTranslationsService, W
 import { SeeAllService } from '../../services/see-all.service'
 import { NsContentStripWithTabsAndPills } from '@sunbird-cb/consumption'
 import { catchError, map, mergeMap } from 'rxjs/operators'
-import { of } from 'rxjs'
+import { Observable, of } from 'rxjs'
 
 @Component({
   selector: 'ws-app-see-all-with-pills',
@@ -909,7 +909,11 @@ export class SeeAllWithPillsComponent implements OnInit, OnDestroy {
         delete currentPillFromMap.request.payload.request.limit
       }
       let courses: any = []
-      this.enrollSvc.fetchInternalEnrollmentData(userId, currentPillFromMap.request.payload).pipe(
+      // the enrollment service is built against a different rxjs copy, so normalise its observable type
+      const internalEnrollment$ = this.enrollSvc.fetchInternalEnrollmentData(
+        userId, currentPillFromMap.request.payload
+      ) as unknown as Observable<any>
+      internalEnrollment$.pipe(
         mergeMap((res: any) => {
           if (_.get(res, 'result.courses', []).length > 0 && _.get(this.configSvc, 'userProfile.userId') && _.get(currentPillFromMap, 'request.payload.request.status') === 'Completed') {
             const formContextList: any[] = []
@@ -917,7 +921,10 @@ export class SeeAllWithPillsComponent implements OnInit, OnDestroy {
 
             for (const course of res.result.courses) {
               const content = course.content
-              if (content?.completionSurveyLink && content?.identifier) {
+              if (
+                content?.completionSurveyLink && content?.identifier
+                && course?.completedOn >= Number(this.configSvc.instanceConfig?.completionSurvey?.startDate)
+              ) {
                 const sID = content.completionSurveyLink.split('surveys/')
                 const formId = sID[1]
 

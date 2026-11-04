@@ -546,6 +546,8 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
   /* The karma points page the View More link leads to, reported from here */
   private raiseKarmaPointsImpression() {
     const pData = this.telemetrySvc.pData || {}
+    this.telemetrySvc.sendEmptyObjectForNextImpression()
+    this.telemetrySvc.resetGlobalObjectIfNeeded({})
     try {
       $t.impression(
         {
@@ -562,6 +564,8 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
         },
       )
     } catch (err) {
+    } finally {
+      this.telemetrySvc.restoreGlobalObjectIfNeeded({}, false)
     }
   }
   /* profileDetails as it arrives from /apis/proxies/v8/api/user/v2/read */
@@ -585,7 +589,7 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
   /* Merged, not replaced: the home page tour keeps video_visited / skipped in the same object */
   private markWalletTourVisited(walletTour: any) {
     const userId = this.configSvc.unMappedUser && this.configSvc.unMappedUser.id
-    const karmaWalletTour = { ...walletTour, visited: true, video_visited:true, skipped: false }
+    const karmaWalletTour = { ...walletTour, visited: true, video_visited: true, skipped: false }
     /* kept in step in memory, the read api only runs once per session */
     if (this.configSvc.unMappedUser && this.configSvc.unMappedUser.profileDetails) {
       this.configSvc.unMappedUser.profileDetails.karma_wallet_tour = karmaWalletTour
@@ -686,6 +690,8 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
 
   private raisePageImpression() {
     const pData = this.telemetrySvc.pData || {}
+    this.telemetrySvc.sendEmptyObjectForNextImpression()
+    this.telemetrySvc.resetGlobalObjectIfNeeded({})
     try {
       $t.impression(
         {
@@ -702,6 +708,8 @@ export class KarmaWalletComponent implements OnInit, OnDestroy {
         },
       )
     } catch (err) {
+    } finally {
+      this.telemetrySvc.restoreGlobalObjectIfNeeded({}, false)
     }
   }
 

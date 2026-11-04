@@ -21,7 +21,12 @@ describe('AppTourVideoComponent (No TestBed)', () => {
       use: jest.fn(),
       instant: jest.fn().mockImplementation((key: string) => key),
     }
-    mockTelemetrySvc = { pData: { id: 'portal', ver: '1.0' } }
+    mockTelemetrySvc = {
+      pData: { id: 'portal', ver: '1.0' },
+      sendEmptyObjectForNextImpression: jest.fn(),
+      resetGlobalObjectIfNeeded: jest.fn(),
+      restoreGlobalObjectIfNeeded: jest.fn(),
+    }
     mockCdr = { detectChanges: jest.fn() }
 
     jest.spyOn(Storage.prototype, 'getItem').mockReturnValue(null)
@@ -97,6 +102,37 @@ describe('AppTourVideoComponent (No TestBed)', () => {
           object: {},
         },
       )
+    })
+
+    it('resets the global object around the wallet video impression', () => {
+      const order: string[] = []
+      mockTelemetrySvc.sendEmptyObjectForNextImpression.mockImplementation(() => order.push('emptyNext'))
+      mockTelemetrySvc.resetGlobalObjectIfNeeded.mockImplementation(() => order.push('reset'))
+      ;($t.impression as jest.Mock).mockImplementationOnce(() => order.push('impression'))
+      mockTelemetrySvc.restoreGlobalObjectIfNeeded.mockImplementation(() => order.push('restore'))
+
+      component.startVideoIndex = 1
+      component.ngOnInit()
+
+      expect(order).toEqual(['emptyNext', 'reset', 'impression', 'restore'])
+      expect(mockTelemetrySvc.resetGlobalObjectIfNeeded).toHaveBeenCalledWith({})
+      expect(mockTelemetrySvc.restoreGlobalObjectIfNeeded).toHaveBeenCalledWith({}, false)
+    })
+
+    it('restores the global object even when the impression throws', () => {
+      ;($t.impression as jest.Mock).mockImplementationOnce(() => { throw new Error('fail') })
+
+      component.startVideoIndex = 1
+      expect(() => component.ngOnInit()).not.toThrow()
+      expect(mockTelemetrySvc.restoreGlobalObjectIfNeeded).toHaveBeenCalledWith({}, false)
+    })
+
+    it('does not touch the global object when starting on the website video', () => {
+      component.ngOnInit()
+
+      expect(mockTelemetrySvc.sendEmptyObjectForNextImpression).not.toHaveBeenCalled()
+      expect(mockTelemetrySvc.resetGlobalObjectIfNeeded).not.toHaveBeenCalled()
+      expect(mockTelemetrySvc.restoreGlobalObjectIfNeeded).not.toHaveBeenCalled()
     })
 
     it('raises the get started telemetry event', () => {

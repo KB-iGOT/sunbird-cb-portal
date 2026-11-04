@@ -85,7 +85,7 @@ describe('RootComponent', () => {
   let mockLibNotificationsService: any
   let mockHomePageSvc: any
   let mockBreakpointObserver: any
-  const mockEnrollmentSummaryState = { loading$: of(false) }
+  let mockEnrollmentSummaryState: any
   const mockFormConfigSvc = { clearCache: jest.fn() }
   let walletBalanceUpdated: Subject<number>
 
@@ -174,6 +174,7 @@ describe('RootComponent', () => {
     mockTelemetrySvc = {
       impression: jest.fn(),
       sendEmptyObjectForNextInteract: jest.fn(),
+      sendEmptyObjectForNextImpression: jest.fn(),
     }
     mockEventSvc = {
       dispatchEvent: jest.fn(),
@@ -205,10 +206,12 @@ describe('RootComponent', () => {
         result: { result: [{ userId: 'user-123', rank: 2 }, { userId: 'other', rank: 1 }] },
       })),
     }
+    mockEnrollmentSummaryState = { loading$: new BehaviorSubject<boolean>(false) }
+
     mockBreakpointObserver = {
       observe: jest.fn().mockReturnValue(of({ matches: false })),
     }
-    ; (environment as any).production = true
+      ; (environment as any).production = true
 
     component = createComponent()
   })
@@ -1117,6 +1120,32 @@ describe('RootComponent', () => {
       expect(mockTelemetrySvc.impression).toHaveBeenCalledWith({ pageContext: { pageId: 'home', module: 'home' } }, '')
       expect(mockUtilitySvc.setRouteData).toHaveBeenCalled()
       expect(component.currentRouteData).toEqual([])
+    })
+
+    it('should reset the telemetry object before raising an impression with a page context', () => {
+      const order: string[] = []
+      mockTelemetrySvc.sendEmptyObjectForNextImpression.mockImplementation(() => order.push('reset'))
+      mockTelemetrySvc.impression.mockImplementation(() => order.push('impression'))
+      emitEnd('/app/x')
+      expect(mockTelemetrySvc.sendEmptyObjectForNextImpression).toHaveBeenCalledTimes(1)
+      expect(order).toEqual(['reset', 'impression'])
+    })
+
+    it('should reset the telemetry object before raising a search impression', () => {
+      mockRoute.snapshot.root.firstChild = { data: { pageKey: 'globalsearch' }, firstChild: null }
+      mockRoute.snapshot.queryParams = { q: 'java' }
+      emitEnd('/app/globalsearch')
+      expect(mockTelemetrySvc.sendEmptyObjectForNextImpression).toHaveBeenCalledTimes(1)
+    })
+
+    it('should not reset the telemetry object when the page context is incomplete', () => {
+      mockUtilitySvc.routeData = { pageId: 'home', module: '' }
+      emitEnd('/app/x')
+      expect(mockTelemetrySvc.sendEmptyObjectForNextImpression).not.toHaveBeenCalled()
+      mockUtilitySvc.routeData = { pageId: '', module: 'home' }
+      emitEnd('/app/x')
+      expect(mockTelemetrySvc.sendEmptyObjectForNextImpression).not.toHaveBeenCalled()
+      expect(mockTelemetrySvc.impression).toHaveBeenCalledWith()
     })
 
     it('should raise an empty impression when the page context is incomplete', () => {
