@@ -361,11 +361,6 @@ describe('RootComponent', () => {
   })
 
   describe('simple helpers', () => {
-    it('unloadHandler should not throw', () => {
-      expect(() => component.unloadHandler({ type: 'unload' })).not.toThrow()
-      expect(() => component.unloadHandler(null)).not.toThrow()
-    })
-
     it('reloadPage should not throw', () => {
       expect(() => component.reloadPage()).not.toThrow()
     })

@@ -7,7 +7,6 @@ import {
   computed,
   effect,
   ElementRef,
-  HostListener,
   OnInit,
   signal,
   // TemplateRef,
@@ -381,13 +380,6 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
   currUrl = ''
   detailsChanged = signal(false)
   otherDetailsChanged = signal(false)
-  @HostListener('window:unload', ['$event'])
-  unloadHandler(event: any) {
-    if (event && event.type === 'unload') {
-      // this.authSvc.logout()
-    }
-  }
-
   reloadPage() {
     window.location.reload()
   }

@@ -163,10 +163,14 @@ describe('InitService', () => {
     }
     domSanitizer = { bypassSecurityTrustResourceUrl: jest.fn((u: string) => u) }
     iconRegistry = { addSvgIcon: jest.fn() }
+    commonMethodsSvc = {
+      isApiCacheValid: jest.fn().mockReturnValue(false),
+      saveApiCacheTime: jest.fn(),
+    }
     service = new InitService(
       logger, configSvc, domainConfSvc, widgetResolver, sbUiResolver, settingsSvc, userPreference, http, npsSvc,
       translate, enrollSvc, netCoreService, commonDataSvc, formConfigSvc, formConfigService, enrollmentSummaryState,
-      '/', domSanitizer, iconRegistry,
+      commonMethodsSvc, '/', domSanitizer, iconRegistry,
     )
   })
 
