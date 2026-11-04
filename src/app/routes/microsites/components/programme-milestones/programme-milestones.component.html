@@ -13,9 +13,11 @@
   <!-- Columns follow the section's own width (see scss): 4 / 2 / 1 -->
   <div class="cm-milestones__grid grid gap-4">
     @for (milestone of milestones(); track milestone.order; let i = $index) {
-    <sb-uic-milestone-card [milestone]="milestone" [state]="stateAt(i)" [isLoading]="isLoading()"
-      (milestoneClick)="openMilestone($event)">
-    </sb-uic-milestone-card>
+      @if(milestone.enabled) {
+        <sb-uic-milestone-card [milestone]="milestone" [state]="stateAt(i)" [isLoading]="isLoading()"
+          (milestoneClick)="openMilestone($event)">
+        </sb-uic-milestone-card>
+      }
     }
   </div>
 </section>
