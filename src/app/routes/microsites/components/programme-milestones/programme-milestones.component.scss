@@ -18,7 +18,7 @@
   font-family: 'Noto Sans', sans-serif;
   font-size: 22px;
   line-height: normal;
-  color: var(--text-bandw-black-heading, #1B2133);
+  color: var(--text-bandw-black-heading);
 
   @container (max-width: 519px) {
     font-size: 18px;
@@ -26,6 +26,6 @@
 }
 
 .cm-milestones__complete {
-  background: var(--color-success-green-o-16, rgba(29, 137, 35, 0.16));
-  color: var(--text-system-text-success, #1D8923);
+  background: var(--color-success-green-o-16);
+  color: var(--text-system-text-success);
 }

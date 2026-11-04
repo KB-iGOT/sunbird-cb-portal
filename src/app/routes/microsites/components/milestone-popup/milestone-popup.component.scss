@@ -14,7 +14,7 @@ $mp-orange: #f47b20;
   overflow-y: auto;
   box-sizing: border-box;
   font-family: 'Noto Sans', sans-serif;
-  background: var(--surface-primary, #ffffff);
+  background: var(--surface-primary);
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.32);
 }
 
@@ -44,7 +44,7 @@ $mp-orange: #f47b20;
 }
 
 .mp-title {
-  color: var(--text-permanent-white-heading, #ffffff);
+  color: var(--text-permanent-white-heading);
 }
 
 .mp-description {
@@ -71,14 +71,14 @@ $mp-orange: #f47b20;
 }
 
 .mp-step__label {
-  color: var(--environment-all-fills-black-gray-300-200, #545454);
+  color: var(--environment-all-fills-black-gray-300-200);
 }
 
 // the connector only reads as a path when all four sit on one row
 .mp-step__line {
   display: none;
   height: 2px;
-  background: var(--border-default, #e2e6ee);
+  background: var(--border-default);
 
   @container (min-width: 760px) {
     display: block;
@@ -110,17 +110,17 @@ $mp-orange: #f47b20;
 }
 
 .mp-step__title {
-  color: var(--text-bandw-black-heading, #1b2133);
+  color: var(--text-bandw-black-heading);
 }
 
 .mp-step__description {
-  color: var(--text-bandw-black-body, rgba(0, 0, 0, 0.6));
+  color: var(--text-bandw-black-body);
 }
 
 .mp-step__status {
   &--success {
-    background: var(--color-success-green-o-16, rgba(29, 137, 35, 0.12));
-    color: var(--environment-all-fills-system-success, #1d8923);
+    background: var(--color-success-green-o-16);
+    color: var(--environment-all-fills-system-success);
   }
 
   &--warning {
@@ -129,8 +129,8 @@ $mp-orange: #f47b20;
   }
 
   &--muted {
-    background: var(--surface-secondary, #eef0f4);
-    color: var(--environment-all-fills-black-gray-300-200, #545454);
+    background: var(--surface-secondary);
+    color: var(--environment-all-fills-black-gray-300-200);
   }
 }
 
@@ -138,7 +138,7 @@ $mp-orange: #f47b20;
 .mp-note {
   background: #fff6ef;
   border: 1px solid rgba($mp-orange, 0.3);
-  color: var(--text-bandw-black-title, rgba(0, 0, 0, 0.87));
+  color: var(--text-bandw-black-title);
 }
 
 .mp-note__icon {
@@ -147,7 +147,7 @@ $mp-orange: #f47b20;
 
 .mp-help {
   max-width: 280px;
-  color: var(--text-bandw-black-body, rgba(0, 0, 0, 0.6));
+  color: var(--text-bandw-black-body);
 }
 
 .mp-cta {
@@ -160,7 +160,7 @@ $mp-orange: #f47b20;
   }
 
   &:focus-visible {
-    outline: 2px solid var(--border-focus, #6687c0);
+    outline: 2px solid var(--border-focus);
     outline-offset: 2px;
   }
 }

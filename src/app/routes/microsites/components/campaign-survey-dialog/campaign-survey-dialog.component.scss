@@ -1,66 +1,64 @@
-$csd-primary: #1b4ca1;
-
 .csd {
   max-height: 85vh;
-  font-family: 'Noto Sans', sans-serif;
-  background: var(--surface-primary, #ffffff);
+  font-family: var(--font-family-noto-sans);
+  background: var(--surface-primary);
 }
 
 .csd__header,
 .csd__footer {
-  background: var(--surface-primary, #ffffff);
+  background: var(--surface-primary);
 }
 
 .csd__header {
-  border-bottom: 1px solid var(--border-default, #e2e6ee);
+  border-bottom: 1px solid var(--border-default);
 }
 
 .csd__footer {
-  border-top: 1px solid var(--border-default, #e2e6ee);
+  border-top: 1px solid var(--border-default);
 }
 
 .csd__title {
-  color: var(--text-bandw-black-heading, #1b2133);
+  color: var(--text-bandw-black-heading);
 }
 
 .csd__close {
   border: 0;
-  background: var(--surface-secondary, #eef0f4);
-  color: var(--text-bandw-black-heading, #1b2133);
+  background: var(--surface-secondary);
+  color: var(--text-bandw-black-heading);
 
   &:focus-visible {
-    outline: 2px solid var(--border-focus, #6687c0);
+    outline: 2px solid var(--border-focus);
     outline-offset: 2px;
   }
 }
 
 .csd__body {
-  background: #f4f8ff;
+  background: var(--surface-secondary);
 }
 
 .csd__separator {
   border: 0;
-  border-top: 1px solid var(--border-default, #e2e6ee);
+  border-top: 1px solid var(--border-default);
 }
 
 .csd__error {
-  color: var(--text-bandw-black-body, rgba(0, 0, 0, 0.6));
+  color: var(--text-bandw-black-body);
 }
 
 .csd__btn {
   height: 40px;
   font-size: 14px;
   font-weight: 600;
-  border: 1px solid $csd-primary;
+  border: 1px solid var(--environment-button-primary-outline-primary-outline);
 
   &--secondary {
-    background: #ffffff;
-    color: $csd-primary;
+    background: var(--surface-primary);
+    color: var(--text-button-text-primary-outlined);
   }
 
   &--primary {
-    background: $csd-primary;
-    color: #ffffff;
+    background: var(--environment-button-primary-filled-primary);
+    color: var(--text-button-text-primary-white);
   }
 
   &:disabled {
@@ -68,7 +66,7 @@ $csd-primary: #1b4ca1;
   }
 
   &:focus-visible {
-    outline: 2px solid var(--border-focus, #6687c0);
+    outline: 2px solid var(--border-focus);
     outline-offset: 2px;
   }
 }
