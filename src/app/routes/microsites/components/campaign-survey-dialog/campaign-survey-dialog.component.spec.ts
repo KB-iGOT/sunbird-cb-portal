@@ -79,6 +79,11 @@ describe('CampaignSurveyDialogComponent', () => {
     fixture.detectChanges()
   }
   const submitButton = () => el.querySelector<HTMLButtonElement>('button[type="submit"]')
+  const commitBox = () => el.querySelector<HTMLInputElement>('input[type="checkbox"]')
+  const fillValid = () => {
+    component.model()?.controls[0].controls.answer.setValue('Asha')
+    component.isCommitted.set(true)
+  }
 
   beforeEach(() => {
     tocSvc = { getFormById: jest.fn(() => of(FORM_RESPONSE)), submitForm: jest.fn(() => of({ params: { status: 'success' } })) }
@@ -108,17 +113,31 @@ describe('CampaignSurveyDialogComponent', () => {
     expect(el.querySelectorAll('hr').length).toBe(1)
   })
 
-  it('submit stays disabled until required answers are valid', () => {
+  it('submit stays disabled until required answers are valid and the commitment is checked', () => {
     create()
     expect(submitButton()?.disabled).toBe(true)
     component.model()?.controls[0].controls.answer.setValue('Asha')
     fixture.detectChanges()
+    expect(submitButton()?.disabled).toBe(true)
+    commitBox()?.click()
+    fixture.detectChanges()
+    expect(component.isCommitted()).toBe(true)
     expect(submitButton()?.disabled).toBe(false)
+    commitBox()?.click()
+    fixture.detectChanges()
+    expect(submitButton()?.disabled).toBe(true)
+  })
+
+  it('does not submit valid answers without the commitment', () => {
+    create()
+    component.model()?.controls[0].controls.answer.setValue('Asha')
+    component.submit()
+    expect(tocSvc.submitForm).not.toHaveBeenCalled()
   })
 
   it('submits the TOC body and closes with true on success', () => {
     create()
-    component.model()?.controls[0].controls.answer.setValue('Asha')
+    fillValid()
     component.submit()
     expect(tocSvc.submitForm).toHaveBeenCalledWith({
       formId: '1784131937108',
@@ -150,7 +169,7 @@ describe('CampaignSurveyDialogComponent', () => {
   ])('stays open and shows a message on %s', (_name, result, message) => {
     tocSvc.submitForm.mockReturnValue(result)
     create()
-    component.model()?.controls[0].controls.answer.setValue('Asha')
+    fillValid()
     component.submit()
     expect(dialogRef.close).not.toHaveBeenCalled()
     expect(snackBar.open).toHaveBeenCalledWith(message, 'X', { duration: 5000 })
@@ -174,7 +193,7 @@ describe('CampaignSurveyDialogComponent', () => {
     expect(component.loadFailed()).toBe(true)
   })
 
-  it('"Do it later" closes with false', () => {
+  it('Cancel closes with false', () => {
     create()
     el.querySelector<HTMLButtonElement>('.csd__btn--secondary')?.click()
     expect(dialogRef.close).toHaveBeenCalledWith(false)

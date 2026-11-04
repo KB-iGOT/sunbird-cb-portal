@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, inject, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms'
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
@@ -32,6 +32,8 @@ export class CampaignSurveyDialogComponent implements OnInit {
   readonly loadFailed = signal(false)
   readonly isSubmitting = signal(false)
   readonly isValid = signal(false)
+  readonly isCommitted = signal(false)
+  readonly canSubmit = computed(() => this.isValid() && this.isCommitted() && !this.isSubmitting())
 
   ngOnInit(): void {
     this.loadForm()
@@ -75,7 +77,7 @@ export class CampaignSurveyDialogComponent implements OnInit {
     }
     model.form.markAllAsTouched()
     this.syncValidity()
-    if (!this.isValid()) {
+    if (!this.isValid() || !this.isCommitted()) {
       return
     }
 

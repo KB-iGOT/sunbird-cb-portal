@@ -124,8 +124,9 @@ export const LAYOUT_TYPES = ['heading', 'separator']
 
 export const SURVEY_LABELS = {
   close: 'campaignMicrosite.close',
-  later: 'campaignMicrosite.survey.later',
+  cancel: 'campaignMicrosite.survey.cancel',
   submit: 'campaignMicrosite.survey.submit',
+  commitment: 'campaignMicrosite.survey.commitment',
   retry: 'campaignMicrosite.survey.retry',
   loadError: 'campaignMicrosite.survey.loadError',
   submitted: 'campaignMicrosite.survey.submitted',

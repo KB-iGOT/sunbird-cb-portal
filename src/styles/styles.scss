@@ -613,6 +613,10 @@ h3.shepherd-title {
   }
 }
 
+.campaign-survey-panel .mat-mdc-dialog-container .mdc-dialog__surface {
+  padding: 0 !important;
+}
+
 
 body:has(.requires-no-scroll) {
   overflow: hidden;

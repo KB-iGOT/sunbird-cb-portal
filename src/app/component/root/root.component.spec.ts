@@ -86,6 +86,7 @@ describe('RootComponent', () => {
   let mockHomePageSvc: any
   let mockBreakpointObserver: any
   let mockEnrollmentSummaryState: any
+  const mockFormConfigSvc = { clearCache: jest.fn() }
   let walletBalanceUpdated: Subject<number>
 
   const createComponent = (): any => new (RootComponent as any)(
@@ -113,7 +114,12 @@ describe('RootComponent', () => {
     mockHomePageSvc,
     mockBreakpointObserver,
     mockEnrollmentSummaryState,
+    mockFormConfigSvc,
   )
+
+  const setPath = (path: string) => {
+    window.history.pushState({}, '', path)
+  }
 
   beforeEach(() => {
     // jsdom logs 'not implemented' for window.location.reload()

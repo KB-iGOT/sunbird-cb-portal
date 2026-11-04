@@ -41,16 +41,21 @@
       }
       }
     </form>
+    <label class="csd__commit flex items-start gap-3 mt-4 cursor-pointer">
+      <input type="checkbox" class="csd__checkbox flex-shrink-0 w-4 h-4 mt-1 cursor-pointer" [checked]="isCommitted()"
+        (change)="isCommitted.set($any($event.target).checked)">
+      <span class="text-sm">{{ labels.commitment | translate }}</span>
+    </label>
     }
   </div>
 
   <footer class="csd__footer flex flex-wrap justify-end gap-3 px-6 py-4">
     <button type="button" class="csd__btn csd__btn--secondary px-6 rounded-full cursor-pointer" (click)="close()">
-      {{ labels.later | translate }}
+      {{ labels.cancel | translate }}
     </button>
     @if (model()) {
     <button type="submit" form="csd-form" class="csd__btn csd__btn--primary px-6 rounded-full"
-      [class.cursor-pointer]="isValid() && !isSubmitting()" [disabled]="!isValid() || isSubmitting()">
+      [class.cursor-pointer]="canSubmit()" [disabled]="!canSubmit()">
       {{ labels.submit | translate }}
     </button>
     }

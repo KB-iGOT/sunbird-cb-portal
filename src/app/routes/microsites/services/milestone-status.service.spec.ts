@@ -113,7 +113,7 @@ describe('MilestoneStatusService', () => {
       expect(http.get).toHaveBeenCalledWith('/apis/proxies/v8/user/event/read/u1?eventId=do_event&batchId=b_event')
       expect(http.post).toHaveBeenCalledWith(
         '/apis/proxies/v8/forms/v2/bulkGetApplicationsById',
-        { userId: 'u1', formContextList: [{ formId: 'f1' }] },
+        { userId: 'u1', formContextList: [{ formId: 'f1', contextId: 'f1' }] },
       )
     })
   })

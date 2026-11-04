@@ -183,7 +183,7 @@ describe('ProgrammeMilestonesComponent', () => {
       expect(router.navigate).not.toHaveBeenCalled()
     })
 
-    it('re-resolves states after a submit, not after "Do it later"', () => {
+    it('re-resolves states after a submit, not after "Cancel"', () => {
       statusSvc.resolveStates.mockReturnValue(of(['completed', 'notStarted']))
       render({ items: [milestone(1), survey] })
       component.openMilestone(survey)

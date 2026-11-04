@@ -132,7 +132,7 @@ export class MilestoneStatusService {
     }
     const response: any = await firstValueFrom(this.http.post(API_END_POINTS.SURVEY_APPLICATIONS, {
       userId,
-      formContextList: [{ formId: milestone.formId }],
+      formContextList: [{ formId: milestone.formId, contextId: milestone.formId }],
     }))
     const applications: any[] = response?.result?.response || []
     return applications.some(application => application?.submitted === true) ? 'completed' : 'notStarted'

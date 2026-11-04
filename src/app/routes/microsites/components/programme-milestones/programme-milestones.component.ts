@@ -151,6 +151,7 @@ export class ProgrammeMilestonesComponent {
       data: { milestone },
       width: '750px',
       maxWidth: '90vw',
+      panelClass: 'campaign-survey-panel',
       autoFocus: false,
       disableClose: true,
     }).afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(submitted => {
