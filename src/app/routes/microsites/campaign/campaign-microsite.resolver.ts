@@ -6,7 +6,7 @@ import { catchError, map } from 'rxjs/operators'
 import { NsCampaignMicrosite } from '../models/campaign-microsite.model'
 
 /** Published page config in the content store (same origin, so it follows the environment: dev / uat / prod) */
-export const CAMPAIGN_MICROSITE_REMOTE_CONFIG = '/assets/configurations/feature/campaign-microsite.json'
+export const CAMPAIGN_MICROSITE_REMOTE_CONFIG = '/assets/public/content/campaign-microsite/campaign-microsite.json'
 /** Copy shipped with the portal assets, used when the published one is missing or unusable */
 export const CAMPAIGN_MICROSITE_LOCAL_CONFIG = '/assets/configurations/feature/campaign-microsite.json'
 
@@ -26,7 +26,10 @@ function isPageConfig(value: unknown): value is NsCampaignMicrosite.IPageConfig 
  */
 export const campaignMicrositeResolver: ResolveFn<ICampaignMicrositePageData> = () => {
   const http = inject(HttpClient)
-  const fetchConfig = (url: string): Observable<NsCampaignMicrosite.IPageConfig> => http.get<unknown>(url).pipe(
+  // `timestamp` busts browser / CDN caches so content-store edits show up on the next page load
+  const fetchConfig = (url: string): Observable<NsCampaignMicrosite.IPageConfig> => http.get<unknown>(url, {
+    params: { timestamp: Date.now().toString() },
+  }).pipe(
     map(data => {
       if (!isPageConfig(data)) {
         throw new Error(`campaign microsite config at ${url} is not a page config`)
