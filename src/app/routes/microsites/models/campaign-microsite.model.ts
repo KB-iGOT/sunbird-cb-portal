@@ -76,14 +76,56 @@ export namespace NsCampaignMicrosite {
      * Event: event-hub player, e.g. `/app/event-hub/player/{identifier}/youtube/{resourceId}` with the video id as `resourceId`.
      */
     player?: IMilestonePlayerRoute
-    /** Event only: ISO 8601 with offset, e.g. `2026-11-17T10:00:00+05:30`. Decides Register / yet to start / Join / recording */
+    /**
+     * ISO 8601 with offset, e.g. `2026-11-17T10:00:00+05:30`.
+     * Event: decides Register / yet to start / Join / recording.
+     * Assessment: unlock time. Before it the card shows "Available from ..." and cannot be opened.
+     */
     startDateTime?: string
+    /** Event only */
     endDateTime?: string
+    /**
+     * Assessment: `true` lets a completed assessment still open the player from its card.
+     * Default (missing / false): a completed card only shows the green "Completed" and does nothing on click.
+     */
+    openWhenCompleted?: boolean
+    /**
+     * Assessment: `true` shows a live countdown on the disabled button until it unlocks
+     * ("Opens in 5D 12H", or "Opens in 12H 30M 20S" in the last day). Missing / false: the button keeps its text.
+     */
+    showCountdown?: boolean
     /**
      * Survey (pledge) backed by an event (`identifier` + `batchId`): the event's duration in minutes,
      * sent in the progress update that marks the event complete after the form is submitted
      */
     eventDurationMinutes?: number
+    /**
+     * Survey only: character limits for free-text answers. The form read API has no such setting,
+     * so they live here. e.g. `[{ "questions": [1, 3, 4], "minLength": 70, "maxLength": 300 }]`
+     */
+    answerLimits?: IAnswerLimit[]
+  }
+
+  /**
+   * Character limits and helper text for survey answers. Target questions by `questions` (1-based position
+   * among answerable questions, headings and separators not counted) and/or by form field `ids`.
+   * Several entries can match one question; each sets only the keys it has.
+   */
+  export interface IAnswerLimit {
+    questions?: number[]
+    ids?: string[]
+    /** Counted after trimming spaces */
+    minLength?: number
+    /** Typing stops at this length */
+    maxLength?: number
+    /** Guidance shown under the question, e.g. an example answer */
+    hint?: string
+  }
+
+  export interface IAnswerRule {
+    minLength?: number
+    maxLength?: number
+    hint?: string
   }
 
   export interface IProgrammeMilestones {
@@ -98,6 +140,8 @@ export namespace NsCampaignMicrosite {
   /** `{{number}}` in popup labels is replaced with the 1-based milestone position */
   export interface IMilestoneLabels {
     close: string
+    /** Green tick text that replaces the button on a completed assessment */
+    completed: string
     journeyComplete: string
     enrollError: string
     popup: {
@@ -111,6 +155,14 @@ export namespace NsCampaignMicrosite {
       /** Footer button; closes the popup */
       okay: string
     }
+    /** Assessment button text: not enrolled / enrolled but not finished / finished */
+    assessment: {
+      start: string
+      resume: string
+      view: string
+      /** Countdown on the disabled button while waiting to unlock (`showCountdown`); `{{time}}` e.g. "5D 12H" */
+      opensIn: string
+    }
     /** Event button text by phase */
     event: {
       register: string
@@ -121,6 +173,8 @@ export namespace NsCampaignMicrosite {
       registerError: string
     }
     survey: {
+      /** Pledge card button until it is submitted */
+      start: string
       cancel: string
       submit: string
       commitment: string
@@ -134,11 +188,16 @@ export namespace NsCampaignMicrosite {
       /** Shown when the pledge is completed but no certificate has been issued yet */
       certificatePending: string
       certificateError: string
+      /** Counter under a limited answer; `{{count}}`, `{{max}}` */
+      charCount: string
+      /** Hint under a limited answer; `{{min}}` */
+      minChars: string
     }
   }
 
-  export type IMilestoneLabelsConfig = Partial<Omit<IMilestoneLabels, 'popup' | 'event' | 'survey'>> & {
+  export type IMilestoneLabelsConfig = Partial<Omit<IMilestoneLabels, 'popup' | 'assessment' | 'event' | 'survey'>> & {
     popup?: Partial<IMilestoneLabels['popup']>
+    assessment?: Partial<IMilestoneLabels['assessment']>
     event?: Partial<IMilestoneLabels['event']>
     survey?: Partial<IMilestoneLabels['survey']>
   }
@@ -174,7 +233,7 @@ export namespace NsCampaignMicrosite {
   }
 
   export interface ICampaignSurveyDialogData {
-    milestone: NsCampaignMilestone.IMilestone
+    milestone: IMilestone
     labels: IMilestoneLabels
   }
 
@@ -189,6 +248,8 @@ export namespace NsCampaignMicrosite {
     // set by buildSurveyForm; read by the TOC question/section components
     controlIndex?: number
     validatorsArray?: ValidatorFn[]
+    /** set by buildSurveyForm from the milestone's `answerLimits`; drives the counter under the question */
+    answerLimit?: IAnswerRule
   }
 
   export interface ISurveyFormDetails {
@@ -211,9 +272,22 @@ export const EMAIL_PATTERN = /^[a-zA-Z0-9]+[a-zA-Z0-9._-]*[a-zA-Z0-9]+@[a-zA-Z0-
 export const MOBILE_PATTERN = /^[0]?[6789]\d{9}$/
 export const LAYOUT_TYPES = ['heading', 'separator']
 
+/**
+ * Sankalpa answer limits used when the survey milestone has no `answerLimits` in the page JSON
+ * (set `"answerLimits": []` there to turn them off)
+ */
+export const DEFAULT_SURVEY_ANSWER_LIMITS: NsCampaignMicrosite.IAnswerLimit[] = [
+  { questions: [1, 3, 4], minLength: 70, maxLength: 300 },
+  {
+    questions: [3],
+    hint: 'Say what you will do and by when, e.g. "I will review pending citizen grievances with my team every Monday, starting 1 December 2026."',
+  },
+]
+
 /** Fallback text when the page JSON (`programmeMilestones.labels`) leaves a key out */
 export const DEFAULT_MILESTONE_LABELS: NsCampaignMicrosite.IMilestoneLabels = {
   close: 'Close',
+  completed: 'Completed',
   journeyComplete: 'Journey complete! You have finished every milestone of this programme.',
   enrollError: 'We couldn\'t start this assessment. Please try again.',
   popup: {
@@ -225,6 +299,12 @@ export const DEFAULT_MILESTONE_LABELS: NsCampaignMicrosite.IMilestoneLabels = {
     milestone: 'Milestone {{number}}',
     okay: 'Okay',
   },
+  assessment: {
+    start: 'Start Questionnaire',
+    resume: 'Resume Questionnaire',
+    view: 'View Questionnaire',
+    opensIn: 'Opens in {{time}}',
+  },
   event: {
     register: 'Register',
     upcoming: 'Event yet to start',
@@ -234,6 +314,7 @@ export const DEFAULT_MILESTONE_LABELS: NsCampaignMicrosite.IMilestoneLabels = {
     registerError: 'We couldn\'t register you for this event. Please try again.',
   },
   survey: {
+    start: 'Take Sankalpa',
     cancel: 'Cancel',
     submit: 'Submit',
     commitment: 'I commit to strengthening my leadership practice through one meaningful change, within my own authority, for the citizens I serve.',
@@ -246,6 +327,8 @@ export const DEFAULT_MILESTONE_LABELS: NsCampaignMicrosite.IMilestoneLabels = {
     certificatePending: 'Kindly be patient. The certificate generation normally takes up to 24 hours, however, it might take longer sometimes. '
       + 'If the issue persists, please mail us at mission.karmayogi@gov.in',
     certificateError: 'We couldn\'t load your certificate. Please try again.',
+    charCount: '{{count}}/{{max}}',
+    minChars: 'Minimum {{min}} characters',
   },
 }
 
@@ -263,10 +346,11 @@ export function resolveMilestoneLabels(
     }
     return result as T
   }
-  const { popup, event, survey, ...root } = DEFAULT_MILESTONE_LABELS
+  const { popup, assessment, event, survey, ...root } = DEFAULT_MILESTONE_LABELS
   return {
     ...pick(root, config),
     popup: pick(popup, config?.popup),
+    assessment: pick(assessment, config?.assessment),
     event: pick(event, config?.event),
     survey: pick(survey, config?.survey),
   }
@@ -279,6 +363,12 @@ export function formatOrdinalDate(date: Date): string {
   const suffix = teen ? 'th' : ({ 1: 'st', 2: 'nd', 3: 'rd' } as Record<number, string>)[day % 10] || 'th'
   const month = date.toLocaleString('en-GB', { month: 'short' })
   return `${day}${suffix} ${month}`
+}
+
+/** "17th Nov, 10:00 AM" style date and time */
+export function formatOrdinalDateTime(date: Date): string {
+  const time = date.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+  return `${formatOrdinalDate(date)}, ${time}`
 }
 
 /** Replaces `{{name}}` placeholders, e.g. formatLabel('Milestone {{number}}', { number: 2 }) */
@@ -303,11 +393,59 @@ export function validatorsFor(field: NsCampaignMicrosite.ISurveyField): Validato
   } else if (field.fieldType === 'email') {
     validators.push(Validators.pattern(EMAIL_PATTERN))
   }
+  const { minLength, maxLength } = field.answerLimit || {}
+  if (minLength) {
+    validators.push(minTrimmedLength(minLength))
+  }
+  if (maxLength) {
+    validators.push(Validators.maxLength(maxLength))
+  }
   return validators
 }
 
+/** Like Validators.minLength, but spaces at either end don't count. Empty is left to `required` */
+export function minTrimmedLength(min: number): ValidatorFn {
+  return control => {
+    const length = typeof control.value === 'string' ? control.value.trim().length : 0
+    return length > 0 && length < min ? { minlength: { requiredLength: min, actualLength: length } } : null
+  }
+}
+
+/** Rules for the answerable question at `position` (1-based), merged over every matching entry; later entries win per key */
+export function answerLimitFor(
+  limits: NsCampaignMicrosite.IAnswerLimit[] | undefined,
+  field: NsCampaignMicrosite.ISurveyField,
+  position: number,
+): NsCampaignMicrosite.IAnswerRule | undefined {
+  let result: NsCampaignMicrosite.IAnswerRule | undefined
+  for (const limit of limits || []) {
+    const matches = (limit.questions || []).includes(position) || (!!field.id && (limit.ids || []).includes(field.id))
+    if (!matches) {
+      continue
+    }
+    const rule: NsCampaignMicrosite.IAnswerRule = {}
+    if (Number(limit.minLength) > 0) {
+      rule.minLength = Number(limit.minLength)
+    }
+    if (Number(limit.maxLength) > 0) {
+      rule.maxLength = Number(limit.maxLength)
+    }
+    if (typeof limit.hint === 'string' && limit.hint.trim()) {
+      rule.hint = limit.hint.trim()
+    }
+    if (Object.keys(rule).length) {
+      result = { ...result, ...rule }
+    }
+  }
+  return result
+}
+
 // Section questions get their own FormArray, built once: wrapping controls in a new array per render re-parents them
-export function buildSurveyForm(fb: FormBuilder, sourceFields: NsCampaignMicrosite.ISurveyField[]): NsCampaignMicrosite.ISurveyFormModel {
+export function buildSurveyForm(
+  fb: FormBuilder,
+  sourceFields: NsCampaignMicrosite.ISurveyField[],
+  answerLimits?: NsCampaignMicrosite.IAnswerLimit[],
+): NsCampaignMicrosite.ISurveyFormModel {
   const controls: FormGroup[] = []
   const parentFields: NsCampaignMicrosite.ISurveyField[] = []
   const childFields: Record<string, NsCampaignMicrosite.ISurveyField[]> = {}
@@ -324,6 +462,7 @@ export function buildSurveyForm(fb: FormBuilder, sourceFields: NsCampaignMicrosi
       continue
     }
 
+    field.answerLimit = answerLimitFor(answerLimits, field, controls.length + 1)
     const validators = validatorsFor(field)
     const group = fb.group({
       question: [field.name],
@@ -337,6 +476,7 @@ export function buildSurveyForm(fb: FormBuilder, sourceFields: NsCampaignMicrosi
     field.controlIndex = controls.length
     field.validatorsArray = validators
     controls.push(group)
+    capAnswerLength(group, field.answerLimit?.maxLength)
     if (field.parentId) {
       (sections[field.parentId] ||= fb.array<FormGroup>([])).push(group)
     } else {
@@ -346,6 +486,19 @@ export function buildSurveyForm(fb: FormBuilder, sourceFields: NsCampaignMicrosi
 
   const form = fb.group({ questions: looseQuestions, sections: fb.group(sections) })
   return { form, controls, parentFields, childFields, sections }
+}
+
+/** Stops typing at `max` characters (the TOC textarea has no maxlength attribute to do it) */
+function capAnswerLength(group: FormGroup, max: number | undefined): void {
+  if (!max) {
+    return
+  }
+  const answer = group.controls.answer
+  answer.valueChanges.subscribe(value => {
+    if (typeof value === 'string' && value.length > max) {
+      answer.setValue(value.slice(0, max))
+    }
+  })
 }
 
 export function toResponse(group: FormGroup) {

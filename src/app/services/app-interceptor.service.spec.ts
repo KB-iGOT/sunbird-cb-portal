@@ -121,6 +121,7 @@ describe('AppInterceptorService', () => {
       respond({ ts: '2026-11-04T06:26:38.632Z' })
       expect(configSvc.serverTime).toBe(Date.parse('2026-11-04T06:26:38.632Z'))
       expect(configSvc.serverTimeOffset).toBe(8632)
+      expect(typeof configSvc.serverTimeAt).toBe('number')
     })
 
     it('parses the Sunbird ts format', () => {

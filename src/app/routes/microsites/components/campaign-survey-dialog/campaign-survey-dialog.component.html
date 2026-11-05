@@ -26,20 +26,55 @@
       @for (field of m.parentFields; track $index) {
       @switch (field.fieldType) {
       @case ('heading') {
-      <ws-app-survey-form-section [sectionField]="field" [childFields]="m.childFields[field.sectionId!] || []"
-        [childQuestionsFormArray]="m.sections[field.sectionId!]" (questionValues)="syncValidity()">
-      </ws-app-survey-form-section>
+      <!-- drawn here rather than with the TOC section component, so section questions get the length hint too -->
+      <section class="csd__section mb-4 px-4 pt-4 pb-2 rounded-lg">
+        <h3 class="csd__section-title m-0 text-base font-semibold">{{ field.values?.[0]?.heading }}</h3>
+        @if (field.values?.[0]?.subHeading) {
+        <p class="csd__section-desc m-0 pt-2 text-xs">{{ field.values?.[0]?.subHeading }}</p>
+        }
+        <hr class="csd__separator mt-3 mb-0">
+        <div class="pt-5">
+          @for (child of m.childFields[field.sectionId!] || []; track $index) {
+          @if (child.controlIndex !== undefined) {
+          <ng-container *ngTemplateOutlet="question; context: { $implicit: child }" />
+          }
+          }
+        </div>
+      </section>
       }
       @case ('separator') {
       <hr class="csd__separator my-4">
       }
       @default {
-      <ws-app-survey-form-question [fieldDetails]="field" [questionForm]="m.controls[field.controlIndex!]"
-        (questionValues)="syncValidity()">
-      </ws-app-survey-form-question>
+      <ng-container *ngTemplateOutlet="question; context: { $implicit: field }" />
       }
       }
       }
+
+      <!-- the white card is drawn here (the TOC one is flattened in scss) so the hint and counter sit inside it -->
+      <ng-template #question let-field>
+        <div class="csd__question mb-4 p-4 rounded-lg">
+          <ws-app-survey-form-question [fieldDetails]="field" [questionForm]="m.controls[field.controlIndex]"
+            (questionValues)="syncValidity()">
+          </ws-app-survey-form-question>
+          @if (field.answerLimit; as limit) {
+          @let answer = m.controls[field.controlIndex].controls['answer'];
+          @let tooShort = answer.touched && answer.hasError('minlength');
+          @if (limit.hint) {
+          <p class="csd__hint m-0 mt-2 text-xs">{{ limit.hint }}</p>
+          }
+          <!-- the minimum shows only once the answer is too short; the counter once something is typed -->
+          @if (tooShort || (limit.maxLength && answer.value)) {
+          <div class="csd__limit flex justify-between gap-4 mt-2 text-xs">
+            <span class="csd__limit-error" role="alert">{{ tooShort ? minChars(limit.minLength!) : '' }}</span>
+            @if (limit.maxLength && answer.value) {
+            <span>{{ charCount(answer.value, limit.maxLength) }}</span>
+            }
+          </div>
+          }
+          }
+        </div>
+      </ng-template>
     </form>
     <label class="csd__commit flex items-start gap-3 mt-4 cursor-pointer">
       <input type="checkbox" class="csd__checkbox flex-shrink-0 w-4 h-4 mt-1 cursor-pointer" [checked]="isCommitted()"

@@ -33,16 +33,18 @@ export class AppInterceptorService implements HttpInterceptor {
    * Saves the `ts` of an API response body as epoch ms in configSvc.serverTime, with
    * configSvc.serverTimeOffset = serverTime - Date.now(). Only a newer ts replaces the saved one,
    * so a response that arrives late, or comes from a cache, can't move the time backwards.
+   * Also saves performance.now() at that moment (serverTimeAt): unlike Date.now() it does not move
+   * when the device clock is changed, so ServerClockService (utils-v2) can count forward from serverTime reliably.
    */
   private captureServerTime(body: any): void {
     const serverTime = body && typeof body === 'object' ? AppInterceptorService.parseTs(body.ts) : null
-    // typed through a cast until the utils-v2 build with serverTime/serverTimeOffset is published
-    const config = this.configSvc as { serverTime?: number | null, serverTimeOffset?: number }
+    const config = this.configSvc
     if (serverTime === null || (config.serverTime && serverTime <= config.serverTime)) {
       return
     }
     config.serverTime = serverTime
     config.serverTimeOffset = serverTime - Date.now()
+    config.serverTimeAt = performance.now()
   }
 
   /**

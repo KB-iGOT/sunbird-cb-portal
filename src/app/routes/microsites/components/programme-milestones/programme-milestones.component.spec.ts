@@ -6,9 +6,10 @@ import { Router } from '@angular/router'
 import { CertificateDialogComponent, NsCampaignMilestone } from '@sunbird-cb/consumption'
 import { Subject, of } from 'rxjs'
 import { NsCampaignMicrosite } from '../../models/campaign-microsite.model'
+import { ServerClockService } from '@sunbird-cb/utils-v2'
 import { MilestoneStatusService } from '../../services/milestone-status.service'
 import { CampaignSurveyDialogComponent } from '../campaign-survey-dialog/campaign-survey-dialog.component'
-import { MILESTONE_POPUP_SEEN_KEY, ProgrammeMilestonesComponent, buildPlayerRoute, eventCta, eventPhase } from './programme-milestones.component'
+import { MILESTONE_POPUP_SEEN_KEY, ProgrammeMilestonesComponent, buildPlayerRoute, eventCta, eventPhase, formatCountdown } from './programme-milestones.component'
 import { DEFAULT_MILESTONE_LABELS } from '../../models/campaign-microsite.model'
 
 const milestone = (order: number, overrides: Partial<NsCampaignMicrosite.IMilestone> = {}) => ({
@@ -64,6 +65,8 @@ describe('ProgrammeMilestonesComponent', () => {
       imports: [ProgrammeMilestonesComponent],
       providers: [
         { provide: MilestoneStatusService, useValue: statusSvc },
+        // the real clock reads server time from ConfigurationsService; its own spec covers that
+        { provide: ServerClockService, useValue: { now: () => Date.now() } },
         { provide: Router, useValue: router },
         { provide: MatDialog, useValue: dialog },
         { provide: MatSnackBar, useValue: snackBar },
@@ -297,12 +300,12 @@ describe('ProgrammeMilestonesComponent', () => {
       expect(eventCta(phase, enrolled, L)).toEqual({ label, disabled })
     })
 
-    it('binds the event button to the card; other types and locked events keep the default', () => {
+    it('binds the event button to the card; locked events keep the default', () => {
       component.now.set(at('2026-11-17T11:00:00+05:30'))
       statusSvc.isEventEnrolled.mockReturnValue(true)
       statusSvc.resolveStates.mockReturnValue(of(['completed', 'notStarted', 'locked']))
       render({ items: [milestone(1), event(), milestone(3, { type: 'event' })] })
-      expect(cards().map(card => [card.ctaLabel, card.ctaDisabled])).toEqual([[null, false], [L.join, false], [null, false]])
+      expect(cards().map(card => [card.ctaLabel, card.ctaDisabled])).toEqual([['View Questionnaire', true], [L.join, false], [null, false]])
     })
 
     it('the button follows the clock: yet to start → Join event', () => {
@@ -558,11 +561,17 @@ describe('ProgrammeMilestonesComponent', () => {
       expect(statusSvc.resolveStates).toHaveBeenCalledTimes(2)
     })
 
-    it('completed → card button is "Download certificate"; a plain pledge keeps the default', () => {
+    it('completed → card button is "Download certificate"; a completed plain pledge keeps the default', () => {
       const plain = milestone(3, { type: 'survey', formId: 'f', identifier: undefined })
       statusSvc.resolveStates.mockReturnValue(of(['completed', 'completed', 'completed']))
       render({ items: [milestone(1), pledge, plain] })
-      expect(cards().map(card => card.ctaLabel)).toEqual([null, S.downloadCertificate, null])
+      expect(cards().map(card => card.ctaLabel)).toEqual(['View Questionnaire', S.downloadCertificate, null])
+    })
+
+    it('not completed → "Take Sankalpa" from the page config', () => {
+      statusSvc.resolveStates.mockReturnValue(of(['completed', 'inProgress']))
+      render({ items: [milestone(1), pledge], labels: { survey: { start: 'Take the pledge' } } })
+      expect(cards()[1].ctaLabel).toBe('Take the pledge')
     })
 
     it('completed with a certificate → opens the certificate dialog', async () => {
@@ -658,6 +667,192 @@ describe('ProgrammeMilestonesComponent', () => {
       statusSvc.resolveStates.mockReturnValue(of(['completed', 'locked']))
       render(withPopup)
       expect(popup()).toBeNull()
+    })
+  })
+
+  describe('assessment button', () => {
+    it('Start / Resume / View by state, text from the page config', () => {
+      statusSvc.resolveStates.mockReturnValue(of(['notStarted', 'inProgress', 'completed']))
+      render({
+        items: [milestone(1), milestone(2), milestone(3)],
+        labels: { assessment: { resume: 'Continue' } },
+      })
+      expect(cards().map(card => card.ctaLabel)).toEqual(['Start Questionnaire', 'Continue', 'View Questionnaire'])
+    })
+  })
+
+  describe('completed indicator, unlock time and certificate button', () => {
+    const at = (iso: string) => new Date(iso).getTime()
+
+    it('only a completed assessment gets the green "Completed"; event and pledge keep their buttons', () => {
+      component.now.set(at('2026-11-20T10:00:00+05:30'))
+      statusSvc.resolveStates.mockReturnValue(of(['completed', 'completed', 'completed']))
+      statusSvc.issuedCertificateId.mockReturnValue('cert_1')
+      statusSvc.isEventEnrolled.mockReturnValue(true)
+      render({ items: [
+        milestone(1),
+        milestone(2, { type: 'event', startDateTime: '2026-11-17T10:00:00+05:30', endDateTime: '2026-11-17T12:00:00+05:30' }),
+        milestone(3, { type: 'survey', formId: 'f', identifier: 'do_p', batchId: 'b_p' }),
+      ] })
+      expect(cards().map(card => card.completedLabel)).toEqual(['Completed', null, null])
+      expect(cards()[1].ctaLabel).toBe(DEFAULT_MILESTONE_LABELS.event.recording)
+    })
+
+    it('an ended event the user never registered for still offers Register', () => {
+      component.now.set(at('2026-11-20T10:00:00+05:30'))
+      statusSvc.resolveStates.mockReturnValue(of(['notStarted']))
+      render({ items: [milestone(2, { type: 'event', startDateTime: '2026-11-17T10:00:00+05:30', endDateTime: '2026-11-17T12:00:00+05:30' })] })
+      expect(cards()[0].state).toBe('notStarted')
+      expect([cards()[0].ctaLabel, cards()[0].completedLabel]).toEqual([DEFAULT_MILESTONE_LABELS.event.register, null])
+    })
+
+    // wall-clock times without an offset: the label shows the viewer's local time, so this passes in any time zone (CI runs in UTC)
+    it('assessment before its startDateTime: "Available from" with time, button disabled, click ignored; opens once the time passes', () => {
+      const endline = milestone(3, { startDateTime: '2026-11-17T10:00:00' })
+      component.now.set(at('2026-11-17T09:00:00'))
+      statusSvc.resolveStates.mockReturnValue(of(['notStarted']))
+      render({ items: [endline] }, undefined)
+      expect(cards()[0].availableFrom).toBe('Available from 17th Nov, 10:00 AM')
+      expect(cards()[0].ctaDisabled).toBe(true)
+
+      jest.spyOn(Date, 'now').mockReturnValue(at('2026-11-17T09:00:00'))
+      component.openMilestone(endline)
+      expect(statusSvc.enrollAssessment).not.toHaveBeenCalled()
+      expect(router.navigate).not.toHaveBeenCalled()
+      jest.restoreAllMocks()
+
+      component.now.set(at('2026-11-17T10:00:00'))
+      fixture.detectChanges()
+      expect(cards()[0].availableFrom).toBeNull()
+      expect(cards()[0].ctaDisabled).toBe(false)
+    })
+
+    it('completed assessment does not open again unless openWhenCompleted is true', () => {
+      const closed = milestone(1, { player: { path: '/viewer/practice/{resourceId}', resourceId: 'do_qs' } })
+      const reopenable = milestone(2, { openWhenCompleted: true, player: { path: '/viewer/practice/{resourceId}', resourceId: 'do_qs2' } })
+      statusSvc.resolveStates.mockReturnValue(of(['completed', 'completed']))
+      statusSvc.enrolledBatchId.mockReturnValue('b_1')
+      render({ items: [closed, reopenable] })
+      expect(cards().map(card => card.ctaDisabled)).toEqual([true, false])
+
+      component.openMilestone(closed)
+      expect(router.navigate).not.toHaveBeenCalled()
+      component.openMilestone(reopenable)
+      return new Promise(resolve => setTimeout(resolve)).then(() => {
+        expect(router.navigate.mock.calls[0][0]).toEqual(['/', 'viewer', 'practice', 'do_qs2'])
+      })
+    })
+
+    it('startDateTime wins over lockUntilEventStart: once it passes, no "Available from" for the event date', () => {
+      const endline = milestone(3, { lockUntilEventStart: true, startDateTime: '2026-11-05T19:10:00' })
+      statusSvc.resolveStates.mockReturnValue(of(['notStarted']))
+      component.now.set(at('2026-11-05T19:00:00'))
+      render({ items: [endline] }, { startDate: '17-11-2026', endDate: '28-11-2026' })
+      expect([cards()[0].availableFrom, cards()[0].ctaDisabled]).toEqual(['Available from 5th Nov, 7:10 PM', true])
+
+      component.now.set(at('2026-11-05T19:10:00'))
+      fixture.detectChanges()
+      expect([cards()[0].availableFrom, cards()[0].ctaDisabled]).toEqual([null, false])
+    })
+
+    it('lockUntilEventStart assessment without startDateTime: locked until eventDetails.startDate; an event is not locked', () => {
+      const endline = milestone(3, { lockUntilEventStart: true })
+      const liveEvent = milestone(2, { type: 'event', lockUntilEventStart: true })
+      component.now.set(new Date(2026, 10, 16, 23, 0).getTime())
+      statusSvc.resolveStates.mockReturnValue(of(['notStarted', 'notStarted']))
+      render({ items: [liveEvent, endline] }, { startDate: '17-11-2026', endDate: '28-11-2026' })
+      expect(cards().map(card => card.availableFrom)).toEqual(['Available from 17th Nov', 'Available from 17th Nov'])
+      expect(cards().map(card => card.ctaDisabled)).toEqual([false, true])
+
+      jest.spyOn(Date, 'now').mockReturnValue(new Date(2026, 10, 16, 23, 0).getTime())
+      component.openMilestone(endline)
+      expect(statusSvc.enrollAssessment).not.toHaveBeenCalled()
+      jest.restoreAllMocks()
+
+      component.now.set(new Date(2026, 10, 17, 0, 0).getTime())
+      fixture.detectChanges()
+      expect(cards()[1].ctaDisabled).toBe(false)
+    })
+
+    it.each([
+      [5 * 86_400_000 + 12 * 3_600_000 + 59_000, '5D 12H'],
+      [12 * 3_600_000 + 30 * 60_000 + 20_000, '12H 30M 20S'],
+      [5 * 60_000 + 3_000, '5M 3S'],
+      [400, '1S'],
+    ])('formatCountdown(%d) → %s', (ms, text) => {
+      expect(formatCountdown(ms)).toBe(text)
+    })
+
+    it('showCountdown: the disabled button counts down to the unlock time, then turns into Start', () => {
+      const endline = milestone(3, { startDateTime: '2026-11-17T10:00:00+05:30', showCountdown: true })
+      const quiet = milestone(4, { startDateTime: '2026-11-17T10:00:00+05:30' })
+      component.now.set(at('2026-11-12T08:00:00+05:30'))
+      statusSvc.resolveStates.mockReturnValue(of(['notStarted', 'notStarted']))
+      render({ items: [endline, quiet] }, undefined)
+      expect(cards().map(card => [card.ctaLabel, card.ctaDisabled]))
+        .toEqual([['Opens in 5D 2H', true], ['Start Questionnaire', true]])
+
+      component.now.set(at('2026-11-16T21:29:40+05:30'))
+      fixture.detectChanges()
+      expect(cards()[0].ctaLabel).toBe('Opens in 12H 30M 20S')
+
+      component.now.set(at('2026-11-17T10:00:00+05:30'))
+      fixture.detectChanges()
+      expect([cards()[0].ctaLabel, cards()[0].ctaDisabled]).toEqual(['Start Questionnaire', false])
+    })
+
+    describe('clock cost', () => {
+      const endline = milestone(3, { startDateTime: '2026-11-17T10:00:00+05:30', showCountdown: true })
+
+      it('1s ticks only in the last day before a countdown unlocks; never without a countdown', () => {
+        statusSvc.resolveStates.mockReturnValue(of(['notStarted']))
+        component.now.set(at('2026-11-12T10:00:00+05:30'))
+        render({ items: [endline] }, undefined)
+        expect(component.needsSecondTicks()).toBe(false)
+        component.now.set(at('2026-11-16T10:00:01+05:30'))
+        expect(component.needsSecondTicks()).toBe(true)
+        component.now.set(at('2026-11-17T10:00:00+05:30'))
+        expect(component.needsSecondTicks()).toBe(false)
+      })
+
+      it('unchanged results keep their reference across ticks, so cards and popup are not re-rendered', () => {
+        statusSvc.resolveStates.mockReturnValue(of(['notStarted', 'notStarted']))
+        component.now.set(at('2026-11-12T10:00:00+05:30'))
+        render({ items: [milestone(1), milestone(2, { lockUntilEventStart: true })] }, { startDate: '17-11-2026', endDate: '' })
+        const ctas = component.ctas()
+        const availableFrom = component.availableFrom()
+        component.now.set(at('2026-11-12T10:00:30+05:30'))
+        expect(component.ctas()).toBe(ctas)
+        expect(component.availableFrom()).toBe(availableFrom)
+      })
+
+      it('cards get the time rounded to the minute', () => {
+        component.now.set(at('2026-11-12T10:00:45+05:30'))
+        expect(component.cardNow()).toBe(at('2026-11-12T10:00:00+05:30'))
+      })
+    })
+
+    it('leaving the page clears the clock interval', () => {
+      const clear = jest.spyOn(globalThis, 'clearInterval')
+      try {
+        fixture.destroy()
+        expect(clear).toHaveBeenCalled()
+      } finally {
+        clear.mockRestore()
+      }
+    })
+
+    it('completed pledge without a certificate: Download certificate disabled with the "be patient" tooltip', () => {
+      const pledge = milestone(1, { type: 'survey', formId: 'f', identifier: 'do_p', batchId: 'b_p' })
+      statusSvc.resolveStates.mockReturnValue(of(['completed']))
+      render({ items: [pledge] })
+      expect([cards()[0].ctaLabel, cards()[0].ctaDisabled, cards()[0].ctaTooltip])
+        .toEqual(['Download certificate', true, DEFAULT_MILESTONE_LABELS.survey.certificatePending])
+
+      statusSvc.issuedCertificateId.mockReturnValue('cert_1')
+      component.now.set(Date.now() + 1)
+      fixture.detectChanges()
+      expect([cards()[0].ctaDisabled, cards()[0].ctaTooltip]).toEqual([false, null])
     })
   })
 })

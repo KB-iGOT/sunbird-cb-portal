@@ -1,15 +1,16 @@
+import { NgTemplateOutlet } from '@angular/common'
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms'
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'
 import { MatSnackBar } from '@angular/material/snack-bar'
-import { AppTocService, SurveyFormQuestionComponent, SurveyFormSectionComponent } from '@sunbird-cb/toc'
-import { DEFAULT_MILESTONE_LABELS, NsCampaignMicrosite, buildSurveyForm, toFormDetails, toResponse } from '../../models/campaign-microsite.model'
+import { AppTocService, SurveyFormQuestionComponent } from '@sunbird-cb/toc'
+import { DEFAULT_MILESTONE_LABELS, DEFAULT_SURVEY_ANSWER_LIMITS, NsCampaignMicrosite, buildSurveyForm, formatLabel, toFormDetails, toResponse } from '../../models/campaign-microsite.model'
 
 @Component({
   selector: 'ws-app-campaign-survey-dialog',
-  imports: [ReactiveFormsModule, MatProgressSpinnerModule, SurveyFormQuestionComponent, SurveyFormSectionComponent],
+  imports: [NgTemplateOutlet, ReactiveFormsModule, MatProgressSpinnerModule, SurveyFormQuestionComponent],
   templateUrl: './campaign-survey-dialog.component.html',
   styleUrl: './campaign-survey-dialog.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -50,7 +51,7 @@ export class CampaignSurveyDialogComponent implements OnInit {
     this.tocSvc.getFormById(formId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: response => {
         const details = toFormDetails(response)
-        const model = buildSurveyForm(this.fb, details.fields)
+        const model = buildSurveyForm(this.fb, details.fields, this.data.milestone.answerLimits ?? DEFAULT_SURVEY_ANSWER_LIMITS)
         model.form.statusChanges.pipe(takeUntilDestroyed(this.destroyRef)).subscribe(() => this.syncValidity())
         this.details.set(details)
         this.model.set(model)
@@ -108,6 +109,16 @@ export class CampaignSurveyDialogComponent implements OnInit {
         this.notify(this.labels.submitError)
       },
     })
+  }
+
+  /** "45/300" under a limited answer */
+  charCount(answer: unknown, max: number): string {
+    const count = typeof answer === 'string' ? answer.length : 0
+    return formatLabel(this.labels.charCount, { count, max })
+  }
+
+  minChars(min: number): string {
+    return formatLabel(this.labels.minChars, { min })
   }
 
   close(): void {

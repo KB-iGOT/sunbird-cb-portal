@@ -36,6 +36,19 @@
   display: none;
 }
 
+// same look as the TOC survey section
+.csd__section {
+  background: rgba(27, 76, 161, 0.08);
+}
+
+.csd__section-title {
+  color: var(--text-bandw-black-heading);
+}
+
+.csd__section-desc {
+  color: var(--text-bandw-black-body);
+}
+
 .csd__separator {
   border: 0;
   border-top: 1px solid var(--border-default);
@@ -51,6 +64,26 @@
 
 .csd__error {
   color: var(--text-bandw-black-body);
+}
+
+.csd__question {
+  background: #ffffff;
+
+  // the TOC question draws its own white card with padding and margin; flatten it into ours
+  ::ng-deep .q-element {
+    margin-bottom: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+  }
+}
+
+.csd__hint,
+.csd__limit {
+  color: var(--text-bandw-black-body);
+}
+
+.csd__limit-error {
+  color: var(--text-system-text-error);
 }
 
 .csd__btn {

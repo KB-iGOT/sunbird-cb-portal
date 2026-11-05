@@ -1,4 +1,7 @@
-import { DEFAULT_MILESTONE_LABELS, formatLabel, formatOrdinalDate, resolveMilestoneLabels } from './campaign-microsite.model'
+import { FormBuilder } from '@angular/forms'
+import {
+  DEFAULT_MILESTONE_LABELS, answerLimitFor, buildSurveyForm, formatLabel, formatOrdinalDate, resolveMilestoneLabels,
+} from './campaign-microsite.model'
 
 describe('resolveMilestoneLabels', () => {
   it('returns the defaults when the page config has no labels', () => {
@@ -38,5 +41,44 @@ describe('formatLabel', () => {
   it('fills known placeholders and leaves unknown ones as written', () => {
     expect(formatLabel('Start Milestone {{number}}', { number: 2 })).toBe('Start Milestone 2')
     expect(formatLabel('{{ number }} of {{total}}', { number: 1 })).toBe('1 of {{total}}')
+  })
+})
+
+describe('survey answer limits', () => {
+  const limits = [{ questions: [1, 3, 4], minLength: 70, maxLength: 300 }]
+  const fields = [
+    { id: 'h', fieldType: 'heading' },
+    { id: 'q1', fieldType: 'textarea', isRequired: true },
+    { id: 'q2', fieldType: 'textarea', isRequired: true },
+    { id: 'q3', fieldType: 'textarea', isRequired: true },
+  ]
+
+  it('matches by answerable-question position (headings not counted) or by field id', () => {
+    expect(answerLimitFor(limits, { id: 'x', fieldType: 'textarea' }, 3)).toEqual({ minLength: 70, maxLength: 300 })
+    expect(answerLimitFor(limits, { id: 'x', fieldType: 'textarea' }, 2)).toBeUndefined()
+    expect(answerLimitFor([{ ids: ['x'], maxLength: 10 }], { id: 'x', fieldType: 'text' }, 9)).toEqual({ maxLength: 10 })
+    // matching entries merge, so a hint can sit in its own entry
+    expect(answerLimitFor([...limits, { questions: [3], hint: ' Example ' }], { id: 'x', fieldType: 'textarea' }, 3))
+      .toEqual({ minLength: 70, maxLength: 300, hint: 'Example' })
+    expect(answerLimitFor(undefined, { id: 'x', fieldType: 'text' }, 1)).toBeUndefined()
+  })
+
+  it('enforces the minimum on trimmed text and caps typing at the maximum', () => {
+    const model = buildSurveyForm(new FormBuilder(), fields, limits)
+    const q1 = model.controls[0].controls.answer
+    const q2 = model.controls[1].controls.answer
+
+    q1.setValue(`  ${'a'.repeat(69)}  `)
+    expect(q1.hasError('minlength')).toBe(true)
+    q1.setValue('a'.repeat(70))
+    expect(q1.valid).toBe(true)
+    q1.setValue('a'.repeat(350))
+    expect(q1.value.length).toBe(300)
+    expect(q1.valid).toBe(true)
+
+    q2.setValue('short')
+    expect(q2.valid).toBe(true)
+    expect(model.parentFields[2].answerLimit).toBeUndefined()
+    expect(model.parentFields[3].answerLimit).toEqual({ minLength: 70, maxLength: 300 })
   })
 })
