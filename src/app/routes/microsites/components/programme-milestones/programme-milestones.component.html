@@ -6,7 +6,7 @@
 
   @if (isJourneyComplete()) {
   <div class="cm-milestones__complete flex items-center gap-2 mb-4 px-4 py-3 rounded-lg text-sm font-bold" role="status">
-    {{ labels.journeyComplete | translate }}
+    {{ labels().journeyComplete }}
   </div>
   }
 
@@ -15,6 +15,9 @@
     @for (milestone of milestones(); track milestone.order; let i = $index) {
       @if (milestone.enabled !== false) {
         <sb-uic-milestone-card [milestone]="milestone" [state]="stateAt(i)" [isLoading]="isLoading()"
+          [isBusy]="enrollingOrder() === milestone.order"
+          [ctaLabel]="ctas()[i]?.label ?? null" [ctaDisabled]="!!ctas()[i]?.disabled"
+          [availableFrom]="availableFrom()[i]"
           (milestoneClick)="openMilestone($event)">
         </sb-uic-milestone-card>
       }
@@ -23,8 +26,9 @@
 </section>
 
 @if (showPopup()) {
-<ws-app-milestone-popup [config]="config()?.popup" [milestones]="milestones()" [states]="states() || []"
-  (start)="startFromPopup($event)" (closed)="closePopup()">
+<ws-app-milestone-popup [config]="config()?.popup" [milestones]="milestones()" [states]="states() || []" [labels]="labels()"
+  [availableFrom]="availableFrom()"
+  (closed)="closePopup()">
 </ws-app-milestone-popup>
 }
 }

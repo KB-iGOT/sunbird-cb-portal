@@ -117,11 +117,13 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
   // Add more prefixes here when another route needs the same treatment.
   fullWidthMobileRoutes = ['/app/learn/bharat-kalp']
   isFullWidthMobileRoute = signal(false)
-  surfaceBackgroundRoutes = ['/app/person-profile/karma-wallet', '/app/plans']
+  surfaceBackgroundRoutes = ['/app/person-profile/karma-wallet', '/app/plans', '/app/leadership-as-mission-2026']
   usesSurfaceBackground = signal(false)
   // Routes laid out like the home page: white ground, docked sidebar that keeps the user's
   // open/closed choice, and the overrideThemeChanges background.
-  homeLayoutRoutes = ['/app/leadership-as-mission-2026']
+  // The campaign microsite (/app/leadership-as-mission-2026) is deliberately not here: its sidebar is an
+  // overlay drawer; it keeps the white ground via surfaceBackgroundRoutes.
+  homeLayoutRoutes: string[] = []
   usesHomeLayout = signal(false)
   hasHomeLayout = computed(() => this.isHomePage() || this.usesHomeLayout())
   navBarOpenStatusBasedOnNav = signal(true)

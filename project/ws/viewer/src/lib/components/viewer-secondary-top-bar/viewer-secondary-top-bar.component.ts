@@ -11,6 +11,7 @@ import { CourseCompletionDialogComponent } from '../course-completion-dialog/cou
 import { PdfScormDataService } from '../../pdf-scorm-data-service'
 import { AppTocService, ViewerDataService } from '@sunbird-cb/toc'
 import { WidgetContentLibService } from '@sunbird-cb/consumption'
+import { IViewerRedirect, VIEWER_REDIRECT_PARAM, getViewerRedirect } from '../../microsite-redirect.util'
 // import { WidgetContentService as WidgetContentServiceUtils } from '@sunbird-cb/utils-v2'
 
 @Component({
@@ -71,6 +72,8 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy, AfterV
   // primaryCategory = NsContent.EPrimaryCategory
   contentPrimaryCategory: any
   isNextResourceLocked = false
+  /** Set when the player was opened with `?redirectUrl=` (e.g. from the campaign microsite) */
+  micrositeRedirect: IViewerRedirect | null = null
   constructor(
     private activatedRoute: ActivatedRoute,
     private domSanitizer: DomSanitizer,
@@ -101,6 +104,7 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy, AfterV
   }
 
   ngOnInit() {
+    this.micrositeRedirect = getViewerRedirect(this.router, this.activatedRoute.snapshot.queryParams[VIEWER_REDIRECT_PARAM])
     // this.getAuthDataIdentifer()
     this.enrollmentList = this.activatedRoute.snapshot.data.enrollmentData
       && this.activatedRoute.snapshot.data.enrollmentData.data || []
@@ -238,6 +242,7 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy, AfterV
             ...(data.queryMLParams ? data.queryMLParams : null),
             ...(window.location.href.includes('editMode=true') ? { editMode: true } : {}),
             ...(window.location.href.includes('preAssessment=true') ? { preAssessment: true } : {}),
+            ...(this.micrositeRedirect ? { [VIEWER_REDIRECT_PARAM]: this.micrositeRedirect.fullUrl } : {}),
           },
           fragment: '',
         }
@@ -276,6 +281,7 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy, AfterV
             ...(data.queryMLParams ? data.queryMLParams : null),
             ...(window.location.href.includes('editMode=true') ? { editMode: true } : {}),
             ...(window.location.href.includes('preAssessment=true') ? { preAssessment: true } : {}),
+            ...(this.micrositeRedirect ? { [VIEWER_REDIRECT_PARAM]: this.micrositeRedirect.fullUrl } : {}),
           },
           fragment: '',
         }
@@ -335,6 +341,7 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy, AfterV
     this.paramSubscription = this.activatedRoute.queryParamMap.subscribe(async params => {
       this.collectionId = params.get('collectionId') as string
       this.isPreview = params.get('preview') === 'true' ? true : false
+      this.micrositeRedirect = getViewerRedirect(this.router, params.get(VIEWER_REDIRECT_PARAM))
       const enrollList: any = this.widgetLibSvc.getEnrolledDataFromList(this.enrollmentList.courses, this.collectionId) || '{}'
       this.currentDataFromEnrollList = enrollList
     })
@@ -480,6 +487,11 @@ export class ViewerSecondaryTopBarComponent implements OnInit, OnDestroy, AfterV
   }
 
   finishDialog() {
+    // opened from a microsite: return there directly, no completion dialog
+    if (this.micrositeRedirect) {
+      this.router.navigateByUrl(this.micrositeRedirect.fullUrl)
+      return
+    }
     if (window.location.href.includes('preAssessment=true')) {
       this.router.navigateByUrl(`app/toc/${this.collectionId}/overview`)
     }

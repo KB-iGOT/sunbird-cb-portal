@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing'
-import { TranslateModule } from '@ngx-translate/core'
 import { NsCampaignMilestone } from '@sunbird-cb/consumption'
-import { NsCampaignMicrosite } from '../../models/campaign-microsite.model'
+import { NsCampaignMicrosite, resolveMilestoneLabels } from '../../models/campaign-microsite.model'
 import { MilestonePopupComponent } from './milestone-popup.component'
 
 const milestone = (order: number, type: NsCampaignMilestone.TMilestoneType = 'assessment') => ({
@@ -26,13 +25,12 @@ const CONFIG: NsCampaignMicrosite.IMilestonePopup = {
   ],
 }
 
+/** Default text (no `labels` input set) */
 const KEY = {
-  availableNow: 'campaignMicrosite.milestonePopup.availableNow',
-  inProgress: 'campaignMicrosite.milestonePopup.inProgress',
-  completed: 'campaignMicrosite.milestonePopup.completed',
-  locked: 'campaignMicrosite.milestoneCard.locked',
-  start: 'campaignMicrosite.milestonePopup.start',
-  resume: 'campaignMicrosite.milestonePopup.resume',
+  availableNow: 'Available now',
+  inProgress: 'In progress',
+  completed: 'Completed',
+  locked: 'Locked',
 }
 
 describe('MilestonePopupComponent', () => {
@@ -47,11 +45,10 @@ describe('MilestonePopupComponent', () => {
     fixture.detectChanges()
   }
   const statuses = () => Array.from(el.querySelectorAll('.mp-step__status')).map(s => s.textContent?.trim())
-  const cta = () => el.querySelector<HTMLButtonElement>('.mp-cta')
+  const okay = () => el.querySelector<HTMLButtonElement>('.mp-cta')
 
   beforeEach(() => {
-    // No translations loaded, so the translate pipe renders the keys
-    TestBed.configureTestingModule({ imports: [MilestonePopupComponent, TranslateModule.forRoot()] })
+    TestBed.configureTestingModule({ imports: [MilestonePopupComponent] })
     fixture = TestBed.createComponent(MilestonePopupComponent)
     component = fixture.componentInstance
     el = fixture.nativeElement
@@ -76,17 +73,45 @@ describe('MilestonePopupComponent', () => {
     expect(steps.map(s => s.color)).toEqual(['navy', 'green', 'teal', 'orange'])
   })
 
-  it('without a milestoneLabel the step label is the "Milestone N" key', () => {
+  it('without a milestoneLabel the step label is "Milestone N"', () => {
     fixture.componentRef.setInput('milestones', MILESTONES.map(m => ({ ...m, milestoneLabel: '' })))
     fixture.componentRef.setInput('states', ['notStarted', 'locked', 'locked', 'locked'])
     fixture.detectChanges()
     const labels = Array.from(el.querySelectorAll('.mp-step__label')).map(l => l.textContent?.trim())
-    expect(labels).toEqual(Array(4).fill('campaignMicrosite.milestonePopup.milestone'))
+    expect(labels).toEqual(['Milestone 1', 'Milestone 2', 'Milestone 3', 'Milestone 4'])
   })
 
-  it('translates the close button label', () => {
+  it('labels the close button', () => {
     render(['notStarted', 'locked', 'locked', 'locked'])
-    expect(el.querySelector('.mp-close')?.getAttribute('aria-label')).toBe('campaignMicrosite.close')
+    expect(el.querySelector('.mp-close')?.getAttribute('aria-label')).toBe('Close')
+  })
+
+  it('uses text from the page config labels, with {{number}} filled in', () => {
+    fixture.componentRef.setInput('labels', resolveMilestoneLabels({
+      close: 'Dismiss',
+      popup: { availableNow: 'Open', locked: 'Not yet', okay: 'Got it', milestone: 'Step {{number}}' },
+    }))
+    fixture.componentRef.setInput('config', CONFIG)
+    fixture.componentRef.setInput('milestones', MILESTONES.map(m => ({ ...m, milestoneLabel: '' })))
+    fixture.componentRef.setInput('states', ['notStarted', 'locked', 'locked', 'locked'])
+    fixture.detectChanges()
+    expect(statuses()).toEqual(['Open', 'Not yet', 'Not yet', 'Not yet'])
+    expect(okay()?.textContent?.trim()).toBe('Got it')
+    expect(el.querySelector('.mp-step__label')?.textContent?.trim()).toBe('Step 1')
+    expect(el.querySelector('.mp-close')?.getAttribute('aria-label')).toBe('Dismiss')
+  })
+
+  it('milestones waiting for the event date show the "Available from" text', () => {
+    fixture.componentRef.setInput('availableFrom', [null, 'Available from 17th Nov', 'Available from 17th Nov', null])
+    render(['completed', 'notStarted', 'notStarted', 'notStarted'])
+    expect(statuses()).toEqual([KEY.completed, 'Available from 17th Nov', 'Available from 17th Nov', KEY.availableNow])
+    expect(component.steps()[1].tone).toBe('muted')
+  })
+
+  it('a completed milestone shows Completed even while the date lock applies', () => {
+    fixture.componentRef.setInput('availableFrom', [null, 'Available from 17th Nov', null, null])
+    render(['completed', 'completed', 'notStarted', 'locked'])
+    expect(statuses()[1]).toBe(KEY.completed)
   })
 
   it('draws a connector after every step but the last', () => {
@@ -97,19 +122,11 @@ describe('MilestonePopupComponent', () => {
   it('new journey: first available, the rest locked', () => {
     render(['notStarted', 'locked', 'locked', 'locked'])
     expect(statuses()).toEqual([KEY.availableNow, KEY.locked, KEY.locked, KEY.locked])
-    expect(cta()?.textContent).toContain(KEY.start)
-    expect(component.cta()).toEqual({ label: KEY.start, number: 1 })
   })
 
-  it('mid journey: completed steps, and Resume for one in progress', () => {
+  it('mid journey: completed steps and one in progress', () => {
     render(['completed', 'inProgress', 'locked', 'locked'])
     expect(statuses()).toEqual([KEY.completed, KEY.inProgress, KEY.locked, KEY.locked])
-    expect(component.cta()).toEqual({ label: KEY.resume, number: 2 })
-  })
-
-  it('CTA targets the first open milestone, skipping a locked one before it', () => {
-    render(['locked', 'completed', 'notStarted', 'locked'])
-    expect(component.cta()).toEqual({ label: KEY.start, number: 3 })
   })
 
   it('a disabled milestone shows as locked whatever its state', () => {
@@ -119,22 +136,13 @@ describe('MilestonePopupComponent', () => {
     expect(statuses()[1]).toBe(KEY.locked)
   })
 
-  it('no CTA when nothing is open', () => {
-    render(['completed', 'locked', 'locked', 'locked'])
-    expect(cta()).toBeNull()
-  })
-
-  it('no CTA once the journey is complete', () => {
-    render(['completed', 'completed', 'completed', 'completed'])
-    expect(cta()).toBeNull()
-  })
-
-  it('CTA emits the current milestone', () => {
+  it('the Okay button only closes the popup', () => {
     render(['completed', 'notStarted', 'locked', 'locked'])
-    const started = jest.fn()
-    component.start.subscribe(started)
-    cta()?.click()
-    expect(started).toHaveBeenCalledWith(MILESTONES[1])
+    const closed = jest.fn()
+    component.closed.subscribe(closed)
+    expect(okay()?.textContent?.trim()).toBe('Okay')
+    okay()?.click()
+    expect(closed).toHaveBeenCalledTimes(1)
   })
 
   it('emits closed from the close button, the backdrop and Escape, not from inside the dialog', () => {

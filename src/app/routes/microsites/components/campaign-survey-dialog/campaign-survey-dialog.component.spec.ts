@@ -3,7 +3,6 @@ import { ComponentFixture, TestBed } from '@angular/core/testing'
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms'
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
-import { TranslateModule } from '@ngx-translate/core'
 import { NsCampaignMilestone } from '@sunbird-cb/consumption'
 import { AppTocService } from '@sunbird-cb/toc'
 import { of, throwError } from 'rxjs'
@@ -90,7 +89,7 @@ describe('CampaignSurveyDialogComponent', () => {
     dialogRef = { close: jest.fn() }
     snackBar = { open: jest.fn() }
     TestBed.configureTestingModule({
-      imports: [CampaignSurveyDialogComponent, TranslateModule.forRoot()],
+      imports: [CampaignSurveyDialogComponent],
       providers: [
         { provide: AppTocService, useValue: tocSvc },
         { provide: MatDialogRef, useValue: dialogRef },
@@ -100,7 +99,7 @@ describe('CampaignSurveyDialogComponent', () => {
     })
     // The TOC question components are covered by the toc library; stub them here
     TestBed.overrideComponent(CampaignSurveyDialogComponent, {
-      set: { imports: [ReactiveFormsModule, TranslateModule], schemas: [CUSTOM_ELEMENTS_SCHEMA] },
+      set: { imports: [ReactiveFormsModule], schemas: [CUSTOM_ELEMENTS_SCHEMA] },
     })
   })
 
@@ -154,7 +153,7 @@ describe('CampaignSurveyDialogComponent', () => {
       contextOrgId: '',
     })
     expect(dialogRef.close).toHaveBeenCalledWith(true)
-    expect(snackBar.open).toHaveBeenCalledWith('campaignMicrosite.survey.submitted', 'X', { duration: 5000 })
+    expect(snackBar.open).toHaveBeenCalledWith('Thank you! Your response has been submitted.', 'X', { duration: 5000 })
   })
 
   it('does not submit an invalid form', () => {
@@ -165,7 +164,7 @@ describe('CampaignSurveyDialogComponent', () => {
 
   it.each([
     ['a failed status', of({ params: { status: 'failed' }, errorMessage: 'Already submitted' }), 'Already submitted'],
-    ['an HTTP error', throwError(() => new Error('500')), 'campaignMicrosite.survey.submitError'],
+    ['an HTTP error', throwError(() => new Error('500')), 'Something went wrong. Please try again.'],
   ])('stays open and shows a message on %s', (_name, result, message) => {
     tocSvc.submitForm.mockReturnValue(result)
     create()

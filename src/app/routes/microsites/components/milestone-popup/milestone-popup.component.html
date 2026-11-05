@@ -3,7 +3,7 @@
     aria-labelledby="mp-title" (click)="$event.stopPropagation()">
 
     <button type="button" class="mp-close absolute top-4 right-4 flex items-center justify-center w-10 h-10 p-0 rounded-full cursor-pointer"
-      [attr.aria-label]="labels.close | translate" (click)="closed.emit()">
+      [attr.aria-label]="labels().close" (click)="closed.emit()">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
       </svg>
@@ -26,7 +26,7 @@
         @for (step of steps(); track step.number; let last = $last) {
         <li class="flex flex-col gap-3">
           <div class="flex items-center gap-4">
-            <span class="mp-step__label text-sm font-semibold uppercase tracking-widest whitespace-nowrap">{{ step.label || (labels.milestone | translate: { number: step.number }) }}</span>
+            <span class="mp-step__label text-sm font-semibold uppercase tracking-widest whitespace-nowrap">{{ step.label }}</span>
             @if (!last) {
             <span class="mp-step__line flex-1" aria-hidden="true"></span>
             }
@@ -64,7 +64,7 @@
           </div>
 
           <span class="mp-step__status self-start px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider"
-            [class]="'mp-step__status--' + step.tone">{{ step.status | translate: { number: step.number - 1 } }}</span>
+            [class]="'mp-step__status--' + step.tone">{{ step.status }}</span>
         </li>
         }
       </ol>
@@ -82,10 +82,8 @@
 
       <footer class="flex flex-wrap items-center justify-between gap-4">
         <p class="mp-help m-0 text-sm leading-relaxed">{{ config()?.helpText }}</p>
-        @if (cta(); as action) {
-        <button #cta type="button" class="mp-cta px-8 py-3 border-0 rounded-full text-base font-bold cursor-pointer"
-          (click)="onStart()">{{ action.label | translate: { number: action.number } }} →</button>
-        }
+        <button #ok type="button" class="mp-cta px-8 py-3 border-0 rounded-full text-base font-bold cursor-pointer"
+          (click)="closed.emit()">{{ labels().popup.okay }}</button>
       </footer>
     </div>
   </div>

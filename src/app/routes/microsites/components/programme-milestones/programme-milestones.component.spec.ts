@@ -3,15 +3,15 @@ import { ComponentFixture, TestBed } from '@angular/core/testing'
 import { MatDialog } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { Router } from '@angular/router'
-import { TranslateModule } from '@ngx-translate/core'
 import { NsCampaignMilestone } from '@sunbird-cb/consumption'
 import { Subject, of } from 'rxjs'
 import { NsCampaignMicrosite } from '../../models/campaign-microsite.model'
 import { MilestoneStatusService } from '../../services/milestone-status.service'
 import { CampaignSurveyDialogComponent } from '../campaign-survey-dialog/campaign-survey-dialog.component'
-import { MILESTONE_POPUP_SEEN_KEY, ProgrammeMilestonesComponent, isWithinEventWindow } from './programme-milestones.component'
+import { MILESTONE_POPUP_SEEN_KEY, ProgrammeMilestonesComponent, buildPlayerRoute, eventCta, eventPhase } from './programme-milestones.component'
+import { DEFAULT_MILESTONE_LABELS } from '../../models/campaign-microsite.model'
 
-const milestone = (order: number, overrides: Partial<NsCampaignMilestone.IMilestone> = {}) => ({
+const milestone = (order: number, overrides: Partial<NsCampaignMicrosite.IMilestone> = {}) => ({
   order,
   type: 'assessment',
   identifier: `do_${order}`,
@@ -24,7 +24,7 @@ const milestone = (order: number, overrides: Partial<NsCampaignMilestone.IMilest
   tags: [],
   provider: { name: 'Karmayogi Bharat', logo: '' },
   ...overrides,
-}) as NsCampaignMilestone.IMilestone
+}) as NsCampaignMicrosite.IMilestone
 
 const OPEN_WINDOW: NsCampaignMicrosite.IEventDetails = { startDate: '01-01-2000', endDate: '31-12-2099' }
 
@@ -32,8 +32,8 @@ describe('ProgrammeMilestonesComponent', () => {
   let fixture: ComponentFixture<ProgrammeMilestonesComponent>
   let component: ProgrammeMilestonesComponent
   let el: HTMLElement
-  let statusSvc: { resolveStates: jest.Mock }
-  let router: { navigate: jest.Mock, navigateByUrl: jest.Mock }
+  let statusSvc: { resolveStates: jest.Mock, enrolledBatchId: jest.Mock, enrollAssessment: jest.Mock, isEventEnrolled: jest.Mock, enrollEvent: jest.Mock }
+  let router: { navigate: jest.Mock, navigateByUrl: jest.Mock, url: string }
   let dialog: { open: jest.Mock }
   let dialogResult: Subject<boolean | undefined>
   let snackBar: { open: jest.Mock }
@@ -50,13 +50,16 @@ describe('ProgrammeMilestonesComponent', () => {
   const cards = () => Array.from(el.querySelectorAll('sb-uic-milestone-card')) as any[]
 
   beforeEach(() => {
-    statusSvc = { resolveStates: jest.fn(() => of([])) }
-    router = { navigate: jest.fn(), navigateByUrl: jest.fn() }
+    statusSvc = {
+      resolveStates: jest.fn(() => of([])), enrolledBatchId: jest.fn(), enrollAssessment: jest.fn(),
+      isEventEnrolled: jest.fn(() => false), enrollEvent: jest.fn(),
+    }
+    router = { navigate: jest.fn(), navigateByUrl: jest.fn(), url: '/app/microsites/campaign/kalp?tab=1' }
     dialogResult = new Subject()
     dialog = { open: jest.fn(() => ({ afterClosed: () => dialogResult })) }
     snackBar = { open: jest.fn() }
     TestBed.configureTestingModule({
-      imports: [ProgrammeMilestonesComponent, TranslateModule.forRoot()],
+      imports: [ProgrammeMilestonesComponent],
       providers: [
         { provide: MilestoneStatusService, useValue: statusSvc },
         { provide: Router, useValue: router },
@@ -67,7 +70,7 @@ describe('ProgrammeMilestonesComponent', () => {
     // The card is covered by its own specs in the consumption library. Through npm link it also
     // resolves a second @angular/core under Jest (the app build uses preserveSymlinks), so stub it.
     TestBed.overrideComponent(ProgrammeMilestonesComponent, {
-      set: { imports: [TranslateModule], schemas: [CUSTOM_ELEMENTS_SCHEMA] },
+      set: { imports: [], schemas: [CUSTOM_ELEMENTS_SCHEMA] },
     })
     fixture = TestBed.createComponent(ProgrammeMilestonesComponent)
     component = fixture.componentInstance
@@ -85,11 +88,46 @@ describe('ProgrammeMilestonesComponent', () => {
     it.each([
       ['disabled', { enabled: false, items: [milestone(1)] }, OPEN_WINDOW],
       ['empty', { items: [] }, OPEN_WINDOW],
-      ['outside the event window', { items: [milestone(1)] }, { startDate: '01-01-2000', endDate: '02-01-2000' }],
     ])('hidden and no API call when %s', (_name, config, window) => {
       render(config as any, window)
       expect(el.querySelector('section')).toBeNull()
       expect(statusSvc.resolveStates).not.toHaveBeenCalled()
+    })
+
+    it.each([
+      ['before the event start date', { startDate: '17-11-2099', endDate: '28-11-2099' }],
+      ['after the event end date', { startDate: '01-01-2000', endDate: '02-01-2000' }],
+    ])('still shown %s (dates only drive labels)', (_name, window) => {
+      statusSvc.resolveStates.mockReturnValue(of(['notStarted']))
+      render({ items: [milestone(1)] }, window)
+      expect(cards().length).toBe(1)
+      expect(statusSvc.resolveStates).toHaveBeenCalled()
+    })
+
+    it('availableFrom: only lockUntilEventStart items, only before eventDetails.startDate', () => {
+      statusSvc.resolveStates.mockReturnValue(of(['completed', 'notStarted', 'notStarted', 'notStarted']))
+      const items = [milestone(1), milestone(2, { lockUntilEventStart: true }), milestone(3, { lockUntilEventStart: true }), milestone(4)]
+      render({ items }, { startDate: '17-11-2026', endDate: '28-11-2026' })
+      component.now.set(new Date(2026, 10, 5).getTime())
+      fixture.detectChanges()
+      expect(component.availableFrom()).toEqual([null, 'Available from 17th Nov', 'Available from 17th Nov', null])
+      component.now.set(new Date(2026, 10, 17).getTime())
+      expect(component.availableFrom()).toEqual([null, null, null, null])
+    })
+
+    it('passes the "Available from" text to each waiting card', () => {
+      statusSvc.resolveStates.mockReturnValue(of(['completed', 'notStarted', 'notStarted', 'notStarted']))
+      const items = [milestone(1), milestone(2, { lockUntilEventStart: true }), milestone(3, { lockUntilEventStart: true }), milestone(4)]
+      render({ items }, { startDate: '17-11-2026', endDate: '28-11-2026' })
+      component.now.set(new Date(2026, 10, 5).getTime())
+      fixture.detectChanges()
+      expect(cards().map(card => card.availableFrom)).toEqual([null, 'Available from 17th Nov', 'Available from 17th Nov', null])
+    })
+
+    it('availableFrom: missing or invalid start date locks nothing', () => {
+      statusSvc.resolveStates.mockReturnValue(of(['notStarted']))
+      render({ items: [milestone(1, { lockUntilEventStart: true })] }, { startDate: '<START>', endDate: '' })
+      expect(component.availableFrom()).toEqual([null])
     })
 
     it('sorts by order before resolving and rendering', () => {
@@ -123,7 +161,7 @@ describe('ProgrammeMilestonesComponent', () => {
     it('shows the journey-complete banner only when every milestone is completed', () => {
       statusSvc.resolveStates.mockReturnValue(of(['completed', 'completed']))
       render({ items: [milestone(1), milestone(2)] })
-      expect(el.querySelector('.cm-milestones__complete')?.textContent).toContain('campaignMicrosite.milestones.journeyComplete')
+      expect(el.querySelector('.cm-milestones__complete')?.textContent).toContain('Journey complete!')
     })
 
     it('disabled milestones do not hold back the journey-complete banner', () => {
@@ -142,6 +180,224 @@ describe('ProgrammeMilestonesComponent', () => {
       statusSvc.resolveStates.mockReturnValue(of(['completed', 'notStarted']))
       render({ items: [milestone(1), milestone(2)] })
       expect(el.querySelector('.cm-milestones__complete')).toBeNull()
+    })
+  })
+
+  describe('assessment start: enroll then play (guide §7 stage 7)', () => {
+    const PLAYER: NsCampaignMicrosite.IMilestonePlayerRoute = {
+      path: '/viewer/practice/{resourceId}',
+      resourceId: 'do_qs',
+      queryParams: {
+        primaryCategory: 'Course Assessment',
+        collectionId: '{identifier}',
+        batchId: '{batchId}',
+        courseName: '{name}',
+        ML: '{language}',
+        fromAITutor: 'false',
+      },
+    }
+    const assessment = (overrides: Partial<NsCampaignMicrosite.IMilestone> = {}) =>
+      milestone(1, { batchId: '', language: 'hindi', player: PLAYER, ...overrides })
+    const flush = () => new Promise(resolve => setTimeout(resolve))
+
+    beforeEach(() => render({ items: [assessment()] }))
+
+    it('not enrolled → calls auto-enrollment once, then opens the player with the enrolled batch', async () => {
+      statusSvc.enrollAssessment.mockResolvedValue('b_enrolled')
+      component.openMilestone(assessment())
+      component.openMilestone(assessment()) // double click while enrolling
+      expect(component.enrollingOrder()).toBe(1)
+      await flush()
+
+      expect(statusSvc.enrollAssessment).toHaveBeenCalledTimes(1)
+      expect(statusSvc.enrollAssessment).toHaveBeenCalledWith(expect.objectContaining({ identifier: 'do_1', language: 'hindi' }))
+      expect(router.navigate).toHaveBeenCalledTimes(1)
+      expect(router.navigate).toHaveBeenCalledWith(['/', 'viewer', 'practice', 'do_qs'], {
+        queryParams: {
+          primaryCategory: 'Course Assessment',
+          collectionId: 'do_1',
+          batchId: 'b_enrolled',
+          courseName: 'Milestone name 1',
+          ML: 'hindi',
+          fromAITutor: 'false',
+          redirectUrl: '/app/microsites/campaign/kalp?tab=1',
+        },
+      })
+      expect(component.enrollingOrder()).toBeNull()
+    })
+
+    it('already enrolled → skips auto-enrollment and opens the player directly', async () => {
+      statusSvc.enrolledBatchId.mockReturnValue('b_existing')
+      component.openMilestone(assessment())
+      await flush()
+      expect(statusSvc.enrollAssessment).not.toHaveBeenCalled()
+      expect(router.navigate.mock.calls[0][1].queryParams.batchId).toBe('b_existing')
+    })
+
+    it('enrollment failure → shows an error, stays on the page and re-enables the button', async () => {
+      statusSvc.enrollAssessment.mockRejectedValue({ error: { params: { errmsg: 'Batch full' } } })
+      jest.spyOn(console, 'error').mockImplementation(() => undefined)
+      component.openMilestone(assessment())
+      await flush()
+      expect(router.navigate).not.toHaveBeenCalled()
+      expect(snackBar.open).toHaveBeenCalledWith('Batch full', 'X', { duration: 5000 })
+      expect(component.enrollingOrder()).toBeNull()
+    })
+
+    it('placeholder resourceId → falls back to the course overview', () => {
+      component.openMilestone(assessment({ player: { ...PLAYER, resourceId: '<QUESTION_SET_ID>' } }))
+      expect(statusSvc.enrollAssessment).not.toHaveBeenCalled()
+      expect(router.navigate).toHaveBeenCalledWith(['/app/toc', 'do_1', 'overview'], { queryParams: {} })
+    })
+
+    it('buildPlayerRoute drops query params whose token resolves empty', () => {
+      expect(buildPlayerRoute(assessment(), undefined)?.queryParams.batchId).toBeUndefined()
+    })
+  })
+
+  describe('event: phase, button and register-then-play', () => {
+    const START = '2026-11-17T10:00:00+05:30'
+    const END = '2026-11-17T12:30:00+05:30'
+    const at = (iso: string) => new Date(iso).getTime()
+    const PLAYER: NsCampaignMicrosite.IMilestonePlayerRoute = {
+      path: '/app/event-hub/player/{identifier}/youtube/{resourceId}',
+      resourceId: 'vid_1',
+      queryParams: { isEnrolled: 'true' },
+    }
+    const event = (overrides: Partial<NsCampaignMicrosite.IMilestone> = {}) =>
+      milestone(2, { type: 'event', identifier: 'do_event', batchId: 'b_event', startDateTime: START, endDateTime: END, player: PLAYER, ...overrides })
+    const flush = () => new Promise(resolve => setTimeout(resolve))
+    const L = DEFAULT_MILESTONE_LABELS.event
+
+    it.each([
+      ['before start', '2026-11-17T09:59:00+05:30', 'upcoming'],
+      ['at start', START, 'live'],
+      ['during', '2026-11-17T11:00:00+05:30', 'live'],
+      ['at end', END, 'ended'],
+      ['after end', '2026-11-18T00:00:00+05:30', 'ended'],
+    ])('phase %s', (_name, now, phase) => {
+      expect(eventPhase(event(), at(now))).toBe(phase)
+    })
+
+    it('missing or invalid times never block the event', () => {
+      expect(eventPhase(event({ startDateTime: undefined, endDateTime: undefined }), at(START))).toBe('live')
+      expect(eventPhase(event({ startDateTime: 'not a date', endDateTime: '<END>' }), at(START))).toBe('live')
+    })
+
+    it.each([
+      ['upcoming', false, L.register, false],
+      ['live', false, L.register, false],
+      ['upcoming', true, L.upcoming, true],
+      ['live', true, L.join, false],
+      ['ended', false, L.register, false],
+      ['ended', true, L.recording, false],
+    ] as const)('%s, enrolled=%s → %s', (phase, enrolled, label, disabled) => {
+      expect(eventCta(phase, enrolled, L)).toEqual({ label, disabled })
+    })
+
+    it('binds the event button to the card; other types and locked events keep the default', () => {
+      component.now.set(at('2026-11-17T11:00:00+05:30'))
+      statusSvc.isEventEnrolled.mockReturnValue(true)
+      statusSvc.resolveStates.mockReturnValue(of(['completed', 'notStarted', 'locked']))
+      render({ items: [milestone(1), event(), milestone(3, { type: 'event' })] })
+      expect(cards().map(card => [card.ctaLabel, card.ctaDisabled])).toEqual([[null, false], [L.join, false], [null, false]])
+    })
+
+    it('the button follows the clock: yet to start → Join event', () => {
+      component.now.set(at('2026-11-17T09:59:00+05:30'))
+      statusSvc.isEventEnrolled.mockReturnValue(true)
+      statusSvc.resolveStates.mockReturnValue(of(['notStarted']))
+      render({ items: [event()] })
+      expect([cards()[0].ctaLabel, cards()[0].ctaDisabled]).toEqual([L.upcoming, true])
+      component.now.set(at(START))
+      fixture.detectChanges()
+      expect([cards()[0].ctaLabel, cards()[0].ctaDisabled]).toEqual([L.join, false])
+    })
+
+    it('uses event labels from the page config', () => {
+      component.now.set(at('2026-11-17T09:00:00+05:30'))
+      statusSvc.resolveStates.mockReturnValue(of(['notStarted']))
+      render({ items: [event()], labels: { event: { register: 'Sign up' } } })
+      expect(cards()[0].ctaLabel).toBe('Sign up')
+    })
+
+    describe('click', () => {
+      beforeEach(() => render({ items: [event()] }))
+      afterEach(() => jest.restoreAllMocks())
+
+      it('not registered, event live → registers once, refreshes states and opens the player', async () => {
+        jest.spyOn(Date, 'now').mockReturnValue(at('2026-11-17T11:00:00+05:30'))
+        statusSvc.enrollEvent.mockResolvedValue(undefined)
+        const calls = statusSvc.resolveStates.mock.calls.length
+        component.openMilestone(event())
+        component.openMilestone(event()) // double click while registering
+        await flush()
+        fixture.detectChanges()
+        expect(statusSvc.enrollEvent).toHaveBeenCalledTimes(1)
+        expect(statusSvc.resolveStates.mock.calls.length).toBeGreaterThan(calls)
+        expect(router.navigate).toHaveBeenCalledWith(['/', 'app', 'event-hub', 'player', 'do_event', 'youtube', 'vid_1'], {
+          queryParams: { isEnrolled: 'true', redirectUrl: '/app/microsites/campaign/kalp?tab=1' },
+        })
+      })
+
+      it('not registered, event upcoming → registers and stays with a confirmation', async () => {
+        jest.spyOn(Date, 'now').mockReturnValue(at('2026-11-16T10:00:00+05:30'))
+        statusSvc.enrollEvent.mockResolvedValue(undefined)
+        component.openMilestone(event())
+        await flush()
+        expect(statusSvc.enrollEvent).toHaveBeenCalledTimes(1)
+        expect(router.navigate).not.toHaveBeenCalled()
+        expect(snackBar.open).toHaveBeenCalledWith(L.registered, 'X', { duration: 5000 })
+      })
+
+      it('registered, event upcoming → does nothing', async () => {
+        jest.spyOn(Date, 'now').mockReturnValue(at('2026-11-16T10:00:00+05:30'))
+        statusSvc.isEventEnrolled.mockReturnValue(true)
+        component.openMilestone(event())
+        await flush()
+        expect(statusSvc.enrollEvent).not.toHaveBeenCalled()
+        expect(router.navigate).not.toHaveBeenCalled()
+      })
+
+      it('not registered, event ended → shows Register, registers, then opens the recording', async () => {
+        component.now.set(at('2026-11-20T10:00:00+05:30'))
+        statusSvc.resolveStates.mockReturnValue(of(['notStarted']))
+        render({ items: [event()] })
+        expect([cards()[0].ctaLabel, cards()[0].ctaDisabled]).toEqual([L.register, false])
+
+        jest.spyOn(Date, 'now').mockReturnValue(at('2026-11-20T10:00:00+05:30'))
+        statusSvc.enrollEvent.mockResolvedValue(undefined)
+        component.openMilestone(event())
+        await flush()
+        expect(statusSvc.enrollEvent).toHaveBeenCalledTimes(1)
+        expect(router.navigate.mock.calls[0][0]).toEqual(['/', 'app', 'event-hub', 'player', 'do_event', 'youtube', 'vid_1'])
+      })
+
+      it('registered, event ended → opens the recording without registering again', async () => {
+        jest.spyOn(Date, 'now').mockReturnValue(at('2026-11-20T10:00:00+05:30'))
+        statusSvc.isEventEnrolled.mockReturnValue(true)
+        component.openMilestone(event())
+        await flush()
+        expect(statusSvc.enrollEvent).not.toHaveBeenCalled()
+        expect(router.navigate.mock.calls[0][0]).toEqual(['/', 'app', 'event-hub', 'player', 'do_event', 'youtube', 'vid_1'])
+      })
+
+      it('registration failure → shows the API message and stays', async () => {
+        jest.spyOn(Date, 'now').mockReturnValue(at('2026-11-17T11:00:00+05:30'))
+        jest.spyOn(console, 'error').mockImplementation(() => undefined)
+        statusSvc.enrollEvent.mockRejectedValue({ error: { params: { errmsg: 'Batch closed' } } })
+        component.openMilestone(event())
+        await flush()
+        expect(router.navigate).not.toHaveBeenCalled()
+        expect(snackBar.open).toHaveBeenCalledWith('Batch closed', 'X', { duration: 5000 })
+        expect(component.enrollingOrder()).toBeNull()
+      })
+
+      it('no player configured → falls back to the event hub page', () => {
+        component.openMilestone(event({ player: undefined }))
+        expect(statusSvc.enrollEvent).not.toHaveBeenCalled()
+        expect(router.navigate).toHaveBeenCalledWith(['/app/event-hub/home', 'do_event'], { queryParams: { batchId: 'b_event' } })
+      })
     })
   })
 
@@ -185,7 +441,7 @@ describe('ProgrammeMilestonesComponent', () => {
       statusSvc.resolveStates.mockReturnValue(of(['completed', 'notStarted']))
       render({ items: [milestone(1), survey] })
       component.openMilestone(survey)
-      expect(dialog.open).toHaveBeenCalledWith(CampaignSurveyDialogComponent, expect.objectContaining({ data: { milestone: survey } }))
+      expect(dialog.open).toHaveBeenCalledWith(CampaignSurveyDialogComponent, expect.objectContaining({ data: { milestone: survey, labels: component.labels() } }))
       expect(router.navigate).not.toHaveBeenCalled()
     })
 
@@ -210,7 +466,7 @@ describe('ProgrammeMilestonesComponent', () => {
       render({ items: [milestone(1), survey] })
       component.openMilestone(survey)
       expect(dialog.open).not.toHaveBeenCalled()
-      expect(snackBar.open).toHaveBeenCalledWith('campaignMicrosite.survey.alreadySubmitted', 'X', { duration: 5000 })
+      expect(snackBar.open).toHaveBeenCalledWith('You have already submitted this form.', 'X', { duration: 5000 })
     })
 
     it('redirectUrl still wins over the dialog', () => {
@@ -279,33 +535,5 @@ describe('ProgrammeMilestonesComponent', () => {
       render(withPopup)
       expect(popup()).toBeNull()
     })
-
-    it('start closes the popup and opens the milestone', () => {
-      statusSvc.resolveStates.mockReturnValue(of(['notStarted', 'locked']))
-      render(withPopup)
-      component.startFromPopup(milestone(1))
-      fixture.detectChanges()
-      expect(popup()).toBeNull()
-      expect(router.navigate).toHaveBeenCalledWith(['/app/toc', 'do_1', 'overview'], { queryParams: { batchId: 'b_1' } })
-    })
-  })
-})
-
-describe('isWithinEventWindow', () => {
-  const window = { startDate: '05-07-2026', endDate: '28-11-2026' }
-
-  it.each([
-    [new Date(2026, 6, 5, 0, 0), true],
-    [new Date(2026, 10, 28, 23, 59), true],
-    [new Date(2026, 9, 30, 12, 0), true],
-    [new Date(2026, 6, 4, 23, 59), false],
-    [new Date(2026, 10, 29, 0, 0), false],
-  ])('%s → %s (both days inclusive)', (now, expected) => {
-    expect(isWithinEventWindow(window, now)).toBe(expected)
-  })
-
-  it('shows the section when the window is missing or invalid', () => {
-    expect(isWithinEventWindow(undefined, new Date())).toBe(true)
-    expect(isWithinEventWindow({ startDate: '2026-07-05', endDate: '' }, new Date())).toBe(true)
   })
 })

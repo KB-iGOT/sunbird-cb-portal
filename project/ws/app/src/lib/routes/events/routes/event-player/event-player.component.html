@@ -1,7 +1,13 @@
 <div class="fixed-width flex flex-col">
   <!-- main content -->
   <div>
-    <ws-widget-btn-page-back-nav [widgetData]="{
+    <!-- Opened from a microsite: Back returns to it -->
+    <ws-widget-btn-page-back-nav *ngIf="micrositeRedirect" [widgetData]="{
+            'url': micrositeRedirect.url,
+            'titles': [],
+            'queryParams': micrositeRedirect.queryParams}">
+    </ws-widget-btn-page-back-nav>
+    <ws-widget-btn-page-back-nav *ngIf="!micrositeRedirect" [widgetData]="{
             'url': '/app/event-hub/home/'+ eventId,
             'titles': []}">
     </ws-widget-btn-page-back-nav>

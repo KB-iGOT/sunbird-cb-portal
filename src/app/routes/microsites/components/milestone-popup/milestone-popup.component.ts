@@ -9,23 +9,8 @@ import {
   output,
   viewChild,
 } from '@angular/core'
-import { TranslateModule } from '@ngx-translate/core'
 import { NsCampaignMilestone } from '@sunbird-cb/consumption'
-import { NsCampaignMicrosite } from '../../models/campaign-microsite.model'
-import { isOpenState } from '../../services/milestone-status.service'
-
-/** Translation keys (assets/i18n/en.json); `{{number}}` is the 1-based milestone position */
-const LABELS = {
-  close: 'campaignMicrosite.close',
-  availableNow: 'campaignMicrosite.milestonePopup.availableNow',
-  inProgress: 'campaignMicrosite.milestonePopup.inProgress',
-  completed: 'campaignMicrosite.milestonePopup.completed',
-  /** Shared with the milestone card */
-  locked: 'campaignMicrosite.milestoneCard.locked',
-  milestone: 'campaignMicrosite.milestonePopup.milestone',
-  start: 'campaignMicrosite.milestonePopup.start',
-  resume: 'campaignMicrosite.milestonePopup.resume',
-}
+import { DEFAULT_MILESTONE_LABELS, NsCampaignMicrosite, formatLabel } from '../../models/campaign-microsite.model'
 
 const DEFAULT_ICON: Record<NsCampaignMilestone.TMilestoneType, NsCampaignMicrosite.TMilestonePopupIcon> = {
   assessment: 'assessment',
@@ -39,13 +24,12 @@ type TStepTone = 'success' | 'warning' | 'muted'
 export interface IMilestonePopupStepView {
   /** 1-based position */
   number: number
-  /** `milestoneLabel` from config; the template falls back to the translated "Milestone N" */
-  label?: string
+  /** `milestoneLabel` from config, else the "Milestone N" label */
+  label: string
   title: string
   description: string
   icon: NsCampaignMicrosite.TMilestonePopupIcon
   color: NsCampaignMicrosite.TMilestonePopupColor
-  /** Translation key, interpolated with `number` */
   status: string
   tone: TStepTone
 }
@@ -54,7 +38,7 @@ export interface IMilestonePopupStepView {
   selector: 'ws-app-milestone-popup',
   templateUrl: './milestone-popup.component.html',
   styleUrl: './milestone-popup.component.scss',
-  imports: [TranslateModule],
+  imports: [],
   changeDetection: ChangeDetectionStrategy.OnPush,
 })
 export class MilestonePopupComponent {
@@ -63,25 +47,29 @@ export class MilestonePopupComponent {
   readonly milestones = input<NsCampaignMilestone.IMilestone[]>([])
   /** Resolved states, same order as `milestones` */
   readonly states = input<NsCampaignMilestone.TMilestoneState[]>([])
+  /** Page text from config (already merged with defaults) */
+  readonly labels = input<NsCampaignMicrosite.IMilestoneLabels>(DEFAULT_MILESTONE_LABELS)
+  /** Same order as `milestones`: "Available from …" text while that milestone waits for the event date, else null */
+  readonly availableFrom = input<(string | null)[]>([])
 
-  /** CTA: the user wants to open the current milestone */
-  readonly start = output<NsCampaignMilestone.IMilestone>()
   readonly closed = output<void>()
 
-  private readonly ctaRef = viewChild<ElementRef<HTMLButtonElement>>('cta')
-
-  readonly labels = LABELS
+  private readonly okRef = viewChild<ElementRef<HTMLButtonElement>>('ok')
 
   readonly steps = computed<IMilestonePopupStepView[]>(() => {
     const configSteps = this.config()?.steps || []
     return this.milestones().map((milestone, index) => {
       const step = configSteps.find(s => s.order === milestone.order)
-      const { status, tone } = this.statusFor(milestone.enabled === false ? 'locked' : this.states()[index])
+      const state = milestone.enabled === false ? 'locked' : this.states()[index]
+      const waitingLabel = this.availableFrom()[index]
+      const { status, tone } = waitingLabel && state !== 'completed'
+        ? { status: waitingLabel, tone: 'muted' as TStepTone }
+        : this.statusFor(state)
       return {
         status,
         tone,
         number: index + 1,
-        label: milestone.milestoneLabel,
+        label: milestone.milestoneLabel || formatLabel(this.labels().popup.milestone, { number: index + 1 }),
         title: step?.title || milestone.name,
         description: step?.description || '',
         icon: step?.icon || DEFAULT_ICON[milestone.type] || 'assessment',
@@ -90,21 +78,8 @@ export class MilestonePopupComponent {
     })
   })
 
-  /** First milestone the user can act on (unlocked, not completed) */
-  readonly currentIndex = computed(() => this.states().findIndex(isOpenState))
-
-  /** CTA translation key and milestone number; `null` when no milestone is open */
-  readonly cta = computed(() => {
-    const index = this.currentIndex()
-    if (index < 0) {
-      return null
-    }
-    const label = this.states()[index] === 'inProgress' ? this.labels.resume : this.labels.start
-    return { label, number: index + 1 }
-  })
-
   constructor() {
-    afterNextRender(() => this.ctaRef()?.nativeElement.focus())
+    afterNextRender(() => this.okRef()?.nativeElement.focus())
   }
 
   @HostListener('document:keydown.escape')
@@ -112,23 +87,17 @@ export class MilestonePopupComponent {
     this.closed.emit()
   }
 
-  onStart(): void {
-    const milestone = this.milestones()[this.currentIndex()]
-    if (milestone) {
-      this.start.emit(milestone)
-    }
-  }
-
   private statusFor(state: NsCampaignMilestone.TMilestoneState | undefined): { status: string, tone: TStepTone } {
+    const labels = this.labels().popup
     switch (state) {
       case 'completed':
-        return { status: this.labels.completed, tone: 'success' }
+        return { status: labels.completed, tone: 'success' }
       case 'inProgress':
-        return { status: this.labels.inProgress, tone: 'warning' }
+        return { status: labels.inProgress, tone: 'warning' }
       case 'notStarted':
-        return { status: this.labels.availableNow, tone: 'success' }
+        return { status: labels.availableNow, tone: 'success' }
       default:
-        return { status: this.labels.locked, tone: 'muted' }
+        return { status: labels.locked, tone: 'muted' }
     }
   }
 }
