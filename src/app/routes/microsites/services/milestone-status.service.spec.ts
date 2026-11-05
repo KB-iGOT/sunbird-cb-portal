@@ -192,6 +192,16 @@ describe('MilestoneStatusService', () => {
       })
     })
 
+    it('completeEvent stamps lastAccessTime with the server time, not the device clock', async () => {
+      http.patch = jest.fn(() => of({ responseCode: 'OK' }))
+      jest.spyOn(performance, 'now').mockReturnValue(5_000)
+      Object.assign(configSvc, { serverTime: Date.parse('2026-11-05T13:40:12.345Z'), serverTimeAt: 5_000 })
+      jest.spyOn(Date, 'now').mockReturnValue(Date.parse('2030-01-01T00:00:00Z'))
+      await service.completeEvent(pledge)
+      expect((http.patch as jest.Mock).mock.calls[0][1].request.events[0].lastAccessTime).toBe('2026-11-05 13:40:12:00+0000')
+      jest.restoreAllMocks()
+    })
+
     it('completeEvent needs an identifier and batchId', async () => {
       http.patch = jest.fn()
       await expect(service.completeEvent({ ...pledge, batchId: '' })).rejects.toThrow()

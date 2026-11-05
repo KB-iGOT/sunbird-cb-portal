@@ -76,9 +76,24 @@ export namespace NsCampaignMicrosite {
      * Event: event-hub player, e.g. `/app/event-hub/player/{identifier}/youtube/{resourceId}` with the video id as `resourceId`.
      */
     player?: IMilestonePlayerRoute
-    /** Event only: ISO 8601 with offset, e.g. `2026-11-17T10:00:00+05:30`. Decides Register / yet to start / Join / recording */
+    /**
+     * ISO 8601 with offset, e.g. `2026-11-17T10:00:00+05:30`.
+     * Event: decides Register / yet to start / Join / recording.
+     * Assessment: unlock time. Before it the card shows "Available from ..." and cannot be opened.
+     */
     startDateTime?: string
+    /** Event only */
     endDateTime?: string
+    /**
+     * Assessment: `true` lets a completed assessment still open the player from its card.
+     * Default (missing / false): a completed card only shows the green "Completed" and does nothing on click.
+     */
+    openWhenCompleted?: boolean
+    /**
+     * Assessment: `true` shows a live countdown on the disabled button until it unlocks
+     * ("Opens in 5D 12H", or "Opens in 12H 30M 20S" in the last day). Missing / false: the button keeps its text.
+     */
+    showCountdown?: boolean
     /**
      * Survey (pledge) backed by an event (`identifier` + `batchId`): the event's duration in minutes,
      * sent in the progress update that marks the event complete after the form is submitted
@@ -125,6 +140,8 @@ export namespace NsCampaignMicrosite {
   /** `{{number}}` in popup labels is replaced with the 1-based milestone position */
   export interface IMilestoneLabels {
     close: string
+    /** Green tick text that replaces the button on a completed assessment */
+    completed: string
     journeyComplete: string
     enrollError: string
     popup: {
@@ -143,6 +160,8 @@ export namespace NsCampaignMicrosite {
       start: string
       resume: string
       view: string
+      /** Countdown on the disabled button while waiting to unlock (`showCountdown`); `{{time}}` e.g. "5D 12H" */
+      opensIn: string
     }
     /** Event button text by phase */
     event: {
@@ -268,6 +287,7 @@ export const DEFAULT_SURVEY_ANSWER_LIMITS: NsCampaignMicrosite.IAnswerLimit[] = 
 /** Fallback text when the page JSON (`programmeMilestones.labels`) leaves a key out */
 export const DEFAULT_MILESTONE_LABELS: NsCampaignMicrosite.IMilestoneLabels = {
   close: 'Close',
+  completed: 'Completed',
   journeyComplete: 'Journey complete! You have finished every milestone of this programme.',
   enrollError: 'We couldn\'t start this assessment. Please try again.',
   popup: {
@@ -283,6 +303,7 @@ export const DEFAULT_MILESTONE_LABELS: NsCampaignMicrosite.IMilestoneLabels = {
     start: 'Start Questionnaire',
     resume: 'Resume Questionnaire',
     view: 'View Questionnaire',
+    opensIn: 'Opens in {{time}}',
   },
   event: {
     register: 'Register',
@@ -342,6 +363,12 @@ export function formatOrdinalDate(date: Date): string {
   const suffix = teen ? 'th' : ({ 1: 'st', 2: 'nd', 3: 'rd' } as Record<number, string>)[day % 10] || 'th'
   const month = date.toLocaleString('en-GB', { month: 'short' })
   return `${day}${suffix} ${month}`
+}
+
+/** "17th Nov, 10:00 AM" style date and time */
+export function formatOrdinalDateTime(date: Date): string {
+  const time = date.toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+  return `${formatOrdinalDate(date)}, ${time}`
 }
 
 /** Replaces `{{name}}` placeholders, e.g. formatLabel('Milestone {{number}}', { number: 2 }) */

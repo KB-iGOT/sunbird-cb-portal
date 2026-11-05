@@ -18,6 +18,8 @@
           [isBusy]="enrollingOrder() === milestone.order"
           [ctaLabel]="ctas()[i]?.label ?? null" [ctaDisabled]="!!ctas()[i]?.disabled"
           [availableFrom]="availableFrom()[i]"
+          [completedLabel]="completedLabels()[i]" [ctaTooltip]="ctas()[i]?.tooltip ?? null"
+          [now]="cardNow()"
           (milestoneClick)="openMilestone($event)">
         </sb-uic-milestone-card>
       }

@@ -1,13 +1,14 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, computed, inject, input, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, DestroyRef, NgZone, computed, inject, input, signal } from '@angular/core'
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop'
 import { MatDialog } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { Router } from '@angular/router'
 import { CertificateDialogComponent, MilestoneCardComponent, NsCampaignMilestone, isUsableUrl, parseDdMmYyyy } from '@sunbird-cb/consumption'
+import { ServerClockService } from '@sunbird-cb/utils-v2'
 import dayjs from 'dayjs'
 import { of } from 'rxjs'
 import { startWith, switchMap } from 'rxjs/operators'
-import { NsCampaignMicrosite, formatLabel, formatOrdinalDate, resolveMilestoneLabels } from '../../models/campaign-microsite.model'
+import { NsCampaignMicrosite, formatLabel, formatOrdinalDate, formatOrdinalDateTime, resolveMilestoneLabels } from '../../models/campaign-microsite.model'
 import { MilestoneStatusService, isOpenState } from '../../services/milestone-status.service'
 import { CampaignSurveyDialogComponent } from '../campaign-survey-dialog/campaign-survey-dialog.component'
 import { MilestonePopupComponent } from '../milestone-popup/milestone-popup.component'
@@ -82,7 +83,46 @@ export function assessmentCtaLabel(
 export interface IEventCta {
   label: string
   disabled: boolean
+  /** Hover text on the button, e.g. why it is disabled */
+  tooltip?: string
 }
+
+/** Completed assessment that must not open again (`openWhenCompleted` not set in the page JSON) */
+export function isClosedWhenCompleted(milestone: NsCampaignMicrosite.IMilestone, state: NsCampaignMilestone.TMilestoneState): boolean {
+  return milestone.type === 'assessment' && state === 'completed' && milestone.openWhenCompleted !== true
+}
+
+function hasValidDateTime(value: string | undefined): boolean {
+  return !!value && dayjs(value).isValid()
+}
+
+export interface IUnlock {
+  at: Date
+  /** `false` when only a date is known (from `eventDetails.startDate`), so the label leaves the time out */
+  hasTime: boolean
+}
+
+/**
+ * When an assessment opens, while that is still ahead; else null (open). The assessment cannot be opened before it.
+ * - `startDateTime` (date and time) when set
+ * - otherwise, with `lockUntilEventStart`, the start of `eventDetails.startDate`
+ */
+export function assessmentUnlockAt(
+  milestone: NsCampaignMicrosite.IMilestone,
+  now: number,
+  eventStartDate?: string,
+): IUnlock | null {
+  if (milestone.type !== 'assessment') {
+    return null
+  }
+  if (milestone.startDateTime) {
+    const start = dayjs(milestone.startDateTime)
+    return start.isValid() && now < start.valueOf() ? { at: start.toDate(), hasTime: true } : null
+  }
+  const eventStart = milestone.lockUntilEventStart ? parseDdMmYyyy(eventStartDate) : null
+  return eventStart && now < eventStart.getTime() ? { at: eventStart, hasTime: false } : null
+}
+
 
 /**
  * Event button: not registered -> Register (whatever the phase);
@@ -113,6 +153,38 @@ export function isEventBackedSurvey(milestone: NsCampaignMicrosite.IMilestone): 
 
 /** How often the event button re-checks the clock, so "Join event" appears once the event starts */
 const CLOCK_TICK_MS = 30_000
+/** Clock rate while a countdown is on screen, so its seconds move */
+const COUNTDOWN_TICK_MS = 1_000
+/** Seconds are only shown in the last day; before that "5D 12H" only needs the 30s clock */
+const DAY_MS = 86_400_000
+/** The card's "Overdue" check is by day, so cards get the time rounded to the minute */
+const CARD_CLOCK_MS = 60_000
+
+// Equality for computed arrays: an unchanged result keeps the same reference, so the cards / popup bound
+// to it are not marked for re-render on every clock tick.
+function sameList<T>(a: readonly T[], b: readonly T[], same: (x: T, y: T) => boolean): boolean {
+  return a.length === b.length && a.every((item, i) => same(item, b[i]))
+}
+const sameUnlock = (x: IUnlock | null, y: IUnlock | null) =>
+  x === y || (!!x && !!y && x.hasTime === y.hasTime && x.at.getTime() === y.at.getTime())
+const sameCta = (x: IEventCta | null, y: IEventCta | null) =>
+  x === y || (!!x && !!y && x.label === y.label && x.disabled === y.disabled && x.tooltip === y.tooltip)
+
+/** Time left as "5D 12H" (a day or more) or "12H 30M 20S" (less than a day); leading zero units dropped */
+export function formatCountdown(ms: number): string {
+  const totalSeconds = Math.max(0, Math.ceil(ms / 1000))
+  const days = Math.floor(totalSeconds / 86_400)
+  const hours = Math.floor((totalSeconds % 86_400) / 3_600)
+  const minutes = Math.floor((totalSeconds % 3_600) / 60)
+  const seconds = totalSeconds % 60
+  if (days > 0) {
+    return `${days}D ${hours}H`
+  }
+  if (hours > 0) {
+    return `${hours}H ${minutes}M ${seconds}S`
+  }
+  return minutes > 0 ? `${minutes}M ${seconds}S` : `${seconds}S`
+}
 
 @Component({
   selector: 'ws-app-programme-milestones',
@@ -127,6 +199,8 @@ export class ProgrammeMilestonesComponent {
   private readonly dialog = inject(MatDialog)
   private readonly snackBar = inject(MatSnackBar)
   private readonly destroyRef = inject(DestroyRef)
+  /** Server time, not the device clock: changing the system time must not unlock anything early */
+  private readonly clock = inject(ServerClockService)
 
   readonly config = input<NsCampaignMicrosite.IProgrammeMilestones | undefined>()
   readonly eventDetails = input<NsCampaignMicrosite.IEventDetails | undefined>()
@@ -147,8 +221,8 @@ export class ProgrammeMilestonesComponent {
   /** `order` of the milestone currently being enrolled; blocks repeat clicks while the call is in flight */
   readonly enrollingOrder = signal<number | null>(null)
 
-  /** Current time, ticking so event buttons change phase without a reload */
-  readonly now = signal(Date.now())
+  /** Server's current time, ticking so event buttons, unlocks and countdowns update without a reload */
+  readonly now = signal(this.clock.now())
 
   readonly states = toSignal(
     // `refresh` is part of the value: the same milestones array alone would not re-emit
@@ -162,6 +236,35 @@ export class ProgrammeMilestonesComponent {
 
   readonly isLoading = computed(() => this.states() === null)
 
+  /** Unlock per milestone while an assessment is not open yet (see assessmentUnlockAt), else null */
+  private readonly unlockAt = computed(() => {
+    const now = this.now()
+    const eventStartDate = this.eventDetails()?.startDate
+    return this.milestones().map(milestone => assessmentUnlockAt(milestone, now, eventStartDate))
+  }, { equal: (a, b) => sameList(a, b, sameUnlock) })
+
+  /** A `showCountdown` assessment unlocks within a day, so its countdown shows seconds and needs the 1s clock */
+  readonly needsSecondTicks = computed(() => {
+    const now = this.now()
+    return this.milestones().some((milestone, i) => {
+      const unlock = this.unlockAt()[i]
+      return !!milestone.showCountdown && !!unlock && unlock.at.getTime() - now < DAY_MS
+    })
+  })
+
+  /** Time for the cards ("Overdue" is by day): changes once a minute, not on every tick */
+  readonly cardNow = computed(() => Math.floor(this.now() / CARD_CLOCK_MS) * CARD_CLOCK_MS)
+
+  /**
+   * Green "Completed" in place of the button for finished assessments. Events never get it: their button
+   * always follows Register / Event yet to start / Join event / View recording.
+   */
+  readonly completedLabels = computed(() => {
+    const states = this.states()
+    const label = this.labels().completed
+    return this.milestones().map((milestone, i) => (states?.[i] === 'completed' && milestone.type === 'assessment' ? label : null))
+  })
+
   readonly isJourneyComplete = computed(() => {
     const states = this.states()
     const enabled = this.milestones()
@@ -172,51 +275,88 @@ export class ProgrammeMilestonesComponent {
 
   /**
    * Host-provided button per milestone (text from the page JSON); `null` keeps the card's default button.
-   * Assessments: Start / Resume / View. Events: Register / yet to start / Join / recording.
-   * Pledge: Take Sankalpa, then Download certificate once an event-backed one is completed.
+   * Assessments: Start / Resume (disabled until `startDateTime`). Events: Register / yet to start / Join / recording.
+   * Completed assessments show `completedLabels` instead of a button.
+   * Pledge: Take Sankalpa, then Download certificate once an event-backed one is completed
+   * (disabled, with the "be patient" tooltip, until a certificate is issued).
    */
   readonly ctas = computed<(IEventCta | null)[]>(() => {
     const states = this.states()
     const labels = this.labels()
     const now = this.now()
+    const unlockAt = this.unlockAt()
     return this.milestones().map((milestone, index) => {
       const state = states?.[index]
       if (!state || state === 'locked') {
         return null
       }
       switch (milestone.type) {
-        case 'assessment':
-          return { label: assessmentCtaLabel(state, labels.assessment), disabled: false }
+        case 'assessment': {
+          const unlock = unlockAt[index]
+          if (unlock && milestone.showCountdown) {
+            return { label: formatLabel(labels.assessment.opensIn, { time: formatCountdown(unlock.at.getTime() - now) }), disabled: true }
+          }
+          return {
+            label: assessmentCtaLabel(state, labels.assessment),
+            disabled: !!unlock || isClosedWhenCompleted(milestone, state),
+          }
+        }
         case 'event':
           return eventCta(eventPhase(milestone, now), this.statusSvc.isEventEnrolled(milestone.identifier), labels.event)
         case 'survey':
           if (state !== 'completed') {
             return { label: labels.survey.start, disabled: false }
           }
-          return isEventBackedSurvey(milestone) ? { label: labels.survey.downloadCertificate, disabled: false } : null
+          if (!isEventBackedSurvey(milestone)) {
+            return null
+          }
+          return this.statusSvc.issuedCertificateId(milestone.identifier)
+            ? { label: labels.survey.downloadCertificate, disabled: false }
+            : { label: labels.survey.downloadCertificate, disabled: true, tooltip: labels.survey.certificatePending }
         default:
           return null
       }
     })
-  })
+  }, { equal: (a, b) => sameList(a, b, sameCta) })
 
   private readonly popupDismissed = signal(false)
 
   constructor() {
-    const timer = setInterval(() => this.now.set(Date.now()), CLOCK_TICK_MS)
+    // One interval for the page. It runs outside Angular's zone: zone.js would otherwise run change detection
+    // for the whole app on every tick. Only the ticks that move `now` (every second while a countdown shows
+    // seconds, otherwise every 30s) update the signal, and that alone schedules a render of what reads it.
+    const timer = inject(NgZone).runOutsideAngular(() => setInterval(() => {
+      const current = this.clock.now()
+      if (this.needsSecondTicks() || current - this.now() >= CLOCK_TICK_MS) {
+        this.now.set(current)
+      }
+    }, COUNTDOWN_TICK_MS))
     this.destroyRef.onDestroy(() => clearInterval(timer))
   }
 
   /**
-   * Per milestone: "Available from 17th Nov" while a `lockUntilEventStart` milestone waits for
-   * `eventDetails.startDate`, else null. A missing or invalid start date locks nothing.
+   * Per milestone, else null:
+   * - assessment with a future `startDateTime`: "Available from 17th Nov, 10:00 AM" (and it cannot be opened yet)
+   * - `lockUntilEventStart` while `eventDetails.startDate` is ahead: "Available from 17th Nov" (informational only)
    */
   readonly availableFrom = computed<(string | null)[]>(() => {
+    const template = this.labels().popup.availableFrom
     const start = parseDdMmYyyy(this.eventDetails()?.startDate)
     const waiting = !!start && this.now() < start.getTime()
-    const label = waiting && start ? formatLabel(this.labels().popup.availableFrom, { date: formatOrdinalDate(start) }) : null
-    return this.milestones().map(milestone => (label && milestone.lockUntilEventStart ? label : null))
-  })
+    const eventLabel = waiting && start ? formatLabel(template, { date: formatOrdinalDate(start) }) : null
+    const unlockAt = this.unlockAt()
+    return this.milestones().map((milestone, i) => {
+      const unlock = unlockAt[i]
+      if (unlock) {
+        return formatLabel(template, { date: unlock.hasTime ? formatOrdinalDateTime(unlock.at) : formatOrdinalDate(unlock.at) })
+      }
+      // an assessment's own startDateTime decides alone: once it has passed, the event date says nothing more
+      if (milestone.type === 'assessment' && hasValidDateTime(milestone.startDateTime)) {
+        return null
+      }
+      return eventLabel && milestone.lockUntilEventStart ? eventLabel : null
+    })
+  }, { equal: (a, b) => sameList(a, b, (x, y) => x === y) })
 
   /** First milestone the user can act on now: open and not waiting for the event date */
   private readonly currentMilestone = computed(() => {
@@ -252,6 +392,13 @@ export class ProgrammeMilestonesComponent {
       } else {
         this.router.navigateByUrl(redirectUrl)
       }
+      return
+    }
+
+    // not open yet, or completed and closed (the card ignores the click too)
+    const index = this.milestones().findIndex(m => m.order === milestone.order)
+    if (assessmentUnlockAt(milestone, this.clock.now(), this.eventDetails()?.startDate)
+      || isClosedWhenCompleted(milestone, this.stateAt(index))) {
       return
     }
 
@@ -315,7 +462,7 @@ export class ProgrammeMilestonesComponent {
     if (this.enrollingOrder() !== null) {
       return
     }
-    const phase = eventPhase(milestone, Date.now())
+    const phase = eventPhase(milestone, this.clock.now())
     if (!this.statusSvc.isEventEnrolled(milestone.identifier)) {
       this.enrollingOrder.set(milestone.order)
       try {
