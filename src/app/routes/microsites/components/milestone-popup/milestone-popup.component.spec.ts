@@ -114,6 +114,49 @@ describe('MilestonePopupComponent', () => {
     expect(statuses()[1]).toBe(KEY.completed)
   })
 
+  describe('image-only popup', () => {
+    const IMAGE = 'https://example.org/welcome.png'
+    const withImage = { ...CONFIG, image: IMAGE, imageAlt: 'Welcome banner' }
+
+    it('shows only the image and the close button when an image is configured', () => {
+      render(['notStarted', 'locked', 'locked', 'locked'], withImage)
+      const img = el.querySelector<HTMLImageElement>('.mp-image')
+      expect(img?.getAttribute('src')).toBe(IMAGE)
+      expect(img?.getAttribute('alt')).toBe('Welcome banner')
+      expect(el.querySelector('.mp-close')).not.toBeNull()
+      expect(el.querySelector('#mp-title')).toBeNull()
+      expect(okay()).toBeNull()
+      expect(el.querySelector('[role="dialog"]')?.getAttribute('aria-label')).toBe('Welcome banner')
+    })
+
+    it('close button closes it', () => {
+      render(['notStarted', 'locked', 'locked', 'locked'], withImage)
+      const closed = jest.fn()
+      component.closed.subscribe(closed)
+      el.querySelector<HTMLElement>('.mp-close')?.click()
+      expect(closed).toHaveBeenCalledTimes(1)
+    })
+
+    it('falls back to the text popup when the image fails to load', () => {
+      render(['notStarted', 'locked', 'locked', 'locked'], withImage)
+      el.querySelector('.mp-image')?.dispatchEvent(new Event('error'))
+      fixture.detectChanges()
+      expect(el.querySelector('.mp-image')).toBeNull()
+      expect(el.querySelector('#mp-title')?.textContent).toContain('one step at a time')
+    })
+
+    it.each([['empty', ''], ['placeholder', '<WELCOME_IMAGE_URL>']])('uses the text popup for an %s image', (_name, image) => {
+      render(['notStarted', 'locked', 'locked', 'locked'], { ...CONFIG, image })
+      expect(el.querySelector('.mp-image')).toBeNull()
+      expect(el.querySelector('#mp-title')).not.toBeNull()
+    })
+
+    it('alt text falls back to the title', () => {
+      render(['notStarted', 'locked', 'locked', 'locked'], { ...CONFIG, image: IMAGE })
+      expect(el.querySelector('.mp-image')?.getAttribute('alt')).toBe(CONFIG.title)
+    })
+  })
+
   it('draws a connector after every step but the last', () => {
     render(['notStarted', 'locked', 'locked', 'locked'])
     expect(el.querySelectorAll('.mp-step__line').length).toBe(3)

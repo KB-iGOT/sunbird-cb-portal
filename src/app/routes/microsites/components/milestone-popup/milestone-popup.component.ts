@@ -7,9 +7,10 @@ import {
   computed,
   input,
   output,
+  signal,
   viewChild,
 } from '@angular/core'
-import { NsCampaignMilestone } from '@sunbird-cb/consumption'
+import { NsCampaignMilestone, isUsableUrl } from '@sunbird-cb/consumption'
 import { DEFAULT_MILESTONE_LABELS, NsCampaignMicrosite, formatLabel } from '../../models/campaign-microsite.model'
 
 const DEFAULT_ICON: Record<NsCampaignMilestone.TMilestoneType, NsCampaignMicrosite.TMilestonePopupIcon> = {
@@ -55,6 +56,13 @@ export class MilestonePopupComponent {
   readonly closed = output<void>()
 
   private readonly okRef = viewChild<ElementRef<HTMLButtonElement>>('ok')
+  private readonly closeRef = viewChild<ElementRef<HTMLButtonElement>>('closeBtn')
+
+  /** Set when the configured image fails to load: the popup falls back to the text version */
+  readonly imageFailed = signal(false)
+  /** Image-only popup: a usable `image` URL that has not failed to load */
+  readonly showImage = computed(() => isUsableUrl(this.config()?.image) && !this.imageFailed())
+  readonly imageAlt = computed(() => this.config()?.imageAlt || this.config()?.title || '')
 
   readonly steps = computed<IMilestonePopupStepView[]>(() => {
     const configSteps = this.config()?.steps || []
@@ -79,7 +87,7 @@ export class MilestonePopupComponent {
   })
 
   constructor() {
-    afterNextRender(() => this.okRef()?.nativeElement.focus())
+    afterNextRender(() => (this.okRef() || this.closeRef())?.nativeElement.focus())
   }
 
   @HostListener('document:keydown.escape')

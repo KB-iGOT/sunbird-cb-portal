@@ -34,6 +34,30 @@ $mp-orange: #f47b20;
   }
 }
 
+// ── Image-only popup ───────────────────────────────────────────────────────
+.mp-dialog--image {
+  width: auto;
+  max-width: 100%;
+  overflow: hidden;
+  background: transparent;
+
+  .mp-close {
+    background: rgba(0, 0, 0, 0.55);
+
+    &:hover {
+      background: rgba(0, 0, 0, 0.7);
+    }
+  }
+}
+
+.mp-image {
+  max-width: min(1040px, calc(100vw - 32px));
+  max-height: calc(100vh - 32px);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
 // ── Header ─────────────────────────────────────────────────────────────────
 .mp-header {
   background: linear-gradient(135deg, #0f2a6b 0%, #163a85 100%);

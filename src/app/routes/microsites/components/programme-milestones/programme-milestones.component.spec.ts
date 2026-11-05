@@ -3,7 +3,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing'
 import { MatDialog } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { Router } from '@angular/router'
-import { NsCampaignMilestone } from '@sunbird-cb/consumption'
+import { CertificateDialogComponent, NsCampaignMilestone } from '@sunbird-cb/consumption'
 import { Subject, of } from 'rxjs'
 import { NsCampaignMicrosite } from '../../models/campaign-microsite.model'
 import { MilestoneStatusService } from '../../services/milestone-status.service'
@@ -32,7 +32,8 @@ describe('ProgrammeMilestonesComponent', () => {
   let fixture: ComponentFixture<ProgrammeMilestonesComponent>
   let component: ProgrammeMilestonesComponent
   let el: HTMLElement
-  let statusSvc: { resolveStates: jest.Mock, enrolledBatchId: jest.Mock, enrollAssessment: jest.Mock, isEventEnrolled: jest.Mock, enrollEvent: jest.Mock }
+  let statusSvc: { resolveStates: jest.Mock, enrolledBatchId: jest.Mock, enrollAssessment: jest.Mock, isEventEnrolled: jest.Mock, enrollEvent: jest.Mock,
+    issuedCertificateId: jest.Mock, fetchCertificate: jest.Mock, completeEvent: jest.Mock }
   let router: { navigate: jest.Mock, navigateByUrl: jest.Mock, url: string }
   let dialog: { open: jest.Mock }
   let dialogResult: Subject<boolean | undefined>
@@ -53,6 +54,7 @@ describe('ProgrammeMilestonesComponent', () => {
     statusSvc = {
       resolveStates: jest.fn(() => of([])), enrolledBatchId: jest.fn(), enrollAssessment: jest.fn(),
       isEventEnrolled: jest.fn(() => false), enrollEvent: jest.fn(),
+      issuedCertificateId: jest.fn(), fetchCertificate: jest.fn(), completeEvent: jest.fn(),
     }
     router = { navigate: jest.fn(), navigateByUrl: jest.fn(), url: '/app/microsites/campaign/kalp?tab=1' }
     dialogResult = new Subject()
@@ -474,6 +476,128 @@ describe('ProgrammeMilestonesComponent', () => {
       component.openMilestone({ ...survey, redirectUrl: '/surveys/1784131937108' })
       expect(router.navigateByUrl).toHaveBeenCalledWith('/surveys/1784131937108')
       expect(dialog.open).not.toHaveBeenCalled()
+    })
+  })
+
+  describe('pledge backed by an event', () => {
+    const pledge = milestone(2, {
+      type: 'survey', formId: '1793801265024', identifier: 'do_pledge_event', batchId: 'b_pledge', redirectUrl: '',
+    })
+    const flush = () => new Promise(resolve => setTimeout(resolve))
+    const S = DEFAULT_MILESTONE_LABELS.survey
+
+    it('not registered → registers for the event, then opens the form', async () => {
+      statusSvc.resolveStates.mockReturnValue(of(['completed', 'notStarted']))
+      statusSvc.enrollEvent.mockResolvedValue(undefined)
+      render({ items: [milestone(1), pledge] })
+      component.openMilestone(pledge)
+      expect(component.enrollingOrder()).toBe(2)
+      await flush()
+      expect(statusSvc.enrollEvent).toHaveBeenCalledWith(pledge)
+      expect(dialog.open).toHaveBeenCalledWith(CampaignSurveyDialogComponent, expect.anything())
+      expect(router.navigate).not.toHaveBeenCalled()
+    })
+
+    it('already registered → opens the form without registering again', async () => {
+      statusSvc.resolveStates.mockReturnValue(of(['completed', 'notStarted']))
+      statusSvc.isEventEnrolled.mockReturnValue(true)
+      render({ items: [milestone(1), pledge] })
+      component.openMilestone(pledge)
+      await flush()
+      expect(statusSvc.enrollEvent).not.toHaveBeenCalled()
+      expect(dialog.open).toHaveBeenCalledTimes(1)
+    })
+
+    it('registration failure → message, no form', async () => {
+      jest.spyOn(console, 'error').mockImplementation(() => undefined)
+      statusSvc.resolveStates.mockReturnValue(of(['completed', 'notStarted']))
+      statusSvc.enrollEvent.mockRejectedValue({ error: { params: { errmsg: 'Batch closed' } } })
+      render({ items: [milestone(1), pledge] })
+      component.openMilestone(pledge)
+      await flush()
+      expect(dialog.open).not.toHaveBeenCalled()
+      expect(snackBar.open).toHaveBeenCalledWith('Batch closed', 'X', { duration: 5000 })
+      expect(component.enrollingOrder()).toBeNull()
+    })
+
+    it('after submit → marks the event complete, then re-reads statuses; Cancel does neither', async () => {
+      statusSvc.resolveStates.mockReturnValue(of(['completed', 'notStarted']))
+      statusSvc.isEventEnrolled.mockReturnValue(true)
+      statusSvc.completeEvent.mockResolvedValue(undefined)
+      render({ items: [milestone(1), pledge] })
+
+      component.openMilestone(pledge)
+      await flush()
+      dialogResult.next(false)
+      await flush()
+      expect(statusSvc.completeEvent).not.toHaveBeenCalled()
+      expect(statusSvc.resolveStates).toHaveBeenCalledTimes(1)
+
+      component.openMilestone(pledge)
+      await flush()
+      statusSvc.resolveStates.mockReturnValue(of(['completed', 'completed']))
+      dialogResult.next(true)
+      await flush()
+      fixture.detectChanges()
+      expect(statusSvc.completeEvent).toHaveBeenCalledWith(pledge)
+      expect(statusSvc.resolveStates).toHaveBeenCalledTimes(2)
+      expect(component.stateAt(1)).toBe('completed')
+    })
+
+    it('progress update failure still re-reads statuses', async () => {
+      jest.spyOn(console, 'error').mockImplementation(() => undefined)
+      statusSvc.resolveStates.mockReturnValue(of(['completed', 'notStarted']))
+      statusSvc.isEventEnrolled.mockReturnValue(true)
+      statusSvc.completeEvent.mockRejectedValue(new Error('500'))
+      render({ items: [milestone(1), pledge] })
+      component.openMilestone(pledge)
+      await flush()
+      dialogResult.next(true)
+      await flush()
+      fixture.detectChanges()
+      expect(statusSvc.resolveStates).toHaveBeenCalledTimes(2)
+    })
+
+    it('completed → card button is "Download certificate"; a plain pledge keeps the default', () => {
+      const plain = milestone(3, { type: 'survey', formId: 'f', identifier: undefined })
+      statusSvc.resolveStates.mockReturnValue(of(['completed', 'completed', 'completed']))
+      render({ items: [milestone(1), pledge, plain] })
+      expect(cards().map(card => card.ctaLabel)).toEqual([null, S.downloadCertificate, null])
+    })
+
+    it('completed with a certificate → opens the certificate dialog', async () => {
+      statusSvc.resolveStates.mockReturnValue(of(['completed', 'completed']))
+      statusSvc.issuedCertificateId.mockReturnValue('cert_1')
+      statusSvc.fetchCertificate.mockResolvedValue('data:image/svg+xml,<svg/>')
+      render({ items: [milestone(1), pledge] })
+      component.openMilestone(pledge)
+      await flush()
+      expect(statusSvc.fetchCertificate).toHaveBeenCalledWith('cert_1')
+      expect(dialog.open).toHaveBeenCalledWith(CertificateDialogComponent, {
+        width: '1200px', data: { cet: 'data:image/svg+xml,<svg/>', certId: 'cert_1' },
+      })
+      expect(statusSvc.enrollEvent).not.toHaveBeenCalled()
+    })
+
+    it('completed without a certificate → "be patient" message', async () => {
+      statusSvc.resolveStates.mockReturnValue(of(['completed', 'completed']))
+      render({ items: [milestone(1), pledge] })
+      component.openMilestone(pledge)
+      await flush()
+      expect(dialog.open).not.toHaveBeenCalled()
+      expect(snackBar.open).toHaveBeenCalledWith(S.certificatePending, 'X', { duration: 10000 })
+    })
+
+    it('certificate download failure → error message', async () => {
+      jest.spyOn(console, 'error').mockImplementation(() => undefined)
+      statusSvc.resolveStates.mockReturnValue(of(['completed', 'completed']))
+      statusSvc.issuedCertificateId.mockReturnValue('cert_1')
+      statusSvc.fetchCertificate.mockRejectedValue(new Error('404'))
+      render({ items: [milestone(1), pledge] })
+      component.openMilestone(pledge)
+      await flush()
+      expect(snackBar.open).toHaveBeenCalledWith(S.certificateError, 'X', { duration: 5000 })
+      expect(component.enrollingOrder()).toBeNull()
     })
   })
 

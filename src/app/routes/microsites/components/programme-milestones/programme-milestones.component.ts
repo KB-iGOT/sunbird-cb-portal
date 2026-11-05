@@ -3,7 +3,7 @@ import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-i
 import { MatDialog } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { Router } from '@angular/router'
-import { MilestoneCardComponent, NsCampaignMilestone, isUsableUrl, parseDdMmYyyy } from '@sunbird-cb/consumption'
+import { CertificateDialogComponent, MilestoneCardComponent, NsCampaignMilestone, isUsableUrl, parseDdMmYyyy } from '@sunbird-cb/consumption'
 import dayjs from 'dayjs'
 import { of } from 'rxjs'
 import { startWith, switchMap } from 'rxjs/operators'
@@ -91,6 +91,11 @@ export function eventCta(
   }
 }
 
+/** A pledge (survey) that is tracked through an event: registering, progress and certificate all use that event */
+export function isEventBackedSurvey(milestone: NsCampaignMicrosite.IMilestone): boolean {
+  return milestone.type === 'survey' && !!configValue(milestone.identifier) && !!configValue(milestone.batchId)
+}
+
 /** How often the event button re-checks the clock, so "Join event" appears once the event starts */
 const CLOCK_TICK_MS = 30_000
 
@@ -150,17 +155,26 @@ export class ProgrammeMilestonesComponent {
     return !!states && enabled.length > 0 && enabled.every(({ state }) => state === 'completed')
   })
 
-  /** Host-provided button per milestone (events only); `null` keeps the card's default button */
+  /**
+   * Host-provided button per milestone; `null` keeps the card's default button.
+   * Events: Register / yet to start / Join / recording. Completed event-backed pledge: Download certificate.
+   */
   readonly ctas = computed<(IEventCta | null)[]>(() => {
     const states = this.states()
-    const labels = this.labels().event
+    const labels = this.labels()
     const now = this.now()
     return this.milestones().map((milestone, index) => {
       const state = states?.[index]
-      if (milestone.type !== 'event' || !state || state === 'locked') {
+      if (!state || state === 'locked') {
         return null
       }
-      return eventCta(eventPhase(milestone, now), this.statusSvc.isEventEnrolled(milestone.identifier), labels)
+      if (milestone.type === 'event') {
+        return eventCta(eventPhase(milestone, now), this.statusSvc.isEventEnrolled(milestone.identifier), labels.event)
+      }
+      if (state === 'completed' && isEventBackedSurvey(milestone)) {
+        return { label: labels.survey.downloadCertificate, disabled: false }
+      }
+      return null
     })
   })
 
@@ -307,12 +321,40 @@ export class ProgrammeMilestonesComponent {
     }
   }
 
-  private openSurvey(milestone: NsCampaignMilestone.IMilestone): void {
-    const index = this.milestones().findIndex(m => m.order === milestone.order)
-    if (this.stateAt(index) === 'completed') {
-      this.snackBar.open(this.labels().survey.alreadySubmitted, 'X', { duration: 5000 })
+  /**
+   * Pledge. Completed: certificate (event-backed) or "already submitted".
+   * Otherwise: event-backed -> register for the event if needed, then open the form; after a successful
+   * submit mark the event complete (progress 100%) and re-read statuses (event read gives status + certificate).
+   */
+  private async openSurvey(milestone: NsCampaignMicrosite.IMilestone): Promise<void> {
+    if (this.enrollingOrder() !== null) {
       return
     }
+    const eventBacked = isEventBackedSurvey(milestone)
+    const index = this.milestones().findIndex(m => m.order === milestone.order)
+    if (this.stateAt(index) === 'completed') {
+      if (eventBacked) {
+        await this.openCertificate(milestone)
+      } else {
+        this.snackBar.open(this.labels().survey.alreadySubmitted, 'X', { duration: 5000 })
+      }
+      return
+    }
+
+    if (eventBacked && !this.statusSvc.isEventEnrolled(milestone.identifier)) {
+      this.enrollingOrder.set(milestone.order)
+      try {
+        await this.statusSvc.enrollEvent(milestone)
+      } catch (error: any) {
+        // tslint:disable-next-line: no-console
+        console.error('ProgrammeMilestonesComponent: pledge event registration failed', error)
+        this.snackBar.open(error?.error?.params?.errmsg || this.labels().event.registerError, 'X', { duration: 5000 })
+        return
+      } finally {
+        this.enrollingOrder.set(null)
+      }
+    }
+
     this.dialog.open<CampaignSurveyDialogComponent, NsCampaignMicrosite.ICampaignSurveyDialogData, boolean>(CampaignSurveyDialogComponent, {
       data: { milestone, labels: this.labels() },
       width: '750px',
@@ -320,10 +362,40 @@ export class ProgrammeMilestonesComponent {
       panelClass: 'campaign-survey-panel',
       autoFocus: false,
       disableClose: true,
-    }).afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(submitted => {
-      if (submitted) {
-        this.refresh.update(count => count + 1)
+    }).afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(async submitted => {
+      if (!submitted) {
+        return
       }
+      if (eventBacked) {
+        try {
+          await this.statusSvc.completeEvent(milestone)
+        } catch (error) {
+          // the form is saved; the next page load re-reads the event status
+          // tslint:disable-next-line: no-console
+          console.error('ProgrammeMilestonesComponent: pledge event progress update failed', error)
+        }
+      }
+      this.refresh.update(count => count + 1)
     })
+  }
+
+  /** Certificate dialog when one has been issued for the pledge's event; otherwise the "be patient" message */
+  private async openCertificate(milestone: NsCampaignMicrosite.IMilestone): Promise<void> {
+    const certId = this.statusSvc.issuedCertificateId(milestone.identifier)
+    if (!certId) {
+      this.snackBar.open(this.labels().survey.certificatePending, 'X', { duration: 10000 })
+      return
+    }
+    this.enrollingOrder.set(milestone.order)
+    try {
+      const printUri = await this.statusSvc.fetchCertificate(certId)
+      this.dialog.open(CertificateDialogComponent, { width: '1200px', data: { cet: printUri, certId } })
+    } catch (error) {
+      // tslint:disable-next-line: no-console
+      console.error('ProgrammeMilestonesComponent: certificate download failed', error)
+      this.snackBar.open(this.labels().survey.certificateError, 'X', { duration: 5000 })
+    } finally {
+      this.enrollingOrder.set(null)
+    }
   }
 }
