@@ -723,7 +723,10 @@
         </ng-container>
 
         <ng-container *ngIf="showControllingAuthority">
-          <div class="info-value-c required">{{ cadreControllingAuthority }}</div>
+          <div class="flex flex-col profile-control">
+            <div class="lable required">{{ 'NetworkV2Profile.cadreControllingAuthority' | translate }}</div>
+            <div class="info-value-c required">{{ cadreControllingAuthority }}</div>
+          </div>
         </ng-container>
 
         <ng-container *ngIf="showCentralDeputation">
