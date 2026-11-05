@@ -136,7 +136,9 @@ $mp-orange: #f47b20;
 
 // ── Note and footer ────────────────────────────────────────────────────────
 .mp-note {
-  background: #fff6ef;
+  // translucent tint over the themed surface: light peach in light mode, dark orange in dark mode,
+  // so the themed text colour stays readable in both
+  background: rgba($mp-orange, 0.08);
   border: 1px solid rgba($mp-orange, 0.3);
   color: var(--text-bandw-black-title);
 }

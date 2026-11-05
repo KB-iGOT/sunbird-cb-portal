@@ -8,6 +8,7 @@ import { EventService } from '../../services/events.service'
 import { TranslateService } from '@ngx-translate/core'
 import { MultilingualTranslationsService, ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { NsDiscussionV2 } from '@sunbird-cb/discussion-v2'
+import { IViewerRedirect, VIEWER_REDIRECT_PARAM, getViewerRedirect } from '@ws/viewer/src/lib/microsite-redirect.util'
 
 @Component({
     selector: 'ws-app-event-player',
@@ -31,6 +32,8 @@ export class EventPlayerComponent implements OnInit {
   discussWidgetData!: NsDiscussionV2.ICommentWidgetData
   enrolledEvent: any
   skeletonLoader = false
+  /** Set when opened with `?redirectUrl=` (e.g. from the campaign microsite); Back then returns there */
+  micrositeRedirect: IViewerRedirect | null = null
   constructor(
     public dialog: MatDialog,
     private route: ActivatedRoute,
@@ -57,6 +60,9 @@ export class EventPlayerComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.route.queryParamMap.subscribe(params => {
+      this.micrositeRedirect = getViewerRedirect(this.router, params.get(VIEWER_REDIRECT_PARAM))
+    })
     this.skeletonLoader = true
     this.route.params.subscribe(params => {
       this.eventId = params?.eventId || ''

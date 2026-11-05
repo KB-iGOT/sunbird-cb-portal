@@ -2,7 +2,7 @@
   <header class="csd__header flex items-center justify-between gap-4 px-6 py-4">
     <h2 id="csd-title" class="csd__title m-0 text-xl md:text-2xl font-semibold">{{ details()?.title || data.milestone.name }}</h2>
     <button type="button" class="csd__close flex items-center justify-center flex-shrink-0 w-9 h-9 p-0 rounded-full cursor-pointer"
-      [attr.aria-label]="labels.close | translate" (click)="close()">
+      [attr.aria-label]="labels.close" (click)="close()">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
       </svg>
@@ -16,9 +16,9 @@
     </div>
     } @else if (loadFailed()) {
     <div class="flex flex-col items-center gap-4 py-12 text-center" role="alert">
-      <p class="csd__error m-0 text-sm">{{ labels.loadError | translate }}</p>
+      <p class="csd__error m-0 text-sm">{{ labels.loadError }}</p>
       <button type="button" class="csd__btn csd__btn--secondary px-6 rounded-full cursor-pointer" (click)="loadForm()">
-        {{ labels.retry | translate }}
+        {{ labels.retry }}
       </button>
     </div>
     } @else if (model(); as m) {
@@ -44,19 +44,19 @@
     <label class="csd__commit flex items-start gap-3 mt-4 cursor-pointer">
       <input type="checkbox" class="csd__checkbox flex-shrink-0 w-4 h-4 mt-1 cursor-pointer" [checked]="isCommitted()"
         (change)="isCommitted.set($any($event.target).checked)">
-      <span class="text-sm">{{ labels.commitment | translate }}</span>
+      <span class="text-sm">{{ labels.commitment }}</span>
     </label>
     }
   </div>
 
   <footer class="csd__footer flex flex-wrap justify-end gap-3 px-6 py-4">
     <button type="button" class="csd__btn csd__btn--secondary px-6 rounded-full cursor-pointer" (click)="close()">
-      {{ labels.cancel | translate }}
+      {{ labels.cancel }}
     </button>
     @if (model()) {
     <button type="submit" form="csd-form" class="csd__btn csd__btn--primary px-6 rounded-full"
       [class.cursor-pointer]="canSubmit()" [disabled]="!canSubmit()">
-      {{ labels.submit | translate }}
+      {{ labels.submit }}
     </button>
     }
   </footer>

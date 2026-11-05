@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { firstValueFrom, of, throwError } from 'rxjs'
 import { NsCampaignMilestone } from '@sunbird-cb/consumption'
+import { NsCampaignMicrosite } from '../models/campaign-microsite.model'
 import { MilestoneStatusService, fallbackStates, isMilestoneOpenable, toProgressState } from './milestone-status.service'
 
 const PRE = 'do_pre'
@@ -138,6 +139,83 @@ describe('MilestoneStatusService', () => {
       mockApis(courses(DONE, DONE))
       expect(await resolve()).toEqual(['notStarted', 'notStarted', 'notStarted', 'notStarted'])
       expect(callCounts()).toEqual({ a: 0, b: 0, c: 0 })
+    })
+  })
+
+  describe('event enrollment', () => {
+    const event = { order: 2, type: 'event', identifier: EVENT, batchId: 'b_event' } as NsCampaignMicrosite.IMilestone
+
+    it('registers the user for the event batch and remembers it', async () => {
+      http.post.mockReturnValue(of({ responseCode: 'OK' }))
+      await service.enrollEvent(event)
+      expect(http.post).toHaveBeenCalledWith('/apis/proxies/v8/event/batch/enroll', {
+        request: { userId: 'u1', eventId: EVENT, batchId: 'b_event' },
+      })
+      expect(service.isEventEnrolled(EVENT)).toBe(true)
+    })
+
+    it('rejects when the API does not confirm, without marking the user enrolled', async () => {
+      http.post.mockReturnValue(of({ responseCode: 'CLIENT_ERROR' }))
+      await expect(service.enrollEvent(event)).rejects.toThrow()
+      expect(service.isEventEnrolled(EVENT)).toBe(false)
+    })
+
+    it('rejects without a batchId', async () => {
+      await expect(service.enrollEvent({ ...event, batchId: '' })).rejects.toThrow()
+      expect(http.post).not.toHaveBeenCalled()
+    })
+
+    it('API B marks the event as enrolled only when a record exists', async () => {
+      mockApis(courses(), event_record())
+      await resolve()
+      expect(service.isEventEnrolled(EVENT)).toBe(true)
+    })
+
+    it('API B with no record leaves the event not enrolled', async () => {
+      mockApis(courses())
+      await resolve()
+      expect(service.isEventEnrolled(EVENT)).toBe(false)
+    })
+
+    function event_record() {
+      return { result: { events: [{ contentId: EVENT, status: 0 }] } }
+    }
+  })
+
+  describe('assessment enrollment (API D)', () => {
+    const assessment = { order: 1, type: 'assessment', identifier: PRE, language: 'hindi' } as NsCampaignMicrosite.IMilestone
+    const enrolled = (batchId?: string) => ({ result: { response: { content: batchId ? [{ batchId }] : [] } } })
+
+    it('calls autoenrollment with the config language and remembers the batch it returns', async () => {
+      http.get.mockReturnValue(of(enrolled('b_new')))
+      expect(await service.enrollAssessment(assessment)).toBe('b_new')
+      expect(http.get).toHaveBeenCalledWith(`/apis/protected/v8/cohorts/user/autoenrollment/${PRE}?language=hindi`)
+      expect(service.enrolledBatchId(PRE)).toBe('b_new')
+    })
+
+    it('defaults the language to english', async () => {
+      http.get.mockReturnValue(of(enrolled('b_new')))
+      await service.enrollAssessment({ ...assessment, language: undefined })
+      expect(http.get.mock.calls[0][0]).toContain('?language=english')
+    })
+
+    it('falls back to the config batchId when the response carries none', async () => {
+      http.get.mockReturnValue(of(enrolled()))
+      expect(await service.enrollAssessment({ ...assessment, batchId: 'b_config' })).toBe('b_config')
+    })
+
+    it('propagates API errors to the caller', async () => {
+      http.get.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500 })))
+      await expect(service.enrollAssessment(assessment)).rejects.toBeInstanceOf(HttpErrorResponse)
+      expect(service.enrolledBatchId(PRE)).toBeUndefined()
+    })
+
+    it('API A records the enrolled batch so a later start skips enrollment', async () => {
+      mockApis(courses({ status: 1, batchId: 'b_pre' }, { status: 0, batch: { batchId: 'b_post' } }))
+      await resolve()
+      expect(service.enrolledBatchId(PRE)).toBe('b_pre')
+      expect(service.enrolledBatchId(POST)).toBe('b_post')
+      expect(service.enrolledBatchId('do_unknown')).toBeUndefined()
     })
   })
 })

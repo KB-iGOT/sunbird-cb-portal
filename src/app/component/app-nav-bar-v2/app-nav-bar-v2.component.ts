@@ -408,11 +408,12 @@ export class AppNavBarV2Component implements OnInit, OnChanges, OnDestroy {
     return this.langtranslations.translateLabelWithoutspace(label, type, '')
   }
 
+  // Routes that offer the dark-mode toggle; everywhere else (incl. the campaign microsite
+  // /app/leadership-as-mission-2026) the toggle is hidden and light theme is applied without saving it
   private readonly themedRoutes = [
     '/page/home',
     '/app/person-profile/karma-wallet',
     '/app/plans',
-    '/app/leadership-as-mission-2026',
   ]
 
   private supportsThemeToggle(url: string): boolean {

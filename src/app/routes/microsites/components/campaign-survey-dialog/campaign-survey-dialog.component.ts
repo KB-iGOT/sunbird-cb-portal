@@ -4,13 +4,12 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms'
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'
 import { MatSnackBar } from '@angular/material/snack-bar'
-import { TranslateModule, TranslateService } from '@ngx-translate/core'
 import { AppTocService, SurveyFormQuestionComponent, SurveyFormSectionComponent } from '@sunbird-cb/toc'
-import { NsCampaignMicrosite, SURVEY_LABELS, buildSurveyForm, toFormDetails, toResponse } from '../../models/campaign-microsite.model'
+import { DEFAULT_MILESTONE_LABELS, NsCampaignMicrosite, buildSurveyForm, toFormDetails, toResponse } from '../../models/campaign-microsite.model'
 
 @Component({
   selector: 'ws-app-campaign-survey-dialog',
-  imports: [ReactiveFormsModule, MatProgressSpinnerModule, TranslateModule, SurveyFormQuestionComponent, SurveyFormSectionComponent],
+  imports: [ReactiveFormsModule, MatProgressSpinnerModule, SurveyFormQuestionComponent, SurveyFormSectionComponent],
   templateUrl: './campaign-survey-dialog.component.html',
   styleUrl: './campaign-survey-dialog.component.scss',
   changeDetection: ChangeDetectionStrategy.OnPush,
@@ -20,11 +19,12 @@ export class CampaignSurveyDialogComponent implements OnInit {
   private readonly fb = inject(FormBuilder)
   private readonly tocSvc = inject(AppTocService)
   private readonly snackBar = inject(MatSnackBar)
-  private readonly translate = inject(TranslateService)
   private readonly destroyRef = inject(DestroyRef)
 
   readonly data = inject<NsCampaignMicrosite.ICampaignSurveyDialogData>(MAT_DIALOG_DATA)
-  readonly labels = SURVEY_LABELS
+  /** Page text from config (passed by the milestones section) */
+  private readonly pageLabels = this.data.labels || DEFAULT_MILESTONE_LABELS
+  readonly labels = { close: this.pageLabels.close, ...this.pageLabels.survey }
 
   readonly details = signal<NsCampaignMicrosite.ISurveyFormDetails | null>(null)
   readonly model = signal<NsCampaignMicrosite.ISurveyFormModel | null>(null)
@@ -115,6 +115,6 @@ export class CampaignSurveyDialogComponent implements OnInit {
   }
 
   private notify(message: string): void {
-    this.snackBar.open(this.translate.instant(message), 'X', { duration: 5000 })
+    this.snackBar.open(message, 'X', { duration: 5000 })
   }
 }
