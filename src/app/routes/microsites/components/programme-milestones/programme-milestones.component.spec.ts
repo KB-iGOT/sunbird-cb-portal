@@ -706,21 +706,22 @@ describe('ProgrammeMilestonesComponent', () => {
       expect([cards()[0].ctaLabel, cards()[0].completedLabel]).toEqual([DEFAULT_MILESTONE_LABELS.event.register, null])
     })
 
+    // wall-clock times without an offset: the label shows the viewer's local time, so this passes in any time zone (CI runs in UTC)
     it('assessment before its startDateTime: "Available from" with time, button disabled, click ignored; opens once the time passes', () => {
-      const endline = milestone(3, { startDateTime: '2026-11-17T10:00:00+05:30' })
-      component.now.set(at('2026-11-17T09:00:00+05:30'))
+      const endline = milestone(3, { startDateTime: '2026-11-17T10:00:00' })
+      component.now.set(at('2026-11-17T09:00:00'))
       statusSvc.resolveStates.mockReturnValue(of(['notStarted']))
       render({ items: [endline] }, undefined)
       expect(cards()[0].availableFrom).toBe('Available from 17th Nov, 10:00 AM')
       expect(cards()[0].ctaDisabled).toBe(true)
 
-      jest.spyOn(Date, 'now').mockReturnValue(at('2026-11-17T09:00:00+05:30'))
+      jest.spyOn(Date, 'now').mockReturnValue(at('2026-11-17T09:00:00'))
       component.openMilestone(endline)
       expect(statusSvc.enrollAssessment).not.toHaveBeenCalled()
       expect(router.navigate).not.toHaveBeenCalled()
       jest.restoreAllMocks()
 
-      component.now.set(at('2026-11-17T10:00:00+05:30'))
+      component.now.set(at('2026-11-17T10:00:00'))
       fixture.detectChanges()
       expect(cards()[0].availableFrom).toBeNull()
       expect(cards()[0].ctaDisabled).toBe(false)
@@ -743,13 +744,13 @@ describe('ProgrammeMilestonesComponent', () => {
     })
 
     it('startDateTime wins over lockUntilEventStart: once it passes, no "Available from" for the event date', () => {
-      const endline = milestone(3, { lockUntilEventStart: true, startDateTime: '2026-11-05T19:10:00+05:30' })
+      const endline = milestone(3, { lockUntilEventStart: true, startDateTime: '2026-11-05T19:10:00' })
       statusSvc.resolveStates.mockReturnValue(of(['notStarted']))
-      component.now.set(at('2026-11-05T19:00:00+05:30'))
+      component.now.set(at('2026-11-05T19:00:00'))
       render({ items: [endline] }, { startDate: '17-11-2026', endDate: '28-11-2026' })
       expect([cards()[0].availableFrom, cards()[0].ctaDisabled]).toEqual(['Available from 5th Nov, 7:10 PM', true])
 
-      component.now.set(at('2026-11-05T19:10:00+05:30'))
+      component.now.set(at('2026-11-05T19:10:00'))
       fixture.detectChanges()
       expect([cards()[0].availableFrom, cards()[0].ctaDisabled]).toEqual([null, false])
     })
