@@ -12,6 +12,8 @@ const API_END_POINTS = {
     `/apis/proxies/v8/user/event/read/${userId}?eventId=${eventId}&batchId=${batchId}`,
   SURVEY_APPLICATIONS: '/apis/proxies/v8/forms/v2/bulkGetApplicationsById',
   EVENT_ENROLL: '/apis/proxies/v8/event/batch/enroll',
+  EVENT_PROGRESS_UPDATE: '/apis/proxies/v8/eventprogress/v1/event/state/update',
+  CERTIFICATE_DOWNLOAD: (certId: string) => `/apis/protected/v8/cohorts/course/batch/cert/download/${certId}`,
   AUTO_ENROLL: (identifier: string, language: string) =>
     `/apis/protected/v8/cohorts/user/autoenrollment/${identifier}?language=${encodeURIComponent(language)}`,
 }
@@ -62,6 +64,51 @@ export class MilestoneStatusService {
 
   /** Event identifiers the user is registered for, filled from API B and by enrollEvent */
   private readonly enrolledEvents = new Set<string>()
+  /** Latest API B record per event identifier (status, issuedCertificates, ...) */
+  private readonly eventRecords = new Map<string, any>()
+
+  /** First certificate issued for this event, if any (from the latest API B read) */
+  issuedCertificateId(identifier: string | undefined): string | undefined {
+    const certificates: any[] = (identifier && this.eventRecords.get(identifier)?.issuedCertificates) || []
+    return certificates[0]?.identifier || undefined
+  }
+
+  /** Certificate image (data URI / SVG) to show in the certificate dialog */
+  async fetchCertificate(certId: string): Promise<string> {
+    const response: any = await firstValueFrom(this.http.get(API_END_POINTS.CERTIFICATE_DOWNLOAD(certId)))
+    const printUri = response?.result?.printUri
+    if (!printUri) {
+      throw new Error('certificate printUri missing')
+    }
+    return printUri
+  }
+
+  /**
+   * Marks an event 100% complete (status 2), the same update the event hub sends at the end of an event.
+   * Used for the pledge: submitting the pledge form completes its event.
+   */
+  async completeEvent(milestone: NsCampaignMicrosite.IMilestone): Promise<void> {
+    const userId: string | undefined = this.configSvc.userProfile?.userId
+    if (!userId || !milestone.identifier || !milestone.batchId) {
+      throw new Error('userId, event identifier and batchId are required to update progress')
+    }
+    const minutes = milestone.eventDurationMinutes && milestone.eventDurationMinutes > 0 ? milestone.eventDurationMinutes : 1
+    const seconds = minutes * 60
+    const lastAccessTime = `${new Date().toISOString().replace('T', ' ').split('.')[0]}:00+0000`
+    await firstValueFrom(this.http.patch(API_END_POINTS.EVENT_PROGRESS_UPDATE, {
+      request: {
+        userId,
+        events: [{
+          eventId: milestone.identifier,
+          batchId: milestone.batchId,
+          status: 2,
+          lastAccessTime,
+          progressdetails: { max_size: seconds, current: [minutes], duration: seconds, mimeType: 'application/html', stateMetaData: seconds },
+          completionPercentage: 100,
+        }],
+      },
+    }))
+  }
 
   isEventEnrolled(identifier: string | undefined): boolean {
     return !!identifier && this.enrolledEvents.has(identifier)
@@ -141,7 +188,10 @@ export class MilestoneStatusService {
         case 'event':
           return this.fetchEventState(userId, milestone)
         case 'survey':
-          return this.fetchSurveyState(userId, milestone)
+          // a pledge backed by an event is tracked through that event's enrollment; otherwise by form submission
+          return milestone.identifier && milestone.batchId
+            ? this.fetchEventState(userId, milestone)
+            : this.fetchSurveyState(userId, milestone)
         default:
           return 'notStarted'
       }
@@ -182,6 +232,7 @@ export class MilestoneStatusService {
       const record = events.find(e => e?.contentId === milestone.identifier)
       if (record) {
         this.enrolledEvents.add(milestone.identifier)
+        this.eventRecords.set(milestone.identifier, record)
       }
       return toProgressState(record)
     } catch (error) {

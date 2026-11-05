@@ -79,6 +79,11 @@ export namespace NsCampaignMicrosite {
     /** Event only: ISO 8601 with offset, e.g. `2026-11-17T10:00:00+05:30`. Decides Register / yet to start / Join / recording */
     startDateTime?: string
     endDateTime?: string
+    /**
+     * Survey (pledge) backed by an event (`identifier` + `batchId`): the event's duration in minutes,
+     * sent in the progress update that marks the event complete after the form is submitted
+     */
+    eventDurationMinutes?: number
   }
 
   export interface IProgrammeMilestones {
@@ -124,6 +129,11 @@ export namespace NsCampaignMicrosite {
       submitted: string
       submitError: string
       alreadySubmitted: string
+      /** Button on a completed event-backed pledge */
+      downloadCertificate: string
+      /** Shown when the pledge is completed but no certificate has been issued yet */
+      certificatePending: string
+      certificateError: string
     }
   }
 
@@ -135,6 +145,10 @@ export namespace NsCampaignMicrosite {
 
   export interface IMilestonePopup {
     enabled: boolean
+    /** When set (and it loads), the popup shows only this image with a close button; otherwise the text below */
+    image?: string
+    /** Accessible description of `image`; falls back to `title` */
+    imageAlt?: string
     eyebrow?: string
     title?: string
     description?: string
@@ -228,6 +242,10 @@ export const DEFAULT_MILESTONE_LABELS: NsCampaignMicrosite.IMilestoneLabels = {
     submitted: 'Thank you! Your response has been submitted.',
     submitError: 'Something went wrong. Please try again.',
     alreadySubmitted: 'You have already submitted this form.',
+    downloadCertificate: 'Download certificate',
+    certificatePending: 'Kindly be patient. The certificate generation normally takes up to 24 hours, however, it might take longer sometimes. '
+      + 'If the issue persists, please mail us at mission.karmayogi@gov.in',
+    certificateError: 'We couldn\'t load your certificate. Please try again.',
   },
 }
 

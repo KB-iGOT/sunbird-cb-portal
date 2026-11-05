@@ -1,13 +1,21 @@
 <div class="mp-backdrop fixed inset-0 flex items-center justify-center p-4" (click)="closed.emit()">
   <div class="mp-dialog relative flex flex-col w-full overflow-hidden rounded-2xl" role="dialog" aria-modal="true"
-    aria-labelledby="mp-title" (click)="$event.stopPropagation()">
+    [class.mp-dialog--image]="showImage()"
+    [attr.aria-labelledby]="showImage() ? null : 'mp-title'" [attr.aria-label]="showImage() ? imageAlt() : null"
+    (click)="$event.stopPropagation()">
 
-    <button type="button" class="mp-close absolute top-4 right-4 flex items-center justify-center w-10 h-10 p-0 rounded-full cursor-pointer"
+    <button #closeBtn type="button"
+      class="mp-close absolute top-4 right-4 flex items-center justify-center w-10 h-10 p-0 rounded-full cursor-pointer"
       [attr.aria-label]="labels().close" (click)="closed.emit()">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
       </svg>
     </button>
+
+    @if (showImage()) {
+    <!-- Image-only popup (config.image); falls back to the text version if it fails to load -->
+    <img class="mp-image block" [src]="config()?.image" [alt]="imageAlt()" (error)="imageFailed.set(true)" />
+    } @else {
 
     <!-- Header -->
     <header class="mp-header flex flex-col items-center gap-3 px-12 py-8 md:py-10 text-center">
@@ -86,5 +94,6 @@
           (click)="closed.emit()">{{ labels().popup.okay }}</button>
       </footer>
     </div>
+    }
   </div>
 </div>

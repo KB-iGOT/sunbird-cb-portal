@@ -31,7 +31,7 @@ const DONE = { status: 2, completionPercentage: 100 }
 
 describe('MilestoneStatusService', () => {
   let service: MilestoneStatusService
-  let http: { post: jest.Mock, get: jest.Mock }
+  let http: { post: jest.Mock, get: jest.Mock, patch: jest.Mock }
   let configSvc: { userProfile: any }
 
   /** post() serves API A or C by URL; get() serves API B */
@@ -51,7 +51,7 @@ describe('MilestoneStatusService', () => {
     milestones.map(m => ({ ...m, ...flags[m.order] }))
 
   beforeEach(() => {
-    http = { post: jest.fn(), get: jest.fn() }
+    http = { post: jest.fn(), get: jest.fn(), patch: jest.fn() }
     configSvc = { userProfile: { userId: 'u1' } }
     TestBed.configureTestingModule({
       providers: [
@@ -139,6 +139,71 @@ describe('MilestoneStatusService', () => {
       mockApis(courses(DONE, DONE))
       expect(await resolve()).toEqual(['notStarted', 'notStarted', 'notStarted', 'notStarted'])
       expect(callCounts()).toEqual({ a: 0, b: 0, c: 0 })
+    })
+  })
+
+  describe('pledge backed by an event', () => {
+    const PLEDGE_EVENT = 'do_pledge_event'
+    const pledge = {
+      order: 3, type: 'survey', formId: 'f1', identifier: PLEDGE_EVENT, batchId: 'b_pledge', eventDurationMinutes: 30,
+    } as NsCampaignMicrosite.IMilestone
+    const items = [milestones[0], milestones[1], pledge, milestones[3]] as NsCampaignMilestone.IMilestone[]
+    const eventsResponse = (records: object[]) => ({ result: { events: records } })
+
+    it('status comes from the event read for that event, not the form check', async () => {
+      http.post.mockImplementation((url: string) =>
+        url.includes('bulkGetApplicationsById') ? of(survey(true)) : of(courses()))
+      http.get.mockImplementation((url: string) => of(url.includes(PLEDGE_EVENT)
+        ? eventsResponse([{ contentId: PLEDGE_EVENT, status: 2, issuedCertificates: [{ identifier: 'cert_1' }] }])
+        : event()))
+      const states = await resolve(items)
+      expect(states[2]).toBe('completed')
+      expect(http.get).toHaveBeenCalledWith(expect.stringContaining(`eventId=${PLEDGE_EVENT}&batchId=b_pledge`))
+      expect(http.post.mock.calls.some(([url]) => url.includes('bulkGetApplicationsById'))).toBe(false)
+      expect(service.isEventEnrolled(PLEDGE_EVENT)).toBe(true)
+      expect(service.issuedCertificateId(PLEDGE_EVENT)).toBe('cert_1')
+    })
+
+    it('no certificate issued → undefined', async () => {
+      mockApis(courses())
+      http.get.mockImplementation((url: string) => of(url.includes(PLEDGE_EVENT)
+        ? eventsResponse([{ contentId: PLEDGE_EVENT, status: 2, issuedCertificates: [] }])
+        : event()))
+      await resolve(items)
+      expect(service.issuedCertificateId(PLEDGE_EVENT)).toBeUndefined()
+      expect(service.issuedCertificateId(undefined)).toBeUndefined()
+    })
+
+    it('completeEvent sends the 100% progress update for the event batch', async () => {
+      http.patch = jest.fn(() => of({ responseCode: 'OK' }))
+      await service.completeEvent(pledge)
+      expect(http.patch).toHaveBeenCalledWith('/apis/proxies/v8/eventprogress/v1/event/state/update', {
+        request: {
+          userId: 'u1',
+          events: [{
+            eventId: PLEDGE_EVENT,
+            batchId: 'b_pledge',
+            status: 2,
+            lastAccessTime: expect.stringMatching(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}:00\+0000$/),
+            progressdetails: { max_size: 1800, current: [30], duration: 1800, mimeType: 'application/html', stateMetaData: 1800 },
+            completionPercentage: 100,
+          }],
+        },
+      })
+    })
+
+    it('completeEvent needs an identifier and batchId', async () => {
+      http.patch = jest.fn()
+      await expect(service.completeEvent({ ...pledge, batchId: '' })).rejects.toThrow()
+      expect(http.patch).not.toHaveBeenCalled()
+    })
+
+    it('fetchCertificate returns the printUri, and rejects without one', async () => {
+      http.get.mockReturnValue(of({ result: { printUri: 'data:image/svg+xml,<svg/>' } }))
+      expect(await service.fetchCertificate('cert_1')).toBe('data:image/svg+xml,<svg/>')
+      expect(http.get).toHaveBeenCalledWith('/apis/protected/v8/cohorts/course/batch/cert/download/cert_1')
+      http.get.mockReturnValue(of({ result: {} }))
+      await expect(service.fetchCertificate('cert_1')).rejects.toThrow()
     })
   })
 

@@ -21,6 +21,7 @@ import { HomeResolverService } from './home/home/home-resolver.service'
 import { FormDataResolverService } from './services/form-data-resolver.service'
 import { FormConfigResolverService } from './services/form-config-resolver.service'
 import { AppPreAssessmentContentResolverService } from './services/app-pre-assessment-content-read-resolver.service'
+import { campaignMicrositeResolver } from './routes/microsites/campaign/campaign-microsite.resolver'
 // 💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥
 // Please declare routes in alphabetical order
 // 😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵
@@ -361,11 +362,10 @@ const routes: Routes = [
     data: {
       module: 'Campaign Microsite',
       pageId: 'app/leadership-as-mission-2026',
-      pageKey: 'campaign-microsite',
-      pageType: 'feature',
     },
     resolve: {
-      pageData: PageResolve,
+      // content-store JSON first, bundled assets/configurations/feature/campaign-microsite.json as fallback
+      pageData: campaignMicrositeResolver,
     },
   },
   // {
