@@ -37,6 +37,15 @@ export function toProgressState(record: IEnrollmentRecord | undefined | null): T
   return Number(record.status) === 1 ? 'inProgress' : 'notStarted'
 }
 
+/**
+ * Assessment: any enrollment record that is not finished counts as in progress (status 0 or 1,
+ * completionPercentage < 100), so the card offers Resume instead of Start.
+ */
+export function assessmentState(record: IEnrollmentRecord | undefined | null): TProgressState {
+  const state = toProgressState(record)
+  return record && state === 'notStarted' ? 'inProgress' : state
+}
+
 /** Config decides availability: `enabled: false` or `locked: true` keeps a milestone locked without any API call. */
 export function isMilestoneOpenable(milestone: NsCampaignMilestone.IMilestone): boolean {
   return milestone.enabled !== false && !milestone.locked
@@ -212,11 +221,12 @@ export class MilestoneStatusService {
     const courses: any[] = response?.result?.courses || []
     for (const course of courses) {
       const batchId = course?.batchId || course?.batch?.batchId
-      if (course?.courseId && batchId) {
-        this.enrolledBatches.set(course.courseId, batchId)
+      const id = course?.courseId || course?.contentId
+      if (id && batchId) {
+        this.enrolledBatches.set(id, batchId)
       }
     }
-    return new Map(courseId.map(id => [id, toProgressState(courses.find(c => c?.courseId === id))]))
+    return new Map(courseId.map(id => [id, assessmentState(courses.find(c => (c?.courseId || c?.contentId) === id))]))
   }
 
   /** API B: event enrollment for the logged-in user. Empty result or 404 = not registered. */

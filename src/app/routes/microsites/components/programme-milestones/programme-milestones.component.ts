@@ -64,6 +64,21 @@ export function eventPhase(milestone: NsCampaignMicrosite.IMilestone, now: numbe
   return start?.isValid() && now < start.valueOf() ? 'upcoming' : 'live'
 }
 
+/** Assessment button: not enrolled -> Start, enrolled but not finished -> Resume, finished -> View */
+export function assessmentCtaLabel(
+  state: NsCampaignMilestone.TMilestoneState,
+  labels: NsCampaignMicrosite.IMilestoneLabels['assessment'],
+): string {
+  switch (state) {
+    case 'inProgress':
+      return labels.resume
+    case 'completed':
+      return labels.view
+    default:
+      return labels.start
+  }
+}
+
 export interface IEventCta {
   label: string
   disabled: boolean
@@ -156,8 +171,9 @@ export class ProgrammeMilestonesComponent {
   })
 
   /**
-   * Host-provided button per milestone; `null` keeps the card's default button.
-   * Events: Register / yet to start / Join / recording. Completed event-backed pledge: Download certificate.
+   * Host-provided button per milestone (text from the page JSON); `null` keeps the card's default button.
+   * Assessments: Start / Resume / View. Events: Register / yet to start / Join / recording.
+   * Pledge: Take Sankalpa, then Download certificate once an event-backed one is completed.
    */
   readonly ctas = computed<(IEventCta | null)[]>(() => {
     const states = this.states()
@@ -168,13 +184,19 @@ export class ProgrammeMilestonesComponent {
       if (!state || state === 'locked') {
         return null
       }
-      if (milestone.type === 'event') {
-        return eventCta(eventPhase(milestone, now), this.statusSvc.isEventEnrolled(milestone.identifier), labels.event)
+      switch (milestone.type) {
+        case 'assessment':
+          return { label: assessmentCtaLabel(state, labels.assessment), disabled: false }
+        case 'event':
+          return eventCta(eventPhase(milestone, now), this.statusSvc.isEventEnrolled(milestone.identifier), labels.event)
+        case 'survey':
+          if (state !== 'completed') {
+            return { label: labels.survey.start, disabled: false }
+          }
+          return isEventBackedSurvey(milestone) ? { label: labels.survey.downloadCertificate, disabled: false } : null
+        default:
+          return null
       }
-      if (state === 'completed' && isEventBackedSurvey(milestone)) {
-        return { label: labels.survey.downloadCertificate, disabled: false }
-      }
-      return null
     })
   })
 

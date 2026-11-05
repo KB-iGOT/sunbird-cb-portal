@@ -1,9 +1,9 @@
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core'
+import { NgTemplateOutlet } from '@angular/common'
+import { ChangeDetectorRef, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core'
 import { ComponentFixture, TestBed } from '@angular/core/testing'
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms'
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
-import { NsCampaignMilestone } from '@sunbird-cb/consumption'
 import { AppTocService } from '@sunbird-cb/toc'
 import { of, throwError } from 'rxjs'
 import { NsCampaignMicrosite, buildSurveyForm, toFormDetails, toResponse } from '../../models/campaign-microsite.model'
@@ -23,8 +23,10 @@ const milestone = {
   order: 3,
   type: 'survey',
   formId: '1784131937108',
+  // no limits here; the default Sankalpa limits have their own test
+  answerLimits: [] as NsCampaignMicrosite.IAnswerLimit[],
   name: 'Leadership Pledge: Commit to Serve Citizens',
-} as NsCampaignMilestone.IMilestone
+} as NsCampaignMicrosite.IMilestone
 
 describe('campaign survey form helpers', () => {
   const fb = new FormBuilder()
@@ -99,7 +101,7 @@ describe('CampaignSurveyDialogComponent', () => {
     })
     // The TOC question components are covered by the toc library; stub them here
     TestBed.overrideComponent(CampaignSurveyDialogComponent, {
-      set: { imports: [ReactiveFormsModule], schemas: [CUSTOM_ELEMENTS_SCHEMA] },
+      set: { imports: [NgTemplateOutlet, ReactiveFormsModule], schemas: [CUSTOM_ELEMENTS_SCHEMA] },
     })
   })
 
@@ -107,9 +109,10 @@ describe('CampaignSurveyDialogComponent', () => {
     create()
     expect(tocSvc.getFormById).toHaveBeenCalledWith('1784131937108')
     expect(el.querySelector('h2')?.textContent?.trim()).toBe('Leadership Pledge')
-    expect(el.querySelectorAll('ws-app-survey-form-question').length).toBe(1)
-    expect(el.querySelectorAll('ws-app-survey-form-section').length).toBe(1)
-    expect(el.querySelectorAll('hr').length).toBe(1)
+    // q1 on its own, q2 + q3 inside the "Pledge" section
+    expect(el.querySelectorAll('ws-app-survey-form-question').length).toBe(3)
+    expect(el.querySelectorAll('.csd__section .csd__section-title')[0]?.textContent?.trim()).toBe('Pledge')
+    expect(el.querySelectorAll('.csd__section ws-app-survey-form-question').length).toBe(2)
   })
 
   it('submit stays disabled until required answers are valid and the commitment is checked', () => {
@@ -184,6 +187,56 @@ describe('CampaignSurveyDialogComponent', () => {
     fixture.detectChanges()
     expect(tocSvc.getFormById).toHaveBeenCalledTimes(2)
     expect(el.querySelector('[role="alert"]')).toBeNull()
+  })
+
+  it('applies the default Sankalpa limits when the milestone has none and shows the counter', () => {
+    const { answerLimits, ...noLimits } = milestone
+    create({ milestone: noLimits } as any)
+    const answer = component.model()!.controls[0].controls.answer
+    answer.setValue('Asha')
+    answer.markAsTouched()
+    fixture.detectChanges()
+    expect(answer.hasError('minlength')).toBe(true)
+    const hint = el.querySelector('.csd__limit')
+    expect(hint?.querySelector('.csd__limit-error')?.textContent).toContain('Minimum 70 characters')
+    expect(hint?.textContent).toContain('4/300')
+  })
+
+  it('shows the length hint for questions inside a section too', () => {
+    create({ milestone: { ...milestone, answerLimits: [{ ids: ['q3'], minLength: 5, maxLength: 20 }] } })
+    const answer = component.model()!.controls[2].controls.answer
+    answer.setValue('abc')
+    answer.markAsTouched()
+    fixture.detectChanges()
+    const hints = el.querySelectorAll('.csd__section .csd__limit')
+    expect(hints.length).toBe(1)
+    expect(hints[0].textContent).toContain('Minimum 5 characters')
+    expect(hints[0].textContent).toContain('3/20')
+  })
+
+  it('shows nothing under a limited answer until it is typed in or too short; the hint always shows', () => {
+    create({ milestone: { ...milestone, answerLimits: [
+      { ids: ['q3'], minLength: 5, maxLength: 20 },
+      { ids: ['q3'], hint: 'Say what and by when' },
+    ] } })
+    expect(el.querySelector('.csd__limit')).toBeNull()
+    expect(el.querySelector('.csd__hint')?.textContent).toContain('Say what and by when')
+
+    const answer = component.model()!.controls[2].controls.answer
+    // typing in the TOC textarea re-renders this OnPush dialog; setting the value directly needs a nudge
+    const rerender = () => {
+      fixture.debugElement.injector.get(ChangeDetectorRef).markForCheck()
+      fixture.detectChanges()
+    }
+    answer.setValue('abc')
+    rerender()
+    // typing shows the counter; the minimum waits until the field is left
+    expect(el.querySelector('.csd__limit')?.textContent).toContain('3/20')
+    expect(el.querySelector('.csd__limit')?.textContent).not.toContain('Minimum')
+    answer.setValue('abcdef')
+    answer.markAsTouched()
+    rerender()
+    expect(el.querySelector('.csd__limit')?.textContent).not.toContain('Minimum')
   })
 
   it('fails without a formId and makes no call', () => {

@@ -297,12 +297,12 @@ describe('ProgrammeMilestonesComponent', () => {
       expect(eventCta(phase, enrolled, L)).toEqual({ label, disabled })
     })
 
-    it('binds the event button to the card; other types and locked events keep the default', () => {
+    it('binds the event button to the card; locked events keep the default', () => {
       component.now.set(at('2026-11-17T11:00:00+05:30'))
       statusSvc.isEventEnrolled.mockReturnValue(true)
       statusSvc.resolveStates.mockReturnValue(of(['completed', 'notStarted', 'locked']))
       render({ items: [milestone(1), event(), milestone(3, { type: 'event' })] })
-      expect(cards().map(card => [card.ctaLabel, card.ctaDisabled])).toEqual([[null, false], [L.join, false], [null, false]])
+      expect(cards().map(card => [card.ctaLabel, card.ctaDisabled])).toEqual([['View Questionnaire', false], [L.join, false], [null, false]])
     })
 
     it('the button follows the clock: yet to start → Join event', () => {
@@ -558,11 +558,17 @@ describe('ProgrammeMilestonesComponent', () => {
       expect(statusSvc.resolveStates).toHaveBeenCalledTimes(2)
     })
 
-    it('completed → card button is "Download certificate"; a plain pledge keeps the default', () => {
+    it('completed → card button is "Download certificate"; a completed plain pledge keeps the default', () => {
       const plain = milestone(3, { type: 'survey', formId: 'f', identifier: undefined })
       statusSvc.resolveStates.mockReturnValue(of(['completed', 'completed', 'completed']))
       render({ items: [milestone(1), pledge, plain] })
-      expect(cards().map(card => card.ctaLabel)).toEqual([null, S.downloadCertificate, null])
+      expect(cards().map(card => card.ctaLabel)).toEqual(['View Questionnaire', S.downloadCertificate, null])
+    })
+
+    it('not completed → "Take Sankalpa" from the page config', () => {
+      statusSvc.resolveStates.mockReturnValue(of(['completed', 'inProgress']))
+      render({ items: [milestone(1), pledge], labels: { survey: { start: 'Take the pledge' } } })
+      expect(cards()[1].ctaLabel).toBe('Take the pledge')
     })
 
     it('completed with a certificate → opens the certificate dialog', async () => {
@@ -658,6 +664,17 @@ describe('ProgrammeMilestonesComponent', () => {
       statusSvc.resolveStates.mockReturnValue(of(['completed', 'locked']))
       render(withPopup)
       expect(popup()).toBeNull()
+    })
+  })
+
+  describe('assessment button', () => {
+    it('Start / Resume / View by state, text from the page config', () => {
+      statusSvc.resolveStates.mockReturnValue(of(['notStarted', 'inProgress', 'completed']))
+      render({
+        items: [milestone(1), milestone(2), milestone(3)],
+        labels: { assessment: { resume: 'Continue' } },
+      })
+      expect(cards().map(card => card.ctaLabel)).toEqual(['Start Questionnaire', 'Continue', 'View Questionnaire'])
     })
   })
 })
