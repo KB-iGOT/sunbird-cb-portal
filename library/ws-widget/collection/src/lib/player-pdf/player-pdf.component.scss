@@ -28,6 +28,7 @@
   // overflow: auto;
   // margin: auto;
   flex: 1;
+  min-height: 0;
   width: 100%;
   overflow: auto;
   margin: auto;
@@ -41,6 +42,14 @@
 .pdf-container {
   height: 100%;
   width: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+.pdf-container-inner {
+  height: 100%;
+  width: 100%;
+  min-height: 0;
   display: flex;
   flex-direction: column;
 }
