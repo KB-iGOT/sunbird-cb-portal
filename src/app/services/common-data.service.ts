@@ -152,7 +152,8 @@ export class CommonDataService {
         return this.readCustomattributeDetails(isPlayer, customFieldsLength)
       }
       this.updatePlayerStatus(isPlayer)
-      this.checkAndShowMandatoryNotification()
+      // mandatory notification switched off: no API call and no re-show timer. Uncomment to bring it back
+      // this.checkAndShowMandatoryNotification()
       return false
 
     }
@@ -165,7 +166,8 @@ export class CommonDataService {
         return this.readCustomattributeDetails(isPlayer, customFieldsLength)
       }
       this.updatePlayerStatus(isPlayer)
-      this.checkAndShowMandatoryNotification()
+      // mandatory notification switched off: no API call and no re-show timer. Uncomment to bring it back
+      // this.checkAndShowMandatoryNotification()
       return false
 
     }, error => {
@@ -183,7 +185,8 @@ export class CommonDataService {
       // this.redirectToCustomProfile()
 
       this.updatePlayerStatus(isPlayer)
-      this.checkAndShowMandatoryNotification()
+      // mandatory notification switched off: no API call and no re-show timer. Uncomment to bring it back
+      // this.checkAndShowMandatoryNotification()
       this.checkMandatoryCustomFields(customFieldIds, customFieldValues)
 
     }, error => {
