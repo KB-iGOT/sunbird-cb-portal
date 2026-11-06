@@ -1,6 +1,3 @@
-// '@ws/app' pulls in the full collection library (player-video.component.ts), which fails
-// to compile against the installed rxjs Subscription shape. Stub it so only the symbols
-// this component actually needs are resolved.
 jest.mock('@ws/app', () => ({
   UserProfileService: class { },
   DialogBoxComponent: class { },
