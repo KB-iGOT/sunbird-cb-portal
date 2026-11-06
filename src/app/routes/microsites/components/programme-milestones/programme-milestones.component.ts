@@ -10,6 +10,7 @@ import { of } from 'rxjs'
 import { startWith, switchMap } from 'rxjs/operators'
 import { NsCampaignMicrosite, formatLabel, formatOrdinalDate, formatOrdinalDateTime, resolveMilestoneLabels } from '../../models/campaign-microsite.model'
 import { MilestoneStatusService, isOpenState } from '../../services/milestone-status.service'
+import { MicrositeTelemetryService } from '../../services/microsite-telemetry.service'
 import { CampaignSurveyDialogComponent } from '../campaign-survey-dialog/campaign-survey-dialog.component'
 import { MilestonePopupComponent } from '../milestone-popup/milestone-popup.component'
 
@@ -156,6 +157,53 @@ export function eventCta(
   }
 }
 
+/**
+ * What a click on a milestone does, for telemetry: a stable key, not the JSON button text (which can change).
+ * `locked` / `completed`: the click is ignored (not open yet, or a finished assessment that stays closed).
+ */
+export function milestoneAction(
+  milestone: NsCampaignMicrosite.IMilestone,
+  state: NsCampaignMilestone.TMilestoneState,
+  ctx: { now: number, eventStartDate?: string, isEventEnrolled: boolean, hasCertificate: boolean },
+): string {
+  if (configValue(milestone.redirectUrl) && isUsableUrl(milestone.redirectUrl!)) {
+    return 'redirect'
+  }
+  if (state === 'locked') {
+    return 'locked'
+  }
+  switch (milestone.type) {
+    case 'assessment':
+      if (assessmentUnlockAt(milestone, ctx.now, ctx.eventStartDate)) {
+        return 'locked'
+      }
+      if (isClosedWhenCompleted(milestone, state)) {
+        return 'completed'
+      }
+      return state === 'inProgress' ? 'resume' : state === 'completed' ? 'view' : 'start'
+    case 'event': {
+      if (!ctx.isEventEnrolled) {
+        return 'register'
+      }
+      const phase = eventPhase(milestone, ctx.now)
+      return phase === 'upcoming' ? 'yet-to-start' : phase === 'live' ? 'join' : 'recording'
+    }
+    case 'survey':
+      if (state !== 'completed') {
+        return 'take-sankalp'
+      }
+      return ctx.hasCertificate ? 'download-certificate' : 'certificate-pending'
+    default:
+      return 'open'
+  }
+}
+
+/** Telemetry object for a milestone: its content id (assessment / event), else the form id, else its order */
+export function milestoneTelemetryObject(milestone: NsCampaignMicrosite.IMilestone): { id: string, type: string } {
+  const id = configValue(milestone.identifier) || configValue(milestone.formId) || `milestone-${milestone.order}`
+  return { id, type: milestone.type }
+}
+
 /** A pledge (survey) that is tracked through an event: registering, progress and certificate all use that event */
 export function isEventBackedSurvey(milestone: NsCampaignMicrosite.IMilestone): boolean {
   return milestone.type === 'survey' && !!configValue(milestone.identifier) && !!configValue(milestone.batchId)
@@ -211,6 +259,7 @@ export class ProgrammeMilestonesComponent {
   private readonly destroyRef = inject(DestroyRef)
   /** Server time, not the device clock: changing the system time must not unlock anything early */
   private readonly clock = inject(ServerClockService)
+  private readonly telemetry = inject(MicrositeTelemetryService)
 
   readonly config = input<NsCampaignMicrosite.IProgrammeMilestones | undefined>()
   readonly eventDetails = input<NsCampaignMicrosite.IEventDetails | undefined>()
@@ -343,6 +392,13 @@ export class ProgrammeMilestonesComponent {
     }, COUNTDOWN_TICK_MS))
     this.destroyRef.onDestroy(() => clearInterval(timer))
 
+    // one impression each time the info popup appears (it shows at most once per milestone per session)
+    effect(() => {
+      if (this.showPopup()) {
+        untracked(() => this.telemetry.impression('milestone-popup', { id: 'milestone-popup', type: 'popup' }))
+      }
+    })
+
     // the window can also start while the page is open: `now` moves autoOpenSurvey along
     effect(() => {
       const milestone = this.autoOpenSurvey()
@@ -355,7 +411,7 @@ export class ProgrammeMilestonesComponent {
           return
         }
         this.autoOpened = true
-        this.openSurvey(milestone)
+        this.openSurvey(milestone, true)
       })
     })
   }
@@ -420,6 +476,7 @@ export class ProgrammeMilestonesComponent {
   }
 
   closePopup(): void {
+    this.telemetry.click('milestone-popup', 'milestone-popup-close', { id: 'milestone-popup', type: 'popup' })
     const current = this.currentMilestone()
     if (current) {
       sessionStorage.setItem(MILESTONE_POPUP_SEEN_KEY, String(current.order))
@@ -428,6 +485,7 @@ export class ProgrammeMilestonesComponent {
   }
 
   openMilestone(milestone: NsCampaignMicrosite.IMilestone): void {
+    this.trackMilestoneClick(milestone)
     const redirectUrl = configValue(milestone.redirectUrl)
     if (redirectUrl && isUsableUrl(redirectUrl)) {
       if (/^https?:\/\//.test(redirectUrl)) {
@@ -465,6 +523,18 @@ export class ProgrammeMilestonesComponent {
       // tslint:disable-next-line: no-console
       console.warn('ProgrammeMilestonesComponent: no route configured for milestone', milestone.order)
     }
+  }
+
+  /** One INTERACT per card / button click: subType `milestone-card`, id `milestone-<order>-<action>` */
+  private trackMilestoneClick(milestone: NsCampaignMicrosite.IMilestone): void {
+    const index = this.milestones().findIndex(m => m.order === milestone.order)
+    const action = milestoneAction(milestone, this.stateAt(index), {
+      now: this.clock.now(),
+      eventStartDate: this.eventDetails()?.startDate,
+      isEventEnrolled: this.statusSvc.isEventEnrolled(milestone.identifier),
+      hasCertificate: !!this.statusSvc.issuedCertificateId(milestone.identifier),
+    })
+    this.telemetry.click('milestone-card', `milestone-${milestone.order}-${action}`, milestoneTelemetryObject(milestone))
   }
 
   /**
@@ -538,7 +608,7 @@ export class ProgrammeMilestonesComponent {
    * Otherwise: event-backed -> register for the event if needed, then open the form; after a successful
    * submit mark the event complete (progress 100%) and re-read statuses (event read gives status + certificate).
    */
-  private async openSurvey(milestone: NsCampaignMicrosite.IMilestone): Promise<void> {
+  private async openSurvey(milestone: NsCampaignMicrosite.IMilestone, autoOpened = false): Promise<void> {
     if (this.enrollingOrder() !== null) {
       return
     }
@@ -567,6 +637,8 @@ export class ProgrammeMilestonesComponent {
       }
     }
 
+    // `sankalp-form-auto` when it opened by itself on page load, `sankalp-form` when the user clicked
+    this.telemetry.impression(autoOpened ? 'sankalp-form-auto' : 'sankalp-form', { id: configValue(milestone.formId)!, type: 'survey' })
     this.dialog.open<CampaignSurveyDialogComponent, NsCampaignMicrosite.ICampaignSurveyDialogData, boolean>(CampaignSurveyDialogComponent, {
       data: { milestone, labels: this.labels() },
       width: '750px',
