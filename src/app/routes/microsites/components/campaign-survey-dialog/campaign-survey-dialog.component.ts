@@ -1,11 +1,12 @@
 import { NgTemplateOutlet } from '@angular/common'
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms'
+import { AbstractControl, FormBuilder, ReactiveFormsModule } from '@angular/forms'
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { AppTocService, SurveyFormQuestionComponent } from '@sunbird-cb/toc'
+import { MicrositeTelemetryService } from '../../services/microsite-telemetry.service'
 import { DEFAULT_MILESTONE_LABELS, DEFAULT_SURVEY_ANSWER_LIMITS, NsCampaignMicrosite, buildSurveyForm, formatLabel, toFormDetails, toResponse } from '../../models/campaign-microsite.model'
 
 @Component({
@@ -21,6 +22,7 @@ export class CampaignSurveyDialogComponent implements OnInit {
   private readonly tocSvc = inject(AppTocService)
   private readonly snackBar = inject(MatSnackBar)
   private readonly destroyRef = inject(DestroyRef)
+  private readonly telemetry = inject(MicrositeTelemetryService)
 
   readonly data = inject<NsCampaignMicrosite.ICampaignSurveyDialogData>(MAT_DIALOG_DATA)
   /** Page text from config (passed by the milestones section) */
@@ -37,6 +39,12 @@ export class CampaignSurveyDialogComponent implements OnInit {
   readonly canSubmit = computed(() => this.isValid() && this.isCommitted() && !this.isSubmitting())
 
   ngOnInit(): void {
+    this.loadForm()
+  }
+
+  /** Retry after the form failed to load */
+  retry(): void {
+    this.track('sankalp-retry')
     this.loadForm()
   }
 
@@ -82,6 +90,7 @@ export class CampaignSurveyDialogComponent implements OnInit {
       return
     }
 
+    this.track('sankalp-submit')
     const { milestone } = this.data
     const body = {
       formId: milestone.formId,
@@ -121,8 +130,25 @@ export class CampaignSurveyDialogComponent implements OnInit {
     return formatLabel(this.labels.minChars, { min })
   }
 
-  close(): void {
+  /** Message under a question the user has been in: empty when required, else too short; '' when fine */
+  answerError(answer: AbstractControl, limit: NsCampaignMicrosite.IAnswerRule | undefined): string {
+    if (!answer.touched) {
+      return ''
+    }
+    if (answer.hasError('required')) {
+      return this.labels.required
+    }
+    return limit?.minLength && answer.hasError('minlength') ? this.minChars(limit.minLength) : ''
+  }
+
+  /** `button`: the X in the header (`close`) or Cancel in the footer (`cancel`), told apart in telemetry */
+  close(button: 'close' | 'cancel' = 'close'): void {
+    this.track(`sankalp-${button}`)
     this.dialogRef.close(false)
+  }
+
+  private track(id: string): void {
+    this.telemetry.click('sankalp-form', id, { id: this.data.milestone.formId || '', type: 'survey' })
   }
 
   private notify(message: string): void {

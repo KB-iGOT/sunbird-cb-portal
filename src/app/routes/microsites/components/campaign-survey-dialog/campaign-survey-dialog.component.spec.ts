@@ -6,6 +6,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { AppTocService } from '@sunbird-cb/toc'
 import { of, throwError } from 'rxjs'
+import { MicrositeTelemetryService } from '../../services/microsite-telemetry.service'
 import { NsCampaignMicrosite, buildSurveyForm, toFormDetails, toResponse } from '../../models/campaign-microsite.model'
 import { CampaignSurveyDialogComponent } from './campaign-survey-dialog.component'
 
@@ -86,7 +87,10 @@ describe('CampaignSurveyDialogComponent', () => {
     component.isCommitted.set(true)
   }
 
+  let telemetry: { click: jest.Mock, impression: jest.Mock }
+
   beforeEach(() => {
+    telemetry = { click: jest.fn(), impression: jest.fn() }
     tocSvc = { getFormById: jest.fn(() => of(FORM_RESPONSE)), submitForm: jest.fn(() => of({ params: { status: 'success' } })) }
     dialogRef = { close: jest.fn() }
     snackBar = { open: jest.fn() }
@@ -95,6 +99,7 @@ describe('CampaignSurveyDialogComponent', () => {
       providers: [
         { provide: AppTocService, useValue: tocSvc },
         { provide: MatDialogRef, useValue: dialogRef },
+        { provide: MicrositeTelemetryService, useValue: telemetry },
         { provide: MatSnackBar, useValue: snackBar },
         { provide: MAT_DIALOG_DATA, useValue: { milestone } },
       ],
@@ -202,6 +207,31 @@ describe('CampaignSurveyDialogComponent', () => {
     expect(hint?.textContent).toContain('4/300')
   })
 
+  it('a required question left empty after focus says so; nothing before it is touched, and the minimum once typed', () => {
+    const { answerLimits, ...defaultLimits } = milestone
+    create({ milestone: defaultLimits } as any)
+    const answer = component.model()!.controls[0].controls.answer
+    const error = () => el.querySelector('.csd__limit-error')?.textContent?.trim() ?? null
+    expect(error()).toBeNull()
+
+    answer.markAsTouched()
+    fixture.debugElement.injector.get(ChangeDetectorRef).markForCheck()
+    fixture.detectChanges()
+    expect(error()).toBe('This field is required')
+
+    answer.setValue('Asha')
+    fixture.debugElement.injector.get(ChangeDetectorRef).markForCheck()
+    fixture.detectChanges()
+    expect(error()).toBe('Minimum 70 characters')
+  })
+
+  it('a required question without length limits still gets the message', () => {
+    create({ milestone: { ...milestone, answerLimits: [] } })
+    component.model()!.controls[0].controls.answer.markAsTouched()
+    fixture.detectChanges()
+    expect(el.querySelector('.csd__limit-error')?.textContent?.trim()).toBe('This field is required')
+  })
+
   it('shows the length hint for questions inside a section too', () => {
     create({ milestone: { ...milestone, answerLimits: [{ ids: ['q3'], minLength: 5, maxLength: 20 }] } })
     const answer = component.model()!.controls[2].controls.answer
@@ -249,5 +279,31 @@ describe('CampaignSurveyDialogComponent', () => {
     create()
     el.querySelector<HTMLButtonElement>('.csd__btn--secondary')?.click()
     expect(dialogRef.close).toHaveBeenCalledWith(false)
+  })
+
+  describe('telemetry', () => {
+    const object = { id: milestone.formId, type: 'survey' }
+
+    it('X, Cancel and Retry each raise their own click', () => {
+      create()
+      el.querySelector<HTMLButtonElement>('.csd__close')?.click()
+      el.querySelector<HTMLButtonElement>('.csd__footer .csd__btn--secondary')?.click()
+      component.retry()
+      expect(telemetry.click.mock.calls).toEqual([
+        ['sankalp-form', 'sankalp-close', object],
+        ['sankalp-form', 'sankalp-cancel', object],
+        ['sankalp-form', 'sankalp-retry', object],
+      ])
+    })
+
+    it('Submit raises a click only when the form is actually sent', () => {
+      create({ milestone: { ...milestone, answerLimits: [] } })
+      component.submit()
+      expect(telemetry.click).not.toHaveBeenCalled()
+
+      fillValid()
+      component.submit()
+      expect(telemetry.click.mock.calls).toEqual([['sankalp-form', 'sankalp-submit', object]])
+    })
   })
 })

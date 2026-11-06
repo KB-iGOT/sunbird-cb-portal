@@ -288,11 +288,11 @@ describe('CommonDataService', () => {
 
       service.getOrgDetails(false)
 
-      expect(readCustomSpy).toHaveBeenCalledWith(false)
+      expect(readCustomSpy).toHaveBeenCalledWith(false, ['f1'])
       expect(mockUserProfileService.readOrgData).not.toHaveBeenCalled()
     })
 
-    it('should update player status and check mandatory notification when cached unMappedUser is not popup-eligible', () => {
+    it('should update player status without the mandatory notification (switched off) when cached unMappedUser is not popup-eligible', () => {
       mockConfigSvc.unMappedUser.rootOrg = { customfieldsdata: { isPopupEnabled: false } }
       const updatePlayerStatusSpy = jest.spyOn(service, 'updatePlayerStatus')
       const checkSpy = jest.spyOn(service, 'checkAndShowMandatoryNotification').mockImplementation(() => undefined)
@@ -300,7 +300,7 @@ describe('CommonDataService', () => {
       const result = service.getOrgDetails(true)
 
       expect(updatePlayerStatusSpy).toHaveBeenCalledWith(true)
-      expect(checkSpy).toHaveBeenCalled()
+      expect(checkSpy).not.toHaveBeenCalled()
       expect(result).toBe(false)
     })
 
@@ -318,10 +318,10 @@ describe('CommonDataService', () => {
       service.getOrgDetails(false)
 
       expect(mockUserProfileService.readOrgData).toHaveBeenCalledWith({ request: { organisationId: 'org-456' } })
-      expect(readCustomSpy).toHaveBeenCalledWith(false)
+      expect(readCustomSpy).toHaveBeenCalledWith(false, ['f1'])
     })
 
-    it('should update player status and check mandatory notification via the API path when not popup-eligible', () => {
+    it('should update player status without the mandatory notification (switched off) via the API path when not popup-eligible', () => {
       mockConfigSvc.unMappedUser = {}
       mockUserProfileService.readOrgData.mockReturnValue(of({
         result: { response: { customfieldsdata: { isPopupEnabled: false } } },
@@ -332,7 +332,7 @@ describe('CommonDataService', () => {
       service.getOrgDetails(false)
 
       expect(updatePlayerStatusSpy).toHaveBeenCalledWith(false)
-      expect(checkSpy).toHaveBeenCalled()
+      expect(checkSpy).not.toHaveBeenCalled()
     })
 
     it('should log and swallow errors from the API path', () => {
@@ -358,7 +358,7 @@ describe('CommonDataService', () => {
       expect(redirectSpy).toHaveBeenCalled()
     })
 
-    it('should update player status and check mandatory notification when customFieldValues is non-empty', () => {
+    it('should update player status without the mandatory notification (switched off) when customFieldValues is non-empty', () => {
       mockUserProfileService.readCustomattributeDetails.mockReturnValue(
         of({ result: { response: { customFieldValues: [{ id: 'f1', value: 'v1' }] } } })
       )
@@ -370,7 +370,7 @@ describe('CommonDataService', () => {
 
       expect(redirectSpy).not.toHaveBeenCalled()
       expect(updatePlayerStatusSpy).toHaveBeenCalledWith(true)
-      expect(checkSpy).toHaveBeenCalled()
+      expect(checkSpy).not.toHaveBeenCalled()
     })
 
     it('should log and swallow errors', () => {

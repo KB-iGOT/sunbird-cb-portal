@@ -8,8 +8,11 @@ import { Subject, of } from 'rxjs'
 import { NsCampaignMicrosite } from '../../models/campaign-microsite.model'
 import { ServerClockService } from '@sunbird-cb/utils-v2'
 import { MilestoneStatusService } from '../../services/milestone-status.service'
+import { MicrositeTelemetryService } from '../../services/microsite-telemetry.service'
 import { CampaignSurveyDialogComponent } from '../campaign-survey-dialog/campaign-survey-dialog.component'
-import { MILESTONE_POPUP_SEEN_KEY, ProgrammeMilestonesComponent, buildPlayerRoute, eventCta, eventPhase, formatCountdown } from './programme-milestones.component'
+import {
+  MILESTONE_POPUP_SEEN_KEY, ProgrammeMilestonesComponent, buildPlayerRoute, eventCta, eventPhase, formatCountdown, isInAutoOpenWindow, milestoneAction,
+} from './programme-milestones.component'
 import { DEFAULT_MILESTONE_LABELS } from '../../models/campaign-microsite.model'
 
 const milestone = (order: number, overrides: Partial<NsCampaignMicrosite.IMilestone> = {}) => ({
@@ -36,9 +39,10 @@ describe('ProgrammeMilestonesComponent', () => {
   let statusSvc: { resolveStates: jest.Mock, enrolledBatchId: jest.Mock, enrollAssessment: jest.Mock, isEventEnrolled: jest.Mock, enrollEvent: jest.Mock,
     issuedCertificateId: jest.Mock, fetchCertificate: jest.Mock, completeEvent: jest.Mock }
   let router: { navigate: jest.Mock, navigateByUrl: jest.Mock, url: string }
-  let dialog: { open: jest.Mock }
+  let dialog: { open: jest.Mock, openDialogs: unknown[] }
   let dialogResult: Subject<boolean | undefined>
   let snackBar: { open: jest.Mock }
+  let telemetry: { click: jest.Mock, impression: jest.Mock }
 
   function render(
     config: Partial<NsCampaignMicrosite.IProgrammeMilestones>,
@@ -59,8 +63,9 @@ describe('ProgrammeMilestonesComponent', () => {
     }
     router = { navigate: jest.fn(), navigateByUrl: jest.fn(), url: '/app/microsites/campaign/kalp?tab=1' }
     dialogResult = new Subject()
-    dialog = { open: jest.fn(() => ({ afterClosed: () => dialogResult })) }
+    dialog = { open: jest.fn(() => ({ afterClosed: () => dialogResult })), openDialogs: [] }
     snackBar = { open: jest.fn() }
+    telemetry = { click: jest.fn(), impression: jest.fn() }
     TestBed.configureTestingModule({
       imports: [ProgrammeMilestonesComponent],
       providers: [
@@ -70,6 +75,7 @@ describe('ProgrammeMilestonesComponent', () => {
         { provide: Router, useValue: router },
         { provide: MatDialog, useValue: dialog },
         { provide: MatSnackBar, useValue: snackBar },
+        { provide: MicrositeTelemetryService, useValue: telemetry },
       ],
     })
     // The card is covered by its own specs in the consumption library. Through npm link it also
@@ -853,6 +859,168 @@ describe('ProgrammeMilestonesComponent', () => {
       component.now.set(Date.now() + 1)
       fixture.detectChanges()
       expect([cards()[0].ctaDisabled, cards()[0].ctaTooltip]).toEqual([false, null])
+    })
+  })
+  describe('pledge opens by itself (autoOpen)', () => {
+    const at = (iso: string) => new Date(iso).getTime()
+    const window = { enabled: true, startDateTime: '2026-11-05T00:00:00+05:30', endDateTime: '2026-11-28T23:59:59+05:30' }
+    const pledge = (overrides: Partial<NsCampaignMicrosite.IMilestone> = {}) =>
+      milestone(4, { type: 'survey', formId: 'f_pledge', identifier: undefined, autoOpen: window, ...overrides })
+    const surveyOpens = () => dialog.open.mock.calls.filter(([type]) => type === CampaignSurveyDialogComponent).length
+    const load = (config: Partial<NsCampaignMicrosite.IProgrammeMilestones>, states: NsCampaignMilestone.TMilestoneState[]) => {
+      statusSvc.resolveStates.mockReturnValue(of(states))
+      render(config)
+      TestBed.tick()
+    }
+
+    beforeEach(() => {
+      sessionStorage.clear()
+      component.now.set(at('2026-11-10T10:00:00+05:30'))
+    })
+
+    it('window check: inside only, start inclusive, end exclusive; off, invalid or not a survey never', () => {
+      const p = pledge()
+      expect([
+        isInAutoOpenWindow(p, at('2026-11-04T23:59:59+05:30')),
+        isInAutoOpenWindow(p, at('2026-11-05T00:00:00+05:30')),
+        isInAutoOpenWindow(p, at('2026-11-28T23:59:59+05:30')),
+        isInAutoOpenWindow(pledge({ autoOpen: { ...window, enabled: false } }), at('2026-11-10T10:00:00+05:30')),
+        isInAutoOpenWindow(pledge({ autoOpen: { ...window, endDateTime: 'soon' } }), at('2026-11-10T10:00:00+05:30')),
+        isInAutoOpenWindow(milestone(1, { autoOpen: window }), at('2026-11-10T10:00:00+05:30')),
+      ]).toEqual([false, true, false, false, false, false])
+    })
+
+    it('not submitted and inside the window: the form opens on load, once', () => {
+      load({ items: [milestone(1), pledge()] }, ['completed', 'notStarted'])
+      expect(surveyOpens()).toBe(1)
+      expect(dialog.open.mock.calls[0][1].data.milestone.order).toBe(4)
+
+      // closed without submitting: stays closed until the next page load
+      dialogResult.next(false)
+      component.now.set(at('2026-11-10T11:00:00+05:30'))
+      fixture.detectChanges()
+      TestBed.tick()
+      expect(surveyOpens()).toBe(1)
+    })
+
+    it('waits for the info popup to be closed, then opens the form', () => {
+      load({ popup: { enabled: true }, items: [pledge()] }, ['notStarted'])
+      expect(component.showPopup()).toBe(true)
+      expect(surveyOpens()).toBe(0)
+
+      component.closePopup()
+      fixture.detectChanges()
+      TestBed.tick()
+      expect(surveyOpens()).toBe(1)
+    })
+
+    it('opens straight away on a reload once the info popup was seen this session', () => {
+      sessionStorage.setItem(MILESTONE_POPUP_SEEN_KEY, '4')
+      load({ popup: { enabled: true }, items: [pledge()] }, ['notStarted'])
+      expect(surveyOpens()).toBe(1)
+    })
+
+    it.each([
+      ['submitted', pledge(), 'completed', '2026-11-10T10:00:00+05:30'],
+      ['locked', pledge(), 'locked', '2026-11-10T10:00:00+05:30'],
+      ['before the window', pledge(), 'notStarted', '2026-11-04T10:00:00+05:30'],
+      ['after the window', pledge(), 'notStarted', '2026-11-29T10:00:00+05:30'],
+      ['autoOpen not configured', pledge({ autoOpen: undefined }), 'notStarted', '2026-11-10T10:00:00+05:30'],
+    ] as const)('does not open: %s', (_case, item, state, now) => {
+      component.now.set(at(now))
+      load({ items: [item] }, [state])
+      expect(surveyOpens()).toBe(0)
+    })
+
+    it('opens when the window starts while the page is open', () => {
+      component.now.set(at('2026-11-04T23:59:00+05:30'))
+      load({ items: [pledge()] }, ['notStarted'])
+      expect(surveyOpens()).toBe(0)
+
+      component.now.set(at('2026-11-05T00:00:00+05:30'))
+      fixture.detectChanges()
+      TestBed.tick()
+      expect(surveyOpens()).toBe(1)
+    })
+
+    it('leaves a dialog the user already opened alone', () => {
+      dialog.openDialogs = [{}]
+      load({ items: [pledge()] }, ['notStarted'])
+      expect(surveyOpens()).toBe(0)
+    })
+  })
+
+  describe('telemetry', () => {
+    const at = (iso: string) => new Date(iso).getTime()
+    const NOW = at('2026-11-10T10:00:00+05:30')
+    const ctx = { now: NOW, isEventEnrolled: false, hasCertificate: false }
+
+    it('names the action a click takes, from state and time rather than the JSON button text', () => {
+      const event = milestone(2, { type: 'event', startDateTime: '2026-11-17T10:00:00+05:30', endDateTime: '2026-11-17T12:00:00+05:30' })
+      const pledge = milestone(4, { type: 'survey', formId: 'f' })
+      expect([
+        milestoneAction(milestone(1), 'notStarted', ctx),
+        milestoneAction(milestone(1), 'inProgress', ctx),
+        milestoneAction(milestone(1), 'completed', ctx),
+        milestoneAction(milestone(1, { openWhenCompleted: true }), 'completed', ctx),
+        milestoneAction(milestone(3, { startDateTime: '2026-11-17T10:00:00+05:30' }), 'notStarted', ctx),
+        milestoneAction(milestone(1), 'locked', ctx),
+        milestoneAction(event, 'notStarted', ctx),
+        milestoneAction(event, 'notStarted', { ...ctx, isEventEnrolled: true }),
+        milestoneAction(event, 'inProgress', { ...ctx, now: at('2026-11-17T11:00:00+05:30'), isEventEnrolled: true }),
+        milestoneAction(event, 'completed', { ...ctx, now: at('2026-11-18T10:00:00+05:30'), isEventEnrolled: true }),
+        milestoneAction(pledge, 'notStarted', ctx),
+        milestoneAction(pledge, 'completed', ctx),
+        milestoneAction(pledge, 'completed', { ...ctx, hasCertificate: true }),
+        milestoneAction(milestone(5, { redirectUrl: '/app/somewhere' }), 'notStarted', ctx),
+      ]).toEqual([
+        'start', 'resume', 'completed', 'view', 'locked', 'locked',
+        'register', 'yet-to-start', 'join', 'recording',
+        'take-sankalp', 'certificate-pending', 'download-certificate', 'redirect',
+      ])
+    })
+
+    it('a card click raises one INTERACT with the milestone action and content id, even when the click is ignored', () => {
+      component.now.set(NOW)
+      const locked = milestone(3, { startDateTime: '2026-11-17T10:00:00+05:30' })
+      statusSvc.resolveStates.mockReturnValue(of(['notStarted', 'notStarted']))
+      render({ items: [milestone(1), locked] })
+      jest.spyOn(Date, 'now').mockReturnValue(NOW)
+      component.openMilestone(milestone(1))
+      component.openMilestone(locked)
+      jest.restoreAllMocks()
+      expect(telemetry.click.mock.calls).toEqual([
+        ['milestone-card', 'milestone-1-start', { id: 'do_1', type: 'assessment' }],
+        ['milestone-card', 'milestone-3-locked', { id: 'do_3', type: 'assessment' }],
+      ])
+    })
+
+    it('info popup: an impression when it shows, a click when it is closed', () => {
+      sessionStorage.clear()
+      statusSvc.resolveStates.mockReturnValue(of(['notStarted']))
+      render({ popup: { enabled: true }, items: [milestone(1)] })
+      TestBed.tick()
+      expect(telemetry.impression).toHaveBeenCalledWith('milestone-popup', { id: 'milestone-popup', type: 'popup' })
+      component.closePopup()
+      expect(telemetry.click).toHaveBeenCalledWith('milestone-popup', 'milestone-popup-close', { id: 'milestone-popup', type: 'popup' })
+    })
+
+    it('the Sankalp form records whether it opened by itself or from a click', async () => {
+      sessionStorage.clear()
+      component.now.set(NOW)
+      const pledge = milestone(4, {
+        type: 'survey', formId: 'f_pledge', identifier: undefined,
+        autoOpen: { enabled: true, startDateTime: '2026-11-05T00:00:00+05:30', endDateTime: '2026-11-28T23:59:59+05:30' },
+      })
+      statusSvc.resolveStates.mockReturnValue(of(['notStarted']))
+      render({ items: [pledge] })
+      TestBed.tick()
+      await Promise.resolve()
+      expect(telemetry.impression).toHaveBeenCalledWith('sankalp-form-auto', { id: 'f_pledge', type: 'survey' })
+
+      component.openMilestone(pledge)
+      await Promise.resolve()
+      expect(telemetry.impression).toHaveBeenCalledWith('sankalp-form', { id: 'f_pledge', type: 'survey' })
     })
   })
 })
