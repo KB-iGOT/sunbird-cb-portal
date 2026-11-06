@@ -104,6 +104,19 @@ export namespace NsCampaignMicrosite {
      * so they live here. e.g. `[{ "questions": [1, 3, 4], "minLength": 70, "maxLength": 300 }]`
      */
     answerLimits?: IAnswerLimit[]
+    /**
+     * Survey (pledge) only: open the form by itself on page load while the user has not submitted it,
+     * between `startDateTime` and `endDateTime` (server time, with time and offset,
+     * e.g. "2026-11-05T10:00:00+05:30"). Opens after the info popup is closed, and again on every page load
+     * until submitted. Missing, `enabled: false` or an invalid date: never opens by itself.
+     */
+    autoOpen?: IAutoOpen
+  }
+
+  export interface IAutoOpen {
+    enabled?: boolean
+    startDateTime?: string
+    endDateTime?: string
   }
 
   /**
@@ -190,8 +203,10 @@ export namespace NsCampaignMicrosite {
       certificateError: string
       /** Counter under a limited answer; `{{count}}`, `{{max}}` */
       charCount: string
-      /** Hint under a limited answer; `{{min}}` */
+      /** Error under a limited answer that is too short; `{{min}}` */
       minChars: string
+      /** Error under a required question left empty (shown once the user has been in it) */
+      required: string
     }
   }
 
@@ -329,6 +344,7 @@ export const DEFAULT_MILESTONE_LABELS: NsCampaignMicrosite.IMilestoneLabels = {
     certificateError: 'We couldn\'t load your certificate. Please try again.',
     charCount: '{{count}}/{{max}}',
     minChars: 'Minimum {{min}} characters',
+    required: 'This field is required',
   },
 }
 

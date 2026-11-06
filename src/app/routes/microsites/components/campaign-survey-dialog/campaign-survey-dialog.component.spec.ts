@@ -202,6 +202,31 @@ describe('CampaignSurveyDialogComponent', () => {
     expect(hint?.textContent).toContain('4/300')
   })
 
+  it('a required question left empty after focus says so; nothing before it is touched, and the minimum once typed', () => {
+    const { answerLimits, ...defaultLimits } = milestone
+    create({ milestone: defaultLimits } as any)
+    const answer = component.model()!.controls[0].controls.answer
+    const error = () => el.querySelector('.csd__limit-error')?.textContent?.trim() ?? null
+    expect(error()).toBeNull()
+
+    answer.markAsTouched()
+    fixture.debugElement.injector.get(ChangeDetectorRef).markForCheck()
+    fixture.detectChanges()
+    expect(error()).toBe('This field is required')
+
+    answer.setValue('Asha')
+    fixture.debugElement.injector.get(ChangeDetectorRef).markForCheck()
+    fixture.detectChanges()
+    expect(error()).toBe('Minimum 70 characters')
+  })
+
+  it('a required question without length limits still gets the message', () => {
+    create({ milestone: { ...milestone, answerLimits: [] } })
+    component.model()!.controls[0].controls.answer.markAsTouched()
+    fixture.detectChanges()
+    expect(el.querySelector('.csd__limit-error')?.textContent?.trim()).toBe('This field is required')
+  })
+
   it('shows the length hint for questions inside a section too', () => {
     create({ milestone: { ...milestone, answerLimits: [{ ids: ['q3'], minLength: 5, maxLength: 20 }] } })
     const answer = component.model()!.controls[2].controls.answer

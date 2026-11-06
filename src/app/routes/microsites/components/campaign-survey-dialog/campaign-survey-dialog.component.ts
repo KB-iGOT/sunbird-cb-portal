@@ -1,7 +1,7 @@
 import { NgTemplateOutlet } from '@angular/common'
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
-import { FormBuilder, ReactiveFormsModule } from '@angular/forms'
+import { AbstractControl, FormBuilder, ReactiveFormsModule } from '@angular/forms'
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'
 import { MatSnackBar } from '@angular/material/snack-bar'
@@ -119,6 +119,17 @@ export class CampaignSurveyDialogComponent implements OnInit {
 
   minChars(min: number): string {
     return formatLabel(this.labels.minChars, { min })
+  }
+
+  /** Message under a question the user has been in: empty when required, else too short; '' when fine */
+  answerError(answer: AbstractControl, limit: NsCampaignMicrosite.IAnswerRule | undefined): string {
+    if (!answer.touched) {
+      return ''
+    }
+    if (answer.hasError('required')) {
+      return this.labels.required
+    }
+    return limit?.minLength && answer.hasError('minlength') ? this.minChars(limit.minLength) : ''
   }
 
   close(): void {

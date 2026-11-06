@@ -1,4 +1,4 @@
-import { ChangeDetectionStrategy, Component, DestroyRef, NgZone, computed, inject, input, signal } from '@angular/core'
+import { ChangeDetectionStrategy, Component, DestroyRef, NgZone, computed, effect, inject, input, signal, untracked } from '@angular/core'
 import { takeUntilDestroyed, toObservable, toSignal } from '@angular/core/rxjs-interop'
 import { MatDialog } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
@@ -94,6 +94,16 @@ export function isClosedWhenCompleted(milestone: NsCampaignMicrosite.IMilestone,
 
 function hasValidDateTime(value: string | undefined): boolean {
   return !!value && dayjs(value).isValid()
+}
+
+/** Pledge `autoOpen` is on and `now` (server time) is within its start/end; a missing or invalid date means never */
+export function isInAutoOpenWindow(milestone: NsCampaignMicrosite.IMilestone, now: number): boolean {
+  const autoOpen = milestone.autoOpen
+  if (milestone.type !== 'survey' || !autoOpen || autoOpen.enabled === false
+    || !hasValidDateTime(autoOpen.startDateTime) || !hasValidDateTime(autoOpen.endDateTime)) {
+    return false
+  }
+  return now >= dayjs(autoOpen.startDateTime).valueOf() && now < dayjs(autoOpen.endDateTime).valueOf()
 }
 
 export interface IUnlock {
@@ -332,6 +342,22 @@ export class ProgrammeMilestonesComponent {
       }
     }, COUNTDOWN_TICK_MS))
     this.destroyRef.onDestroy(() => clearInterval(timer))
+
+    // the window can also start while the page is open: `now` moves autoOpenSurvey along
+    effect(() => {
+      const milestone = this.autoOpenSurvey()
+      if (!milestone || this.autoOpened) {
+        return
+      }
+      untracked(() => {
+        // the user already has a dialog open (e.g. clicked a card): leave it alone
+        if (this.dialog.openDialogs.length || this.enrollingOrder() !== null) {
+          return
+        }
+        this.autoOpened = true
+        this.openSurvey(milestone)
+      })
+    })
   }
 
   /**
@@ -371,6 +397,23 @@ export class ProgrammeMilestonesComponent {
     return !!this.config()?.popup?.enabled && this.isVisible() && !!current && !this.popupDismissed()
       && sessionStorage.getItem(MILESTONE_POPUP_SEEN_KEY) !== String(current.order)
   })
+
+  /**
+   * Pledge to open by itself: not submitted yet, inside its `autoOpen` window, and only once the info popup
+   * is out of the way. Undefined while statuses load or the popup shows.
+   */
+  readonly autoOpenSurvey = computed(() => {
+    const states = this.states()
+    if (!states || this.showPopup()) {
+      return undefined
+    }
+    const now = this.now()
+    return this.milestones().find((milestone, i) => milestone.enabled !== false && !!configValue(milestone.formId)
+      && isOpenState(states[i]) && isInAutoOpenWindow(milestone, now))
+  })
+
+  /** Set once the pledge has opened by itself, so it opens at most once per page load (a reload opens it again) */
+  private autoOpened = false
 
   stateAt(index: number): NsCampaignMilestone.TMilestoneState {
     return this.states()?.[index] ?? 'locked'

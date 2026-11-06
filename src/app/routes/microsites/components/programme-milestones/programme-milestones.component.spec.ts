@@ -9,7 +9,9 @@ import { NsCampaignMicrosite } from '../../models/campaign-microsite.model'
 import { ServerClockService } from '@sunbird-cb/utils-v2'
 import { MilestoneStatusService } from '../../services/milestone-status.service'
 import { CampaignSurveyDialogComponent } from '../campaign-survey-dialog/campaign-survey-dialog.component'
-import { MILESTONE_POPUP_SEEN_KEY, ProgrammeMilestonesComponent, buildPlayerRoute, eventCta, eventPhase, formatCountdown } from './programme-milestones.component'
+import {
+  MILESTONE_POPUP_SEEN_KEY, ProgrammeMilestonesComponent, buildPlayerRoute, eventCta, eventPhase, formatCountdown, isInAutoOpenWindow,
+} from './programme-milestones.component'
 import { DEFAULT_MILESTONE_LABELS } from '../../models/campaign-microsite.model'
 
 const milestone = (order: number, overrides: Partial<NsCampaignMicrosite.IMilestone> = {}) => ({
@@ -36,7 +38,7 @@ describe('ProgrammeMilestonesComponent', () => {
   let statusSvc: { resolveStates: jest.Mock, enrolledBatchId: jest.Mock, enrollAssessment: jest.Mock, isEventEnrolled: jest.Mock, enrollEvent: jest.Mock,
     issuedCertificateId: jest.Mock, fetchCertificate: jest.Mock, completeEvent: jest.Mock }
   let router: { navigate: jest.Mock, navigateByUrl: jest.Mock, url: string }
-  let dialog: { open: jest.Mock }
+  let dialog: { open: jest.Mock, openDialogs: unknown[] }
   let dialogResult: Subject<boolean | undefined>
   let snackBar: { open: jest.Mock }
 
@@ -59,7 +61,7 @@ describe('ProgrammeMilestonesComponent', () => {
     }
     router = { navigate: jest.fn(), navigateByUrl: jest.fn(), url: '/app/microsites/campaign/kalp?tab=1' }
     dialogResult = new Subject()
-    dialog = { open: jest.fn(() => ({ afterClosed: () => dialogResult })) }
+    dialog = { open: jest.fn(() => ({ afterClosed: () => dialogResult })), openDialogs: [] }
     snackBar = { open: jest.fn() }
     TestBed.configureTestingModule({
       imports: [ProgrammeMilestonesComponent],
@@ -853,6 +855,94 @@ describe('ProgrammeMilestonesComponent', () => {
       component.now.set(Date.now() + 1)
       fixture.detectChanges()
       expect([cards()[0].ctaDisabled, cards()[0].ctaTooltip]).toEqual([false, null])
+    })
+  })
+  describe('pledge opens by itself (autoOpen)', () => {
+    const at = (iso: string) => new Date(iso).getTime()
+    const window = { enabled: true, startDateTime: '2026-11-05T00:00:00+05:30', endDateTime: '2026-11-28T23:59:59+05:30' }
+    const pledge = (overrides: Partial<NsCampaignMicrosite.IMilestone> = {}) =>
+      milestone(4, { type: 'survey', formId: 'f_pledge', identifier: undefined, autoOpen: window, ...overrides })
+    const surveyOpens = () => dialog.open.mock.calls.filter(([type]) => type === CampaignSurveyDialogComponent).length
+    const load = (config: Partial<NsCampaignMicrosite.IProgrammeMilestones>, states: NsCampaignMilestone.TMilestoneState[]) => {
+      statusSvc.resolveStates.mockReturnValue(of(states))
+      render(config)
+      TestBed.tick()
+    }
+
+    beforeEach(() => {
+      sessionStorage.clear()
+      component.now.set(at('2026-11-10T10:00:00+05:30'))
+    })
+
+    it('window check: inside only, start inclusive, end exclusive; off, invalid or not a survey never', () => {
+      const p = pledge()
+      expect([
+        isInAutoOpenWindow(p, at('2026-11-04T23:59:59+05:30')),
+        isInAutoOpenWindow(p, at('2026-11-05T00:00:00+05:30')),
+        isInAutoOpenWindow(p, at('2026-11-28T23:59:59+05:30')),
+        isInAutoOpenWindow(pledge({ autoOpen: { ...window, enabled: false } }), at('2026-11-10T10:00:00+05:30')),
+        isInAutoOpenWindow(pledge({ autoOpen: { ...window, endDateTime: 'soon' } }), at('2026-11-10T10:00:00+05:30')),
+        isInAutoOpenWindow(milestone(1, { autoOpen: window }), at('2026-11-10T10:00:00+05:30')),
+      ]).toEqual([false, true, false, false, false, false])
+    })
+
+    it('not submitted and inside the window: the form opens on load, once', () => {
+      load({ items: [milestone(1), pledge()] }, ['completed', 'notStarted'])
+      expect(surveyOpens()).toBe(1)
+      expect(dialog.open.mock.calls[0][1].data.milestone.order).toBe(4)
+
+      // closed without submitting: stays closed until the next page load
+      dialogResult.next(false)
+      component.now.set(at('2026-11-10T11:00:00+05:30'))
+      fixture.detectChanges()
+      TestBed.tick()
+      expect(surveyOpens()).toBe(1)
+    })
+
+    it('waits for the info popup to be closed, then opens the form', () => {
+      load({ popup: { enabled: true }, items: [pledge()] }, ['notStarted'])
+      expect(component.showPopup()).toBe(true)
+      expect(surveyOpens()).toBe(0)
+
+      component.closePopup()
+      fixture.detectChanges()
+      TestBed.tick()
+      expect(surveyOpens()).toBe(1)
+    })
+
+    it('opens straight away on a reload once the info popup was seen this session', () => {
+      sessionStorage.setItem(MILESTONE_POPUP_SEEN_KEY, '4')
+      load({ popup: { enabled: true }, items: [pledge()] }, ['notStarted'])
+      expect(surveyOpens()).toBe(1)
+    })
+
+    it.each([
+      ['submitted', pledge(), 'completed', '2026-11-10T10:00:00+05:30'],
+      ['locked', pledge(), 'locked', '2026-11-10T10:00:00+05:30'],
+      ['before the window', pledge(), 'notStarted', '2026-11-04T10:00:00+05:30'],
+      ['after the window', pledge(), 'notStarted', '2026-11-29T10:00:00+05:30'],
+      ['autoOpen not configured', pledge({ autoOpen: undefined }), 'notStarted', '2026-11-10T10:00:00+05:30'],
+    ] as const)('does not open: %s', (_case, item, state, now) => {
+      component.now.set(at(now))
+      load({ items: [item] }, [state])
+      expect(surveyOpens()).toBe(0)
+    })
+
+    it('opens when the window starts while the page is open', () => {
+      component.now.set(at('2026-11-04T23:59:00+05:30'))
+      load({ items: [pledge()] }, ['notStarted'])
+      expect(surveyOpens()).toBe(0)
+
+      component.now.set(at('2026-11-05T00:00:00+05:30'))
+      fixture.detectChanges()
+      TestBed.tick()
+      expect(surveyOpens()).toBe(1)
+    })
+
+    it('leaves a dialog the user already opened alone', () => {
+      dialog.openDialogs = [{}]
+      load({ items: [pledge()] }, ['notStarted'])
+      expect(surveyOpens()).toBe(0)
     })
   })
 })

@@ -57,21 +57,20 @@
           <ws-app-survey-form-question [fieldDetails]="field" [questionForm]="m.controls[field.controlIndex]"
             (questionValues)="syncValidity()">
           </ws-app-survey-form-question>
-          @if (field.answerLimit; as limit) {
+          @let limit = field.answerLimit;
           @let answer = m.controls[field.controlIndex].controls['answer'];
-          @let tooShort = answer.touched && answer.hasError('minlength');
-          @if (limit.hint) {
+          @let error = answerError(answer, limit);
+          @if (limit?.hint) {
           <p class="csd__hint m-0 mt-2 text-xs">{{ limit.hint }}</p>
           }
-          <!-- the minimum shows only once the answer is too short; the counter once something is typed -->
-          @if (tooShort || (limit.maxLength && answer.value)) {
+          <!-- errors only once the user has been in the question (required / too short); the counter once something is typed -->
+          @if (error || (limit?.maxLength && answer.value)) {
           <div class="csd__limit flex justify-between gap-4 mt-2 text-xs">
-            <span class="csd__limit-error" role="alert">{{ tooShort ? minChars(limit.minLength!) : '' }}</span>
-            @if (limit.maxLength && answer.value) {
+            <span class="csd__limit-error" role="alert">{{ error }}</span>
+            @if (limit?.maxLength && answer.value) {
             <span>{{ charCount(answer.value, limit.maxLength) }}</span>
             }
           </div>
-          }
           }
         </div>
       </ng-template>
