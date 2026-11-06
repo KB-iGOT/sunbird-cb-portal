@@ -1350,7 +1350,14 @@ export class PublicSignupComponent implements OnInit, OnDestroy {
   // }
 
   navigateTo(param?: any) {
-    const formData = this.registrationFormStepOne.value
+    const formData = { ...this.registrationFormStepOne.value }
+    if (param === 'Organisation') {
+      const searchText = this.registrationFormStepOne.get('searchOrganisation')!.value
+      const selectedOrgId = this.registrationFormStepOne.get('organisation')!.value
+      const selectedOrg = (this.masterData?.organisationBackup || this.masterData?.organisation || [])
+        .find((org: any) => org?.identifier === selectedOrgId)
+      formData.organisation = searchText || selectedOrg?.orgName || ''
+    }
     const url = '/public/request'
     // tslint:disable-next-line: max-line-length
     this.router.navigate([url], { queryParams: { type: param }, state: { userform: formData, isMobileVerified: this.isMobileVerified, isEmailVerified: this.isEmailVerified } })
