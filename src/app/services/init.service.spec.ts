@@ -493,6 +493,39 @@ describe('InitService', () => {
       expect(await (service as any).globalConfigData()).toEqual({})
       expect(configSvc.globalConfigLoadFailed).toBe(true)
     })
+
+    it('falls back to the default profile menu without accessibility when none is configured', async () => {
+      const config = await (service as any).globalConfigData()
+      const keys = config.components.profileMenu.items.map((item: any) => item.key)
+      expect(keys).toEqual(['viewProfile', 'start-tour', 'privacyPolicy', 'settings', 'signOut'])
+    })
+
+    it('removes accessibility from a configured profile menu and keeps the other items', async () => {
+      globalConfig.components = {
+        profileMenu: {
+          enabled: true,
+          items: [
+            { key: 'viewProfile', action: 'route' },
+            { key: 'accessibility', action: 'accessibility' },
+            { key: 'a11y', action: 'accessibility' },
+            null,
+            { key: 'signOut', action: 'logout' },
+          ],
+        },
+      }
+      const config = await (service as any).globalConfigData()
+      expect(config.components.profileMenu.enabled).toBe(true)
+      expect(config.components.profileMenu.items).toEqual([
+        { key: 'viewProfile', action: 'route' },
+        null,
+        { key: 'signOut', action: 'logout' },
+      ])
+    })
+
+    it('ignores a missing global config when removing the accessibility menu item', () => {
+      expect(() => (service as any).removeAccessibilityFromProfileMenu(undefined)).not.toThrow()
+      expect(() => (service as any).removeAccessibilityFromProfileMenu('x')).not.toThrow()
+    })
   })
 
   describe('fetchUserEnrollDetails', () => {

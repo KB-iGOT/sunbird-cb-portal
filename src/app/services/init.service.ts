@@ -392,6 +392,7 @@ export class InitService {
     try {
       const response: any = await firstValueFrom(this.formConfigSvc.getForm(user, 'portal', 'global-web', 2.0))
       this.configSvc.globalConfig = response.result.data
+      this.removeAccessibilityFromProfileMenu(this.configSvc.globalConfig)
     } catch (e) {
       // the global-web form config is mandatory — when the API fails the app
       // must show the error screen instead of silently running on a stale
@@ -401,6 +402,25 @@ export class InitService {
       this.configSvc.globalConfigLoadFailed = true
     }
     return this.configSvc.globalConfig
+  }
+
+
+  private removeAccessibilityFromProfileMenu(globalConfig: any): void {
+    if (!globalConfig || typeof globalConfig !== 'object') {
+      return
+    }
+    const PROFILE_MENU_DEFAULT_ITEMS = [
+      { key: 'viewProfile', label: 'profileDropdown.viewProfile', action: 'route', target: '/app/person-profile/me' },
+      { key: 'start-tour', label: 'profileDropdown.getStarted', action: 'startTour' },
+      { key: 'privacyPolicy', label: 'profileDropdown.privacyPolicy', action: 'newTab', target: '/public/privacy-policy' },
+      { key: 'settings', label: 'profileDropdown.settings', action: 'route', target: '/app/profile/settings' },
+      { key: 'signOut', label: 'profileDropdown.signOut', action: 'logout' },
+    ]
+    const components = globalConfig.components = globalConfig.components || {}
+    const profileMenu = components.profileMenu = components.profileMenu || {}
+    profileMenu.items = Array.isArray(profileMenu.items)
+      ? profileMenu.items.filter((item: any) => item?.key !== 'accessibility' && item?.action !== 'accessibility')
+      : PROFILE_MENU_DEFAULT_ITEMS
   }
 
   /**

@@ -2427,9 +2427,8 @@ ws-widget-btn-page-back-nav .mat-mdc-icon-button {
   }
 }
 
-// Default UserWay floating icon is replaced by the accessibility button in the header
 #userwayAccessibilityIcon {
-  display: none !important;
+  touch-action: none;
 }
 
 .theme-igot.night-mode ws-app-support-ai a[href] {

@@ -202,7 +202,7 @@
           // ever loaded because the old inline injector alongside it carried no integrity
           // attribute. Pin a hash here again only if you also self-host a fixed copy.
           src: 'https://cdn.userway.org/widget.js',
-          attrs: { 'data-account': 'pam3S93IQ7' },
+          attrs: { 'data-account': 'pam3S93IQ7', 'data-position': '2' },
         },
       ]
 
@@ -248,6 +248,124 @@
       // would otherwise strand the accessibility widget indefinitely - the idle timeout
       // above cannot help, because its clock only starts once `load` has fired.
       window.setTimeout(attachOnce, 5000)
+    })()
+  </script>
+  
+  <script>
+    (function () {
+      var ICON_SELECTOR = '#userwayAccessibilityIcon'
+      var STORAGE_KEY = 'igot.a11yIconOffset'
+      var DRAG_THRESHOLD = 5 // px of movement before a press counts as a drag
+
+      var offset = { x: 0, y: 0 }
+      try {
+        var saved = JSON.parse(window.localStorage.getItem(STORAGE_KEY) || 'null')
+        if (saved && isFinite(saved.x) && isFinite(saved.y)) { offset = { x: +saved.x, y: +saved.y } }
+      } catch (e) { /* storage unavailable - start from the default position */ }
+
+      var drag = null
+      var suppressClick = false
+
+      function getIcon() { return document.querySelector(ICON_SELECTOR) }
+
+      function apply(el) {
+        el.style.setProperty('translate', offset.x + 'px ' + offset.y + 'px', 'important')
+      }
+
+      // Keep the whole icon inside the viewport
+      function clamp(el) {
+        var r = el.getBoundingClientRect()
+        if (!r.width || !r.height) { return } // hidden (e.g. in the player) - nothing to measure
+        var curX = el._a11yAppliedX || 0
+        var curY = el._a11yAppliedY || 0
+        var baseLeft = r.left - curX
+        var baseTop = r.top - curY
+        var vw = document.documentElement.clientWidth || window.innerWidth
+        var vh = document.documentElement.clientHeight || window.innerHeight
+        offset.x = Math.min(Math.max(offset.x, -baseLeft), vw - r.width - baseLeft)
+        offset.y = Math.min(Math.max(offset.y, -baseTop), vh - r.height - baseTop)
+      }
+
+      function place(el) {
+        clamp(el)
+        apply(el)
+        el._a11yAppliedX = offset.x
+        el._a11yAppliedY = offset.y
+      }
+
+      function save() {
+        try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(offset)) } catch (e) { /* ignore */ }
+      }
+
+      document.addEventListener('pointerdown', function (e) {
+        if (e.button !== 0 || !e.isPrimary) { return }
+        var el = e.target && e.target.closest && e.target.closest(ICON_SELECTOR)
+        if (!el) { return }
+        drag = {
+          el: el,
+          id: e.pointerId,
+          startX: e.clientX,
+          startY: e.clientY,
+          fromX: offset.x,
+          fromY: offset.y,
+          moved: false,
+        }
+      }, true)
+
+      document.addEventListener('pointermove', function (e) {
+        if (!drag || e.pointerId !== drag.id) { return }
+        var dx = e.clientX - drag.startX
+        var dy = e.clientY - drag.startY
+        if (!drag.moved) {
+          if (Math.abs(dx) < DRAG_THRESHOLD && Math.abs(dy) < DRAG_THRESHOLD) { return }
+          drag.moved = true
+          try { drag.el.setPointerCapture(drag.id) } catch (err) { /* ignore */ }
+        }
+        e.preventDefault()
+        offset.x = drag.fromX + dx
+        offset.y = drag.fromY + dy
+        place(drag.el)
+      }, true)
+
+      function endDrag(e) {
+        if (!drag || e.pointerId !== drag.id) { return }
+        if (drag.moved) {
+          save()
+          // Swallow the click that follows the drag so the widget does not open
+          suppressClick = true
+          window.setTimeout(function () { suppressClick = false }, 300)
+        }
+        drag = null
+      }
+      document.addEventListener('pointerup', endDrag, true)
+      document.addEventListener('pointercancel', endDrag, true)
+
+      // Capture phase on window runs before UserWay's own click handler
+      window.addEventListener('click', function (e) {
+        if (!suppressClick) { return }
+        suppressClick = false
+        e.preventDefault()
+        e.stopImmediatePropagation()
+      }, true)
+
+      // Stop the browser's native image drag from hijacking the gesture
+      document.addEventListener('dragstart', function (e) {
+        if (e.target && e.target.closest && e.target.closest(ICON_SELECTOR)) { e.preventDefault() }
+      }, true)
+
+      // Re-apply the saved position once UserWay has rendered the icon
+      var tries = 0
+      var poll = window.setInterval(function () {
+        var el = getIcon()
+        if (el) { place(el) }
+        if (el || ++tries > 60) { window.clearInterval(poll) }
+      }, 500)
+
+      // Keep it on-screen when the window shrinks / rotates
+      window.addEventListener('resize', function () {
+        var el = getIcon()
+        if (el) { place(el); save() }
+      })
     })()
   </script>
   <noscript>Please ensure Javascript is enabled for purposes of <a href="https://userway.org">website
