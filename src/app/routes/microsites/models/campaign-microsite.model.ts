@@ -1,5 +1,5 @@
 import { FormArray, FormBuilder, FormGroup, ValidatorFn, Validators } from '@angular/forms'
-import { NsCampaignMilestone, NsContentStripWithTabs } from '@sunbird-cb/consumption'
+import { ContentConfig, NsCampaignMilestone, PillConfig } from '@sunbird-cb/consumption'
 import dayjs from 'dayjs'
 
 export namespace NsCampaignMicrosite {
@@ -7,6 +7,32 @@ export namespace NsCampaignMicrosite {
     sectionList: ISection[]
     individualSection: IIndividualSection
     eventDetails?: IEventDetails
+    /** When the page is open at all; outside it only a "not open yet" / "closed" screen is shown */
+    pageAvailability?: IPageAvailability
+  }
+
+  /**
+   * The window the campaign page is open in, checked against server time on load. Separate from
+   * `eventDetails`, which only labels the event. Missing or invalid dates leave that side open.
+   */
+  export interface IPageAvailability {
+    enabled?: boolean
+    /** ISO date-time with offset, e.g. "2026-11-05T00:00:00+05:30" (inclusive) */
+    startDateTime?: string
+    /** ISO date-time with offset (exclusive) */
+    endDateTime?: string
+    /** Shown before startDateTime; `{{date}}` is the start date */
+    notStarted?: IPageAvailabilityMessage
+    /** Shown from endDateTime on; `{{date}}` is the end date */
+    closed?: IPageAvailabilityMessage
+  }
+
+  export interface IPageAvailabilityMessage {
+    title?: string
+    description?: string
+    buttonText?: string
+    /** In-app path the button opens, e.g. "/page/home" */
+    buttonUrl?: string
   }
 
   export interface ISection {
@@ -29,6 +55,7 @@ export namespace NsCampaignMicrosite {
   export interface IIndividualSection {
     programmeMilestones?: IProgrammeMilestones
     caseStudies?: ICaseStudies
+    contentPills?: IContentPills
   }
 
   export type TIndividualSectionKey = keyof IIndividualSection
@@ -242,9 +269,39 @@ export namespace NsCampaignMicrosite {
     color?: TMilestonePopupColor
   }
 
+  /**
+   * Case studies: a heading over the new content strip (sb-uic-content-strips).
+   * `contentConfig.contents` holds the content metadata itself, so the cards need no API call;
+   * `contentIds` (looked up one by one) still works when no metadata is given.
+   */
   export interface ICaseStudies {
     enabled: boolean
-    contentStrip: NsContentStripWithTabs.IContentStripMultiple
+    header?: string
+    contentConfig: ContentConfig
+  }
+
+  /**
+   * A strip with pills, in the homepage's pills-section format (displayType "pills"), drawn by
+   * sb-uic-content-strip-with-pills: each pill's cards come from its own contentConfig
+   * (`contentIds`, or `contents` metadata). Shown unless `enabled: false` or
+   * `visibilityMode: "hidden"`.
+   */
+  export interface IContentPills {
+    enabled?: boolean
+    sectionKey?: string
+    header?: string
+    translateHeader?: boolean
+    displayType?: string
+    visibilityMode?: string
+    defaultPillKey?: string
+    /** false shows the active pill as a plain label instead of the enlarged card */
+    pillEnlarge?: boolean
+    canShowScrollArrow?: boolean
+    /** empty-state text for any pill that sets none of its own */
+    noDataMessage?: string
+    addToAccordian?: boolean
+    hideAccordianToggel?: boolean
+    pills: PillConfig[]
   }
 
   export interface ICampaignSurveyDialogData {

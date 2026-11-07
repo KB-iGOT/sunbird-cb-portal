@@ -264,4 +264,40 @@ describe('ViewerComponent (No TestBed)', () => {
       expect((component.content as any).certificateObj).toBeUndefined()
     })
   })
+
+  describe('manipulateHierarchyData', () => {
+    beforeEach(() => {
+      Object.assign(mockTocSvc, {
+        mapCompletionPercentageProgram: jest.fn(),
+        checkModuleWiseData: jest.fn(),
+        createHirarchyProgressHashmap: jest.fn(),
+        contentLoader: { next: jest.fn() },
+      })
+      component.forPreview = false
+      component.hierarchyData = { identifier: 'do_course_1' }
+      component.enrollmentList = { courses: [] }
+    })
+
+    it('still builds the hashmap when the progress read (read/content-progres) fails', async () => {
+      jest.spyOn(console, 'error').mockImplementation(() => undefined)
+      mockTocSvc.mapCompletionPercentageProgram.mockRejectedValue({ status: 500 })
+
+      await expect(component.manipulateHierarchyData()).resolves.toBeUndefined()
+
+      expect(mockTocSvc.contentLoader.next).toHaveBeenCalledWith(false)
+      expect(mockTocSvc.checkModuleWiseData).toHaveBeenCalledWith(component.hierarchyData)
+      expect(mockTocSvc.createHirarchyProgressHashmap).toHaveBeenCalledWith(component.hierarchyData)
+      expect(component.content).toBe(component.hierarchyData)
+    })
+
+    it('maps progress normally when the read succeeds', async () => {
+      mockTocSvc.mapCompletionPercentageProgram.mockResolvedValue(undefined)
+
+      await component.manipulateHierarchyData()
+
+      expect(mockTocSvc.mapCompletionPercentageProgram).toHaveBeenCalledWith(component.hierarchyData, [], 'do_course_1')
+      expect(mockTocSvc.contentLoader.next).not.toHaveBeenCalled()
+      expect(mockTocSvc.createHirarchyProgressHashmap).toHaveBeenCalled()
+    })
+  })
 })
