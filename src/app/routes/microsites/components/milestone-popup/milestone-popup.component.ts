@@ -60,6 +60,19 @@ export class MilestonePopupComponent {
 
   /** Set when the configured image fails to load: the popup falls back to the text version */
   readonly imageFailed = signal(false)
+  /**
+   * Width / height of the loaded image (16:9 until it loads). The image popup is sized from it, so on a short
+   * window the box shrinks with the image instead of leaving empty space beside it, and the close button
+   * stays on the artwork's corner.
+   */
+  readonly imageRatio = signal(16 / 9)
+
+  onImageLoad(image: HTMLImageElement): void {
+    const { naturalWidth, naturalHeight } = image
+    if (naturalWidth > 0 && naturalHeight > 0) {
+      this.imageRatio.set(naturalWidth / naturalHeight)
+    }
+  }
   /** Image-only popup: a usable `image` URL that has not failed to load */
   readonly showImage = computed(() => isUsableUrl(this.config()?.image) && !this.imageFailed())
   readonly imageAlt = computed(() => this.config()?.imageAlt || this.config()?.title || '')

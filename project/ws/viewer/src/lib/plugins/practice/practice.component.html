@@ -2,7 +2,7 @@
 <viewer-overview *ngIf="viewState === 'initial'" [learningObjective]="learningObjective"
   [complexityLevel]="complexityLevel" [duration]="duration" [timeLimit]="getTimeLimit"
   [primaryCategory]="primaryCategory" [canAttempt]="canAttempt" [noOfQuestions]="noOfQuestions"
-  (userSelection)="getSections($event)" [coursePrimaryCategory]="coursePrimaryCategory"
+  (userSelection)="getSections($event)" [sectionsStatus]="fetchingSectionsStatus" [coursePrimaryCategory]="coursePrimaryCategory"
   [courseCategory]="courseCategory" [instructionAssessment]="instructionAssessment" [quizData]="quizData"
   [selectedAssessmentCompatibilityLevel]="selectedAssessmentCompatibilityLevel" [forPreview]="forPreview"
   [contextCategory]="contextCategory">
@@ -1151,7 +1151,7 @@
             </div>
           </div>
           <div>
-            <div class="flex flex-row gap-6">
+            <div class="flex flex-row gap-6" *ngIf="!isQuestionnaire">
               <div class="flex flex-col stats-label-top" *ngIf="selectedSection?.minimumPassPercentage">
                 <div class="text-blue-800"><mat-icon class="text-blue-800">offline_pin</mat-icon></div>
                 <div>Passing Criteria: {{selectedSection?.minimumPassPercentage}}</div>
@@ -1190,8 +1190,8 @@
 
           <div *ngIf="!forCreatorMode">
             <a [ngClass]="(totalQCount != getAllQuestionAnswer() && assessmentType === 'optionalWeightage') ? 'pointer-events-none secondary-standalone text-standalone-black margin-xs quest_btn justify-right ': 'text-white ws-mat-primary-background margin-xs quest_btn justify-right' "
-              mat-button (click)="proceedToSubmit()">
-              <ng-container *ngIf="!isXsmall">{{ 'playerbrief.submitTheTest' | translate }}</ng-container>
+              mat-button [class.submit-centered]="isQuestionnaire" (click)="proceedToSubmit()">
+              <ng-container *ngIf="!isXsmall">{{ (isQuestionnaire ? 'playerbrief.submit' : 'playerbrief.submitTheTest') | translate }}</ng-container>
             </a>
           </div>
         </div>
@@ -1759,7 +1759,7 @@
             <span class="">{{resourceName}}</span>
           </div>
           <div>
-            <div class="flex flex-row">
+            <div class="flex flex-row" *ngIf="!isQuestionnaire">
               <div class="flex flex-col stats-label-top">
                 <div><img class="vertical-middle" src="assets/icons/final-assessment/assessment.svg"></div>
                 <div>{{noOfQuestions}} {{ 'playerbrief.questions' | translate }}</div>
@@ -1789,9 +1789,9 @@
           </div>
 
           <div *ngIf="!forCreatorMode">
-            <a mat-button (click)="proceedToSubmit()"
+            <a mat-button [class.submit-centered]="isQuestionnaire" (click)="proceedToSubmit()"
               [ngClass]="(totalQCount != getAllQuestionAnswer() && assessmentType === 'optionalWeightage') ? 'pointer-events-none secondary-standalone text-standalone-black margin-xs quest_btn_option_weightage': 'text-white ws-mat-primary-background margin-xs quest_btn' ">
-              <ng-container>{{ 'playerbrief.submitTheTest' | translate }}</ng-container>
+              <ng-container>{{ (isQuestionnaire ? 'playerbrief.submit' : 'playerbrief.submitTheTest') | translate }}</ng-container>
             </a>
           </div>
         </div>

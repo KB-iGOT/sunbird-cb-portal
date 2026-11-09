@@ -38,7 +38,9 @@ $mp-orange: #f47b20;
 // A real width, not `auto`: an SVG with only a viewBox (no width/height) has no size of its own, so
 // shrink-to-fit around it collapsed the popup to 0 wide and nothing showed. The height follows the image.
 .mp-dialog--image {
-  width: min(1040px, calc(100vw - 32px));
+  // as wide as fits both the width and the height of the window at the image's own proportions, so the
+  // box is always exactly the artwork (no empty strip beside it) and the close button sits on its corner
+  width: min(1040px, calc(100vw - 32px), calc((100vh - 32px) * var(--mp-image-ratio, 1.7778)));
   max-width: 100%;
   // visible, so the close button can sit on the corner outside the artwork; the image keeps the
   // rounded corners itself. The backdrop's 16px padding leaves room for the button.
@@ -73,14 +75,12 @@ $mp-orange: #f47b20;
   box-shadow: 0 24px 64px rgba(0, 0, 0, 0.32);
 }
 
-// Fills the popup's width; height from the image's own proportions (PNG pixels or SVG viewBox), and on a
-// short window it is capped and the image scaled down inside, so the popup never runs off the screen.
+// Fills the popup's width; height from the image's own proportions (PNG pixels or SVG viewBox). The popup's
+// width already fits the window's height, so no cap is needed here and nothing is letterboxed.
 .mp-image {
   width: 100%;
   border-radius: inherit;
   height: auto;
-  max-height: calc(100vh - 32px);
-  object-fit: contain;
 }
 
 // ── Header ─────────────────────────────────────────────────────────────────

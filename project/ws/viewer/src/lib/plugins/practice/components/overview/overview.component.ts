@@ -59,6 +59,8 @@ export class OverviewComponent implements OnInit, OnChanges, OnDestroy {
   @Input() quizData: any
   /** From the practice player; falls back to the route content */
   @Input() contextCategory = ''
+  /** The player's section-load status: on 'error' the Start button stops loading and can be pressed again */
+  @Input() sectionsStatus = ''
   forCreatorMode = window.location.href.includes('editMode=true')
   questionTYP = NsContent.EPrimaryCategory
   // staticImage = '/assets/images/exam/practice-test.png'
@@ -104,6 +106,9 @@ export class OverviewComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   ngOnChanges() {
+    if (this.sectionsStatus === 'error') {
+      this.loading = false
+    }
     if (this.questionnaire) {
       this.consentGiven = true
     }
