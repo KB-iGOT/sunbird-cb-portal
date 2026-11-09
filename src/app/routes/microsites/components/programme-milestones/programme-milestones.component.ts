@@ -4,7 +4,7 @@ import { MatDialog } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { Router } from '@angular/router'
 import { CertificateDialogComponent, MilestoneCardComponent, NsCampaignMilestone, isUsableUrl, parseDdMmYyyy } from '@sunbird-cb/consumption'
-import { ServerClockService } from '@sunbird-cb/utils-v2'
+import { ConfigurationsService, ServerClockService } from '@sunbird-cb/utils-v2'
 import dayjs from 'dayjs'
 import { of } from 'rxjs'
 import { startWith, switchMap } from 'rxjs/operators'
@@ -15,6 +15,28 @@ import { CampaignSurveyDialogComponent } from '../campaign-survey-dialog/campaig
 import { MilestonePopupComponent } from '../milestone-popup/milestone-popup.component'
 
 export const MILESTONE_POPUP_SEEN_KEY = 'campaignMilestonePopupSeen'
+
+/** localStorage key for this user's "popup seen" flag (per user, so a shared browser still shows it to the next user) */
+export function milestonePopupSeenKey(userId: string | undefined): string {
+  return `${MILESTONE_POPUP_SEEN_KEY}:${userId || 'anonymous'}`
+}
+
+// storage can throw (private mode, blocked site data): then the popup simply shows again next time
+function readSeen(key: string): boolean {
+  try {
+    return localStorage.getItem(key) === 'true'
+  } catch {
+    return false
+  }
+}
+
+function writeSeen(key: string): void {
+  try {
+    localStorage.setItem(key, 'true')
+  } catch {
+    // ignore
+  }
+}
 
 // unfilled `<PLACEHOLDER>` config values count as absent
 function configValue(value: string | undefined): string | undefined {
@@ -262,6 +284,7 @@ export class ProgrammeMilestonesComponent {
   /** Server time, not the device clock: changing the system time must not unlock anything early */
   private readonly clock = inject(ServerClockService)
   private readonly telemetry = inject(MicrositeTelemetryService)
+  private readonly configSvc = inject(ConfigurationsService)
 
   readonly config = input<NsCampaignMicrosite.IProgrammeMilestones | undefined>()
   readonly eventDetails = input<NsCampaignMicrosite.IEventDetails | undefined>()
@@ -395,7 +418,7 @@ export class ProgrammeMilestonesComponent {
     }, COUNTDOWN_TICK_MS))
     this.destroyRef.onDestroy(() => clearInterval(timer))
 
-    // one impression each time the info popup appears (it shows at most once per milestone per session)
+    // one impression when the info popup appears (it shows once per user)
     effect(() => {
       if (this.showPopup()) {
         untracked(() => this.telemetry.impression('milestone-popup', { id: 'milestone-popup', type: 'popup' }))
@@ -450,12 +473,11 @@ export class ProgrammeMilestonesComponent {
     return index < 0 ? undefined : this.milestones()[index]
   })
 
-  // shown once per session per milestone reached, so it returns for the next one
-  readonly showPopup = computed(() => {
-    const current = this.currentMilestone()
-    return !!this.config()?.popup?.enabled && this.isVisible() && !!current && !this.popupDismissed()
-      && sessionStorage.getItem(MILESTONE_POPUP_SEEN_KEY) !== String(current.order)
-  })
+  // shown only once per user: closing it hides it for good, also after finishing a milestone or on a new visit
+  // (seen once = never again for this user, whichever milestone they are on, across sessions and visits)
+  readonly showPopup = computed(() => !!this.config()?.popup?.enabled && this.isVisible()
+    && !!this.currentMilestone() && !this.popupDismissed()
+    && !readSeen(milestonePopupSeenKey(this.configSvc.userProfile?.userId)))
 
   /**
    * Pledge to open by itself: not submitted yet, inside its `autoOpen` window, and only once the info popup
@@ -480,10 +502,7 @@ export class ProgrammeMilestonesComponent {
 
   closePopup(): void {
     this.telemetry.click('milestone-popup', 'milestone-popup-close', { id: 'milestone-popup', type: 'popup' })
-    const current = this.currentMilestone()
-    if (current) {
-      sessionStorage.setItem(MILESTONE_POPUP_SEEN_KEY, String(current.order))
-    }
+    writeSeen(milestonePopupSeenKey(this.configSvc.userProfile?.userId))
     this.popupDismissed.set(true)
   }
 
