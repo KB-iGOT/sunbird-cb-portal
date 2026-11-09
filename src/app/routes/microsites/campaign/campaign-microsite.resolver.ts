@@ -5,9 +5,9 @@ import { Observable, of } from 'rxjs'
 import { catchError, map } from 'rxjs/operators'
 import { NsCampaignMicrosite } from '../models/campaign-microsite.model'
 
-/** Published page config in the content store (same origin, so it follows the environment: dev / uat / prod) */
-export const CAMPAIGN_MICROSITE_REMOTE_CONFIG = '/assets/public/content/campaign-microsite/campaign-microsite.json'
-/** Copy shipped with the portal assets, used when the published one is missing or unusable */
+/** Public config API (same origin, so it follows the environment: dev / qa / uat / prod) */
+export const CAMPAIGN_MICROSITE_REMOTE_CONFIG = '/apis/public/v8/campaign-microsite/config/portal'
+/** Copy shipped with the portal assets, used when the API fails or returns something unusable */
 export const CAMPAIGN_MICROSITE_LOCAL_CONFIG = '/assets/configurations/feature/campaign-microsite.json'
 
 /**
@@ -35,13 +35,12 @@ function isPageConfig(value: unknown): value is NsCampaignMicrosite.IPageConfig 
 }
 
 /**
- * Loads the campaign microsite config from the content store, falling back to the bundled asset for this
+ * Loads the campaign microsite config from the public config API, falling back to the bundled asset for this
  * portal (see campaignMicrositeLocalConfig) when that request fails or does not return a page config (e.g.
  * an HTML error page), and to the plain bundled file when the portal's own one is missing too.
  */
 export const campaignMicrositeResolver: ResolveFn<ICampaignMicrositePageData> = () => {
   const http = inject(HttpClient)
-  // `timestamp` busts browser / CDN caches so content-store edits show up on the next page load
   const fetchConfig = (url: string): Observable<NsCampaignMicrosite.IPageConfig> => http.get<unknown>(url).pipe(
     map(data => {
       if (!isPageConfig(data)) {
@@ -55,14 +54,14 @@ export const campaignMicrositeResolver: ResolveFn<ICampaignMicrositePageData> = 
     map(data => ({ data, error: null } as ICampaignMicrositePageData)),
     catchError(remoteError => {
       // tslint:disable-next-line: no-console
-      console.warn('Campaign microsite: published config unavailable, using the bundled one', remoteError)
+      console.warn('Campaign microsite: config API unavailable, using the bundled config', remoteError)
       const localConfig = campaignMicrositeLocalConfig(window.location.hostname)
       const local$ = localConfig === CAMPAIGN_MICROSITE_LOCAL_CONFIG
         ? fetchConfig(localConfig)
         : fetchConfig(localConfig).pipe(catchError(() => fetchConfig(CAMPAIGN_MICROSITE_LOCAL_CONFIG)))
       return local$.pipe(
         map(data => ({ data, error: null } as ICampaignMicrositePageData)),
-        catchError(error => of({ data: null, error })),
+        catchError(error => of({ error, data: null })),
       )
     }),
   )

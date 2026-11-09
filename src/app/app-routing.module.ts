@@ -364,7 +364,7 @@ const routes: Routes = [
       pageId: 'app/leadership-as-mission-2026',
     },
     resolve: {
-      // content-store JSON first, bundled assets/configurations/feature/campaign-microsite.json as fallback
+      // /apis/public/v8/campaign-microsite/config/portal first, bundled assets/configurations/feature/campaign-microsite.json as fallback
       pageData: campaignMicrositeResolver,
     },
   },

@@ -45,21 +45,21 @@ describe('campaignMicrositeResolver', () => {
 
   afterEach(() => jest.restoreAllMocks())
 
-  it('loads the published config, the same file on every portal', async () => {
+  it('loads the config from the public API', async () => {
     get.mockReturnValue(of(page))
     expect(await resolve()).toEqual({ data: page, error: null })
     expect(get).toHaveBeenCalledTimes(1)
     expect(get).toHaveBeenCalledWith(CAMPAIGN_MICROSITE_REMOTE_CONFIG)
   })
 
-  it('falls back to the bundled config for this portal when the published one is missing', async () => {
+  it('falls back to the bundled config for this portal when the API fails', async () => {
     const local = campaignMicrositeLocalConfig(window.location.hostname)
     get.mockImplementation((url: string) => url === local ? of(page) : throwError(() => ({ status: 404 })))
     expect(await resolve()).toEqual({ data: page, error: null })
     expect(get).toHaveBeenLastCalledWith(local)
   })
 
-  it('falls back when the published file is not a page config (e.g. an HTML error page)', async () => {
+  it('falls back when the API does not return a page config (e.g. an HTML error page)', async () => {
     get.mockImplementation((url: string) => of(url === CAMPAIGN_MICROSITE_REMOTE_CONFIG ? '<html></html>' : page))
     expect((await resolve()).data).toEqual(page)
   })
