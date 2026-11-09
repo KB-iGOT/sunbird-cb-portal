@@ -6,12 +6,12 @@ import { Router } from '@angular/router'
 import { CertificateDialogComponent, NsCampaignMilestone } from '@sunbird-cb/consumption'
 import { Subject, of } from 'rxjs'
 import { NsCampaignMicrosite } from '../../models/campaign-microsite.model'
-import { ServerClockService } from '@sunbird-cb/utils-v2'
+import { ConfigurationsService, ServerClockService } from '@sunbird-cb/utils-v2'
 import { MilestoneStatusService } from '../../services/milestone-status.service'
 import { MicrositeTelemetryService } from '../../services/microsite-telemetry.service'
 import { CampaignSurveyDialogComponent } from '../campaign-survey-dialog/campaign-survey-dialog.component'
 import {
-  MILESTONE_POPUP_SEEN_KEY, ProgrammeMilestonesComponent, buildPlayerRoute, eventCta, eventPhase, formatCountdown, isInAutoOpenWindow, milestoneAction,
+  ProgrammeMilestonesComponent, milestonePopupSeenKey, buildPlayerRoute, eventCta, eventPhase, formatCountdown, isInAutoOpenWindow, milestoneAction,
 } from './programme-milestones.component'
 import { DEFAULT_MILESTONE_LABELS } from '../../models/campaign-microsite.model'
 
@@ -76,6 +76,7 @@ describe('ProgrammeMilestonesComponent', () => {
         { provide: MatDialog, useValue: dialog },
         { provide: MatSnackBar, useValue: snackBar },
         { provide: MicrositeTelemetryService, useValue: telemetry },
+        { provide: ConfigurationsService, useValue: { userProfile: { userId: 'u1' } } },
       ],
     })
     // The card is covered by its own specs in the consumption library. Through npm link it also
@@ -646,7 +647,7 @@ describe('ProgrammeMilestonesComponent', () => {
     const popup = () => el.querySelector('ws-app-milestone-popup') as any
     const withPopup = { popup: { enabled: true }, items: [milestone(1), milestone(2)] }
 
-    beforeEach(() => sessionStorage.clear())
+    beforeEach(() => localStorage.clear())
 
     it('opens once states resolve, with the sorted milestones and their states', () => {
       const states$ = new Subject<NsCampaignMilestone.TMilestoneState[]>()
@@ -672,27 +673,27 @@ describe('ProgrammeMilestonesComponent', () => {
       expect(popup()).toBeNull()
     })
 
-    it('closes and is not shown again this session for the same milestone', () => {
+    it('closes and is remembered for this user', () => {
       statusSvc.resolveStates.mockReturnValue(of(['completed', 'notStarted']))
       render(withPopup)
       component.closePopup()
       fixture.detectChanges()
       expect(popup()).toBeNull()
-      expect(sessionStorage.getItem(MILESTONE_POPUP_SEEN_KEY)).toBe('2')
+      expect(localStorage.getItem(milestonePopupSeenKey('u1'))).toBe('true')
     })
 
-    it('shows again once the user reaches the next milestone', () => {
-      sessionStorage.setItem(MILESTONE_POPUP_SEEN_KEY, '1')
+    it('is not shown again once seen, even after the user moves on to the next milestone', () => {
+      localStorage.setItem(milestonePopupSeenKey('u1'), 'true')
+      statusSvc.resolveStates.mockReturnValue(of(['completed', 'notStarted']))
+      render(withPopup)
+      expect(popup()).toBeNull()
+    })
+
+    it('another user on the same browser still sees it', () => {
+      localStorage.setItem(milestonePopupSeenKey('someone-else'), 'true')
       statusSvc.resolveStates.mockReturnValue(of(['completed', 'notStarted']))
       render(withPopup)
       expect(popup()).not.toBeNull()
-    })
-
-    it('tracks the first open milestone, skipping a locked one before it', () => {
-      statusSvc.resolveStates.mockReturnValue(of(['locked', 'notStarted']))
-      render(withPopup)
-      component.closePopup()
-      expect(sessionStorage.getItem(MILESTONE_POPUP_SEEN_KEY)).toBe('2')
     })
 
     it('stays closed when no milestone is open', () => {
@@ -900,7 +901,7 @@ describe('ProgrammeMilestonesComponent', () => {
     }
 
     beforeEach(() => {
-      sessionStorage.clear()
+      localStorage.clear()
       component.now.set(at('2026-11-10T10:00:00+05:30'))
     })
 
@@ -940,8 +941,8 @@ describe('ProgrammeMilestonesComponent', () => {
       expect(surveyOpens()).toBe(1)
     })
 
-    it('opens straight away on a reload once the info popup was seen this session', () => {
-      sessionStorage.setItem(MILESTONE_POPUP_SEEN_KEY, '4')
+    it('opens straight away on a reload once the info popup was seen', () => {
+      localStorage.setItem(milestonePopupSeenKey('u1'), 'true')
       load({ popup: { enabled: true }, items: [pledge()] }, ['notStarted'])
       expect(surveyOpens()).toBe(1)
     })
@@ -1022,7 +1023,7 @@ describe('ProgrammeMilestonesComponent', () => {
     })
 
     it('info popup: an impression when it shows, a click when it is closed', () => {
-      sessionStorage.clear()
+      localStorage.clear()
       statusSvc.resolveStates.mockReturnValue(of(['notStarted']))
       render({ popup: { enabled: true }, items: [milestone(1)] })
       TestBed.tick()
@@ -1032,7 +1033,7 @@ describe('ProgrammeMilestonesComponent', () => {
     })
 
     it('the Sankalp form records whether it opened by itself or from a click', async () => {
-      sessionStorage.clear()
+      localStorage.clear()
       component.now.set(NOW)
       const pledge = milestone(4, {
         type: 'survey', formId: 'f_pledge', identifier: undefined,

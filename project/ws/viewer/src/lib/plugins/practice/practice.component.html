@@ -14,7 +14,8 @@
     <mat-spinner [diameter]="150"></mat-spinner>
   </div>
   <div class="loader-message">
-    <span class="mat-heading">{{'playerbrief.calculateResult' | translate}}</span>
+    <!-- Baseline / Endline questionnaires have no result to calculate -->
+    <span class="mat-heading">{{ isQuestionnaire ? 'Please wait while your submission is being processed' : ('playerbrief.calculateResult' | translate) }}</span>
   </div>
 </div>
 <!-- Course Assessment-->
