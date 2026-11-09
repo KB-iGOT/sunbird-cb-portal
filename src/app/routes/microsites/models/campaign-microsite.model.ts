@@ -96,6 +96,11 @@ export namespace NsCampaignMicrosite {
   export interface IMilestone extends NsCampaignMilestone.IMilestone {
     /** `true` keeps the card closed until `eventDetails.startDate` */
     lockUntilEventStart?: boolean
+    /**
+     * Event only: before `startDateTime` the "Event yet to start" button stays active (blue) and opens
+     * the player, instead of being disabled. Off by default.
+     */
+    openBeforeStart?: boolean
     /** Assessment only: sent as `?language=` to the auto-enrollment API and fills `{language}` in the player route */
     language?: string
     /**
@@ -248,6 +253,8 @@ export namespace NsCampaignMicrosite {
     enabled: boolean
     /** When set (and it loads), the popup shows only this image with a close button; otherwise the text below */
     image?: string
+    /** Optional artwork for phones (up to 767px wide), e.g. a tall version of `image`; `image` is used when unset */
+    mobileImage?: string
     /** Accessible description of `image`; falls back to `title` */
     imageAlt?: string
     eyebrow?: string

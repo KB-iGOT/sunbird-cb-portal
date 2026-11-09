@@ -306,6 +306,11 @@ describe('ProgrammeMilestonesComponent', () => {
       expect(eventCta(phase, enrolled, L)).toEqual({ label, disabled })
     })
 
+    it('openBeforeStart keeps "Event yet to start" active before the start', () => {
+      expect(eventCta('upcoming', true, L, true)).toEqual({ label: L.upcoming, disabled: false })
+      expect(eventCta('upcoming', false, L, true)).toEqual({ label: L.register, disabled: false })
+    })
+
     it('binds the event button to the card; locked events keep the default', () => {
       component.now.set(at('2026-11-17T11:00:00+05:30'))
       statusSvc.isEventEnrolled.mockReturnValue(true)
@@ -368,6 +373,27 @@ describe('ProgrammeMilestonesComponent', () => {
         await flush()
         expect(statusSvc.enrollEvent).not.toHaveBeenCalled()
         expect(router.navigate).not.toHaveBeenCalled()
+      })
+
+      it('registered, event upcoming, openBeforeStart → opens the player before the start', async () => {
+        jest.spyOn(Date, 'now').mockReturnValue(at('2026-11-16T10:00:00+05:30'))
+        statusSvc.isEventEnrolled.mockReturnValue(true)
+        component.openMilestone(event({ openBeforeStart: true }))
+        await flush()
+        expect(statusSvc.enrollEvent).not.toHaveBeenCalled()
+        expect(router.navigate).toHaveBeenCalledWith(['/', 'app', 'event-hub', 'player', 'do_event', 'youtube', 'vid_1'], {
+          queryParams: { isEnrolled: 'true', redirectUrl: '/app/microsites/campaign/kalp?tab=1' },
+        })
+      })
+
+      it('not registered, event upcoming, openBeforeStart → registers, then opens the player', async () => {
+        jest.spyOn(Date, 'now').mockReturnValue(at('2026-11-16T10:00:00+05:30'))
+        statusSvc.enrollEvent.mockResolvedValue(undefined)
+        component.openMilestone(event({ openBeforeStart: true }))
+        await flush()
+        expect(statusSvc.enrollEvent).toHaveBeenCalledTimes(1)
+        expect(snackBar.open).not.toHaveBeenCalledWith(L.registered, 'X', { duration: 5000 })
+        expect(router.navigate).toHaveBeenCalled()
       })
 
       it('not registered, event ended → shows Register, registers, then opens the recording', async () => {
