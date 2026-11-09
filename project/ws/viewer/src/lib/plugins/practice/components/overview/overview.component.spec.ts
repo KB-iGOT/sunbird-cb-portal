@@ -113,4 +113,11 @@ describe('OverviewComponent', () => {
       expect(component.consentGiven).toBe(false)
     })
   })
+
+  it('stops the Start spinner when the assessment fails to load, so Start can be pressed again', () => {
+    component.loading = true
+    component.sectionsStatus = 'error'
+    component.ngOnChanges()
+    expect(component.loading).toBe(false)
+  })
 })

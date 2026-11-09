@@ -73,8 +73,9 @@
         <div>
             <div class="flex flex-col align-center justify-center">
                 <img class="vertical-middle" src="assets/icons/final-assessment/exam.svg">
-                <p class="thank-you mt-2">Thank you for taking the test</p>
-                <p class="text-center">Your detailed analysis will be shared with you soon.</p>
+                <!-- Baseline / Endline questionnaires: no analysis is shared, so no promise of one -->
+                <p class="thank-you mt-2 text-center">{{ assessmentData?.questionnaireDone ? 'Thank you for taking the Questionnaire' : 'Thank you for taking the test' }}</p>
+                <p class="text-center" *ngIf="!assessmentData?.questionnaireDone">Your detailed analysis will be shared with you soon.</p>
             </div>
             <!-- Baseline / Endline questionnaires: OK leaves the player instead of offering a reattempt -->
             <div class="flex flex-col align-center justify-center" *ngIf="assessmentData?.questionnaireDone">

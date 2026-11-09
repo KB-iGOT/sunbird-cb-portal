@@ -151,6 +151,16 @@ describe('MilestonePopupComponent', () => {
       expect(el.querySelector('.mp-image')?.getAttribute('src')).toBe(IMAGE)
     })
 
+    it('sizes the popup from the loaded image proportions', () => {
+      render(['notStarted', 'locked', 'locked', 'locked'], withImage)
+      const img = el.querySelector<HTMLImageElement>('.mp-image')!
+      Object.defineProperty(img, 'naturalWidth', { value: 1920 })
+      Object.defineProperty(img, 'naturalHeight', { value: 1080 })
+      img.dispatchEvent(new Event('load'))
+      fixture.detectChanges()
+      expect(Number(el.querySelector<HTMLElement>('.mp-dialog')!.style.getPropertyValue('--mp-image-ratio'))).toBeCloseTo(1920 / 1080)
+    })
+
     it('falls back to the text popup when the image fails to load', () => {
       render(['notStarted', 'locked', 'locked', 'locked'], withImage)
       el.querySelector('.mp-image')?.dispatchEvent(new Event('error'))

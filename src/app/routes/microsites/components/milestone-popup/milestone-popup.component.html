@@ -1,6 +1,7 @@
 <div class="mp-backdrop fixed inset-0 flex items-center justify-center p-4" (click)="closed.emit()">
   <div class="mp-dialog relative flex flex-col w-full overflow-hidden rounded-2xl" role="dialog" aria-modal="true"
     [class.mp-dialog--image]="showImage()"
+    [style.--mp-image-ratio]="showImage() ? imageRatio() : null"
     [attr.aria-labelledby]="showImage() ? null : 'mp-title'" [attr.aria-label]="showImage() ? imageAlt() : null"
     (click)="$event.stopPropagation()">
 
@@ -19,7 +20,8 @@
       @if (mobileImage()) {
       <source media="(max-width: 767px)" [attr.srcset]="mobileImage()" />
       }
-      <img class="mp-image block" [src]="config()?.image" [alt]="imageAlt()" (error)="imageFailed.set(true)" />
+      <img #popupImage class="mp-image block" [src]="config()?.image" [alt]="imageAlt()"
+        (load)="onImageLoad(popupImage)" (error)="imageFailed.set(true)" />
     </picture>
     } @else {
 

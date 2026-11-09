@@ -664,18 +664,7 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
               }
             }
           },
-            (error: any) => {
-              this.fetchingSectionsStatus = 'error'
-              // Only show specific message for 400 status code errors
-              if (error.status === 400) {
-                if (error.error && error.error.params && error.error.params.errmsg) {
-                  this.openSnackbar(`${error.error.params.errmsg}`)
-                  this.viewerHeaderSideBarToggleService.visibilityStatus.next(true)
-                }
-              } else {
-                this.openSnackbar('Failed to load assessment section. Please try again later.')
-              }
-            })
+            (error: any) => this.onSectionsLoadFailed(error))
       } else {
         this.quizSvc.getSection(this.identifier, this.forPreview,
           this.getPublicContentRequestData(), this.collectionId).subscribe((section: NSPractice.ISectionResponse) => {
@@ -722,21 +711,24 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
               }
             }
           },
-            (error: any) => {
-              this.fetchingSectionsStatus = 'error'
-              // Only show specific message for 400 status code errors
-              if (error.status === 400) {
-                if (error.error && error.error.params && error.error.params.errmsg) {
-                  this.openSnackbar(`${error.error.params.errmsg}`)
-                }
-              } else {
-                this.openSnackbar('Failed to load assessment section. Please try again later.')
-              }
-            })
+            (error: any) => this.onSectionsLoadFailed(error))
       }
 
     }
   }
+  /**
+   * The assessment read failed (e.g. 500 "Maximum retry attempts for assessment reached."). Puts the page back
+   * on the overview in a usable state: the overview's Start spinner stops (it follows fetchingSectionsStatus),
+   * the header / sidebar it hid come back, and the server's own message is shown whatever the status code.
+   */
+  onSectionsLoadFailed(error: any) {
+    this.fetchingSectionsStatus = 'error'
+    this.viewState = 'initial'
+    this.viewerHeaderSideBarToggleService.visibilityStatus.next(true)
+    const message = error && error.error && error.error.params && error.error.params.errmsg
+    this.openSnackbar(message ? `${message}` : 'Failed to load assessment section. Please try again later.')
+  }
+
   startIfonlySection() {
     // console.log('in start only section', this.isOnlySection)
     // directly start section if only section is there is set
