@@ -282,28 +282,38 @@ describe('CampaignSurveyDialogComponent', () => {
   })
 
   describe('telemetry', () => {
-    const object = { id: milestone.formId, type: 'survey' }
+    const object = { id: (milestone as any).identifier || milestone.formId, type: 'survey' }
 
-    it('X, Cancel and Retry each raise their own click', () => {
+    it('X and Cancel raise the same survey-close click; Retry its own', () => {
       create()
       el.querySelector<HTMLButtonElement>('.csd__close')?.click()
       el.querySelector<HTMLButtonElement>('.csd__footer .csd__btn--secondary')?.click()
       component.retry()
       expect(telemetry.click.mock.calls).toEqual([
-        ['sankalp-form', 'sankalp-close', object],
-        ['sankalp-form', 'sankalp-cancel', object],
-        ['sankalp-form', 'sankalp-retry', object],
+        ['campaign-microsite-survey-close', undefined, object],
+        ['campaign-microsite-survey-close', undefined, object],
+        ['campaign-microsite-survey-retry', undefined, object],
       ])
     })
 
-    it('Submit raises a click only when the form is actually sent', () => {
+    it('Submit is tracked only once the form was saved', () => {
       create({ milestone: { ...milestone, answerLimits: [] } })
       component.submit()
       expect(telemetry.click).not.toHaveBeenCalled()
 
+      http.post.mockReturnValueOnce(of({ params: { status: 'failed' } }))
       fillValid()
       component.submit()
-      expect(telemetry.click.mock.calls).toEqual([['sankalp-form', 'sankalp-submit', object]])
+      expect(telemetry.click).not.toHaveBeenCalled()
+
+      component.submit()
+      expect(telemetry.click.mock.calls).toEqual([['campaign-microsite-survey-submit', undefined, object]])
+    })
+
+    it('object.id is the milestone\'s content id when it has one', () => {
+      create({ milestone: { ...milestone, identifier: 'do_pledge' } } as any)
+      component.retry()
+      expect(telemetry.click.mock.calls[0][2]).toEqual({ id: 'do_pledge', type: 'survey' })
     })
   })
 

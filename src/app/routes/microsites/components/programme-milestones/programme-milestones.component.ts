@@ -10,7 +10,7 @@ import { of } from 'rxjs'
 import { startWith, switchMap } from 'rxjs/operators'
 import { NsCampaignMicrosite, formatLabel, formatOrdinalDate, formatOrdinalDateTime, resolveMilestoneLabels } from '../../models/campaign-microsite.model'
 import { MilestoneStatusService, isOpenState } from '../../services/milestone-status.service'
-import { MicrositeTelemetryService } from '../../services/microsite-telemetry.service'
+import { MICROSITE_TELEMETRY, MicrositeTelemetryService } from '../../services/microsite-telemetry.service'
 import { CampaignSurveyDialogComponent } from '../campaign-survey-dialog/campaign-survey-dialog.component'
 import { MilestonePopupComponent } from '../milestone-popup/milestone-popup.component'
 
@@ -432,7 +432,8 @@ export class ProgrammeMilestonesComponent {
           }
           return this.statusSvc.issuedCertificateId(milestone.identifier)
             ? { label: labels.survey.downloadCertificate, disabled: false }
-            : { label: labels.survey.downloadCertificate, disabled: true, tooltip: labels.survey.certificatePending }
+            // clickable while pending, as on mobile: the click shows the "be patient" message (and is tracked)
+            : { label: labels.survey.downloadCertificate, disabled: false, tooltip: labels.survey.certificatePending }
         default:
           return null
       }
@@ -588,16 +589,16 @@ export class ProgrammeMilestonesComponent {
     }
   }
 
-  /** One INTERACT per card / button click: subType `milestone-card`, id `milestone-<order>-<action>` */
+  /** One INTERACT per card / button click, as on mobile: subtype `campaign-microsite-milestone-<type>`, id `card-content` */
   private trackMilestoneClick(milestone: NsCampaignMicrosite.IMilestone): void {
-    const index = this.milestones().findIndex(m => m.order === milestone.order)
-    const action = milestoneAction(milestone, this.stateAt(index), {
-      now: this.clock.now(),
-      eventStartDate: this.eventDetails()?.startDate,
-      isEventEnrolled: this.statusSvc.isEventEnrolled(milestone.identifier),
-      hasCertificate: !!this.statusSvc.issuedCertificateId(milestone.identifier),
-    })
-    this.telemetry.click('milestone-card', `milestone-${milestone.order}-${action}`, milestoneTelemetryObject(milestone))
+    this.telemetry.click(MICROSITE_TELEMETRY.milestoneTap(milestone.type), MICROSITE_TELEMETRY.cardContent,
+      milestoneTelemetryObject(milestone))
+  }
+
+  /** Registered for an event (the event milestone, or the event behind the pledge): subtype `enroll-now`, object type Event */
+  private trackEventRegistered(milestone: NsCampaignMicrosite.IMilestone): void {
+    this.telemetry.click(MICROSITE_TELEMETRY.enrollNow, undefined,
+      { id: milestoneTelemetryObject(milestone).id, type: MICROSITE_TELEMETRY.eventObjectType })
   }
 
   /**
@@ -644,6 +645,7 @@ export class ProgrammeMilestonesComponent {
       this.enrollingOrder.set(milestone.order)
       try {
         await this.statusSvc.enrollEvent(milestone)
+        this.trackEventRegistered(milestone)
       } catch (error: any) {
         // tslint:disable-next-line: no-console
         console.error('ProgrammeMilestonesComponent: event registration failed', error)
@@ -673,7 +675,7 @@ export class ProgrammeMilestonesComponent {
    * Otherwise: event-backed -> register for the event if needed, then open the form; after a successful
    * submit mark the event complete (progress 100%) and re-read statuses (event read gives status + certificate).
    */
-  private async openSurvey(milestone: NsCampaignMicrosite.IMilestone, autoOpened = false): Promise<void> {
+  private async openSurvey(milestone: NsCampaignMicrosite.IMilestone, _autoOpened = false): Promise<void> {
     if (this.enrollingOrder() !== null) {
       return
     }
@@ -692,6 +694,7 @@ export class ProgrammeMilestonesComponent {
       this.enrollingOrder.set(milestone.order)
       try {
         await this.statusSvc.enrollEvent(milestone)
+        this.trackEventRegistered(milestone)
       } catch (error: any) {
         // tslint:disable-next-line: no-console
         console.error('ProgrammeMilestonesComponent: pledge event registration failed', error)
@@ -702,8 +705,9 @@ export class ProgrammeMilestonesComponent {
       }
     }
 
-    // `sankalp-form-auto` when it opened by itself on page load, `sankalp-form` when the user clicked
-    this.telemetry.impression(autoOpened ? 'sankalp-form-auto' : 'sankalp-form', { id: configValue(milestone.formId)!, type: 'survey' })
+    // INTERACT, as on mobile, whether it was clicked or opened by itself (the automatic one sends no milestone tap).
+    // object.id is the milestone's content id (the form id only when it has none); edata.id the same
+    this.telemetry.click(MICROSITE_TELEMETRY.surveyOpen, undefined, milestoneTelemetryObject(milestone))
     this.dialog.open<CampaignSurveyDialogComponent, NsCampaignMicrosite.ICampaignSurveyDialogData, boolean>(CampaignSurveyDialogComponent, {
       data: { milestone, labels: this.labels() },
       width: '750px',
@@ -731,10 +735,17 @@ export class ProgrammeMilestonesComponent {
   /** Certificate dialog when one has been issued for the pledge's event; otherwise the "be patient" message */
   private async openCertificate(milestone: NsCampaignMicrosite.IMilestone): Promise<void> {
     const certId = this.statusSvc.issuedCertificateId(milestone.identifier)
+    const object = milestoneTelemetryObject(milestone)
     if (!certId) {
-      this.snackBar.open(this.labels().survey.certificatePending, 'X', { duration: 10000 })
+      // as on mobile, only when there is a pending message to show
+      const pending = this.labels().survey.certificatePending
+      if (pending) {
+        this.telemetry.click(MICROSITE_TELEMETRY.certificatePending, MICROSITE_TELEMETRY.downloadCertificate, object)
+        this.snackBar.open(pending, 'X', { duration: 10000 })
+      }
       return
     }
+    this.telemetry.click(MICROSITE_TELEMETRY.certificateDownload, MICROSITE_TELEMETRY.downloadCertificate, object)
     this.enrollingOrder.set(milestone.order)
     try {
       const printUri = await this.statusSvc.fetchCertificate(certId)

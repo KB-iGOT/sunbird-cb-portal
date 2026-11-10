@@ -361,7 +361,8 @@ const routes: Routes = [
     canActivate: [GeneralGuard],
     data: {
       module: 'Campaign Microsite',
-      pageId: 'app/leadership-as-mission-2026',
+      // leading slash as the mobile app sends it, so web and mobile telemetry share edata.pageid
+      pageId: '/app/leadership-as-mission-2026',
     },
     resolve: {
       // /apis/public/v8/campaign-microsite/config/portal first, bundled assets/configurations/feature/campaign-microsite.json as fallback
