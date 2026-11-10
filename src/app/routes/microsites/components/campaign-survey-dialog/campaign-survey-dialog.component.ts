@@ -1,13 +1,14 @@
 import { NgTemplateOutlet } from '@angular/common'
+import { HttpClient } from '@angular/common/http'
 import { ChangeDetectionStrategy, Component, DestroyRef, OnInit, computed, inject, signal } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { AbstractControl, FormBuilder, ReactiveFormsModule } from '@angular/forms'
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'
 import { MatSnackBar } from '@angular/material/snack-bar'
-import { AppTocService, SurveyFormQuestionComponent } from '@sunbird-cb/toc'
+import { SurveyFormQuestionComponent } from '@sunbird-cb/toc'
 import { MicrositeTelemetryService } from '../../services/microsite-telemetry.service'
-import { DEFAULT_MILESTONE_LABELS, DEFAULT_SURVEY_ANSWER_LIMITS, NsCampaignMicrosite, buildSurveyForm, formatLabel, toFormDetails, toResponse } from '../../models/campaign-microsite.model'
+import { DEFAULT_MILESTONE_LABELS, DEFAULT_SURVEY_ANSWER_LIMITS, NsCampaignMicrosite, buildSurveyForm, formatLabel, surveyFormApi, toFormDetails, toResponse } from '../../models/campaign-microsite.model'
 
 @Component({
   selector: 'ws-app-campaign-survey-dialog',
@@ -19,7 +20,7 @@ import { DEFAULT_MILESTONE_LABELS, DEFAULT_SURVEY_ANSWER_LIMITS, NsCampaignMicro
 export class CampaignSurveyDialogComponent implements OnInit {
   private readonly dialogRef = inject<MatDialogRef<CampaignSurveyDialogComponent, boolean>>(MatDialogRef)
   private readonly fb = inject(FormBuilder)
-  private readonly tocSvc = inject(AppTocService)
+  private readonly http = inject(HttpClient)
   private readonly snackBar = inject(MatSnackBar)
   private readonly destroyRef = inject(DestroyRef)
   private readonly telemetry = inject(MicrositeTelemetryService)
@@ -56,7 +57,8 @@ export class CampaignSurveyDialogComponent implements OnInit {
     }
     this.isLoading.set(true)
     this.loadFailed.set(false)
-    this.tocSvc.getFormById(formId).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    // `formApis.read` from the page config, else the default getFormById
+    this.http.get<any>(surveyFormApi(this.data.milestone, 'read')).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: response => {
         const details = toFormDetails(response)
         const model = buildSurveyForm(this.fb, details.fields, this.data.milestone.answerLimits ?? DEFAULT_SURVEY_ANSWER_LIMITS)
@@ -103,7 +105,8 @@ export class CampaignSurveyDialogComponent implements OnInit {
       contextOrgId: '',
     }
     this.isSubmitting.set(true)
-    this.tocSvc.submitForm(body).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
+    // `formApis.submit` from the page config, else the default saveFormSubmit
+    this.http.post<any>(surveyFormApi(milestone, 'submit'), body).pipe(takeUntilDestroyed(this.destroyRef)).subscribe({
       next: response => {
         this.isSubmitting.set(false)
         if (response?.params?.status === 'success') {
