@@ -10,7 +10,7 @@ import _, { isString } from 'lodash'
 import moment from 'moment'
 import * as fileSaver from 'file-saver'
 import { environment } from 'src/environments/environment'
-import { EventService } from '../../services/events.service'
+import { EventService, needsEnrollCount } from '../../services/events.service'
 import { TranslateService } from '@ngx-translate/core'
 import { MultilingualTranslationsService, ConfigurationsService, WidgetContentService } from '@sunbird-cb/utils-v2'
 import { NsDiscussionV2 } from '@sunbird-cb/discussion-v2'
@@ -119,6 +119,20 @@ export class EventDetailComponent implements OnInit {
       }
     })
 
+  }
+
+  /**
+   * Certificate section hidden for these event types (`resourceType`, case-insensitive), from the event page
+   * config key `disableCertificateEventTypes`, e.g. ["Workshop"]. Unset = shown for every event, as before.
+   */
+  get certificateDisabled(): boolean {
+    const types = this.pageData && this.pageData.disableCertificateEventTypes
+    const resourceType = this.eventData && this.eventData.resourceType
+    if (!Array.isArray(types) || !resourceType) {
+      return false
+    }
+    const type = String(resourceType).trim().toLowerCase()
+    return types.some((item: unknown) => String(item).trim().toLowerCase() === type)
   }
 
   get isenrollFlow() {
@@ -245,7 +259,10 @@ export class EventDetailComponent implements OnInit {
         }
       }
       this.skeletonLoader = false
-      this.getEnrolledUserCount()
+      // live Samuhik Charcha only (see needsEnrollCount)
+      if (needsEnrollCount(this.eventData)) {
+        this.getEnrolledUserCount()
+      }
     })
 
   }

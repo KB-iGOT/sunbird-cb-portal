@@ -657,4 +657,20 @@ describe('EventDetailComponent', () => {
     // Test with zero
     expect(component.secondsToTime(0)).toBe('')
   })
+
+  describe('certificateDisabled (page config disableCertificateEventTypes)', () => {
+    it.each([
+      [['Workshop'], 'Workshop', true],
+      [['workshop'], 'Workshop', true],
+      [[' WORKSHOP '], 'workshop', true],
+      [['Workshop'], 'Webinar', false],
+      [undefined, 'Workshop', false],
+      [[], 'Workshop', false],
+      [['Workshop'], undefined, false],
+    ])('types %j, event %s -> %s', (types, resourceType, hidden) => {
+      component.pageData = types === undefined ? {} : { disableCertificateEventTypes: types }
+      component.eventData = { resourceType }
+      expect(component.certificateDisabled).toBe(hidden)
+    })
+  })
 })
