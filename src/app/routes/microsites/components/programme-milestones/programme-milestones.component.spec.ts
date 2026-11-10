@@ -12,6 +12,7 @@ import { MicrositeTelemetryService } from '../../services/microsite-telemetry.se
 import { CampaignSurveyDialogComponent } from '../campaign-survey-dialog/campaign-survey-dialog.component'
 import {
   ProgrammeMilestonesComponent, milestonePopupSeenKey, buildPlayerRoute, eventCta, eventPhase, formatCountdown, isInAutoOpenWindow, milestoneAction,
+  withEndedEvents,
 } from './programme-milestones.component'
 import { DEFAULT_MILESTONE_LABELS } from '../../models/campaign-microsite.model'
 
@@ -296,6 +297,34 @@ describe('ProgrammeMilestonesComponent', () => {
       expect(eventPhase(event({ startDateTime: 'not a date', endDateTime: '<END>' }), at(START))).toBe('live')
     })
 
+    describe('withEndedEvents', () => {
+      const AFTER = at('2026-11-18T00:00:00+05:30')
+
+      it('an in-progress event counts as completed once it has ended', () => {
+        expect(withEndedEvents(['inProgress'], [event()], AFTER)).toEqual(['completed'])
+      })
+
+      it.each([
+        ['before the end', 'inProgress', event(), at('2026-11-17T11:00:00+05:30')],
+        ['registered but never joined', 'notStarted', event(), AFTER],
+        ['an assessment', 'inProgress', milestone(1, { endDateTime: END }), AFTER],
+        ['an event without an end time', 'inProgress', event({ endDateTime: undefined }), AFTER],
+      ] as const)('leaves the state alone for %s', (_name, state, item, now) => {
+        expect(withEndedEvents([state], [item as NsCampaignMicrosite.IMilestone], now)).toEqual([state])
+      })
+
+      it('keeps null (still loading)', () => {
+        expect(withEndedEvents(null, [event()], AFTER)).toBeNull()
+      })
+    })
+
+    it('card shows completed for an in-progress workshop that has ended', () => {
+      component.now.set(at('2026-11-18T00:00:00+05:30'))
+      statusSvc.resolveStates.mockReturnValue(of(['completed', 'inProgress']))
+      render({ items: [milestone(1), event()] })
+      expect(cards().map(card => card.state)).toEqual(['completed', 'completed'])
+    })
+
     it.each([
       ['upcoming', false, L.register, false],
       ['live', false, L.register, false],
@@ -310,6 +339,18 @@ describe('ProgrammeMilestonesComponent', () => {
     it('openBeforeStart keeps "Event yet to start" active before the start', () => {
       expect(eventCta('upcoming', true, L, true)).toEqual({ label: L.upcoming, disabled: false })
       expect(eventCta('upcoming', false, L, true)).toEqual({ label: L.register, disabled: false })
+    })
+
+    it.each(['upcoming', 'live', 'ended'] as const)('a completed event offers the recording when %s', phase => {
+      expect(eventCta(phase, true, L, false, true)).toEqual({ label: L.recording, disabled: false })
+    })
+
+    it('card: completed before the start date shows View recording, not "Event yet to start"', () => {
+      component.now.set(at('2026-11-09T12:00:00+05:30'))
+      statusSvc.isEventEnrolled.mockReturnValue(true)
+      statusSvc.resolveStates.mockReturnValue(of(['completed']))
+      render({ items: [event({ openBeforeStart: true })] })
+      expect([cards()[0].state, cards()[0].ctaLabel, cards()[0].ctaDisabled]).toEqual(['completed', L.recording, false])
     })
 
     it('binds the event button to the card; locked events keep the default', () => {
@@ -996,13 +1037,14 @@ describe('ProgrammeMilestonesComponent', () => {
         milestoneAction(event, 'notStarted', { ...ctx, isEventEnrolled: true }),
         milestoneAction(event, 'inProgress', { ...ctx, now: at('2026-11-17T11:00:00+05:30'), isEventEnrolled: true }),
         milestoneAction(event, 'completed', { ...ctx, now: at('2026-11-18T10:00:00+05:30'), isEventEnrolled: true }),
+        milestoneAction(event, 'completed', { ...ctx, isEventEnrolled: true }),
         milestoneAction(pledge, 'notStarted', ctx),
         milestoneAction(pledge, 'completed', ctx),
         milestoneAction(pledge, 'completed', { ...ctx, hasCertificate: true }),
         milestoneAction(milestone(5, { redirectUrl: '/app/somewhere' }), 'notStarted', ctx),
       ]).toEqual([
         'start', 'resume', 'completed', 'view', 'locked', 'locked',
-        'register', 'yet-to-start', 'join', 'recording',
+        'register', 'yet-to-start', 'join', 'recording', 'recording',
         'take-sankalp', 'certificate-pending', 'download-certificate', 'redirect',
       ])
     })

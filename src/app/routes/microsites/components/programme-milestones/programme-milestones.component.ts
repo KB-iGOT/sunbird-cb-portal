@@ -88,6 +88,18 @@ export function eventPhase(milestone: NsCampaignMicrosite.IMilestone, now: numbe
   return start?.isValid() && now < start.valueOf() ? 'upcoming' : 'live'
 }
 
+/** A joined event (`inProgress`) counts as completed once its end time has passed; the event read keeps status 1 */
+export function withEndedEvents(
+  states: NsCampaignMilestone.TMilestoneState[] | null,
+  milestones: NsCampaignMicrosite.IMilestone[],
+  now: number,
+): NsCampaignMilestone.TMilestoneState[] | null {
+  return states && states.map((state, i) => {
+    const milestone = milestones[i]
+    return state === 'inProgress' && milestone?.type === 'event' && eventPhase(milestone, now) === 'ended' ? 'completed' : state
+  })
+}
+
 /** Assessment button: not enrolled -> Start, enrolled but not finished -> Resume, finished -> View */
 export function assessmentCtaLabel(
   state: NsCampaignMilestone.TMilestoneState,
@@ -158,18 +170,22 @@ export function assessmentUnlockAt(
 
 
 /**
- * Event button: not registered -> Register (whatever the phase);
- * registered -> Event yet to start / Join event / View recording, by phase. "Event yet to start" is
- * disabled unless the milestone has `openBeforeStart`, which lets it open the player early.
+ * Event button: not registered -> Register (whatever the phase); completed -> View recording (whatever the
+ * phase: `openBeforeStart` lets a user finish before the start); otherwise Event yet to start / Join event /
+ * View recording, by phase. "Event yet to start" is disabled unless the milestone has `openBeforeStart`.
  */
 export function eventCta(
   phase: TEventPhase,
   isEnrolled: boolean,
   labels: NsCampaignMicrosite.IMilestoneLabels['event'],
   openBeforeStart = false,
+  completed = false,
 ): IEventCta {
   if (!isEnrolled) {
     return { label: labels.register, disabled: false }
+  }
+  if (completed) {
+    return { label: labels.recording, disabled: false }
   }
   switch (phase) {
     case 'upcoming':
@@ -208,6 +224,9 @@ export function milestoneAction(
     case 'event': {
       if (!ctx.isEventEnrolled) {
         return 'register'
+      }
+      if (state === 'completed') {
+        return 'recording'
       }
       const phase = eventPhase(milestone, ctx.now)
       return phase === 'upcoming' ? 'yet-to-start' : phase === 'live' ? 'join' : 'recording'
@@ -308,7 +327,7 @@ export class ProgrammeMilestonesComponent {
   /** Server's current time, ticking so event buttons, unlocks and countdowns update without a reload */
   readonly now = signal(this.clock.now())
 
-  readonly states = toSignal(
+  private readonly apiStates = toSignal(
     // `refresh` is part of the value: the same milestones array alone would not re-emit
     toObservable(computed(() => ({ items: this.isVisible() ? this.milestones() : [], refresh: this.refresh() }))).pipe(
       switchMap(({ items }) => items.length
@@ -317,6 +336,8 @@ export class ProgrammeMilestonesComponent {
     ),
     { initialValue: null },
   )
+
+  readonly states = computed(() => withEndedEvents(this.apiStates(), this.milestones(), this.cardNow()))
 
   readonly isLoading = computed(() => this.states() === null)
 
@@ -387,7 +408,7 @@ export class ProgrammeMilestonesComponent {
         }
         case 'event':
           return eventCta(eventPhase(milestone, now), this.statusSvc.isEventEnrolled(milestone.identifier), labels.event,
-            !!milestone.openBeforeStart)
+            !!milestone.openBeforeStart, state === 'completed')
         case 'survey':
           if (state !== 'completed') {
             return { label: labels.survey.start, disabled: false }
@@ -592,7 +613,7 @@ export class ProgrammeMilestonesComponent {
   /**
    * Not registered -> register (event enroll API), then open the player unless the event has not started yet.
    * Registered -> open the player once the event has started (the button is disabled before that).
-   * With `openBeforeStart` the player opens before the start too.
+   * With `openBeforeStart`, or once completed, the player opens before the start too.
    */
   private async openEvent(milestone: NsCampaignMicrosite.IMilestone): Promise<void> {
     if (this.enrollingOrder() !== null) {
@@ -617,7 +638,8 @@ export class ProgrammeMilestonesComponent {
         this.snackBar.open(this.labels().event.registered, 'X', { duration: 5000 })
         return
       }
-    } else if (phase === 'upcoming' && !milestone.openBeforeStart) {
+    } else if (phase === 'upcoming' && !milestone.openBeforeStart
+      && this.stateAt(this.milestones().findIndex(m => m.order === milestone.order)) !== 'completed') {
       return
     }
     const route = buildPlayerRoute(milestone, configValue(milestone.batchId))
