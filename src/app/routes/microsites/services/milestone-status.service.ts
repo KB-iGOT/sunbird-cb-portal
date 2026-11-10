@@ -4,13 +4,12 @@ import { ConfigurationsService, ServerClockService } from '@sunbird-cb/utils-v2'
 import { Observable, defer, firstValueFrom, from, of } from 'rxjs'
 import { catchError } from 'rxjs/operators'
 import { NsCampaignMilestone } from '@sunbird-cb/consumption'
-import { NsCampaignMicrosite } from '../models/campaign-microsite.model'
+import { NsCampaignMicrosite, surveyFormApi } from '../models/campaign-microsite.model'
 
 const API_END_POINTS = {
   ASSESSMENT_ENROLLMENT: (userId: string) => `/apis/proxies/v8/learner/course/v4/user/enrollment/details/${userId}`,
   EVENT_ENROLLMENT: (userId: string, eventId: string, batchId: string) =>
     `/apis/proxies/v8/user/event/read/${userId}?eventId=${eventId}&batchId=${batchId}`,
-  SURVEY_APPLICATIONS: '/apis/proxies/v8/forms/v2/bulkGetApplicationsById',
   EVENT_ENROLL: '/apis/proxies/v8/event/batch/enroll',
   EVENT_PROGRESS_UPDATE: '/apis/proxies/v8/eventprogress/v1/event/state/update',
   CERTIFICATE_DOWNLOAD: (certId: string) => `/apis/protected/v8/cohorts/course/batch/cert/download/${certId}`,
@@ -260,7 +259,8 @@ export class MilestoneStatusService {
     if (!milestone.formId) {
       return 'notStarted'
     }
-    const response: any = await firstValueFrom(this.http.post(API_END_POINTS.SURVEY_APPLICATIONS, {
+    // `formApis.status` from the page config, else the default bulkGetApplicationsById
+    const response: any = await firstValueFrom(this.http.post(surveyFormApi(milestone as NsCampaignMicrosite.IMilestone, 'status'), {
       userId,
       formContextList: [{ formId: milestone.formId, contextId: milestone.formId }],
     }))

@@ -4,7 +4,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing'
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms'
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
-import { AppTocService } from '@sunbird-cb/toc'
+import { HttpClient } from '@angular/common/http'
 import { of, throwError } from 'rxjs'
 import { MicrositeTelemetryService } from '../../services/microsite-telemetry.service'
 import { NsCampaignMicrosite, buildSurveyForm, toFormDetails, toResponse } from '../../models/campaign-microsite.model'
@@ -69,7 +69,7 @@ describe('CampaignSurveyDialogComponent', () => {
   let fixture: ComponentFixture<CampaignSurveyDialogComponent>
   let component: CampaignSurveyDialogComponent
   let el: HTMLElement
-  let tocSvc: { getFormById: jest.Mock, submitForm: jest.Mock }
+  let http: { get: jest.Mock, post: jest.Mock }
   let dialogRef: { close: jest.Mock }
   let snackBar: { open: jest.Mock }
 
@@ -91,13 +91,13 @@ describe('CampaignSurveyDialogComponent', () => {
 
   beforeEach(() => {
     telemetry = { click: jest.fn(), impression: jest.fn() }
-    tocSvc = { getFormById: jest.fn(() => of(FORM_RESPONSE)), submitForm: jest.fn(() => of({ params: { status: 'success' } })) }
+    http = { get: jest.fn(() => of(FORM_RESPONSE)), post: jest.fn(() => of({ params: { status: 'success' } })) }
     dialogRef = { close: jest.fn() }
     snackBar = { open: jest.fn() }
     TestBed.configureTestingModule({
       imports: [CampaignSurveyDialogComponent],
       providers: [
-        { provide: AppTocService, useValue: tocSvc },
+        { provide: HttpClient, useValue: http },
         { provide: MatDialogRef, useValue: dialogRef },
         { provide: MicrositeTelemetryService, useValue: telemetry },
         { provide: MatSnackBar, useValue: snackBar },
@@ -112,7 +112,7 @@ describe('CampaignSurveyDialogComponent', () => {
 
   it('loads the form by formId and renders its title and fields', () => {
     create()
-    expect(tocSvc.getFormById).toHaveBeenCalledWith('1784131937108')
+    expect(http.get).toHaveBeenCalledWith('/apis/proxies/v8/forms/v2/getFormById?formId=1784131937108')
     expect(el.querySelector('h2')?.textContent?.trim()).toBe('Leadership Pledge')
     // q1 on its own, q2 + q3 inside the "Pledge" section
     expect(el.querySelectorAll('ws-app-survey-form-question').length).toBe(3)
@@ -139,14 +139,14 @@ describe('CampaignSurveyDialogComponent', () => {
     create()
     component.model()?.controls[0].controls.answer.setValue('Asha')
     component.submit()
-    expect(tocSvc.submitForm).not.toHaveBeenCalled()
+    expect(http.post).not.toHaveBeenCalled()
   })
 
   it('submits the TOC body and closes with true on success', () => {
     create()
     fillValid()
     component.submit()
-    expect(tocSvc.submitForm).toHaveBeenCalledWith({
+    expect(http.post).toHaveBeenCalledWith('/apis/proxies/v8/forms/v2/saveFormSubmit', {
       formId: '1784131937108',
       version: 3,
       status: 'SUBMITTED',
@@ -167,14 +167,14 @@ describe('CampaignSurveyDialogComponent', () => {
   it('does not submit an invalid form', () => {
     create()
     component.submit()
-    expect(tocSvc.submitForm).not.toHaveBeenCalled()
+    expect(http.post).not.toHaveBeenCalled()
   })
 
   it.each([
     ['a failed status', of({ params: { status: 'failed' }, errorMessage: 'Already submitted' }), 'Already submitted'],
     ['an HTTP error', throwError(() => new Error('500')), 'Something went wrong. Please try again.'],
   ])('stays open and shows a message on %s', (_name, result, message) => {
-    tocSvc.submitForm.mockReturnValue(result)
+    http.post.mockReturnValue(result)
     create()
     fillValid()
     component.submit()
@@ -184,13 +184,13 @@ describe('CampaignSurveyDialogComponent', () => {
   })
 
   it('shows a retry when the form fails to load', () => {
-    tocSvc.getFormById.mockReturnValueOnce(throwError(() => new Error('404')))
+    http.get.mockReturnValueOnce(throwError(() => new Error('404')))
     create()
     expect(el.querySelector('[role="alert"]')).toBeTruthy()
     expect(submitButton()).toBeNull()
     el.querySelector<HTMLButtonElement>('[role="alert"] button')?.click()
     fixture.detectChanges()
-    expect(tocSvc.getFormById).toHaveBeenCalledTimes(2)
+    expect(http.get).toHaveBeenCalledTimes(2)
     expect(el.querySelector('[role="alert"]')).toBeNull()
   })
 
@@ -271,7 +271,7 @@ describe('CampaignSurveyDialogComponent', () => {
 
   it('fails without a formId and makes no call', () => {
     create({ milestone: { ...milestone, formId: '' } })
-    expect(tocSvc.getFormById).not.toHaveBeenCalled()
+    expect(http.get).not.toHaveBeenCalled()
     expect(component.loadFailed()).toBe(true)
   })
 
@@ -305,5 +305,18 @@ describe('CampaignSurveyDialogComponent', () => {
       component.submit()
       expect(telemetry.click.mock.calls).toEqual([['sankalp-form', 'sankalp-submit', object]])
     })
+  })
+
+  it('uses the read and submit URLs from the milestone\'s formApis when configured', () => {
+    create({
+      milestone: {
+        ...milestone,
+        formApis: { read: '/apis/custom/form/{formId}', submit: '/apis/custom/submit' },
+      },
+    } as any)
+    expect(http.get).toHaveBeenCalledWith('/apis/custom/form/1784131937108')
+    fillValid()
+    component.submit()
+    expect(http.post.mock.calls[0][0]).toBe('/apis/custom/submit')
   })
 })

@@ -143,6 +143,20 @@ export namespace NsCampaignMicrosite {
      * until submitted. Missing, `enabled: false` or an invalid date: never opens by itself.
      */
     autoOpen?: IAutoOpen
+    /**
+     * Survey (Sankalpa) only: the form APIs, so each environment can point them elsewhere without a release.
+     * Any missing one keeps the default (see DEFAULT_SURVEY_FORM_APIS). `{formId}` is replaced in every URL.
+     */
+    formApis?: ISurveyFormApis
+  }
+
+  export interface ISurveyFormApis {
+    /** GET the form (questions). Default: /apis/proxies/v8/forms/v2/getFormById?formId={formId} */
+    read?: string
+    /** POST `{ userId, formContextList }`: has the user submitted? Default: /apis/proxies/v8/forms/v2/bulkGetApplicationsById */
+    status?: string
+    /** POST the answers. Default: /apis/proxies/v8/forms/v2/saveFormSubmit */
+    submit?: string
   }
 
   export interface IAutoOpen {
@@ -588,4 +602,24 @@ export function toResponse(group: FormGroup) {
     value = dayjs(value).format('YYYY-MM-DD')
   }
   return { questionId, question, answer: value, answerType: fieldType }
+}
+
+/** Sankalpa form APIs used when the survey milestone has no `formApis` (the ones the TOC library calls) */
+export const DEFAULT_SURVEY_FORM_APIS: Required<NsCampaignMicrosite.ISurveyFormApis> = {
+  read: '/apis/proxies/v8/forms/v2/getFormById?formId={formId}',
+  status: '/apis/proxies/v8/forms/v2/bulkGetApplicationsById',
+  submit: '/apis/proxies/v8/forms/v2/saveFormSubmit',
+}
+
+/**
+ * URL of one Sankalpa form API for this milestone: its `formApis[key]` when set (blank / `<PLACEHOLDER>` values
+ * count as unset), else the default; `{formId}` is replaced with the milestone's form id.
+ */
+export function surveyFormApi(
+  milestone: { formId?: string, formApis?: NsCampaignMicrosite.ISurveyFormApis } | null | undefined,
+  key: keyof NsCampaignMicrosite.ISurveyFormApis,
+): string {
+  const configured = (milestone?.formApis?.[key] || '').trim()
+  const url = configured && !/^<.*>$/.test(configured) ? configured : DEFAULT_SURVEY_FORM_APIS[key]
+  return url.replace(/\{formId\}/g, encodeURIComponent(milestone?.formId || ''))
 }
