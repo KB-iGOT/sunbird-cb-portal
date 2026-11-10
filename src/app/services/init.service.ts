@@ -29,7 +29,7 @@ import { SbUiResolverService } from '@sunbird-cb/resolver-v2'
 import { CommonMethodsService } from '@sunbird-cb/consumption'
 import { NetCoreService } from './netcore.service'
 import { CommonDataService } from './common-data.service'
-import { FormEnvConfigService } from './form-env-config.service'
+import { FormEnvConfigService, matchesCurrentPortal } from './form-env-config.service'
 import { FormConfigService } from '@sunbird-cb/consumption'
 /* tslint:enable */
 
@@ -46,6 +46,33 @@ export const SHOW_ACCESSIBILITY_ICON_CLASS = 'show-accessibility-icon'
 export function applyAccessibilityIconConfig(globalConfig: any): void {
   const show = globalConfig?.components?.accessibilityWidget?.showFloatingIcon === true
   document.body.classList.toggle(SHOW_ACCESSIBILITY_ICON_CLASS, show)
+}
+
+/**
+ * Login (`keycloak.url`, `keycloak.url2`) goes through the portal the user is on. application.config.json can
+ * carry another environment's host (UAT has been serving production's), which sends a logged-out user to that
+ * environment's login. When the loaded environment is this portal's (its `sitePath` matches), the host of those
+ * URLs is replaced with this portal's origin; the path and query are kept. Otherwise nothing changes.
+ */
+export function alignLoginWithPortal(appConfig: any, env: any = environment): void {
+  const keycloak = appConfig && appConfig.keycloak
+  if (!keycloak || !matchesCurrentPortal(env)) {
+    return
+  }
+  const origin = window.location.origin;
+  (['url', 'url2'] as const).forEach(key => {
+    const value = keycloak[key]
+    if (typeof value === 'string' && /^https?:\/\//i.test(value)) {
+      try {
+        const url = new URL(value)
+        if (url.origin !== origin) {
+          keycloak[key] = `${origin}${url.pathname}${url.search}`
+        }
+      } catch {
+        // not a URL: leave it
+      }
+    }
+  })
 }
 
 @Injectable({
@@ -359,6 +386,7 @@ export class InitService {
       publicConfig = await firstValueFrom(this.http
         .get<NsInstanceConfig.IConfig>(`${this.baseUrl}/application.config.json`))
     }
+    alignLoginWithPortal(publicConfig)
     if (publicConfig.npsCategory) {
       localStorage.setItem('npsCategory', publicConfig.npsCategory)
     }
