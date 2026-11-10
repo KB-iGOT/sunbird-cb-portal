@@ -7,7 +7,7 @@ import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { SurveyFormQuestionComponent } from '@sunbird-cb/toc'
-import { MicrositeTelemetryService } from '../../services/microsite-telemetry.service'
+import { MICROSITE_TELEMETRY, MicrositeTelemetryService } from '../../services/microsite-telemetry.service'
 import { DEFAULT_MILESTONE_LABELS, DEFAULT_SURVEY_ANSWER_LIMITS, NsCampaignMicrosite, buildSurveyForm, formatLabel, surveyFormApi, toFormDetails, toResponse } from '../../models/campaign-microsite.model'
 
 @Component({
@@ -45,7 +45,7 @@ export class CampaignSurveyDialogComponent implements OnInit {
 
   /** Retry after the form failed to load */
   retry(): void {
-    this.track('sankalp-retry')
+    this.track(MICROSITE_TELEMETRY.surveyRetry)
     this.loadForm()
   }
 
@@ -92,7 +92,6 @@ export class CampaignSurveyDialogComponent implements OnInit {
       return
     }
 
-    this.track('sankalp-submit')
     const { milestone } = this.data
     const body = {
       formId: milestone.formId,
@@ -110,6 +109,8 @@ export class CampaignSurveyDialogComponent implements OnInit {
       next: response => {
         this.isSubmitting.set(false)
         if (response?.params?.status === 'success') {
+          // successful submits only, as on mobile
+          this.track(MICROSITE_TELEMETRY.surveySubmit)
           this.notify(this.labels.submitted)
           this.dialogRef.close(true)
         } else {
@@ -145,13 +146,16 @@ export class CampaignSurveyDialogComponent implements OnInit {
   }
 
   /** `button`: the X in the header (`close`) or Cancel in the footer (`cancel`), told apart in telemetry */
-  close(button: 'close' | 'cancel' = 'close'): void {
-    this.track(`sankalp-${button}`)
+  /** The X and Cancel both close without submitting: one event for both, as on mobile */
+  close(_button: 'close' | 'cancel' = 'close'): void {
+    this.track(MICROSITE_TELEMETRY.surveyClose)
     this.dialogRef.close(false)
   }
 
-  private track(id: string): void {
-    this.telemetry.click('sankalp-form', id, { id: this.data.milestone.formId || '', type: 'survey' })
+  /** INTERACT with the name as subtype and id; object.id is the milestone's content id (the form id only without one) */
+  private track(name: string): void {
+    const { milestone } = this.data
+    this.telemetry.click(name, name, { id: milestone.identifier || milestone.formId || '', type: milestone.type || 'survey' })
   }
 
   private notify(message: string): void {

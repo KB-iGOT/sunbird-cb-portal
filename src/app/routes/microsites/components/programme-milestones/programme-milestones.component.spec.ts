@@ -937,12 +937,12 @@ describe('ProgrammeMilestonesComponent', () => {
       }
     })
 
-    it('completed pledge without a certificate: Download certificate disabled with the "be patient" tooltip', () => {
+    it('completed pledge without a certificate: Download certificate stays clickable, with the "be patient" tooltip', () => {
       const pledge = milestone(1, { type: 'survey', formId: 'f', identifier: 'do_p', batchId: 'b_p' })
       statusSvc.resolveStates.mockReturnValue(of(['completed']))
       render({ items: [pledge] })
       expect([cards()[0].ctaLabel, cards()[0].ctaDisabled, cards()[0].ctaTooltip])
-        .toEqual(['Download certificate', true, DEFAULT_MILESTONE_LABELS.survey.certificatePending])
+        .toEqual(['Download certificate', false, DEFAULT_MILESTONE_LABELS.survey.certificatePending])
 
       statusSvc.issuedCertificateId.mockReturnValue('cert_1')
       component.now.set(Date.now() + 1)
@@ -1070,7 +1070,7 @@ describe('ProgrammeMilestonesComponent', () => {
       ])
     })
 
-    it('a card click raises one INTERACT with the milestone action and content id, even when the click is ignored', () => {
+    it('a card click raises one INTERACT named as on mobile, with the content id, even when the click is ignored', () => {
       component.now.set(NOW)
       const locked = milestone(3, { startDateTime: '2026-11-17T10:00:00+05:30' })
       statusSvc.resolveStates.mockReturnValue(of(['notStarted', 'notStarted']))
@@ -1080,8 +1080,8 @@ describe('ProgrammeMilestonesComponent', () => {
       component.openMilestone(locked)
       jest.restoreAllMocks()
       expect(telemetry.click.mock.calls).toEqual([
-        ['milestone-card', 'milestone-1-start', { id: 'do_1', type: 'assessment' }],
-        ['milestone-card', 'milestone-3-locked', { id: 'do_3', type: 'assessment' }],
+        ['campaign-microsite-milestone-assessment', 'card-content', { id: 'do_1', type: 'assessment' }],
+        ['campaign-microsite-milestone-assessment', 'card-content', { id: 'do_3', type: 'assessment' }],
       ])
     })
 
@@ -1106,11 +1106,63 @@ describe('ProgrammeMilestonesComponent', () => {
       render({ items: [pledge] })
       TestBed.tick()
       await Promise.resolve()
-      expect(telemetry.impression).toHaveBeenCalledWith('sankalp-form-auto', { id: 'f_pledge', type: 'survey' })
+      expect(telemetry.click).toHaveBeenCalledWith('campaign-microsite-survey-open', 'auto-open', { id: 'f_pledge', type: 'survey' })
 
       component.openMilestone(pledge)
       await Promise.resolve()
-      expect(telemetry.impression).toHaveBeenCalledWith('sankalp-form', { id: 'f_pledge', type: 'survey' })
+      expect(telemetry.click).toHaveBeenCalledWith('campaign-microsite-survey-open', 'card-content', { id: 'f_pledge', type: 'survey' })
+    })
+
+    it('certificate: pending and download each raise their own INTERACT', async () => {
+      const pledge = milestone(4, { type: 'survey', formId: 'f', identifier: 'do_p', batchId: 'b_p' })
+      statusSvc.resolveStates.mockReturnValue(of(['completed']))
+      statusSvc.isEventEnrolled.mockReturnValue(true)
+      render({ items: [pledge] })
+      const object = { id: 'do_p', type: 'survey' }
+
+      component.openMilestone(pledge)
+      await Promise.resolve()
+      expect(telemetry.click).toHaveBeenCalledWith('campaign-microsite-certificate-pending', 'campaign-microsite-certificate-pending', object)
+      expect(snackBar.open).toHaveBeenCalledWith(DEFAULT_MILESTONE_LABELS.survey.certificatePending, 'X', { duration: 10000 })
+
+      statusSvc.issuedCertificateId.mockReturnValue('cert_1')
+      statusSvc.fetchCertificate.mockResolvedValue('uri')
+      component.openMilestone(pledge)
+      await Promise.resolve()
+      expect(telemetry.click).toHaveBeenCalledWith('campaign-microsite-certificate-download', 'campaign-microsite-certificate-download', object)
+    })
+
+    it('survey open uses the milestone\'s content id when it has one', async () => {
+      localStorage.clear()
+      const pledge = milestone(4, { type: 'survey', formId: 'f_pledge', identifier: 'do_pledge' })
+      statusSvc.resolveStates.mockReturnValue(of(['notStarted']))
+      render({ items: [pledge] })
+      component.openMilestone(pledge)
+      await Promise.resolve()
+      expect(telemetry.click).toHaveBeenCalledWith('campaign-microsite-survey-open', 'card-content', { id: 'do_pledge', type: 'survey' })
+    })
+
+    it('registering for an event raises enroll-now with object type Event, only once it succeeds', async () => {
+      const event = milestone(2, {
+        type: 'event', identifier: 'do_event', batchId: 'b1',
+        startDateTime: '2099-11-17T10:00:00+05:30', endDateTime: '2099-11-17T12:00:00+05:30',
+        player: { path: '/app/event-hub/player/{identifier}/youtube/{resourceId}', resourceId: 'yt' },
+      } as any)
+      statusSvc.resolveStates.mockReturnValue(of(['notStarted']))
+      statusSvc.isEventEnrolled.mockReturnValue(false)
+      statusSvc.enrollEvent.mockResolvedValueOnce(undefined)
+      render({ items: [event] })
+      component.openMilestone(event)
+      await Promise.resolve()
+      await Promise.resolve()
+      expect(telemetry.click).toHaveBeenCalledWith('campaign-microsite-milestone-event', 'enroll-now', { id: 'do_event', type: 'Event' })
+
+      telemetry.click.mockClear()
+      statusSvc.enrollEvent.mockRejectedValueOnce({ error: {} })
+      component.openMilestone(event)
+      await Promise.resolve()
+      await Promise.resolve()
+      expect(telemetry.click.mock.calls.map(call => call[1])).toEqual(['card-content'])
     })
   })
 })
