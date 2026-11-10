@@ -152,10 +152,10 @@ export class CampaignSurveyDialogComponent implements OnInit {
     this.dialogRef.close(false)
   }
 
-  /** INTERACT with the name as subtype and id; object.id is the milestone's content id (the form id only without one) */
+  /** INTERACT with the name as subtype; object.id is the milestone's content id (the form id only without one), edata.id the same */
   private track(name: string): void {
     const { milestone } = this.data
-    this.telemetry.click(name, name, { id: milestone.identifier || milestone.formId || '', type: milestone.type || 'survey' })
+    this.telemetry.click(name, undefined, { id: milestone.identifier || milestone.formId || '', type: milestone.type || 'survey' })
   }
 
   private notify(message: string): void {

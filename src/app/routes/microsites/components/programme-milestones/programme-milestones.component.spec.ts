@@ -1106,11 +1106,11 @@ describe('ProgrammeMilestonesComponent', () => {
       render({ items: [pledge] })
       TestBed.tick()
       await Promise.resolve()
-      expect(telemetry.click).toHaveBeenCalledWith('campaign-microsite-survey-open', 'auto-open', { id: 'f_pledge', type: 'survey' })
+      expect(telemetry.click).toHaveBeenCalledWith('campaign-microsite-survey-open', undefined, { id: 'f_pledge', type: 'survey' })
 
       component.openMilestone(pledge)
       await Promise.resolve()
-      expect(telemetry.click).toHaveBeenCalledWith('campaign-microsite-survey-open', 'card-content', { id: 'f_pledge', type: 'survey' })
+      expect(telemetry.click).toHaveBeenCalledWith('campaign-microsite-survey-open', undefined, { id: 'f_pledge', type: 'survey' })
     })
 
     it('certificate: pending and download each raise their own INTERACT', async () => {
@@ -1122,14 +1122,14 @@ describe('ProgrammeMilestonesComponent', () => {
 
       component.openMilestone(pledge)
       await Promise.resolve()
-      expect(telemetry.click).toHaveBeenCalledWith('campaign-microsite-certificate-pending', 'campaign-microsite-certificate-pending', object)
+      expect(telemetry.click).toHaveBeenCalledWith('campaign-microsite-certificate-pending', 'download-certificate', object)
       expect(snackBar.open).toHaveBeenCalledWith(DEFAULT_MILESTONE_LABELS.survey.certificatePending, 'X', { duration: 10000 })
 
       statusSvc.issuedCertificateId.mockReturnValue('cert_1')
       statusSvc.fetchCertificate.mockResolvedValue('uri')
       component.openMilestone(pledge)
       await Promise.resolve()
-      expect(telemetry.click).toHaveBeenCalledWith('campaign-microsite-certificate-download', 'campaign-microsite-certificate-download', object)
+      expect(telemetry.click).toHaveBeenCalledWith('campaign-microsite-certificate-download', 'download-certificate', object)
     })
 
     it('survey open uses the milestone\'s content id when it has one', async () => {
@@ -1139,7 +1139,7 @@ describe('ProgrammeMilestonesComponent', () => {
       render({ items: [pledge] })
       component.openMilestone(pledge)
       await Promise.resolve()
-      expect(telemetry.click).toHaveBeenCalledWith('campaign-microsite-survey-open', 'card-content', { id: 'do_pledge', type: 'survey' })
+      expect(telemetry.click).toHaveBeenCalledWith('campaign-microsite-survey-open', undefined, { id: 'do_pledge', type: 'survey' })
     })
 
     it('registering for an event raises enroll-now with object type Event, only once it succeeds', async () => {
@@ -1155,7 +1155,7 @@ describe('ProgrammeMilestonesComponent', () => {
       component.openMilestone(event)
       await Promise.resolve()
       await Promise.resolve()
-      expect(telemetry.click).toHaveBeenCalledWith('campaign-microsite-milestone-event', 'enroll-now', { id: 'do_event', type: 'Event' })
+      expect(telemetry.click).toHaveBeenCalledWith('enroll-now', undefined, { id: 'do_event', type: 'Event' })
 
       telemetry.click.mockClear()
       statusSvc.enrollEvent.mockRejectedValueOnce({ error: {} })

@@ -11,23 +11,28 @@ export interface IMicrositeTelemetryObject {
 export const MICROSITE_TELEMETRY_ENV = 'Campaign Microsite'
 
 /**
- * Event names shared with the mobile app, so web and mobile telemetry can be read together.
- * INTERACT events carry the name in `edata.subtype` and the element clicked in `edata.id`.
+ * Event names, as the mobile app sends them (so web and mobile telemetry can be read together).
+ * INTERACT: `edata.type` click, the name in `edata.subtype`, `object` = { the milestone's content id, its type },
+ * and `edata.id` as noted below; where none is noted it is the same as `object.id`.
  */
 export const MICROSITE_TELEMETRY = {
-  /** Card / button tap on a milestone: subtype `campaign-microsite-milestone-<type>`, id `card-content` */
+  /** Milestone tap (card or its button), type = assessment / event / survey / content; edata.id `card-content` */
   milestoneTap: (type: string) => `campaign-microsite-milestone-${type}`,
   cardContent: 'card-content',
-  /** Event registration (id), `object.type` Event */
+  /** Event register: object.type Event */
   enrollNow: 'enroll-now',
   eventObjectType: 'Event',
+  /** Certificate download / pending: edata.id `download-certificate` */
   certificateDownload: 'campaign-microsite-certificate-download',
   certificatePending: 'campaign-microsite-certificate-pending',
+  downloadCertificate: 'download-certificate',
+  /** From a tap or the automatic popup (the automatic one sends no milestone tap) */
   surveyOpen: 'campaign-microsite-survey-open',
-  /** Sent only after the form was saved */
+  /** Successful submits only */
   surveySubmit: 'campaign-microsite-survey-submit',
-  /** The dialog's X and Cancel */
+  /** Closed without submitting (X or Cancel) */
   surveyClose: 'campaign-microsite-survey-close',
+  /** Web only (no mobile equivalent): Try again after the form failed to load */
   surveyRetry: 'campaign-microsite-survey-retry',
 } as const
 
@@ -42,19 +47,20 @@ export class MicrositeTelemetryService {
 
   /**
    * INTERACT click, e.g. click('campaign-microsite-milestone-assessment', 'card-content', { id: 'do_1', type: 'assessment' }).
+   * `id` (edata.id) defaults to `object.id`, as on mobile.
    *
    * Dispatched here rather than through EventService.raiseInteractTelemetry: that puts the page context only in
    * `data.pageContext`, while the telemetry listener takes `context.env` from the event's top-level `pageContext`,
    * so web INTERACT events went out without `env`. Both are set here, with `module` defaulting to the
    * microsite's env.
    */
-  click(subType: string, id: string, object: IMicrositeTelemetryObject | {} = {}): void {
+  click(subType: string, id: string | undefined, object: IMicrositeTelemetryObject | {} = {}): void {
     const pageContext = { pageId: this.utility.routeData?.pageId, module: MICROSITE_TELEMETRY_ENV }
     this.events.dispatchEvent({
       eventType: WsEvents.WsEventType.Telemetry,
       eventLogLevel: WsEvents.WsEventLogLevel.Info,
       data: {
-        edata: { type: WsEvents.EnumInteractTypes.CLICK, subType, id },
+        edata: { type: WsEvents.EnumInteractTypes.CLICK, subType, id: id || (object as IMicrositeTelemetryObject).id || '' },
         object,
         pageContext,
         eventSubType: WsEvents.EnumTelemetrySubType.Interact,

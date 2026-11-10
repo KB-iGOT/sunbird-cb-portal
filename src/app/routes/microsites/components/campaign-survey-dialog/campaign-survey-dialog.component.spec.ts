@@ -290,9 +290,9 @@ describe('CampaignSurveyDialogComponent', () => {
       el.querySelector<HTMLButtonElement>('.csd__footer .csd__btn--secondary')?.click()
       component.retry()
       expect(telemetry.click.mock.calls).toEqual([
-        ['campaign-microsite-survey-close', 'campaign-microsite-survey-close', object],
-        ['campaign-microsite-survey-close', 'campaign-microsite-survey-close', object],
-        ['campaign-microsite-survey-retry', 'campaign-microsite-survey-retry', object],
+        ['campaign-microsite-survey-close', undefined, object],
+        ['campaign-microsite-survey-close', undefined, object],
+        ['campaign-microsite-survey-retry', undefined, object],
       ])
     })
 
@@ -307,7 +307,7 @@ describe('CampaignSurveyDialogComponent', () => {
       expect(telemetry.click).not.toHaveBeenCalled()
 
       component.submit()
-      expect(telemetry.click.mock.calls).toEqual([['campaign-microsite-survey-submit', 'campaign-microsite-survey-submit', object]])
+      expect(telemetry.click.mock.calls).toEqual([['campaign-microsite-survey-submit', undefined, object]])
     })
 
     it('object.id is the milestone\'s content id when it has one', () => {

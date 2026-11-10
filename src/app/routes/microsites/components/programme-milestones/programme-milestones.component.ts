@@ -595,9 +595,9 @@ export class ProgrammeMilestonesComponent {
       milestoneTelemetryObject(milestone))
   }
 
-  /** Registered for an event (the event milestone, or the event behind the pledge): id `enroll-now`, object type Event */
+  /** Registered for an event (the event milestone, or the event behind the pledge): subtype `enroll-now`, object type Event */
   private trackEventRegistered(milestone: NsCampaignMicrosite.IMilestone): void {
-    this.telemetry.click(MICROSITE_TELEMETRY.milestoneTap(milestone.type), MICROSITE_TELEMETRY.enrollNow,
+    this.telemetry.click(MICROSITE_TELEMETRY.enrollNow, undefined,
       { id: milestoneTelemetryObject(milestone).id, type: MICROSITE_TELEMETRY.eventObjectType })
   }
 
@@ -675,7 +675,7 @@ export class ProgrammeMilestonesComponent {
    * Otherwise: event-backed -> register for the event if needed, then open the form; after a successful
    * submit mark the event complete (progress 100%) and re-read statuses (event read gives status + certificate).
    */
-  private async openSurvey(milestone: NsCampaignMicrosite.IMilestone, autoOpened = false): Promise<void> {
+  private async openSurvey(milestone: NsCampaignMicrosite.IMilestone, _autoOpened = false): Promise<void> {
     if (this.enrollingOrder() !== null) {
       return
     }
@@ -705,10 +705,9 @@ export class ProgrammeMilestonesComponent {
       }
     }
 
-    // INTERACT, as on mobile; id `auto-open` when it opened by itself on page load, `card-content` when clicked.
-    // object.id is the milestone's content id (the form id only when it has none)
-    this.telemetry.click(MICROSITE_TELEMETRY.surveyOpen, autoOpened ? 'auto-open' : MICROSITE_TELEMETRY.cardContent,
-      milestoneTelemetryObject(milestone))
+    // INTERACT, as on mobile, whether it was clicked or opened by itself (the automatic one sends no milestone tap).
+    // object.id is the milestone's content id (the form id only when it has none); edata.id the same
+    this.telemetry.click(MICROSITE_TELEMETRY.surveyOpen, undefined, milestoneTelemetryObject(milestone))
     this.dialog.open<CampaignSurveyDialogComponent, NsCampaignMicrosite.ICampaignSurveyDialogData, boolean>(CampaignSurveyDialogComponent, {
       data: { milestone, labels: this.labels() },
       width: '750px',
@@ -738,11 +737,15 @@ export class ProgrammeMilestonesComponent {
     const certId = this.statusSvc.issuedCertificateId(milestone.identifier)
     const object = milestoneTelemetryObject(milestone)
     if (!certId) {
-      this.telemetry.click(MICROSITE_TELEMETRY.certificatePending, MICROSITE_TELEMETRY.certificatePending, object)
-      this.snackBar.open(this.labels().survey.certificatePending, 'X', { duration: 10000 })
+      // as on mobile, only when there is a pending message to show
+      const pending = this.labels().survey.certificatePending
+      if (pending) {
+        this.telemetry.click(MICROSITE_TELEMETRY.certificatePending, MICROSITE_TELEMETRY.downloadCertificate, object)
+        this.snackBar.open(pending, 'X', { duration: 10000 })
+      }
       return
     }
-    this.telemetry.click(MICROSITE_TELEMETRY.certificateDownload, MICROSITE_TELEMETRY.certificateDownload, object)
+    this.telemetry.click(MICROSITE_TELEMETRY.certificateDownload, MICROSITE_TELEMETRY.downloadCertificate, object)
     this.enrollingOrder.set(milestone.order)
     try {
       const printUri = await this.statusSvc.fetchCertificate(certId)

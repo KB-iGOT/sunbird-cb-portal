@@ -55,7 +55,8 @@ export class GeneralGuard {
         return this.router.parseUrl('/error-feature-unavailable')
       }
       if (routeConfig && typeof routeConfig === 'object' && routeConfig.enabled === false) {
-        const base = next.data && next.data.pageId ? `/${next.data.pageId}/` : '/'
+        // a pageId may start with '/' (e.g. '/app/leadership-as-mission-2026'): never '//'
+        const base = next.data && next.data.pageId ? `/${String(next.data.pageId).replace(/^\/+/, '')}/` : '/'
         const urlPath = _state.url.split('?')[0]
         const isAllowedSubRoute = (routeConfig.allowedSubRoutes || [])
           .some((subRoute: string) => urlPath.startsWith(`${base}${subRoute}`))

@@ -11,7 +11,7 @@ describe('MicrositeTelemetryService', () => {
     TestBed.configureTestingModule({
       providers: [
         { provide: EventService, useValue: events },
-        { provide: UtilityService, useValue: { routeData: { pageId: 'app/leadership-as-mission-2026', module: 'Campaign Microsite' } } },
+        { provide: UtilityService, useValue: { routeData: { pageId: '/app/leadership-as-mission-2026', module: 'Campaign Microsite' } } },
       ],
     })
     service = TestBed.inject(MicrositeTelemetryService)
@@ -20,7 +20,7 @@ describe('MicrositeTelemetryService', () => {
   it('click: INTERACT with subtype/id, and the page context at the top level too, so context.env is set', () => {
     service.click('campaign-microsite-milestone-assessment', 'card-content', { id: 'do_1', type: 'assessment' })
     const event = events.dispatchEvent.mock.calls[0][0]
-    const pageContext = { pageId: 'app/leadership-as-mission-2026', module: MICROSITE_TELEMETRY_ENV }
+    const pageContext = { pageId: '/app/leadership-as-mission-2026', module: MICROSITE_TELEMETRY_ENV }
     expect(event.eventType).toBe(WsEvents.WsEventType.Telemetry)
     expect(event.data.eventSubType).toBe(WsEvents.EnumTelemetrySubType.Interact)
     expect(event.data.edata).toEqual({ type: WsEvents.EnumInteractTypes.CLICK, subType: 'campaign-microsite-milestone-assessment', id: 'card-content' })
@@ -28,6 +28,11 @@ describe('MicrositeTelemetryService', () => {
     expect(event.data.pageContext).toEqual(pageContext)
     // the telemetry listener reads context.env from here
     expect(event.pageContext).toEqual(pageContext)
+  })
+
+  it('click: edata.id defaults to object.id, as on mobile', () => {
+    service.click('campaign-microsite-survey-submit', undefined, { id: 'do_pledge', type: 'survey' })
+    expect(events.dispatchEvent.mock.calls[0][0].data.edata.id).toBe('do_pledge')
   })
 
   it('impression: unchanged, filed under the page id extension', () => {
