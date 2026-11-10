@@ -36,6 +36,18 @@ import { FormConfigService } from '@sunbird-cb/consumption'
 // global-config apicache key with how long (seconds) the saved enrolment summary is reused
 const ENROLLMENT_SUMMARY_CACHE_KEY = 'summaryTime'
 
+/** Body class that un-hides UserWay's floating accessibility icon (see #userwayAccessibilityIcon in styles.scss) */
+export const SHOW_ACCESSIBILITY_ICON_CLASS = 'show-accessibility-icon'
+
+/**
+ * UserWay's floating icon is hidden by default (the profile menu has an Accessibility entry instead).
+ * global-web config `components.accessibilityWidget.showFloatingIcon: true` brings it back on every page.
+ */
+export function applyAccessibilityIconConfig(globalConfig: any): void {
+  const show = globalConfig?.components?.accessibilityWidget?.showFloatingIcon === true
+  document.body.classList.toggle(SHOW_ACCESSIBILITY_ICON_CLASS, show)
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -397,6 +409,7 @@ export class InitService {
     try {
       const response: any = await firstValueFrom(this.formConfigSvc.getForm(user, 'portal', 'global-web', 2.0))
       this.configSvc.globalConfig = response.result.data
+      applyAccessibilityIconConfig(this.configSvc.globalConfig)
     } catch (e) {
       // the global-web form config is mandatory — when the API fails the app
       // must show the error screen instead of silently running on a stale

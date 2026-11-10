@@ -2431,8 +2431,10 @@ ws-widget-btn-page-back-nav .mat-mdc-icon-button {
   }
 }
 
-// Default UserWay floating icon is replaced by the accessibility button in the header
-#userwayAccessibilityIcon {
+// Default UserWay floating icon is replaced by the accessibility entry in the profile menu,
+// unless global-web config `components.accessibilityWidget.showFloatingIcon` is true
+// (InitService then adds `show-accessibility-icon` to <body>)
+body:not(.show-accessibility-icon) #userwayAccessibilityIcon {
   display: none !important;
 }
 

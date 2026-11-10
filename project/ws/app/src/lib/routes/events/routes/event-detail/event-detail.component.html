@@ -215,7 +215,8 @@
           <ng-container>
             <!-- *ngIf="(content?.completionStatus === 2 || content?.certificateObj?.certId) && !fromMarketPlace" -->
             <ng-container>
-              <div class="certificate-container" *ngIf="!skeletonLoader && (enrolledEvent?.status > 1 && pastEvent)">
+              <!-- certificateDisabled: event types listed in the page config's disableCertificateEventTypes (e.g. Workshop) -->
+              <div class="certificate-container" *ngIf="!skeletonLoader && (enrolledEvent?.status > 1 && pastEvent) && !certificateDisabled">
                 <div class="flex flex-row earned-certificate-container">
                   <div class="ribbon"></div>
                   <div class="certificate-background">
@@ -229,7 +230,7 @@
                 </div>
               </div>
 
-              <div class="mobile-certificate-container" *ngIf="!skeletonLoader  && (enrolledEvent?.status > 1 && pastEvent)">
+              <div class="mobile-certificate-container" *ngIf="!skeletonLoader  && (enrolledEvent?.status > 1 && pastEvent) && !certificateDisabled">
                 <div class="earned-certificate-container">
                   <div class="flex flex-row">
                     <div class="ribbon"></div>
@@ -473,7 +474,7 @@
     <div class="info-section right margin-top-xl margin-left-xl margin-bottom-xl">
       <app-right-menu-card [eventData]="eventData" [enrollFlowItems]="enrollFlowItems" [isenrollFlow]="isenrollFlow" [enrolledEvent]="enrolledEvent"
         [courseProgress]="linkedCourseProgress" *ngIf="eventData" (enrollEvent)="enrollEvent($event)"
-        [userAbleToEnroll]="userAbleToEnroll"></app-right-menu-card>
+        [userAbleToEnroll]="userAbleToEnroll" [certificateDisabled]="certificateDisabled"></app-right-menu-card>
     </div>
   </div>
 </ng-container>
