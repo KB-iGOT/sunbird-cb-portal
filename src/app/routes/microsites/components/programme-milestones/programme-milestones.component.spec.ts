@@ -5,7 +5,7 @@ import { MatSnackBar } from '@angular/material/snack-bar'
 import { Router } from '@angular/router'
 import { CertificateDialogComponent, NsCampaignMilestone } from '@sunbird-cb/consumption'
 import { Subject, of } from 'rxjs'
-import { NsCampaignMicrosite } from '../../models/campaign-microsite.model'
+import { NsCampaignMicrosite, formatOrdinalDateTime } from '../../models/campaign-microsite.model'
 import { ConfigurationsService, ServerClockService } from '@sunbird-cb/utils-v2'
 import { MilestoneStatusService } from '../../services/milestone-status.service'
 import { MicrositeTelemetryService } from '../../services/microsite-telemetry.service'
@@ -135,6 +135,21 @@ describe('ProgrammeMilestonesComponent', () => {
       component.now.set(new Date(2026, 10, 5).getTime())
       fixture.detectChanges()
       expect(cards().map(card => card.availableFrom)).toEqual([null, 'Available from 17th Nov', 'Available from 17th Nov', null])
+    })
+
+    it('availableFrom: an event shows its own start date and time until it begins', () => {
+      statusSvc.resolveStates.mockReturnValue(of(['completed', 'notStarted']))
+      const event = milestone(2, {
+        type: 'event', openBeforeStart: true,
+        startDateTime: '2026-11-10T15:15:00+05:30', endDateTime: '2026-11-10T15:30:00+05:30',
+      })
+      render({ items: [milestone(1), event] })
+      component.now.set(new Date('2026-11-10T14:53:00+05:30').getTime())
+      const expected = `Available from ${formatOrdinalDateTime(new Date('2026-11-10T15:15:00+05:30'))}`
+      expect(component.availableFrom()).toEqual([null, expected])
+      expect(expected).toContain('10th Nov')
+      component.now.set(new Date('2026-11-10T15:15:00+05:30').getTime())
+      expect(component.availableFrom()).toEqual([null, null])
     })
 
     it('availableFrom: missing or invalid start date locks nothing', () => {
@@ -304,8 +319,14 @@ describe('ProgrammeMilestonesComponent', () => {
         expect(withEndedEvents(['inProgress'], [event()], AFTER)).toEqual(['completed'])
       })
 
+      it('a registered event is not "in progress" before it starts, and is from the start time', () => {
+        expect(withEndedEvents(['inProgress'], [event()], at('2026-11-17T09:59:00+05:30'))).toEqual(['notStarted'])
+        expect(withEndedEvents(['inProgress'], [event()], at(START))).toEqual(['inProgress'])
+      })
+
       it.each([
-        ['before the end', 'inProgress', event(), at('2026-11-17T11:00:00+05:30')],
+        ['while it runs', 'inProgress', event(), at('2026-11-17T11:00:00+05:30')],
+        ['an assessment before the event start', 'inProgress', milestone(1, { startDateTime: END }), at('2026-11-17T09:59:00+05:30')],
         ['registered but never joined', 'notStarted', event(), AFTER],
         ['an assessment', 'inProgress', milestone(1, { endDateTime: END }), AFTER],
         ['an event without an end time', 'inProgress', event({ endDateTime: undefined }), AFTER],

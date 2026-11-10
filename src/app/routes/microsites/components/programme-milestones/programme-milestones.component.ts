@@ -88,7 +88,11 @@ export function eventPhase(milestone: NsCampaignMicrosite.IMilestone, now: numbe
   return start?.isValid() && now < start.valueOf() ? 'upcoming' : 'live'
 }
 
-/** A joined event (`inProgress`) counts as completed once its end time has passed; the event read keeps status 1 */
+/**
+ * A registered event comes back from the event read as status 1 (`inProgress`) whatever the time, so by its
+ * start / end time: before `startDateTime` it is `notStarted` (not "In progress" yet), once `endDateTime` has
+ * passed it is `completed`. Registration itself is read separately (isEventEnrolled), so buttons are unaffected.
+ */
 export function withEndedEvents(
   states: NsCampaignMilestone.TMilestoneState[] | null,
   milestones: NsCampaignMicrosite.IMilestone[],
@@ -96,7 +100,17 @@ export function withEndedEvents(
 ): NsCampaignMilestone.TMilestoneState[] | null {
   return states && states.map((state, i) => {
     const milestone = milestones[i]
-    return state === 'inProgress' && milestone?.type === 'event' && eventPhase(milestone, now) === 'ended' ? 'completed' : state
+    if (state !== 'inProgress' || milestone?.type !== 'event') {
+      return state
+    }
+    switch (eventPhase(milestone, now)) {
+      case 'upcoming':
+        return 'notStarted'
+      case 'ended':
+        return 'completed'
+      default:
+        return state
+    }
   })
 }
 
@@ -470,14 +484,20 @@ export class ProgrammeMilestonesComponent {
    */
   readonly availableFrom = computed<(string | null)[]>(() => {
     const template = this.labels().popup.availableFrom
+    const now = this.now()
     const start = parseDdMmYyyy(this.eventDetails()?.startDate)
-    const waiting = !!start && this.now() < start.getTime()
+    const waiting = !!start && now < start.getTime()
     const eventLabel = waiting && start ? formatLabel(template, { date: formatOrdinalDate(start) }) : null
     const unlockAt = this.unlockAt()
     return this.milestones().map((milestone, i) => {
       const unlock = unlockAt[i]
       if (unlock) {
         return formatLabel(template, { date: unlock.hasTime ? formatOrdinalDateTime(unlock.at) : formatOrdinalDate(unlock.at) })
+      }
+      // an event shows its own start until it begins ("Available from 10th Nov, 3:15 PM"); only the status
+      // label changes: Register / `openBeforeStart` still work before the start
+      if (milestone.type === 'event' && hasValidDateTime(milestone.startDateTime) && eventPhase(milestone, now) === 'upcoming') {
+        return formatLabel(template, { date: formatOrdinalDateTime(dayjs(milestone.startDateTime).toDate()) })
       }
       // an assessment's own startDateTime decides alone: once it has passed, the event date says nothing more
       if (milestone.type === 'assessment' && hasValidDateTime(milestone.startDateTime)) {
