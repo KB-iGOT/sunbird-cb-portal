@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common'
 import { NgModule } from '@angular/core'
-import { PipeContentRouteModule } from '@sunbird-cb/collection'
+import { PipeContentRouteModule } from '@sunbird-cb/collection/src/lib/_common/pipe-content-route/pipe-content-route.module'
 import { ContentCardComponent } from './components/content-card/content-card.component'
 import { MyContentComponent } from './components/my-content/my-content.component'
 import { MyContentRoutingModule } from './my-content-routing.module'

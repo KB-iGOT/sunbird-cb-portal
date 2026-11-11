@@ -4,7 +4,7 @@ import { AdminRoutingModule } from './admin-routing.module'
 import { AdminComponent } from './components/admin/admin.component'
 import { ExcelService } from './components/excel.service'
 
-import { UserImageModule } from '@sunbird-cb/collection'
+import { UserImageModule } from '@sunbird-cb/collection/src/lib/_common/user-image/user-image.module'
 import { FormsModule } from '@angular/forms'
 import { PipeNameTransformModule, PipeCountTransformModule } from '@sunbird-cb/utils-v2'
 import { ConfigurationsComponent } from './components/configurations/configurations.component'

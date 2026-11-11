@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common'
 import { NgModule } from '@angular/core'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 
-import { BtnContentFeedbackV2Module } from '@sunbird-cb/collection'
+import { BtnContentFeedbackV2Module } from '@sunbird-cb/collection/src/lib/btn-content-feedback-v2/btn-content-feedback-v2.module'
 import { FeedbackApiService } from '../../apis/feedback-api.service'
 import { FeedbackConfigResolver } from '../../resolvers/feedback-config.resolver'
 import { FeedbackSummaryResolver } from '../../resolvers/feedback-summary.resolver'

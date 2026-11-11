@@ -2,15 +2,13 @@ import { CommonModule } from '@angular/common'
 import { NgModule } from '@angular/core'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 
-import {
-  BtnPageBackModule,
-  DisplayContentsModule,
-  DisplayContentTypeModule,
-  EmailInputModule,
-  PickerContentModule,
-  UserAutocompleteModule,
-  UserImageModule,
-} from '@sunbird-cb/collection'
+import { BtnPageBackModule } from '@sunbird-cb/collection/src/lib/btn-page-back/btn-page-back.module'
+import { DisplayContentsModule } from '@sunbird-cb/collection/src/lib/_common/display-contents/display-contents.module'
+import { DisplayContentTypeModule } from '@sunbird-cb/collection/src/lib/_common/display-content-type/display-content-type.module'
+import { EmailInputModule } from '@sunbird-cb/collection/src/lib/_common/email-input/email-input.module'
+import { PickerContentModule } from '@sunbird-cb/collection/src/lib/picker-content/picker-content.module'
+import { UserAutocompleteModule } from '@sunbird-cb/collection/src/lib/_common/user-autocomplete/user-autocomplete.module'
+import { UserImageModule } from '@sunbird-cb/collection/src/lib/_common/user-image/user-image.module'
 import { DialogAssignComponent } from './components/dialog-assign/dialog-assign.component'
 import {
   DialogUserRoleSelectComponent,

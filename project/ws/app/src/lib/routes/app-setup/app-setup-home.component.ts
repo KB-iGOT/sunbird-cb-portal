@@ -1,7 +1,7 @@
 import { MatDialog } from '@angular/material/dialog'
 import { StepperSelectionEvent, STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper'
 import { AfterViewInit, Component, OnInit, ViewChild } from '@angular/core'
-import { IWidgetsPlayerMediaData } from '@sunbird-cb/collection'
+import { IWidgetsPlayerMediaData } from '@sunbird-cb/collection/src/lib/_models/player-media.model'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { InterestComponent } from '../profile/routes/interest/components/interest/interest.component'

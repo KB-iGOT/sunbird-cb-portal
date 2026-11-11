@@ -1,5 +1,5 @@
 import { Component, OnInit, Input, EventEmitter, Output, OnChanges } from '@angular/core'
-import { IWidgetWrapperMedia } from '@sunbird-cb/collection'
+import { IWidgetWrapperMedia } from '@sunbird-cb/collection/src/lib/video-wrapper/video-wrapper.model'
 import { MatDialog } from '@angular/material/dialog'
 import { ConfirmDialogComponent } from '../../../../../../../../../modules/shared/components/confirm-dialog/confirm-dialog.component'
 

@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
-import { NSSearch } from '@sunbird-cb/collection'
+import { NSSearch } from '@sunbird-cb/collection/src/lib/_services/widget-search.model'
 
 @Component({
     selector: 'ws-communications',

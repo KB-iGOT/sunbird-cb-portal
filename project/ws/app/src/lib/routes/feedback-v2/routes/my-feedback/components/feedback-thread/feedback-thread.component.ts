@@ -4,14 +4,9 @@ import { ActivatedRoute } from '@angular/router'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { noop } from 'rxjs'
 
-import {
-  FeedbackService,
-  IFeedbackThread,
-  IFeedback,
-  EFeedbackType,
-  FeedbackSnackbarComponent,
-  EFeedbackRole,
-} from '@sunbird-cb/collection'
+import { FeedbackService } from '@sunbird-cb/collection/src/lib/btn-content-feedback-v2/services/feedback.service'
+import { IFeedbackThread, IFeedback, EFeedbackType, EFeedbackRole } from '@sunbird-cb/collection/src/lib/btn-content-feedback-v2/models/feedback.model'
+import { FeedbackSnackbarComponent } from '@sunbird-cb/collection/src/lib/btn-content-feedback-v2/components/feedback-snackbar/feedback-snackbar.component'
 import { TFetchStatus, TSendStatus } from '@sunbird-cb/utils-v2'
 import { MyFeedbackService } from '../../services/my-feedback.service'
 

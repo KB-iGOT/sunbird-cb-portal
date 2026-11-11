@@ -2,7 +2,6 @@ import { Component, HostListener } from '@angular/core'
 import * as _ from 'lodash'
 import { BadgeService } from './../../services/badge.service'
 import { Router } from '@angular/router'
-import jsPDF from 'jspdf'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 @Component({
     selector: 'app-badge-details',
@@ -229,7 +228,7 @@ export class BadgeDetailsComponent {
       const img = new Image()
       img.src = dataUrl
 
-      img.onload = () => {
+      img.onload = async () => {
         const canvas = document.createElement('canvas')
         canvas.width = img.width || 1920
         canvas.height = img.height || 1080
@@ -239,6 +238,8 @@ export class BadgeDetailsComponent {
           ctx.drawImage(img, 0, 0)
 
           const imgData = canvas.toDataURL('image/png')
+          // loaded on first use: jsPDF is ~350 KB and only needed for a download
+          const { jsPDF } = await import('jspdf')
 
           const pdf = new jsPDF('landscape', 'px', 'a4')
           const pageWidth = pdf?.internal?.pageSize?.getWidth()

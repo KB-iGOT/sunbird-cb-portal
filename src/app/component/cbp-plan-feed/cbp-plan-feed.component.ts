@@ -2,7 +2,7 @@ import { Component, EventEmitter, Input, OnChanges, OnInit, Output, SimpleChange
 import { UntypedFormControl } from '@angular/forms'
 import { ActivatedRoute } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
-import { PageChangeEmitter, PaginationComponent } from '@sunbird-cb/collection'
+import { PageChangeEmitter, PaginationComponent } from '@sunbird-cb/collection/src/lib/_common/pagination/pagination.component'
 import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 import { WidgetUserServiceLib } from '@sunbird-cb/consumption'
 import { distinctUntilChanged } from 'rxjs/operators'

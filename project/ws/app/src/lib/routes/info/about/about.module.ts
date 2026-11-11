@@ -2,7 +2,7 @@ import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { AboutHomeComponent } from './components/about-home.component'
 
-import { BtnPageBackNavModule } from '@sunbird-cb/collection'
+import { BtnPageBackNavModule } from '@sunbird-cb/collection/src/lib/btn-page-back-nav/btn-page-back-nav.module'
 import { HorizontalScrollerModule, PipeSafeSanitizerModule } from '@sunbird-cb/utils-v2'
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
 import { MatButtonModule } from '@angular/material/button'

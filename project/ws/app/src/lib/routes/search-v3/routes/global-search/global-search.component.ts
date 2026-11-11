@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
-import { NsContent } from '@sunbird-cb/collection'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
 import { ConfigurationsService, MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 import { environment } from 'src/environments/environment'
 

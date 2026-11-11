@@ -2,7 +2,8 @@ import { Injectable } from '@angular/core'
 import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router'
 import { Observable, of } from 'rxjs'
 import { map, catchError } from 'rxjs/operators'
-import { BtnGoalsService, NsGoal } from '@sunbird-cb/collection'
+import { BtnGoalsService } from '@sunbird-cb/collection/src/lib/btn-goals/btn-goals.service'
+import { NsGoal } from '@sunbird-cb/collection/src/lib/btn-goals/btn-goals.model'
 import { IResolveResponse } from '@sunbird-cb/utils-v2'
 
 @Injectable()

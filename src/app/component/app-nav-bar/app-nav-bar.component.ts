@@ -4,7 +4,10 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser'
 import { Router, NavigationStart, NavigationEnd } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
 
-import { IBtnAppsConfig, CustomTourService, WidgetUserService, EnrollmentSummaryStateService } from '@sunbird-cb/collection'
+import { IBtnAppsConfig } from '@sunbird-cb/collection/src/lib/btn-apps/btn-apps.model'
+import { CustomTourService } from '@sunbird-cb/collection/src/lib/_common/tour-guide/tour-guide.service'
+import { WidgetUserService } from '@sunbird-cb/collection/src/lib/_services/widget-user.service'
+import { EnrollmentSummaryStateService } from '@sunbird-cb/collection/src/lib/_services/enrollment-summary-state.service'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { ConfigurationsService, DomainConfService, EventService, MultilingualTranslationsService, NsInstanceConfig, NsPage, WsEvents } from '@sunbird-cb/utils-v2'
 

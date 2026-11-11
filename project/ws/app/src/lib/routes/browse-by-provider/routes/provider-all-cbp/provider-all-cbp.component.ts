@@ -7,7 +7,7 @@ import _ from 'lodash'
 import { UntypedFormGroup, UntypedFormControl } from '@angular/forms'
 import { debounceTime, switchMap, takeUntil } from 'rxjs/operators'
 import { TranslateService } from '@ngx-translate/core'
-import { NsContent } from '@sunbird-cb/collection'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
 
 @Component({
     selector: 'ws-app-provider-all-cbp',

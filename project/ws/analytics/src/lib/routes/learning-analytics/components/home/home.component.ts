@@ -1,10 +1,8 @@
 import { Component, OnDestroy, OnInit } from '@angular/core'
-import {
-  GraphGeneralService,
-  IGraphWidget,
-  NsError,
-  ROOT_WIDGET_CONFIG,
-} from '@sunbird-cb/collection'
+import { GraphGeneralService } from '@sunbird-cb/collection/src/lib/graph-general/graph-general.service'
+import { IGraphWidget } from '@sunbird-cb/collection/src/lib/graph-general/graph-general.model'
+import { NsError } from '@sunbird-cb/collection/src/lib/error-resolver/error-resolver.model'
+import { ROOT_WIDGET_CONFIG } from '@sunbird-cb/collection/src/lib/collection.config'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { ConfigurationsService, TFetchStatus } from '@sunbird-cb/utils-v2'
 import { Subscription } from 'rxjs'

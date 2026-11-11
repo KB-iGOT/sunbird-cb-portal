@@ -9,7 +9,7 @@ import { ActivatedRoute, Router } from '@angular/router'
 
 import { QuizStoreService } from '../../services/store.service'
 import { QuizResolverService } from '../../services/resolver.service'
-import { VIEWER_ROUTE_FROM_MIME } from '@sunbird-cb/collection'
+import { VIEWER_ROUTE_FROM_MIME } from '@sunbird-cb/collection/src/lib/_services/viewer-route-util'
 import { UntypedFormGroup } from '@angular/forms'
 import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper'
 import { NSContent } from '../../../../../../../../interface/content'

@@ -2,12 +2,8 @@ import { NestedTreeControl } from '@angular/cdk/tree'
 import { Component, EventEmitter, OnDestroy, OnInit, Output, Input } from '@angular/core'
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser'
 import { ActivatedRoute, NavigationExtras, Params } from '@angular/router'
-import {
-  // ContentProgressService,
-  NsContent,
-  VIEWER_ROUTE_FROM_MIME,
-
-} from '@sunbird-cb/collection'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
+import { VIEWER_ROUTE_FROM_MIME } from '@sunbird-cb/collection/src/lib/_services/viewer-route-util'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { WidgetUserServiceLib } from '@sunbird-cb/consumption'
 import {

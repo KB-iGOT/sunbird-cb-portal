@@ -2,7 +2,7 @@ import { CommonModule } from '@angular/common'
 import { NgModule } from '@angular/core'
 
 import { RouterModule } from '@angular/router'
-import { BtnPageBackModule } from '@sunbird-cb/collection'
+import { BtnPageBackModule } from '@sunbird-cb/collection/src/lib/btn-page-back/btn-page-back.module'
 import { LogoutModule } from '@sunbird-cb/utils-v2'
 // modules
 import { ProfileRoutingModule } from './profile-routing.module'

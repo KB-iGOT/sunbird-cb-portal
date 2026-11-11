@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core'
 import { PageEvent } from '@angular/material/paginator'
 import { ActivatedRoute } from '@angular/router'
-import { NsContent } from '@sunbird-cb/collection'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
 import { ConfigurationsService, ValueService, TFetchStatus } from '@sunbird-cb/utils-v2'
 import { NSAnalyticsData } from '../../../analytics/models/analytics.model'
 import { AnalyticsService } from '../../../analytics/services/analytics.service'

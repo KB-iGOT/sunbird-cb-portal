@@ -1,5 +1,6 @@
 import { Component, Input, OnInit, OnChanges } from '@angular/core'
-import { ContentStripMultipleService, NsContent } from '@sunbird-cb/collection'
+import { ContentStripMultipleService } from '@sunbird-cb/collection/src/lib/content-strip-multiple/content-strip-multiple.service'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
 import { IWidgetAuthor } from './../../../interface/widget'
 import { ChannelStoreService } from './../../../services/store.service'
 import { WidgetContentService } from '@sunbird-cb/toc'

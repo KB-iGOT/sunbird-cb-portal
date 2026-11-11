@@ -4,15 +4,8 @@ import { ActivatedRoute, Router } from '@angular/router'
 import { MatDialog } from '@angular/material/dialog'
 import { noop, Subscription } from 'rxjs'
 
-import {
-  FeedbackService,
-  IFeedbackSearchResult,
-  IFeedbackFilterObj,
-  EFeedbackType,
-  EFeedbackRole,
-  IFeedbackThread,
-  IFeedbackSummary,
-} from '@sunbird-cb/collection'
+import { FeedbackService } from '@sunbird-cb/collection/src/lib/btn-content-feedback-v2/services/feedback.service'
+import { IFeedbackSearchResult, IFeedbackFilterObj, EFeedbackType, EFeedbackRole, IFeedbackThread, IFeedbackSummary } from '@sunbird-cb/collection/src/lib/btn-content-feedback-v2/models/feedback.model'
 import { TFetchStatus, IResolveResponse } from '@sunbird-cb/utils-v2'
 import { MyFeedbackService } from '../../services/my-feedback.service'
 import { FeedbackFilterDialogComponent } from '../feedback-filter-dialog/feedback-filter-dialog.component'

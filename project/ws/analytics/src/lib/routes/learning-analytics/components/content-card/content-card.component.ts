@@ -1,5 +1,5 @@
 import { Component, Input, OnInit } from '@angular/core'
-import { ROOT_WIDGET_CONFIG } from '@sunbird-cb/collection'
+import { ROOT_WIDGET_CONFIG } from '@sunbird-cb/collection/src/lib/collection.config'
 import { NsAnalytics } from '../../models/learning-analytics.model'
 @Component({
     selector: 'ws-analytics-content-card',

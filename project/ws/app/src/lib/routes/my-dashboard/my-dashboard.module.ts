@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common'
 import { NgModule } from '@angular/core'
-import { BreadcrumbsOrgModule } from '@sunbird-cb/collection'
+import { BreadcrumbsOrgModule } from '@sunbird-cb/collection/src/lib/breadcrumbs-org/breadcrumbs-org.module'
 import { MyDashboardHomeComponent } from './components/my-dashboard-home/my-dashboard-home.component'
 import { MyDashboardRoutingModule } from './my-dashboard-routing.module'
 // import { RainDashboardsModule } from '@sunbird-cb/rain-dashboards'

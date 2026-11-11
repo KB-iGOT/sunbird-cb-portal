@@ -2,10 +2,8 @@ import { Component, OnInit, OnDestroy } from '@angular/core'
 import { NsTnc } from '../../../models/tnc.model'
 import { Subscription } from 'rxjs'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
-import {
-  NsError,
-  ROOT_WIDGET_CONFIG,
-} from '@sunbird-cb/collection'
+import { NsError } from '@sunbird-cb/collection/src/lib/error-resolver/error-resolver.model'
+import { ROOT_WIDGET_CONFIG } from '@sunbird-cb/collection/src/lib/collection.config'
 import { ActivatedRoute, Router, Data } from '@angular/router'
 import { HttpClient } from '@angular/common/http'
 import {

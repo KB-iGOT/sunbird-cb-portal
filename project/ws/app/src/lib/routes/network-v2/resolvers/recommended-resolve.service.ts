@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core'
 import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router'
 import { Observable, of } from 'rxjs'
 import { map, catchError } from 'rxjs/operators'
-import { } from '@sunbird-cb/collection'
+
 import {
   IResolveResponse,
   // ConfigurationsService

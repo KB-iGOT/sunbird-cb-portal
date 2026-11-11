@@ -1,6 +1,6 @@
 import { Component, Input, OnInit, ViewChild } from '@angular/core'
 import { UntypedFormControl } from '@angular/forms'
-import { NsContent } from '@sunbird-cb/collection'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
 import { ViewSubmissionComponent } from './components/view-submission/view-submission.component'
 import { ResourceCollectionService } from './resource-collection.service'
 import { MatDialog } from '@angular/material/dialog'

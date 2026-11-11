@@ -8,7 +8,8 @@ import {
   ViewChild,
 } from '@angular/core'
 import { Router } from '@angular/router'
-import { BtnGoalsService, NsGoal } from '@sunbird-cb/collection'
+import { BtnGoalsService } from '@sunbird-cb/collection/src/lib/btn-goals/btn-goals.service'
+import { NsGoal } from '@sunbird-cb/collection/src/lib/btn-goals/btn-goals.model'
 import { TFetchStatus, ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { GoalDeleteDialogComponent } from '../goal-delete-dialog/goal-delete-dialog.component'
 import { GoalShareDialogComponent } from '../goal-share-dialog/goal-share-dialog.component'

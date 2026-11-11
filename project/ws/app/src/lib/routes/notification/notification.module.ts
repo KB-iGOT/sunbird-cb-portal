@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common'
 
 import { NotificationRoutingModule } from './notification-routing.module'
 import { NotificationComponent } from './components/notification/notification.component'
-import { BtnPageBackModule } from '@sunbird-cb/collection'
+import { BtnPageBackModule } from '@sunbird-cb/collection/src/lib/btn-page-back/btn-page-back.module'
 import { PipeLimitToModule } from '@sunbird-cb/utils-v2'
 import { MatButtonModule } from '@angular/material/button'
 import { MatCardModule } from '@angular/material/card'

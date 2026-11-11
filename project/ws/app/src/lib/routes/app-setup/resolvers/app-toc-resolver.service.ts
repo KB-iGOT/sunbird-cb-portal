@@ -1,6 +1,7 @@
 import { Injectable } from '@angular/core'
 import { ActivatedRouteSnapshot, Router, RouterStateSnapshot } from '@angular/router'
-import { NsContent, PipeContentRoutePipe } from '@sunbird-cb/collection'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
+import { PipeContentRoutePipe } from '@sunbird-cb/collection/src/lib/_common/pipe-content-route/pipe-content-route.pipe'
 import { ConfigurationsService, IResolveResponse } from '@sunbird-cb/utils-v2'
 import { Observable, of } from 'rxjs'
 import { catchError, map, tap } from 'rxjs/operators'

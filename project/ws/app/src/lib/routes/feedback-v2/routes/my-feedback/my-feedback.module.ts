@@ -4,11 +4,9 @@ import { ReactiveFormsModule } from '@angular/forms'
 import { LayoutModule } from '@angular/cdk/layout'
 
 import { PipeSafeSanitizerModule } from '@sunbird-cb/utils-v2'
-import {
-    UserImageModule,
-    DisplayContentTypeModule,
-    BtnContentFeedbackV2Module,
-} from '@sunbird-cb/collection'
+import { UserImageModule } from '@sunbird-cb/collection/src/lib/_common/user-image/user-image.module'
+import { DisplayContentTypeModule } from '@sunbird-cb/collection/src/lib/_common/display-content-type/display-content-type.module'
+import { BtnContentFeedbackV2Module } from '@sunbird-cb/collection/src/lib/btn-content-feedback-v2/btn-content-feedback-v2.module'
 
 import { MyFeedbackRoutingModule } from './my-feedback-routing.module'
 import { HomeComponent } from './components/home/home.component'

@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core'
 import { RouterModule, Routes } from '@angular/router'
-import { PageModule, PageComponent } from '@sunbird-cb/collection'
+import { PageModule } from '@sunbird-cb/collection/src/lib/page/page.module'
+import { PageComponent } from '@sunbird-cb/collection/src/lib/page/page.component'
 import { ExploreDetailResolve, PageResolve, PageNameResolve, ModuleNameResolve } from '@sunbird-cb/utils-v2'
 import { GeneralGuard } from '../guards/general.guard'
 import { AppTocResolverService } from '@sunbird-cb/toc'

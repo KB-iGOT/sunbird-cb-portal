@@ -291,9 +291,29 @@ describe('InitService', () => {
       routes['/profile'] = { result: { response: fullProfile() } }
       await service.init()
       expect(order[0]).toBe('env')
-      expect(order).toEqual(['env', 'global-web', 'application-config-web'])
+      // 'home' is the home page's form, prefetched as soon as global-web gives its clientVersion
+      expect(order).toEqual(['env', 'global-web', 'home', 'application-config-web'])
       expect(formConfigService.loadEnvironmentConfig).toHaveBeenCalledTimes(1)
       expect(formConfigService.loadPublicEnvironmentConfig).not.toHaveBeenCalled()
+    })
+
+    it('prefetches the home form with the user and the clientVersion the resolver uses', async () => {
+      formConfigSvc.getForm.mockImplementation((_user: any, _portal: string, subType: string) =>
+        of({ result: { data: subType === 'global-web' ? { ...globalConfig, formClientVersion: { home: 3.0 } } : appConfig } }))
+      routes['/profile'] = { result: { response: fullProfile() } }
+      await service.init()
+      const homeCall = formConfigSvc.getForm.mock.calls.find((call: any[]) => call[2] === 'home')
+      expect(homeCall).toBeDefined()
+      expect(homeCall[0]).toEqual(fullProfile())
+      expect(homeCall[1]).toBe('portal')
+      expect(homeCall[3]).toBe(3.0)
+    })
+
+    it('does not prefetch the home form away from the home page', async () => {
+      setUrl('/app/profile')
+      routes['/profile'] = { result: { response: fullProfile() } }
+      await service.init()
+      expect(formConfigSvc.getForm.mock.calls.some((call: any[]) => call[2] === 'home')).toBe(false)
     })
 
     it('uses the session env read on the welcome and creator routes', async () => {

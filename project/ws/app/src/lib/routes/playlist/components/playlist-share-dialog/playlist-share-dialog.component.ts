@@ -1,7 +1,8 @@
 import { Component, ElementRef, Inject, TemplateRef, ViewChild, OnInit } from '@angular/core'
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
-import { BtnPlaylistService, NsAutoComplete } from '@sunbird-cb/collection'
+import { BtnPlaylistService } from '@sunbird-cb/collection/src/lib/btn-playlist/btn-playlist.service'
+import { NsAutoComplete } from '@sunbird-cb/collection/src/lib/_common/user-autocomplete/user-autocomplete.model'
 import { TFetchStatus, ConfigurationsService } from '@sunbird-cb/utils-v2'
 
 @Component({

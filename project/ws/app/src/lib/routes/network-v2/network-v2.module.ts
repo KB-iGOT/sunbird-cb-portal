@@ -15,9 +15,10 @@ import { WidgetResolverModule } from '@sunbird-cb/resolver'
 
 import { MatCardModule } from '@angular/material/card'
 import { ReactiveFormsModule, FormsModule } from '@angular/forms'
-import { AvatarPhotoModule, BtnPageBackModule } from '@sunbird-cb/collection'
-import { EditorSharedModule } from '@ws/author'
-import { LoaderService } from '@ws/author'
+import { AvatarPhotoModule } from '@sunbird-cb/collection/src/lib/_common/avatar-photo/avatar-photo.module'
+import { BtnPageBackModule } from '@sunbird-cb/collection/src/lib/btn-page-back/btn-page-back.module'
+import { EditorSharedModule } from '@ws/author/src/lib/routing/modules/editor/shared/shared.module'
+import { LoaderService } from '@ws/author/src/lib/services/loader.service'
 import { InitResolveService } from './resolvers/init-resolve.service'
 import { RouterModule } from '@angular/router'
 

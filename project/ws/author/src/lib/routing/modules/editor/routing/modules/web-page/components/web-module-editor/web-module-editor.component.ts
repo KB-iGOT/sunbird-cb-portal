@@ -14,7 +14,7 @@ import { UntypedFormGroup } from '@angular/forms'
 
 import { Page, ModuleObj, WebModuleData } from '../web-module.class'
 
-import { VIEWER_ROUTE_FROM_MIME } from '@sunbird-cb/collection'
+import { VIEWER_ROUTE_FROM_MIME } from '@sunbird-cb/collection/src/lib/_services/viewer-route-util'
 import { NOTIFICATION_TIME, WEB_MODULE_JSON_FILE_NAME } from '../../constant/web-module.constants'
 import { IAudioObj } from '../../interface/page-interface'
 import { PlainCKEditorComponent } from '../../../../../shared/components/plain-ckeditor/plain-ckeditor.component'

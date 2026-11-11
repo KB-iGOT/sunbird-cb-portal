@@ -5,7 +5,7 @@ import { Component, OnDestroy, OnInit } from '@angular/core'
 
 // import { of, Subscription } from 'rxjs'
 // import { mergeMap, tap } from 'rxjs/operators'
-// import { VIEWER_ROUTE_FROM_MIME } from '@sunbird-cb/collection'
+// import { VIEWER_ROUTE_FROM_MIME } from '@sunbird-cb/collection/src/lib/_services/viewer-route-util'
 
 @Component({
     selector: 'ws-auth-base',

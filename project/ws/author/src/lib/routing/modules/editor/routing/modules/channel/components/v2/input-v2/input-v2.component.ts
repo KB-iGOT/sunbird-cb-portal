@@ -1,4 +1,5 @@
-// import { ISelectorResponsive, NsGalleryView } from '@sunbird-cb/collection'
+// import { ISelectorResponsive } from '@sunbird-cb/collection/src/lib/selector-responsive/selector-responsive.model'
+import { NsGalleryView } from '@sunbird-cb/collection/src/lib/gallery-view/gallery-view.model'
 import { Component, Inject, OnInit } from '@angular/core'
 import { NsWidgetResolver } from '@sunbird-cb/resolver/src/public-api'
 import { COLUMN_WIDTH } from '../../input/image-v2/image-v2.constant'

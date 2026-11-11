@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, OnChanges, SimpleChanges } from '@angular/core'
-import { NsContent } from '@sunbird-cb/collection'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
 import { ActivatedRoute } from '@angular/router'
 import { SafeHtml, DomSanitizer } from '@angular/platform-browser'
 import { PipeLimitToPipe, ValueService, ConfigurationsService } from '@sunbird-cb/utils-v2'

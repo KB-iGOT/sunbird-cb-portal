@@ -2,16 +2,9 @@ import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } fr
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms'
 import { ActivatedRoute, Router } from '@angular/router'
 // tslint:disable-next-line: max-line-length
-import {
-  colorPalettes,
-  COLOR_PALETTE,
-  GRAPH_TYPES,
-  IBubbleData,
-  IBubbleGraphDataSets,
-  ROOT_WIDGET_CONFIG,
-  TChartJsColorPalette,
-  TChartJsGraphType,
-} from '@sunbird-cb/collection'
+import { colorPalettes, COLOR_PALETTE, GRAPH_TYPES } from '@sunbird-cb/collection/src/lib/graph-general/graph-general-color-palette'
+import { IBubbleData, IBubbleGraphDataSets, TChartJsColorPalette, TChartJsGraphType } from '@sunbird-cb/collection/src/lib/graph-general/graph-general.model'
+import { ROOT_WIDGET_CONFIG } from '@sunbird-cb/collection/src/lib/collection.config'
 import { ConfigurationsService, TFetchStatus, ValueService } from '@sunbird-cb/utils-v2'
 // import { Chart } from 'chart.js'
 import { Subscription } from 'rxjs'

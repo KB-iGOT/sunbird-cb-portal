@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core'
 import { Router } from '@angular/router'
-import { NsAutoComplete } from '@sunbird-cb/collection'
+import { NsAutoComplete } from '@sunbird-cb/collection/src/lib/_common/user-autocomplete/user-autocomplete.model'
 
 @Component({
     selector: 'ws-app-people',

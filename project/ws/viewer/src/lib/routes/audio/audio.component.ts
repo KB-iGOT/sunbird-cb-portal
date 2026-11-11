@@ -2,11 +2,9 @@ import { Component, OnInit, OnDestroy, Input } from '@angular/core'
 import { Subscription } from 'rxjs'
 import { ValueService } from '@sunbird-cb/utils-v2'
 import { ActivatedRoute } from '@angular/router'
-import { AccessControlService } from '@ws/author'
-import {
-  NsContent,
-  IWidgetsPlayerMediaData,
-} from '@sunbird-cb/collection'
+import { AccessControlService } from '@ws/author/src/lib/modules/shared/services/access-control.service'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
+import { IWidgetsPlayerMediaData } from '@sunbird-cb/collection/src/lib/_models/player-media.model'
 import { ViewerUtilService } from '@sunbird-cb/toc'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { environment } from 'src/environments/environment'

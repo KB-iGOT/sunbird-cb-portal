@@ -1,5 +1,6 @@
 import { Component, Input, OnInit } from '@angular/core'
-import { NsContent, IWidgetsPlayerMediaData } from '@sunbird-cb/collection'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
+import { IWidgetsPlayerMediaData } from '@sunbird-cb/collection/src/lib/_models/player-media.model'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { ActivatedRoute } from '@angular/router'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'

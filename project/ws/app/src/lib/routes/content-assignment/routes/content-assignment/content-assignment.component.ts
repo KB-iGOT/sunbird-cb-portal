@@ -2,7 +2,8 @@ import { STEPPER_GLOBAL_OPTIONS } from '@angular/cdk/stepper'
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core'
 import { MatPaginator, PageEvent } from '@angular/material/paginator'
 import { ActivatedRoute, Router } from '@angular/router'
-import { ContentAssignService, NsContent } from '@sunbird-cb/collection'
+import { ContentAssignService } from '@sunbird-cb/collection/src/lib/content-assign/content-assign.service'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
 import { ConfigurationsService, TFetchStatus, ValueService } from '@sunbird-cb/utils-v2'
 import { Subscription } from 'rxjs'
 import { IFilterUnitResponse } from '../../../search/models/search.model'
@@ -10,7 +11,7 @@ import { DialogAssignComponent } from '../../components/dialog-assign/dialog-ass
 import {
   UserFilterDisplayComponent,
 } from '../../components/user-filter-display/user-filter-display.component'
-import { IContentAssignModel } from '@sunbird-cb/collection'
+import { IContentAssignModel } from '@sunbird-cb/collection/src/lib/content-assign/content-assign.model'
 import { MatDialog, MatDialogConfig } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
 @Component({

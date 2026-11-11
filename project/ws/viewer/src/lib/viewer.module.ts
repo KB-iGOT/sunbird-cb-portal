@@ -12,22 +12,20 @@ import {
   DomainConfService,
 } from '@sunbird-cb/utils-v2'
 
-import {
-  ErrorResolverModule,
-  BtnPageBackModule,
-  BtnFullscreenModule,
-  DisplayContentTypeModule,
-  BtnContentDownloadModule,
-  BtnContentLikeModule,
-  BtnContentShareModule,
-  BtnGoalsModule,
-  BtnPlaylistModule,
-  BtnContentFeedbackModule,
-  DisplayContentTypeIconModule,
-  BtnContentFeedbackV2Module,
-  PlayerBriefModule,
-  ContentProgressModule,
-} from '@sunbird-cb/collection'
+import { ErrorResolverModule } from '@sunbird-cb/collection/src/lib/error-resolver/error-resolver.module'
+import { BtnPageBackModule } from '@sunbird-cb/collection/src/lib/btn-page-back/btn-page-back.module'
+import { BtnFullscreenModule } from '@sunbird-cb/collection/src/lib/btn-fullscreen/btn-fullscreen.module'
+import { DisplayContentTypeModule } from '@sunbird-cb/collection/src/lib/_common/display-content-type/display-content-type.module'
+import { BtnContentDownloadModule } from '@sunbird-cb/collection/src/lib/btn-content-download/btn-content-download.module'
+import { BtnContentLikeModule } from '@sunbird-cb/collection/src/lib/btn-content-like/btn-content-like.module'
+import { BtnContentShareModule } from '@sunbird-cb/collection/src/lib/btn-content-share/btn-content-share.module'
+import { BtnGoalsModule } from '@sunbird-cb/collection/src/lib/btn-goals/btn-goals.module'
+import { BtnPlaylistModule } from '@sunbird-cb/collection/src/lib/btn-playlist/btn-playlist.module'
+import { BtnContentFeedbackModule } from '@sunbird-cb/collection/src/lib/btn-content-feedback/btn-content-feedback.module'
+import { DisplayContentTypeIconModule } from '@sunbird-cb/collection/src/lib/_common/display-content-type-icon/display-content-type-icon.module'
+import { BtnContentFeedbackV2Module } from '@sunbird-cb/collection/src/lib/btn-content-feedback-v2/btn-content-feedback-v2.module'
+import { PlayerBriefModule } from '@sunbird-cb/collection/src/lib/_common/player-brief/player-brief.module'
+import { ContentProgressModule } from '@sunbird-cb/collection/src/lib/_common/content-progress/content-progress.module'
 
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
 import { ViewerComponent } from './viewer.component'
@@ -45,7 +43,7 @@ export function HttpLoaderFactory(http: HttpClient) {
 import { ViewerSecondaryTopBarModule } from './components/viewer-secondary-top-bar/viewer-secondary-top-bar.module'
 
 import { PdfScormDataService } from './pdf-scorm-data-service'
-import { SkeletonLoaderModule } from '@sunbird-cb/collection'
+import { SkeletonLoaderModule } from '@sunbird-cb/collection/src/lib/_common/skeleton-loader/skeleton-loader.module'
 import { MatButtonModule } from '@angular/material/button'
 import { MatCardModule } from '@angular/material/card'
 import { MatDividerModule } from '@angular/material/divider'

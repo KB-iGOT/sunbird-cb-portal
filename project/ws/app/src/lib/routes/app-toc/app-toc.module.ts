@@ -23,51 +23,50 @@ import {
   PipePublicURLModule,
   MultilingualTranslationsService,
 } from '@sunbird-cb/utils-v2'
-import {
-  BtnCallModule,
-  BtnContentDownloadModule,
-  BtnContentLikeModule,
-  BtnContentShareModule,
-  BtnContentFeedbackModule,
-  BtnContentFeedbackV2Module,
-  BtnGoalsModule,
-  BtnMailUserModule,
-  BtnPageBackModule,
-  UserImageModule,
-  DisplayContentTypeModule,
-  BtnPlaylistModule,
-  DisplayContentTypeIconModule,
-  ContentProgressModule,
-  UserContentRatingModule,
-  PipeContentRouteModule,
-  PipeContentRoutePipe,
-  BtnKbModule,
-  MarkAsCompleteModule,
-  PlayerBriefModule,
-  CardContentModule,
-  UserAutocompleteModule,
-  AvatarPhotoModule,
-  ContentRatingV2DialogModule,
-  RatingSummaryModule,
-  CardRatingCommentModule,
-  AttendanceHelperModule,
-  AttendanceCardModule,
-  NonReleventFeedbackDialogModule,
-} from '@sunbird-cb/collection'
-import { SkeletonLoaderModule } from '@sunbird-cb/collection'
+import { BtnCallModule } from '@sunbird-cb/collection/src/lib/btn-call/btn-call.module'
+import { BtnContentDownloadModule } from '@sunbird-cb/collection/src/lib/btn-content-download/btn-content-download.module'
+import { BtnContentLikeModule } from '@sunbird-cb/collection/src/lib/btn-content-like/btn-content-like.module'
+import { BtnContentShareModule } from '@sunbird-cb/collection/src/lib/btn-content-share/btn-content-share.module'
+import { BtnContentFeedbackModule } from '@sunbird-cb/collection/src/lib/btn-content-feedback/btn-content-feedback.module'
+import { BtnContentFeedbackV2Module } from '@sunbird-cb/collection/src/lib/btn-content-feedback-v2/btn-content-feedback-v2.module'
+import { BtnGoalsModule } from '@sunbird-cb/collection/src/lib/btn-goals/btn-goals.module'
+import { BtnMailUserModule } from '@sunbird-cb/collection/src/lib/btn-mail-user/btn-mail-user.module'
+import { BtnPageBackModule } from '@sunbird-cb/collection/src/lib/btn-page-back/btn-page-back.module'
+import { UserImageModule } from '@sunbird-cb/collection/src/lib/_common/user-image/user-image.module'
+import { DisplayContentTypeModule } from '@sunbird-cb/collection/src/lib/_common/display-content-type/display-content-type.module'
+import { BtnPlaylistModule } from '@sunbird-cb/collection/src/lib/btn-playlist/btn-playlist.module'
+import { DisplayContentTypeIconModule } from '@sunbird-cb/collection/src/lib/_common/display-content-type-icon/display-content-type-icon.module'
+import { ContentProgressModule } from '@sunbird-cb/collection/src/lib/_common/content-progress/content-progress.module'
+import { UserContentRatingModule } from '@sunbird-cb/collection/src/lib/_common/user-content-rating/user-content-rating.module'
+import { PipeContentRouteModule } from '@sunbird-cb/collection/src/lib/_common/pipe-content-route/pipe-content-route.module'
+import { PipeContentRoutePipe } from '@sunbird-cb/collection/src/lib/_common/pipe-content-route/pipe-content-route.pipe'
+import { BtnKbModule } from '@sunbird-cb/collection/src/lib/btn-kb/btn-kb.module'
+import { MarkAsCompleteModule } from '@sunbird-cb/collection/src/lib/_common/mark-as-complete/mark-as-complete.module'
+import { PlayerBriefModule } from '@sunbird-cb/collection/src/lib/_common/player-brief/player-brief.module'
+import { CardContentModule } from '@sunbird-cb/collection/src/lib/card-content/card-content.module'
+import { UserAutocompleteModule } from '@sunbird-cb/collection/src/lib/_common/user-autocomplete/user-autocomplete.module'
+import { AvatarPhotoModule } from '@sunbird-cb/collection/src/lib/_common/avatar-photo/avatar-photo.module'
+import { ContentRatingV2DialogModule } from '@sunbird-cb/collection/src/lib/_common/content-rating-v2-dialog/content-rating-v2-dialog.module'
+import { RatingSummaryModule } from '@sunbird-cb/collection/src/lib/_common/rating-summary/rating-summary.module'
+import { CardRatingCommentModule } from '@sunbird-cb/collection/src/lib/card-rating-comment/card-rating-comment.module'
+import { AttendanceHelperModule } from '@sunbird-cb/collection/src/lib/_common/attendance-helper/attendance-helper.module'
+import { AttendanceCardModule } from '@sunbird-cb/collection/src/lib/_common/attendance-card/attendance-card.module'
+import { NonReleventFeedbackDialogModule } from '@sunbird-cb/collection/src/lib/_common/non-relevent-feedback-dialog/non-relevent-feedback-dialog.module'
+import { SkeletonLoaderModule } from '@sunbird-cb/collection/src/lib/_common/skeleton-loader/skeleton-loader.module'
 import { ContentTocModule } from '@sunbird-cb/toc'
 import { TocKpiValuesModule } from '@sunbird-cb/toc'
 import { MicroSurveyModule } from '@sunbird-cb/micro-surveys'
-import { CardContentV2Module } from '@sunbird-cb/collection'
-import { ConnectionNameModule } from '@sunbird-cb/collection'
-import { CertificateDialogModule } from '@sunbird-cb/collection'
-import { ConfirmDialogModule } from '@sunbird-cb/collection'
+import { CardContentV2Module } from '@sunbird-cb/collection/src/lib/card-content-v2/card-content-v2.module'
+import { ConnectionNameModule } from '@sunbird-cb/collection/src/lib/_common/connection-name/connection-name.module'
+import { CertificateDialogModule } from '@sunbird-cb/collection/src/lib/_common/certificate-dialog/certificate-dialog.module'
+import { ConfirmDialogModule } from '@sunbird-cb/collection/src/lib/_common/confirm-dialog/confirm-dialog.module'
 import { KarmaPointsModule } from '@sunbird-cb/toc'
-import { TipsForLearnerModule } from '@sunbird-cb/collection'
+import { TipsForLearnerModule } from '@sunbird-cb/collection/src/lib/_common/tips-for-learner/tips-for-learner.module'
 
 // Services
-import { ApiService, AccessControlService } from '@ws/author'
-import { EditorService } from '@ws/author'
+import { ApiService } from '@ws/author/src/lib/modules/shared/services/api.service'
+import { AccessControlService } from '@ws/author/src/lib/modules/shared/services/access-control.service'
+import { EditorService } from '@ws/author/src/lib/routing/modules/editor/services/editor.service'
 import { AppPublicTocResolverService } from '../../routes/services/app-public-toc-resolver.service'
 
 // Resolver
@@ -99,7 +98,7 @@ import { MatTabsModule } from '@angular/material/tabs'
 import { MatToolbarModule } from '@angular/material/toolbar'
 import { MatTooltipModule } from '@angular/material/tooltip'
 import { WidgetCommentModule } from '@sunbird-cb/discussion-v2'
-import { SlidersDynamicModule } from '@sunbird-cb/collection'
+import { SlidersDynamicModule } from '@sunbird-cb/collection/src/lib/sliders-dynamic/sliders-dynamic.module'
 import { TocHomeComponent } from './toc-home/toc-home.component'
 import { AppTocLibModule } from '@sunbird-cb/toc'
 @NgModule({

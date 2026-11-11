@@ -4,7 +4,7 @@ import { CommonModule } from '@angular/common'
 // import { AceEditorModule } from 'ng2-ace-editor'
 
 import { PipeSafeSanitizerModule, PipeDurationTransformModule } from '@sunbird-cb/utils-v2'
-import { CompletionSpinnerModule } from '@sunbird-cb/collection'
+import { CompletionSpinnerModule } from '@sunbird-cb/collection/src/lib/_common/completion-spinner/completion-spinner.module'
 
 import { HandsOnComponent } from './hands-on.component'
 import { HandsOnDialogComponent } from './components/hands-on-dialog/hands-on-dialog.component'

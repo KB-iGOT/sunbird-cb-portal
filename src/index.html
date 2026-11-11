@@ -8,6 +8,30 @@
     (function () { var k = 'kb-design-system-theme', s = null; try { s = localStorage.getItem(k) } catch (e) { } var t = s === 'dark' ? 'dark' : s === 'light' ? 'light' : null; if (!t) { t = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light' } document.documentElement.setAttribute('data-theme', t); document.documentElement.classList.add('theme-igot'); document.documentElement.classList.add(t === 'dark' ? 'night-mode' : 'day-mode') })();
   </script>
   <!--
+    Home banner preload. The first carousel banner is the home page's LCP element, but its URL
+    lives in the home form config, which the app only reads after bootstrap, init and the
+    router have finished - so the image used to start downloading seconds after the page
+    opened. HomeV2ResolverService saves the URL it last rendered (key homeBannerPreload);
+    on the next visit this starts the download straight away, in parallel with the app.
+    A banner that changed in between costs one unused download, nothing else.
+  -->
+  <script>
+    (function () {
+      try {
+        var path = window.location.pathname
+        if (path !== '/' && path !== '/home' && path !== '/page/home') { return }
+        var url = localStorage.getItem('homeBannerPreload')
+        if (!url || !/^(https?:\/\/|\/)/.test(url)) { return }
+        var link = document.createElement('link')
+        link.rel = 'preload'
+        link.as = 'image'
+        link.href = url
+        link.setAttribute('fetchpriority', 'high')
+        document.head.appendChild(link)
+      } catch (e) { }
+    })();
+  </script>
+  <!--
     Stale-build recovery, before Angular starts.
     The service worker serves the cached index.html until it notices a new deployment, and a
     deployment ships only the new build. The cached build's chunk-*.js then 404, main-*.js
@@ -310,6 +334,54 @@
   </script>
   <noscript>Please ensure Javascript is enabled for purposes of <a href="https://userway.org">website
       accessibility</a></noscript>
+  <!--
+    Stylesheets for screens that are never part of first paint: the CKEditor rich-text
+    editor and the pdf.js viewer. They are ~330 KB of CSS, and used to be inside the global
+    `styles` bundle, so every page paid to download and match them on load.
+    angular.json builds them as separate `inject: false` bundles (lazy-*.css, not hashed:
+    the service worker and ETag revalidation keep them current), and this attaches them
+    once the page has loaded.
+
+    They are inserted right after the build's own stylesheets, not appended to <head>: the
+    component styles Angular adds at runtime come later in <head>, and must keep winning
+    over these, exactly as when they were part of `styles`.
+  -->
+  <script>
+    (function () {
+      var LAZY_STYLES = ['lazy-ckeditor5.css', 'lazy-pdf-viewer.css']
+      var attached = false
+
+      function attachStyles() {
+        if (attached) { return }
+        attached = true
+        var links = document.head.querySelectorAll('link[rel="stylesheet"]')
+        var anchor = null
+        for (var i = 0; i < links.length; i++) {
+          // the build's own stylesheets are relative URLs; skip Google Fonts and other CDNs
+          if (!/^(https?:)?\/\//.test(links[i].getAttribute('href') || '')) { anchor = links[i] }
+        }
+        LAZY_STYLES.forEach(function (href) {
+          var el = document.createElement('link')
+          el.rel = 'stylesheet'
+          el.href = href
+          if (anchor) {
+            anchor.parentNode.insertBefore(el, anchor.nextSibling)
+            anchor = el
+          } else {
+            document.head.appendChild(el)
+          }
+        })
+      }
+
+      if (document.readyState === 'complete') {
+        attachStyles()
+      } else {
+        window.addEventListener('load', attachStyles, { once: true })
+      }
+      // same backstop as the widgets above: `load` waits on every third-party request
+      window.setTimeout(attachStyles, 5000)
+    })()
+  </script>
 </body>
 
 <script>

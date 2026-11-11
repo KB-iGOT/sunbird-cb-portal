@@ -1,6 +1,6 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
-import { fireRealTimeProgressFunction, saveContinueLearningFunction, telemetryEventDispatcherFunction, videoJsInitializer } from '@sunbird-cb/collection'
+import { fireRealTimeProgressFunction, saveContinueLearningFunction, telemetryEventDispatcherFunction, videoJsInitializer } from '@sunbird-cb/collection/src/lib/_services/videojs-util'
 import { Subscription } from 'rxjs'
 import videoJs from 'video.js'
 import moment from 'moment'

@@ -1,12 +1,6 @@
 import { Injectable } from '@angular/core'
-import {
-  IFeedbackFilterObj,
-  IFeedbackSearchQuery,
-  EFeedbackType,
-  FeedbackService,
-  IFeedback,
-  EFeedbackRole,
-} from '@sunbird-cb/collection'
+import { IFeedbackFilterObj, IFeedbackSearchQuery, EFeedbackType, IFeedback, EFeedbackRole } from '@sunbird-cb/collection/src/lib/btn-content-feedback-v2/models/feedback.model'
+import { FeedbackService } from '@sunbird-cb/collection/src/lib/btn-content-feedback-v2/services/feedback.service'
 import { Observable } from 'rxjs'
 
 @Injectable()

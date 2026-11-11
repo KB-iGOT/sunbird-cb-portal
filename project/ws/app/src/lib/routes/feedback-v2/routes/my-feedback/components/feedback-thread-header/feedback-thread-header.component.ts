@@ -1,14 +1,9 @@
 import { Component, OnInit, Input } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { noop } from 'rxjs'
-import {
-  IFeedbackThread,
-  EFeedbackType,
-  IFeedbackConfig,
-  FeedbackService,
-  EFeedbackRole,
-  NsContent,
-} from '@sunbird-cb/collection'
+import { IFeedbackThread, EFeedbackType, IFeedbackConfig, EFeedbackRole } from '@sunbird-cb/collection/src/lib/btn-content-feedback-v2/models/feedback.model'
+import { FeedbackService } from '@sunbird-cb/collection/src/lib/btn-content-feedback-v2/services/feedback.service'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
 import { IResolveResponse, ConfigurationsService } from '@sunbird-cb/utils-v2'
 @Component({
     selector: 'ws-app-feedback-thread-header',

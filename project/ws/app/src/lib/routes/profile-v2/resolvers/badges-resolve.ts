@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core'
 import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router'
 import { Observable } from 'rxjs'
 // import { map, catchError } from 'rxjs/operators'
-import { } from '@sunbird-cb/collection'
+
 import { ConfigurationsService, IResolveResponse } from '@sunbird-cb/utils-v2'
 // import { ProfileV2UtillService } from '../services/profile-v2-utill.service'
 import { NSProfileDataV2 } from '../models/profile-v2.model'

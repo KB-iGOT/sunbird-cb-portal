@@ -2,9 +2,7 @@ import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { FormsModule } from '@angular/forms'
 
-import {
-  BtnFullscreenModule,
-} from '@sunbird-cb/collection'
+import { BtnFullscreenModule } from '@sunbird-cb/collection/src/lib/btn-fullscreen/btn-fullscreen.module'
 
 import { WebModuleComponent } from './web-module.component'
 import { MatButtonModule } from '@angular/material/button'

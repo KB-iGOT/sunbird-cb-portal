@@ -1,4 +1,5 @@
-import { IWidgetGraphData, NsContent } from '@sunbird-cb/collection'
+import { IWidgetGraphData } from '@sunbird-cb/collection/src/lib/graph-general/graph-general.model'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
 
 export namespace NSProfileData {
   export interface IProfileJsonData {

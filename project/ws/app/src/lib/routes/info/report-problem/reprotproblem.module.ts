@@ -1,7 +1,8 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 
-import { BtnPageBackNavModule, BtnPageBackModule } from '@sunbird-cb/collection'
+import { BtnPageBackNavModule } from '@sunbird-cb/collection/src/lib/btn-page-back-nav/btn-page-back-nav.module'
+import { BtnPageBackModule } from '@sunbird-cb/collection/src/lib/btn-page-back/btn-page-back.module'
 import { HorizontalScrollerModule, PipeSafeSanitizerModule } from '@sunbird-cb/utils-v2'
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
 import { ReportproblemComponent } from './components/reportproblem.component'

@@ -1,5 +1,6 @@
 import { Component } from '@angular/core'
-import { NsGoal, BtnGoalsService } from '@sunbird-cb/collection'
+import { NsGoal } from '@sunbird-cb/collection/src/lib/btn-goals/btn-goals.model'
+import { BtnGoalsService } from '@sunbird-cb/collection/src/lib/btn-goals/btn-goals.service'
 import { ActivatedRoute } from '@angular/router'
 import { TFetchStatus } from '@sunbird-cb/utils-v2'
 

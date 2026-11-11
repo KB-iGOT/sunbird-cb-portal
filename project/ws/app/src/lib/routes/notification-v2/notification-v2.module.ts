@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 
-import { BtnPageBackModule } from '@sunbird-cb/collection'
+import { BtnPageBackModule } from '@sunbird-cb/collection/src/lib/btn-page-back/btn-page-back.module'
 
 import { NotificationV2RoutingModule } from './notification-v2-routing.module'
 import { HomeComponent } from './components/home/home.component'
@@ -21,7 +21,7 @@ import { HttpClient } from '@angular/common/http'
 import { TranslateHttpLoader } from '@ngx-translate/http-loader'
 import { NotificationsService } from '../../routes/services/notifications.service'
 import { MatSnackBarModule } from '@angular/material/snack-bar'
-import { ConfirmDialogModule } from '@sunbird-cb/collection'
+import { ConfirmDialogModule } from '@sunbird-cb/collection/src/lib/_common/confirm-dialog/confirm-dialog.module'
 
 export function NotificationHttpLoaderFactory(http: HttpClient) {
   return new TranslateHttpLoader(http)

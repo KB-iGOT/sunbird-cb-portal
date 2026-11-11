@@ -5,6 +5,9 @@ import { ConfigurationsService, IResolveResponse } from '@sunbird-cb/utils-v2'
 import { FormConfigService } from '@sunbird-cb/consumption'
 import { Observable, map, catchError, of, switchMap } from 'rxjs'
 
+/** Read by the inline preload script in src/index.html - keep the two in step. */
+export const HOME_BANNER_PRELOAD_KEY = 'homeBannerPreload'
+
 @Injectable({
   providedIn: 'root',
 })
@@ -45,10 +48,33 @@ export class HomeV2ResolverService {
         // optimistically visible with sectionLoading=true and shows a skeleton until it resolves.
         this.markPillsSectionLoading(configDetails)
         this.applyBharatKalpVisibility(configDetails)
+        this.rememberLcpBanner(configDetails)
         return { data: configDetails, error: null }
       }),
       catchError(err => of({ data: null, error: err })),
     )
+  }
+
+  /**
+   * The first banner of the home carousel is the page's largest paint (LCP). Its URL comes from
+   * this form, so without help the browser only learns it after init, the router and this
+   * resolver have all finished. Remembering it lets index.html preload it on the next visit,
+   * in parallel with the app booting. Must pick the same URL as ContetnSectionsComponent
+   * (consumption): first active slider item, banners.l falling back to banners.xl.
+   */
+  private rememberLcpBanner(configDetails: any): void {
+    try {
+      const sliderData = configDetails && Array.isArray(configDetails.sliderData) ? configDetails.sliderData : []
+      const first = sliderData.find((item: any) => item && item.active)
+      const url = first && first.banners && (first.banners.l || first.banners.xl)
+      if (url) {
+        localStorage.setItem(HOME_BANNER_PRELOAD_KEY, url)
+      } else {
+        localStorage.removeItem(HOME_BANNER_PRELOAD_KEY)
+      }
+    } catch {
+      // storage unavailable (private mode, quota): the banner just loads without a preload
+    }
   }
 
   private markPillsSectionLoading(configDetails: any): void {

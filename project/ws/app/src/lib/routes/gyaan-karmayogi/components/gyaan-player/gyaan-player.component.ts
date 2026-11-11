@@ -2,7 +2,7 @@ import { TitleCasePipe } from '@angular/common'
 import { Component, OnInit } from '@angular/core'
 import { ActivatedRoute, NavigationEnd, Router } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
-import { VIEWER_ROUTE_FROM_MIME } from '@sunbird-cb/collection'
+import { VIEWER_ROUTE_FROM_MIME } from '@sunbird-cb/collection/src/lib/_services/viewer-route-util'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { ViewerDataService } from '@sunbird-cb/toc'
 // tslint:disable

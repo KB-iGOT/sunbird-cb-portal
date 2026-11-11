@@ -1,13 +1,10 @@
 import { Component, Inject, OnInit, ViewChild, ElementRef } from '@angular/core'
 
 import { UntypedFormControl } from '@angular/forms'
-import {
-  NsAutoComplete,
-  UserAutocompleteService,
-  FeedbackService,
-  EFeedbackType,
-  EFeedbackRole,
-} from '@sunbird-cb/collection'
+import { NsAutoComplete } from '@sunbird-cb/collection/src/lib/_common/user-autocomplete/user-autocomplete.model'
+import { UserAutocompleteService } from '@sunbird-cb/collection/src/lib/_common/user-autocomplete/user-autocomplete.service'
+import { FeedbackService } from '@sunbird-cb/collection/src/lib/btn-content-feedback-v2/services/feedback.service'
+import { EFeedbackType, EFeedbackRole } from '@sunbird-cb/collection/src/lib/btn-content-feedback-v2/models/feedback.model'
 import {
   debounceTime,
   distinctUntilChanged,

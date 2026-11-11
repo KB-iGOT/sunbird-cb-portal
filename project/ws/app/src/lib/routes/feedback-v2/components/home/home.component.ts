@@ -3,7 +3,7 @@ import { ActivatedRoute } from '@angular/router'
 import { Subscription } from 'rxjs'
 
 import { ConfigurationsService, NsPage } from '@sunbird-cb/utils-v2'
-import { EFeedbackType } from '@sunbird-cb/collection'
+import { EFeedbackType } from '@sunbird-cb/collection/src/lib/btn-content-feedback-v2/models/feedback.model'
 
 @Component({
     selector: 'ws-app-home',

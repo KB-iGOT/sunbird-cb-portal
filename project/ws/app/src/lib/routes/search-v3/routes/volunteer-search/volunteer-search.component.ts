@@ -20,7 +20,7 @@ import {
   SearchV4Request,
   SortType,
 } from '../../models/search-v3.model'
-import { NsContent } from '@sunbird-cb/collection'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
 import { ContentDictionaryService } from '@sunbird-cb/consumption'
 import { environment } from '../../../../../../../../../src/environments/environment'
 

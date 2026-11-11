@@ -3,7 +3,8 @@ import { Injectable } from '@angular/core'
 import { Observable, of } from 'rxjs'
 import { map, catchError } from 'rxjs/operators'
 
-import { FeedbackService, IFeedbackSummary } from '@sunbird-cb/collection'
+import { FeedbackService } from '@sunbird-cb/collection/src/lib/btn-content-feedback-v2/services/feedback.service'
+import { IFeedbackSummary } from '@sunbird-cb/collection/src/lib/btn-content-feedback-v2/models/feedback.model'
 import { IResolveResponse } from '@sunbird-cb/utils-v2'
 
 @Injectable()

@@ -2,7 +2,6 @@
 import { AfterViewInit, Component, ElementRef, OnDestroy, OnInit, QueryList, ViewChildren } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
 import { HttpErrorResponse } from '@angular/common/http'
-import { jsPDF } from 'jspdf'
 // RxJS imports
 import { Subject } from 'rxjs'
 import { takeUntil } from 'rxjs/operators'
@@ -12,8 +11,8 @@ import { TranslateService } from '@ngx-translate/core'
 import { MultilingualTranslationsService, EventService, WsEvents, ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { environment } from 'src/environments/environment'
 import { MatDialog } from '@angular/material/dialog'
-import { CertificateDialogComponent } from '@sunbird-cb/collection'
-import { NsContent } from '@sunbird-cb/collection'
+import { CertificateDialogComponent } from '@sunbird-cb/collection/src/lib/_common/certificate-dialog/certificate-dialog.component'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
 
 @Component({
     selector: 'ws-competency-card-details',
@@ -122,7 +121,7 @@ export class CompetencyCardDetailsComponent implements OnInit, AfterViewInit, On
     img.src = uriData
     img.width = 1820
     img.height = 1000
-    img.onload = () => {
+    img.onload = async () => {
       // tslint:disable-next-line
       const canvas = document.createElement('canvas');
       [canvas.width, canvas.height] = [img.width, img.height]
@@ -132,6 +131,8 @@ export class CompetencyCardDetailsComponent implements OnInit, AfterViewInit, On
         // tslint:disable-next-line: max-line-length
         const quality = 1.0 // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/imageSmoothingQuality
         const dataImg = canvas.toDataURL('application/pdf', quality)
+        // loaded on first use: jsPDF is ~350 KB and only needed for a download
+        const { jsPDF } = await import('jspdf')
         const pdf = new jsPDF('landscape', 'px', 'a4')
 
         // add the image to the PDF

@@ -1,7 +1,7 @@
 import { Component, Input } from '@angular/core'
 // import { SafeResourceUrl, DomSanitizer } from '@angular/platform-browser'
 // import { CertificationService } from './certification.service'
-import { NsContent } from '@sunbird-cb/collection'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
 // import { ConfigurationsService } from '@sunbird-cb/utils-v2';
 
 @Component({

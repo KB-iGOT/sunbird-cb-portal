@@ -4,7 +4,11 @@ import { Router } from '@angular/router'
 import { MatSnackBar } from '@angular/material/snack-bar'
 
 import { TFetchStatus, NsPage, ConfigurationsService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
-import { NsPlaylist, IPickerContentData, BtnPlaylistService, NsContent, NsAutoComplete } from '@sunbird-cb/collection'
+import { NsPlaylist } from '@sunbird-cb/collection/src/lib/btn-playlist/btn-playlist.model'
+import { IPickerContentData } from '@sunbird-cb/collection/src/lib/picker-content/picker-content.model'
+import { BtnPlaylistService } from '@sunbird-cb/collection/src/lib/btn-playlist/btn-playlist.service'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
+import { NsAutoComplete } from '@sunbird-cb/collection/src/lib/_common/user-autocomplete/user-autocomplete.model'
 import {
   PLAYLIST_TITLE_MIN_LENGTH, PLAYLIST_TITLE_MAX_LENGTH,
 } from '../../constants/playlist.constant'

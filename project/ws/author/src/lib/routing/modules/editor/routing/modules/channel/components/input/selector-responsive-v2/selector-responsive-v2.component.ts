@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core'
 import { MatDialog } from '@angular/material/dialog'
-import { ISelectorResponsive, ISelectorResponsiveUnit } from '@sunbird-cb/collection'
+import { ISelectorResponsive, ISelectorResponsiveUnit } from '@sunbird-cb/collection/src/lib/selector-responsive/selector-responsive.model'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { WIDGET_LIBRARY } from '../../../constants/widet'
 import { ImageMapComponent } from './../image-map/image-map.component'

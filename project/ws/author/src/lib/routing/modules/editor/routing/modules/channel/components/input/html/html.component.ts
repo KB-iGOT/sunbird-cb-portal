@@ -1,5 +1,5 @@
 
-import { IWidgetElementHtml } from '@sunbird-cb/collection'
+import { IWidgetElementHtml } from '@sunbird-cb/collection/src/lib/element-html/element-html.model'
 import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import mustache from 'mustache'

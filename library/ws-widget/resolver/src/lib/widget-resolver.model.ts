@@ -32,8 +32,26 @@ export namespace NsWidgetResolver {
     widgetSubType: string
   }
 
-  export interface IRegistrationConfig extends IBaseConfig {
+  /**
+   * What a lazy widget loader resolves to. `ngModule` is the NgModule that declares the
+   * component: the resolver instantiates it so the providers of everything it imports
+   * (MatDialog, MatSnackBar, ...) are available to the widget, exactly as they were when the
+   * module was imported eagerly. Omit it only for a standalone component.
+   */
+  export interface ILazyWidget {
     component: Type<IWidgetData<any>>
+    ngModule?: Type<any>
+  }
+
+  /**
+   * Register a widget with either `component` (bundled with whoever imports the config) or
+   * `loadComponent` (bundled in its own chunk, fetched the first time the widget renders).
+   * Use `loadComponent` for widgets that pull in heavy libraries - pdf.js, video.js, charts -
+   * so those libraries stay out of the initial bundle.
+   */
+  export interface IRegistrationConfig extends IBaseConfig {
+    component?: Type<IWidgetData<any>>
+    loadComponent?: () => Promise<ILazyWidget>
   }
 
   export interface IRegistrationsPermissionConfig extends IBaseConfig {

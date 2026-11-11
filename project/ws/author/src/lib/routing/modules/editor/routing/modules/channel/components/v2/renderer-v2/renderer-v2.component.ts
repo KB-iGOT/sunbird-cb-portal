@@ -1,5 +1,5 @@
 import { Component, Input, OnInit, OnChanges } from '@angular/core'
-import { responsiveSuffix, sizeSuffix } from '@sunbird-cb/collection'
+import { responsiveSuffix, sizeSuffix } from '@sunbird-cb/collection/src/lib/grid-layout/grid-layout.model'
 import { WIDGET_LIBRARY } from '../../../constants/widet'
 import { IWidgetAuthor, tDimensions, tSize } from './../../../interface/widget'
 import { ChannelResolverService } from './../../../services/resolver.service'

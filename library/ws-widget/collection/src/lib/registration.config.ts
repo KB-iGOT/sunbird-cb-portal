@@ -71,8 +71,6 @@ import { ErrorResolverComponent } from './error-resolver/error-resolver.componen
 import { ErrorResolverModule } from './error-resolver/error-resolver.module'
 import { GalleryViewComponent } from './gallery-view/gallery-view.component'
 import { GalleryViewModule } from './gallery-view/gallery-view.module'
-import { GraphGeneralComponent } from './graph-general/graph-general.component'
-import { GraphGeneralModule } from './graph-general/graph-general.module'
 import { GridLayoutComponent } from './grid-layout/grid-layout.component'
 import { GridLayoutModule } from './grid-layout/grid-layout.module'
 import { ImageMapResponsiveComponent } from './image-map-responsive/image-map-responsive.component'
@@ -106,22 +104,6 @@ import { ProfileDepartmentsModule } from './profile-v2/profile-departments/profi
 import { ProfileHobbiesModule } from './profile-v2/profile-hobbies/profile-hobbies.module'
 import { ProfileHobbiesComponent } from './profile-v2/profile-hobbies/profile-hobbies.component'
 import { PickerContentModule } from './picker-content/picker-content.module'
-import { PlayerAmpComponent } from './player-amp/player-amp.component'
-import { PlayerAmpModule } from './player-amp/player-amp.module'
-import { PlayerAudioComponent } from './player-audio/player-audio.component'
-import { PlayerAudioModule } from './player-audio/player-audio.module'
-import { PlayerPdfComponent } from './player-pdf/player-pdf.component'
-import { PlayerPdfModule } from './player-pdf/player-pdf.module'
-import { PlayerOfflineSessionComponent } from './player-offline-session/player-offline-session.component'
-import { PlayerOfflineSessionModule } from './player-offline-session/player-offline-session.module'
-import { PlayerSlidesComponent } from './player-slides/player-slides.component'
-import { PlayerSlidesModule } from './player-slides/player-slides.module'
-import { PlayerVideoComponent } from './player-video/player-video.component'
-import { PlayerVideoModule } from './player-video/player-video.module'
-import { PlayerWebPagesComponent } from './player-web-pages/player-web-pages.component'
-import { PlayerWebPagesModule } from './player-web-pages/player-web-pages.module'
-import { PlayerYoutubeComponent } from './player-youtube/player-youtube.component'
-import { PlayerYoutubeModule } from './player-youtube/player-youtube.module'
 import { ReleaseNotesComponent } from './release-notes/release-notes.component'
 import { ReleaseNotesModule } from './release-notes/release-notes.module'
 import { SelectorResponsiveComponent } from './selector-responsive/selector-responsive.component'
@@ -134,8 +116,6 @@ import { TreeCatalogComponent } from './tree-catalog/tree-catalog.component'
 import { TreeCatalogModule } from './tree-catalog/tree-catalog.module'
 import { TreeComponent } from './tree/tree.component'
 import { TreeModule } from './tree/tree.module'
-import { VideoWrapperComponent } from './video-wrapper/video-wrapper.component'
-import { VideoWrapperModule } from './video-wrapper/video-wrapper.module'
 // import { ContentStripVerticalModule } from './content-strip-vertical/content-strip-vertical.module'
 // import { ContentStripVerticalComponent } from './content-strip-vertical/content-strip-vertical.component'
 import { CardNetworkHomeComponent } from './card-network-home/card-network-home.component'
@@ -163,8 +143,6 @@ import { UIORGTableModule } from './ui-org-table/ui-org-table.module'
 
 import { BreadcrumbsOrgModule } from './breadcrumbs-org/breadcrumbs-org.module'
 import { CardNotifyComponent } from './card-notify/card-notify.component'
-import { PlayerSurveyComponent } from './player-survey/player-survey.component'
-import { PlayerSurveyModule } from './player-survey/player-survey.module'
 import { CardContentV2Component } from './card-content-v2/card-content-v2.component'
 import { CardContentV2Module } from './card-content-v2/card-content-v2.module'
 import { ContentStripWithTabsComponent } from './content-strip-with-tabs/content-strip-with-tabs.component'
@@ -213,20 +191,10 @@ export const WIDGET_REGISTERED_MODULES = [
   ContentStripNewMultipleModule,
   ContentStripSingleModule,
   // ContentStripVerticalModule,
-  GraphGeneralModule,
   LayoutLinearModule,
   LayoutTabModule,
   NetworkStripMultipleModule,
   PickerContentModule,
-  PlayerAmpModule,
-  PlayerAudioModule,
-  PlayerPdfModule,
-  PlayerOfflineSessionModule,
-  PlayerSurveyModule,
-  PlayerSlidesModule,
-  PlayerVideoModule,
-  PlayerWebPagesModule,
-  PlayerYoutubeModule,
   ReleaseNotesModule,
   SlidersModule,
   ElementHtmlModule,
@@ -249,7 +217,6 @@ export const WIDGET_REGISTERED_MODULES = [
   GalleryViewModule,
   ImageMapResponsiveModule,
   IntranetSelectorModule,
-  VideoWrapperModule,
   SlidersMobModule,
   CardHubsListModule,
   CardNotifyModule,
@@ -440,7 +407,11 @@ export const WIDGET_REGISTRATION_CONFIG: NsWidgetResolver.IRegistrationConfig[] 
   {
     widgetType: ROOT_WIDGET_CONFIG.graph._type,
     widgetSubType: ROOT_WIDGET_CONFIG.graph.graphGeneral,
-    component: GraphGeneralComponent,
+    // lazy: keeps this player's libraries (pdf.js, video.js, ...) out of the initial bundle
+    loadComponent: () => Promise.all([
+      import('./graph-general/graph-general.module'),
+      import('./graph-general/graph-general.component'),
+    ]).then(([m, c]) => ({ ngModule: m.GraphGeneralModule, component: c.GraphGeneralComponent })),
   },
   {
     widgetType: ROOT_WIDGET_CONFIG.layout._type,
@@ -475,47 +446,83 @@ export const WIDGET_REGISTRATION_CONFIG: NsWidgetResolver.IRegistrationConfig[] 
   {
     widgetType: ROOT_WIDGET_CONFIG.player._type,
     widgetSubType: ROOT_WIDGET_CONFIG.player.amp,
-    component: PlayerAmpComponent,
+    // lazy: keeps this player's libraries (pdf.js, video.js, ...) out of the initial bundle
+    loadComponent: () => Promise.all([
+      import('./player-amp/player-amp.module'),
+      import('./player-amp/player-amp.component'),
+    ]).then(([m, c]) => ({ ngModule: m.PlayerAmpModule, component: c.PlayerAmpComponent })),
   },
   {
     widgetType: ROOT_WIDGET_CONFIG.player._type,
     widgetSubType: ROOT_WIDGET_CONFIG.player.audio,
-    component: PlayerAudioComponent,
+    // lazy: keeps this player's libraries (pdf.js, video.js, ...) out of the initial bundle
+    loadComponent: () => Promise.all([
+      import('./player-audio/player-audio.module'),
+      import('./player-audio/player-audio.component'),
+    ]).then(([m, c]) => ({ ngModule: m.PlayerAudioModule, component: c.PlayerAudioComponent })),
   },
   {
     widgetType: ROOT_WIDGET_CONFIG.player._type,
     widgetSubType: ROOT_WIDGET_CONFIG.player.pdf,
-    component: PlayerPdfComponent,
+    // lazy: keeps this player's libraries (pdf.js, video.js, ...) out of the initial bundle
+    loadComponent: () => Promise.all([
+      import('./player-pdf/player-pdf.module'),
+      import('./player-pdf/player-pdf.component'),
+    ]).then(([m, c]) => ({ ngModule: m.PlayerPdfModule, component: c.PlayerPdfComponent })),
   },
   {
     widgetType: ROOT_WIDGET_CONFIG.player._type,
     widgetSubType: ROOT_WIDGET_CONFIG.player.survey,
-    component: PlayerSurveyComponent,
+    // lazy: keeps this player's libraries (pdf.js, video.js, ...) out of the initial bundle
+    loadComponent: () => Promise.all([
+      import('./player-survey/player-survey.module'),
+      import('./player-survey/player-survey.component'),
+    ]).then(([m, c]) => ({ ngModule: m.PlayerSurveyModule, component: c.PlayerSurveyComponent })),
   },
   {
     widgetType: ROOT_WIDGET_CONFIG.player._type,
     widgetSubType: ROOT_WIDGET_CONFIG.player.offlineSession,
-    component: PlayerOfflineSessionComponent,
+    // lazy: keeps this player's libraries (pdf.js, video.js, ...) out of the initial bundle
+    loadComponent: () => Promise.all([
+      import('./player-offline-session/player-offline-session.module'),
+      import('./player-offline-session/player-offline-session.component'),
+    ]).then(([m, c]) => ({ ngModule: m.PlayerOfflineSessionModule, component: c.PlayerOfflineSessionComponent })),
   },
   {
     widgetType: ROOT_WIDGET_CONFIG.player._type,
     widgetSubType: ROOT_WIDGET_CONFIG.player.slides,
-    component: PlayerSlidesComponent,
+    // lazy: keeps this player's libraries (pdf.js, video.js, ...) out of the initial bundle
+    loadComponent: () => Promise.all([
+      import('./player-slides/player-slides.module'),
+      import('./player-slides/player-slides.component'),
+    ]).then(([m, c]) => ({ ngModule: m.PlayerSlidesModule, component: c.PlayerSlidesComponent })),
   },
   {
     widgetType: ROOT_WIDGET_CONFIG.player._type,
     widgetSubType: ROOT_WIDGET_CONFIG.player.video,
-    component: PlayerVideoComponent,
+    // lazy: keeps this player's libraries (pdf.js, video.js, ...) out of the initial bundle
+    loadComponent: () => Promise.all([
+      import('./player-video/player-video.module'),
+      import('./player-video/player-video.component'),
+    ]).then(([m, c]) => ({ ngModule: m.PlayerVideoModule, component: c.PlayerVideoComponent })),
   },
   {
     widgetType: ROOT_WIDGET_CONFIG.player._type,
     widgetSubType: ROOT_WIDGET_CONFIG.player.webPages,
-    component: PlayerWebPagesComponent,
+    // lazy: keeps this player's libraries (pdf.js, video.js, ...) out of the initial bundle
+    loadComponent: () => Promise.all([
+      import('./player-web-pages/player-web-pages.module'),
+      import('./player-web-pages/player-web-pages.component'),
+    ]).then(([m, c]) => ({ ngModule: m.PlayerWebPagesModule, component: c.PlayerWebPagesComponent })),
   },
   {
     widgetType: ROOT_WIDGET_CONFIG.player._type,
     widgetSubType: ROOT_WIDGET_CONFIG.player.youtube,
-    component: PlayerYoutubeComponent,
+    // lazy: keeps this player's libraries (pdf.js, video.js, ...) out of the initial bundle
+    loadComponent: () => Promise.all([
+      import('./player-youtube/player-youtube.module'),
+      import('./player-youtube/player-youtube.component'),
+    ]).then(([m, c]) => ({ ngModule: m.PlayerYoutubeModule, component: c.PlayerYoutubeComponent })),
   },
   {
     widgetType: ROOT_WIDGET_CONFIG.releaseNotes._type,
@@ -636,7 +643,11 @@ export const WIDGET_REGISTRATION_CONFIG: NsWidgetResolver.IRegistrationConfig[] 
   {
     widgetType: ROOT_WIDGET_CONFIG.wrapper._type,
     widgetSubType: ROOT_WIDGET_CONFIG.wrapper.videoWrapper,
-    component: VideoWrapperComponent,
+    // lazy: embeds the video player, which pulls in video.js and its plugins
+    loadComponent: () => Promise.all([
+      import('./video-wrapper/video-wrapper.module'),
+      import('./video-wrapper/video-wrapper.component'),
+    ]).then(([m, c]) => ({ ngModule: m.VideoWrapperModule, component: c.VideoWrapperComponent })),
   },
   {
     widgetType: ROOT_WIDGET_CONFIG.card._type,

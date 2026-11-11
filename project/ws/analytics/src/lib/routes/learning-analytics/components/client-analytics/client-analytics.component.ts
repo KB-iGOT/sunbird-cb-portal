@@ -1,7 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core'
 import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup } from '@angular/forms'
 import { ActivatedRoute, ParamMap, Router } from '@angular/router'
-import { GraphGeneralService } from '@sunbird-cb/collection'
+import { GraphGeneralService } from '@sunbird-cb/collection/src/lib/graph-general/graph-general.service'
 import { ConfigurationsService, NsPage, ValueService, TFetchStatus } from '@sunbird-cb/utils-v2'
 import { Subscription } from 'rxjs'
 import { map } from 'rxjs/operators'

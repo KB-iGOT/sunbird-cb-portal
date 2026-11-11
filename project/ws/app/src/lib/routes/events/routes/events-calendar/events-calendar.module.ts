@@ -14,9 +14,9 @@ import { MatTooltipModule } from '@angular/material/tooltip'
 
 // Sunbird modules
 import { PipeHtmlTagRemovalModule, PipeFilterV2Module, PipePublicURLModule } from '@sunbird-cb/utils-v2'
-import { SkeletonLoaderModule } from '@sunbird-cb/collection'
+import { SkeletonLoaderModule } from '@sunbird-cb/collection/src/lib/_common/skeleton-loader/skeleton-loader.module'
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core'
-import { HttpLoaderFactory } from '@sunbird-cb/collection'
+import { HttpLoaderFactory } from '@sunbird-cb/collection/src/lib/content-strip-with-tabs/content-strip-with-tabs.module'
 import { HttpClient } from '@angular/common/http'
 
 // Events module dependencies

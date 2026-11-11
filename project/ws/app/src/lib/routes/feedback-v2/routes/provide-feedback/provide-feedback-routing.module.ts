@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core'
 import { Routes, RouterModule } from '@angular/router'
-import { EFeedbackType } from '@sunbird-cb/collection'
+import { EFeedbackType } from '@sunbird-cb/collection/src/lib/btn-content-feedback-v2/models/feedback.model'
 
 import { HomeComponent } from './components/home/home.component'
 import { FeedbackComponent } from './components/feedback/feedback.component'

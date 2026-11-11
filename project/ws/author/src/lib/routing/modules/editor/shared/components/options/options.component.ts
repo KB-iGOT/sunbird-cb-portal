@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy, AfterViewInit, EventEmitter, Input, Output } from '@angular/core'
 
-import { NsContent } from '@sunbird-cb/collection'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
 import { NSContent } from '../../../../../../interface/content'
 import { AccessControlService } from '../../../../../../modules/shared/services/access-control.service'
 import { EditorContentService } from '../../../services/editor-content.service'

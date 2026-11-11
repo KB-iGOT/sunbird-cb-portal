@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common'
 import { NgModule } from '@angular/core'
-import { DisplayContentTypeModule } from '@sunbird-cb/collection'
+import { DisplayContentTypeModule } from '@sunbird-cb/collection/src/lib/_common/display-content-type/display-content-type.module'
 import { DefaultThumbnailModule, PipeDurationTransformModule } from '@sunbird-cb/utils-v2'
 // import { AceEditorModule } from 'ng2-ace-editor'
 // import { CKEditorModule } from 'ng2-ckeditor'

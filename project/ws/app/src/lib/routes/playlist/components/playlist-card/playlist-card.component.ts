@@ -1,5 +1,7 @@
 import { Component, OnInit, Input, ElementRef, ViewChild } from '@angular/core'
-import { NsPlaylist, BtnPlaylistService, NsContent } from '@sunbird-cb/collection'
+import { NsPlaylist } from '@sunbird-cb/collection/src/lib/btn-playlist/btn-playlist.model'
+import { BtnPlaylistService } from '@sunbird-cb/collection/src/lib/btn-playlist/btn-playlist.service'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
 import { ActivatedRoute, Router } from '@angular/router'
 import { TFetchStatus, ConfigurationsService } from '@sunbird-cb/utils-v2'
 // tslint:disable-next-line:max-line-length

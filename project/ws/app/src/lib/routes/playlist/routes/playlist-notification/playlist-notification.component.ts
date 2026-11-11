@@ -2,7 +2,8 @@ import { Component, OnInit, ViewChild, ElementRef } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { MatSnackBar } from '@angular/material/snack-bar'
 
-import { BtnPlaylistService, NsPlaylist } from '@sunbird-cb/collection'
+import { BtnPlaylistService } from '@sunbird-cb/collection/src/lib/btn-playlist/btn-playlist.service'
+import { NsPlaylist } from '@sunbird-cb/collection/src/lib/btn-playlist/btn-playlist.model'
 import { TFetchStatus, ConfigurationsService, NsPage } from '@sunbird-cb/utils-v2'
 
 @Component({

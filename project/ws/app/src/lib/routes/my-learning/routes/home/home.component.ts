@@ -1,5 +1,7 @@
 import { Component, OnDestroy, OnInit } from '@angular/core'
-import { NsContentStripMultiple, ROOT_WIDGET_CONFIG, NsError } from '@sunbird-cb/collection'
+import { NsContentStripMultiple } from '@sunbird-cb/collection/src/lib/content-strip-multiple/content-strip-multiple.model'
+import { ROOT_WIDGET_CONFIG } from '@sunbird-cb/collection/src/lib/collection.config'
+import { NsError } from '@sunbird-cb/collection/src/lib/error-resolver/error-resolver.model'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { ConfigurationsService, NsPage, TFetchStatus, ValueService } from '@sunbird-cb/utils-v2'
 import { Subscription } from 'rxjs'

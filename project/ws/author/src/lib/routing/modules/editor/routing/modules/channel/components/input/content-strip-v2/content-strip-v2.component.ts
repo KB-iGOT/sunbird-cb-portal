@@ -1,12 +1,10 @@
 import { COMMA, ENTER } from '@angular/cdk/keycodes'
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core'
 import { AbstractControl, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup } from '@angular/forms'
-import {
-  IPickerContentData,
-  IWidgetElementHtml,
-  NsContent,
-  NsContentStripMultiple,
-} from '@sunbird-cb/collection'
+import { IPickerContentData } from '@sunbird-cb/collection/src/lib/picker-content/picker-content.model'
+import { IWidgetElementHtml } from '@sunbird-cb/collection/src/lib/element-html/element-html.model'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
+import { NsContentStripMultiple } from '@sunbird-cb/collection/src/lib/content-strip-multiple/content-strip-multiple.model'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { Observable, of } from 'rxjs'
 import { debounceTime, distinctUntilChanged, startWith, switchMap } from 'rxjs/operators'

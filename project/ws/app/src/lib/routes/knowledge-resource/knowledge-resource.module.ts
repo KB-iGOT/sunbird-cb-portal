@@ -9,7 +9,7 @@ import { KnowledgeHomeComponent } from './routes/knowledge-home/knowledge-home.c
 import { LeftMenuComponent } from './components/left-menu/left-menu.component'
 import { KnowledgeCardComponent } from './components/knowledge-card/knowledge-card.component'
 import { KnowledgeSavedComponent } from './routes/knowledge-saved/knowledge-saved.component'
-import { BtnPageBackModule } from '@sunbird-cb/collection'
+import { BtnPageBackModule } from '@sunbird-cb/collection/src/lib/btn-page-back/btn-page-back.module'
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
 import { KnowledgeDetailComponent } from './routes/knowledge-detail/knowledge-detail.component'
 // import { Ng2SearchPipeModule } from 'ng2-search-filter'

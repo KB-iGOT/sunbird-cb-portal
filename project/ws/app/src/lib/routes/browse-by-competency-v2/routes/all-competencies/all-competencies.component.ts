@@ -5,7 +5,7 @@ import { BrowseCompetencyService } from '../../services/browse-competency.servic
 import { NSBrowseCompetency } from '../../models/competencies.model'
 import { debounceTime, switchMap, takeUntil } from 'rxjs/operators'
 import { Subject, Observable } from 'rxjs'
-import { NsContent } from '@sunbird-cb/collection'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
 
 // tslint:disable
 import _ from 'lodash'

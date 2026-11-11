@@ -1,9 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core'
 import { Subscription } from 'rxjs'
-import {
-  NsContent,
-  IWidgetsPlayerMediaData,
-} from '@sunbird-cb/collection'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
+import { IWidgetsPlayerMediaData } from '@sunbird-cb/collection/src/lib/_models/player-media.model'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { ConfigurationsService, ValueService } from '@sunbird-cb/utils-v2'
 import { ActivatedRoute } from '@angular/router'
