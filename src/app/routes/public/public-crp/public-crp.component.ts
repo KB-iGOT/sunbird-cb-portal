@@ -261,9 +261,6 @@ export class PublicCrpComponent {
     if (isPlatformBrowser(this._platformId)) {
       this._document.body.classList.add('cs-recaptcha')
     }
-    this.zohoSupportSvc.getZohoHtml().subscribe((res) => {
-      this.zohoHtml = res
-    })
   }
 
   emailVerification(emailId: string) {
@@ -692,18 +689,25 @@ export class PublicCrpComponent {
     return this.langtranslations.translateActualLabel(label, type, '')
   }
 
+  // the support snippet is fetched on first open, not on load: most sessions never open it
   getZohoForm() {
-    const dialogRef = this.dialog.open(ZohoDialogComponent, {
-      width: '45%',
-      data: {
-        view: 'zohoform',
-        value: this.zohoHtml,
+    this.zohoSupportSvc.getZohoHtml().subscribe({
+      next: (res: any) => {
+        this.zohoHtml = res
+        const dialogRef = this.dialog.open(ZohoDialogComponent, {
+          width: '45%',
+          data: {
+            view: 'zohoform',
+            value: this.zohoHtml,
+          },
+        })
+        dialogRef.afterClosed().subscribe(() => { })
+        setTimeout(() => {
+          this.callXMLRequest()
+        }, 0)
       },
+      error: (err: any) => console.error('Failed to load the support form', err),
     })
-    dialogRef.afterClosed().subscribe(() => { })
-    setTimeout(() => {
-      this.callXMLRequest()
-    }, 0)
   }
 
   callXMLRequest() {

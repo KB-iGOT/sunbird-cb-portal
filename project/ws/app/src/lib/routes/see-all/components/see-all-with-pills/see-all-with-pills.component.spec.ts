@@ -26,7 +26,11 @@ describe('SeeAllWithPillsComponent (no TestBed)', () => {
     trendingContentSearch: jest.fn().mockReturnValue(of({ result: { responseKey: [] } })),
     getApplicationsById: jest.fn().mockReturnValue(of({ result: { response: [] } })),
   }
-  const mockConfigSvc: any = { userProfile: { userId: 'u1', rootOrgId: 'r1' } }
+  const mockConfigSvc: any = {
+    userProfile: { userId: 'u1', rootOrgId: 'r1' },
+    userProfileV2: { userRoles: [] },
+    userRoles: new Set<string>(),
+  }
   const mockEventSvc: any = { raiseInteractTelemetry: jest.fn(), broadcast: jest.fn() }
   const mockMulti: any = { translateLabel: jest.fn().mockReturnValue('translated') }
   const mockEnroll: any = {
@@ -36,6 +40,8 @@ describe('SeeAllWithPillsComponent (no TestBed)', () => {
   }
 
   beforeEach(() => {
+    mockConfigSvc.userProfileV2.userRoles = []
+    mockConfigSvc.userRoles = new Set<string>()
     component = new SeeAllWithPillsComponent(
       mockActivated,
       mockSeeAllSvc,
@@ -48,6 +54,46 @@ describe('SeeAllWithPillsComponent (no TestBed)', () => {
 
   it('should create', () => {
     expect(component).toBeTruthy()
+  })
+
+  describe('getExploreContentRoute', () => {
+    it('keeps the Events route unchanged without query parameters', () => {
+      const tab = { label: 'Events' }
+
+      expect(component.getExploreContentRoute(tab)).toBe('/app/event-hub/home')
+      expect(component.getExploreContentQueryParams(tab)).toBeNull()
+    })
+
+    it('routes volunteers to volunteer global search with explore-content parameters', () => {
+      mockConfigSvc.userRoles.add('volunteer')
+      const tab = { label: 'Courses' }
+
+      expect(component.getExploreContentRoute(tab)).toBe('/app/globalsearch/volunteer')
+      expect(component.getExploreContentQueryParams(tab)).toEqual({
+        q: '',
+        tab: 'explore-content',
+        category: 'course',
+        filtersPanel: 'show',
+      })
+    })
+
+    it('routes other users to regular global search with course parameters', () => {
+      const tab = { label: 'Courses' }
+
+      expect(component.getExploreContentRoute(tab)).toBe('/app/globalsearch')
+      expect(component.getExploreContentQueryParams(tab)).toEqual({
+        q: '',
+        category: 'courses',
+        filtersPanel: 'show',
+      })
+    })
+
+    it('recognizes volunteer roles from the profile fallback used by global search', () => {
+      mockConfigSvc.userProfileV2.userRoles = [{ role: 'Volunteer' }]
+
+      expect(component.getExploreContentRoute({ label: 'Courses' }))
+        .toBe('/app/globalsearch/volunteer')
+    })
   })
 
   it('ngOnInit should set seeAllPageConfig and contentDataList when config has matching key', async () => {

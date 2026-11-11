@@ -80,7 +80,7 @@ describe('LearnSearchComponent (No TestBed)', () => {
       mockTranslate,
       mockRouter,
       mockLangtranslations,
-      mockUserService,
+      // mockUserService,
       mockNetworkV2Service,
       mockIndexedDbService,
       mockUtilitySvc,
@@ -203,7 +203,8 @@ describe('LearnSearchComponent (No TestBed)', () => {
       expect(component.currentUserDept).toBe('Dept')
       expect(component.defaultThumbnail).toBe('thumb.png')
       expect(component.statedata).toEqual({ param: 'abc', path: 'Search' })
-      expect(mockUserService.fetchCbpPlanList).toHaveBeenCalled()
+      // CBP plan API is no longer called from search
+      expect(mockUserService.fetchCbpPlanList).not.toHaveBeenCalled()
       expect(mockEnrolementDictionarySvc.getEnrolementDictionary).toHaveBeenCalled()
       expect(mockSearchV3Service.microCredentialsSearch).toHaveBeenCalled()
     })
@@ -315,6 +316,67 @@ describe('LearnSearchComponent (No TestBed)', () => {
       expect(component.sideNavBarOpened).toBe(false)
       expect(component.searchContentLoader).toBe(false)
       expect(component.filtersChipFromLearn).toEqual(['cat1'])
+    })
+
+    describe('when paramFilters has no usable value', () => {
+      const unchangedQuery: any = {
+        currentValue: { query: 'same', searchCategory: '' },
+        previousValue: { query: 'same', searchCategory: '' },
+      }
+
+      const createDirtyComponent = (): any => {
+        const component = createComponent({})
+        component.searchQuery = { query: 'same', nlp: '', searchCategory: '' }
+        component.filtersChipFromLearn = ['cat1']
+        component.sideNavBarOpened = false
+        component.searchRequestCourse.request.filters.courseCategory = ['cat1']
+        return component
+      }
+
+      const expectFiltersReset = (component: any) => {
+        expect(component.filtersChipFromLearn).toEqual([])
+        expect(component.sideNavBarOpened).toBe(true)
+        expect(component.searchRequestCourse.request.filters.courseCategory).toEqual([])
+        expect(mockSearchV3Service.searchCoursesv5).not.toHaveBeenCalled()
+      }
+
+      it('resets the chip, side nav and courseCategory filter when paramFilters is an empty array', async () => {
+        const component = createDirtyComponent()
+        await component.ngOnChanges({
+          paramFilters: { currentValue: [] },
+          searchQuery: unchangedQuery,
+        } as any)
+        expectFiltersReset(component)
+      })
+
+      it('resets the chip, side nav and courseCategory filter when paramFilters is not part of the changes', async () => {
+        const component = createDirtyComponent()
+        await component.ngOnChanges({ searchQuery: unchangedQuery } as any)
+        expectFiltersReset(component)
+      })
+
+      it('resets the chip, side nav and courseCategory filter when paramFilters currentValue is null', async () => {
+        const component = createDirtyComponent()
+        await component.ngOnChanges({
+          paramFilters: { currentValue: null },
+          searchQuery: unchangedQuery,
+        } as any)
+        expectFiltersReset(component)
+      })
+
+      it('continues into the search flow after resetting when the query changed', async () => {
+        const component = createDirtyComponent()
+        await component.ngOnChanges({
+          paramFilters: { currentValue: [] },
+          searchQuery: {
+            currentValue: { query: 'new', searchCategory: SearchCategory.Courses },
+            previousValue: { query: 'old', searchCategory: '' },
+          },
+        } as any)
+        expect(component.filtersChipFromLearn).toEqual([])
+        expect(mockSearchV3Service.searchCoursesv5).toHaveBeenCalled()
+        expect(component.seeAllResult).toBe(SearchCategory.Courses)
+      })
     })
 
     it('does nothing when the searchQuery query and category are unchanged', async () => {

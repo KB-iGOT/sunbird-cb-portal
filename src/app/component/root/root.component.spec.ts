@@ -85,7 +85,8 @@ describe('RootComponent', () => {
   let mockLibNotificationsService: any
   let mockHomePageSvc: any
   let mockBreakpointObserver: any
-  let mockEnrollmentSummaryState: any
+  const mockEnrollmentSummaryState = { loading$: of(false) }
+  const mockFormConfigSvc = { clearCache: jest.fn() }
   let walletBalanceUpdated: Subject<number>
 
   const createComponent = (): any => new (RootComponent as any)(
@@ -113,6 +114,7 @@ describe('RootComponent', () => {
     mockHomePageSvc,
     mockBreakpointObserver,
     mockEnrollmentSummaryState,
+    mockFormConfigSvc,
   )
 
   const setPath = (path: string) => {
@@ -367,6 +369,7 @@ describe('RootComponent', () => {
 
     it('logout should force logout', () => {
       component.logout()
+      expect(mockFormConfigSvc.clearCache).toHaveBeenCalled()
       expect(mockAuthSvc.force_logout).toHaveBeenCalled()
     })
 

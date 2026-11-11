@@ -5,6 +5,7 @@ import {
 } from '@angular/core'
 import {
   ActivatedRoute,
+  Params,
 } from '@angular/router'
 // tslint:disable-next-line
 import * as _ from 'lodash'
@@ -39,6 +40,17 @@ export class SeeAllWithPillsComponent implements OnInit, OnDestroy {
   pillResults: any[] = []
   dynamicPillIndex = 0
   pageSize = 50
+  private readonly volunteerExploreContentQueryParams: Params = {
+    q: '',
+    tab: 'explore-content',
+    category: 'course',
+    filtersPanel: 'show',
+  }
+  private readonly exploreContentQueryParams: Params = {
+    q: '',
+    category: 'courses',
+    filtersPanel: 'show',
+  }
 
   constructor(
     private activated: ActivatedRoute,
@@ -50,6 +62,30 @@ export class SeeAllWithPillsComponent implements OnInit, OnDestroy {
     private enrollSvc: WidgetEnrollService,
   ) {
 
+  }
+
+  getExploreContentRoute(tab: any): string {
+    if (tab && tab?.label === 'Events') {
+      return '/app/event-hub/home'
+    }
+    return this.isVolunteerUser ? '/app/globalsearch/volunteer' : '/app/globalsearch'
+  }
+
+  getExploreContentQueryParams(tab: any): Params | null {
+    if (tab && tab?.label === 'Events') {
+      return null
+    }
+    return this.isVolunteerUser
+      ? this.volunteerExploreContentQueryParams
+      : this.exploreContentQueryParams
+  }
+
+  private get isVolunteerUser(): boolean {
+    const profileRoles = this.configSvc.userProfileV2?.userRoles || []
+    return (!!this.configSvc.userRoles && this.configSvc.userRoles.has('volunteer'))
+      || (Array.isArray(profileRoles) && profileRoles.some(
+        (role: any) => (typeof role === 'string' ? role : role?.role || '').toUpperCase() === 'VOLUNTEER'
+      ))
   }
 
   async ngOnInit() {

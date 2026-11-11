@@ -34,9 +34,16 @@ export class SearchServService {
 
   async getSearchConfig(): Promise<any> {
     if (!this.searchConfig) {
-      this.searchConfig = {}
-      const baseUrl = this.configSrv.sitePath
-      this.searchConfig = await this.http.get<any>(`${baseUrl}/feature/search.json`).toPromise()
+      // served from global-config (searchData); search.json is only the fallback for a
+      // global-config that does not carry it yet
+      const fromGlobalConfig = this.configSrv.globalConfig?.searchData
+      if (fromGlobalConfig) {
+        this.searchConfig = fromGlobalConfig
+      } else {
+        this.searchConfig = {}
+        const baseUrl = this.configSrv.sitePath
+        this.searchConfig = await this.http.get<any>(`${baseUrl}/feature/search.json`).toPromise()
+      }
     }
     return of(this.searchConfig).toPromise()
   }

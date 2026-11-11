@@ -1,6 +1,5 @@
 import { AfterViewChecked, OnChanges, Component, ElementRef, Input, OnInit, Renderer2, ViewChild } from '@angular/core'
 import { ConfigurationsService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
-// import { ChatbotService } from './chatbot.service'
 import { RootService } from './../root/root.service'
 import { environment } from 'src/environments/environment'
 import { NavigationEnd, Router } from '@angular/router'
@@ -200,9 +199,6 @@ export class AppChatbotComponent implements OnInit, AfterViewChecked, OnChanges 
     const email = environment.supportEmail || 'mission.karmayogi@gov.in'
     this.callText = `<a class='hint-text' target='_blank' href='https://bit.ly/44MJlo4'>Teams Call</a>&nbsp;`
     this.emailText = `<a class='hint-text' target='_blank' href='mailto:${email}'>${email}.</a>`
-    this.zohoSupportSvc.getZohoHtml().subscribe((res: any) => {
-      this.zohoHtml = res
-    })
   }
   scrollSupportContainerToBottom() {
     let chatbotContent = document.getElementById('chatbot-content')
@@ -304,32 +300,6 @@ export class AppChatbotComponent implements OnInit, AfterViewChecked, OnChanges 
     return this.localization[this.selectedLaguage]['showmore'] || 'Show More'
   }
 
-  getData() {
-    const lang: any = {
-      information: 'IN',
-      issue: 'IS'
-    }
-    const tabType: any = {
-      lang: this.selectedLaguage,
-      config_type: lang[this.currentFilter]
-    }
-    this.displayLoader = false
-    this.chatbotService.getChatData(tabType).subscribe((res: any) => {
-      if (res && res.payload && res.payload.config) {
-        this.setDataToLocalStorage(res.payload.config)
-        this.checkForApiCalls()
-        // this.initData(res.payload.config)
-        this.displayLoader = false
-      }
-    })
-  }
-  setDataToLocalStorage(data: any) {
-    let localObject: any = {}
-    localObject = JSON.parse(localStorage.getItem('faq') || '{}')
-    localObject[this.selectedLaguage] = { ...localObject[this.selectedLaguage], [this.currentFilter]: data }
-    localStorage.setItem('faq', JSON.stringify(localObject))
-    this.toggleFilter(this.currentFilter === 'information' ? 'information' : this.currentFilter)
-  }
 
   initData(_getData: any) {
     // tslint:disable-next-line
@@ -761,8 +731,6 @@ export class AppChatbotComponent implements OnInit, AfterViewChecked, OnChanges 
     let languageStg: any = JSON.parse(localStorage.getItem('faq-languages') || '{}')
     if (languageStg.length > 0) {
       this.language = languageStg
-    } else {
-      this.getLanguages()
     }
 
     if (localStg && languageStg) {
@@ -788,9 +756,6 @@ export class AppChatbotComponent implements OnInit, AfterViewChecked, OnChanges 
         }
         this.getQns()
         this.getCategories()
-      } else {
-        this.getLanguages()
-        // this.getData()
       }
     }
   }
@@ -820,19 +785,6 @@ export class AppChatbotComponent implements OnInit, AfterViewChecked, OnChanges 
   sortCategory(): any {
     // tslint:disable-next-line: max-line-length
     return this.categories.sort((a: any, b: any) => a['priority'] > b['priority'] ? 1 : a['priority'] === b['priority'] ? 0 : -1)
-  }
-
-  getLanguages() {
-    this.displayLoader = false
-    this.chatbotService.getLangugages().subscribe((resp: any) => {
-      if (resp && resp.status && resp.status.code === 200) {
-        this.language = resp.payload.languages
-        localStorage.setItem('faq-languages', JSON.stringify(resp.payload.languages))
-        localStorage.setItem('selectedLanguage', this.selectedLaguage)
-        this.getData()
-        this.displayLoader = false
-      }
-    })
   }
 
   ngAfterViewChecked() {
@@ -907,19 +859,26 @@ export class AppChatbotComponent implements OnInit, AfterViewChecked, OnChanges 
     }
   }
 
+  // the support snippet is fetched on first open, not on load: most sessions never open it
   getZohoForm() {
-    const dialogRef = this.dialog.open(ZohoDialogComponent, {
-      width: '45%',
-      data: {
-        view: 'zohoform',
-        value: this.zohoHtml,
+    this.zohoSupportSvc.getZohoHtml().subscribe({
+      next: (res: any) => {
+        this.zohoHtml = res
+        const dialogRef = this.dialog.open(ZohoDialogComponent, {
+          width: '45%',
+          data: {
+            view: 'zohoform',
+            value: this.zohoHtml,
+          },
+        })
+        dialogRef.afterClosed().subscribe(() => {
+        })
+        setTimeout(() => {
+          this.callXMLRequest()
+        }, 0)
       },
+      error: (err: any) => console.error('Failed to load the support form', err),
     })
-    dialogRef.afterClosed().subscribe(() => {
-    })
-    setTimeout(() => {
-      this.callXMLRequest()
-    }, 0)
   }
 
   callXMLRequest() {
