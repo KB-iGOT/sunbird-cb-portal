@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { WsLearningHubRootModule } from '@ws/learning-hub'
+import { WsLearningHubRootModule } from '@ws/learning-hub/src/lib/ws-learning-hub.module'
 @NgModule({
   declarations: [],
   imports: [CommonModule, WsLearningHubRootModule],

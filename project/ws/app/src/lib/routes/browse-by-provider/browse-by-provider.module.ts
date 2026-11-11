@@ -1,7 +1,11 @@
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core'
 import { CommonModule, DatePipe } from '@angular/common'
 import { BrowseByProviderRoutingModule } from './browse-by-provider-routing.module'
-import { AvatarPhotoModule, BtnPageBackModule, CardContentModule, ContentStripWithTabsModule, SlidersModule } from '@sunbird-cb/collection'
+import { AvatarPhotoModule } from '@sunbird-cb/collection/src/lib/_common/avatar-photo/avatar-photo.module'
+import { BtnPageBackModule } from '@sunbird-cb/collection/src/lib/btn-page-back/btn-page-back.module'
+import { CardContentModule } from '@sunbird-cb/collection/src/lib/card-content/card-content.module'
+import { ContentStripWithTabsModule } from '@sunbird-cb/collection/src/lib/content-strip-with-tabs/content-strip-with-tabs.module'
+import { SlidersModule } from '@sunbird-cb/collection/src/lib/sliders/sliders.module'
 import {
   PipeFilterModule,
   PipeHtmlTagRemovalModule,
@@ -28,7 +32,7 @@ import { ProviderLeftMenuComponent } from './components/left-menu/left-menu.comp
 import { BrowseProviderService } from './services/browse-provider.service'
 import { PopularProviderCardComponent } from './components/popular-provider-card/popular-provider-card.component'
 import { ProviderCardComponent } from './components/provider-card/provider-card.component'
-import { CardContentV2Module } from '@sunbird-cb/collection'
+import { CardContentV2Module } from '@sunbird-cb/collection/src/lib/card-content-v2/card-content-v2.module'
 import { HttpClient } from '@angular/common/http'
 import { TranslateModule, TranslateLoader } from '@ngx-translate/core'
 import { ProviderPageComponent } from './routes/provider-page/provider-page.component'

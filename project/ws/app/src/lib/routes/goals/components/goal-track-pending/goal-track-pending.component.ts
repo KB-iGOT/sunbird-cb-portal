@@ -1,11 +1,12 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
 import { TFetchStatus } from '@sunbird-cb/utils-v2'
-import { BtnGoalsService, NsGoal } from '@sunbird-cb/collection'
+import { BtnGoalsService } from '@sunbird-cb/collection/src/lib/btn-goals/btn-goals.service'
+import { NsGoal } from '@sunbird-cb/collection/src/lib/btn-goals/btn-goals.model'
 import { SelectionModel } from '@angular/cdk/collections'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { MatTableDataSource } from '@angular/material/table'
-// import { BtnGoalsService } from "@sunbird-cb/collection";
+// import { BtnGoalsService } from "@sunbird-cb/collection/src/lib/btn-goals/btn-goals.service"
 
 @Component({
     selector: 'ws-app-goal-track-pending',

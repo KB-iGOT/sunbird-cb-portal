@@ -2,7 +2,7 @@ import { Injectable } from '@angular/core'
 import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router'
 import { Observable, of } from 'rxjs'
 import { map, catchError } from 'rxjs/operators'
-import { } from '@sunbird-cb/collection'
+
 import { IResolveResponse } from '@sunbird-cb/utils-v2'
 import { CompetenceAssessmentService } from '../services/comp-assessment.service'
 // tslint:disable-next-line

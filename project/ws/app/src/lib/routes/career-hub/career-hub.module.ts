@@ -8,10 +8,11 @@ import { MatCardModule } from '@angular/material/card'
 import { CareerHubRoutingModule } from './career-hub-routing.module'
 import { CareersHomeComponent } from './routes/careers-home/careers-home.component'
 import { CareersComponent } from './routes/careers/careers.component'
-import { LoaderService } from '@ws/author'
-import { InitResolver } from '@ws/author'
+import { LoaderService } from '@ws/author/src/lib/services/loader.service'
+import { InitResolver } from '@ws/author/src/lib/services/init-resolve.service'
 import { ReactiveFormsModule, FormsModule } from '@angular/forms'
-import { BtnPageBackModule, AvatarPhotoModule } from '@sunbird-cb/collection'
+import { BtnPageBackModule } from '@sunbird-cb/collection/src/lib/btn-page-back/btn-page-back.module'
+import { AvatarPhotoModule } from '@sunbird-cb/collection/src/lib/_common/avatar-photo/avatar-photo.module'
 import {
   PipeOrderByModule,
   PipeHtmlTagRemovalModule,

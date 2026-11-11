@@ -1,6 +1,7 @@
 import { Component, EventEmitter, Input, OnChanges, OnInit, Output } from '@angular/core'
 import { MatSnackBar } from '@angular/material/snack-bar'
-import { IWidgetsPlayerMediaData, NsContent } from '@sunbird-cb/collection'
+import { IWidgetsPlayerMediaData } from '@sunbird-cb/collection/src/lib/_models/player-media.model'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
 import { UploadService } from '../../../../../../shared/services/upload.service'
 import { AuthInitService } from '../../../../../../../../../services/init.service'
 import { LoaderService } from '../../../../../../../../../services/loader.service'

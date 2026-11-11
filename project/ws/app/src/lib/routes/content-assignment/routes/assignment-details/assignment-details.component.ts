@@ -2,9 +2,7 @@ import { animate, state, style, transition, trigger } from '@angular/animations'
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { ActivatedRoute, Router } from '@angular/router'
-import {
-  ContentAssignService,
-} from '@sunbird-cb/collection'
+import { ContentAssignService } from '@sunbird-cb/collection/src/lib/content-assign/content-assign.service'
 import {
   ConfigurationsService,
   NsPage,

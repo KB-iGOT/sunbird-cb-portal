@@ -5,7 +5,7 @@ import { AppTocService, TocConfigService } from '@sunbird-cb/toc'
 import { LoggerService, MultilingualTranslationsService, EventService, WsEvents } from '@sunbird-cb/utils-v2'
 import { TranslateService } from '@ngx-translate/core'
 
-import { RatingService } from '@sunbird-cb/collection'
+import { RatingService } from '@sunbird-cb/collection/src/lib/_services/rating.service'
 @Component({
   selector: 'viewer-course-completion-dialog',
   templateUrl: './course-completion-dialog.component.html',

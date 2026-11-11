@@ -1,7 +1,7 @@
 import { Component, EventEmitter, Input, OnChanges, Output } from '@angular/core'
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms'
 import { MatSnackBar } from '@angular/material/snack-bar'
-import { IWidgetElementHtml } from '@sunbird-cb/collection'
+import { IWidgetElementHtml } from '@sunbird-cb/collection/src/lib/element-html/element-html.model'
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators'
 import { NOTIFICATION_TIME } from '../../../../../../../../../constants/constant'
 import { Notify } from '../../../../../../../../../constants/notificationMessage'

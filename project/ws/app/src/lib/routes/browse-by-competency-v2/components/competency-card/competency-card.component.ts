@@ -1,6 +1,6 @@
 import { Component, OnInit, Input } from '@angular/core'
 import { BrowseCompetencyService } from '../../services/browse-competency.service'
-import { NsContent } from '@sunbird-cb/collection'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { environment } from 'src/environments/environment'
 

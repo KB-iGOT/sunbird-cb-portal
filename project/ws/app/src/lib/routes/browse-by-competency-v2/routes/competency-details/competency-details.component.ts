@@ -8,7 +8,7 @@ import { Subscription, Observable } from 'rxjs'
 import { UntypedFormGroup, UntypedFormControl } from '@angular/forms'
 import { ConfigurationsService, ValueService } from '@sunbird-cb/utils-v2'
 import { LocalDataService } from '../../services/localService'
-import { NsContent } from '@sunbird-cb/collection'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
 import { environment } from 'src/environments/environment'
 
 @Component({

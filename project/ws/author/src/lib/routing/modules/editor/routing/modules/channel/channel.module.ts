@@ -1,7 +1,7 @@
 import { DragDropModule } from '@angular/cdk/drag-drop'
 import { CommonModule } from '@angular/common'
 import { NgModule } from '@angular/core'
-import { PickerContentModule } from '@sunbird-cb/collection'
+import { PickerContentModule } from '@sunbird-cb/collection/src/lib/picker-content/picker-content.module'
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
 import { HorizontalScrollerModule } from '@sunbird-cb/utils-v2'
 import { ChannelRoutingModule } from './channel-routing.module'

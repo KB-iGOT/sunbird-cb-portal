@@ -33,7 +33,7 @@ import { MatToolbarModule } from '@angular/material/toolbar'
 import { MatTooltipModule } from '@angular/material/tooltip'
 import { ProfileVisibilitySettingsComponent } from './components/profile-visibility-settings/profile-visibility-settings.component'
 import { LeftMenuItemComponent } from './components/left-menu-item/left-menu-item.component'
-import { SkeletonLoaderModule } from '@sunbird-cb/collection'
+import { SkeletonLoaderModule } from '@sunbird-cb/collection/src/lib/_common/skeleton-loader/skeleton-loader.module'
 
 // tslint:disable-next-line:function-name
 export function HttpLoaderFactory(http: HttpClient) {

@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core'
 import { ConfigurationsService, NsPage } from '@sunbird-cb/utils-v2'
 import { Router } from '@angular/router'
-import { BtnGoalsService } from '@sunbird-cb/collection'
+import { BtnGoalsService } from '@sunbird-cb/collection/src/lib/btn-goals/btn-goals.service'
 
 @Component({
     selector: 'ws-app-goal-home',

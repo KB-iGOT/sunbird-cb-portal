@@ -6,7 +6,7 @@ import { LeaderboardHomeComponent } from './components/leaderboard-home/leaderbo
 import { LeaderboardItemComponent } from '../leaderboard-item/leaderboard-item.component'
 import { CardListComponent } from '../card-list/card-list.component'
 import { CardListItemComponent } from '../card-list-item/card-list-item.component'
-import { UserImageModule } from '@sunbird-cb/collection'
+import { UserImageModule } from '@sunbird-cb/collection/src/lib/_common/user-image/user-image.module'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 import { PipeNameTransformModule, PipeCountTransformModule } from '@sunbird-cb/utils-v2'
 import { MatButtonModule } from '@angular/material/button'

@@ -1,9 +1,7 @@
 import { Component, OnInit } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
-import {
-  NsContent,
-  stampContentType,
-} from '@sunbird-cb/collection'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
+import { stampContentType } from '@sunbird-cb/collection/src/lib/_services/content-type-util'
 /* tslint:disable */
 import _ from 'lodash'
 /* tslint:enable */
@@ -11,7 +9,7 @@ import dayjs from 'dayjs'
 import isBetween from 'dayjs/plugin/isBetween'
 import isSameOrBefore from 'dayjs/plugin/isSameOrBefore'
 import isSameOrAfter from 'dayjs/plugin/isSameOrAfter'
-import { NsCardContent } from '@sunbird-cb/collection'
+import { NsCardContent } from '@sunbird-cb/collection/src/lib/card-content-v2/card-content-v2.model'
 import { TranslateService } from '@ngx-translate/core'
 import { MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
 

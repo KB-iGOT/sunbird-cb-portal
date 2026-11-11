@@ -15,7 +15,7 @@ import { HttpErrorResponse } from '@angular/common/http'
 import { Subject } from 'rxjs'
 import { VerifyOtpComponent } from '../../components/verify-otp/verify-otp.component'
 import { OtpService } from '../../../user-profile/services/otp.services'
-import { ConfirmDialogComponent } from '@sunbird-cb/collection'
+import { ConfirmDialogComponent } from '@sunbird-cb/collection/src/lib/_common/confirm-dialog/confirm-dialog.component'
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Types & Interfaces

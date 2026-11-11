@@ -16,7 +16,7 @@ import { UntypedFormBuilder, UntypedFormControl, UntypedFormGroup } from '@angul
 import { MatChipInputEvent } from '@angular/material/chips'
 import { MatDialog, MAT_DIALOG_DATA } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
-import { VIEWER_ROUTE_FROM_MIME } from '@sunbird-cb/collection'
+import { VIEWER_ROUTE_FROM_MIME } from '@sunbird-cb/collection/src/lib/_services/viewer-route-util'
 import { ConfigurationsService, ImageCropComponent } from '@sunbird-cb/utils-v2'
 import { Observable, of, Subscription } from 'rxjs'
 import { InterestService } from '../../../../../../../../../app/src/lib/routes/profile/routes/interest/services/interest.service'

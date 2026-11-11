@@ -8,9 +8,7 @@ import { SubmitQuizDialogComponent } from './components/submit-quiz-dialog/submi
 
 import { PipeDurationTransformModule, PipeLimitToModule } from '@sunbird-cb/utils-v2'
 
-import {
-    BtnFullscreenModule,
-} from '@sunbird-cb/collection'
+import { BtnFullscreenModule } from '@sunbird-cb/collection/src/lib/btn-fullscreen/btn-fullscreen.module'
 import { MatButtonModule } from '@angular/material/button'
 import { MatCardModule } from '@angular/material/card'
 import { MatDialogModule } from '@angular/material/dialog'

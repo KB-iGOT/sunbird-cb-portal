@@ -33,12 +33,10 @@ import {
   MatPaginatorModule,
 } from '@angular/material'
 import { HomeComponent } from './routes/page/home/home.component'
-import {
-  BtnPageBackModule,
-  UserAutocompleteModule,
-  PickerContentModule,
-  UserImageModule,
-} from '@sunbird-cb/collection'
+import { BtnPageBackModule } from '@sunbird-cb/collection/src/lib/btn-page-back/btn-page-back.module'
+import { UserAutocompleteModule } from '@sunbird-cb/collection/src/lib/_common/user-autocomplete/user-autocomplete.module'
+import { PickerContentModule } from '@sunbird-cb/collection/src/lib/picker-content/picker-content.module'
+import { UserImageModule } from '@sunbird-cb/collection/src/lib/_common/user-image/user-image.module'
 import { RouterModule } from '@angular/router'
 import { BannerComponent } from './routes/page/home/components/banner/banner.component'
 import { ContentStripRequestComponent } from './routes/page/home/components/content-strip-request/content-strip-request.component'

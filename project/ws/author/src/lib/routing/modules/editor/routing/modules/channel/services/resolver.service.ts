@@ -1,5 +1,9 @@
 import { Injectable } from '@angular/core'
-import { IGridLayoutDataMain, ISelectorResponsive, NsContentStripMultiple, NsGalleryView, NsWidgetLayoutTab } from '@sunbird-cb/collection'
+import { IGridLayoutDataMain } from '@sunbird-cb/collection/src/lib/grid-layout/grid-layout.model'
+import { ISelectorResponsive } from '@sunbird-cb/collection/src/lib/selector-responsive/selector-responsive.model'
+import { NsContentStripMultiple } from '@sunbird-cb/collection/src/lib/content-strip-multiple/content-strip-multiple.model'
+import { NsGalleryView } from '@sunbird-cb/collection/src/lib/gallery-view/gallery-view.model'
+import { NsWidgetLayoutTab } from '@sunbird-cb/collection/src/lib/layout-tab/layout-tab.model'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { IWidgetAuthor, tDimensions, tSize } from '../interface/widget'
 

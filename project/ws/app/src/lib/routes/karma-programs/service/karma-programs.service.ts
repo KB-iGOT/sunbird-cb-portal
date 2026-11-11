@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core'
 import { HttpClient } from '@angular/common/http'
 import { Observable, of, Subject } from 'rxjs'
-import { NSSearch } from '@sunbird-cb/collection'
+import { NSSearch } from '@sunbird-cb/collection/src/lib/_services/widget-search.model'
 
 // tslint:disable
 import _ from 'lodash'

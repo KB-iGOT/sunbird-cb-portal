@@ -2,14 +2,12 @@ import { CdkDragDrop, moveItemInArray } from '@angular/cdk/drag-drop'
 import { Component, ElementRef, OnDestroy, OnInit, ViewChild } from '@angular/core'
 import { UntypedFormBuilder, UntypedFormGroup, Validators } from '@angular/forms'
 import { ActivatedRoute, Router } from '@angular/router'
-import {
-  BtnPlaylistService,
-  NsContent,
-  NsError,
-  NsPlaylist,
-  ROOT_WIDGET_CONFIG,
-  viewerRouteGenerator,
-} from '@sunbird-cb/collection'
+import { BtnPlaylistService } from '@sunbird-cb/collection/src/lib/btn-playlist/btn-playlist.service'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
+import { NsError } from '@sunbird-cb/collection/src/lib/error-resolver/error-resolver.model'
+import { NsPlaylist } from '@sunbird-cb/collection/src/lib/btn-playlist/btn-playlist.model'
+import { ROOT_WIDGET_CONFIG } from '@sunbird-cb/collection/src/lib/collection.config'
+import { viewerRouteGenerator } from '@sunbird-cb/collection/src/lib/_services/viewer-route-util'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { ConfigurationsService, NsPage, TFetchStatus, ValueService } from '@sunbird-cb/utils-v2'
 import { Subscription } from 'rxjs'

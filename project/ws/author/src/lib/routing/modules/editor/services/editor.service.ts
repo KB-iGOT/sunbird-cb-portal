@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core'
-import { NsAutoComplete, UserAutocompleteService } from '@sunbird-cb/collection'
+import { NsAutoComplete } from '@sunbird-cb/collection/src/lib/_common/user-autocomplete/user-autocomplete.model'
+import { UserAutocompleteService } from '@sunbird-cb/collection/src/lib/_common/user-autocomplete/user-autocomplete.service'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 
 import { Observable, of } from 'rxjs'

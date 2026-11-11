@@ -17,7 +17,7 @@ import {
   DomainConfService,
 } from '@sunbird-cb/utils-v2'
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators'
-import { BtnSettingsService } from '@sunbird-cb/collection'
+import { BtnSettingsService } from '@sunbird-cb/collection/src/lib/btn-settings/btn-settings.service'
 import { UntypedFormControl } from '@angular/forms'
 import { Subscription } from 'rxjs'
 import { Router, ActivatedRoute } from '@angular/router'

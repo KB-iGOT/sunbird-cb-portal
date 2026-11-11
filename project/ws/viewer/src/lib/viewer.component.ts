@@ -1,7 +1,7 @@
 
 import { AfterViewChecked, ChangeDetectorRef, Component, OnDestroy, OnInit } from '@angular/core'
 import { ActivatedRoute, Router } from '@angular/router'
-import { NsContent } from '@sunbird-cb/collection'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { ConfigurationsService, UtilityService, ValueService } from '@sunbird-cb/utils-v2'
 import { Subscription } from 'rxjs'

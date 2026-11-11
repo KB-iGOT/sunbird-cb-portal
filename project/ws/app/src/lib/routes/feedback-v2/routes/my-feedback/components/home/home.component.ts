@@ -1,7 +1,7 @@
 import { Component, OnInit, OnDestroy } from '@angular/core'
 import { ActivatedRoute, Router, NavigationEnd } from '@angular/router'
 
-import { EFeedbackRole, IFeedbackSummary } from '@sunbird-cb/collection'
+import { EFeedbackRole, IFeedbackSummary } from '@sunbird-cb/collection/src/lib/btn-content-feedback-v2/models/feedback.model'
 import { IResolveResponse } from '@sunbird-cb/utils-v2'
 import { Subject } from 'rxjs'
 import { filter, switchMap, takeUntil } from 'rxjs/operators'

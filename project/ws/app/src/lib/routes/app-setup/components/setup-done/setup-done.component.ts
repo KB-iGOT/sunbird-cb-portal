@@ -5,7 +5,7 @@ import {
   NsPage,
 } from '@sunbird-cb/utils-v2'
 import { MatDialog } from '@angular/material/dialog'
-import { AppTourDialogComponent } from '@sunbird-cb/collection'
+import { AppTourDialogComponent } from '@sunbird-cb/collection/src/lib/_common/app-tour-dialog/app-tour-dialog.component'
 import { Router, ActivatedRoute } from '@angular/router'
 import { Globals } from '../../globals'
 

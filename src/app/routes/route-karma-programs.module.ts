@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { KarmaProgramsModule } from '@ws/app'
+import { KarmaProgramsModule } from '@ws/app/src/lib/routes/karma-programs/karma-programs.module'
 
 @NgModule({
   imports: [CommonModule, KarmaProgramsModule],

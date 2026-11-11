@@ -1,5 +1,5 @@
 import { Pipe, PipeTransform } from '@angular/core'
-import { NsPlaylist } from '@sunbird-cb/collection'
+import { NsPlaylist } from '@sunbird-cb/collection/src/lib/btn-playlist/btn-playlist.model'
 
 @Pipe({
     name: 'filterPlaylist',

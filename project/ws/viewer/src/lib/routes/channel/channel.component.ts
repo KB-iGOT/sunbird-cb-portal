@@ -1,6 +1,6 @@
 import { Component, OnInit, OnDestroy } from '@angular/core'
 import { Subscription } from 'rxjs'
-import { NsContent } from '@sunbird-cb/collection'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
 import { ActivatedRoute } from '@angular/router'
 import { HttpClient } from '@angular/common/http'
 import { ViewerUtilService } from '@sunbird-cb/toc'

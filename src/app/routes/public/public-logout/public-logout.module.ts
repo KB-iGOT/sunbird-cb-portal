@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { PublicLogoutComponent } from './public-logout.component'
-import { BtnPageBackModule } from '@sunbird-cb/collection'
+import { BtnPageBackModule } from '@sunbird-cb/collection/src/lib/btn-page-back/btn-page-back.module'
 import { PipeSafeSanitizerModule } from '@sunbird-cb/utils-v2'
 import { RouterModule } from '@angular/router'
 import { MatCardModule } from '@angular/material/card'

@@ -1,7 +1,6 @@
 import { Component, Inject, OnInit } from '@angular/core'
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 import { EventService, WsEvents } from '@sunbird-cb/utils-v2'
-import { jsPDF } from 'jspdf'
 import { environment } from 'src/environments/environment'
 
 @Component({
@@ -71,7 +70,7 @@ export class CertificateDialogComponent implements OnInit {
     img.src = uriData
     img.width = 1820
     img.height = 1000
-    img.onload = () => {
+    img.onload = async () => {
       const canvas = document.createElement('canvas');
       [canvas.width, canvas.height] = [img.width, img.height]
       const ctx = canvas.getContext('2d')
@@ -79,6 +78,8 @@ export class CertificateDialogComponent implements OnInit {
         ctx.drawImage(img, 0, 0, img.width, img.height)
         const quality = 1.0 // https://developer.mozilla.org/en-US/docs/Web/API/CanvasRenderingContext2D/imageSmoothingQuality
         const dataImg = canvas.toDataURL('application/pdf', quality)
+        // loaded on first use: jsPDF is ~350 KB and only needed for a download
+        const { jsPDF } = await import('jspdf')
         const pdf = new jsPDF('landscape', 'px', 'a4')
 
         // add the image to the PDF

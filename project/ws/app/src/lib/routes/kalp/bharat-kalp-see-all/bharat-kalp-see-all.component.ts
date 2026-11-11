@@ -4,7 +4,8 @@ import { HttpClient } from '@angular/common/http'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { catchError } from 'rxjs/operators'
 import { of } from 'rxjs'
-import { NsContent, VIEWER_ROUTE_FROM_MIME } from '@sunbird-cb/collection'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
+import { VIEWER_ROUTE_FROM_MIME } from '@sunbird-cb/collection/src/lib/_services/viewer-route-util'
 
 const ALL_WEEKS = 0
 

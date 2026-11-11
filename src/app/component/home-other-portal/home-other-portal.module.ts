@@ -7,7 +7,7 @@ import { HomeOtherPortalComponent } from './home-other-portal.component'
 
 // Import resolver module for widget resolution
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
-import { SkeletonLoaderModule } from '@sunbird-cb/collection'
+import { SkeletonLoaderModule } from '@sunbird-cb/collection/src/lib/_common/skeleton-loader/skeleton-loader.module'
 import { MatCardModule } from '@angular/material/card'
 
 @NgModule({

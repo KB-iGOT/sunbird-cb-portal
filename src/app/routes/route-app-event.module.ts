@@ -1,6 +1,6 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
-import { AppEventModule } from '@ws/app'
+import { AppEventModule } from '@ws/app/src/lib/routes/app-event/app-event.module'
 
 @NgModule({
   declarations: [],

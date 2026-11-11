@@ -1,5 +1,5 @@
 import { Component, Input, OnChanges, OnInit, SimpleChanges } from '@angular/core'
-import { NsContent } from '@sunbird-cb/collection'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
 import { ConfigurationsService, EventService } from '@sunbird-cb/utils-v2'
 import { SafeHtml, DomSanitizer } from '@angular/platform-browser'
 /* tslint:disable*/

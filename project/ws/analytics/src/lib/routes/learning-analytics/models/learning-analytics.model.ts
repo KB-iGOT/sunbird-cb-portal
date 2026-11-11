@@ -1,4 +1,4 @@
-import { IWidgetGraphData } from '@sunbird-cb/collection'
+import { IWidgetGraphData } from '@sunbird-cb/collection/src/lib/graph-general/graph-general.model'
 
 export namespace NsAnalytics {
   export interface IConfig {

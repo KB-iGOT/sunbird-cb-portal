@@ -1,7 +1,7 @@
 import { AfterViewInit, Component, ElementRef, EventEmitter, Input, OnInit, Output, QueryList, ViewChild, ViewChildren } from '@angular/core'
 import { AbstractControl, UntypedFormArray, UntypedFormBuilder, UntypedFormControl, UntypedFormGroup, Validators } from '@angular/forms'
 import { MatSnackBar } from '@angular/material/snack-bar'
-import { IWidgetImageMap, IWidgetMapMeta } from '@sunbird-cb/collection'
+import { IWidgetImageMap, IWidgetMapMeta } from '@sunbird-cb/collection/src/lib/image-map-responsive/image-map-responsive.model'
 
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators'
 import { FILE_MAX_SIZE } from './../../../../../../../../../constants/upload'

@@ -8,7 +8,7 @@ import { of, Observable, Subscription, forkJoin } from 'rxjs'
 import { map, mergeMap, tap, catchError } from 'rxjs/operators'
 import { UntypedFormGroup } from '@angular/forms'
 
-import { VIEWER_ROUTE_FROM_MIME } from '@sunbird-cb/collection'
+import { VIEWER_ROUTE_FROM_MIME } from '@sunbird-cb/collection/src/lib/_services/viewer-route-util'
 import { NOTIFICATION_TIME, WEB_MODULE_JSON_FILE_NAME } from '../../../constant/web-module.constants'
 import { IAudioObj } from '../../../interface/page-interface'
 import { WebStoreService } from '../../../services/store.service'

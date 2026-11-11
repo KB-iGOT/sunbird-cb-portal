@@ -19,7 +19,7 @@ import { SubmitQuizDialogComponent } from './components/submit-quiz-dialog/submi
 import { OnConnectionBindInfo } from 'jsplumb'
 import { PracticeService } from './practice.service'
 import { ConfigurationsService, EventService, NsContent, ValueService, WsEvents } from '@sunbird-cb/utils-v2'
-import { VIEWER_ROUTE_FROM_MIME } from '@sunbird-cb/collection'
+import { VIEWER_ROUTE_FROM_MIME } from '@sunbird-cb/collection/src/lib/_services/viewer-route-util'
 
 import { ActivatedRoute, NavigationStart, Router } from '@angular/router'
 import { ViewerUtilService, WidgetContentService, AppTocService, ViewerDataService } from '@sunbird-cb/toc'

@@ -1,4 +1,4 @@
-import { HomeV2ResolverService } from './home-v2-resolver.service'
+import { HOME_BANNER_PRELOAD_KEY, HomeV2ResolverService } from './home-v2-resolver.service'
 import { of, throwError } from 'rxjs'
 
 // This service uses inject() as field initializers, which requires an Angular
@@ -56,6 +56,36 @@ describe('HomeV2ResolverService (No TestBed)', () => {
     resolver.resolve().subscribe(() => {
       expect(mockFormConfigSvc.getForm).toHaveBeenCalledWith(mockConfigSvc.unMappedUser, 'portal', 'home', 2.0)
       done()
+    })
+  })
+
+  describe('LCP banner preload', () => {
+    const resolveWith = (data: any) => {
+      mockFormConfigSvc.getForm.mockReturnValue(of({ result: { data } }))
+      return new Promise(r => resolver.resolve().subscribe(r))
+    }
+    beforeEach(() => localStorage.clear())
+
+    it('remembers the first active banner, the one the carousel renders first', async () => {
+      await resolveWith({
+        sliderData: [
+          { active: false, banners: { l: 'https://cdn/inactive.png' } },
+          { active: true, banners: { l: 'https://cdn/first-l.png', xl: 'https://cdn/first-xl.png' } },
+          { active: true, banners: { l: 'https://cdn/second.png' } },
+        ],
+      })
+      expect(localStorage.getItem(HOME_BANNER_PRELOAD_KEY)).toBe('https://cdn/first-l.png')
+    })
+
+    it('falls back to the xl banner, as the carousel does', async () => {
+      await resolveWith({ sliderData: [{ active: true, banners: { xl: 'https://cdn/only-xl.png' } }] })
+      expect(localStorage.getItem(HOME_BANNER_PRELOAD_KEY)).toBe('https://cdn/only-xl.png')
+    })
+
+    it('forgets a stale banner when the config has none', async () => {
+      localStorage.setItem(HOME_BANNER_PRELOAD_KEY, 'https://cdn/old.png')
+      await resolveWith({ sliderData: [] })
+      expect(localStorage.getItem(HOME_BANNER_PRELOAD_KEY)).toBeNull()
     })
   })
 

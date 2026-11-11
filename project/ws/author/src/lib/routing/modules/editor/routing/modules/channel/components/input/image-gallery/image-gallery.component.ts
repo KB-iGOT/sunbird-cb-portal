@@ -1,5 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core'
-import { ISelectorResponsiveUnit, NsGalleryView } from '@sunbird-cb/collection'
+import { ISelectorResponsiveUnit } from '@sunbird-cb/collection/src/lib/selector-responsive/selector-responsive.model'
+import { NsGalleryView } from '@sunbird-cb/collection/src/lib/gallery-view/gallery-view.model'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { WIDGET_LIBRARY } from '../../../constants/widet'
 

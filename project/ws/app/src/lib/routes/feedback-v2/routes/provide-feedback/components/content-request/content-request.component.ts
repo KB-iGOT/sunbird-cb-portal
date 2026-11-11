@@ -3,12 +3,9 @@ import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { Subscription } from 'rxjs'
 import { TSendStatus } from '@sunbird-cb/utils-v2'
-import {
-  FeedbackService,
-  FeedbackSnackbarComponent,
-  EFeedbackRole,
-  EFeedbackType,
-} from '@sunbird-cb/collection'
+import { FeedbackService } from '@sunbird-cb/collection/src/lib/btn-content-feedback-v2/services/feedback.service'
+import { FeedbackSnackbarComponent } from '@sunbird-cb/collection/src/lib/btn-content-feedback-v2/components/feedback-snackbar/feedback-snackbar.component'
+import { EFeedbackRole, EFeedbackType } from '@sunbird-cb/collection/src/lib/btn-content-feedback-v2/models/feedback.model'
 
 @Component({
     selector: 'ws-app-content-request',

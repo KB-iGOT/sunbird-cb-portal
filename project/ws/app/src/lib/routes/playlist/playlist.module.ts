@@ -2,22 +2,19 @@ import { CommonModule } from '@angular/common'
 import { NgModule } from '@angular/core'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 
-import {
-    BtnPageBackModule,
-    BtnPlaylistModule,
-    DisplayContentsModule,
-    DisplayContentTypeModule,
-    PickerContentModule,
-    TourModule,
-    // EmailInputModule,
-    TreeCatalogModule,
-    UserAutocompleteModule,
-    UserImageModule,
-    ContentPickerV2Module,
-    BtnLinkedinShareModule,
-    BtnFacebookShareModule,
-    BtnTwitterShareModule,
-} from '@sunbird-cb/collection'
+import { BtnPageBackModule } from '@sunbird-cb/collection/src/lib/btn-page-back/btn-page-back.module'
+import { BtnPlaylistModule } from '@sunbird-cb/collection/src/lib/btn-playlist/btn-playlist.module'
+import { DisplayContentsModule } from '@sunbird-cb/collection/src/lib/_common/display-contents/display-contents.module'
+import { DisplayContentTypeModule } from '@sunbird-cb/collection/src/lib/_common/display-content-type/display-content-type.module'
+import { PickerContentModule } from '@sunbird-cb/collection/src/lib/picker-content/picker-content.module'
+import { TourModule } from '@sunbird-cb/collection/src/lib/_common/tour-guide/tour-guide.module'
+import { TreeCatalogModule } from '@sunbird-cb/collection/src/lib/tree-catalog/tree-catalog.module'
+import { UserAutocompleteModule } from '@sunbird-cb/collection/src/lib/_common/user-autocomplete/user-autocomplete.module'
+import { UserImageModule } from '@sunbird-cb/collection/src/lib/_common/user-image/user-image.module'
+import { ContentPickerV2Module } from '@sunbird-cb/collection/src/lib/_common/content-picker-v2/content-picker-v2.module'
+import { BtnLinkedinShareModule } from '@sunbird-cb/collection/src/lib/btn-linkedin-share/btn-linkedin-share.module'
+import { BtnFacebookShareModule } from '@sunbird-cb/collection/src/lib/btn-facebook-share/btn-facebook-share.module'
+import { BtnTwitterShareModule } from '@sunbird-cb/collection/src/lib/btn-twitter-share/btn-twitter-share.module'
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
 import { DefaultThumbnailModule, PipeDurationTransformModule } from '@sunbird-cb/utils-v2'
 import { PlaylistCardComponent } from './components/playlist-card/playlist-card.component'

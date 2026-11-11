@@ -1,5 +1,5 @@
 import { Component, OnInit, OnDestroy, OnChanges, SimpleChanges } from '@angular/core'
-import { NsContent } from '@sunbird-cb/collection'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
 import { ActivatedRoute } from '@angular/router'
 import { NSMandatoryCourseData } from '../../models/mandatory-course.model'
 

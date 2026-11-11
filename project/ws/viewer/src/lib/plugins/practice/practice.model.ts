@@ -1,4 +1,4 @@
-import { NsContent } from '@sunbird-cb/collection'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
 
 export namespace NSPractice {
   export interface IQuiz {

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core'
-import { NsGoal } from '@sunbird-cb/collection'
+import { NsGoal } from '@sunbird-cb/collection/src/lib/btn-goals/btn-goals.model'
 import { ActivatedRoute } from '@angular/router'
 import { TFetchStatus, ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { MatDialog } from '@angular/material/dialog'

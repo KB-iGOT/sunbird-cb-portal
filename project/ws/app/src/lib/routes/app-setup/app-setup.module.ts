@@ -7,12 +7,10 @@ import { AppSetupHomeComponent } from './app-setup-home.component'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 import { SettingsModule } from '../profile/routes/settings/settings.module'
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
-import {
-  LocaleTranslatorModule,
-  LanguageSelectorModule,
-  AppTourDialogModule,
-  BtnPageBackModule,
-} from '@sunbird-cb/collection'
+import { LocaleTranslatorModule } from '@sunbird-cb/collection/src/lib/_common/locale-translator/locale-translator.module'
+import { LanguageSelectorModule } from '@sunbird-cb/collection/src/lib/_common/language-selector/language-selector.module'
+import { AppTourDialogModule } from '@sunbird-cb/collection/src/lib/_common/app-tour-dialog/app-tour-dialog.module'
+import { BtnPageBackModule } from '@sunbird-cb/collection/src/lib/btn-page-back/btn-page-back.module'
 import { AboutVideoModule } from '../info/about-video/about-video.module'
 import { HomeComponent } from './components/home/home.component'
 import { LangSelectComponent } from './components/lang-select/lang-select.component'

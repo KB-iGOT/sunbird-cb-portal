@@ -1,5 +1,5 @@
 import { Component, OnInit, Input } from '@angular/core'
-// import { ContentProgressService } from '@sunbird-cb/collection'
+// import { ContentProgressService } from '@sunbird-cb/collection/src/lib/_common/content-progress/content-progress.service'
 @Component({
     selector: 'ws-app-progress-spinner',
     templateUrl: './progress-spinner.component.html',

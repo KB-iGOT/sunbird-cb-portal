@@ -28,7 +28,7 @@ import {
   SearchCategory,
 } from '../../models/search-v3.model'
 import { MatCheckboxChange } from '@angular/material/checkbox'
-import { NsContent } from '@sunbird-cb/collection'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
 import { environment } from '../../../../../../../../../src/environments/environment'
 import { ActivatedRoute } from '@angular/router'
 import { MatRadioChange } from '@angular/material/radio'

@@ -9,7 +9,11 @@ import { MatIconModule } from '@angular/material/icon'
 import { MatMenuModule } from '@angular/material/menu'
 import { MatTooltipModule } from '@angular/material/tooltip'
 
-import { IBtnAppsConfig, CustomTourService, WidgetUserService, BtnProfileModule, EnrollmentSummaryStateService } from '@sunbird-cb/collection'
+import { IBtnAppsConfig } from '@sunbird-cb/collection/src/lib/btn-apps/btn-apps.model'
+import { CustomTourService } from '@sunbird-cb/collection/src/lib/_common/tour-guide/tour-guide.service'
+import { WidgetUserService } from '@sunbird-cb/collection/src/lib/_services/widget-user.service'
+import { BtnProfileModule } from '@sunbird-cb/collection/src/lib/btn-profile/btn-profile.module'
+import { EnrollmentSummaryStateService } from '@sunbird-cb/collection/src/lib/_services/enrollment-summary-state.service'
 import { NsWidgetResolver, WidgetResolverModule } from '@sunbird-cb/resolver'
 import {
   ConfigurationsService,

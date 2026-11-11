@@ -5,14 +5,12 @@ import { MatButtonModule } from '@angular/material/button'
 import { MatCardModule } from '@angular/material/card'
 import { MatIconModule } from '@angular/material/icon'
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
-import {
-  SlidersModule,
-} from '@sunbird-cb/collection'
+import { SlidersModule } from '@sunbird-cb/collection/src/lib/sliders/sliders.module'
 import { CustomHomeComponent } from './custom-home.component'
 import { CustomHomeFormResolverService } from './resolvers/custom-home-form-resolver.service'
 import { AnnouncementsModule } from '@sunbird-cb/consumption'
-import { ProfileCardStatsModule } from '@sunbird-cb/collection'
-import { EventsCalendarModule } from '@ws/app'
+import { ProfileCardStatsModule } from '@sunbird-cb/collection/src/lib/_common/profile-card-stats/profile-card-stats.module'
+import { EventsCalendarModule } from '@ws/app/src/lib/routes/events/routes/events-calendar/events-calendar.module'
 import { FeedListModule } from '../../home/home/feed-list/feed-list.module'
 
 

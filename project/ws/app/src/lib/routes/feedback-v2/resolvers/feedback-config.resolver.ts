@@ -4,7 +4,8 @@ import { Observable, of } from 'rxjs'
 import { map, catchError } from 'rxjs/operators'
 
 import { IResolveResponse } from '@sunbird-cb/utils-v2'
-import { IFeedbackConfig, FeedbackService } from '@sunbird-cb/collection'
+import { IFeedbackConfig } from '@sunbird-cb/collection/src/lib/btn-content-feedback-v2/models/feedback.model'
+import { FeedbackService } from '@sunbird-cb/collection/src/lib/btn-content-feedback-v2/services/feedback.service'
 
 @Injectable()
 export class FeedbackConfigResolver  {

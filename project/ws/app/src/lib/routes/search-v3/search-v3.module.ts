@@ -2,22 +2,20 @@ import { CommonModule } from '@angular/common'
 import { CUSTOM_ELEMENTS_SCHEMA, NgModule, NO_ERRORS_SCHEMA } from '@angular/core'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 
-import {
-  BtnChannelAnalyticsModule,
-  BtnContentDownloadModule,
-  BtnContentLikeModule,
-  BtnContentMailMeModule,
-  BtnContentShareModule,
-  BtnGoalsModule,
-  BtnKbModule,
-  BtnPageBackModule,
-  BtnPlaylistModule,
-  DisplayContentTypeModule,
-  PipeContentRouteModule,
-  BtnKbAnalyticsModule,
-  UserAutocompleteModule,
-  AvatarPhotoModule
-} from '@sunbird-cb/collection'
+import { BtnChannelAnalyticsModule } from '@sunbird-cb/collection/src/lib/btn-channel-analytics/btn-channel-analytics.module'
+import { BtnContentDownloadModule } from '@sunbird-cb/collection/src/lib/btn-content-download/btn-content-download.module'
+import { BtnContentLikeModule } from '@sunbird-cb/collection/src/lib/btn-content-like/btn-content-like.module'
+import { BtnContentMailMeModule } from '@sunbird-cb/collection/src/lib/btn-content-mail-me/btn-content-mail-me.module'
+import { BtnContentShareModule } from '@sunbird-cb/collection/src/lib/btn-content-share/btn-content-share.module'
+import { BtnGoalsModule } from '@sunbird-cb/collection/src/lib/btn-goals/btn-goals.module'
+import { BtnKbModule } from '@sunbird-cb/collection/src/lib/btn-kb/btn-kb.module'
+import { BtnPageBackModule } from '@sunbird-cb/collection/src/lib/btn-page-back/btn-page-back.module'
+import { BtnPlaylistModule } from '@sunbird-cb/collection/src/lib/btn-playlist/btn-playlist.module'
+import { DisplayContentTypeModule } from '@sunbird-cb/collection/src/lib/_common/display-content-type/display-content-type.module'
+import { PipeContentRouteModule } from '@sunbird-cb/collection/src/lib/_common/pipe-content-route/pipe-content-route.module'
+import { BtnKbAnalyticsModule } from '@sunbird-cb/collection/src/lib/btn-kb-analytics/btn-kb-analytics.module'
+import { UserAutocompleteModule } from '@sunbird-cb/collection/src/lib/_common/user-autocomplete/user-autocomplete.module'
+import { AvatarPhotoModule } from '@sunbird-cb/collection/src/lib/_common/avatar-photo/avatar-photo.module'
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
 import {
   DefaultThumbnailModule,
@@ -63,7 +61,7 @@ import { PluralPipe } from './pipes/plural.pipe'
 import { PaginationComponent } from './components/pagination/pagination.component'
 import { SearchSortInputComponent } from './components/search-sort-input/search-sort-input.component'
 import { CardsModule, DialogComponentsModule } from '@sunbird-cb/consumption'
-import { SkeletonLoaderModule } from '@sunbird-cb/collection'
+import { SkeletonLoaderModule } from '@sunbird-cb/collection/src/lib/_common/skeleton-loader/skeleton-loader.module'
 import { SkeletonLoaderContentComponent } from './components/skeleton-loader-content/skeleton-loader-content.component'
 import { SkeletonLoaderPeoplesComponent } from './components/skeleton-loader-peoples/skeleton-loader-peoples.component'
 import { MatRadioModule } from '@angular/material/radio'

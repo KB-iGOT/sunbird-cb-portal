@@ -4,7 +4,7 @@ import { ConfigurationsService, EventService, WsEvents } from '@sunbird-cb/utils
 import { Observable, of } from 'rxjs'
 import { SearchApiService } from '../apis/search-api.service'
 import { IFilterUnitItem, IFilterUnitResponse, ISearchAutoComplete, ISearchQuery, ISearchRequestV2, ISearchSocialSearchPartialRequest, ISocialSearchRequest } from '../models/search.model'
-import { NSSearch } from '@sunbird-cb/collection'
+import { NSSearch } from '@sunbird-cb/collection/src/lib/_services/widget-search.model'
 
 const API_END_POINTS = {
   translateFiltersBase: '/apis/protected/v8/translate/filterdata',

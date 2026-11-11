@@ -1,5 +1,5 @@
 import { Component, ElementRef, TemplateRef, ViewChild, OnInit, Inject } from '@angular/core'
-import { NsAutoComplete } from '@sunbird-cb/collection'
+import { NsAutoComplete } from '@sunbird-cb/collection/src/lib/_common/user-autocomplete/user-autocomplete.model'
 import { TFetchStatus, ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { MAT_DIALOG_DATA } from '@angular/material/dialog'
 

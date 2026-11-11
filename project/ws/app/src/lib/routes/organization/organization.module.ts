@@ -1,7 +1,7 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
-import { BtnPageBackModule } from '@sunbird-cb/collection'
+import { BtnPageBackModule } from '@sunbird-cb/collection/src/lib/btn-page-back/btn-page-back.module'
 import { OrganizationRoutingModule } from './organization-routing.module'
 import { OrganizationHomeComponent } from './routes/organization-home/organization-home.component'
 import { OrganizationCourseDetailComponent } from './routes/organization-course-detail/organization-course-detail.component'

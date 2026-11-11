@@ -3,7 +3,7 @@ import { ActivatedRoute, Router } from '@angular/router'
 import { NSNetworkDataV2 } from '../../models/network-v2.model'
 import { NetworkV2Service } from '../../services/network-v2.service'
 import { NsUser, ConfigurationsService, MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
-import { CardNetWorkService } from '@sunbird-cb/collection'
+import { CardNetWorkService } from '@sunbird-cb/collection/src/lib/card-network/card-network.service'
 import { TranslateService } from '@ngx-translate/core'
 
 @Component({

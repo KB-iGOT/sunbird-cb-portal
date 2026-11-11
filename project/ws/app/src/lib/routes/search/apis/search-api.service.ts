@@ -4,7 +4,7 @@ import { Observable } from 'rxjs'
 import { ISocialSearchRequest, ISocialSearchResult, ISearchAutoComplete } from '../models/search.model'
 // import { KeycloakService } from 'keycloak-angular'
 import { map } from 'rxjs/operators'
-import { NSSearch } from '@sunbird-cb/collection'
+import { NSSearch } from '@sunbird-cb/collection/src/lib/_services/widget-search.model'
 const PROTECTED_SLAG_V8 = '/apis/protected/v8'
 const API_END_POINTS = {
   SOCIAL_VIEW_SEARCH_RESULT: `${PROTECTED_SLAG_V8}/social/post/search`,

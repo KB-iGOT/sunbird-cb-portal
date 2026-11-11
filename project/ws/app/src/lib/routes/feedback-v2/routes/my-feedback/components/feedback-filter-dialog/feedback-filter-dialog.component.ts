@@ -1,12 +1,7 @@
 import { Component, OnInit, Inject, OnDestroy } from '@angular/core'
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
-import {
-  IFeedbackFilterObj,
-  EFeedbackType,
-  NsContent,
-  IFeedbackFilterDialogData,
-  EFeedbackRole,
-} from '@sunbird-cb/collection'
+import { IFeedbackFilterObj, EFeedbackType, IFeedbackFilterDialogData, EFeedbackRole } from '@sunbird-cb/collection/src/lib/btn-content-feedback-v2/models/feedback.model'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
 import { UntypedFormGroup, UntypedFormControl } from '@angular/forms'
 import { Subscription } from 'rxjs'
 

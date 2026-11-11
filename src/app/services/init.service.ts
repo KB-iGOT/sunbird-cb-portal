@@ -22,7 +22,9 @@ import _ from 'lodash'
 import { firstValueFrom, forkJoin, of } from 'rxjs'
 import { catchError, map } from 'rxjs/operators'
 import { v4 as uuid } from 'uuid'
-import { BtnSettingsService, EnrollmentSummaryStateService, NPSGridService } from '@sunbird-cb/collection'
+import { BtnSettingsService } from '@sunbird-cb/collection/src/lib/btn-settings/btn-settings.service'
+import { EnrollmentSummaryStateService } from '@sunbird-cb/collection/src/lib/_services/enrollment-summary-state.service'
+import { NPSGridService } from '@sunbird-cb/collection/src/lib/grid-layout/nps-grid.service'
 import moment from 'moment'
 import { TranslateService } from '@ngx-translate/core'
 import { SbUiResolverService } from '@sunbird-cb/resolver-v2'
@@ -246,6 +248,7 @@ export class InitService {
       // the user is read first: the global-web and application config forms are picked from it
       user = await this.prefetchUser()
       await this.globalConfigData(user)
+      this.prefetchHomeConfig(user)
     }
     await this.fetchDefaultConfig(isPublicPreviewOrCreator, user)
 
@@ -602,6 +605,22 @@ export class InitService {
       localStorage.removeItem('telemetrySessionId')
     }
     localStorage.setItem('telemetrySessionId', uuid())
+  }
+
+  /**
+   * Starts the home page's form read while the rest of init() runs. HomeV2ResolverService asks
+   * for the same form, but only once the router starts - after init() has finished. The
+   * request is cached by FormConfigService, so the resolver picks up this one (in flight or
+   * done) instead of starting its own: one round trip less before the home page and its
+   * banner can render. A failed prefetch is not cached, so the resolver simply retries.
+   * Same user and clientVersion as the resolver uses, so it resolves to the same form.
+   */
+  private prefetchHomeConfig(user: any): void {
+    if (!user || !['/', '/home', '/page/home'].includes(window.location.pathname)) {
+      return
+    }
+    const clientVersion = this.configSvc?.globalConfig?.formClientVersion?.['home'] || 1.0
+    this.formConfigSvc.getForm(user, 'portal', 'home', clientVersion).subscribe({ error: () => { } })
   }
 
   private async logFirstLogin(): Promise<void> {

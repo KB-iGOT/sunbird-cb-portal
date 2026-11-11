@@ -25,7 +25,8 @@ import {
 } from '@angular/router'
 import { BreakpointObserver } from '@angular/cdk/layout'
 // import { interval, concat, timer } from 'rxjs'
-import { BtnPageBackService, EnrollmentSummaryStateService } from '@sunbird-cb/collection'
+import { BtnPageBackService } from '@sunbird-cb/collection/src/lib/btn-page-back/btn-page-back.service'
+import { EnrollmentSummaryStateService } from '@sunbird-cb/collection/src/lib/_services/enrollment-summary-state.service'
 import { HttpClient } from '@angular/common/http'
 import {
   AuthKeycloakService,

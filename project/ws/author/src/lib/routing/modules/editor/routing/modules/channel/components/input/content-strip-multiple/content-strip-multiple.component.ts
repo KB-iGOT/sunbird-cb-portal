@@ -2,7 +2,9 @@ import { Component, OnInit, Input, Output, EventEmitter } from '@angular/core'
 import { UntypedFormBuilder, UntypedFormGroup, AbstractControl } from '@angular/forms'
 import { debounceTime, distinctUntilChanged } from 'rxjs/operators'
 
-import { NsContentStripMultiple, IPickerContentData, NsContent } from '@sunbird-cb/collection'
+import { NsContentStripMultiple } from '@sunbird-cb/collection/src/lib/content-strip-multiple/content-strip-multiple.model'
+import { IPickerContentData } from '@sunbird-cb/collection/src/lib/picker-content/picker-content.model'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
 
 @Component({
     selector: 'ws-auth-content-strip-multiple',

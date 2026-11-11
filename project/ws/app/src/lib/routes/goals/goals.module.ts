@@ -1,17 +1,15 @@
 import { NgModule } from '@angular/core'
 import { CommonModule } from '@angular/common'
 
-import {
-    BtnPageBackModule,
-    DisplayContentTypeModule,
-    PickerContentModule,
-    EmailInputModule,
-    DisplayContentsModule,
-    UserAutocompleteModule,
-    BtnLinkedinShareModule,
-    BtnFacebookShareModule,
-    BtnTwitterShareModule,
-} from '@sunbird-cb/collection'
+import { BtnPageBackModule } from '@sunbird-cb/collection/src/lib/btn-page-back/btn-page-back.module'
+import { DisplayContentTypeModule } from '@sunbird-cb/collection/src/lib/_common/display-content-type/display-content-type.module'
+import { PickerContentModule } from '@sunbird-cb/collection/src/lib/picker-content/picker-content.module'
+import { EmailInputModule } from '@sunbird-cb/collection/src/lib/_common/email-input/email-input.module'
+import { DisplayContentsModule } from '@sunbird-cb/collection/src/lib/_common/display-contents/display-contents.module'
+import { UserAutocompleteModule } from '@sunbird-cb/collection/src/lib/_common/user-autocomplete/user-autocomplete.module'
+import { BtnLinkedinShareModule } from '@sunbird-cb/collection/src/lib/btn-linkedin-share/btn-linkedin-share.module'
+import { BtnFacebookShareModule } from '@sunbird-cb/collection/src/lib/btn-facebook-share/btn-facebook-share.module'
+import { BtnTwitterShareModule } from '@sunbird-cb/collection/src/lib/btn-twitter-share/btn-twitter-share.module'
 import { GoalsRoutingModule } from './goals-routing.module'
 import { GoalDeleteDialogComponent } from './components/goal-delete-dialog/goal-delete-dialog.component'
 import { GoalAcceptDialogComponent } from './components/goal-accept-dialog/goal-accept-dialog.component'

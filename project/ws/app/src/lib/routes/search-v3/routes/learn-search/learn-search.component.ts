@@ -39,10 +39,7 @@ import {
   SearchExternalRequest
 } from '../../models/search-v3.model'
 import { forkJoin, Observable, Subject } from 'rxjs'
-import {
-  NsContent,
-  // WidgetUserService,
-} from '@sunbird-cb/collection'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
 import { environment } from '../../../../../../../../../src/environments/environment'
 import { NetworkV2Service } from '../../../network-v2/services/network-v2.service'
 import moment from 'moment'

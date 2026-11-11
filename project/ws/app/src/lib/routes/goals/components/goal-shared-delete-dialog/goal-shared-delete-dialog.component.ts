@@ -1,7 +1,8 @@
 import { Component, Inject, ViewChild, ElementRef } from '@angular/core'
 import { TFetchStatus } from '@sunbird-cb/utils-v2'
 
-import { NsGoal, BtnGoalsService } from '@sunbird-cb/collection'
+import { NsGoal } from '@sunbird-cb/collection/src/lib/btn-goals/btn-goals.model'
+import { BtnGoalsService } from '@sunbird-cb/collection/src/lib/btn-goals/btn-goals.service'
 import { MatDialogRef, MAT_DIALOG_DATA } from '@angular/material/dialog'
 import { MatListOption } from '@angular/material/list'
 import { MatSnackBar } from '@angular/material/snack-bar'

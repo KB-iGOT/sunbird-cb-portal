@@ -1,6 +1,6 @@
 import { Component, OnInit, ViewChild, ElementRef } from '@angular/core'
 import { ActivatedRoute } from '@angular/router'
-import { BtnGoalsService } from '@sunbird-cb/collection'
+import { BtnGoalsService } from '@sunbird-cb/collection/src/lib/btn-goals/btn-goals.service'
 import { TFetchStatus } from '@sunbird-cb/utils-v2'
 import { MatSnackBar } from '@angular/material/snack-bar'
 

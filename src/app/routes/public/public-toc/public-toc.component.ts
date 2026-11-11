@@ -1,24 +1,22 @@
 import { Component, OnDestroy, OnInit, AfterViewInit, AfterViewChecked, HostListener, ElementRef, ViewChild, ViewEncapsulation } from '@angular/core'
 import { ActivatedRoute, Event, Data, Router, NavigationEnd } from '@angular/router'
-import {
-    NsContent,
-    viewerRouteGenerator,
-    NsPlaylist,
-    NsGoal,
-    RatingService,
-} from '@sunbird-cb/collection'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
+import { viewerRouteGenerator } from '@sunbird-cb/collection/src/lib/_services/viewer-route-util'
+import { NsPlaylist } from '@sunbird-cb/collection/src/lib/btn-playlist/btn-playlist.model'
+import { NsGoal } from '@sunbird-cb/collection/src/lib/btn-goals/btn-goals.model'
+import { RatingService } from '@sunbird-cb/collection/src/lib/_services/rating.service'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { ConfigurationsService, LoggerService, NsPage, TFetchStatus, UtilityService } from '@sunbird-cb/utils-v2'
 import { Subscription, Observable } from 'rxjs'
 import { share } from 'rxjs/operators'
 import { SafeHtml, DomSanitizer, SafeStyle } from '@angular/platform-browser'
-import { AccessControlService } from '@ws/author'
+import { AccessControlService } from '@ws/author/src/lib/modules/shared/services/access-control.service'
 // import { FormControl, Validators } from '@angular/forms'
 import { MatDialog } from '@angular/material/dialog'
 import dayjs from 'dayjs'
 // tslint:disable-next-line
 import _ from 'lodash'
-import { ContentRatingV2DialogComponent } from '@sunbird-cb/collection'
+import { ContentRatingV2DialogComponent } from '@sunbird-cb/collection/src/lib/_common/content-rating-v2-dialog/content-rating-v2-dialog.component'
 import moment from 'moment'
 import { NsAppToc } from '@sunbird-cb/toc'
 import { AppTocService } from '@sunbird-cb/toc'

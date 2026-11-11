@@ -4,7 +4,7 @@ import { RouterModule } from '@angular/router'
 import { MatIconModule } from '@angular/material/icon'
 import { MatButtonModule } from '@angular/material/button'
 import { MatTooltipModule } from '@angular/material/tooltip'
-import { AvatarPhotoModule } from '@sunbird-cb/collection'
+import { AvatarPhotoModule } from '@sunbird-cb/collection/src/lib/_common/avatar-photo/avatar-photo.module'
 import { TranslateModule } from '@ngx-translate/core'
 
 import { KarmaLeaderboardComponent } from './karma-leaderboard.component'

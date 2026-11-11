@@ -7,7 +7,7 @@ import {
   Output,
   SimpleChanges,
 } from '@angular/core'
-import { NsContent } from '@sunbird-cb/collection'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
 import { environment } from 'src/environments/environment'
 import {
   ConfigurationsService,
@@ -16,7 +16,7 @@ import {
   WsEvents,
 } from '@sunbird-cb/utils-v2'
 import { MatDialog } from '@angular/material/dialog'
-import { CertificateDialogComponent } from '@sunbird-cb/collection'
+import { CertificateDialogComponent } from '@sunbird-cb/collection/src/lib/_common/certificate-dialog/certificate-dialog.component'
 import { CertificateService } from '../../../certificate/services/certificate.service'
 import { Router } from '@angular/router'
 import { CommonMethodsService, WidgetContentLibService } from '@sunbird-cb/consumption'

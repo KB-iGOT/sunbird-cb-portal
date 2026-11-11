@@ -1,4 +1,4 @@
-import { LoaderService } from '@ws/author'
+import { LoaderService } from '@ws/author/src/lib/services/loader.service'
 import { Component, OnInit, OnDestroy } from '@angular/core'
 import { ActivatedRoute, Router, Event, NavigationEnd, NavigationError } from '@angular/router'
 import { ValueService } from '@sunbird-cb/utils-v2'

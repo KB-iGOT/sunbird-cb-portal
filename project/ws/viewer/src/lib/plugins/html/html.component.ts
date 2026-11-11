@@ -2,7 +2,7 @@ import { Component, ElementRef, Input, OnChanges, OnInit, ViewChild, OnDestroy }
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { DomSanitizer, SafeResourceUrl } from '@angular/platform-browser'
 import { Router, ActivatedRoute } from '@angular/router'
-import { NsContent } from '@sunbird-cb/collection'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
 import { ConfigurationsService, EventService, LoggerService, TFetchStatus } from '@sunbird-cb/utils-v2'
 import { MobileAppsService } from '../../../../../../../src/app/services/mobile-apps.service'
 import { SCORMAdapterService, scormLMSStatus, isScormCmiKey, isCompleteStatusValue } from './SCORMAdapter/scormAdapter'

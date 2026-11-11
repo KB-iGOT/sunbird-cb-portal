@@ -1,6 +1,6 @@
 import { Component, EventEmitter, Input, OnInit, Output } from '@angular/core'
 import { MatSnackBar } from '@angular/material/snack-bar'
-import { NsGalleryView } from '@sunbird-cb/collection'
+import { NsGalleryView } from '@sunbird-cb/collection/src/lib/gallery-view/gallery-view.model'
 import { NsWidgetResolver } from '@sunbird-cb/resolver'
 import { WIDGET_LIBRARY } from '../../../constants/widet'
 import { FILE_MAX_SIZE } from './../../../../../../../../../constants/upload'

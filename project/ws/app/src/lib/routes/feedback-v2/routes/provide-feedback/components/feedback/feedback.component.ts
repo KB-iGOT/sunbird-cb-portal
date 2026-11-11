@@ -2,14 +2,9 @@ import { Component } from '@angular/core'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { UntypedFormGroup, UntypedFormControl, Validators } from '@angular/forms'
 import { TSendStatus, IResolveResponse, ConfigurationsService } from '@sunbird-cb/utils-v2'
-import {
-  FeedbackSnackbarComponent,
-  FeedbackService,
-  EFeedbackRole,
-  EFeedbackType,
-  IFeedbackConfig,
-  INotificationRequest,
-} from '@sunbird-cb/collection'
+import { FeedbackSnackbarComponent } from '@sunbird-cb/collection/src/lib/btn-content-feedback-v2/components/feedback-snackbar/feedback-snackbar.component'
+import { FeedbackService } from '@sunbird-cb/collection/src/lib/btn-content-feedback-v2/services/feedback.service'
+import { EFeedbackRole, EFeedbackType, IFeedbackConfig, INotificationRequest } from '@sunbird-cb/collection/src/lib/btn-content-feedback-v2/models/feedback.model'
 import { ActivatedRoute, Router } from '@angular/router'
 
 @Component({

@@ -5,10 +5,12 @@ import { MatCardModule } from '@angular/material/card'
 import { MatIconModule } from '@angular/material/icon'
 import { MatButtonModule } from '@angular/material/button'
 import { RouterModule } from '@angular/router'
-import {
-  GridLayoutModule, SlidersModule, DiscussStripMultipleModule,
-  NetworkStripMultipleModule, ContentStripWithTabsModule, AvatarPhotoModule,
-} from '@sunbird-cb/collection'
+import { GridLayoutModule } from '@sunbird-cb/collection/src/lib/grid-layout/grid-layout.module'
+import { SlidersModule } from '@sunbird-cb/collection/src/lib/sliders/sliders.module'
+import { DiscussStripMultipleModule } from '@sunbird-cb/collection/src/lib/discuss-strip-multiple/discuss-strip-multiple.module'
+import { NetworkStripMultipleModule } from '@sunbird-cb/collection/src/lib/network-strip-multiple/network-strip-multiple.module'
+import { ContentStripWithTabsModule } from '@sunbird-cb/collection/src/lib/content-strip-with-tabs/content-strip-with-tabs.module'
+import { AvatarPhotoModule } from '@sunbird-cb/collection/src/lib/_common/avatar-photo/avatar-photo.module'
 import { ContentStripWithTabsLibModule, ContentStripWithTabsPillsModule, ContentStripWithTabsPillsNewModule } from '@sunbird-cb/consumption'
 
 @NgModule({

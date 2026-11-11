@@ -17,16 +17,14 @@ import { MatDialogModule } from '@angular/material/dialog'
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner'
 
 // Sunbird CB Collection modules
-import {
-  AvatarPhotoModule,
-  BtnPageBackModule,
-  CardContentModule,
-  ContentStripMultipleModule,
-  ContentStripNewMultipleModule,
-  DiscussStripMultipleModule,
-  NetworkStripMultipleModule,
-  UserImageModule,
-} from '@sunbird-cb/collection'
+import { AvatarPhotoModule } from '@sunbird-cb/collection/src/lib/_common/avatar-photo/avatar-photo.module'
+import { BtnPageBackModule } from '@sunbird-cb/collection/src/lib/btn-page-back/btn-page-back.module'
+import { CardContentModule } from '@sunbird-cb/collection/src/lib/card-content/card-content.module'
+import { ContentStripMultipleModule } from '@sunbird-cb/collection/src/lib/content-strip-multiple/content-strip-multiple.module'
+import { ContentStripNewMultipleModule } from '@sunbird-cb/collection/src/lib/content-strip-new-multiple/content-strip-new-multiple.module'
+import { DiscussStripMultipleModule } from '@sunbird-cb/collection/src/lib/discuss-strip-multiple/discuss-strip-multiple.module'
+import { NetworkStripMultipleModule } from '@sunbird-cb/collection/src/lib/network-strip-multiple/network-strip-multiple.module'
+import { UserImageModule } from '@sunbird-cb/collection/src/lib/_common/user-image/user-image.module'
 
 // Import WidgetResolverModule from the correct package
 import { WidgetResolverModule } from '@sunbird-cb/resolver'
@@ -44,14 +42,14 @@ import {
 } from '@sunbird-cb/utils-v2'
 
 // Import specific modules from collection (using full paths)
-import { WeeklyClapsModule } from '@sunbird-cb/collection'
-import { UpdatePostsModule } from '@sunbird-cb/collection'
-import { RecentRequestsModule } from '@sunbird-cb/collection'
-import { PendingRequestModule } from '@sunbird-cb/collection'
-import { ProfileCardStatsModule } from '@sunbird-cb/collection'
-import { UserLeaderboardModule } from '@sunbird-cb/collection'
-import { DiscussionsModule } from '@sunbird-cb/collection'
-import { TipsForLearnerModule } from '@sunbird-cb/collection'
+import { WeeklyClapsModule } from '@sunbird-cb/collection/src/lib/_common/weekly-claps/weekly-claps.module'
+import { UpdatePostsModule } from '@sunbird-cb/collection/src/lib/_common/update-posts/update-posts.module'
+import { RecentRequestsModule } from '@sunbird-cb/collection/src/lib/_common/recent-requests/recent-requests.module'
+import { PendingRequestModule } from '@sunbird-cb/collection/src/lib/_common/pending-request/pending-request.module'
+import { ProfileCardStatsModule } from '@sunbird-cb/collection/src/lib/_common/profile-card-stats/profile-card-stats.module'
+import { UserLeaderboardModule } from '@sunbird-cb/collection/src/lib/_common/user-leaderboard/user-leaderboard.module'
+import { DiscussionsModule } from '@sunbird-cb/collection/src/lib/_common/discussions/discussions.module'
+import { TipsForLearnerModule } from '@sunbird-cb/collection/src/lib/_common/tips-for-learner/tips-for-learner.module'
 
 // Import consumption modules
 import { ContentStripWithTabsLibModule, ContentStripWithTabsPillsModule, DialogComponentsModule } from '@sunbird-cb/consumption'

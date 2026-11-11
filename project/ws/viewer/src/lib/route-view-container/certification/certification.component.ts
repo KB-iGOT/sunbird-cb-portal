@@ -1,5 +1,5 @@
 import { Component, Input } from '@angular/core'
-import { NsContent } from '@sunbird-cb/collection'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
 
 @Component({
     selector: 'viewer-certification-container',

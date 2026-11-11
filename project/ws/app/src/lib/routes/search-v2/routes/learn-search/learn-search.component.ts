@@ -5,7 +5,7 @@ import { ActivatedRoute, Router } from '@angular/router'
 // tslint:disable-next-line
 import _ from 'lodash'
 import { TranslateService } from '@ngx-translate/core'
-import { NsContent } from '@sunbird-cb/collection'
+import { NsContent } from '@sunbird-cb/collection/src/lib/_services/widget-content.model'
 
 import { WidgetContentLibService } from '@sunbird-cb/consumption'
 @Component({
