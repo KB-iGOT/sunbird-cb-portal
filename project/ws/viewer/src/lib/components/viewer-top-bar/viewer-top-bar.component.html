@@ -1,7 +1,13 @@
 <ng-container *ngIf="!isMobile">
   <mat-toolbar [color]="pageNavbar.color" [ngStyle]="pageNavbar?.styles" class="mat-primary cheight viewer-top">
     <div class="flex flex-1">
-      <ws-widget-btn-page-back-nav (click)="checkRatingAndApply()" [assessmentStart]="assessmentStart" *ngIf="!isPreview && !needToHide" [widgetData]="{
+      <!-- Opened from a microsite: Back returns to it -->
+      <ws-widget-btn-page-back-nav [assessmentStart]="assessmentStart" *ngIf="!isPreview && micrositeRedirect" [widgetData]="{
+          url: micrositeRedirect.url,
+          titles: [],
+          queryParams: micrositeRedirect.queryParams
+        }"></ws-widget-btn-page-back-nav>
+      <ws-widget-btn-page-back-nav (click)="checkRatingAndApply()" [assessmentStart]="assessmentStart" *ngIf="!isPreview && !needToHide && !micrositeRedirect" [widgetData]="{
           url: isTypeOfCollection
             ? collectionType === 'Playlist'
               ? '/app/playlist/me/' + collectionId

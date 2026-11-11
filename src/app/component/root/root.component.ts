@@ -7,7 +7,6 @@ import {
   computed,
   effect,
   ElementRef,
-  HostListener,
   OnInit,
   signal,
   // TemplateRef,
@@ -54,13 +53,14 @@ import { SwUpdate } from '@angular/service-worker'
 import { environment } from '../../../environments/environment'
 import { MatDialog } from '@angular/material/dialog'
 import { DialogConfirmComponent } from '../dialog-confirm/dialog-confirm.component'
-import { combineLatest, concat, interval, of, Subscription } from 'rxjs'
+import { combineLatest, concat, interval, Observable, of, Subscription } from 'rxjs'
 // import { iGOTAIService } from './../../services/igot-ai.service'
 import { CommonDataService } from '../../services/common-data.service'
 import { UserRestrictionService } from '../../services/user-restriction.service'
 import { UrlService } from '../../shared/url.service'
 import { LibNotificationsService } from '@sunbird-cb/notification'
 import { HomePageService } from '../../services/home-page.service'
+import { reloadForStaleBuild } from '../../services/stale-build-recovery'
 import { FormConfigService } from '@sunbird-cb/consumption'
 import { trigger, style, animate, transition } from '@angular/animations'
 import { DialogBoxComponent } from '../dialog-box/dialog-box.component'
@@ -117,11 +117,13 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
   // Add more prefixes here when another route needs the same treatment.
   fullWidthMobileRoutes = ['/app/learn/bharat-kalp']
   isFullWidthMobileRoute = signal(false)
-  surfaceBackgroundRoutes = ['/app/person-profile/karma-wallet', '/app/plans']
+  surfaceBackgroundRoutes = ['/app/person-profile/karma-wallet', '/app/plans', '/app/leadership-as-mission-2026']
   usesSurfaceBackground = signal(false)
   // Routes laid out like the home page: white ground, docked sidebar that keeps the user's
   // open/closed choice, and the overrideThemeChanges background.
-  homeLayoutRoutes = ['/app/leadership-as-mission-2026']
+  // The campaign microsite (/app/leadership-as-mission-2026) is deliberately not here: its sidebar is an
+  // overlay drawer; it keeps the white ground via surfaceBackgroundRoutes.
+  homeLayoutRoutes: string[] = []
   usesHomeLayout = signal(false)
   hasHomeLayout = computed(() => this.isHomePage() || this.usesHomeLayout())
   navBarOpenStatusBasedOnNav = signal(true)
@@ -310,7 +312,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
     .observe(['(min-width: 600px) and (max-width: 1024px)'])
     .pipe(map(state => state.matches))
   // Desktop-only: sidebar-driven widths (navBarOpenContent/navBarCloseContent) must not apply on mobile or tab
-  isDesktopView$ = combineLatest([this.isXSmall$, this.isTabView$]).pipe(
+  isDesktopView$ = combineLatest<[boolean, boolean]>([this.isXSmall$ as unknown as Observable<boolean>, this.isTabView$]).pipe(
     map(([isXSmall, isTabView]) => !isXSmall && !isTabView)
   )
   routeChangeInProgress = false
@@ -341,13 +343,6 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
   currUrl = ''
   detailsChanged = signal(false)
   otherDetailsChanged = signal(false)
-  @HostListener('window:unload', ['$event'])
-  unloadHandler(event: any) {
-    if (event && event.type === 'unload') {
-      // this.authSvc.logout()
-    }
-  }
-
   reloadPage() {
     window.location.reload()
   }
@@ -535,6 +530,9 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
         } else {
           this.viewerPage = false
         }
+        // shows the progress bar until NavigationEnd / Cancel / Error below clears it, so a
+        // click on a page whose files or data are still loading visibly does something
+        this.routeChangeInProgress = true
         this.changeDetector.detectChanges()
       } else if (
         event instanceof NavigationEnd ||
@@ -619,6 +617,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
         const objectType = _.get(this.route.snapshot, 'queryParams.primaryCategory', '')
         this.raiseAppStartTelemetry()
         if (data.pageContext.pageId && data.pageContext.module) {
+          this.telemetrySvc.sendEmptyObjectForNextImpression()
           this.telemetrySvc.impression(data, objectType)
         } else {
           this.telemetrySvc.impression()
@@ -953,8 +952,9 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
     // `unrecoverable` fires for exactly that - the cached version references assets the
     // server no longer has. A full reload is the only way out: it fetches the current
     // index.html, which names the chunks that do exist.
-    this.swUpdate.unrecoverable.subscribe(() => {
-      window.location.reload()
+    // reloadForStaleBuild reloads at most once per 30 s, so this cannot loop
+    this.swUpdate.unrecoverable.subscribe(event => {
+      reloadForStaleBuild(`service worker: ${event && event.reason}`)
     })
 
     // Look for a new deployment once the app settles, then every six hours. Without

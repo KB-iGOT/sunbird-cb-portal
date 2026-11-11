@@ -1,4 +1,4 @@
-import { HttpErrorResponse, HttpRequest } from '@angular/common/http'
+import { HttpErrorResponse, HttpRequest, HttpResponse } from '@angular/common/http'
 import { of, throwError } from 'rxjs'
 import { AppInterceptorService } from './app-interceptor.service'
 
@@ -107,6 +107,55 @@ describe('AppInterceptorService', () => {
       const req = new HttpRequest('GET', '/api/test')
       service.intercept(req, next as any).subscribe()
       expect(next.handle).toHaveBeenCalledWith(req)
+    })
+  })
+
+  describe('server time', () => {
+    const respond = (body: any) => {
+      next.handle.mockReturnValue(of(new HttpResponse({ body })))
+      service.intercept(new HttpRequest('GET', '/api/test'), next as any).subscribe()
+    }
+
+    it('saves an ISO ts as epoch ms with the offset from the browser clock', () => {
+      jest.spyOn(Date, 'now').mockReturnValue(Date.parse('2026-11-04T06:26:30.000Z'))
+      respond({ ts: '2026-11-04T06:26:38.632Z' })
+      expect(configSvc.serverTime).toBe(Date.parse('2026-11-04T06:26:38.632Z'))
+      expect(configSvc.serverTimeOffset).toBe(8632)
+      expect(typeof configSvc.serverTimeAt).toBe('number')
+    })
+
+    it('parses the Sunbird ts format', () => {
+      respond({ ts: '2026-11-04 05:53:14:323+0000' })
+      expect(configSvc.serverTime).toBe(Date.parse('2026-11-04T05:53:14.323Z'))
+    })
+
+    it('applies the timezone of a Sunbird ts', () => {
+      expect(AppInterceptorService.parseTs('2026-11-04 11:23:14:323+0530')).toBe(Date.parse('2026-11-04T05:53:14.323Z'))
+    })
+
+    it('takes an epoch number as is', () => {
+      respond({ ts: 1793771594320 })
+      expect(configSvc.serverTime).toBe(1793771594320)
+    })
+
+    it('keeps the newer time when an older ts arrives later', () => {
+      respond({ ts: '2026-11-04T06:26:38.632Z' })
+      respond({ ts: '2026-11-04T06:00:00.000Z' })
+      expect(configSvc.serverTime).toBe(Date.parse('2026-11-04T06:26:38.632Z'))
+    })
+
+    it('ignores bodies without a usable ts', () => {
+      respond({ ts: 'not a date' })
+      respond({ result: {} })
+      respond('plain text')
+      respond(null)
+      expect(configSvc.serverTime).toBeUndefined()
+    })
+
+    it('captures the ts before activeOrg/rootOrg are set (early init calls)', () => {
+      configSvc.activeOrg = undefined
+      respond({ ts: '2026-11-04T06:26:38.632Z' })
+      expect(configSvc.serverTime).toBe(Date.parse('2026-11-04T06:26:38.632Z'))
     })
   })
 

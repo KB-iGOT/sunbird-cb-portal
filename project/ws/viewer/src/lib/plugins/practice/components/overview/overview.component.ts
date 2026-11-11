@@ -6,6 +6,36 @@ import { ViewerHeaderSideBarToggleService } from './../../../../viewer-header-si
 import { FinalAssessmentPopupComponent } from './../final-assessment-popup/final-assessment-popup.component'
 import { MatDialog } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
+
+/** Intro shown instead of the assessment summary, instructions and consent checkbox */
+export interface IQuestionnaireIntro {
+  start: string
+  heading: string
+  description: string
+}
+
+/**
+ * Questionnaires by `contextCategory`: survey-style, no time limit, retakes or pass mark, nothing to agree to
+ * before starting. Add a category here to give it the same layout.
+ */
+export const QUESTIONNAIRE_INTROS: Record<string, IQuestionnaireIntro> = {
+  'Baseline Assessment': {
+    start: 'Start Questionnaire',
+    heading: 'About this baseline questionnaire',
+    description: 'This baseline questionnaire is the first milestone of the Leadership as a Mission workshop. '
+      + 'It captures where you stand today, before the workshop begins, so your growth can be seen over the journey ahead. '
+      + 'There are no right or wrong answers — please respond honestly, based on your own experience and practice.',
+  },
+  'Endline Assessment': {
+    start: 'Start Questionnaire',
+    heading: 'About this endline questionnaire',
+    description: 'Congratulations on completing the Leadership as a Mission workshop! '
+      + 'We hope it has given you meaningful insights and practical ways to grow as a leader. '
+      + 'This endline questionnaire is the final milestone of your journey — it helps you reflect on how your thinking '
+      + 'and practice have evolved since the baseline. There are no right or wrong answers — please respond honestly, '
+      + 'based on your own experience.',
+  },
+}
 @Component({
     selector: 'viewer-overview',
     templateUrl: './overview.component.html',
@@ -27,6 +57,10 @@ export class OverviewComponent implements OnInit, OnChanges, OnDestroy {
   @Output() userSelection = new EventEmitter<NSPractice.TUserSelectionType>()
   @Input() forPreview = false
   @Input() quizData: any
+  /** From the practice player; falls back to the route content */
+  @Input() contextCategory = ''
+  /** The player's section-load status: on 'error' the Start button stops loading and can be pressed again */
+  @Input() sectionsStatus = ''
   forCreatorMode = window.location.href.includes('editMode=true')
   questionTYP = NsContent.EPrimaryCategory
   // staticImage = '/assets/images/exam/practice-test.png'
@@ -55,6 +89,10 @@ export class OverviewComponent implements OnInit, OnChanges, OnDestroy {
   ngOnInit() {
     this.dataSubscription = this.route.data.subscribe(data => {
       this.contentData = data?.content?.data
+      // a questionnaire has no consent checkbox: Start is enabled straight away
+      if (this.questionnaire) {
+        this.consentGiven = true
+      }
 
       if (data && data.pageData) {
         this.isretakeAllowed = data.pageData.data.isretakeAllowed
@@ -62,7 +100,18 @@ export class OverviewComponent implements OnInit, OnChanges, OnDestroy {
     })
   }
 
+  /** Intro for a questionnaire category (e.g. Baseline Assessment), else undefined */
+  get questionnaire(): IQuestionnaireIntro | undefined {
+    return QUESTIONNAIRE_INTROS[this.contextCategory || this.contentData?.contextCategory || '']
+  }
+
   ngOnChanges() {
+    if (this.sectionsStatus === 'error') {
+      this.loading = false
+    }
+    if (this.questionnaire) {
+      this.consentGiven = true
+    }
     if (!this.forPreview) {
       if (this.canAttempt && (this.canAttempt.attemptsMade >= this.canAttempt.attemptsAllowed) &&
         this.questionTYP.FINAL_ASSESSMENT === this.primaryCategory) {

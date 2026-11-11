@@ -34,6 +34,55 @@ $mp-orange: #f47b20;
   }
 }
 
+// ── Image-only popup ───────────────────────────────────────────────────────
+// A real width, not `auto`: an SVG with only a viewBox (no width/height) has no size of its own, so
+// shrink-to-fit around it collapsed the popup to 0 wide and nothing showed. The height follows the image.
+.mp-dialog--image {
+  // as wide as fits both the width and the height of the window at the image's own proportions, so the
+  // box is always exactly the artwork (no empty strip beside it) and the close button sits on its corner
+  width: min(1040px, calc(100vw - 32px), calc((100vh - 32px) * var(--mp-image-ratio, 1.7778)));
+  max-width: 100%;
+  // visible, so the close button can sit on the corner outside the artwork; the image keeps the
+  // rounded corners itself. The backdrop's 16px padding leaves room for the button.
+  overflow: visible;
+  background: transparent;
+  box-shadow: none;
+
+  .mp-close {
+    // on the corner, half outside, instead of 40px inside the image on top of its headline
+    top: -12px;
+    right: -12px;
+    width: 32px;
+    height: 32px;
+    border: 2px solid #ffffff;
+    background: #1b2133;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+    &:hover {
+      background: #000000;
+    }
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
+}
+
+.mp-picture {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.32);
+}
+
+// Fills the popup's width; height from the image's own proportions (PNG pixels or SVG viewBox). The popup's
+// width already fits the window's height, so no cap is needed here and nothing is letterboxed.
+.mp-image {
+  width: 100%;
+  border-radius: inherit;
+  height: auto;
+}
+
 // ── Header ─────────────────────────────────────────────────────────────────
 .mp-header {
   background: linear-gradient(135deg, #0f2a6b 0%, #163a85 100%);
@@ -136,7 +185,9 @@ $mp-orange: #f47b20;
 
 // ── Note and footer ────────────────────────────────────────────────────────
 .mp-note {
-  background: #fff6ef;
+  // translucent tint over the themed surface: light peach in light mode, dark orange in dark mode,
+  // so the themed text colour stays readable in both
+  background: rgba($mp-orange, 0.08);
   border: 1px solid rgba($mp-orange, 0.3);
   color: var(--text-bandw-black-title);
 }

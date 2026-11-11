@@ -7,6 +7,28 @@ import { FormConfigService } from '@sunbird-cb/consumption'
 const API_END_POINTS = {
   PUBLIC_FORM_READ: '/apis/v1/form/read',
 }
+
+const PUBLIC_GLOBAL_ENV_REQUEST = {
+  request: {
+    type: 'page',
+    subType: 'globalenv',
+    action: 'portal_global_env_config',
+    component: 'portal',
+    rootOrgId: '*',
+  },
+}
+
+/** Host part of a `sitePath` / URL value: "https://portal.uat.x.net/" -> "portal.uat.x.net" */
+function hostOf(value: unknown): string {
+  return String(value || '').trim().toLowerCase().replace(/^[a-z]+:\/\//, '').replace(/\/.*$/, '')
+}
+
+/** True when an env config (globalenv form / global.env.json) belongs to the portal this page is served from */
+export function matchesCurrentPortal(config: any): boolean {
+  const sitePath = hostOf(config && config.sitePath)
+  return !!sitePath && sitePath === window.location.host.toLowerCase()
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -27,13 +49,23 @@ export class FormEnvConfigService {
       // awaited for real: init reads these values right after, so they must be applied first.
       // globalEnvConfigReadData never errors - it falls back to the static global.env.json
       const response = await firstValueFrom(this.globalEnvConfigReadData(user))
-      const formConfig = response?.data || response
+      let formConfig = response?.data || response
       // both reads failed: the fallback is { data: null, error }, not config - keep env.json values
-      if (formConfig && !formConfig.error) {
+      if (!formConfig || formConfig.error) {
+        formConfig = null
+      }
+      // The values for this portal come first. Without a session the protected read fails and the static
+      // global.env.json is returned, which can belong to another environment (e.g. production values on UAT):
+      // the public globalenv form read is answered for this portal, so use it when it matches.
+      if (!matchesCurrentPortal(formConfig) && window.location.hostname !== 'localhost') {
+        const publicConfig = await this.readPublicEnvConfig()
+        if (publicConfig && (matchesCurrentPortal(publicConfig) || !formConfig)) {
+          formConfig = publicConfig
+        }
+      }
+      if (formConfig) {
         this.setApiEnvironmentValues(formConfig)
       }
-
-
     } catch (error) {
       console.error(
         'Error while loading environment configuration from FormConfig API',
@@ -45,36 +77,31 @@ export class FormEnvConfigService {
     }
   }
 
-
-
   /**
    * Loads environment values for a user without a session. The protected
    * formsConfig read returns 419 for them, so this uses the public form read.
    * Falls back to the static global.env.json, and keeps env.json values if both fail.
    */
   async loadPublicEnvironmentConfig(): Promise<void> {
-    const payload = {
-      request: {
-        type: 'page',
-        subType: 'globalenv',
-        action: 'portal_global_env_config',
-        component: 'portal',
-        rootOrgId: '*',
-      },
-    }
     try {
-      const formConfig = await firstValueFrom(
-        this.http.post<any>(API_END_POINTS.PUBLIC_FORM_READ, payload).pipe(
-          map((rData: any) => rData?.result?.form?.data),
-          catchError(() => this.http.get<any>(`/assets/configurations/global.env.json`)),
-        ),
-      )
+      const formConfig = (await this.readPublicEnvConfig())
+        || await firstValueFrom(this.http.get<any>(`/assets/configurations/global.env.json`).pipe(catchError(() => of(null))))
       if (formConfig) {
         this.setApiEnvironmentValues(formConfig)
       }
     } catch (error) {
       console.error('Error while loading public environment configuration', error)
     }
+  }
+
+  /** The public globalenv form read (no session needed); null when it fails or returns nothing */
+  private readPublicEnvConfig(): Promise<any> {
+    return firstValueFrom(
+      this.http.post<any>(API_END_POINTS.PUBLIC_FORM_READ, PUBLIC_GLOBAL_ENV_REQUEST).pipe(
+        map((rData: any) => rData?.result?.form?.data || null),
+        catchError(() => of(null)),
+      ),
+    )
   }
 
   private setApiEnvironmentValues(formConfig: any): void {

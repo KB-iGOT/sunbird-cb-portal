@@ -26,11 +26,54 @@ import { BtnSettingsService, EnrollmentSummaryStateService, NPSGridService } fro
 import moment from 'moment'
 import { TranslateService } from '@ngx-translate/core'
 import { SbUiResolverService } from '@sunbird-cb/resolver-v2'
+import { CommonMethodsService } from '@sunbird-cb/consumption'
 import { NetCoreService } from './netcore.service'
 import { CommonDataService } from './common-data.service'
-import { FormEnvConfigService } from './form-env-config.service'
+import { FormEnvConfigService, matchesCurrentPortal } from './form-env-config.service'
 import { FormConfigService } from '@sunbird-cb/consumption'
 /* tslint:enable */
+
+// global-config apicache key with how long (seconds) the saved enrolment summary is reused
+const ENROLLMENT_SUMMARY_CACHE_KEY = 'summaryTime'
+
+/** Body class that un-hides UserWay's floating accessibility icon (see #userwayAccessibilityIcon in styles.scss) */
+export const SHOW_ACCESSIBILITY_ICON_CLASS = 'show-accessibility-icon'
+
+/**
+ * UserWay's floating icon is hidden by default (the profile menu has an Accessibility entry instead).
+ * global-web config `components.accessibilityWidget.showFloatingIcon: true` brings it back on every page.
+ */
+export function applyAccessibilityIconConfig(globalConfig: any): void {
+  const show = globalConfig?.components?.accessibilityWidget?.showFloatingIcon === true
+  document.body.classList.toggle(SHOW_ACCESSIBILITY_ICON_CLASS, show)
+}
+
+/**
+ * Login (`keycloak.url`, `keycloak.url2`) goes through the portal the user is on. application.config.json can
+ * carry another environment's host (UAT has been serving production's), which sends a logged-out user to that
+ * environment's login. When the loaded environment is this portal's (its `sitePath` matches), the host of those
+ * URLs is replaced with this portal's origin; the path and query are kept. Otherwise nothing changes.
+ */
+export function alignLoginWithPortal(appConfig: any, env: any = environment): void {
+  const keycloak = appConfig && appConfig.keycloak
+  if (!keycloak || !matchesCurrentPortal(env)) {
+    return
+  }
+  const origin = window.location.origin;
+  (['url', 'url2'] as const).forEach(key => {
+    const value = keycloak[key]
+    if (typeof value === 'string' && /^https?:\/\//i.test(value)) {
+      try {
+        const url = new URL(value)
+        if (url.origin !== origin) {
+          keycloak[key] = `${origin}${url.pathname}${url.search}`
+        }
+      } catch {
+        // not a URL: leave it
+      }
+    }
+  })
+}
 
 @Injectable({
   providedIn: 'root',
@@ -67,6 +110,7 @@ export class InitService {
     private formConfigSvc: FormConfigService,
     private formConfigService: FormEnvConfigService,
     private readonly enrollmentSummaryState: EnrollmentSummaryStateService,
+    private commonMethodsSvc: CommonMethodsService,
 
     @Inject(APP_BASE_HREF) private baseHref: string,
     domSanitizer: DomSanitizer,
@@ -342,6 +386,7 @@ export class InitService {
       publicConfig = await firstValueFrom(this.http
         .get<NsInstanceConfig.IConfig>(`${this.baseUrl}/application.config.json`))
     }
+    alignLoginWithPortal(publicConfig)
     if (publicConfig.npsCategory) {
       localStorage.setItem('npsCategory', publicConfig.npsCategory)
     }
@@ -392,6 +437,7 @@ export class InitService {
     try {
       const response: any = await firstValueFrom(this.formConfigSvc.getForm(user, 'portal', 'global-web', 2.0))
       this.configSvc.globalConfig = response.result.data
+      applyAccessibilityIconConfig(this.configSvc.globalConfig)
     } catch (e) {
       // the global-web form config is mandatory — when the API fails the app
       // must show the error screen instead of silently running on a stale
@@ -420,8 +466,15 @@ export class InitService {
     if (!enrollmentSummaryConfig?.enabled) {
       return {} as NsInstanceConfig.IConfig
     }
-    const eventEnrollConfig = this.configSvc.globalConfig?.apis?.user?.eventEnroll
     const userId = this.configSvc.userProfile?.userId
+    // the summary saved in localStorage (userEnrollmentCount) is still fresh for this user:
+    // the widgets read it from there, so skip the API
+    if (localStorage.getItem('userEnrollmentCount')
+      && this.commonMethodsSvc.isApiCacheValid(ENROLLMENT_SUMMARY_CACHE_KEY, userId)) {
+      this.setupNetcore()
+      return {} as NsInstanceConfig.IConfig
+    }
+    const eventEnrollConfig = this.configSvc.globalConfig?.apis?.user?.eventEnroll
     // the course summary and the event summary are independent APIs — fire them together
     // and merge both into the single `userEnrollmentCount` cache the widgets read from.
     // Each stream swallows its own error so one failing API does not drop the other's data
@@ -469,38 +522,44 @@ export class InitService {
         }
         localStorage.removeItem('userEnrollmentCount')
         localStorage.setItem('userEnrollmentCount', JSON.stringify(userData))
+        // only a successful summary is stamped: a failed or fallback one is fetched again next load
+        this.commonMethodsSvc.saveApiCacheTime(ENROLLMENT_SUMMARY_CACHE_KEY, userId)
 
       } else {
         // course summary failed or came back empty — still persist whatever the
         // event summary returned so the stats widgets get the event counts
         this.storeFallbackEnrollmentCount(userEventEnrolmentInfo, eventEnrolmentCount)
       }
-      if (this.configSvc.userProfile) {
-        const userProfile = this.configSvc && this.configSvc.userProfile
-        if (userProfile.rootOrgId) {
-          this.netCoreService.getOrgReadData(userProfile.rootOrgId).subscribe(orgData => {
-            this.configSvc.orgReadData = orgData
-            if (!(orgData && orgData['netcoreDisabled'])) {
-              this.netCoreService.bootstrapNetcore()
-              if (this.configSvc.netcoreConfig && this.configSvc.netcoreConfig.netcoreWebConfig
-                && this.configSvc.netcoreConfig.netcoreWebConfig.isActive
-              ) {
-                const netCoreUserSetupFlag: any = localStorage.getItem('netCoreUserSetup') ? localStorage.getItem('netCoreUserSetup') : ''
-                if (netCoreUserSetupFlag === 'false' || netCoreUserSetupFlag === false || netCoreUserSetupFlag === '') {
-                  this.netCoreUserLoginSetup()
-                }
-              }
-            }
-          })
-        }
-
-      }
+      this.setupNetcore()
 
       return res
     }).catch((_err: any) => {
       this.storeFallbackEnrollmentCount()
     }) as NsInstanceConfig.IConfig || {}
     return publicConfig
+  }
+
+  // runs after the enrolment summary, whether it came from the API or from the cache
+  private setupNetcore(): void {
+    if (this.configSvc.userProfile) {
+      const userProfile = this.configSvc && this.configSvc.userProfile
+      if (userProfile.rootOrgId) {
+        this.netCoreService.getOrgReadData(userProfile.rootOrgId).subscribe(orgData => {
+          this.configSvc.orgReadData = orgData
+          if (!(orgData && orgData['netcoreDisabled'])) {
+            this.netCoreService.bootstrapNetcore()
+            if (this.configSvc.netcoreConfig && this.configSvc.netcoreConfig.netcoreWebConfig
+              && this.configSvc.netcoreConfig.netcoreWebConfig.isActive
+            ) {
+              const netCoreUserSetupFlag: any = localStorage.getItem('netCoreUserSetup') ? localStorage.getItem('netCoreUserSetup') : ''
+              if (netCoreUserSetupFlag === 'false' || netCoreUserSetupFlag === false || netCoreUserSetupFlag === '') {
+                this.netCoreUserLoginSetup()
+              }
+            }
+          }
+        })
+      }
+    }
   }
 
   // course + event counts merged once at init so the stats widgets only read localStorage.

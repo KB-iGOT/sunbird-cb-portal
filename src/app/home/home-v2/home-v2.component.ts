@@ -112,7 +112,21 @@ export class HomeV2Component implements OnInit {
     this.btnSettingsSvc.changeFont(fontClass)
   }
 
+  // The pending-approval list is only used to decide whether to show the "update your profile"
+  // nudge, so skip the workflow API when the nudge can't be shown anyway: disabled in
+  // global-config components.dialogs.profileUpdateNudge, no user, or profile already VERIFIED.
+  private canShowProfileUpdateNudge(): boolean {
+    const user = this.configSvc.unMappedUser
+    return this.isDialogEnabled('profileUpdateNudge')
+      && !!user?.id
+      && user.profileDetails?.profileStatus !== 'VERIFIED'
+  }
+
   private getListPendingApproval(): void {
+    if (!this.canShowProfileUpdateNudge()) {
+      this.isNudgeOpen = false
+      return
+    }
     this.userProfileService.listApprovalPendingFields().subscribe((res: any) => {
       this.pendingApprovalList = res.result.data
       if (!(this.pendingApprovalList && this.pendingApprovalList.length)) {

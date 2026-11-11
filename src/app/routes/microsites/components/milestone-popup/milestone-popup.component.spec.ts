@@ -1,7 +1,6 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing'
-import { TranslateModule } from '@ngx-translate/core'
 import { NsCampaignMilestone } from '@sunbird-cb/consumption'
-import { NsCampaignMicrosite } from '../../models/campaign-microsite.model'
+import { NsCampaignMicrosite, resolveMilestoneLabels } from '../../models/campaign-microsite.model'
 import { MilestonePopupComponent } from './milestone-popup.component'
 
 const milestone = (order: number, type: NsCampaignMilestone.TMilestoneType = 'assessment') => ({
@@ -26,13 +25,12 @@ const CONFIG: NsCampaignMicrosite.IMilestonePopup = {
   ],
 }
 
+/** Default text (no `labels` input set) */
 const KEY = {
-  availableNow: 'campaignMicrosite.milestonePopup.availableNow',
-  inProgress: 'campaignMicrosite.milestonePopup.inProgress',
-  completed: 'campaignMicrosite.milestonePopup.completed',
-  locked: 'campaignMicrosite.milestoneCard.locked',
-  start: 'campaignMicrosite.milestonePopup.start',
-  resume: 'campaignMicrosite.milestonePopup.resume',
+  availableNow: 'Available now',
+  inProgress: 'In progress',
+  completed: 'Completed',
+  locked: 'Locked',
 }
 
 describe('MilestonePopupComponent', () => {
@@ -47,11 +45,10 @@ describe('MilestonePopupComponent', () => {
     fixture.detectChanges()
   }
   const statuses = () => Array.from(el.querySelectorAll('.mp-step__status')).map(s => s.textContent?.trim())
-  const cta = () => el.querySelector<HTMLButtonElement>('.mp-cta')
+  const okay = () => el.querySelector<HTMLButtonElement>('.mp-cta')
 
   beforeEach(() => {
-    // No translations loaded, so the translate pipe renders the keys
-    TestBed.configureTestingModule({ imports: [MilestonePopupComponent, TranslateModule.forRoot()] })
+    TestBed.configureTestingModule({ imports: [MilestonePopupComponent] })
     fixture = TestBed.createComponent(MilestonePopupComponent)
     component = fixture.componentInstance
     el = fixture.nativeElement
@@ -76,17 +73,112 @@ describe('MilestonePopupComponent', () => {
     expect(steps.map(s => s.color)).toEqual(['navy', 'green', 'teal', 'orange'])
   })
 
-  it('without a milestoneLabel the step label is the "Milestone N" key', () => {
+  it('without a milestoneLabel the step label is "Milestone N"', () => {
     fixture.componentRef.setInput('milestones', MILESTONES.map(m => ({ ...m, milestoneLabel: '' })))
     fixture.componentRef.setInput('states', ['notStarted', 'locked', 'locked', 'locked'])
     fixture.detectChanges()
     const labels = Array.from(el.querySelectorAll('.mp-step__label')).map(l => l.textContent?.trim())
-    expect(labels).toEqual(Array(4).fill('campaignMicrosite.milestonePopup.milestone'))
+    expect(labels).toEqual(['Milestone 1', 'Milestone 2', 'Milestone 3', 'Milestone 4'])
   })
 
-  it('translates the close button label', () => {
+  it('labels the close button', () => {
     render(['notStarted', 'locked', 'locked', 'locked'])
-    expect(el.querySelector('.mp-close')?.getAttribute('aria-label')).toBe('campaignMicrosite.close')
+    expect(el.querySelector('.mp-close')?.getAttribute('aria-label')).toBe('Close')
+  })
+
+  it('uses text from the page config labels, with {{number}} filled in', () => {
+    fixture.componentRef.setInput('labels', resolveMilestoneLabels({
+      close: 'Dismiss',
+      popup: { availableNow: 'Open', locked: 'Not yet', okay: 'Got it', milestone: 'Step {{number}}' },
+    }))
+    fixture.componentRef.setInput('config', CONFIG)
+    fixture.componentRef.setInput('milestones', MILESTONES.map(m => ({ ...m, milestoneLabel: '' })))
+    fixture.componentRef.setInput('states', ['notStarted', 'locked', 'locked', 'locked'])
+    fixture.detectChanges()
+    expect(statuses()).toEqual(['Open', 'Not yet', 'Not yet', 'Not yet'])
+    expect(okay()?.textContent?.trim()).toBe('Got it')
+    expect(el.querySelector('.mp-step__label')?.textContent?.trim()).toBe('Step 1')
+    expect(el.querySelector('.mp-close')?.getAttribute('aria-label')).toBe('Dismiss')
+  })
+
+  it('milestones waiting for the event date show the "Available from" text', () => {
+    fixture.componentRef.setInput('availableFrom', [null, 'Available from 17th Nov', 'Available from 17th Nov', null])
+    render(['completed', 'notStarted', 'notStarted', 'notStarted'])
+    expect(statuses()).toEqual([KEY.completed, 'Available from 17th Nov', 'Available from 17th Nov', KEY.availableNow])
+    expect(component.steps()[1].tone).toBe('muted')
+  })
+
+  it('a completed milestone shows Completed even while the date lock applies', () => {
+    fixture.componentRef.setInput('availableFrom', [null, 'Available from 17th Nov', null, null])
+    render(['completed', 'completed', 'notStarted', 'locked'])
+    expect(statuses()[1]).toBe(KEY.completed)
+  })
+
+  describe('image-only popup', () => {
+    const IMAGE = 'https://example.org/welcome.png'
+    const withImage = { ...CONFIG, image: IMAGE, imageAlt: 'Welcome banner' }
+
+    it('shows only the image and the close button when an image is configured', () => {
+      render(['notStarted', 'locked', 'locked', 'locked'], withImage)
+      const img = el.querySelector<HTMLImageElement>('.mp-image')
+      expect(img?.getAttribute('src')).toBe(IMAGE)
+      expect(img?.getAttribute('alt')).toBe('Welcome banner')
+      expect(el.querySelector('.mp-close')).not.toBeNull()
+      expect(el.querySelector('#mp-title')).toBeNull()
+      expect(okay()).toBeNull()
+      expect(el.querySelector('[role="dialog"]')?.getAttribute('aria-label')).toBe('Welcome banner')
+    })
+
+    it('close button closes it', () => {
+      render(['notStarted', 'locked', 'locked', 'locked'], withImage)
+      const closed = jest.fn()
+      component.closed.subscribe(closed)
+      el.querySelector<HTMLElement>('.mp-close')?.click()
+      expect(closed).toHaveBeenCalledTimes(1)
+    })
+
+    it('offers mobileImage to phones (below 768px) and keeps image for wider screens', () => {
+      render(['notStarted', 'locked', 'locked', 'locked'], { ...withImage, mobileImage: 'https://example.com/mobile.png' })
+      const source = el.querySelector<HTMLSourceElement>('picture source')
+      expect(source?.getAttribute('media')).toBe('(max-width: 767px)')
+      expect(source?.getAttribute('srcset')).toBe('https://example.com/mobile.png')
+      expect(el.querySelector('.mp-image')?.getAttribute('src')).toBe(IMAGE)
+    })
+
+    it('has no phone source without a usable mobileImage', () => {
+      render(['notStarted', 'locked', 'locked', 'locked'], { ...withImage, mobileImage: '<MOBILE_IMAGE_URL>' })
+      expect(el.querySelector('picture source')).toBeNull()
+      expect(el.querySelector('.mp-image')?.getAttribute('src')).toBe(IMAGE)
+    })
+
+    it('sizes the popup from the loaded image proportions', () => {
+      render(['notStarted', 'locked', 'locked', 'locked'], withImage)
+      const img = el.querySelector<HTMLImageElement>('.mp-image')!
+      Object.defineProperty(img, 'naturalWidth', { value: 1920 })
+      Object.defineProperty(img, 'naturalHeight', { value: 1080 })
+      img.dispatchEvent(new Event('load'))
+      fixture.detectChanges()
+      expect(Number(el.querySelector<HTMLElement>('.mp-dialog')!.style.getPropertyValue('--mp-image-ratio'))).toBeCloseTo(1920 / 1080)
+    })
+
+    it('falls back to the text popup when the image fails to load', () => {
+      render(['notStarted', 'locked', 'locked', 'locked'], withImage)
+      el.querySelector('.mp-image')?.dispatchEvent(new Event('error'))
+      fixture.detectChanges()
+      expect(el.querySelector('.mp-image')).toBeNull()
+      expect(el.querySelector('#mp-title')?.textContent).toContain('one step at a time')
+    })
+
+    it.each([['empty', ''], ['placeholder', '<WELCOME_IMAGE_URL>']])('uses the text popup for an %s image', (_name, image) => {
+      render(['notStarted', 'locked', 'locked', 'locked'], { ...CONFIG, image })
+      expect(el.querySelector('.mp-image')).toBeNull()
+      expect(el.querySelector('#mp-title')).not.toBeNull()
+    })
+
+    it('alt text falls back to the title', () => {
+      render(['notStarted', 'locked', 'locked', 'locked'], { ...CONFIG, image: IMAGE })
+      expect(el.querySelector('.mp-image')?.getAttribute('alt')).toBe(CONFIG.title)
+    })
   })
 
   it('draws a connector after every step but the last', () => {
@@ -97,19 +189,11 @@ describe('MilestonePopupComponent', () => {
   it('new journey: first available, the rest locked', () => {
     render(['notStarted', 'locked', 'locked', 'locked'])
     expect(statuses()).toEqual([KEY.availableNow, KEY.locked, KEY.locked, KEY.locked])
-    expect(cta()?.textContent).toContain(KEY.start)
-    expect(component.cta()).toEqual({ label: KEY.start, number: 1 })
   })
 
-  it('mid journey: completed steps, and Resume for one in progress', () => {
+  it('mid journey: completed steps and one in progress', () => {
     render(['completed', 'inProgress', 'locked', 'locked'])
     expect(statuses()).toEqual([KEY.completed, KEY.inProgress, KEY.locked, KEY.locked])
-    expect(component.cta()).toEqual({ label: KEY.resume, number: 2 })
-  })
-
-  it('CTA targets the first open milestone, skipping a locked one before it', () => {
-    render(['locked', 'completed', 'notStarted', 'locked'])
-    expect(component.cta()).toEqual({ label: KEY.start, number: 3 })
   })
 
   it('a disabled milestone shows as locked whatever its state', () => {
@@ -119,22 +203,13 @@ describe('MilestonePopupComponent', () => {
     expect(statuses()[1]).toBe(KEY.locked)
   })
 
-  it('no CTA when nothing is open', () => {
-    render(['completed', 'locked', 'locked', 'locked'])
-    expect(cta()).toBeNull()
-  })
-
-  it('no CTA once the journey is complete', () => {
-    render(['completed', 'completed', 'completed', 'completed'])
-    expect(cta()).toBeNull()
-  })
-
-  it('CTA emits the current milestone', () => {
+  it('the Okay button only closes the popup', () => {
     render(['completed', 'notStarted', 'locked', 'locked'])
-    const started = jest.fn()
-    component.start.subscribe(started)
-    cta()?.click()
-    expect(started).toHaveBeenCalledWith(MILESTONES[1])
+    const closed = jest.fn()
+    component.closed.subscribe(closed)
+    expect(okay()?.textContent?.trim()).toBe('Okay')
+    okay()?.click()
+    expect(closed).toHaveBeenCalledTimes(1)
   })
 
   it('emits closed from the close button, the backdrop and Escape, not from inside the dialog', () => {

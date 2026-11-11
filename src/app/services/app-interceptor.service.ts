@@ -1,8 +1,8 @@
 import { Injectable, LOCALE_ID, Inject } from '@angular/core'
-import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpErrorResponse } from '@angular/common/http'
+import { HttpInterceptor, HttpRequest, HttpHandler, HttpEvent, HttpErrorResponse, HttpResponse } from '@angular/common/http'
 import { Observable, throwError } from 'rxjs'
 import { ConfigurationsService, AuthKeycloakService } from '@sunbird-cb/utils-v2'
-import { catchError } from 'rxjs/operators'
+import { catchError, tap } from 'rxjs/operators'
 import { MatSnackBar } from '@angular/material/snack-bar'
 // import { NOTIFICATION_TIME } from '@sunbird-cb/collection' 
 // import 'rxjs/add/operator/do'
@@ -18,7 +18,55 @@ export class AppInterceptorService implements HttpInterceptor {
     // private router: Router,
     @Inject(LOCALE_ID) private locale: string,
   ) { }
+
   intercept(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
+    return this.handle(req, next).pipe(
+      tap(event => {
+        if (event instanceof HttpResponse) {
+          this.captureServerTime(event.body)
+        }
+      }),
+    )
+  }
+
+  /**
+   * Saves the `ts` of an API response body as epoch ms in configSvc.serverTime, with
+   * configSvc.serverTimeOffset = serverTime - Date.now(). Only a newer ts replaces the saved one,
+   * so a response that arrives late, or comes from a cache, can't move the time backwards.
+   * Also saves performance.now() at that moment (serverTimeAt): unlike Date.now() it does not move
+   * when the device clock is changed, so ServerClockService (utils-v2) can count forward from serverTime reliably.
+   */
+  private captureServerTime(body: any): void {
+    const serverTime = body && typeof body === 'object' ? AppInterceptorService.parseTs(body.ts) : null
+    const config = this.configSvc
+    if (serverTime === null || (config.serverTime && serverTime <= config.serverTime)) {
+      return
+    }
+    config.serverTime = serverTime
+    config.serverTimeOffset = serverTime - Date.now()
+    config.serverTimeAt = performance.now()
+  }
+
+  /**
+   * `ts` comes in two shapes: ISO ("2026-11-04T06:26:38.632Z", form APIs) and the Sunbird one
+   * ("2026-11-04 05:53:14:323+0000", user/login APIs) that Date can't parse as is.
+   * Epoch numbers are taken as they are. Anything else gives null.
+   */
+  static parseTs(ts: any): number | null {
+    if (typeof ts === 'number') {
+      return Number.isFinite(ts) ? ts : null
+    }
+    if (typeof ts !== 'string' || !ts) {
+      return null
+    }
+    const sunbird = /^(\d{4}-\d{2}-\d{2}) (\d{2}:\d{2}:\d{2}):(\d{3})([+-]\d{2})(\d{2})$/.exec(ts.trim())
+    const time = sunbird
+      ? Date.parse(`${sunbird[1]}T${sunbird[2]}.${sunbird[3]}${sunbird[4]}:${sunbird[5]}`)
+      : Date.parse(ts)
+    return Number.isNaN(time) ? null : time
+  }
+
+  private handle(req: HttpRequest<any>, next: HttpHandler): Observable<HttpEvent<any>> {
     const lang = [this.locale.replace('en-US', 'en')]
     if (this.configSvc.userPreference) {
       (this.configSvc.userPreference.selectedLangGroup || '')

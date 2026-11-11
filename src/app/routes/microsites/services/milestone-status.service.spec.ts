@@ -3,7 +3,8 @@ import { TestBed } from '@angular/core/testing'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
 import { firstValueFrom, of, throwError } from 'rxjs'
 import { NsCampaignMilestone } from '@sunbird-cb/consumption'
-import { MilestoneStatusService, fallbackStates, isMilestoneOpenable, toProgressState } from './milestone-status.service'
+import { NsCampaignMicrosite } from '../models/campaign-microsite.model'
+import { MilestoneStatusService, assessmentState, fallbackStates, isMilestoneOpenable, toProgressState } from './milestone-status.service'
 
 const PRE = 'do_pre'
 const POST = 'do_post'
@@ -30,7 +31,7 @@ const DONE = { status: 2, completionPercentage: 100 }
 
 describe('MilestoneStatusService', () => {
   let service: MilestoneStatusService
-  let http: { post: jest.Mock, get: jest.Mock }
+  let http: { post: jest.Mock, get: jest.Mock, patch: jest.Mock }
   let configSvc: { userProfile: any }
 
   /** post() serves API A or C by URL; get() serves API B */
@@ -50,7 +51,7 @@ describe('MilestoneStatusService', () => {
     milestones.map(m => ({ ...m, ...flags[m.order] }))
 
   beforeEach(() => {
-    http = { post: jest.fn(), get: jest.fn() }
+    http = { post: jest.fn(), get: jest.fn(), patch: jest.fn() }
     configSvc = { userProfile: { userId: 'u1' } }
     TestBed.configureTestingModule({
       providers: [
@@ -113,7 +114,7 @@ describe('MilestoneStatusService', () => {
       expect(http.get).toHaveBeenCalledWith('/apis/proxies/v8/user/event/read/u1?eventId=do_event&batchId=b_event')
       expect(http.post).toHaveBeenCalledWith(
         '/apis/proxies/v8/forms/v2/bulkGetApplicationsById',
-        { userId: 'u1', formContextList: [{ formId: 'f1' }] },
+        { userId: 'u1', formContextList: [{ formId: 'f1', contextId: 'f1' }] },
       )
     })
   })
@@ -139,6 +140,169 @@ describe('MilestoneStatusService', () => {
       expect(await resolve()).toEqual(['notStarted', 'notStarted', 'notStarted', 'notStarted'])
       expect(callCounts()).toEqual({ a: 0, b: 0, c: 0 })
     })
+  })
+
+  describe('pledge backed by an event', () => {
+    const PLEDGE_EVENT = 'do_pledge_event'
+    const pledge = {
+      order: 3, type: 'survey', formId: 'f1', identifier: PLEDGE_EVENT, batchId: 'b_pledge', eventDurationMinutes: 30,
+    } as NsCampaignMicrosite.IMilestone
+    const items = [milestones[0], milestones[1], pledge, milestones[3]] as NsCampaignMilestone.IMilestone[]
+    const eventsResponse = (records: object[]) => ({ result: { events: records } })
+
+    it('status comes from the event read for that event, not the form check', async () => {
+      http.post.mockImplementation((url: string) =>
+        url.includes('bulkGetApplicationsById') ? of(survey(true)) : of(courses()))
+      http.get.mockImplementation((url: string) => of(url.includes(PLEDGE_EVENT)
+        ? eventsResponse([{ contentId: PLEDGE_EVENT, status: 2, issuedCertificates: [{ identifier: 'cert_1' }] }])
+        : event()))
+      const states = await resolve(items)
+      expect(states[2]).toBe('completed')
+      expect(http.get).toHaveBeenCalledWith(expect.stringContaining(`eventId=${PLEDGE_EVENT}&batchId=b_pledge`))
+      expect(http.post.mock.calls.some(([url]) => url.includes('bulkGetApplicationsById'))).toBe(false)
+      expect(service.isEventEnrolled(PLEDGE_EVENT)).toBe(true)
+      expect(service.issuedCertificateId(PLEDGE_EVENT)).toBe('cert_1')
+    })
+
+    it('no certificate issued → undefined', async () => {
+      mockApis(courses())
+      http.get.mockImplementation((url: string) => of(url.includes(PLEDGE_EVENT)
+        ? eventsResponse([{ contentId: PLEDGE_EVENT, status: 2, issuedCertificates: [] }])
+        : event()))
+      await resolve(items)
+      expect(service.issuedCertificateId(PLEDGE_EVENT)).toBeUndefined()
+      expect(service.issuedCertificateId(undefined)).toBeUndefined()
+    })
+
+    it('completeEvent sends the 100% progress update for the event batch', async () => {
+      http.patch = jest.fn(() => of({ responseCode: 'OK' }))
+      await service.completeEvent(pledge)
+      expect(http.patch).toHaveBeenCalledWith('/apis/proxies/v8/eventprogress/v1/event/state/update', {
+        request: {
+          userId: 'u1',
+          events: [{
+            eventId: PLEDGE_EVENT,
+            batchId: 'b_pledge',
+            status: 2,
+            lastAccessTime: expect.stringMatching(/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}:00\+0000$/),
+            progressdetails: { max_size: 1800, current: [30], duration: 1800, mimeType: 'application/html', stateMetaData: 1800 },
+            completionPercentage: 100,
+          }],
+        },
+      })
+    })
+
+    it('completeEvent stamps lastAccessTime with the server time, not the device clock', async () => {
+      http.patch = jest.fn(() => of({ responseCode: 'OK' }))
+      jest.spyOn(performance, 'now').mockReturnValue(5_000)
+      Object.assign(configSvc, { serverTime: Date.parse('2026-11-05T13:40:12.345Z'), serverTimeAt: 5_000 })
+      jest.spyOn(Date, 'now').mockReturnValue(Date.parse('2030-01-01T00:00:00Z'))
+      await service.completeEvent(pledge)
+      expect((http.patch as jest.Mock).mock.calls[0][1].request.events[0].lastAccessTime).toBe('2026-11-05 13:40:12:00+0000')
+      jest.restoreAllMocks()
+    })
+
+    it('completeEvent needs an identifier and batchId', async () => {
+      http.patch = jest.fn()
+      await expect(service.completeEvent({ ...pledge, batchId: '' })).rejects.toThrow()
+      expect(http.patch).not.toHaveBeenCalled()
+    })
+
+    it('fetchCertificate returns the printUri, and rejects without one', async () => {
+      http.get.mockReturnValue(of({ result: { printUri: 'data:image/svg+xml,<svg/>' } }))
+      expect(await service.fetchCertificate('cert_1')).toBe('data:image/svg+xml,<svg/>')
+      expect(http.get).toHaveBeenCalledWith('/apis/protected/v8/cohorts/course/batch/cert/download/cert_1')
+      http.get.mockReturnValue(of({ result: {} }))
+      await expect(service.fetchCertificate('cert_1')).rejects.toThrow()
+    })
+  })
+
+  describe('event enrollment', () => {
+    const event = { order: 2, type: 'event', identifier: EVENT, batchId: 'b_event' } as NsCampaignMicrosite.IMilestone
+
+    it('registers the user for the event batch and remembers it', async () => {
+      http.post.mockReturnValue(of({ responseCode: 'OK' }))
+      await service.enrollEvent(event)
+      expect(http.post).toHaveBeenCalledWith('/apis/proxies/v8/event/batch/enroll', {
+        request: { userId: 'u1', eventId: EVENT, batchId: 'b_event' },
+      })
+      expect(service.isEventEnrolled(EVENT)).toBe(true)
+    })
+
+    it('rejects when the API does not confirm, without marking the user enrolled', async () => {
+      http.post.mockReturnValue(of({ responseCode: 'CLIENT_ERROR' }))
+      await expect(service.enrollEvent(event)).rejects.toThrow()
+      expect(service.isEventEnrolled(EVENT)).toBe(false)
+    })
+
+    it('rejects without a batchId', async () => {
+      await expect(service.enrollEvent({ ...event, batchId: '' })).rejects.toThrow()
+      expect(http.post).not.toHaveBeenCalled()
+    })
+
+    it('API B marks the event as enrolled only when a record exists', async () => {
+      mockApis(courses(), event_record())
+      await resolve()
+      expect(service.isEventEnrolled(EVENT)).toBe(true)
+    })
+
+    it('API B with no record leaves the event not enrolled', async () => {
+      mockApis(courses())
+      await resolve()
+      expect(service.isEventEnrolled(EVENT)).toBe(false)
+    })
+
+    function event_record() {
+      return { result: { events: [{ contentId: EVENT, status: 0 }] } }
+    }
+  })
+
+  describe('assessment enrollment (API D)', () => {
+    const assessment = { order: 1, type: 'assessment', identifier: PRE, language: 'hindi' } as NsCampaignMicrosite.IMilestone
+    const enrolled = (batchId?: string) => ({ result: { response: { content: batchId ? [{ batchId }] : [] } } })
+
+    it('calls autoenrollment with the config language and remembers the batch it returns', async () => {
+      http.get.mockReturnValue(of(enrolled('b_new')))
+      expect(await service.enrollAssessment(assessment)).toBe('b_new')
+      expect(http.get).toHaveBeenCalledWith(`/apis/protected/v8/cohorts/user/autoenrollment/${PRE}?language=hindi`)
+      expect(service.enrolledBatchId(PRE)).toBe('b_new')
+    })
+
+    it('defaults the language to english', async () => {
+      http.get.mockReturnValue(of(enrolled('b_new')))
+      await service.enrollAssessment({ ...assessment, language: undefined })
+      expect(http.get.mock.calls[0][0]).toContain('?language=english')
+    })
+
+    it('falls back to the config batchId when the response carries none', async () => {
+      http.get.mockReturnValue(of(enrolled()))
+      expect(await service.enrollAssessment({ ...assessment, batchId: 'b_config' })).toBe('b_config')
+    })
+
+    it('propagates API errors to the caller', async () => {
+      http.get.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 500 })))
+      await expect(service.enrollAssessment(assessment)).rejects.toBeInstanceOf(HttpErrorResponse)
+      expect(service.enrolledBatchId(PRE)).toBeUndefined()
+    })
+
+    it('API A records the enrolled batch so a later start skips enrollment', async () => {
+      mockApis(courses({ status: 1, batchId: 'b_pre' }, { status: 0, batch: { batchId: 'b_post' } }))
+      await resolve()
+      expect(service.enrolledBatchId(PRE)).toBe('b_pre')
+      expect(service.enrolledBatchId(POST)).toBe('b_post')
+      expect(service.enrolledBatchId('do_unknown')).toBeUndefined()
+    })
+  })
+})
+
+describe('assessmentState', () => {
+  it.each([
+    [undefined, 'notStarted'],
+    [{ status: 0, completionPercentage: 0 }, 'inProgress'],
+    [{ status: 1, completionPercentage: 50 }, 'inProgress'],
+    [{ status: 2 }, 'completed'],
+  ])('enrolled but unfinished counts as in progress: %j → %s', (record, expected) => {
+    expect(assessmentState(record as any)).toBe(expected)
   })
 })
 

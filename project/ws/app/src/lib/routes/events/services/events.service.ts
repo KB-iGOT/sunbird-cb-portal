@@ -25,6 +25,16 @@ const API_END_POINTS = {
   GET_USER_ENROLL_COUNT: '/apis/proxies/v8/course/v1/batch/getParticipants',
 }
 
+/**
+ * The enrolment count (slots left / event full) is only needed for live Samuhik Charcha events,
+ * so the count API is called for those alone.
+ */
+export function needsEnrollCount(eventData: any): boolean {
+  const typeofEvent = String((eventData && eventData.typeofEvent) || '').trim().toLowerCase()
+  const resourceType = String((eventData && eventData.resourceType) || '').trim().toLowerCase()
+  return typeofEvent === 'live' && resourceType === 'samuhik charcha'
+}
+
 @Injectable({
   providedIn: 'root',
 })

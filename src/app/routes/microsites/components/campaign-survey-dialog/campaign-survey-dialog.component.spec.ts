@@ -1,12 +1,12 @@
-import { CUSTOM_ELEMENTS_SCHEMA } from '@angular/core'
+import { NgTemplateOutlet } from '@angular/common'
+import { ChangeDetectorRef, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core'
 import { ComponentFixture, TestBed } from '@angular/core/testing'
 import { FormBuilder, ReactiveFormsModule } from '@angular/forms'
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
-import { TranslateModule } from '@ngx-translate/core'
-import { NsCampaignMilestone } from '@sunbird-cb/consumption'
-import { AppTocService } from '@sunbird-cb/toc'
+import { HttpClient } from '@angular/common/http'
 import { of, throwError } from 'rxjs'
+import { MicrositeTelemetryService } from '../../services/microsite-telemetry.service'
 import { NsCampaignMicrosite, buildSurveyForm, toFormDetails, toResponse } from '../../models/campaign-microsite.model'
 import { CampaignSurveyDialogComponent } from './campaign-survey-dialog.component'
 
@@ -24,8 +24,10 @@ const milestone = {
   order: 3,
   type: 'survey',
   formId: '1784131937108',
+  // no limits here; the default Sankalpa limits have their own test
+  answerLimits: [] as NsCampaignMicrosite.IAnswerLimit[],
   name: 'Leadership Pledge: Commit to Serve Citizens',
-} as NsCampaignMilestone.IMilestone
+} as NsCampaignMicrosite.IMilestone
 
 describe('campaign survey form helpers', () => {
   const fb = new FormBuilder()
@@ -67,7 +69,7 @@ describe('CampaignSurveyDialogComponent', () => {
   let fixture: ComponentFixture<CampaignSurveyDialogComponent>
   let component: CampaignSurveyDialogComponent
   let el: HTMLElement
-  let tocSvc: { getFormById: jest.Mock, submitForm: jest.Mock }
+  let http: { get: jest.Mock, post: jest.Mock }
   let dialogRef: { close: jest.Mock }
   let snackBar: { open: jest.Mock }
 
@@ -79,48 +81,72 @@ describe('CampaignSurveyDialogComponent', () => {
     fixture.detectChanges()
   }
   const submitButton = () => el.querySelector<HTMLButtonElement>('button[type="submit"]')
+  const commitBox = () => el.querySelector<HTMLInputElement>('input[type="checkbox"]')
+  const fillValid = () => {
+    component.model()?.controls[0].controls.answer.setValue('Asha')
+    component.isCommitted.set(true)
+  }
+
+  let telemetry: { click: jest.Mock, impression: jest.Mock }
 
   beforeEach(() => {
-    tocSvc = { getFormById: jest.fn(() => of(FORM_RESPONSE)), submitForm: jest.fn(() => of({ params: { status: 'success' } })) }
+    telemetry = { click: jest.fn(), impression: jest.fn() }
+    http = { get: jest.fn(() => of(FORM_RESPONSE)), post: jest.fn(() => of({ params: { status: 'success' } })) }
     dialogRef = { close: jest.fn() }
     snackBar = { open: jest.fn() }
     TestBed.configureTestingModule({
-      imports: [CampaignSurveyDialogComponent, TranslateModule.forRoot()],
+      imports: [CampaignSurveyDialogComponent],
       providers: [
-        { provide: AppTocService, useValue: tocSvc },
+        { provide: HttpClient, useValue: http },
         { provide: MatDialogRef, useValue: dialogRef },
+        { provide: MicrositeTelemetryService, useValue: telemetry },
         { provide: MatSnackBar, useValue: snackBar },
         { provide: MAT_DIALOG_DATA, useValue: { milestone } },
       ],
     })
     // The TOC question components are covered by the toc library; stub them here
     TestBed.overrideComponent(CampaignSurveyDialogComponent, {
-      set: { imports: [ReactiveFormsModule, TranslateModule], schemas: [CUSTOM_ELEMENTS_SCHEMA] },
+      set: { imports: [NgTemplateOutlet, ReactiveFormsModule], schemas: [CUSTOM_ELEMENTS_SCHEMA] },
     })
   })
 
   it('loads the form by formId and renders its title and fields', () => {
     create()
-    expect(tocSvc.getFormById).toHaveBeenCalledWith('1784131937108')
+    expect(http.get).toHaveBeenCalledWith('/apis/proxies/v8/forms/v2/getFormById?formId=1784131937108')
     expect(el.querySelector('h2')?.textContent?.trim()).toBe('Leadership Pledge')
-    expect(el.querySelectorAll('ws-app-survey-form-question').length).toBe(1)
-    expect(el.querySelectorAll('ws-app-survey-form-section').length).toBe(1)
-    expect(el.querySelectorAll('hr').length).toBe(1)
+    // q1 on its own, q2 + q3 inside the "Pledge" section
+    expect(el.querySelectorAll('ws-app-survey-form-question').length).toBe(3)
+    expect(el.querySelectorAll('.csd__section .csd__section-title')[0]?.textContent?.trim()).toBe('Pledge')
+    expect(el.querySelectorAll('.csd__section ws-app-survey-form-question').length).toBe(2)
   })
 
-  it('submit stays disabled until required answers are valid', () => {
+  it('submit stays disabled until required answers are valid and the commitment is checked', () => {
     create()
     expect(submitButton()?.disabled).toBe(true)
     component.model()?.controls[0].controls.answer.setValue('Asha')
     fixture.detectChanges()
+    expect(submitButton()?.disabled).toBe(true)
+    commitBox()?.click()
+    fixture.detectChanges()
+    expect(component.isCommitted()).toBe(true)
     expect(submitButton()?.disabled).toBe(false)
+    commitBox()?.click()
+    fixture.detectChanges()
+    expect(submitButton()?.disabled).toBe(true)
+  })
+
+  it('does not submit valid answers without the commitment', () => {
+    create()
+    component.model()?.controls[0].controls.answer.setValue('Asha')
+    component.submit()
+    expect(http.post).not.toHaveBeenCalled()
   })
 
   it('submits the TOC body and closes with true on success', () => {
     create()
-    component.model()?.controls[0].controls.answer.setValue('Asha')
+    fillValid()
     component.submit()
-    expect(tocSvc.submitForm).toHaveBeenCalledWith({
+    expect(http.post).toHaveBeenCalledWith('/apis/proxies/v8/forms/v2/saveFormSubmit', {
       formId: '1784131937108',
       version: 3,
       status: 'SUBMITTED',
@@ -135,22 +161,22 @@ describe('CampaignSurveyDialogComponent', () => {
       contextOrgId: '',
     })
     expect(dialogRef.close).toHaveBeenCalledWith(true)
-    expect(snackBar.open).toHaveBeenCalledWith('campaignMicrosite.survey.submitted', 'X', { duration: 5000 })
+    expect(snackBar.open).toHaveBeenCalledWith('Thank you! Your response has been submitted.', 'X', { duration: 5000 })
   })
 
   it('does not submit an invalid form', () => {
     create()
     component.submit()
-    expect(tocSvc.submitForm).not.toHaveBeenCalled()
+    expect(http.post).not.toHaveBeenCalled()
   })
 
   it.each([
     ['a failed status', of({ params: { status: 'failed' }, errorMessage: 'Already submitted' }), 'Already submitted'],
-    ['an HTTP error', throwError(() => new Error('500')), 'campaignMicrosite.survey.submitError'],
+    ['an HTTP error', throwError(() => new Error('500')), 'Something went wrong. Please try again.'],
   ])('stays open and shows a message on %s', (_name, result, message) => {
-    tocSvc.submitForm.mockReturnValue(result)
+    http.post.mockReturnValue(result)
     create()
-    component.model()?.controls[0].controls.answer.setValue('Asha')
+    fillValid()
     component.submit()
     expect(dialogRef.close).not.toHaveBeenCalled()
     expect(snackBar.open).toHaveBeenCalledWith(message, 'X', { duration: 5000 })
@@ -158,25 +184,149 @@ describe('CampaignSurveyDialogComponent', () => {
   })
 
   it('shows a retry when the form fails to load', () => {
-    tocSvc.getFormById.mockReturnValueOnce(throwError(() => new Error('404')))
+    http.get.mockReturnValueOnce(throwError(() => new Error('404')))
     create()
     expect(el.querySelector('[role="alert"]')).toBeTruthy()
     expect(submitButton()).toBeNull()
     el.querySelector<HTMLButtonElement>('[role="alert"] button')?.click()
     fixture.detectChanges()
-    expect(tocSvc.getFormById).toHaveBeenCalledTimes(2)
+    expect(http.get).toHaveBeenCalledTimes(2)
     expect(el.querySelector('[role="alert"]')).toBeNull()
+  })
+
+  it('applies the default Sankalpa limits when the milestone has none and shows the counter', () => {
+    const { answerLimits, ...noLimits } = milestone
+    create({ milestone: noLimits } as any)
+    const answer = component.model()!.controls[0].controls.answer
+    answer.setValue('Asha')
+    answer.markAsTouched()
+    fixture.detectChanges()
+    expect(answer.hasError('minlength')).toBe(true)
+    const hint = el.querySelector('.csd__limit')
+    expect(hint?.querySelector('.csd__limit-error')?.textContent).toContain('Minimum 70 characters')
+    expect(hint?.textContent).toContain('4/300')
+  })
+
+  it('a required question left empty after focus says so; nothing before it is touched, and the minimum once typed', () => {
+    const { answerLimits, ...defaultLimits } = milestone
+    create({ milestone: defaultLimits } as any)
+    const answer = component.model()!.controls[0].controls.answer
+    const error = () => el.querySelector('.csd__limit-error')?.textContent?.trim() ?? null
+    expect(error()).toBeNull()
+
+    answer.markAsTouched()
+    fixture.debugElement.injector.get(ChangeDetectorRef).markForCheck()
+    fixture.detectChanges()
+    expect(error()).toBe('This field is required')
+
+    answer.setValue('Asha')
+    fixture.debugElement.injector.get(ChangeDetectorRef).markForCheck()
+    fixture.detectChanges()
+    expect(error()).toBe('Minimum 70 characters')
+  })
+
+  it('a required question without length limits still gets the message', () => {
+    create({ milestone: { ...milestone, answerLimits: [] } })
+    component.model()!.controls[0].controls.answer.markAsTouched()
+    fixture.detectChanges()
+    expect(el.querySelector('.csd__limit-error')?.textContent?.trim()).toBe('This field is required')
+  })
+
+  it('shows the length hint for questions inside a section too', () => {
+    create({ milestone: { ...milestone, answerLimits: [{ ids: ['q3'], minLength: 5, maxLength: 20 }] } })
+    const answer = component.model()!.controls[2].controls.answer
+    answer.setValue('abc')
+    answer.markAsTouched()
+    fixture.detectChanges()
+    const hints = el.querySelectorAll('.csd__section .csd__limit')
+    expect(hints.length).toBe(1)
+    expect(hints[0].textContent).toContain('Minimum 5 characters')
+    expect(hints[0].textContent).toContain('3/20')
+  })
+
+  it('shows nothing under a limited answer until it is typed in or too short; the hint always shows', () => {
+    create({ milestone: { ...milestone, answerLimits: [
+      { ids: ['q3'], minLength: 5, maxLength: 20 },
+      { ids: ['q3'], hint: 'Say what and by when' },
+    ] } })
+    expect(el.querySelector('.csd__limit')).toBeNull()
+    expect(el.querySelector('.csd__hint')?.textContent).toContain('Say what and by when')
+
+    const answer = component.model()!.controls[2].controls.answer
+    // typing in the TOC textarea re-renders this OnPush dialog; setting the value directly needs a nudge
+    const rerender = () => {
+      fixture.debugElement.injector.get(ChangeDetectorRef).markForCheck()
+      fixture.detectChanges()
+    }
+    answer.setValue('abc')
+    rerender()
+    // typing shows the counter; the minimum waits until the field is left
+    expect(el.querySelector('.csd__limit')?.textContent).toContain('3/20')
+    expect(el.querySelector('.csd__limit')?.textContent).not.toContain('Minimum')
+    answer.setValue('abcdef')
+    answer.markAsTouched()
+    rerender()
+    expect(el.querySelector('.csd__limit')?.textContent).not.toContain('Minimum')
   })
 
   it('fails without a formId and makes no call', () => {
     create({ milestone: { ...milestone, formId: '' } })
-    expect(tocSvc.getFormById).not.toHaveBeenCalled()
+    expect(http.get).not.toHaveBeenCalled()
     expect(component.loadFailed()).toBe(true)
   })
 
-  it('"Do it later" closes with false', () => {
+  it('Cancel closes with false', () => {
     create()
     el.querySelector<HTMLButtonElement>('.csd__btn--secondary')?.click()
     expect(dialogRef.close).toHaveBeenCalledWith(false)
+  })
+
+  describe('telemetry', () => {
+    const object = { id: (milestone as any).identifier || milestone.formId, type: 'survey' }
+
+    it('X and Cancel raise the same survey-close click; Retry its own', () => {
+      create()
+      el.querySelector<HTMLButtonElement>('.csd__close')?.click()
+      el.querySelector<HTMLButtonElement>('.csd__footer .csd__btn--secondary')?.click()
+      component.retry()
+      expect(telemetry.click.mock.calls).toEqual([
+        ['campaign-microsite-survey-close', undefined, object],
+        ['campaign-microsite-survey-close', undefined, object],
+        ['campaign-microsite-survey-retry', undefined, object],
+      ])
+    })
+
+    it('Submit is tracked only once the form was saved', () => {
+      create({ milestone: { ...milestone, answerLimits: [] } })
+      component.submit()
+      expect(telemetry.click).not.toHaveBeenCalled()
+
+      http.post.mockReturnValueOnce(of({ params: { status: 'failed' } }))
+      fillValid()
+      component.submit()
+      expect(telemetry.click).not.toHaveBeenCalled()
+
+      component.submit()
+      expect(telemetry.click.mock.calls).toEqual([['campaign-microsite-survey-submit', undefined, object]])
+    })
+
+    it('object.id is the milestone\'s content id when it has one', () => {
+      create({ milestone: { ...milestone, identifier: 'do_pledge' } } as any)
+      component.retry()
+      expect(telemetry.click.mock.calls[0][2]).toEqual({ id: 'do_pledge', type: 'survey' })
+    })
+  })
+
+  it('uses the read and submit URLs from the milestone\'s formApis when configured', () => {
+    create({
+      milestone: {
+        ...milestone,
+        formApis: { read: '/apis/custom/form/{formId}', submit: '/apis/custom/submit' },
+      },
+    } as any)
+    expect(http.get).toHaveBeenCalledWith('/apis/custom/form/1784131937108')
+    fillValid()
+    component.submit()
+    expect(http.post.mock.calls[0][0]).toBe('/apis/custom/submit')
   })
 })
