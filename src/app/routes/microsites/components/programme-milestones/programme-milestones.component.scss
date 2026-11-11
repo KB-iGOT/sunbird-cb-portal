@@ -5,7 +5,8 @@
 .cm-milestones__grid {
   grid-template-columns: minmax(0, 1fr);
 
-  sb-uic-milestone-card {
+  // Only the button: the card's "Available from" label and muted status also read --mc-disabled-text
+  sb-uic-milestone-card ::ng-deep .mc-card__cta {
     --mc-disabled-fill: #6b7280;
     --mc-disabled-text: #ffffff;
   }
