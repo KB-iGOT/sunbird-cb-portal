@@ -517,3 +517,37 @@
         width: 15px;
     }
 }
+// questionnaire intro (e.g. Baseline Assessment): light blue info box in place of the summary
+.questionnaire-intro {
+    margin: 48px 0 24px;
+    padding: 24px 28px;
+    border-radius: 12px;
+    background: #eef3fb;
+
+    &__icon {
+        color: #1b4ca1;
+        margin-top: 2px;
+    }
+
+    &__heading {
+        margin: 0 0 12px;
+        font-size: 18px;
+        font-weight: 600;
+        line-height: 1.4;
+        color: rgba(0, 0, 0, 0.87);
+    }
+
+    &__text {
+        margin: 0;
+        font-size: 16px;
+        line-height: 1.6;
+        color: rgba(0, 0, 0, 0.75);
+    }
+}
+
+@media (max-width: 767px) {
+    .questionnaire-intro {
+        margin: 24px 0 16px;
+        padding: 16px;
+    }
+}

@@ -1793,8 +1793,8 @@ export class HtmlComponent implements OnInit, OnChanges, OnDestroy {
         console.log('[SCORM] CONTENT_BEFORE_UNLOAD')
       })
 
-      // ── Unload ──
-      iframeWin.addEventListener('unload', () => {
+      // ── Page hide (replaces deprecated 'unload', blocked by Permissions-Policy) ──
+      iframeWin.addEventListener('pagehide', () => {
         console.log('[SCORM] CONTENT_UNLOAD')
       })
 

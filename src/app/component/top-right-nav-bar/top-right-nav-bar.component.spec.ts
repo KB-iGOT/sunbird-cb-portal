@@ -3,6 +3,7 @@ import { ComponentFixture, TestBed, waitForAsync } from '@angular/core/testing'
 import { HomePageService } from '../../services/home-page.service'
 import { NotificationsService } from '../../services/notifications.service'
 import { ZohoSupportService } from '../../services/zoho-support.service'
+import { CommonDataService } from '../../services/common-data.service'
 import { RootService } from '../root/root.service'
 import { MatDialog, MatDialog as MatDialogNew } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
@@ -44,6 +45,7 @@ describe('TopRightNavBarComponent', () => {
         { provide: MatDialogNew, useValue: autoMock() },
         { provide: LibNotificationsService, useValue: autoMock() },
         { provide: DomainConfService, useValue: autoMock() },
+        { provide: CommonDataService, useValue: autoMock() },
       ],
       schemas: [NO_ERRORS_SCHEMA],
       teardown: { destroyAfterEach: true, rethrowErrors: false },

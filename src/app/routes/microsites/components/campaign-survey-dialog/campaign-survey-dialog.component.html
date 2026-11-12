@@ -1,0 +1,97 @@
+<div class="csd flex flex-col" aria-labelledby="csd-title">
+  <header class="csd__header flex items-center justify-between gap-4 px-6 py-4">
+    <h2 id="csd-title" class="csd__title m-0 text-xl md:text-2xl font-semibold">{{ details()?.title || data.milestone.name }}</h2>
+    <button type="button" class="csd__close flex items-center justify-center flex-shrink-0 w-9 h-9 p-0 rounded-full cursor-pointer"
+      [attr.aria-label]="labels.close" (click)="close('close')">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
+      </svg>
+    </button>
+  </header>
+
+  <div class="csd__body flex-1 px-6 py-4 overflow-y-auto">
+    @if (isLoading()) {
+    <div class="flex justify-center py-12" aria-busy="true">
+      <mat-spinner diameter="36"></mat-spinner>
+    </div>
+    } @else if (loadFailed()) {
+    <div class="flex flex-col items-center gap-4 py-12 text-center" role="alert">
+      <p class="csd__error m-0 text-sm">{{ labels.loadError }}</p>
+      <button type="button" class="csd__btn csd__btn--secondary px-6 rounded-full cursor-pointer" (click)="retry()">
+        {{ labels.retry }}
+      </button>
+    </div>
+    } @else if (model(); as m) {
+    <form id="csd-form" [formGroup]="m.form" (ngSubmit)="submit()">
+      @for (field of m.parentFields; track $index) {
+      @switch (field.fieldType) {
+      @case ('heading') {
+      <!-- drawn here rather than with the TOC section component, so section questions get the length hint too -->
+      <section class="csd__section mb-4 px-4 pt-4 pb-2 rounded-lg">
+        <h3 class="csd__section-title m-0 text-base font-semibold">{{ field.values?.[0]?.heading }}</h3>
+        @if (field.values?.[0]?.subHeading) {
+        <p class="csd__section-desc m-0 pt-2 text-xs">{{ field.values?.[0]?.subHeading }}</p>
+        }
+        <hr class="csd__separator mt-3 mb-0">
+        <div class="pt-5">
+          @for (child of m.childFields[field.sectionId!] || []; track $index) {
+          @if (child.controlIndex !== undefined) {
+          <ng-container *ngTemplateOutlet="question; context: { $implicit: child }" />
+          }
+          }
+        </div>
+      </section>
+      }
+      @case ('separator') {
+      <hr class="csd__separator my-4">
+      }
+      @default {
+      <ng-container *ngTemplateOutlet="question; context: { $implicit: field }" />
+      }
+      }
+      }
+
+      <!-- the white card is drawn here (the TOC one is flattened in scss) so the hint and counter sit inside it -->
+      <ng-template #question let-field>
+        <div class="csd__question mb-4 p-4 rounded-lg">
+          <ws-app-survey-form-question [fieldDetails]="field" [questionForm]="m.controls[field.controlIndex]"
+            (questionValues)="syncValidity()">
+          </ws-app-survey-form-question>
+          @let limit = field.answerLimit;
+          @let answer = m.controls[field.controlIndex].controls['answer'];
+          @let error = answerError(answer, limit);
+          @if (limit?.hint) {
+          <p class="csd__hint m-0 mt-2 text-xs">{{ limit.hint }}</p>
+          }
+          <!-- errors only once the user has been in the question (required / too short); the counter once something is typed -->
+          @if (error || (limit?.maxLength && answer.value)) {
+          <div class="csd__limit flex justify-between gap-4 mt-2 text-xs">
+            <span class="csd__limit-error" role="alert">{{ error }}</span>
+            @if (limit?.maxLength && answer.value) {
+            <span>{{ charCount(answer.value, limit.maxLength) }}</span>
+            }
+          </div>
+          }
+        </div>
+      </ng-template>
+    </form>
+    <label class="csd__commit flex items-start gap-3 mt-4 cursor-pointer">
+      <input type="checkbox" class="csd__checkbox flex-shrink-0 w-4 h-4 mt-1 cursor-pointer" [checked]="isCommitted()"
+        (change)="isCommitted.set($any($event.target).checked)">
+      <span class="text-sm">{{ labels.commitment }}</span>
+    </label>
+    }
+  </div>
+
+  <footer class="csd__footer flex flex-wrap justify-end gap-3 px-6 py-4">
+    <button type="button" class="csd__btn csd__btn--secondary px-6 rounded-full cursor-pointer" (click)="close('cancel')">
+      {{ labels.cancel }}
+    </button>
+    @if (model()) {
+    <button type="submit" form="csd-form" class="csd__btn csd__btn--primary px-6 rounded-full"
+      [class.cursor-pointer]="canSubmit()" [disabled]="!canSubmit()">
+      {{ labels.submit }}
+    </button>
+    }
+  </footer>
+</div>

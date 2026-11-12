@@ -56,7 +56,7 @@ export class AppTourVideoComponent implements OnInit, OnDestroy {
   ngOnInit() {
     this.environment = environment
     this.videoUrl = `https://${this.environment.sitePath}/assets/public/content/guide-videos/Website_Video_v1.mp4`
-    this.videoUrl1 = `https://${this.environment.sitePath}/assets/public/content/guide-videos/karma_wallet_tour.mp4`
+    this.videoUrl1 = `https://${this.environment.sitePath}/assets/public/content/guide-videos/Karma_Wallet_Intro.mp4`
     this.activeVideoIndex = this.startVideoIndex === 1 ? 1 : 0
     if (this.activeVideoIndex === 1) {
       this.raiseKarmaWalletVideoImpression()
@@ -157,6 +157,8 @@ export class AppTourVideoComponent implements OnInit, OnDestroy {
 
   private raiseKarmaWalletVideoImpression() {
     const pData = this.telemetrySvc.pData || {}
+    this.telemetrySvc.sendEmptyObjectForNextImpression()
+    this.telemetrySvc.resetGlobalObjectIfNeeded({})
     try {
       $t.impression(
         {
@@ -173,6 +175,8 @@ export class AppTourVideoComponent implements OnInit, OnDestroy {
         },
       )
     } catch (err) {
+    } finally {
+      this.telemetrySvc.restoreGlobalObjectIfNeeded({}, false)
     }
   }
 

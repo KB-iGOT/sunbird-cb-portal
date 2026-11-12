@@ -149,7 +149,8 @@
               [initialRouteData]="initialrouteData" [forPreview]="forPreview" [resumeData]="resumeData"
               [baseContentReadData]="baseContentReadData" [batchData]="batchData" [hierarchyMapData]="hierarchyMapData"
               [pathSet]="pathSet" [config]="tocConfig" [playResourceId]="dataSvc?.resourceId"
-              [languageList]="languageList"></ws-widget-content-toc>
+              [languageList]="languageList" [lockCertificate]="lockCertificate"
+              (trigerCompletionSurveyForm)="openCompletionSurvey($event)"></ws-widget-content-toc>
           </div>
         </div>
       </ng-container>
@@ -162,7 +163,8 @@
               [initialRouteData]="initialrouteData" [forPreview]="forPreview" [resumeData]="resumeData"
               [baseContentReadData]="baseContentReadData" [batchData]="batchData" [hierarchyMapData]="hierarchyMapData"
               [pathSet]="pathSet" [config]="tocConfig" [playResourceId]="dataSvc?.resourceId"
-              [languageList]="languageList"></ws-widget-content-toc>
+              [languageList]="languageList" [lockCertificate]="lockCertificate"
+              (trigerCompletionSurveyForm)="openCompletionSurvey($event)"></ws-widget-content-toc>
           </div>
         </div>
       </ng-container>

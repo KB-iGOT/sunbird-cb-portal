@@ -94,10 +94,13 @@ export class ContentPickerV2Component implements OnInit, OnDestroy {
 
   async triggerSearch() {
     if (!this.searchConfig) {
-      this.searchConfig = {}
-      try {
-        this.searchConfig = await this.contentPickerSvc.getData(`${this.configSvc.sitePath}/feature/search.json`).toPromise()
-      } catch (_err) { }
+      // served from global-config (searchData); search.json is only the fallback
+      this.searchConfig = this.configSvc.globalConfig?.searchData || {}
+      if (!this.configSvc.globalConfig?.searchData) {
+        try {
+          this.searchConfig = await this.contentPickerSvc.getData(`${this.configSvc.sitePath}/feature/search.json`).toPromise()
+        } catch (_err) { }
+      }
     }
     const isStandAlone = this.searchConfig.search.tabs[0].isStandAlone
     let applyIsStandAlone = false

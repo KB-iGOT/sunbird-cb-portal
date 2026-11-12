@@ -86,6 +86,7 @@ describe('RootComponent', () => {
   let mockHomePageSvc: any
   let mockBreakpointObserver: any
   let mockEnrollmentSummaryState: any
+  const mockFormConfigSvc = { clearCache: jest.fn() }
   let walletBalanceUpdated: Subject<number>
 
   const createComponent = (): any => new (RootComponent as any)(
@@ -113,6 +114,7 @@ describe('RootComponent', () => {
     mockHomePageSvc,
     mockBreakpointObserver,
     mockEnrollmentSummaryState,
+    mockFormConfigSvc,
   )
 
   const setPath = (path: string) => {
@@ -172,6 +174,7 @@ describe('RootComponent', () => {
     mockTelemetrySvc = {
       impression: jest.fn(),
       sendEmptyObjectForNextInteract: jest.fn(),
+      sendEmptyObjectForNextImpression: jest.fn(),
     }
     mockEventSvc = {
       dispatchEvent: jest.fn(),
@@ -203,11 +206,12 @@ describe('RootComponent', () => {
         result: { result: [{ userId: 'user-123', rank: 2 }, { userId: 'other', rank: 1 }] },
       })),
     }
+    mockEnrollmentSummaryState = { loading$: new BehaviorSubject<boolean>(false) }
+
     mockBreakpointObserver = {
       observe: jest.fn().mockReturnValue(of({ matches: false })),
     }
-    mockEnrollmentSummaryState = { loading$: of(false) }
-    ; (environment as any).production = true
+      ; (environment as any).production = true
 
     component = createComponent()
   })
@@ -356,17 +360,13 @@ describe('RootComponent', () => {
   })
 
   describe('simple helpers', () => {
-    it('unloadHandler should not throw', () => {
-      expect(() => component.unloadHandler({ type: 'unload' })).not.toThrow()
-      expect(() => component.unloadHandler(null)).not.toThrow()
-    })
-
     it('reloadPage should not throw', () => {
       expect(() => component.reloadPage()).not.toThrow()
     })
 
     it('logout should force logout', () => {
       component.logout()
+      expect(mockFormConfigSvc.clearCache).toHaveBeenCalled()
       expect(mockAuthSvc.force_logout).toHaveBeenCalled()
     })
 
@@ -879,6 +879,23 @@ describe('RootComponent', () => {
       expect(() => mockSwUpdate.unrecoverable.next({})).not.toThrow()
     })
 
+    it('should reload at most once for repeated unrecoverable states', () => {
+      const originalLocation = window.location
+      const reload = jest.fn()
+      Object.defineProperty(window, 'location', { configurable: true, value: { ...originalLocation, reload } })
+      jest.spyOn(console, 'warn').mockImplementation(() => undefined)
+      sessionStorage.clear()
+      try {
+        component.initAppUpdateCheck()
+        mockSwUpdate.unrecoverable.next({ reason: 'hash mismatch' })
+        mockSwUpdate.unrecoverable.next({ reason: 'hash mismatch' })
+        expect(reload).toHaveBeenCalledTimes(1)
+      } finally {
+        Object.defineProperty(window, 'location', { configurable: true, value: originalLocation })
+        sessionStorage.clear()
+      }
+    })
+
     it('should ignore versions that are not ready', () => {
       component.initAppUpdateCheck()
       mockSwUpdate.versionUpdates.next({ type: 'VERSION_DETECTED' })
@@ -1100,6 +1117,32 @@ describe('RootComponent', () => {
       expect(component.currentRouteData).toEqual([])
     })
 
+    it('should reset the telemetry object before raising an impression with a page context', () => {
+      const order: string[] = []
+      mockTelemetrySvc.sendEmptyObjectForNextImpression.mockImplementation(() => order.push('reset'))
+      mockTelemetrySvc.impression.mockImplementation(() => order.push('impression'))
+      emitEnd('/app/x')
+      expect(mockTelemetrySvc.sendEmptyObjectForNextImpression).toHaveBeenCalledTimes(1)
+      expect(order).toEqual(['reset', 'impression'])
+    })
+
+    it('should reset the telemetry object before raising a search impression', () => {
+      mockRoute.snapshot.root.firstChild = { data: { pageKey: 'globalsearch' }, firstChild: null }
+      mockRoute.snapshot.queryParams = { q: 'java' }
+      emitEnd('/app/globalsearch')
+      expect(mockTelemetrySvc.sendEmptyObjectForNextImpression).toHaveBeenCalledTimes(1)
+    })
+
+    it('should not reset the telemetry object when the page context is incomplete', () => {
+      mockUtilitySvc.routeData = { pageId: 'home', module: '' }
+      emitEnd('/app/x')
+      expect(mockTelemetrySvc.sendEmptyObjectForNextImpression).not.toHaveBeenCalled()
+      mockUtilitySvc.routeData = { pageId: '', module: 'home' }
+      emitEnd('/app/x')
+      expect(mockTelemetrySvc.sendEmptyObjectForNextImpression).not.toHaveBeenCalled()
+      expect(mockTelemetrySvc.impression).toHaveBeenCalledWith()
+    })
+
     it('should raise an empty impression when the page context is incomplete', () => {
       mockUtilitySvc.routeData = { pageId: '', module: '' }
       emitEnd('/app/x')
@@ -1209,6 +1252,16 @@ describe('RootComponent', () => {
       expect(component.showHubs).toBe(false)
       routerEvents.next(new NavigationStart(4, '/public/toc/x'))
       expect(component.viewerPage).toBe(true)
+    })
+
+    it('should show the route progress bar from start until the navigation settles', () => {
+      routerEvents.next(new NavigationStart(1, '/app/globalsearch'))
+      expect(component.routeChangeInProgress).toBe(true)
+      routerEvents.next(new NavigationEnd(1, '/app/globalsearch', '/app/globalsearch'))
+      expect(component.routeChangeInProgress).toBe(false)
+      routerEvents.next(new NavigationStart(2, '/app/event-hub'))
+      routerEvents.next(new NavigationError(2, '/app/event-hub', new Error('chunk')))
+      expect(component.routeChangeInProgress).toBe(false)
     })
 
     it('should reset flags on cancel and error', () => {

@@ -171,7 +171,7 @@
       </ng-container>
       <!-- <ng-container *ngIf="!completedAfterExpiry"> -->
       <div class="certificate-info" *ngIf="(isEnrolled && pastEvent && enrolledEvent?.status > 1 &&
-                enrolledEvent?.issuedCertificates?.length === 0)">
+                enrolledEvent?.issuedCertificates?.length === 0) && !certificateDisabled">
         <p class="">{{ 'eventDetailsRightCard.certificateInfo' | translate }}</p>
       </div>
       <!-- </ng-container> -->

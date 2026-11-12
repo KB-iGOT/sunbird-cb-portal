@@ -101,6 +101,14 @@ describe('GbSearchService (No TestBed)', () => {
   })
 
   describe('getSearchConfig', () => {
+    it('uses globalConfig.searchData without fetching search.json', async () => {
+      const searchData = { search: { tabs: [{ phraseSearch: true }] } }
+      mockConfigSrv.globalConfig = { searchData }
+      const result = await service.getSearchConfig()
+      expect(mockHttp.get).not.toHaveBeenCalled()
+      expect(result).toBe(searchData)
+    })
+
     it('should fetch and cache the config on first call', async () => {
       mockHttp.get.mockReturnValue({ toPromise: jest.fn().mockResolvedValue({ search: {} }) })
       const result = await service.getSearchConfig()
@@ -261,10 +269,18 @@ describe('GbSearchService (No TestBed)', () => {
   describe('nlpSearch', () => {
     it('should post when url is configured', async () => {
       mockDomainConfSvc.getApiUrl.mockReturnValue('/nlp-url')
-      mockHttp.post.mockReturnValue({ toPromise: jest.fn().mockResolvedValue({ result: 'nlp' }) })
+      mockHttp.post.mockReturnValue({ toPromise: jest.fn().mockResolvedValue({ status: 200, body: { result: 'nlp' } }) })
       const req = new SearchNLP()
       const result = await service.nlpSearch(req)
+      expect(mockHttp.post).toHaveBeenCalledWith('/nlp-url', req, { observe: 'response' })
       expect(result).toEqual({ result: 'nlp' })
+    })
+
+    it('should resolve null when the nlp api answers 202', async () => {
+      mockDomainConfSvc.getApiUrl.mockReturnValue('/nlp-url')
+      mockHttp.post.mockReturnValue({ toPromise: jest.fn().mockResolvedValue({ status: 202, body: { data: { keywords: [{ keyword: 'x' }] } } }) })
+      const result = await service.nlpSearch(new SearchNLP())
+      expect(result).toBeNull()
     })
 
     it('should resolve null when url is not configured', async () => {

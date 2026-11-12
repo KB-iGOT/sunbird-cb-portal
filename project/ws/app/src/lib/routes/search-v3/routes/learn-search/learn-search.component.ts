@@ -41,7 +41,7 @@ import {
 import { forkJoin, Observable, Subject } from 'rxjs'
 import {
   NsContent,
-  WidgetUserService,
+  // WidgetUserService,
 } from '@sunbird-cb/collection'
 import { environment } from '../../../../../../../../../src/environments/environment'
 import { NetworkV2Service } from '../../../network-v2/services/network-v2.service'
@@ -202,7 +202,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
     private translate: TranslateService,
     private router: Router,
     private langtranslations: MultilingualTranslationsService,
-    private userService: WidgetUserService,
+    // private userService: WidgetUserService,
     private networkV2Service: NetworkV2Service,
     private indexedDbService: IndexedDbService,
     private utilitySvc: UtilityService,
@@ -301,6 +301,11 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       this.searchContentLoader = false
       this.filtersChipFromLearn = changes['paramFilters'].currentValue[0].subType
       return
+    } else {
+
+      this.filtersChipFromLearn = []
+      this.sideNavBarOpened = true
+      this.searchRequestCourse.request.filters.courseCategory = []
     }
 
     const searchCategoriesChanged = !!changes['searchCategories'] &&
@@ -438,10 +443,28 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
+  // Converts "2026-04-04 19:13:29.113000+0000" (or an epoch value) to epoch milliseconds
+  toEpochMs(value: any): number {
+    if (!value) {
+      return 0
+    }
+    if (typeof value === 'number') {
+      return value
+    }
+    const iso = String(value)
+      .trim()
+      .replace(' ', 'T')
+      .replace(/(\.\d{3})\d*/, '$1')
+      .replace(/([+-]\d{2})(\d{2})$/, '$1:$2')
+    return new Date(iso).getTime()
+  }
+
   async searchCourses() {
     if (this.searchRequestCourse && this.searchRequestCourse['request'] && Object.keys(this.searchRequestCourse['request']['filters'])) {
       if (this.searchRequestCourse['request']['filters']['courseCategory']?.length === 0) {
-        this.searchRequestCourse['request']['filters']['courseCategory'] = { "!=": ["pre enrolment assessment", "comprehensive assessment"] }
+        this.searchRequestCourse['request']['filters']['courseCategory'] = { "!=": ["pre enrolment assessment", "comprehensive assessment",
+                    "Baseline Assessment",
+                    "Endline Assessment"] }
       }
       if (this.searchRequestCourse['request']['facets'] && this.searchRequestCourse['request']['facets'].length) {
         this.searchRequestCourse['request']['facets'] = _.uniq(this.searchRequestCourse['request']['facets'])
@@ -468,7 +491,8 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
           const enrollmentDetails = enrollmentDetailsFromDB[content.identifier]
           if (content?.completionSurveyLink && content?.identifier && enrollmentDetails &&
             (Number(enrollmentDetails?.completionPercentage) === 100 ||
-              (_.isNil(enrollmentDetails?.completionPercentage) && Number(enrollmentDetails?.status) === 2))) {
+              (_.isNil(enrollmentDetails?.completionPercentage) && Number(enrollmentDetails?.status) === 2))
+            && this.toEpochMs(enrollmentDetails?.completedOn) >= Number(this.configSvc.instanceConfig?.completionSurvey?.startDate)) {
             const sID = content.completionSurveyLink.split('surveys/')
             const formId = sID[1]
 
@@ -1693,10 +1717,10 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
       // Cast: the consumption library bundles its own rxjs copy, so its Observable type
       // is not assignable to the portal's rxjs Observable.
       enrollmentDetails: this.enrolementDictionarySvc.getEnrolementDictionary() as unknown as Observable<any>,
-      cbpPlan: this.userService.fetchCbpPlanList(),
+      // cbpPlan: this.userService.fetchCbpPlanList(),
     }).subscribe((responses) => {
       this.enrollmentDetails = responses.enrollmentDetails || {}
-      this.cbpPlanList = responses.cbpPlan || []
+      // this.cbpPlanList = responses.cbpPlan || []
 
       // Store enrollmentDetails in IndexedDB
       if (responses.enrollmentDetails) {

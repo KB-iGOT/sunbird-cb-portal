@@ -853,6 +853,9 @@ export class SearchInputHomeV4Component implements OnInit, OnDestroy {
   async searchInNLP(query: string) {
     const searchRequest = new SearchNLP()
     searchRequest.query = query
+    // clear the previous keyword first, so a 202 / failed nlp call falls back to the user's own
+    // text (q) instead of reusing the last search's keyword
+    this.responseNlpQuery.set('')
     await this.searchV3Service
       .nlpSearch(searchRequest)
       .then(async (response) => {

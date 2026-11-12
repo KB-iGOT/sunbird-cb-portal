@@ -16,12 +16,12 @@ jest.mock('@sunbird-cb/utils-v2', () => ({
   WidgetEnrollService: class { },
   DomainConfService: class { },
 }))
-jest.mock('@sunbird-cb/collection', () => ({ NPSGridService: class { }, BtnSettingsService: class { } }))
-jest.mock('@sunbird-cb/consumption', () => ({ ContentDictionaryService: class { } }))
+jest.mock('@sunbird-cb/collection', () => ({ NPSGridService: class { }, BtnSettingsService: class { }, EnrollmentSummaryStateService: class { } }))
 jest.mock('./netcore.service', () => ({ NetCoreService: class { } }))
 jest.mock('./common-data.service', () => ({ CommonDataService: class { } }))
-jest.mock('./form-ext.service', () => ({ FormExtService: class { } }))
+jest.mock('@sunbird-cb/consumption', () => ({ FormConfigService: class { } }))
 jest.mock('./form-env-config.service', () => ({ FormEnvConfigService: class { } }))
+jest.mock('@sunbird-cb/consumption', () => ({ CommonMethodsService: class { } }))
 
 describe('InitService', () => {
   let service: InitService
@@ -38,10 +38,10 @@ describe('InitService', () => {
   let enrollSvc: any
   let netCoreService: any
   let commonDataSvc: any
-  let contentDictionarySvc: any
-  let formSvc: any
-  let formConfigService: any
+  let formConfigSvc: any
   let enrollmentSummaryState: any
+  let commonMethodsSvc: any
+  let formConfigService: any
   let domSanitizer: any
   let iconRegistry: any
   let routes: Record<string, any>
@@ -151,10 +151,10 @@ describe('InitService', () => {
       trackEvent: jest.fn(),
     }
     commonDataSvc = { checkAndCacheNlw2026Eligibility: jest.fn() }
-    contentDictionarySvc = { getDictionary: jest.fn().mockReturnValue(of({})) }
-    formSvc = {
-      formConfigReadData: jest.fn((req: any) => of({
-        result: { data: req.request.subType === 'global-web' ? globalConfig : appConfig },
+    enrollmentSummaryState = { start: jest.fn(), done: jest.fn() }
+    formConfigSvc = {
+      getForm: jest.fn((_user: any, _portal: string, subType: string) => of({
+        result: { data: subType === 'global-web' ? globalConfig : appConfig },
       })),
     }
     formConfigService = {
@@ -163,12 +163,14 @@ describe('InitService', () => {
     }
     domSanitizer = { bypassSecurityTrustResourceUrl: jest.fn((u: string) => u) }
     iconRegistry = { addSvgIcon: jest.fn() }
-    enrollmentSummaryState = { start: jest.fn(), done: jest.fn() }
+    commonMethodsSvc = {
+      isApiCacheValid: jest.fn().mockReturnValue(false),
+      saveApiCacheTime: jest.fn(),
+    }
     service = new InitService(
       logger, configSvc, domainConfSvc, widgetResolver, sbUiResolver, settingsSvc, userPreference, http, npsSvc,
-      translate, enrollSvc, netCoreService, commonDataSvc, contentDictionarySvc, formSvc, formConfigService,
-      enrollmentSummaryState,
-      '/', domSanitizer, iconRegistry,
+      translate, enrollSvc, netCoreService, commonDataSvc, formConfigSvc, formConfigService, enrollmentSummaryState,
+      commonMethodsSvc, '/', domSanitizer, iconRegistry,
     )
   })
 
@@ -218,20 +220,45 @@ describe('InitService', () => {
       expect(configSvc.globalConfig).toBe(globalConfig)
       expect(configSvc.userProfile.userId).toBe('u1')
       expect(configSvc.userProfileV2.firstName).toBe('John')
-      expect(contentDictionarySvc.getDictionary).toHaveBeenCalled()
       expect(settingsSvc.initializePrefChanges).toHaveBeenCalled()
       expect(localStorage.getItem('firsLogin')).toBe('true')
       expect(configSvc.isNewUser).toBe(false)
       expect(localStorage.getItem('telemetrySessionId')).toBeTruthy()
     })
 
-    it('logs a warning when dictionary preload fails and replaces previous subscription', async () => {
-      contentDictionarySvc.getDictionary.mockReturnValue(throwError(() => new Error('x')))
+    it('reads the user once, first, and picks the global and application config forms for it', async () => {
+      const user = fullProfile()
+      routes['/profile'] = { result: { response: user } }
       await service.init()
-      expect(logger.warn).toHaveBeenCalledWith('InitService: Failed to pre-load content dictionary', expect.any(Error))
+      const profileReads = http.get.mock.calls.filter((c: any[]) => c[0] === '/profile')
+      expect(profileReads.length).toBe(1)
+      expect(http.get.mock.invocationCallOrder[0]).toBeLessThan(formConfigSvc.getForm.mock.invocationCallOrder[0])
+      expect(formConfigSvc.getForm).toHaveBeenCalledWith(user, 'portal', 'global-web', 2)
+      expect(formConfigSvc.getForm).toHaveBeenCalledWith(user, 'portal', 'application-config-web', 2)
+      // the globalenv form matches any user, so the env values load before the user read
+      expect(formConfigService.loadEnvironmentConfig).toHaveBeenCalledWith()
+    })
+
+    it('flags the global config as failed when the user read fails', async () => {
+      routes['/profile'] = new Error('x')
+      formConfigSvc.getForm.mockImplementation((u: any) => u ? of({}) : throwError(() => new Error('no form')))
+      const result = await service.init()
+      expect(formConfigSvc.getForm).toHaveBeenCalledWith(null, 'portal', 'global-web', 2)
+      expect(configSvc.globalConfigLoadFailed).toBe(true)
+      expect(result).toBe(false)
+    })
+
+    it('does not preload the content dictionary at startup', async () => {
+      routes['/profile'] = { result: { response: fullProfile() } }
+      await service.init()
+      const urls = [...http.get.mock.calls, ...(http.post?.mock?.calls || [])].map((c: any[]) => String(c[0]))
+      expect(urls.some(u => u.includes('dictionary'))).toBe(false)
+    })
+
+    it('replaces the previous profile subscription on re-init', async () => {
+      await service.init()
       const first = service.updateProfileSubscription
       const unsubSpy = jest.spyOn(first, 'unsubscribe')
-      globalConfig.apis.content.dictionary.enabled = false
       await service.init()
       expect(unsubSpy).toHaveBeenCalled()
     })
@@ -249,9 +276,41 @@ describe('InitService', () => {
     it('skips the global config on public routes and loads the welcome page profile', async () => {
       setUrl('/public/welcome')
       await service.init()
-      expect(formSvc.formConfigReadData).not.toHaveBeenCalled()
+      expect(formConfigSvc.getForm).not.toHaveBeenCalled()
       expect(http.get).toHaveBeenCalledWith('/base/application.config.json')
       expect(http.get).toHaveBeenCalledWith('/profile')
+    })
+
+    it('loads the environment config before any form read', async () => {
+      const order: string[] = []
+      formConfigService.loadEnvironmentConfig.mockImplementation(async () => { order.push('env') })
+      formConfigSvc.getForm.mockImplementation((_user: any, _portal: string, subType: string) => {
+        order.push(subType)
+        return of({ result: { data: subType === 'global-web' ? globalConfig : appConfig } })
+      })
+      routes['/profile'] = { result: { response: fullProfile() } }
+      await service.init()
+      expect(order[0]).toBe('env')
+      expect(order).toEqual(['env', 'global-web', 'application-config-web'])
+      expect(formConfigService.loadEnvironmentConfig).toHaveBeenCalledTimes(1)
+      expect(formConfigService.loadPublicEnvironmentConfig).not.toHaveBeenCalled()
+    })
+
+    it('uses the session env read on the welcome and creator routes', async () => {
+      setUrl('/public/welcome')
+      await service.init()
+      setUrl('/app?editMode=true&_rc=1')
+      await service.init()
+      expect(formConfigService.loadEnvironmentConfig).toHaveBeenCalledTimes(2)
+      expect(formConfigService.loadPublicEnvironmentConfig).not.toHaveBeenCalled()
+    })
+
+    it('does not reload the environment when the profile is refreshed', async () => {
+      await service.init()
+      formConfigService.loadEnvironmentConfig.mockClear()
+      configSvc.updateProfileObservable.next(true)
+      await new Promise(resolve => setTimeout(resolve, 0))
+      expect(formConfigService.loadEnvironmentConfig).not.toHaveBeenCalled()
     })
 
     it('loads profile for creator editMode routes', async () => {
@@ -264,7 +323,8 @@ describe('InitService', () => {
       setUrl('/public/other')
       const result = await service.init()
       expect(result).toBe(true)
-      expect(formConfigService.loadPublicEnvironmentConfig).toHaveBeenCalled()
+      expect(formConfigService.loadPublicEnvironmentConfig).toHaveBeenCalledTimes(1)
+      expect(formConfigService.loadEnvironmentConfig).not.toHaveBeenCalled()
       expect(http.get).not.toHaveBeenCalledWith('/profile')
     })
 
@@ -364,9 +424,7 @@ describe('InitService', () => {
     it('loads from the form api and applies the config', async () => {
       const result = await (service as any).fetchDefaultConfig()
       expect(result).toBe(appConfig)
-      expect(formSvc.formConfigReadData).toHaveBeenCalledWith(expect.objectContaining({
-        request: expect.objectContaining({ clientVersion: 1.0 }),
-      }))
+      expect(formConfigSvc.getForm).toHaveBeenCalledWith(null, 'portal', 'application-config-web', 1.0)
       expect(localStorage.getItem('npsCategory')).toBe('cat')
       expect(configSvc.activeOrg).toBe('o1')
       expect(configSvc.iGOTAIConfig).toEqual({ w: 1 })
@@ -383,11 +441,9 @@ describe('InitService', () => {
 
     it('uses the client version from global config and reads form.data variants', async () => {
       configSvc.globalConfig = globalConfig
-      formSvc.formConfigReadData.mockReturnValue(of({ result: { form: { data: appConfig } } }))
+      formConfigSvc.getForm.mockReturnValue(of({ result: { form: { data: appConfig } } }))
       await (service as any).fetchDefaultConfig()
-      expect(formSvc.formConfigReadData).toHaveBeenCalledWith(expect.objectContaining({
-        request: expect.objectContaining({ clientVersion: 2 }),
-      }))
+      expect(formConfigSvc.getForm).toHaveBeenCalledWith(null, 'portal', 'application-config-web', 2)
       expect(configSvc.instanceConfig).toBe(appConfig)
     })
 
@@ -402,7 +458,7 @@ describe('InitService', () => {
       delete appConfig.telemetryConfig
       setUrl('/public/x')
       await (service as any).fetchDefaultConfig(true)
-      expect(formSvc.formConfigReadData).not.toHaveBeenCalled()
+      expect(formConfigSvc.getForm).not.toHaveBeenCalled()
       expect(localStorage.getItem('npsCategory')).toBeNull()
       expect(configSvc.iGOTAIConfig).toBeUndefined()
     })
@@ -414,7 +470,7 @@ describe('InitService', () => {
     })
 
     it('falls back to the static file when the form api fails or is empty', async () => {
-      formSvc.formConfigReadData.mockReturnValue(of(null))
+      formConfigSvc.getForm.mockReturnValue(of(null))
       await (service as any).fetchDefaultConfig()
       expect(http.get).toHaveBeenCalledWith('/base/application.config.json')
       expect(configSvc.instanceConfig).toBe(appConfig)
@@ -439,7 +495,7 @@ describe('InitService', () => {
     })
 
     it('flags a load failure', async () => {
-      formSvc.formConfigReadData.mockReturnValue(throwError(() => new Error('x')))
+      formConfigSvc.getForm.mockReturnValue(throwError(() => new Error('x')))
       expect(await (service as any).globalConfigData()).toEqual({})
       expect(configSvc.globalConfigLoadFailed).toBe(true)
     })
@@ -530,6 +586,49 @@ describe('InitService', () => {
       enrollSvc.fetchEnrollStats.mockReturnValue(of(res))
       await (service as any).fetchUserEnrollDetails()
       expect(stored().enrolledCourseCount).toBe(0)
+    })
+
+    describe('apicache.summaryTime', () => {
+      beforeEach(() => {
+        enrollSvc.fetchEnrollStats.mockReturnValue(of(courseRes()))
+        enrollSvc.fetchEventEnrollStats.mockReturnValue(of(eventRes))
+      })
+
+      it('stamps a successful summary for the user', async () => {
+        await (service as any).fetchUserEnrollDetails()
+        expect(commonMethodsSvc.saveApiCacheTime).toHaveBeenCalledWith('summaryTime', 'u1')
+      })
+
+      it('skips the api while the saved summary is fresh, and still sets up netcore', async () => {
+        configSvc.userProfile = { userId: 'u1', rootOrgId: 'r1' }
+        localStorage.setItem('userEnrollmentCount', JSON.stringify({ enrolledCourseCount: 4 }))
+        commonMethodsSvc.isApiCacheValid.mockReturnValue(true)
+        expect(await (service as any).fetchUserEnrollDetails()).toEqual({})
+        expect(commonMethodsSvc.isApiCacheValid).toHaveBeenCalledWith('summaryTime', 'u1')
+        expect(enrollSvc.fetchEnrollStats).not.toHaveBeenCalled()
+        expect(enrollSvc.fetchEventEnrollStats).not.toHaveBeenCalled()
+        expect(stored().enrolledCourseCount).toBe(4)
+        expect(netCoreService.getOrgReadData).toHaveBeenCalledWith('r1')
+      })
+
+      it('calls the api when the saved summary is no longer fresh', async () => {
+        localStorage.setItem('userEnrollmentCount', JSON.stringify({ enrolledCourseCount: 4 }))
+        await (service as any).fetchUserEnrollDetails()
+        expect(enrollSvc.fetchEnrollStats).toHaveBeenCalled()
+        expect(stored().enrolledCourseCount).toBe(8)
+      })
+
+      it('calls the api when nothing is saved in userEnrollmentCount', async () => {
+        commonMethodsSvc.isApiCacheValid.mockReturnValue(true)
+        await (service as any).fetchUserEnrollDetails()
+        expect(enrollSvc.fetchEnrollStats).toHaveBeenCalled()
+      })
+
+      it('does not stamp a fallback summary, so the next load calls the api again', async () => {
+        enrollSvc.fetchEnrollStats.mockReturnValue(throwError(() => new Error('x')))
+        await (service as any).fetchUserEnrollDetails()
+        expect(commonMethodsSvc.saveApiCacheTime).not.toHaveBeenCalled()
+      })
     })
 
     describe('netcore bootstrap', () => {

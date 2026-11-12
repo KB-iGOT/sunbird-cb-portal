@@ -5,6 +5,7 @@ import {
 } from '@angular/core'
 import {
   ActivatedRoute,
+  Params,
 } from '@angular/router'
 // tslint:disable-next-line
 import * as _ from 'lodash'
@@ -12,7 +13,7 @@ import { ConfigurationsService, EventService, MultilingualTranslationsService, W
 import { SeeAllService } from '../../services/see-all.service'
 import { NsContentStripWithTabsAndPills } from '@sunbird-cb/consumption'
 import { catchError, map, mergeMap } from 'rxjs/operators'
-import { of } from 'rxjs'
+import { Observable, of } from 'rxjs'
 
 @Component({
   selector: 'ws-app-see-all-with-pills',
@@ -39,6 +40,17 @@ export class SeeAllWithPillsComponent implements OnInit, OnDestroy {
   pillResults: any[] = []
   dynamicPillIndex = 0
   pageSize = 50
+  private readonly volunteerExploreContentQueryParams: Params = {
+    q: '',
+    tab: 'explore-content',
+    category: 'course',
+    filtersPanel: 'show',
+  }
+  private readonly exploreContentQueryParams: Params = {
+    q: '',
+    category: 'courses',
+    filtersPanel: 'show',
+  }
 
   constructor(
     private activated: ActivatedRoute,
@@ -50,6 +62,30 @@ export class SeeAllWithPillsComponent implements OnInit, OnDestroy {
     private enrollSvc: WidgetEnrollService,
   ) {
 
+  }
+
+  getExploreContentRoute(tab: any): string {
+    if (tab && tab?.label === 'Events') {
+      return '/app/event-hub/home'
+    }
+    return this.isVolunteerUser ? '/app/globalsearch/volunteer' : '/app/globalsearch'
+  }
+
+  getExploreContentQueryParams(tab: any): Params | null {
+    if (tab && tab?.label === 'Events') {
+      return null
+    }
+    return this.isVolunteerUser
+      ? this.volunteerExploreContentQueryParams
+      : this.exploreContentQueryParams
+  }
+
+  private get isVolunteerUser(): boolean {
+    const profileRoles = this.configSvc.userProfileV2?.userRoles || []
+    return (!!this.configSvc.userRoles && this.configSvc.userRoles.has('volunteer'))
+      || (Array.isArray(profileRoles) && profileRoles.some(
+        (role: any) => (typeof role === 'string' ? role : role?.role || '').toUpperCase() === 'VOLUNTEER'
+      ))
   }
 
   async ngOnInit() {
@@ -873,7 +909,11 @@ export class SeeAllWithPillsComponent implements OnInit, OnDestroy {
         delete currentPillFromMap.request.payload.request.limit
       }
       let courses: any = []
-      this.enrollSvc.fetchInternalEnrollmentData(userId, currentPillFromMap.request.payload).pipe(
+      // the enrollment service is built against a different rxjs copy, so normalise its observable type
+      const internalEnrollment$ = this.enrollSvc.fetchInternalEnrollmentData(
+        userId, currentPillFromMap.request.payload
+      ) as unknown as Observable<any>
+      internalEnrollment$.pipe(
         mergeMap((res: any) => {
           if (_.get(res, 'result.courses', []).length > 0 && _.get(this.configSvc, 'userProfile.userId') && _.get(currentPillFromMap, 'request.payload.request.status') === 'Completed') {
             const formContextList: any[] = []
@@ -881,7 +921,10 @@ export class SeeAllWithPillsComponent implements OnInit, OnDestroy {
 
             for (const course of res.result.courses) {
               const content = course.content
-              if (content?.completionSurveyLink && content?.identifier) {
+              if (
+                content?.completionSurveyLink && content?.identifier
+                && course?.completedOn >= Number(this.configSvc.instanceConfig?.completionSurvey?.startDate)
+              ) {
                 const sID = content.completionSurveyLink.split('surveys/')
                 const formId = sID[1]
 
