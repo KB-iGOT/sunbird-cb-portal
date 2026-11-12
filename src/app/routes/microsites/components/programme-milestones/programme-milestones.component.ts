@@ -90,8 +90,10 @@ export function eventPhase(milestone: NsCampaignMicrosite.IMilestone, now: numbe
 
 /**
  * A registered event comes back from the event read as status 1 (`inProgress`) whatever the time, so by its
- * start / end time: before `startDateTime` it is `notStarted` (not "In progress" yet), once `endDateTime` has
- * passed it is `completed`. Registration itself is read separately (isEventEnrolled), so buttons are unaffected.
+ * start time: before `startDateTime` it is `notStarted` (not "In progress" yet). Completion comes only from its
+ * progress, not `endDateTime`. Registration itself is read separately (isEventEnrolled), so buttons are unaffected.
+ * Status 2 comes back as soon as the user has watched enough, so a completed event shows "In progress" until its
+ * `endDateTime` has passed; the card shows Completed only after that.
  */
 export function withEndedEvents(
   states: NsCampaignMilestone.TMilestoneState[] | null,
@@ -100,14 +102,16 @@ export function withEndedEvents(
 ): NsCampaignMilestone.TMilestoneState[] | null {
   return states && states.map((state, i) => {
     const milestone = milestones[i]
+    if (state === 'completed' && milestone?.type === 'event' && hasValidDateTime(milestone.endDateTime)
+      && eventPhase(milestone, now) !== 'ended') {
+      return 'inProgress'
+    }
     if (state !== 'inProgress' || milestone?.type !== 'event') {
       return state
     }
     switch (eventPhase(milestone, now)) {
       case 'upcoming':
         return 'notStarted'
-      case 'ended':
-        return 'completed'
       default:
         return state
     }
@@ -374,6 +378,13 @@ export class ProgrammeMilestonesComponent {
   /** Time for the cards ("Overdue" is by day): changes once a minute, not on every tick */
   readonly cardNow = computed(() => Math.floor(this.now() / CARD_CLOCK_MS) * CARD_CLOCK_MS)
 
+  /** Per card: the card's "In progress" / "Completed" status is hidden (`hideProgressStatus`); other statuses stay */
+  readonly hiddenStatuses = computed(() => {
+    const states = this.states()
+    return this.milestones().map((milestone, i) => !!milestone.hideProgressStatus
+      && (states?.[i] === 'inProgress' || states?.[i] === 'completed'))
+  })
+
   /**
    * Green "Completed" in place of the button for finished assessments. Events never get it: their button
    * always follows Register / Event yet to start / Join event / View recording.
@@ -422,7 +433,7 @@ export class ProgrammeMilestonesComponent {
         }
         case 'event':
           return eventCta(eventPhase(milestone, now), this.statusSvc.isEventEnrolled(milestone.identifier), labels.event,
-            !!milestone.openBeforeStart, state === 'completed')
+            !!milestone.openBeforeStart, this.apiStates()?.[index] === 'completed')
         case 'survey':
           if (state !== 'completed') {
             return { label: labels.survey.start, disabled: false }
@@ -661,7 +672,7 @@ export class ProgrammeMilestonesComponent {
         return
       }
     } else if (phase === 'upcoming' && !milestone.openBeforeStart
-      && this.stateAt(this.milestones().findIndex(m => m.order === milestone.order)) !== 'completed') {
+      && this.apiStates()?.[this.milestones().findIndex(m => m.order === milestone.order)] !== 'completed') {
       return
     }
     const route = buildPlayerRoute(milestone, configValue(milestone.batchId))

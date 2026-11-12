@@ -164,6 +164,30 @@ describe('CampaignSurveyDialogComponent', () => {
     expect(snackBar.open).toHaveBeenCalledWith('Thank you! Your response has been submitted.', 'X', { duration: 5000 })
   })
 
+  it('files a pledge backed by an event under the event id and the milestone name', () => {
+    create({ milestone: { ...milestone, identifier: 'do_event', batchId: 'b_event' } })
+    fillValid()
+    component.submit()
+    expect(http.post).toHaveBeenCalledWith('/apis/proxies/v8/forms/v2/saveFormSubmit', expect.objectContaining({
+      formId: '1784131937108',
+      contextId: 'do_event',
+      contextName: milestone.name,
+      contextOrgId: '',
+    }))
+    expect(dialogRef.close).toHaveBeenCalledWith(true)
+  })
+
+  it('a form with an identifier but no event batch stays filed under its form id (what the status check reads)', () => {
+    create({ milestone: { ...milestone, identifier: 'do_pledge' } })
+    fillValid()
+    component.submit()
+    expect(http.post).toHaveBeenCalledWith('/apis/proxies/v8/forms/v2/saveFormSubmit', expect.objectContaining({
+      contextId: '1784131937108',
+      contextName: milestone.name,
+      contextOrgId: '',
+    }))
+  })
+
   it('does not submit an invalid form', () => {
     create()
     component.submit()

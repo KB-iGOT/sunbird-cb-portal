@@ -57,36 +57,24 @@
        <mat-tab-group>
       <mat-tab label="{{'events.eventInfo' | translate}}">
         <ng-template matTabContent>
-          <div class="flex flex-1 flex-column mb-2">
-            <span class="f-medium mat-title">{{ 'event.eventDescription' | translate }}</span>
-          </div>
-          <div class="flex flex-wrap">
-            <ng-container>
-              <div class="flex mb-5">
-                <p class="word-break">{{eventData?.description}}</p>
+          <div class="event-info flex flex-col gap-8 pt-6 pb-8">
+            <section class="flex flex-col gap-2">
+              <h2 class="f-medium mat-title">{{ 'event.eventDescription' | translate }}</h2>
+              <p class="word-break">{{eventData?.description}}</p>
+            </section>
+            <section class="flex flex-col gap-2" *ngIf="eventData?.creatorDetails">
+              <h2 class="f-medium mat-title">{{ 'event.eventPresenters' | translate }}</h2>
+              <div class="flex flex-wrap">
+                <div class="flex mobile-width" *ngFor="let user of eventData?.creatorDetails">
+                  <app-presenter-card [userData]="user"
+                    class="flex presenter_main_box margin-right-l no-right-marging"></app-presenter-card>
+                </div>
               </div>
-            </ng-container>
-          </div>
-          <div class="flex flex-1 flex-column mb-2" *ngIf="eventData?.creatorDetails">
-            <span class="f-medium mat-title margin-bottom-xs">{{ 'event.eventPresenters' | translate }}</span>
-          </div>
-          <div class="flex flex-wrap margn-bottom-l" *ngIf="eventData?.creatorDetails">
-            <ng-container>
-              <div class="flex mobile-width" *ngFor="let user of eventData?.creatorDetails">
-                <app-presenter-card [userData]="user"
-                  class="flex presenter_main_box margin-right-l no-right-marging"></app-presenter-card>
-              </div>
-            </ng-container>
-          </div>
-          <div class="flex flex-1 flex-column margin-top-l margin-bottom-s" *ngIf="eventData?.learningObjective">
-            <span class="f-medium mat-title">{{ 'event.eventAgenda' | translate }}</span>
-          </div>
-          <div class="flex flex-wrap margin-bottom-xl" *ngIf="eventData?.learningObjective">
-            <ng-container>
-              <div class="flex mb-5">
-                <p class="word-break">{{eventData?.learningObjective}}</p>
-              </div>
-            </ng-container>
+            </section>
+            <section class="flex flex-col gap-2" *ngIf="eventData?.learningObjective">
+              <h2 class="f-medium mat-title">{{ 'event.eventAgenda' | translate }}</h2>
+              <p class="word-break">{{eventData?.learningObjective}}</p>
+            </section>
           </div>
         </ng-template>
       </mat-tab>
