@@ -26,10 +26,6 @@ export class EventYouTubeComponent implements OnInit, AfterViewInit, OnDestroy {
   isEnrolled = false
   resumeEventStatus = 0
   rateToFire = 180
-  /** Event start in epoch ms; progress is saved only once the event has started */
-  eventStartMs = 0
-  /** Last `rateToFire` window (timeSpent / rateToFire) a progress update was sent for */
-  lastFiredSlot = 0
   player: videoJs.Player | null = null
   dispose: (() => void) | null = null
   pageConfigData: any = {}
@@ -65,8 +61,6 @@ export class EventYouTubeComponent implements OnInit, AfterViewInit, OnDestroy {
     const sDate = this.customDateFormat(this.eventData.startDate, this.eventData.startTime)
     // const eDate = this.customDateFormat(this.eventData.endDate, this.eventData.endTime)
     const msDate = Math.floor(moment(sDate).valueOf() / 1000)
-    // keeps startTime's offset (e.g. +05:30), unlike customDateFormat; NaN when unparsable, which never fires
-    this.eventStartMs = moment(`${this.eventData.startDate}T${this.eventData.startTime}`).valueOf()
     // const meDate = Math.floor(moment(eDate).valueOf() / 1000)
     const cDate = Math.floor(moment(new Date()).valueOf() / 1000)
     if (cDate >= msDate) {
@@ -129,7 +123,6 @@ export class EventYouTubeComponent implements OnInit, AfterViewInit, OnDestroy {
 
   initializePlayer(resumeFrom: any) {
     let timeSpent = resumeFrom ? resumeFrom : 0
-    this.lastFiredSlot = 0
 
     let timeStamp = ''
     let timeStampString: any = ''
@@ -149,15 +142,19 @@ export class EventYouTubeComponent implements OnInit, AfterViewInit, OnDestroy {
         // if(timeSpent % 60 === 0){
         //   this.saveProgressUpdate(this.eventData.duration,timeSpent,lastTimeAccessed)
         // }
-        if (this.eventData && this.eventStartMs && Date.now() >= this.eventStartMs) {
-          // Heartbeats can skip seconds, so fire on crossing into a new window rather than on an exact multiple
-          const slot = Math.floor(timeSpent / this.rateToFire)
-          if (slot > this.lastFiredSlot || timeSpent >= this.eventData.duration * 60) {
-            this.lastFiredSlot = slot
-            this.startInterval(timeSpent, lastTimeAccessed)
+        if (this.eventData) {
+          if (this.eventData.startDate && this.eventData.startTime) {
+            let eventDateTime = this.eventData.startDate + ' ' + this.eventData.startTime
+            let eventDateTimeStamp = new Date(eventDateTime).getTime()
+            let currentDateTimeStamp = new Date().getTime()
+            if (currentDateTimeStamp >= eventDateTimeStamp) {
+              if (timeSpent && (timeSpent % this.rateToFire === 0 || timeSpent >= this.eventData.duration * 60)) {
+                this.startInterval(timeSpent, lastTimeAccessed)
+              }
+              this.intervalStarted = true
+              this.currentEvent = true
+            }
           }
-          this.intervalStarted = true
-          this.currentEvent = true
         }
 
       }

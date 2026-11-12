@@ -164,45 +164,6 @@ describe('EventYouTubeComponent', () => {
 
       expect(saveProgressUpdateSpy).toHaveBeenCalled()
     })
-
-    describe('heartbeat progress update', () => {
-      const heartbeat = (dispatcherFn: any, timeSpent: number) =>
-        dispatcherFn({ data: { playerStatus: 'PLAYING', passThroughData: { timeSpent } } })
-
-      let dispatcherFn: any
-      let saveProgressUpdateSpy: jest.SpyInstance
-
-      beforeEach(() => {
-        const youtubeInitializerSpy = jest.spyOn(videoJsUtil, 'youtubeInitializer')
-        component.rateToFire = 60
-        component.eventStartMs = Date.now() - 1000
-        component.initializePlayer('')
-        dispatcherFn = youtubeInitializerSpy.mock.calls[0][2]
-        saveProgressUpdateSpy = jest.spyOn(component, 'saveProgressUpdate').mockImplementation(() => undefined)
-      })
-
-      it('fires once the rate window is crossed even if the exact second is skipped', () => {
-        heartbeat(dispatcherFn, 59)
-        expect(saveProgressUpdateSpy).not.toHaveBeenCalled()
-        heartbeat(dispatcherFn, 61)
-        expect(saveProgressUpdateSpy).toHaveBeenCalledTimes(1)
-      })
-
-      it('fires only once per rate window', () => {
-        heartbeat(dispatcherFn, 60)
-        heartbeat(dispatcherFn, 61)
-        heartbeat(dispatcherFn, 62)
-        expect(saveProgressUpdateSpy).toHaveBeenCalledTimes(1)
-        heartbeat(dispatcherFn, 120)
-        expect(saveProgressUpdateSpy).toHaveBeenCalledTimes(2)
-      })
-
-      it('does not fire before the event has started', () => {
-        component.eventStartMs = Date.now() + 60_000
-        heartbeat(dispatcherFn, 60)
-        expect(saveProgressUpdateSpy).not.toHaveBeenCalled()
-      })
-    })
   })
 
   describe('getBatchId', () => {
@@ -273,6 +234,7 @@ describe('EventYouTubeComponent', () => {
           })
         })
       )
+      expect(component.rateToFire).toBe(300) // should update rateToFire when completion > 50%
     })
 
     it('should not call saveEventProgressUpdate if resumeEventStatus is 2', () => {

@@ -450,13 +450,6 @@ export function youtubeInitializer(
           })
           loaded = true
         }
-        // PLAYING repeats after buffering / seeking without a PAUSED in between; don't stack timers
-        if (currentTimeInterval) {
-          currentTimeInterval.unsubscribe()
-        }
-        if (timeSpentInterval) {
-          timeSpentInterval.unsubscribe()
-        }
         currentTimeInterval = interval(500).subscribe(_ => {
           if (player.getCurrentTime() >= player.getDuration() * 5 / 100 && player.getCurrentTime() < player.getDuration() * 95 / 100
             && !readyToRaise) {
