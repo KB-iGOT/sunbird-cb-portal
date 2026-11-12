@@ -225,21 +225,46 @@ export class ViewerComponent implements OnInit, OnDestroy, AfterViewChecked {
     }
   }
 
+  /**
+   * Picks up the collection's cstoken (and, as a fallback, its leaf count).
+   *
+   * The route's hierarchyData resolver (AppHierarchyResolverService -> fetchContent) has already
+   * read this collection's hierarchy with the right API for the mode: the authenticated proxy
+   * when logged in, the public /api/course/v1/hierarchy in preview (?mode=edit for creators).
+   * This used to read the hierarchy again on every load - fetchAuthoringContent, always the
+   * public API - so logged-in users hit the preview-only endpoint, and preview requested the
+   * very same URL twice. cstoken is a field of the content, and ngOnInit already set the leaf
+   * count from the resolver's copy, so that copy is used. Only when the resolver came back
+   * without content is the hierarchy fetched here, with the API for the mode.
+   */
   getAuthDataIdentifer() {
     if (this.isPreAssessment) {
-
-    } else {
-      const collectionId = this.activatedRoute.snapshot.queryParams.collectionId
-      this.widgetServ.fetchAuthoringContent(collectionId).subscribe((data: any) => {
-        if (data.result.content.cstoken) {
-          this.configSvc.cstoken = data.result.content.cstoken
-        }
-        // compute total leaf nodes across hierarchy (handles learning pathway)
-        const source = this.hierarchyData || data.result.content
-        this.leafNodesCount = this.countLeafNodes(source) || 0
-      })
+      return
     }
-
+    const resolved = this.activatedRoute.snapshot.data.hierarchyData
+      && this.activatedRoute.snapshot.data.hierarchyData.data
+    const resolvedContent = resolved && resolved.result && resolved.result.content
+    if (resolvedContent) {
+      if (resolvedContent.cstoken) {
+        this.configSvc.cstoken = resolvedContent.cstoken
+      }
+      return
+    }
+    const collectionId = this.activatedRoute.snapshot.queryParams.collectionId
+    const hierarchy$ = this.forPreview
+      ? this.widgetServ.fetchAuthoringContent(collectionId)
+      : this.widgetServ.fetchContent(collectionId, 'detail')
+    hierarchy$.subscribe((data: any) => {
+      const content = data && data.result && data.result.content
+      if (!content) {
+        return
+      }
+      if (content.cstoken) {
+        this.configSvc.cstoken = content.cstoken
+      }
+      // compute total leaf nodes across hierarchy (handles learning pathway)
+      this.leafNodesCount = this.countLeafNodes(this.hierarchyData || content) || 0
+    })
   }
 
   syncMilestoneLockStatus() {

@@ -300,4 +300,77 @@ describe('ViewerComponent (No TestBed)', () => {
       expect(mockTocSvc.createHirarchyProgressHashmap).toHaveBeenCalled()
     })
   })
+
+  describe('getAuthDataIdentifer', () => {
+    let widgetServ: any
+    const hierarchy = (content: any) => ({ data: { result: { content } } })
+
+    beforeEach(() => {
+      widgetServ = {
+        fetchAuthoringContent: jest.fn().mockReturnValue(of({ result: { content: { cstoken: 'cs_public', leafNodes: ['a'] } } })),
+        fetchContent: jest.fn().mockReturnValue(of({ result: { content: { cstoken: 'cs_proxy', leafNodes: ['a', 'b'] } } })),
+      }
+      ;(component as any).widgetServ = widgetServ
+      ;(component as any).activatedRoute.snapshot.queryParams = { collectionId: 'do_course_1' }
+    })
+
+    it('logged in: reuses the resolver\'s hierarchy and does not call the public /api/course hierarchy', () => {
+      component.forPreview = false
+      ;(component as any).activatedRoute.snapshot.data = { hierarchyData: hierarchy({ cstoken: 'cs_resolved' }) }
+      component.leafNodesCount = 7
+
+      component.getAuthDataIdentifer()
+
+      expect(widgetServ.fetchAuthoringContent).not.toHaveBeenCalled()
+      expect(widgetServ.fetchContent).not.toHaveBeenCalled()
+      expect(mockConfigSvc.cstoken).toBe('cs_resolved')
+      expect(component.leafNodesCount).toBe(7)
+    })
+
+    it('logged in without resolver content: fetches once through the proxied fetchContent', () => {
+      component.forPreview = false
+      ;(component as any).activatedRoute.snapshot.data = {}
+
+      component.getAuthDataIdentifer()
+
+      expect(widgetServ.fetchAuthoringContent).not.toHaveBeenCalled()
+      expect(widgetServ.fetchContent).toHaveBeenCalledWith('do_course_1', 'detail')
+      expect(mockConfigSvc.cstoken).toBe('cs_proxy')
+      expect(component.leafNodesCount).toBe(2)
+    })
+
+    it('preview: reuses the resolver\'s hierarchy instead of requesting the same public URL again', () => {
+      component.forPreview = true
+      ;(component as any).activatedRoute.snapshot.data = { hierarchyData: hierarchy({ cstoken: 'cs_resolved' }) }
+      component.leafNodesCount = 4
+
+      component.getAuthDataIdentifer()
+
+      expect(widgetServ.fetchAuthoringContent).not.toHaveBeenCalled()
+      expect(widgetServ.fetchContent).not.toHaveBeenCalled()
+      expect(mockConfigSvc.cstoken).toBe('cs_resolved')
+      expect(component.leafNodesCount).toBe(4)
+    })
+
+    it('preview without resolver content: falls back to the public authoring hierarchy', () => {
+      component.forPreview = true
+      ;(component as any).activatedRoute.snapshot.data = {}
+
+      component.getAuthDataIdentifer()
+
+      expect(widgetServ.fetchAuthoringContent).toHaveBeenCalledWith('do_course_1')
+      expect(widgetServ.fetchContent).not.toHaveBeenCalled()
+      expect(mockConfigSvc.cstoken).toBe('cs_public')
+      expect(component.leafNodesCount).toBe(1)
+    })
+
+    it('pre-assessment: fetches nothing', () => {
+      component.isPreAssessment = true
+
+      component.getAuthDataIdentifer()
+
+      expect(widgetServ.fetchAuthoringContent).not.toHaveBeenCalled()
+      expect(widgetServ.fetchContent).not.toHaveBeenCalled()
+    })
+  })
 })
