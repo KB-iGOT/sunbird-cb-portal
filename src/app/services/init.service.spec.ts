@@ -42,7 +42,6 @@ describe('InitService', () => {
   let enrollmentSummaryState: any
   let commonMethodsSvc: any
   let formConfigService: any
-  let enrollmentSummaryState: any
   let domSanitizer: any
   let iconRegistry: any
   let routes: Record<string, any>
