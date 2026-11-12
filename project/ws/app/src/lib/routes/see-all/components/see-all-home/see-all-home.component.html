@@ -47,6 +47,10 @@
                                 </div>
                             </div>
                         </div>
+                        <p class="karma-coins-note" *ngIf="karmaCoinsNote(tab) as note">
+                            <img src="/assets/icons/karmawallet-v2/proider_coin.svg" alt="" aria-hidden="true" />
+                            <span>{{ note }}</span>
+                        </p>
                     </ng-container>
                     <div class="flex flex-row flex-wrap content-container mt-10 mb-10"
                         [class.course-card-grid]="!isCoisContent">

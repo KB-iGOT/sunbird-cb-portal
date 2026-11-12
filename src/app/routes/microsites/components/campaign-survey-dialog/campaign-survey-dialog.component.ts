@@ -99,7 +99,7 @@ export class CampaignSurveyDialogComponent implements OnInit {
       status: 'SUBMITTED',
       responses: model.controls.map(toResponse),
       contextType: details.contextType,
-      contextId: milestone.formId,
+      contextId: milestone.identifier && milestone.batchId ? milestone.identifier : milestone.formId,
       contextName: milestone.name,
       contextOrgId: '',
     }
