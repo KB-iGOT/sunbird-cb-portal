@@ -117,6 +117,20 @@ describe('ProgrammeMilestonesComponent', () => {
       expect(statusSvc.resolveStates).toHaveBeenCalled()
     })
 
+    it('hideProgressStatus hides only the In progress / Completed status of that card', () => {
+      statusSvc.resolveStates.mockReturnValue(of(['inProgress', 'completed', 'notStarted', 'inProgress']))
+      render({
+        items: [
+          milestone(1, { hideProgressStatus: true }),
+          milestone(2, { type: 'event', hideProgressStatus: true }),
+          milestone(3, { hideProgressStatus: true }),
+          milestone(4),
+        ],
+      })
+      expect(component.hiddenStatuses()).toEqual([true, true, false, false])
+      expect(cards().map(card => card.classList.contains('cm-milestones__card--no-status'))).toEqual([true, true, false, false])
+    })
+
     it('availableFrom: only lockUntilEventStart items, only before eventDetails.startDate', () => {
       statusSvc.resolveStates.mockReturnValue(of(['completed', 'notStarted', 'notStarted', 'notStarted']))
       const items = [milestone(1), milestone(2, { lockUntilEventStart: true }), milestone(3, { lockUntilEventStart: true }), milestone(4)]
