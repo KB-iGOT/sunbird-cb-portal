@@ -378,6 +378,13 @@ export class ProgrammeMilestonesComponent {
   /** Time for the cards ("Overdue" is by day): changes once a minute, not on every tick */
   readonly cardNow = computed(() => Math.floor(this.now() / CARD_CLOCK_MS) * CARD_CLOCK_MS)
 
+  /** Per card: the card's "In progress" / "Completed" status is hidden (`hideProgressStatus`); other statuses stay */
+  readonly hiddenStatuses = computed(() => {
+    const states = this.states()
+    return this.milestones().map((milestone, i) => !!milestone.hideProgressStatus
+      && (states?.[i] === 'inProgress' || states?.[i] === 'completed'))
+  })
+
   /**
    * Green "Completed" in place of the button for finished assessments. Events never get it: their button
    * always follows Register / Event yet to start / Join event / View recording.
