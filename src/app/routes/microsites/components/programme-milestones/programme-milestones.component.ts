@@ -90,8 +90,8 @@ export function eventPhase(milestone: NsCampaignMicrosite.IMilestone, now: numbe
 
 /**
  * A registered event comes back from the event read as status 1 (`inProgress`) whatever the time, so by its
- * start / end time: before `startDateTime` it is `notStarted` (not "In progress" yet), once `endDateTime` has
- * passed it is `completed`. Registration itself is read separately (isEventEnrolled), so buttons are unaffected.
+ * start time: before `startDateTime` it is `notStarted` (not "In progress" yet). Completion comes only from its
+ * progress, not `endDateTime`. Registration itself is read separately (isEventEnrolled), so buttons are unaffected.
  */
 export function withEndedEvents(
   states: NsCampaignMilestone.TMilestoneState[] | null,
@@ -106,8 +106,6 @@ export function withEndedEvents(
     switch (eventPhase(milestone, now)) {
       case 'upcoming':
         return 'notStarted'
-      case 'ended':
-        return 'completed'
       default:
         return state
     }

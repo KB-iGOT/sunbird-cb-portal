@@ -315,8 +315,8 @@ describe('ProgrammeMilestonesComponent', () => {
     describe('withEndedEvents', () => {
       const AFTER = at('2026-11-18T00:00:00+05:30')
 
-      it('an in-progress event counts as completed once it has ended', () => {
-        expect(withEndedEvents(['inProgress'], [event()], AFTER)).toEqual(['completed'])
+      it('an ended event stays in progress until its progress marks it completed', () => {
+        expect(withEndedEvents(['inProgress'], [event()], AFTER)).toEqual(['inProgress'])
       })
 
       it('a registered event is not "in progress" before it starts, and is from the start time', () => {
@@ -339,11 +339,11 @@ describe('ProgrammeMilestonesComponent', () => {
       })
     })
 
-    it('card shows completed for an in-progress workshop that has ended', () => {
+    it('card keeps an ended workshop in progress until its progress is complete', () => {
       component.now.set(at('2026-11-18T00:00:00+05:30'))
       statusSvc.resolveStates.mockReturnValue(of(['completed', 'inProgress']))
       render({ items: [milestone(1), event()] })
-      expect(cards().map(card => card.state)).toEqual(['completed', 'completed'])
+      expect(cards().map(card => card.state)).toEqual(['completed', 'inProgress'])
     })
 
     it.each([
