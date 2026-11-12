@@ -337,6 +337,58 @@ describe('ProgrammeMilestonesComponent', () => {
       it('keeps null (still loading)', () => {
         expect(withEndedEvents(null, [event()], AFTER)).toBeNull()
       })
+
+      it.each([
+        ['before the start', '2026-11-17T09:59:00+05:30', 'inProgress'],
+        ['while it runs', '2026-11-17T11:00:00+05:30', 'inProgress'],
+        ['one minute before the end', '2026-11-17T12:29:00+05:30', 'inProgress'],
+        ['at the end', END, 'completed'],
+        ['after the end', '2026-11-18T00:00:00+05:30', 'completed'],
+      ])('a completed (status 2) event shows completed only once its end time has passed: %s', (_name, now, expected) => {
+        expect(withEndedEvents(['completed'], [event()], at(now))).toEqual([expected])
+      })
+
+      it.each([
+        ['before the start (openBeforeStart)', '2026-11-16T20:00:00+05:30', 'inProgress'],
+        ['during the event', '2026-11-17T14:00:00+05:30', 'inProgress'],
+        ['one minute before the end', '2026-11-17T18:29:00+05:30', 'inProgress'],
+        ['at the end', '2026-11-17T18:30:00+05:30', 'completed'],
+        ['the next day', '2026-11-18T09:00:00+05:30', 'completed'],
+      ])('prod "Leadership lessons for Viksit Bharat 2047" event with status 2: %s → %s', (_name, now, expected) => {
+        const prodEvent = milestone(2, {
+          type: 'event', identifier: 'do_11469917729384038415', batchId: '01469918406804275256', openBeforeStart: true,
+          startDateTime: '2026-11-17T09:00:00+05:30', endDateTime: '2026-11-17T18:30:00+05:30',
+        })
+        expect(withEndedEvents(['completed'], [prodEvent], at(now))).toEqual([expected])
+      })
+
+      it('a completed event without a valid end time stays completed', () => {
+        const during = at('2026-11-17T11:00:00+05:30')
+        expect(withEndedEvents(['completed'], [event({ endDateTime: undefined })], during)).toEqual(['completed'])
+        expect(withEndedEvents(['completed'], [event({ endDateTime: '<END>' })], during)).toEqual(['completed'])
+      })
+
+      it('only events wait for the end time: a completed assessment / pledge stays completed', () => {
+        const during = at('2026-11-17T11:00:00+05:30')
+        expect(withEndedEvents(['completed'], [milestone(1, { endDateTime: END })], during)).toEqual(['completed'])
+        expect(withEndedEvents(['completed'], [milestone(3, { type: 'survey', endDateTime: END })], during)).toEqual(['completed'])
+      })
+    })
+
+    it('card shows a workshop completed (status 2) during the event as in progress until it ends; the button is unchanged', () => {
+      component.now.set(at('2026-11-17T11:00:00+05:30'))
+      statusSvc.resolveStates.mockReturnValue(of(['completed', 'completed']))
+      statusSvc.isEventEnrolled.mockReturnValue(true)
+      render({ items: [milestone(1), event()] })
+      expect(cards().map(card => card.state)).toEqual(['completed', 'inProgress'])
+      expect(component.ctas()[1]).toEqual({ label: L.recording, disabled: false })
+      expect(component.isJourneyComplete()).toBe(false)
+
+      component.now.set(at(END))
+      fixture.detectChanges()
+      expect(cards().map(card => card.state)).toEqual(['completed', 'completed'])
+      expect(component.ctas()[1]).toEqual({ label: L.recording, disabled: false })
+      expect(component.isJourneyComplete()).toBe(true)
     })
 
     it('card keeps an ended workshop in progress until its progress is complete', () => {
@@ -366,12 +418,12 @@ describe('ProgrammeMilestonesComponent', () => {
       expect(eventCta(phase, true, L, false, true)).toEqual({ label: L.recording, disabled: false })
     })
 
-    it('card: completed before the start date shows View recording, not "Event yet to start"', () => {
+    it('card: completed before the start date shows View recording, not "Event yet to start" (in progress until the end)', () => {
       component.now.set(at('2026-11-09T12:00:00+05:30'))
       statusSvc.isEventEnrolled.mockReturnValue(true)
       statusSvc.resolveStates.mockReturnValue(of(['completed']))
       render({ items: [event({ openBeforeStart: true })] })
-      expect([cards()[0].state, cards()[0].ctaLabel, cards()[0].ctaDisabled]).toEqual(['completed', L.recording, false])
+      expect([cards()[0].state, cards()[0].ctaLabel, cards()[0].ctaDisabled]).toEqual(['inProgress', L.recording, false])
     })
 
     it('binds the event button to the card; locked events keep the default', () => {
