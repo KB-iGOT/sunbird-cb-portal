@@ -33,10 +33,10 @@ export function forbiddenNamesValidatorPosition(optionsArray: any): ValidatorFn 
 }
 
 @Component({
-    selector: 'ws-public-request',
-    templateUrl: './public-request.component.html',
-    styleUrls: ['./public-request.component.scss'],
-    standalone: false
+  selector: 'ws-public-request',
+  templateUrl: './public-request.component.html',
+  styleUrls: ['./public-request.component.scss'],
+  standalone: false
 })
 export class PublicRequestComponent implements OnInit {
   requestForm!: UntypedFormGroup
@@ -447,10 +447,14 @@ export class PublicRequestComponent implements OnInit {
 
       this.requestSvc.createOrg(this.requestObj).subscribe(
         (_res: any) => {
-          this.openDialog(this.requestType, _res)
           this.disableBtn = false
-          this.isMobileVerified = true
-          this.clearForm()
+          if (_res?.result?.data) {
+            this.openDialog(this.requestType, _res)
+            this.isMobileVerified = true
+            this.clearForm()
+          } else {
+            this.openSnackbar(_res?.result?.errmsg || this.translateLabels('somethingWentWrong', 'common'))
+          }
         },
         (err: any) => {
           this.disableBtn = false
