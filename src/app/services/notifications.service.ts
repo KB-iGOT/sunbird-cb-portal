@@ -1,10 +1,11 @@
 import { Injectable } from '@angular/core'
 import { HttpClient } from '@angular/common/http'
 import { Observable, of, Subject } from 'rxjs'
-import { map, retry } from 'rxjs/operators'
+import { map, retry, tap } from 'rxjs/operators'
 import * as _ from 'lodash'
 import { Router } from '@angular/router'
 import { ConfigurationsService } from '@sunbird-cb/utils-v2'
+import { CommonMethodsService } from '@sunbird-cb/consumption'
 import moment from 'moment'
 
 const API_END_POINTS = {
@@ -14,6 +15,11 @@ const API_END_POINTS = {
   WORKFLOW_SEARCH: 'apis/protected/v8/workflowhandler/profileApprovalSearch',
   CONNECTION_REQUEST: (pageNo: any, pageSize: any) => `apis/protected/v8/connections/v2/connections/requests/received?pageNo=${pageNo}&pageSize=${pageSize}`,
 }
+
+// global-config apicache key: how long (seconds) the unread-count response is reused. Unset or 0 = no cache
+const UNREAD_COUNT_CACHE_KEY = 'notificationCountTime'
+// localStorage key holding the last unread-count response and the user it belongs to
+const UNREAD_COUNT_STORAGE_KEY = 'notificationUnreadCount'
 
 @Injectable({
   providedIn: 'root',
@@ -26,6 +32,7 @@ export class NotificationsService {
   constructor(private http: HttpClient,
     private router: Router,
     private configService: ConfigurationsService,
+    private commonMethodsSvc: CommonMethodsService,
   ) {
     if (this.configService && this.configService.unMappedUser
       && this.configService.unMappedUser.profileDetails
@@ -35,17 +42,65 @@ export class NotificationsService {
     }
   }
 
-  getNotificationsData(): Observable<any> {
+  /**
+   * The unread-notifications count. Served from localStorage while globalConfig.apicache.notificationCountTime
+   * (seconds) has not passed since the last call for this user; otherwise read from the API and saved.
+   * @param forceRefresh skip the cache - use when the count is known to have changed (e.g. marked as read)
+   */
+  getNotificationsData(forceRefresh = false): Observable<any> {
     const cfg = this.configService.globalConfig?.apis?.notification?.unreadCount
     if (cfg && !cfg.enabled) {
       return of(null)
     }
+    const userId = this.currentUserId()
+    if (!forceRefresh && this.commonMethodsSvc.isApiCacheValid(UNREAD_COUNT_CACHE_KEY, userId)) {
+      const cached = this.readCachedUnreadCount(userId)
+      if (cached) {
+        return of(cached)
+      }
+    }
     const url = (cfg?.enabled && cfg?.url) ? cfg.url : API_END_POINTS.NOTIFICATIONS_COUNT
-    return this.http.get(url)
+    return this.http.get(url).pipe(
+      tap((res: any) => this.saveUnreadCount(userId, res)),
+    )
+  }
+
+  private currentUserId(): string | undefined {
+    return this.configService.userProfile?.userId || this.configService.unMappedUser?.identifier
+  }
+
+  private readCachedUnreadCount(userId: string | undefined): any {
+    try {
+      const saved = JSON.parse(localStorage.getItem(UNREAD_COUNT_STORAGE_KEY) || 'null')
+      return saved && saved.userId === userId ? saved.response : null
+    } catch {
+      return null
+    }
+  }
+
+  private saveUnreadCount(userId: string | undefined, response: any): void {
+    // only a real count is kept, so a failed or empty response is asked for again next time
+    if (!userId || !response || !response.result) {
+      return
+    }
+    try {
+      localStorage.setItem(UNREAD_COUNT_STORAGE_KEY, JSON.stringify({ userId, response }))
+      this.commonMethodsSvc.saveApiCacheTime(UNREAD_COUNT_CACHE_KEY, userId)
+    } catch { /* storage unavailable: the API is simply called again next time */ }
   }
 
   resetNotificationsCount(): Observable<any> {
-    return this.http.get(API_END_POINTS.RESET_NOTIFICATIONS_COUNT, {})
+    return this.http.get(API_END_POINTS.RESET_NOTIFICATIONS_COUNT, {}).pipe(
+      // the saved count is now wrong: the next getNotificationsData asks the API again
+      tap(() => this.clearCachedUnreadCount()),
+    )
+  }
+
+  clearCachedUnreadCount(): void {
+    this.commonMethodsSvc.clearApiCacheTime(UNREAD_COUNT_CACHE_KEY)
+    try {
+      localStorage.removeItem(UNREAD_COUNT_STORAGE_KEY)
+    } catch { /* storage unavailable: nothing was saved */ }
   }
 
   getContentData(contentId: string): Observable<any> {

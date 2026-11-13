@@ -9,6 +9,7 @@ describe('NotificationsService', () => {
   let mockRouter: any
   let mockConfigSvc: any
   let mockSnackBar: any
+  let mockCommonMethodsSvc: any
   let openSpy: jest.SpyInstance
 
   const environment = {
@@ -38,13 +39,100 @@ describe('NotificationsService', () => {
     }
     mockSnackBar = { open: jest.fn() }
 
-    service = new NotificationsService(mockHttp, mockRouter, mockConfigSvc)
+    mockCommonMethodsSvc = {
+      isApiCacheValid: jest.fn().mockReturnValue(false),
+      saveApiCacheTime: jest.fn(),
+      clearApiCacheTime: jest.fn(),
+    }
+
+    service = new NotificationsService(mockHttp, mockRouter, mockConfigSvc, mockCommonMethodsSvc)
     openSpy = jest.spyOn(window, 'open').mockImplementation(() => null)
     jest.spyOn(console, 'log').mockImplementation(() => undefined)
+    localStorage.removeItem('notificationUnreadCount')
   })
 
   afterEach(() => {
     jest.restoreAllMocks()
+  })
+
+  describe('getNotificationsData - unread count cache', () => {
+    const countResponse = (unread: number) => ({ result: { unread } })
+
+    beforeEach(() => {
+      mockConfigSvc.userProfile = { userId: 'user_1' }
+      mockConfigSvc.globalConfig = { apis: { notification: { unreadCount: { enabled: true, url: '/unread/count' } } } }
+    })
+
+    it('calls the API and saves the count when there is no valid cache', () => {
+      mockHttp.get.mockReturnValue(of(countResponse(3)))
+      let result: any
+      service.getNotificationsData().subscribe(res => result = res)
+
+      expect(mockHttp.get).toHaveBeenCalledWith('/unread/count')
+      expect(result).toEqual(countResponse(3))
+      expect(mockCommonMethodsSvc.isApiCacheValid).toHaveBeenCalledWith('notificationCountTime', 'user_1')
+      expect(mockCommonMethodsSvc.saveApiCacheTime).toHaveBeenCalledWith('notificationCountTime', 'user_1')
+      expect(JSON.parse(localStorage.getItem('notificationUnreadCount') as string))
+        .toEqual({ userId: 'user_1', response: countResponse(3) })
+    })
+
+    it('returns the saved count without calling the API while the cache is valid', () => {
+      localStorage.setItem('notificationUnreadCount', JSON.stringify({ userId: 'user_1', response: countResponse(5) }))
+      mockCommonMethodsSvc.isApiCacheValid.mockReturnValue(true)
+      let result: any
+      service.getNotificationsData().subscribe(res => result = res)
+
+      expect(mockHttp.get).not.toHaveBeenCalled()
+      expect(result).toEqual(countResponse(5))
+    })
+
+    it('ignores a count saved for another user', () => {
+      localStorage.setItem('notificationUnreadCount', JSON.stringify({ userId: 'user_2', response: countResponse(5) }))
+      mockCommonMethodsSvc.isApiCacheValid.mockReturnValue(true)
+      mockHttp.get.mockReturnValue(of(countResponse(1)))
+      let result: any
+      service.getNotificationsData().subscribe(res => result = res)
+
+      expect(mockHttp.get).toHaveBeenCalled()
+      expect(result).toEqual(countResponse(1))
+    })
+
+    it('calls the API when forceRefresh is set, even with a valid cache', () => {
+      localStorage.setItem('notificationUnreadCount', JSON.stringify({ userId: 'user_1', response: countResponse(5) }))
+      mockCommonMethodsSvc.isApiCacheValid.mockReturnValue(true)
+      mockHttp.get.mockReturnValue(of(countResponse(0)))
+      let result: any
+      service.getNotificationsData(true).subscribe(res => result = res)
+
+      expect(mockHttp.get).toHaveBeenCalled()
+      expect(result).toEqual(countResponse(0))
+    })
+
+    it('does not save a response without a result', () => {
+      mockHttp.get.mockReturnValue(of({}))
+      service.getNotificationsData().subscribe()
+
+      expect(mockCommonMethodsSvc.saveApiCacheTime).not.toHaveBeenCalled()
+      expect(localStorage.getItem('notificationUnreadCount')).toBeNull()
+    })
+
+    it('returns null without calling the API when the unread count API is disabled', () => {
+      mockConfigSvc.globalConfig.apis.notification.unreadCount.enabled = false
+      let result: any = 'unset'
+      service.getNotificationsData().subscribe(res => result = res)
+
+      expect(mockHttp.get).not.toHaveBeenCalled()
+      expect(result).toBeNull()
+    })
+
+    it('clears the saved count when the count is reset', () => {
+      localStorage.setItem('notificationUnreadCount', JSON.stringify({ userId: 'user_1', response: countResponse(5) }))
+      mockHttp.get.mockReturnValue(of({}))
+      service.resetNotificationsCount().subscribe()
+
+      expect(mockCommonMethodsSvc.clearApiCacheTime).toHaveBeenCalledWith('notificationCountTime')
+      expect(localStorage.getItem('notificationUnreadCount')).toBeNull()
+    })
   })
 
   it('should be defined and set orgName from the user profile', () => {
