@@ -17,7 +17,9 @@
     "!/ai-assessment",
     "!/ai-assessment/**",
     "!/mentorship",
-    "!/mentorship/**"
+    "!/mentorship/**",
+    "!/Casestudy-tool",
+    "!/Casestudy-tool/**"
   ],
   "assetGroups": [
     {
