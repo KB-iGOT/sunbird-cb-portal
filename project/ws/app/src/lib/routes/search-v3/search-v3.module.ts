@@ -1,5 +1,5 @@
 import { CommonModule } from '@angular/common'
-import { CUSTOM_ELEMENTS_SCHEMA, NgModule, NO_ERRORS_SCHEMA } from '@angular/core'
+import { CUSTOM_ELEMENTS_SCHEMA, NgModule, NO_ERRORS_SCHEMA, SkipSelf } from '@angular/core'
 import { FormsModule, ReactiveFormsModule } from '@angular/forms'
 
 import {
@@ -31,7 +31,7 @@ import { GlobalSearchComponent } from './routes/global-search/global-search.comp
 import { LearnSearchComponent } from './routes/learn-search/learn-search.component'
 import { SearchFiltersComponent } from './components/search-filters/search-filters.component'
 import { InfiniteScrollModule } from 'ngx-infinite-scroll'
-import { TranslateModule } from '@ngx-translate/core'
+import { TranslateModule, TranslateService } from '@ngx-translate/core'
 import { MatButtonModule } from '@angular/material/button'
 import { MatCardModule } from '@angular/material/card'
 import { MatCheckboxModule } from '@angular/material/checkbox'
@@ -142,7 +142,12 @@ import { VolunteerSearchComponent } from './routes/volunteer-search/volunteer-se
     CardsModule,
   ],
   exports: [SearchInputHomeComponent, NumberShortenerPipe, PluralPipe],
-  providers: [],
+  providers: [
+    // CardsModule / DialogComponentsModule (@sunbird-cb/consumption) import TranslateModule.forRoot,
+    // which gives this lazy route its own TranslateService with an empty cache - so every visit
+    // downloaded en.json again. Hand the route the app's TranslateService, already loaded.
+    { provide: TranslateService, useFactory: (appTranslate: TranslateService) => appTranslate, deps: [[new SkipSelf(), TranslateService]] },
+  ],
   schemas: [CUSTOM_ELEMENTS_SCHEMA, NO_ERRORS_SCHEMA]
 })
 export class SearchV3Module { }

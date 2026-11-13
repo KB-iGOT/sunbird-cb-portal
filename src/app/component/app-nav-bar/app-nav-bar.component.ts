@@ -235,7 +235,8 @@ export class AppNavBarComponent implements OnInit, OnChanges, OnDestroy {
       this.getMyCount()
       this.myNotificationsSubscription = this.libNotificationsService.unreadCount$.subscribe((res: number) => {
         if (res > 0) {
-          this.getMyCount()
+          // the notifications library signals a change (e.g. marked as read): skip the cached count
+          this.getMyCount(true)
         }
       })
     }
@@ -258,8 +259,8 @@ export class AppNavBarComponent implements OnInit, OnChanges, OnDestroy {
     })
   }
 
-  getMyCount() {
-    this.notificationsService.getNotificationsData().subscribe((res: any) => {
+  getMyCount(forceRefresh = false) {
+    this.notificationsService.getNotificationsData(forceRefresh).subscribe((res: any) => {
       this.notificationsCount = _.get(res, 'result.unread', 0)
     },                                                         error => {
       console.error('Error while fetching notifications count', error)

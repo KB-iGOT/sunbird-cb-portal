@@ -53,6 +53,48 @@ describe('InitService', () => {
       expect(summaryState.isLoading).toBe(false)
       expect(service.logger.warn).toHaveBeenCalledWith('InitService: Failed to load enrolment summary', expect.any(Error))
     })
+
+    describe('netcore setup', () => {
+      beforeEach(() => {
+        service.setupNetcore = jest.fn()
+      })
+
+      it('runs after the summary is fetched', async () => {
+        service.fetchUserEnrollDetails = jest.fn(() => Promise.resolve({}))
+
+        await service.loadEnrollmentSummaryInBackground()
+
+        expect(service.setupNetcore).toHaveBeenCalledTimes(1)
+      })
+
+      it('runs when the summary fails', async () => {
+        service.fetchUserEnrollDetails = jest.fn(() => Promise.reject(new Error('boom')))
+
+        await service.loadEnrollmentSummaryInBackground()
+
+        expect(service.setupNetcore).toHaveBeenCalledTimes(1)
+      })
+
+      it('runs when the summary API is disabled', async () => {
+        service.configSvc.globalConfig = { apis: { user: { userEnrollmentSummary: { enabled: false } } } }
+
+        await service.loadEnrollmentSummaryInBackground()
+
+        expect(service.setupNetcore).toHaveBeenCalledTimes(1)
+      })
+
+      it('runs only once the summary has settled', async () => {
+        let finish: () => void = () => { }
+        service.fetchUserEnrollDetails = jest.fn(() => new Promise<void>(resolve => { finish = resolve }))
+
+        const pending = service.loadEnrollmentSummaryInBackground()
+        expect(service.setupNetcore).not.toHaveBeenCalled()
+
+        finish()
+        await pending
+        expect(service.setupNetcore).toHaveBeenCalledTimes(1)
+      })
+    })
   })
 
   describe('logFirstLogin', () => {
