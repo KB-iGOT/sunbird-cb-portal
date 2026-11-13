@@ -101,6 +101,8 @@ export namespace NsCampaignMicrosite {
      * the player, instead of being disabled. Off by default.
      */
     openBeforeStart?: boolean
+    /** `true` hides the "In progress" / "Completed" status on the card. Missing / false: shown. */
+    hideProgressStatus?: boolean
     /** Assessment only: sent as `?language=` to the auto-enrollment API and fills `{language}` in the player route */
     language?: string
     /**

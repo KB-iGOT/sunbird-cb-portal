@@ -16,6 +16,7 @@
       @if (milestone.enabled !== false) {
         <sb-uic-milestone-card [milestone]="milestone" [state]="stateAt(i)" [isLoading]="isLoading()"
           [isBusy]="enrollingOrder() === milestone.order"
+          [class.cm-milestones__card--no-status]="hiddenStatuses()[i]"
           [ctaLabel]="ctas()[i]?.label ?? null" [ctaDisabled]="!!ctas()[i]?.disabled"
           [availableFrom]="availableFrom()[i]"
           [completedLabel]="completedLabels()[i]" [ctaTooltip]="ctas()[i]?.tooltip ?? null"
