@@ -230,14 +230,33 @@ export class ViewerComponent implements OnInit, OnDestroy, AfterViewChecked {
 
     } else {
       const collectionId = this.activatedRoute.snapshot.queryParams.collectionId
-      this.widgetServ.fetchAuthoringContent(collectionId).subscribe((data: any) => {
-        if (data.result.content.cstoken) {
-          this.configSvc.cstoken = data.result.content.cstoken
+      const applyHierarchy = (data: any) => {
+        const content = data && data.result && data.result.content
+        if (!content) {
+          return
+        }
+        if (content.cstoken) {
+          this.configSvc.cstoken = content.cstoken
         }
         // compute total leaf nodes across hierarchy (handles learning pathway)
-        const source = this.hierarchyData || data.result.content
+        const source = this.hierarchyData || content
         this.leafNodesCount = this.countLeafNodes(source) || 0
-      })
+      }
+
+      // The route's hierarchy resolver has already fetched this collection's hierarchy
+      // (proxied v8 API when logged in, public /api one in preview). Reuse it instead of
+      // calling the hierarchy API a second time on load.
+      const resolved = this.activatedRoute.snapshot.data.hierarchyData
+        && this.activatedRoute.snapshot.data.hierarchyData.data
+      const resolvedContent = resolved && resolved.result && resolved.result.content
+      if (resolvedContent && resolvedContent.identifier === collectionId) {
+        applyHierarchy(resolved)
+        return
+      }
+
+      // Not resolved for this id (e.g. multilingual MLId differs): fetch once, letting
+      // fetchContent pick the logged-in (v8 proxy) or public endpoint.
+      this.widgetServ.fetchContent(collectionId, 'detail').subscribe(applyHierarchy)
     }
 
   }

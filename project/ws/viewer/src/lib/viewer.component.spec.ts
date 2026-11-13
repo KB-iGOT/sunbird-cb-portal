@@ -40,12 +40,14 @@ describe('ViewerComponent (No TestBed)', () => {
   let mockRouter: any
   let mockConfigSvc: any
   let mockTocSvc: any
+  let mockActivatedRoute: any
+  let mockWidgetServ: any
 
   const surveyConfig = { enabled: true, startDate: 1000 }
   const completedEnrolment = (extra: any = {}) => ({ completedOn: 2000, ...extra })
 
   const createComponent = () => {
-    const mockActivatedRoute: any = {
+    mockActivatedRoute = {
       snapshot: {
         queryParamMap: { get: jest.fn().mockReturnValue('do_course_1') },
         queryParams: {},
@@ -55,6 +57,7 @@ describe('ViewerComponent (No TestBed)', () => {
     mockRouter = { navigateByUrl: jest.fn() }
     mockConfigSvc = { instanceConfig: { completionSurvey: surveyConfig } }
     mockTocSvc = { getApllicationsById: jest.fn() }
+    mockWidgetServ = { fetchContent: jest.fn(), fetchAuthoringContent: jest.fn() }
     const mockRootSvc: any = { showNavbarDisplay$: { next: jest.fn() } }
     const mockMobileAppsSvc: any = { mobileTopHeaderVisibilityStatus: { next: jest.fn() } }
     const mockValueSvc: any = { isLtMedium$: of(false) }
@@ -68,7 +71,7 @@ describe('ViewerComponent (No TestBed)', () => {
       mockRootSvc,
       {} as any,
       { detectChanges: jest.fn() } as any,
-      {} as any,
+      mockWidgetServ,
       {} as any,
       {} as any,
       mockConfigSvc,
@@ -298,6 +301,68 @@ describe('ViewerComponent (No TestBed)', () => {
       expect(mockTocSvc.mapCompletionPercentageProgram).toHaveBeenCalledWith(component.hierarchyData, [], 'do_course_1')
       expect(mockTocSvc.contentLoader.next).not.toHaveBeenCalled()
       expect(mockTocSvc.createHirarchyProgressHashmap).toHaveBeenCalled()
+    })
+  })
+
+  describe('getAuthDataIdentifer', () => {
+    const hierarchyResponse = (identifier: string, extra: any = {}) => ({
+      result: { content: { identifier, leafNodes: ['do_leaf_1', 'do_leaf_2'], ...extra } },
+    })
+
+    beforeEach(() => {
+      mockActivatedRoute.snapshot.queryParams = { collectionId: 'do_course_1' }
+    })
+
+    it('reuses the hierarchy the route resolver loaded instead of calling the hierarchy API again', () => {
+      mockActivatedRoute.snapshot.data = {
+        hierarchyData: { data: hierarchyResponse('do_course_1', { cstoken: 'token_1' }) },
+      }
+
+      component.getAuthDataIdentifer()
+
+      expect(mockWidgetServ.fetchContent).not.toHaveBeenCalled()
+      expect(mockWidgetServ.fetchAuthoringContent).not.toHaveBeenCalled()
+      expect(mockConfigSvc.cstoken).toBe('token_1')
+      expect(component.leafNodesCount).toBe(2)
+    })
+
+    it('fetches once through fetchContent when the resolver loaded a different id (multilingual MLId)', () => {
+      mockActivatedRoute.snapshot.data = { hierarchyData: { data: hierarchyResponse('do_course_ml') } }
+      mockWidgetServ.fetchContent.mockReturnValue(of(hierarchyResponse('do_course_1', { cstoken: 'token_2' })))
+
+      component.getAuthDataIdentifer()
+
+      expect(mockWidgetServ.fetchContent).toHaveBeenCalledTimes(1)
+      expect(mockWidgetServ.fetchContent).toHaveBeenCalledWith('do_course_1', 'detail')
+      expect(mockWidgetServ.fetchAuthoringContent).not.toHaveBeenCalled()
+      expect(mockConfigSvc.cstoken).toBe('token_2')
+      expect(component.leafNodesCount).toBe(2)
+    })
+
+    it('fetches when the resolver has no hierarchy data', () => {
+      mockActivatedRoute.snapshot.data = {}
+      mockWidgetServ.fetchContent.mockReturnValue(of(hierarchyResponse('do_course_1')))
+
+      component.getAuthDataIdentifer()
+
+      expect(mockWidgetServ.fetchContent).toHaveBeenCalledTimes(1)
+      expect(mockConfigSvc.cstoken).toBeUndefined()
+    })
+
+    it('ignores an empty hierarchy response', () => {
+      mockActivatedRoute.snapshot.data = {}
+      mockWidgetServ.fetchContent.mockReturnValue(of({}))
+
+      expect(() => component.getAuthDataIdentifer()).not.toThrow()
+      expect(component.leafNodesCount).toBeUndefined()
+    })
+
+    it('does nothing in the pre-assessment flow', () => {
+      component.isPreAssessment = true
+
+      component.getAuthDataIdentifer()
+
+      expect(mockWidgetServ.fetchContent).not.toHaveBeenCalled()
     })
   })
 })
