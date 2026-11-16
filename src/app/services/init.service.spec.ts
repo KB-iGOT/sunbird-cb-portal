@@ -599,7 +599,7 @@ describe('InitService', () => {
         expect(commonMethodsSvc.saveApiCacheTime).toHaveBeenCalledWith('summaryTime', 'u1')
       })
 
-      it('skips the api while the saved summary is fresh, and still sets up netcore', async () => {
+      it('skips the api while the saved summary is fresh', async () => {
         configSvc.userProfile = { userId: 'u1', rootOrgId: 'r1' }
         localStorage.setItem('userEnrollmentCount', JSON.stringify({ enrolledCourseCount: 4 }))
         commonMethodsSvc.isApiCacheValid.mockReturnValue(true)
@@ -608,7 +608,8 @@ describe('InitService', () => {
         expect(enrollSvc.fetchEnrollStats).not.toHaveBeenCalled()
         expect(enrollSvc.fetchEventEnrollStats).not.toHaveBeenCalled()
         expect(stored().enrolledCourseCount).toBe(4)
-        expect(netCoreService.getOrgReadData).toHaveBeenCalledWith('r1')
+        // netcore is no longer set up from inside the summary fetch
+        expect(netCoreService.getOrgReadData).not.toHaveBeenCalled()
       })
 
       it('calls the api when the saved summary is no longer fresh', async () => {
@@ -639,7 +640,8 @@ describe('InitService', () => {
       })
 
       it('bootstraps and sets up the netcore user', async () => {
-        await (service as any).fetchUserEnrollDetails()
+        service['setupNetcore']()
+        await Promise.resolve()
         expect(netCoreService.getOrgReadData).toHaveBeenCalledWith('r1')
         expect(netCoreService.bootstrapNetcore).toHaveBeenCalled()
         expect(service.netCoreUserLoginSetup).toHaveBeenCalled()
@@ -647,39 +649,45 @@ describe('InitService', () => {
 
       it('skips setup when already done', async () => {
         localStorage.setItem('netCoreUserSetup', 'true')
-        await (service as any).fetchUserEnrollDetails()
+        service['setupNetcore']()
+        await Promise.resolve()
         expect(service.netCoreUserLoginSetup).not.toHaveBeenCalled()
       })
 
       it('runs setup when the flag is the string false', async () => {
         localStorage.setItem('netCoreUserSetup', 'false')
-        await (service as any).fetchUserEnrollDetails()
+        service['setupNetcore']()
+        await Promise.resolve()
         expect(service.netCoreUserLoginSetup).toHaveBeenCalled()
       })
 
       it('skips when netcore is disabled for the org', async () => {
         netCoreService.getOrgReadData.mockReturnValue(of({ netcoreDisabled: true }))
-        await (service as any).fetchUserEnrollDetails()
+        service['setupNetcore']()
+        await Promise.resolve()
         expect(netCoreService.bootstrapNetcore).not.toHaveBeenCalled()
       })
 
       it('skips setup when the netcore config is inactive', async () => {
         configSvc.netcoreConfig = undefined
         netCoreService.getOrgReadData.mockReturnValue(of(null))
-        await (service as any).fetchUserEnrollDetails()
+        service['setupNetcore']()
+        await Promise.resolve()
         expect(netCoreService.bootstrapNetcore).toHaveBeenCalled()
         expect(service.netCoreUserLoginSetup).not.toHaveBeenCalled()
       })
 
       it('does nothing without a root org', async () => {
         configSvc.userProfile = { userId: 'u1' }
-        await (service as any).fetchUserEnrollDetails()
+        service['setupNetcore']()
+        await Promise.resolve()
         expect(netCoreService.getOrgReadData).not.toHaveBeenCalled()
       })
 
       it('does nothing without a user profile', async () => {
         configSvc.userProfile = undefined
-        await (service as any).fetchUserEnrollDetails().catch(() => undefined)
+        service['setupNetcore']()
+        await Promise.resolve().catch(() => undefined)
         expect(netCoreService.getOrgReadData).not.toHaveBeenCalled()
       })
     })

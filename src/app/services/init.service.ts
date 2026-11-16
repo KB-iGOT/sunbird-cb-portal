@@ -458,7 +458,13 @@ export class InitService {
     return this.fetchUserEnrollDetails()
       .then(() => undefined)
       .catch((err: any) => this.logger.warn('InitService: Failed to load enrolment summary', err))
-      .finally(() => this.enrollmentSummaryState.done())
+      .finally(() => {
+        this.enrollmentSummaryState.done()
+        // Netcore does not depend on the summary: it runs whether the summary was disabled,
+        // served from the cache, fetched or failed. It waits for it only because the netcore
+        // user sync reads the userEnrollmentCount the summary writes
+        this.setupNetcore()
+      })
   }
 
   private async fetchUserEnrollDetails(): Promise<NsInstanceConfig.IConfig> {
@@ -471,7 +477,6 @@ export class InitService {
     // the widgets read it from there, so skip the API
     if (localStorage.getItem('userEnrollmentCount')
       && this.commonMethodsSvc.isApiCacheValid(ENROLLMENT_SUMMARY_CACHE_KEY, userId)) {
-      this.setupNetcore()
       return {} as NsInstanceConfig.IConfig
     }
     const eventEnrollConfig = this.configSvc.globalConfig?.apis?.user?.eventEnroll
@@ -530,7 +535,6 @@ export class InitService {
         // event summary returned so the stats widgets get the event counts
         this.storeFallbackEnrollmentCount(userEventEnrolmentInfo, eventEnrolmentCount)
       }
-      this.setupNetcore()
 
       return res
     }).catch((_err: any) => {
@@ -539,7 +543,7 @@ export class InitService {
     return publicConfig
   }
 
-  // runs after the enrolment summary, whether it came from the API or from the cache
+  // runs once the enrolment summary has settled (loadEnrollmentSummaryInBackground), whatever its outcome
   private setupNetcore(): void {
     if (this.configSvc.userProfile) {
       const userProfile = this.configSvc && this.configSvc.userProfile
