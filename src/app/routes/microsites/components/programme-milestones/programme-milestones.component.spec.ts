@@ -607,7 +607,7 @@ describe('ProgrammeMilestonesComponent', () => {
       statusSvc.resolveStates.mockReturnValue(of(['completed', 'notStarted']))
       render({ items: [milestone(1), survey] })
       component.openMilestone(survey)
-      expect(dialog.open).toHaveBeenCalledWith(CampaignSurveyDialogComponent, expect.objectContaining({ data: { milestone: survey, labels: component.labels() } }))
+      expect(dialog.open).toHaveBeenCalledWith(CampaignSurveyDialogComponent, expect.objectContaining({ data: { milestone: survey, labels: component.labels(), mandatory: false } }))
       expect(router.navigate).not.toHaveBeenCalled()
     })
 
@@ -660,6 +660,33 @@ describe('ProgrammeMilestonesComponent', () => {
       expect(statusSvc.enrollEvent).toHaveBeenCalledWith(pledge)
       expect(dialog.open).toHaveBeenCalledWith(CampaignSurveyDialogComponent, expect.anything())
       expect(router.navigate).not.toHaveBeenCalled()
+    })
+
+    it('registered now, closed without submitting → re-reads statuses so the card shows In progress', async () => {
+      statusSvc.resolveStates.mockReturnValue(of(['completed', 'notStarted']))
+      statusSvc.enrollEvent.mockResolvedValue(undefined)
+      render({ items: [milestone(1), pledge] })
+      component.openMilestone(pledge)
+      await flush()
+      const calls = statusSvc.resolveStates.mock.calls.length
+      dialogResult.next(false)
+      fixture.detectChanges()
+      TestBed.tick()
+      expect(statusSvc.resolveStates.mock.calls.length).toBeGreaterThan(calls)
+      expect(statusSvc.completeEvent).not.toHaveBeenCalled()
+    })
+
+    it('already registered, closed without submitting → statuses are not re-read', async () => {
+      statusSvc.resolveStates.mockReturnValue(of(['completed', 'inProgress']))
+      statusSvc.isEventEnrolled.mockReturnValue(true)
+      render({ items: [milestone(1), pledge] })
+      component.openMilestone(pledge)
+      await flush()
+      const calls = statusSvc.resolveStates.mock.calls.length
+      dialogResult.next(false)
+      fixture.detectChanges()
+      TestBed.tick()
+      expect(statusSvc.resolveStates.mock.calls.length).toBe(calls)
     })
 
     it('already registered → opens the form without registering again', async () => {
@@ -1043,6 +1070,28 @@ describe('ProgrammeMilestonesComponent', () => {
         isInAutoOpenWindow(pledge({ autoOpen: { ...window, endDateTime: 'soon' } }), at('2026-11-10T10:00:00+05:30')),
         isInAutoOpenWindow(milestone(1, { autoOpen: window }), at('2026-11-10T10:00:00+05:30')),
       ]).toEqual([false, true, false, false, false, false])
+    })
+
+    it('autoOpen.mandatory: the automatic opening is mandatory', () => {
+      load({ items: [milestone(1), pledge({ autoOpen: { ...window, mandatory: true } })] }, ['completed', 'notStarted'])
+      expect(surveyOpens()).toBe(1)
+      expect(dialog.open.mock.calls[0][1].data.mandatory).toBe(true)
+      // still disableClose, so the backdrop and Escape cannot close it either
+      expect(dialog.open.mock.calls[0][1].disableClose).toBe(true)
+    })
+
+    it('autoOpen without mandatory: the automatic opening can be closed', () => {
+      load({ items: [milestone(1), pledge()] }, ['completed', 'notStarted'])
+      expect(dialog.open.mock.calls[0][1].data.mandatory).toBe(false)
+    })
+
+    it('autoOpen.mandatory does not apply when the learner opens the pledge from its card', () => {
+      const mandatoryPledge = pledge({ autoOpen: { ...window, mandatory: true } })
+      component.now.set(at('2026-12-10T10:00:00+05:30')) // outside the window: nothing opens by itself
+      load({ items: [milestone(1), mandatoryPledge] }, ['completed', 'notStarted'])
+      expect(surveyOpens()).toBe(0)
+      component.openMilestone(mandatoryPledge)
+      expect(dialog.open.mock.calls[0][1].data.mandatory).toBe(false)
     })
 
     it('not submitted and inside the window: the form opens on load, once', () => {

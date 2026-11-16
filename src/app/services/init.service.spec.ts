@@ -677,6 +677,40 @@ describe('InitService', () => {
         expect(service.netCoreUserLoginSetup).not.toHaveBeenCalled()
       })
 
+      describe('global-web features.netcore switch', () => {
+        it('enabled: false → no SDK, no user setup; org read still runs', async () => {
+          configSvc.globalConfig = { features: { netcore: { enabled: false } } }
+          service['setupNetcore']()
+          await Promise.resolve()
+          expect(netCoreService.getOrgReadData).toHaveBeenCalledWith('r1')
+          expect(netCoreService.bootstrapNetcore).not.toHaveBeenCalled()
+          expect(service.netCoreUserLoginSetup).not.toHaveBeenCalled()
+        })
+
+        it('no features.netcore config → Netcore stays on', () => {
+          configSvc.globalConfig = {}
+          expect(service.isNetcoreDisabled()).toBe(false)
+        })
+
+        it('enabled: true → Netcore stays on', async () => {
+          configSvc.globalConfig = { features: { netcore: { enabled: true } } }
+          service['setupNetcore']()
+          await Promise.resolve()
+          expect(netCoreService.bootstrapNetcore).toHaveBeenCalled()
+          expect(service.netCoreUserLoginSetup).toHaveBeenCalled()
+        })
+
+        it('applyNetcoreSwitch keeps the rest of the instance netcoreConfig', () => {
+          configSvc.globalConfig = { features: { netcore: { enabled: false } } }
+          const cfg = { netcoreWebConfig: { isActive: true, events: { content_view: { isActive: true } } } }
+          expect(service['applyNetcoreSwitch'](cfg)).toEqual({
+            netcoreWebConfig: { isActive: false, events: { content_view: { isActive: true } } },
+          })
+          configSvc.globalConfig = {}
+          expect(service['applyNetcoreSwitch'](cfg)).toBe(cfg)
+        })
+      })
+
       it('does nothing without a root org', async () => {
         configSvc.userProfile = { userId: 'u1' }
         service['setupNetcore']()
