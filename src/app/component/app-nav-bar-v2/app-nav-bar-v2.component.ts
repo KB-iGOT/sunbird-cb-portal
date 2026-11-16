@@ -338,15 +338,16 @@ export class AppNavBarV2Component implements OnInit, OnChanges, OnDestroy {
       this.getMyCount()
       this.myNotificationsSubscription = this.libNotificationsService.unreadCount$.subscribe((res: number) => {
         if (res > 0) {
-          this.getMyCount()
+          // the notifications library signals a change (e.g. marked as read): skip the cached count
+          this.getMyCount(true)
         }
       })
     }
   }
 
 
-  getMyCount() {
-    this.notificationsService.getNotificationsData().subscribe(
+  getMyCount(forceRefresh = false) {
+    this.notificationsService.getNotificationsData(forceRefresh).subscribe(
       (res: any) => {
         this.notificationsCount.set(_.get(res, 'result.unread', 0))
       },
