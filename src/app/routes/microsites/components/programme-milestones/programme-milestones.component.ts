@@ -686,7 +686,7 @@ export class ProgrammeMilestonesComponent {
    * Otherwise: event-backed -> register for the event if needed, then open the form; after a successful
    * submit mark the event complete (progress 100%) and re-read statuses (event read gives status + certificate).
    */
-  private async openSurvey(milestone: NsCampaignMicrosite.IMilestone, _autoOpened = false): Promise<void> {
+  private async openSurvey(milestone: NsCampaignMicrosite.IMilestone, autoOpened = false): Promise<void> {
     if (this.enrollingOrder() !== null) {
       return
     }
@@ -701,10 +701,13 @@ export class ProgrammeMilestonesComponent {
       return
     }
 
+    // registered for the pledge's event in this flow: the card turns In progress even if the form is not submitted
+    let registeredNow = false
     if (eventBacked && !this.statusSvc.isEventEnrolled(milestone.identifier)) {
       this.enrollingOrder.set(milestone.order)
       try {
         await this.statusSvc.enrollEvent(milestone)
+        registeredNow = true
         this.trackEventRegistered(milestone)
       } catch (error: any) {
         // tslint:disable-next-line: no-console
@@ -720,7 +723,8 @@ export class ProgrammeMilestonesComponent {
     // object.id is the milestone's content id (the form id only when it has none); edata.id the same
     this.telemetry.click(MICROSITE_TELEMETRY.surveyOpen, undefined, milestoneTelemetryObject(milestone))
     this.dialog.open<CampaignSurveyDialogComponent, NsCampaignMicrosite.ICampaignSurveyDialogData, boolean>(CampaignSurveyDialogComponent, {
-      data: { milestone, labels: this.labels() },
+      // `autoOpen.mandatory` applies only to the automatic opening; opened from the card it can still be closed
+      data: { milestone, labels: this.labels(), mandatory: autoOpened && milestone.autoOpen?.mandatory === true },
       width: '750px',
       maxWidth: '90vw',
       panelClass: 'campaign-survey-panel',
@@ -728,6 +732,9 @@ export class ProgrammeMilestonesComponent {
       disableClose: true,
     }).afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(async submitted => {
       if (!submitted) {
+        if (registeredNow) {
+          this.refresh.update(count => count + 1)
+        }
         return
       }
       if (eventBacked) {

@@ -164,6 +164,28 @@ describe('MilestoneStatusService', () => {
       expect(service.issuedCertificateId(PLEDGE_EVENT)).toBe('cert_1')
     })
 
+    it.each([
+      ['registered, status 0', [{ contentId: PLEDGE_EVENT, status: 0 }], 'inProgress'],
+      ['registered, status 1', [{ contentId: PLEDGE_EVENT, status: 1 }], 'inProgress'],
+      ['not registered', [], 'notStarted'],
+      ['submitted, status 2', [{ contentId: PLEDGE_EVENT, status: 2 }], 'completed'],
+    ])('pledge state: %s → %s', async (_case, records, expected) => {
+      mockApis(courses())
+      http.get.mockImplementation((url: string) => of(url.includes(PLEDGE_EVENT) ? eventsResponse(records) : event()))
+      const states = await resolve(items)
+      expect(states[2]).toBe(expected)
+    })
+
+    it('a plain event registered with status 0 stays notStarted (only the pledge reads it as in progress)', async () => {
+      const plainEvent = { ...pledge, type: 'event' } as NsCampaignMilestone.IMilestone
+      mockApis(courses())
+      http.get.mockImplementation((url: string) => of(url.includes(PLEDGE_EVENT)
+        ? eventsResponse([{ contentId: PLEDGE_EVENT, status: 0 }])
+        : event()))
+      const states = await resolve([milestones[0], milestones[1], plainEvent, milestones[3]] as NsCampaignMilestone.IMilestone[])
+      expect(states[2]).toBe('notStarted')
+    })
+
     it('no certificate issued → undefined', async () => {
       mockApis(courses())
       http.get.mockImplementation((url: string) => of(url.includes(PLEDGE_EVENT)
