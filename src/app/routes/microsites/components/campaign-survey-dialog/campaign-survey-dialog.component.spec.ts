@@ -5,7 +5,7 @@ import { FormBuilder, ReactiveFormsModule } from '@angular/forms'
 import { MAT_DIALOG_DATA, MatDialogRef } from '@angular/material/dialog'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { HttpClient } from '@angular/common/http'
-import { of, throwError } from 'rxjs'
+import { NEVER, of, throwError } from 'rxjs'
 import { MicrositeTelemetryService } from '../../services/microsite-telemetry.service'
 import { NsCampaignMicrosite, buildSurveyForm, toFormDetails, toResponse } from '../../models/campaign-microsite.model'
 import { CampaignSurveyDialogComponent } from './campaign-survey-dialog.component'
@@ -303,6 +303,56 @@ describe('CampaignSurveyDialogComponent', () => {
     create()
     el.querySelector<HTMLButtonElement>('.csd__btn--secondary')?.click()
     expect(dialogRef.close).toHaveBeenCalledWith(false)
+  })
+
+  describe('mandatory (autoOpen.mandatory)', () => {
+    const closeButton = () => el.querySelector<HTMLButtonElement>('.csd__close')
+    // the footer's: the failed-to-load body has a Retry button with the same class
+    const cancelButton = () => el.querySelector<HTMLButtonElement>('.csd__footer .csd__btn--secondary')
+
+    it('hides X and Cancel once the form has loaded, leaving only Submit', () => {
+      create({ milestone, mandatory: true } as any)
+      expect(component.model()).not.toBeNull()
+      expect(closeButton()).toBeNull()
+      expect(cancelButton()).toBeNull()
+      expect(submitButton()).not.toBeNull()
+    })
+
+    it('ignores close() while the form is shown', () => {
+      create({ milestone, mandatory: true } as any)
+      component.close('cancel')
+      expect(dialogRef.close).not.toHaveBeenCalled()
+      expect(telemetry.click).not.toHaveBeenCalledWith('campaign-microsite-survey-close', undefined, expect.anything())
+    })
+
+    it('still closes after a successful submit', () => {
+      create({ milestone, mandatory: true } as any)
+      fillValid()
+      component.submit()
+      expect(dialogRef.close).toHaveBeenCalledWith(true)
+    })
+
+    it('lets the learner close when the form failed to load', () => {
+      http.get.mockReturnValueOnce(throwError(() => new Error('500')))
+      create({ milestone, mandatory: true } as any)
+      expect(component.loadFailed()).toBe(true)
+      cancelButton()?.click()
+      expect(dialogRef.close).toHaveBeenCalledWith(false)
+    })
+
+    it('lets the learner close while the form is still loading', () => {
+      http.get.mockReturnValueOnce(NEVER)
+      create({ milestone, mandatory: true } as any)
+      expect(closeButton()).not.toBeNull()
+      closeButton()?.click()
+      expect(dialogRef.close).toHaveBeenCalledWith(false)
+    })
+
+    it('keeps X and Cancel when not mandatory', () => {
+      create()
+      expect(closeButton()).not.toBeNull()
+      expect(cancelButton()).not.toBeNull()
+    })
   })
 
   describe('telemetry', () => {
