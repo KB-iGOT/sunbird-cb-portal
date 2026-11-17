@@ -1,12 +1,14 @@
 <div class="csd flex flex-col" aria-labelledby="csd-title">
   <header class="csd__header flex items-center justify-between gap-4 px-6 py-4">
     <h2 id="csd-title" class="csd__title m-0 text-xl md:text-2xl font-semibold">{{ details()?.title || data.milestone.name }}</h2>
+    @if (canClose()) {
     <button type="button" class="csd__close flex items-center justify-center flex-shrink-0 w-9 h-9 p-0 rounded-full cursor-pointer"
       [attr.aria-label]="labels.close" (click)="close('close')">
       <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true">
         <path d="M18 6L6 18M6 6l12 12" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
       </svg>
     </button>
+    }
   </header>
 
   <div class="csd__body flex-1 px-6 py-4 overflow-y-auto">
@@ -84,9 +86,11 @@
   </div>
 
   <footer class="csd__footer flex flex-wrap justify-end gap-3 px-6 py-4">
+    @if (canClose()) {
     <button type="button" class="csd__btn csd__btn--secondary px-6 rounded-full cursor-pointer" (click)="close('cancel')">
       {{ labels.cancel }}
     </button>
+    }
     @if (model()) {
     <button type="submit" form="csd-form" class="csd__btn csd__btn--primary px-6 rounded-full"
       [class.cursor-pointer]="canSubmit()" [disabled]="!canSubmit()">

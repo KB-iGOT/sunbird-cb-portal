@@ -38,6 +38,12 @@ export class CampaignSurveyDialogComponent implements OnInit {
   readonly isValid = signal(false)
   readonly isCommitted = signal(false)
   readonly canSubmit = computed(() => this.isValid() && this.isCommitted() && !this.isSubmitting())
+  /**
+   * Mandatory (auto-opened with `autoOpen.mandatory`): no X or Cancel once the form is shown, only Submit.
+   * While it loads or after it failed to load the learner can still close it, so a slow or broken API
+   * never traps them on the page.
+   */
+  readonly canClose = computed(() => !this.data.mandatory || !this.model())
 
   ngOnInit(): void {
     this.loadForm()
@@ -148,6 +154,9 @@ export class CampaignSurveyDialogComponent implements OnInit {
   /** `button`: the X in the header (`close`) or Cancel in the footer (`cancel`), told apart in telemetry */
   /** The X and Cancel both close without submitting: one event for both, as on mobile */
   close(_button: 'close' | 'cancel' = 'close'): void {
+    if (!this.canClose()) {
+      return
+    }
     this.track(MICROSITE_TELEMETRY.surveyClose)
     this.dialogRef.close(false)
   }
