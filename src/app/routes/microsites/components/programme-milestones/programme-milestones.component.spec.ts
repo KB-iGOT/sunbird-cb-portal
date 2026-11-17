@@ -117,6 +117,20 @@ describe('ProgrammeMilestonesComponent', () => {
       expect(statusSvc.resolveStates).toHaveBeenCalled()
     })
 
+    it('hideProgressStatus hides only the In progress / Completed status of that card', () => {
+      statusSvc.resolveStates.mockReturnValue(of(['inProgress', 'completed', 'notStarted', 'inProgress']))
+      render({
+        items: [
+          milestone(1, { hideProgressStatus: true }),
+          milestone(2, { type: 'event', hideProgressStatus: true }),
+          milestone(3, { hideProgressStatus: true }),
+          milestone(4),
+        ],
+      })
+      expect(component.hiddenStatuses()).toEqual([true, true, false, false])
+      expect(cards().map(card => card.classList.contains('cm-milestones__card--no-status'))).toEqual([true, true, false, false])
+    })
+
     it('availableFrom: only lockUntilEventStart items, only before eventDetails.startDate', () => {
       statusSvc.resolveStates.mockReturnValue(of(['completed', 'notStarted', 'notStarted', 'notStarted']))
       const items = [milestone(1), milestone(2, { lockUntilEventStart: true }), milestone(3, { lockUntilEventStart: true }), milestone(4)]
@@ -337,6 +351,58 @@ describe('ProgrammeMilestonesComponent', () => {
       it('keeps null (still loading)', () => {
         expect(withEndedEvents(null, [event()], AFTER)).toBeNull()
       })
+
+      it.each([
+        ['before the start', '2026-11-17T09:59:00+05:30', 'inProgress'],
+        ['while it runs', '2026-11-17T11:00:00+05:30', 'inProgress'],
+        ['one minute before the end', '2026-11-17T12:29:00+05:30', 'inProgress'],
+        ['at the end', END, 'completed'],
+        ['after the end', '2026-11-18T00:00:00+05:30', 'completed'],
+      ])('a completed (status 2) event shows completed only once its end time has passed: %s', (_name, now, expected) => {
+        expect(withEndedEvents(['completed'], [event()], at(now))).toEqual([expected])
+      })
+
+      it.each([
+        ['before the start (openBeforeStart)', '2026-11-16T20:00:00+05:30', 'inProgress'],
+        ['during the event', '2026-11-17T14:00:00+05:30', 'inProgress'],
+        ['one minute before the end', '2026-11-17T18:29:00+05:30', 'inProgress'],
+        ['at the end', '2026-11-17T18:30:00+05:30', 'completed'],
+        ['the next day', '2026-11-18T09:00:00+05:30', 'completed'],
+      ])('prod "Leadership lessons for Viksit Bharat 2047" event with status 2: %s → %s', (_name, now, expected) => {
+        const prodEvent = milestone(2, {
+          type: 'event', identifier: 'do_11469917729384038415', batchId: '01469918406804275256', openBeforeStart: true,
+          startDateTime: '2026-11-17T09:00:00+05:30', endDateTime: '2026-11-17T18:30:00+05:30',
+        })
+        expect(withEndedEvents(['completed'], [prodEvent], at(now))).toEqual([expected])
+      })
+
+      it('a completed event without a valid end time stays completed', () => {
+        const during = at('2026-11-17T11:00:00+05:30')
+        expect(withEndedEvents(['completed'], [event({ endDateTime: undefined })], during)).toEqual(['completed'])
+        expect(withEndedEvents(['completed'], [event({ endDateTime: '<END>' })], during)).toEqual(['completed'])
+      })
+
+      it('only events wait for the end time: a completed assessment / pledge stays completed', () => {
+        const during = at('2026-11-17T11:00:00+05:30')
+        expect(withEndedEvents(['completed'], [milestone(1, { endDateTime: END })], during)).toEqual(['completed'])
+        expect(withEndedEvents(['completed'], [milestone(3, { type: 'survey', endDateTime: END })], during)).toEqual(['completed'])
+      })
+    })
+
+    it('card shows a workshop completed (status 2) during the event as in progress until it ends; the button is unchanged', () => {
+      component.now.set(at('2026-11-17T11:00:00+05:30'))
+      statusSvc.resolveStates.mockReturnValue(of(['completed', 'completed']))
+      statusSvc.isEventEnrolled.mockReturnValue(true)
+      render({ items: [milestone(1), event()] })
+      expect(cards().map(card => card.state)).toEqual(['completed', 'inProgress'])
+      expect(component.ctas()[1]).toEqual({ label: L.recording, disabled: false })
+      expect(component.isJourneyComplete()).toBe(false)
+
+      component.now.set(at(END))
+      fixture.detectChanges()
+      expect(cards().map(card => card.state)).toEqual(['completed', 'completed'])
+      expect(component.ctas()[1]).toEqual({ label: L.recording, disabled: false })
+      expect(component.isJourneyComplete()).toBe(true)
     })
 
     it('card keeps an ended workshop in progress until its progress is complete', () => {
@@ -366,12 +432,12 @@ describe('ProgrammeMilestonesComponent', () => {
       expect(eventCta(phase, true, L, false, true)).toEqual({ label: L.recording, disabled: false })
     })
 
-    it('card: completed before the start date shows View recording, not "Event yet to start"', () => {
+    it('card: completed before the start date shows View recording, not "Event yet to start" (in progress until the end)', () => {
       component.now.set(at('2026-11-09T12:00:00+05:30'))
       statusSvc.isEventEnrolled.mockReturnValue(true)
       statusSvc.resolveStates.mockReturnValue(of(['completed']))
       render({ items: [event({ openBeforeStart: true })] })
-      expect([cards()[0].state, cards()[0].ctaLabel, cards()[0].ctaDisabled]).toEqual(['completed', L.recording, false])
+      expect([cards()[0].state, cards()[0].ctaLabel, cards()[0].ctaDisabled]).toEqual(['inProgress', L.recording, false])
     })
 
     it('binds the event button to the card; locked events keep the default', () => {
@@ -541,7 +607,7 @@ describe('ProgrammeMilestonesComponent', () => {
       statusSvc.resolveStates.mockReturnValue(of(['completed', 'notStarted']))
       render({ items: [milestone(1), survey] })
       component.openMilestone(survey)
-      expect(dialog.open).toHaveBeenCalledWith(CampaignSurveyDialogComponent, expect.objectContaining({ data: { milestone: survey, labels: component.labels() } }))
+      expect(dialog.open).toHaveBeenCalledWith(CampaignSurveyDialogComponent, expect.objectContaining({ data: { milestone: survey, labels: component.labels(), mandatory: false } }))
       expect(router.navigate).not.toHaveBeenCalled()
     })
 
@@ -594,6 +660,33 @@ describe('ProgrammeMilestonesComponent', () => {
       expect(statusSvc.enrollEvent).toHaveBeenCalledWith(pledge)
       expect(dialog.open).toHaveBeenCalledWith(CampaignSurveyDialogComponent, expect.anything())
       expect(router.navigate).not.toHaveBeenCalled()
+    })
+
+    it('registered now, closed without submitting → re-reads statuses so the card shows In progress', async () => {
+      statusSvc.resolveStates.mockReturnValue(of(['completed', 'notStarted']))
+      statusSvc.enrollEvent.mockResolvedValue(undefined)
+      render({ items: [milestone(1), pledge] })
+      component.openMilestone(pledge)
+      await flush()
+      const calls = statusSvc.resolveStates.mock.calls.length
+      dialogResult.next(false)
+      fixture.detectChanges()
+      TestBed.tick()
+      expect(statusSvc.resolveStates.mock.calls.length).toBeGreaterThan(calls)
+      expect(statusSvc.completeEvent).not.toHaveBeenCalled()
+    })
+
+    it('already registered, closed without submitting → statuses are not re-read', async () => {
+      statusSvc.resolveStates.mockReturnValue(of(['completed', 'inProgress']))
+      statusSvc.isEventEnrolled.mockReturnValue(true)
+      render({ items: [milestone(1), pledge] })
+      component.openMilestone(pledge)
+      await flush()
+      const calls = statusSvc.resolveStates.mock.calls.length
+      dialogResult.next(false)
+      fixture.detectChanges()
+      TestBed.tick()
+      expect(statusSvc.resolveStates.mock.calls.length).toBe(calls)
     })
 
     it('already registered → opens the form without registering again', async () => {
@@ -977,6 +1070,28 @@ describe('ProgrammeMilestonesComponent', () => {
         isInAutoOpenWindow(pledge({ autoOpen: { ...window, endDateTime: 'soon' } }), at('2026-11-10T10:00:00+05:30')),
         isInAutoOpenWindow(milestone(1, { autoOpen: window }), at('2026-11-10T10:00:00+05:30')),
       ]).toEqual([false, true, false, false, false, false])
+    })
+
+    it('autoOpen.mandatory: the automatic opening is mandatory', () => {
+      load({ items: [milestone(1), pledge({ autoOpen: { ...window, mandatory: true } })] }, ['completed', 'notStarted'])
+      expect(surveyOpens()).toBe(1)
+      expect(dialog.open.mock.calls[0][1].data.mandatory).toBe(true)
+      // still disableClose, so the backdrop and Escape cannot close it either
+      expect(dialog.open.mock.calls[0][1].disableClose).toBe(true)
+    })
+
+    it('autoOpen without mandatory: the automatic opening can be closed', () => {
+      load({ items: [milestone(1), pledge()] }, ['completed', 'notStarted'])
+      expect(dialog.open.mock.calls[0][1].data.mandatory).toBe(false)
+    })
+
+    it('autoOpen.mandatory does not apply when the learner opens the pledge from its card', () => {
+      const mandatoryPledge = pledge({ autoOpen: { ...window, mandatory: true } })
+      component.now.set(at('2026-12-10T10:00:00+05:30')) // outside the window: nothing opens by itself
+      load({ items: [milestone(1), mandatoryPledge] }, ['completed', 'notStarted'])
+      expect(surveyOpens()).toBe(0)
+      component.openMilestone(mandatoryPledge)
+      expect(dialog.open.mock.calls[0][1].data.mandatory).toBe(false)
     })
 
     it('not submitted and inside the window: the form opens on load, once', () => {

@@ -406,7 +406,8 @@ export class InitService {
     this.configSvc.overrideThemeChanges = publicConfig.overrideThemeChanges
     this.configSvc.profileTimelyNudges = publicConfig.profileTimelyNudges
     this.configSvc['headerFooterConfigData'] = publicConfig.headerFooterConfigData
-    this.configSvc.netcoreConfig = publicConfig.netcoreConfig
+    // global-web `features.netcore` can switch Netcore off: isActive false turns off every Netcore call that checks it
+    this.configSvc.netcoreConfig = this.applyNetcoreSwitch(publicConfig.netcoreConfig)
     if (publicConfig && publicConfig?.iGOTAI && publicConfig?.iGOTAI?.web) {
       this.configSvc.iGOTAIConfig = publicConfig.iGOTAI.web
     }
@@ -458,7 +459,13 @@ export class InitService {
     return this.fetchUserEnrollDetails()
       .then(() => undefined)
       .catch((err: any) => this.logger.warn('InitService: Failed to load enrolment summary', err))
-      .finally(() => this.enrollmentSummaryState.done())
+      .finally(() => {
+        this.enrollmentSummaryState.done()
+        // Netcore does not depend on the summary: it runs whether the summary was disabled,
+        // served from the cache, fetched or failed. It waits for it only because the netcore
+        // user sync reads the userEnrollmentCount the summary writes
+        this.setupNetcore()
+      })
   }
 
   private async fetchUserEnrollDetails(): Promise<NsInstanceConfig.IConfig> {
@@ -471,7 +478,6 @@ export class InitService {
     // the widgets read it from there, so skip the API
     if (localStorage.getItem('userEnrollmentCount')
       && this.commonMethodsSvc.isApiCacheValid(ENROLLMENT_SUMMARY_CACHE_KEY, userId)) {
-      this.setupNetcore()
       return {} as NsInstanceConfig.IConfig
     }
     const eventEnrollConfig = this.configSvc.globalConfig?.apis?.user?.eventEnroll
@@ -530,7 +536,6 @@ export class InitService {
         // event summary returned so the stats widgets get the event counts
         this.storeFallbackEnrollmentCount(userEventEnrolmentInfo, eventEnrolmentCount)
       }
-      this.setupNetcore()
 
       return res
     }).catch((_err: any) => {
@@ -539,14 +544,16 @@ export class InitService {
     return publicConfig
   }
 
-  // runs after the enrolment summary, whether it came from the API or from the cache
+  // runs once the enrolment summary has settled (loadEnrollmentSummaryInBackground), whatever its outcome
   private setupNetcore(): void {
+    const netcoreDisabled = this.isNetcoreDisabled()
     if (this.configSvc.userProfile) {
       const userProfile = this.configSvc && this.configSvc.userProfile
       if (userProfile.rootOrgId) {
+        // org read still runs when Netcore is off: other features read configSvc.orgReadData
         this.netCoreService.getOrgReadData(userProfile.rootOrgId).subscribe(orgData => {
           this.configSvc.orgReadData = orgData
-          if (!(orgData && orgData['netcoreDisabled'])) {
+          if (!netcoreDisabled && !(orgData && orgData['netcoreDisabled'])) {
             this.netCoreService.bootstrapNetcore()
             if (this.configSvc.netcoreConfig && this.configSvc.netcoreConfig.netcoreWebConfig
               && this.configSvc.netcoreConfig.netcoreWebConfig.isActive
@@ -560,6 +567,19 @@ export class InitService {
         })
       }
     }
+  }
+
+  /** global-web `features.netcore.enabled: false` turns Netcore off. Missing config = Netcore stays on */
+  isNetcoreDisabled(): boolean {
+    return this.configSvc.globalConfig?.features?.netcore?.enabled === false
+  }
+
+  /** The instance netcoreConfig, with `netcoreWebConfig.isActive` forced false when the global-web switch says so */
+  private applyNetcoreSwitch(netcoreConfig: any): any {
+    if (!this.isNetcoreDisabled()) {
+      return netcoreConfig
+    }
+    return { ...(netcoreConfig || {}), netcoreWebConfig: { ...(netcoreConfig?.netcoreWebConfig || {}), isActive: false } }
   }
 
   // course + event counts merged once at init so the stats widgets only read localStorage.

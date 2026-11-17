@@ -32,8 +32,9 @@ export class GlobalSearchComponent implements OnInit {
     private langtranslations: MultilingualTranslationsService
 
   ) {
+    // languageSelectedObservable is a BehaviorSubject, so this runs on every load: a
+    // setDefaultLang('hi') here downloaded hi.json each time even though English is the only language
     this.langtranslations.languageSelectedObservable.subscribe(() => {
-      this.translate.setDefaultLang('hi')
       if (localStorage.getItem('websiteLanguage')) {
         this.translate.setDefaultLang('en')
         const lang = localStorage.getItem('websiteLanguage')!
