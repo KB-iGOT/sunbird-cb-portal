@@ -30,7 +30,7 @@
           <button *ngIf="!isMobile" mat-icon-button (click)="refresh()" aria-label="refresh" i18n-aria-label>
             <mat-icon>refresh</mat-icon>
           </button>
-          <ws-widget-btn-fullscreen *ngIf="!isMobile" (fsState)="fullScreenState($event)" (click)="refresh()"
+          <ws-widget-btn-fullscreen *ngIf="!isMobile" (fsState)="fullScreenState($event)"
             [widgetData]="{ fsContainer: fullScreenContainer }">
           </ws-widget-btn-fullscreen>
         </div>
@@ -47,7 +47,7 @@
       </mat-toolbar>
     </div>
 
-    <div [ngClass]="{'custom-scroll-small': !isInFullScreen}" class="pdf-page-container">
+    <div [class.pdf-page-container-fs]="isInFullScreen" class="pdf-page-container">
       <div [ngClass]="{'custom-scroll-small': !isInFullScreen}" class="container" #pdfContainer></div>
     </div>
   </div>
