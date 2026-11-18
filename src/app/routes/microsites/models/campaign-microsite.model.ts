@@ -101,6 +101,8 @@ export namespace NsCampaignMicrosite {
      * the player, instead of being disabled. Off by default.
      */
     openBeforeStart?: boolean
+    /** `true` hides the "In progress" / "Completed" status on the card. Missing / false: shown. */
+    hideProgressStatus?: boolean
     /** Assessment only: sent as `?language=` to the auto-enrollment API and fills `{language}` in the player route */
     language?: string
     /**
@@ -163,6 +165,11 @@ export namespace NsCampaignMicrosite {
     enabled?: boolean
     startDateTime?: string
     endDateTime?: string
+    /**
+     * When the pledge opens by itself, the learner cannot close it (no X, no Cancel) until they submit.
+     * Closing stays possible while the form is loading or failed to load, so nobody gets stuck.
+     */
+    mandatory?: boolean
   }
 
   /**
@@ -328,6 +335,8 @@ export namespace NsCampaignMicrosite {
   export interface ICampaignSurveyDialogData {
     milestone: IMilestone
     labels: IMilestoneLabels
+    /** Opened by `autoOpen` with `mandatory`: hide X and Cancel once the form has loaded */
+    mandatory?: boolean
   }
 
   export interface ISurveyField {

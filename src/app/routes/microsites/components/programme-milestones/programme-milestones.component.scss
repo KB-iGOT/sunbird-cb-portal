@@ -11,6 +11,11 @@
     --mc-disabled-text: #ffffff;
   }
 
+  // the card has no input for this; see hiddenStatuses
+  sb-uic-milestone-card.cm-milestones__card--no-status ::ng-deep .mc-card__status {
+    display: none;
+  }
+
   @container (min-width: 520px) {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }

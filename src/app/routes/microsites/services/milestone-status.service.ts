@@ -200,7 +200,7 @@ export class MilestoneStatusService {
         case 'survey':
           // a pledge backed by an event is tracked through that event's enrollment; otherwise by form submission
           return milestone.identifier && milestone.batchId
-            ? this.fetchEventState(userId, milestone)
+            ? this.fetchPledgeEventState(userId, milestone)
             : this.fetchSurveyState(userId, milestone)
         default:
           return 'notStarted'
@@ -252,6 +252,15 @@ export class MilestoneStatusService {
       }
       throw error
     }
+  }
+
+  /**
+   * Event-backed pledge: registering for its event creates an enrollment with status 0, which on its own reads
+   * as not started. For the pledge, registered but not yet submitted (completed) is In progress.
+   */
+  private async fetchPledgeEventState(userId: string, milestone: NsCampaignMilestone.IMilestone): Promise<TProgressState> {
+    const state = await this.fetchEventState(userId, milestone)
+    return state === 'notStarted' && this.isEventEnrolled(milestone.identifier) ? 'inProgress' : state
   }
 
   /** API C: survey has no in-progress state; completed once a submitted application exists. */
