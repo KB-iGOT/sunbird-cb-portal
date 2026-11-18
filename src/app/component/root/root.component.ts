@@ -329,6 +329,16 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
       this.domainConfSvc.isConfigEnabled('components.header', 'enabled')
   }
 
+  /**
+   * Jago (Ministry of Tribal Affairs assistant) is opt-in per tenant: it shows only when the
+   * global-web form config sets featureFlags.jagochatbot to true. isConfigEnabled() is not used
+   * because it treats a missing key as enabled, which would show Jago on every tenant.
+   */
+  get showJagoChatbot(): boolean {
+    const featureFlags = this.domainConfSvc.getGlobalConfig().featureFlags
+    return !this.hideHeaderAndFooter && !!featureFlags && featureFlags.jagochatbot === true
+  }
+
   @ViewChild('previewContainer', { read: ViewContainerRef, static: true })
   // @ViewChild('userIntro', { static: true }) userIntro!: TemplateRef<any>
   previewContainerViewRef: ViewContainerRef | null = null

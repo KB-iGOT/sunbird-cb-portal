@@ -141,6 +141,7 @@
       <!--  && domainConfSvc.isConfigEnabled('featureFlags', 'chatbot') -->
       <ws-app-chatbot *ngIf="!hideHeaderAndFooter && configSvc.iGOTAIConfig?.enabled"
         [rootOrgId]="configSvc?.unMappedUser?.rootOrgId"></ws-app-chatbot>
+      <sb-uic-jago-chatbot *ngIf="showJagoChatbot"></sb-uic-jago-chatbot>
       <ws-app-footer class="app-footer"
         *ngIf="showNavbar && showFooter && headerFooterConfigData && !hideHeaderAndFooter" [isHomePage]="isHomePage()"
         [hideFooterSection]="hideFooterSection" [headerFooterConfigData]="headerFooterConfigData">

@@ -50,7 +50,7 @@ import { FooterSectionComponent } from './component/app-footer/footer-section/fo
 import { AppLogoComponent } from './component/app-logo/app-logo.component'
 import { NoDataComponent } from './component/no-data/no-data.component'
 import {
-  CardsModule, DynamicSidebarComponent, WIDGET_REGISTRATION_LIB_CONFIG,
+  CardsModule, DynamicSidebarComponent, JagoChatbotComponent, WIDGET_REGISTRATION_LIB_CONFIG,
 } from '@sunbird-cb/consumption'
 import { MatButtonModule } from '@angular/material/button'
 import { MatCardModule } from '@angular/material/card'
@@ -145,6 +145,7 @@ export function HttpLoaderFactory(http: HttpClient) {
     PipeOrderByModule,
     PipeSafeSanitizerModule,
     AppChatbotModule,
+    JagoChatbotComponent,
     DynamicSidebarComponent,
     HeaderV2Component,
     NoConnectionV2Component,
