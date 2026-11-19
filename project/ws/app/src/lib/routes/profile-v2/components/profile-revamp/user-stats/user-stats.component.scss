@@ -116,6 +116,16 @@
 }
 
 @media screen and (max-width:768px) {
+  // Tailwind's md display utilities start at 768px. This component's mobile
+  // range includes that boundary, so keep the mobile/desktop actions exclusive.
+  .rightArrowDiv {
+    display: block !important;
+  }
+
+  .viewAll {
+    display: none !important;
+  }
+
   .stateCard {
     width: 100px;
     height: 50px;

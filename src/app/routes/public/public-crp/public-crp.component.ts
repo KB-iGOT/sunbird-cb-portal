@@ -261,9 +261,6 @@ export class PublicCrpComponent {
     if (isPlatformBrowser(this._platformId)) {
       this._document.body.classList.add('cs-recaptcha')
     }
-    this.zohoSupportSvc.getZohoHtml().subscribe((res) => {
-      this.zohoHtml = res
-    })
   }
 
   emailVerification(emailId: string) {
@@ -558,7 +555,7 @@ export class PublicCrpComponent {
         phone: `${this.registrationForm.value.mobile}` || '',
         // position: this.registrationForm.value.position.name || '',
         group: this.registrationForm.value.group || '',
-        source: `${environment.name}.${this.portalID}` || '',
+        source: `${environment.name}.${this.portalID}`,
         orgName: this.heirarchyObject.orgName || '',
         channel: this.heirarchyObject.channel || '',
         organisationType: this.heirarchyObject.sbOrgType || '',
@@ -692,18 +689,25 @@ export class PublicCrpComponent {
     return this.langtranslations.translateActualLabel(label, type, '')
   }
 
+  // the support snippet is fetched on first open, not on load: most sessions never open it
   getZohoForm() {
-    const dialogRef = this.dialog.open(ZohoDialogComponent, {
-      width: '45%',
-      data: {
-        view: 'zohoform',
-        value: this.zohoHtml,
+    this.zohoSupportSvc.getZohoHtml().subscribe({
+      next: (res: any) => {
+        this.zohoHtml = res
+        const dialogRef = this.dialog.open(ZohoDialogComponent, {
+          width: '45%',
+          data: {
+            view: 'zohoform',
+            value: this.zohoHtml,
+          },
+        })
+        dialogRef.afterClosed().subscribe(() => { })
+        setTimeout(() => {
+          this.callXMLRequest()
+        }, 0)
       },
+      error: (err: any) => console.error('Failed to load the support form', err),
     })
-    dialogRef.afterClosed().subscribe(() => { })
-    setTimeout(() => {
-      this.callXMLRequest()
-    }, 0)
   }
 
   callXMLRequest() {
@@ -779,16 +783,16 @@ export class PublicCrpComponent {
     const userAgent = navigator.userAgent
     // Windows Phone must come first because its UA also contains "Android"
     if (/windows phone/i.test(userAgent)) {
-      window.open('https://play.google.com/store/apps/details?id=com.igot.karmayogibharat&hl=en&gl=US', '_blank')
+      window.open('https://play.google.com/store/apps/details?id=com.igot.karmayogibharat&hl=en&gl=US', '_blank', 'noopener,noreferrer')
     }
 
     if (/android/i.test(userAgent)) {
-      window.open('https://play.google.com/store/apps/details?id=com.igot.karmayogibharat&hl=en&gl=US', '_blank')
+      window.open('https://play.google.com/store/apps/details?id=com.igot.karmayogibharat&hl=en&gl=US', '_blank', 'noopener,noreferrer')
     }
 
     // iOS detection from: http://stackoverflow.com/a/9039885/177710
     if (/iPad|iPhone|iPod/.test(userAgent)) {
-      window.open('https://apps.apple.com/in/app/igot-karmayogi/id6443949491', '_blank')
+      window.open('https://apps.apple.com/in/app/igot-karmayogi/id6443949491', '_blank', 'noopener,noreferrer')
     }
   }
 

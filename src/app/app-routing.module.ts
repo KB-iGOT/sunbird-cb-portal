@@ -21,6 +21,7 @@ import { HomeResolverService } from './home/home/home-resolver.service'
 import { FormDataResolverService } from './services/form-data-resolver.service'
 import { FormConfigResolverService } from './services/form-config-resolver.service'
 import { AppPreAssessmentContentResolverService } from './services/app-pre-assessment-content-read-resolver.service'
+import { campaignMicrositeResolver } from './routes/microsites/campaign/campaign-microsite.resolver'
 // 💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥💥
 // Please declare routes in alphabetical order
 // 😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵😵
@@ -351,6 +352,21 @@ const routes: Routes = [
     },
     resolve: {
       pageData: PageResolve,
+    },
+  },
+  {
+    path: 'app/leadership-as-mission-2026',
+    loadComponent: () =>
+      import('./routes/microsites/campaign/campaign-microsite.component').then(m => m.CampaignMicrositeComponent),
+    canActivate: [GeneralGuard],
+    data: {
+      module: 'Campaign Microsite',
+      // leading slash as the mobile app sends it, so web and mobile telemetry share edata.pageid
+      pageId: '/app/leadership-as-mission-2026',
+    },
+    resolve: {
+      // /apis/public/v8/campaign-microsite/config/portal first, bundled assets/configurations/feature/campaign-microsite.json as fallback
+      pageData: campaignMicrositeResolver,
     },
   },
   // {

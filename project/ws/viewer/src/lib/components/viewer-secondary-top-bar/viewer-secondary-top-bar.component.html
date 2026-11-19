@@ -78,7 +78,13 @@
           <img src="assets/icons/final-assessment/mobile-cross.svg" />
         </div>
         <div *ngIf="!handleBackFromPdfScormFullScreenFlag">
-          <ws-widget-btn-page-back-nav *ngIf="!isPreview && !needToHide" [widgetData]="{
+          <!-- Opened from a microsite: Back returns to it -->
+          <ws-widget-btn-page-back-nav *ngIf="!isPreview && micrositeRedirect" [widgetData]="{
+                url: micrositeRedirect.url,
+                titles: [],
+                queryParams: micrositeRedirect.queryParams
+              }"></ws-widget-btn-page-back-nav>
+          <ws-widget-btn-page-back-nav *ngIf="!isPreview && !needToHide && !micrositeRedirect" [widgetData]="{
                 url: isTypeOfCollection
                   ? collectionType === 'Playlist'
                     ? '/app/playlist/me/' + collectionId

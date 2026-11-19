@@ -94,6 +94,7 @@ describe('HeaderV2Component', () => {
       expect(openSpy).toHaveBeenCalledWith(
         expect.stringContaining('play.google.com'),
         '_blank',
+        'noopener,noreferrer',
       )
       openSpy.mockRestore()
     })

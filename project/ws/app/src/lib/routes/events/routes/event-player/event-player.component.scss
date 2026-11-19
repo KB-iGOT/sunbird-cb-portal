@@ -32,6 +32,14 @@ button.ws-mat-primary-background {
     height: 12px;
   }
   
+  // spacing comes from the section gaps; the global .mat-title / p margins would stack on top of it
+  .event-info {
+    .mat-title,
+    p {
+      margin: 0;
+    }
+  }
+
   .tag-div {
     border: 1px solid #f69953;
     background-color: rgb(27, 76, 161);

@@ -26,6 +26,8 @@ import { NsContentStripWithTabs } from '@sunbird-cb/collection'
 import { WidgetContentLibService, WidgetUserServiceLib } from '@sunbird-cb/consumption'
 import { environment } from 'src/environments/environment'
 
+const DEFAULT_KARMA_COINS_NOTE = 'Use your Karma Coins to enrol in paid courses from providers marked with this badge.'
+
 @Component({
   selector: 'ws-app-see-all-home',
   templateUrl: './see-all-home.component.html',
@@ -199,6 +201,10 @@ export class SeeAllHomeComponent implements OnInit, OnDestroy {
 
   clearSearchControl() {
     this.searchControl.setValue('')
+  }
+
+  karmaCoinsNote(tab: any): string {
+    return this.isCoisContent ? _.get(tab, 'karmaCoinsNote', DEFAULT_KARMA_COINS_NOTE) : ''
   }
 
   private getFiltersFromArray(v6filters: any) {

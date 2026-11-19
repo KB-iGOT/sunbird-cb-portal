@@ -18,7 +18,7 @@ describe('HomeV2ResolverService (No TestBed)', () => {
   let mockConfigSvc: any
   let mockRouter: any
   let mockHttp: any
-  let mockFormSvc: any
+  let mockFormConfigSvc: any
 
   beforeEach(() => {
     mockConfigSvc = {
@@ -35,13 +35,13 @@ describe('HomeV2ResolverService (No TestBed)', () => {
 
     mockRouter = { navigateByUrl: jest.fn() }
     mockHttp = { get: jest.fn().mockReturnValue(of(null)) }
-    mockFormSvc = { formConfigReadData: jest.fn().mockReturnValue(of(null)) }
+    mockFormConfigSvc = { getForm: jest.fn().mockReturnValue(of(null)) }
 
     resolver = Object.create(HomeV2ResolverService.prototype)
     ; (resolver as any).configSvc = mockConfigSvc
     ; (resolver as any).router = mockRouter
     ; (resolver as any).http = mockHttp
-    ; (resolver as any).formSvc = mockFormSvc
+    ; (resolver as any).formConfigSvc = mockFormConfigSvc
   })
 
   afterEach(() => {
@@ -50,6 +50,13 @@ describe('HomeV2ResolverService (No TestBed)', () => {
 
   it('should be defined', () => {
     expect(resolver).toBeDefined()
+  })
+
+  it('should pick the home form for the current user with the configured client version', done => {
+    resolver.resolve().subscribe(() => {
+      expect(mockFormConfigSvc.getForm).toHaveBeenCalledWith(mockConfigSvc.unMappedUser, 'portal', 'home', 2.0)
+      done()
+    })
   })
 
   describe('resolve', () => {
@@ -83,7 +90,7 @@ describe('HomeV2ResolverService (No TestBed)', () => {
 
     it('should use the form config data when available and mark the pills section loading', done => {
       const homeSection = [{ sectionKey: 'aparCourses', pills: [], visibilityMode: 'hidden' }]
-      mockFormSvc.formConfigReadData.mockReturnValue(of({ result: { data: { homeSection } } }))
+      mockFormConfigSvc.getForm.mockReturnValue(of({ result: { data: { homeSection } } }))
 
       resolver.resolve().subscribe((result: any) => {
         const pillsSection = result.data.homeSection.find((s: any) => s.sectionKey === 'aparCourses')
@@ -97,7 +104,7 @@ describe('HomeV2ResolverService (No TestBed)', () => {
     })
 
     it('should fall back to the home-v2.json config when form config has no data', done => {
-      mockFormSvc.formConfigReadData.mockReturnValue(of({ result: { data: null } }))
+      mockFormConfigSvc.getForm.mockReturnValue(of({ result: { data: null } }))
       const homeSection = [{ sectionKey: 'aparCourses', pills: [] }]
       mockHttp.get.mockReturnValue(of({ homeSection }))
 
@@ -117,7 +124,7 @@ describe('HomeV2ResolverService (No TestBed)', () => {
     })
 
     it('should leave configDetails without a homeSection array untouched', done => {
-      mockFormSvc.formConfigReadData.mockReturnValue(of({ result: { data: { foo: 'bar' } } }))
+      mockFormConfigSvc.getForm.mockReturnValue(of({ result: { data: { foo: 'bar' } } }))
 
       resolver.resolve().subscribe((result: any) => {
         expect(result.data).toEqual({ foo: 'bar' })
@@ -128,7 +135,7 @@ describe('HomeV2ResolverService (No TestBed)', () => {
 
     it('should leave the pills section untouched when it is not present', done => {
       const homeSection = [{ sectionKey: 'otherSection' }]
-      mockFormSvc.formConfigReadData.mockReturnValue(of({ result: { data: { homeSection } } }))
+      mockFormConfigSvc.getForm.mockReturnValue(of({ result: { data: { homeSection } } }))
 
       resolver.resolve().subscribe((result: any) => {
         expect(result.data.homeSection[0].sectionLoading).toBeUndefined()
@@ -147,7 +154,7 @@ describe('HomeV2ResolverService (No TestBed)', () => {
           ],
         },
       ]
-      mockFormSvc.formConfigReadData.mockReturnValue(of({ result: { data: { homeSection } } }))
+      mockFormConfigSvc.getForm.mockReturnValue(of({ result: { data: { homeSection } } }))
 
       resolver.resolve().subscribe((result: any) => {
         const spotlight = result.data.homeSection.find((s: any) => s.sectionKey === 'spotlight')
@@ -162,7 +169,7 @@ describe('HomeV2ResolverService (No TestBed)', () => {
       const homeSection = [
         { sectionKey: 'spotlight', spotlightConfig: [{ cardClickDetails: { id: 'bharat-kalp' } }] },
       ]
-      mockFormSvc.formConfigReadData.mockReturnValue(of({ result: { data: { homeSection } } }))
+      mockFormConfigSvc.getForm.mockReturnValue(of({ result: { data: { homeSection } } }))
 
       resolver.resolve().subscribe((result: any) => {
         const spotlight = result.data.homeSection.find((s: any) => s.sectionKey === 'spotlight')
@@ -173,7 +180,7 @@ describe('HomeV2ResolverService (No TestBed)', () => {
 
     it('should leave configDetails untouched when there is no spotlight section', done => {
       const homeSection = [{ sectionKey: 'aparCourses', pills: [] }]
-      mockFormSvc.formConfigReadData.mockReturnValue(of({ result: { data: { homeSection } } }))
+      mockFormConfigSvc.getForm.mockReturnValue(of({ result: { data: { homeSection } } }))
 
       resolver.resolve().subscribe((result: any) => {
         expect(result.data.homeSection.find((s: any) => s.sectionKey === 'spotlight')).toBeUndefined()
@@ -188,7 +195,7 @@ describe('HomeV2ResolverService (No TestBed)', () => {
           throw new Error('boom')
         },
       })
-      mockFormSvc.formConfigReadData.mockReturnValue(of({ result: { data: throwingConfig } }))
+      mockFormConfigSvc.getForm.mockReturnValue(of({ result: { data: throwingConfig } }))
 
       resolver.resolve().subscribe((result: any) => {
         expect(result.data).toBeNull()
@@ -198,7 +205,7 @@ describe('HomeV2ResolverService (No TestBed)', () => {
     })
 
     it('should treat a failing form config call the same as an unavailable one', done => {
-      mockFormSvc.formConfigReadData.mockReturnValue(throwError(() => new Error('network error')))
+      mockFormConfigSvc.getForm.mockReturnValue(throwError(() => new Error('network error')))
 
       resolver.resolve().subscribe((result: any) => {
         expect(result.data).toEqual([])

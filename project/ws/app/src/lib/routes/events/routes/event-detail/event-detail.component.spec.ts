@@ -35,6 +35,9 @@ jest.mock('@angular/router', () => ({
 }))
 
 jest.mock('../../services/events.service', () => ({
+  // plain function, no Angular/HTTP: keep the real one
+  needsEnrollCount: (eventData: any) => String(eventData?.typeofEvent || '').toLowerCase() === 'live'
+    && String(eventData?.resourceType || '').toLowerCase() === 'samuhik charcha',
   EventService: jest.fn().mockImplementation(() => ({
     getEventData: jest.fn(),
     getIsEnrolled: jest.fn(),
@@ -82,6 +85,11 @@ jest.mock('@sunbird-cb/utils-v2', () => ({
   }))
 }))
 
+// the component only needs CertificateDialogComponent from here (plus types); the real module pulls in the whole UI library
+jest.mock('@sunbird-cb/collection', () => ({
+  CertificateDialogComponent: class CertificateDialogComponent {},
+}))
+
 jest.mock('@sunbird-cb/consumption', () => ({
   WidgetContentLibService: jest.fn().mockImplementation(() => ({
     downloadCert: jest.fn()
@@ -100,7 +108,7 @@ jest.mock('@angular/material/dialog', () => ({
   }))
 }))
 
-jest.mock('../../../services/netcore.service', () => ({
+jest.mock('../../../../routes/services/netcore.service', () => ({
   NetCoreService: jest.fn().mockImplementation(() => ({
     trackEventForContentAndEvent: jest.fn()
   }))
@@ -285,7 +293,8 @@ describe('EventDetailComponent', () => {
     }
 
     routerMock = {
-      navigate: jest.fn()
+      navigate: jest.fn(),
+      navigateByUrl: jest.fn()
     }
 
     // Create component with mocked dependencies
@@ -359,63 +368,34 @@ describe('EventDetailComponent', () => {
     expect(component.isenrollFlow).toBe(false)
   })
 
-  it('should initialize event data and process it correctly', () => {
-    // Fix the current time for time-based tests
-    jest.useFakeTimers().setSystemTime(new Date('2025-03-20T12:00:00'))
+  // the default mock event runs 2025-03-20, 09:00-17:00 (times read as local time)
+  describe('event timing', () => {
+    afterEach(() => jest.useRealTimers())
 
-    // Spy on getUserIsEnrolled and loadCompetencies
-    const loadCompetenciesSpy = jest.spyOn(component, 'loadCompetencies').mockImplementation(() => { })
+    it('should initialize event data and mark an event in progress as current', () => {
+      jest.useFakeTimers().setSystemTime(new Date('2025-03-20T12:00:00'))
+      const loadCompetenciesSpy = jest.spyOn(component, 'loadCompetencies').mockImplementation(() => { })
 
-    // Initialize component
-    component.ngOnInit()
+      component.ngOnInit()
 
-    // Verify event ID was extracted from route
-    expect(component.eventId).toBe('test-event-id')
+      expect(component.eventId).toBe('test-event-id')
+      expect(eventServiceMock.getEventData).toHaveBeenCalledWith('test-event-id')
+      expect(component.eventData.creatorDetails).toEqual({ name: 'Test Creator' })
+      expect(component.currentEvent).toBe(true)
+      expect(component.pastEvent).toBe(false)
+      expect(loadCompetenciesSpy).toHaveBeenCalled()
+    })
 
-    // Verify getEventData was called
-    expect(eventServiceMock.getEventData).toHaveBeenCalledWith('test-event-id')
+    it('should mark an event that has ended as past', () => {
+      jest.useFakeTimers().setSystemTime(new Date('2025-03-22T00:00:00'))
+      jest.spyOn(component, 'loadCompetencies').mockImplementation(() => { })
 
-    // Verify event data was processed correctly
-    expect(component.eventData).toBeDefined()
-    expect(component.eventData.creatorDetails).toEqual({ name: 'Test Creator' })
+      component.ngOnInit()
 
-    // Verify current event flag was set (since mock date is during event time)
-    expect(component.currentEvent).toBe(true)
-
-    // Verify competencies were processed
-    expect(loadCompetenciesSpy).toHaveBeenCalled()
-
-    jest.useRealTimers()
+      expect(component.pastEvent).toBe(true)
+      expect(component.currentEvent).toBe(false)
+    })
   })
-
-  it('should handle past events correctly', () => {
-    // Fix the current time so the event is in the past
-    jest.useFakeTimers().setSystemTime(new Date('2025-03-22T00:00:00'))
-
-    // Mock event data with past dates
-    eventServiceMock.getEventData = jest.fn().mockReturnValue(of({
-      result: {
-        event: {
-          identifier: 'test-event-id',
-          startDate: '2025-03-19',
-          endDate: '2025-03-19',
-          startTime: '09:00+05:30',
-          endTime: '17:00+05:30',
-          creatorDetails: '{"name":"Test Creator"}',
-          competencies_v6: []
-        }
-      }
-    }))
-
-    // Initialize component
-    component.ngOnInit()
-
-    // Verify past event flag was set
-    expect(component.pastEvent).toBe(true)
-
-    jest.useRealTimers()
-  })
-
 
   it('should format custom date correctly', () => {
     const result = component.customDateFormat('2025-03-20', '09:00+05:30')
@@ -430,61 +410,56 @@ describe('EventDetailComponent', () => {
     expect(component.ytEvent).toBe(1)
   })
 
-  it('should download certificate and open certificate dialog', () => {
-    component.enrolledEvent = {
-      contentId: 'test-event-id',
-      batchId: 'test-batch-id',
-      certificateObj: {
-        certId: 'cert-123',
-        certData: ''
-      }
-    }
-
-    component.handleOpenCertificateDialog()
-
-    expect(contentServiceMock.downloadCertV2).toHaveBeenCalledWith({
-      request: {
-        courseId: 'test-event-id',
-        batchId: 'test-batch-id',
-        userId: 'test-user-id',
-      },
+  describe('handleOpenCertificateDialog', () => {
+    const enrolled = () => ({
+      contentId: 'do_event',
+      batchId: 'batch-1',
+      certificateObj: { certId: 'cert-123', certData: '' },
     })
-    expect(component.downloadCertificateBool).toBe(false)
-    expect(component.enrolledEvent.certificateObj.certData).toBe('test-cert-uri')
-    expect(dialogMock.open).toHaveBeenCalled()
-    expect(dialogMock.open.mock.calls[0][1].data).toEqual({ cet: 'test-cert-uri', certId: 'cert-123' })
-  })
 
-  it('should handle certificate download error', () => {
-    component.enrolledEvent = {
-      contentId: 'test-event-id',
-      certificateObj: {
-        certId: 'cert-123',
-        certData: ''
-      }
-    }
+    it('fetches the certificate for this user and event, then opens it', () => {
+      component.enrolledEvent = enrolled()
 
-    contentServiceMock.downloadCertV2 = jest.fn().mockReturnValue(throwError(() => new Error('Download error')))
+      component.handleOpenCertificateDialog()
 
-    component.handleOpenCertificateDialog()
+      expect(contentServiceMock.downloadCertV2).toHaveBeenCalledWith({
+        request: { courseId: 'do_event', batchId: 'batch-1', userId: 'test-user-id' },
+      })
+      expect(component.downloadCertificateBool).toBe(false)
+      expect(component.enrolledEvent.certificateObj.certData).toBe('test-cert-uri')
+      expect(dialogMock.open).toHaveBeenCalled()
+      expect(dialogMock.open.mock.calls[0][1].data).toEqual({ cet: 'test-cert-uri', certId: 'cert-123' })
+    })
 
-    expect(component.downloadCertificateBool).toBe(false)
-    expect(snackBarMock.open).toHaveBeenCalledWith('Unable to view certificate due to an error.')
-  })
+    it('shows an error when the download fails', () => {
+      component.enrolledEvent = enrolled()
+      contentServiceMock.downloadCertV2 = jest.fn().mockReturnValue(throwError(() => new Error('Download error')))
 
-  it('should not download certificate when required information is missing', () => {
-    component.enrolledEvent = {
-      certificateObj: {
-        certId: 'cert-123',
-        certData: 'cached-cert-data'
-      }
-    }
+      component.handleOpenCertificateDialog()
 
-    component.handleOpenCertificateDialog()
+      expect(component.downloadCertificateBool).toBe(false)
+      expect(snackBarMock.open).toHaveBeenCalledWith('Unable to view certificate due to an error.')
+      expect(dialogMock.open).not.toHaveBeenCalled()
+    })
 
-    expect(contentServiceMock.downloadCertV2).not.toHaveBeenCalled()
-    expect(dialogMock.open).not.toHaveBeenCalled()
-    expect(snackBarMock.open).toHaveBeenCalledWith('Missing required information to fetch certificate.')
+    it('says so when no certificate is returned', () => {
+      component.enrolledEvent = enrolled()
+      contentServiceMock.downloadCertV2 = jest.fn().mockReturnValue(of({ result: {} }))
+
+      component.handleOpenCertificateDialog()
+
+      expect(snackBarMock.open).toHaveBeenCalledWith('Certificate not available.')
+      expect(dialogMock.open).not.toHaveBeenCalled()
+    })
+
+    it('does not call the API without the event id', () => {
+      component.enrolledEvent = { certificateObj: { certId: 'cert-123' } }
+
+      component.handleOpenCertificateDialog()
+
+      expect(contentServiceMock.downloadCertV2).not.toHaveBeenCalled()
+      expect(snackBarMock.open).toHaveBeenCalledWith('Missing required information to fetch certificate.')
+    })
   })
 
   it('should translate labels correctly', () => {
@@ -653,5 +628,21 @@ describe('EventDetailComponent', () => {
 
     // Test with zero
     expect(component.secondsToTime(0)).toBe('')
+  })
+
+  describe('certificateDisabled (page config disableCertificateEventTypes)', () => {
+    it.each([
+      [['Workshop'], 'Workshop', true],
+      [['workshop'], 'Workshop', true],
+      [[' WORKSHOP '], 'workshop', true],
+      [['Workshop'], 'Webinar', false],
+      [undefined, 'Workshop', false],
+      [[], 'Workshop', false],
+      [['Workshop'], undefined, false],
+    ])('types %j, event %s -> %s', (types, resourceType, hidden) => {
+      component.pageData = types === undefined ? {} : { disableCertificateEventTypes: types }
+      component.eventData = { resourceType }
+      expect(component.certificateDisabled).toBe(hidden)
+    })
   })
 })

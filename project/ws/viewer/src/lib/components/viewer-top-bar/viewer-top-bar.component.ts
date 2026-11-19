@@ -12,6 +12,7 @@ import { ContentRatingV2DialogComponent, RatingService } from '@sunbird-cb/colle
 import { ViewerHeaderSideBarToggleService } from './../../viewer-header-side-bar-toggle.service'
 import { ResetRatingsService } from '@sunbird-cb/toc'
 import { WidgetContentLibService, ContentLanguageService } from '@sunbird-cb/consumption'
+import { IViewerRedirect, VIEWER_REDIRECT_PARAM, getViewerRedirect } from '../../microsite-redirect.util'
 // import { WidgetContentService as WidgetContentServiceUtils } from '@sunbird-cb/utils-v2'
 
 /* tslint:disable*/
@@ -84,6 +85,8 @@ export class ViewerTopBarComponent implements OnInit, OnDestroy, OnChanges {
   // primaryCategory = NsContent.EPrimaryCategory
   contentPrimaryCategory: any
   comprehensiveAssessmentCategory = 'Comprehensive Assessment'
+  /** Set when the player was opened with `?redirectUrl=` (e.g. from the campaign microsite) */
+  micrositeRedirect: IViewerRedirect | null = null
 
   constructor(
     private activatedRoute: ActivatedRoute,
@@ -119,6 +122,7 @@ export class ViewerTopBarComponent implements OnInit, OnDestroy, OnChanges {
   }
 
   ngOnInit() {
+    this.micrositeRedirect = getViewerRedirect(this.router, this.activatedRoute.snapshot.queryParams[VIEWER_REDIRECT_PARAM])
     this.enrollmentList = this.activatedRoute.snapshot.data.enrollmentData
       && this.activatedRoute.snapshot.data.enrollmentData.data || []
 
@@ -182,6 +186,7 @@ export class ViewerTopBarComponent implements OnInit, OnDestroy, OnChanges {
             preview: this.forPreview,
             channelId: this.channelId,
             ...(window.location.href.includes('preAssessment=true') ? { preAssessment: true } : {}),
+            ...(this.micrositeRedirect ? { [VIEWER_REDIRECT_PARAM]: this.micrositeRedirect.fullUrl } : {}),
           },
           fragment: '',
         }
@@ -204,6 +209,7 @@ export class ViewerTopBarComponent implements OnInit, OnDestroy, OnChanges {
             preview: this.forPreview,
             channelId: this.channelId,
             ...(window.location.href.includes('preAssessment=true') ? { preAssessment: true } : {}),
+            ...(this.micrositeRedirect ? { [VIEWER_REDIRECT_PARAM]: this.micrositeRedirect.fullUrl } : {}),
           },
           fragment: '',
         }
@@ -227,6 +233,7 @@ export class ViewerTopBarComponent implements OnInit, OnDestroy, OnChanges {
       this.collectionId = params.get('collectionId') as string
       this.collectionType = params.get('collectionType') as string
       this.isPreview = params.get('preview') === 'true' ? true : false
+      this.micrositeRedirect = getViewerRedirect(this.router, params.get(VIEWER_REDIRECT_PARAM))
       const enrollList: any = this.widgetLibSvc.getEnrolledDataFromList(this.enrollmentList.courses, this.collectionId) || '{}'
       this.currentDataFromEnrollList = enrollList
     })
@@ -524,6 +531,11 @@ export class ViewerTopBarComponent implements OnInit, OnDestroy, OnChanges {
     }
   }
   finishDialog() {
+    // opened from a microsite: return there directly, no completion dialog
+    if (this.micrositeRedirect) {
+      this.router.navigateByUrl(this.micrositeRedirect.fullUrl)
+      return
+    }
     let id = ''
     if (!this.forPreview) {
       this.contentProgressHash = []

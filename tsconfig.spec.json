@@ -6,6 +6,9 @@
     // coverage lines point into the comment-stripped output and land on the wrong source lines
     "sourceMap": true,
     "removeComments": false,
+    // same as the app build (angular.json): a locally linked @sunbird-cb package must take
+    // rxjs and other dependencies from this project, not from the folder it links to
+    "preserveSymlinks": true,
     "types": [
       "jest",
       "node"

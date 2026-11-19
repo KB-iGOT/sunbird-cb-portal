@@ -209,7 +209,7 @@ export class SuppotSectionComponent implements OnInit, OnChanges {
       return
     }
 
-    let states = Object.keys(this.stateContacts).sort()
+    let states = Object.keys(this.stateContacts).sort((a, b) => (a < b ? -1 : a > b ? 1 : 0))
 
     if (this.activeRegion !== 'all') {
       states = states.filter(

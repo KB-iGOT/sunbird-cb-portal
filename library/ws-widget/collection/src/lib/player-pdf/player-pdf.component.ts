@@ -89,6 +89,7 @@ export class PlayerPdfComponent extends WidgetBaseComponent
 
   fullScreenState(state: boolean) {
     this.isInFullScreen = state
+    this.refresh()
   }
 
   ngOnInit() {

@@ -645,7 +645,6 @@
 
         .cb-content-sarthi {
           background: url('/assets/ai-tutor/background.svg');
-          background-color: #F0F3F4;
           overflow-y: auto;
           overflow-x: hidden;
           position: relative;
@@ -699,7 +698,7 @@
 
         ::ng-deep .disable-scroll {
           overflow-x: hidden !important;
-          overflow: hidden;
+          overflow-y: hidden;
         }
 
         @media only screen and (max-width: 600px) {
@@ -913,7 +912,6 @@
 
                 .cb-content-sarthi {
                   background: url('/assets/ai-tutor/background.svg');
-                  background-color: #F0F3F4;
                   overflow-y: auto;
                   overflow-x: hidden;
                   position: relative;
@@ -984,7 +982,6 @@
 
                 .cb-content-sarthi {
                   background: url('/assets/ai-tutor/background.svg');
-                  background-color: #F0F3F4;
                   overflow-y: auto;
                   overflow-x: hidden;
                   position: relative;
@@ -1045,7 +1042,6 @@
 
                 .cb-content-sarthi {
                   background: url('/assets/ai-tutor/background.svg');
-                  background-color: #F0F3F4;
                   overflow-y: auto;
                   overflow-x: hidden;
                   position: relative;

@@ -73,7 +73,7 @@
             </ng-container>
 
             <ng-container *ngIf="question.questionType === 'mcq-sca' || question.questionType === 'mcq-sca-tf' || question.questionType === 'mcq-mca-w'">
-              <viewer-mcq-sca-question   [primaryCategory]="primaryCategory" class="flex-1" [question]="question" [itemSelectedList]="itemSelectedList1" [assessmentType]="assessmentType"
+              <viewer-mcq-sca-question   [primaryCategory]="primaryCategory" [contextCategory]="contextCategory" class="flex-1" [question]="question" [itemSelectedList]="itemSelectedList1" [assessmentType]="assessmentType"
                 (update)="update($event)"></viewer-mcq-sca-question>
             </ng-container>
             <ng-container *ngIf="question.questionType === 'mtf'">
@@ -263,7 +263,7 @@
             </ng-container>
 
             <ng-container *ngIf="question.questionType === 'mcq-sca' || question.questionType === 'mcq-sca-tf' || question.questionType === 'mcq-mca-w'">
-              <viewer-mcq-sca-question   [primaryCategory]="primaryCategory" class="flex-1" [question]="question" [itemSelectedList]="itemSelectedList1" [assessmentType]="assessmentType"
+              <viewer-mcq-sca-question   [primaryCategory]="primaryCategory" [contextCategory]="contextCategory" class="flex-1" [question]="question" [itemSelectedList]="itemSelectedList1" [assessmentType]="assessmentType"
                 (update)="update($event)"></viewer-mcq-sca-question>
             </ng-container>
             <ng-container *ngIf="question.questionType === 'mtf'">

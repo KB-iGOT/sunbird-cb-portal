@@ -480,9 +480,6 @@ export class PublicSignupComponent implements OnInit, OnDestroy {
     if (isPlatformBrowser(this._platformId)) {
       this._document.body.classList.add('cs-recaptcha')
     }
-    this.zohoSupportSvc.getZohoHtml().subscribe(res => {
-      this.zohoHtml = res
-    })
     if (!this.masterData['designationBackup']) {
       this.getDesignationSafe()
     }
@@ -1250,7 +1247,7 @@ export class PublicSignupComponent implements OnInit, OnDestroy {
               phone: `${this.registrationFormStepTwo.value.mobile}` || '',
               // position: this.registrationFormStepOne.value.position.name || '',
               group: this.registrationFormStepTwo.value.group || '',
-              source: `${environment.name}.${this.portalID}` || '',
+              source: `${environment.name}.${this.portalID}`,
               orgName,
               channel,
               organisationType,
@@ -1350,7 +1347,14 @@ export class PublicSignupComponent implements OnInit, OnDestroy {
   // }
 
   navigateTo(param?: any) {
-    const formData = this.registrationFormStepOne.value
+    const formData = { ...this.registrationFormStepOne.value }
+    if (param === 'Organisation') {
+      const searchText = this.registrationFormStepOne.get('searchOrganisation')!.value
+      const selectedOrgId = this.registrationFormStepOne.get('organisation')!.value
+      const selectedOrg = (this.masterData?.organisationBackup || this.masterData?.organisation || [])
+        .find((org: any) => org?.identifier === selectedOrgId)
+      formData.organisation = searchText || selectedOrg?.orgName || ''
+    }
     const url = '/public/request'
     // tslint:disable-next-line: max-line-length
     this.router.navigate([url], { queryParams: { type: param }, state: { userform: formData, isMobileVerified: this.isMobileVerified, isEmailVerified: this.isEmailVerified } })
@@ -1371,19 +1375,25 @@ export class PublicSignupComponent implements OnInit, OnDestroy {
   translateLabels(label: string, type: any) {
     return this.langtranslations.translateActualLabel(label, type, '')
   }
+  // the support snippet is fetched on first open, not on load: most sessions never open it
   getZohoForm() {
-    const dialogRef = this.dialog.open(ZohoDialogComponent, {
-      width: '45%',
-      data: {
-        view: 'zohoform',
-        value: this.zohoHtml,
+    this.zohoSupportSvc.getZohoHtml().subscribe({
+      next: (res: any) => {
+        this.zohoHtml = res
+        const dialogRef = this.dialog.open(ZohoDialogComponent, {
+          width: '45%',
+          data: {
+            view: 'zohoform',
+            value: this.zohoHtml,
+          },
+        })
+        dialogRef.afterClosed().subscribe(() => { })
+        setTimeout(() => {
+          this.callXMLRequest()
+        }, 0)
       },
+      error: (err: any) => console.error('Failed to load the support form', err),
     })
-    dialogRef.afterClosed().subscribe(() => {
-    })
-    setTimeout(() => {
-      this.callXMLRequest()
-    }, 0)
   }
 
   callXMLRequest() {
@@ -2226,14 +2236,8 @@ export class PublicSignupComponent implements OnInit, OnDestroy {
           //   this.masterData['ministry'] = _.uniqBy(combined, (it: any) => (it?.identifier || '').toLowerCase())
           // }
 
-          if (!this.masterData['organisationBackup'] || reqOffset === 0) {
-            const combined = (this.masterData['organisationBackup'] || []).concat(mapped)
-            this.masterData['organisationBackup'] = _.uniqBy(combined, (it: any) => (it?.identifier || '').toLowerCase())
-            // this.masterData['organisationBackup'] = mapped
-          } else {
-            const combined = (this.masterData['organisationBackup'] || []).concat(mapped)
-            this.masterData['organisationBackup'] = _.uniqBy(combined, (it: any) => (it?.identifier || '').toLowerCase())
-          }
+          const combined = (this.masterData['organisationBackup'] || []).concat(mapped)
+          this.masterData['organisationBackup'] = _.uniqBy(combined, (it: any) => (it?.identifier || '').toLowerCase())
 
           // If server returned no new items, mark as no-more-data to stop further scroll requests
           if (!mapped || mapped?.length === 0) {

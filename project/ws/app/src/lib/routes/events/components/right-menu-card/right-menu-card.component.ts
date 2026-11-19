@@ -4,7 +4,7 @@ import { ConfigurationsService, EventService as EventServiceGlobal, WsEvents } f
 import { environment } from 'src/environments/environment'
 import { TranslateService } from '@ngx-translate/core'
 import { ActivatedRoute, Router } from '@angular/router'
-import { EventService } from '../../services/events.service'
+import { EventService, needsEnrollCount } from '../../services/events.service'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { MatDialog } from '@angular/material/dialog'
 import { DialogConfirmComponent } from '../../../../routes/dialog-confirm/dialog-confirm.component'
@@ -26,6 +26,8 @@ export class RightMenuCardComponent implements OnInit, OnDestroy, OnChanges {
   @Input() enrolledEvent: any
   @Input() courseProgress: any
   @Input() userAbleToEnroll: any = false
+  /** No certificate for this event type (event page config `disableCertificateEventTypes`): hide the certificate note */
+  @Input() certificateDisabled = false
   @Output() enrollEvent: any = new EventEmitter()
 
   startTime: any
@@ -123,7 +125,9 @@ export class RightMenuCardComponent implements OnInit, OnDestroy, OnChanges {
         }
 
       }
-      if (this.eventData?.typeofEvent === 'live') {
+      // live Samuhik Charcha only; other events never fetch the count, so they show no slot messages
+      this.showEnrolledCount = needsEnrollCount(this.eventData)
+      if (this.showEnrolledCount) {
         this.getEnrolledUserCount()
       }
     }

@@ -13,9 +13,7 @@
   width: 352px;
   height: 100%;
   border: 1px solid #ccc;
-  position: absolute;
   right: 0;
-  top: 0;
   background: #fff;
   z-index: 10000 !important;
   top: 0px;
@@ -115,7 +113,7 @@
 
 .category-item {
   color: rgba(0, 0, 0, 0.6);
-  font: 400 14px/20px Lato;
+  font: 400 14px/20px Lato, sans-serif;
   padding-top: 0px;
 }
 
@@ -141,7 +139,7 @@
   border-radius: 64px;
   border: 1px solid #d5d0d0;
   padding: 4px 36px;
-  font: 400 14px Lato;
+  font: 400 14px Lato, sans-serif;
   width: 224px;
   height: 32px;
 }

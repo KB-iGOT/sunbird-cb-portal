@@ -168,7 +168,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: Lato;
+  font-family: Lato, sans-serif;
 }
 
 .active {
@@ -184,6 +184,11 @@
 
 ::ng-deep .mat-mdc-menu-panel.my-notifications {
   min-width: 386px !important;
+  background-color: #fff !important;
+}
+
+.notification-container {
+  color: rgba(0, 0, 0, 0.8);
 }
 
 ::ng-deep .mat-mdc-menu-panel {

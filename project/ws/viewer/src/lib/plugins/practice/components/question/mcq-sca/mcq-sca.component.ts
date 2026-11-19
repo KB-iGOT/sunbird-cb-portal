@@ -14,6 +14,7 @@ import _ from 'lodash'
 import { Subscription } from 'rxjs'
 import { PracticeService } from '../../../practice.service'
 import { NsContent } from '@sunbird-cb/utils-v2'
+import { QUESTIONNAIRE_INTROS } from '../../overview/overview.component'
 @Component({
     selector: 'viewer-mcq-sca-question',
     templateUrl: './mcq-sca.component.html',
@@ -43,6 +44,11 @@ export class SingleChoiseQuesComponent implements OnInit, OnDestroy {
     @Input() itemSelectedList: string[] = []
     @Input() primaryCategory = NsContent.EPrimaryCategory.PRACTICE_RESOURCE
     @Input() assessmentType = ''
+    /** content's contextCategory: questionnaires (Baseline / Endline) show their options in a grid */
+    @Input() contextCategory = ''
+    get optionsInGrid(): boolean {
+        return !!QUESTIONNAIRE_INTROS[this.contextCategory]
+    }
     @Output() update = new EventEmitter<string | Object>()
     localQuestion: string = this.question.question
     shCorrectAnsSubscription: Subscription | null = null

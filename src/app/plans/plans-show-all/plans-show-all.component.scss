@@ -67,7 +67,7 @@
 
   &__heading {
     margin: 0;
-    font: 600 20px 'Noto Sans';
+    font: 600 20px 'Noto Sans', sans-serif;
     color: var(--text-bandw-black-sub-heading);
     overflow: hidden;
     text-overflow: ellipsis;
@@ -104,7 +104,7 @@
   border: 1px solid var(--border-strong);
   border-radius: 20px;
   background: transparent;
-  font: 500 14px 'Noto Sans';
+  font: 500 14px 'Noto Sans', sans-serif;
   color: var(--text-bandw-black-sub-heading);
   cursor: pointer;
 
@@ -164,7 +164,7 @@
     background: transparent;
     /* permanent: sits on the brand primary fill, which stays a strong blue in both themes */
     color: #ffffff;
-    font: 500 14px 'Noto Sans';
+    font: 500 14px 'Noto Sans', sans-serif;
     cursor: pointer;
 
     mat-icon {
@@ -217,7 +217,7 @@
 
   &__text {
     margin: 16px 0 0;
-    font: 600 14px 'Noto Sans';
+    font: 600 14px 'Noto Sans', sans-serif;
     color: var(--text-bandw-black-captions);
   }
 }
@@ -273,7 +273,7 @@
     &::after {
       content: 'check';
       margin-left: 12px;
-      font-family: 'Material Icons';
+      font-family: 'Material Icons', sans-serif;
       font-size: 18px;
       line-height: 1;
       vertical-align: middle;

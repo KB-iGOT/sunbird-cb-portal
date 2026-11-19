@@ -8,7 +8,7 @@
       "/apis": "/apis"
     },
     "headers": {
-      "Cookie": "connect.sid=s%3AxfVOKhcT3qTdg1jULc70RX_mTp07Zs8r.aKPyDGVyvOi6a5B2OvlUI50%2B3DBD61PSyAoAuwy%2BuZQ"
+      "Cookie": "connect.sid=s%3AVbAvfJ9OAXI6W07YF8hEwvdh7yqO7NdY.%2FPkIVF%2FPA6mL7NnrKjkMEacO0XINyTd2dnPx471Qm7o"
     }
   },
   "/api": {
@@ -20,7 +20,7 @@
       "/api": "/api"
     },
     "headers": {
-      "Cookie": "connect.sid=s%3AxfVOKhcT3qTdg1jULc70RX_mTp07Zs8r.aKPyDGVyvOi6a5B2OvlUI50%2B3DBD61PSyAoAuwy%2BuZQ"
+      "Cookie": "connect.sid=s%3AVbAvfJ9OAXI6W07YF8hEwvdh7yqO7NdY.%2FPkIVF%2FPA6mL7NnrKjkMEacO0XINyTd2dnPx471Qm7o"
     }
   },
   "/content-api": {
@@ -67,6 +67,12 @@
     "pathRewrite": {
       "^/LA": ""
     }
+  },
+  "/assets/public/content": {
+    "target": "https://portal.qa.karmayogibharat.net/",
+    "secure": true,
+    "changeOrigin": true,
+    "logLevel": "debug"
   },
   "/assets": {
     "target": "http://127.0.0.1:8080",

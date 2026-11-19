@@ -1,0 +1,217 @@
+$mp-navy: #12306e;
+$mp-green: #1e9e57;
+$mp-teal: #12a0a8;
+$mp-orange: #f47b20;
+
+.mp-backdrop {
+  z-index: 1000;
+  background: rgba(15, 23, 42, 0.6);
+}
+
+.mp-dialog {
+  max-width: 1040px;
+  max-height: calc(100vh - 32px);
+  overflow-y: auto;
+  box-sizing: border-box;
+  font-family: 'Noto Sans', sans-serif;
+  background: var(--surface-primary);
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.32);
+}
+
+.mp-close {
+  z-index: 1;
+  border: 0;
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+
+  &:hover {
+    background: rgba(255, 255, 255, 0.24);
+  }
+
+  &:focus-visible {
+    outline: 2px solid #ffffff;
+    outline-offset: 2px;
+  }
+}
+
+// ── Image-only popup ───────────────────────────────────────────────────────
+// A real width, not `auto`: an SVG with only a viewBox (no width/height) has no size of its own, so
+// shrink-to-fit around it collapsed the popup to 0 wide and nothing showed. The height follows the image.
+.mp-dialog--image {
+  // as wide as fits both the width and the height of the window at the image's own proportions, so the
+  // box is always exactly the artwork (no empty strip beside it) and the close button sits on its corner
+  width: min(1040px, calc(100vw - 32px), calc((100vh - 32px) * var(--mp-image-ratio, 1.7778)));
+  max-width: 100%;
+  // visible, so the close button can sit on the corner outside the artwork; the image keeps the
+  // rounded corners itself. The backdrop's 16px padding leaves room for the button.
+  overflow: visible;
+  background: transparent;
+  box-shadow: none;
+
+  .mp-close {
+    // on the corner, half outside, instead of 40px inside the image on top of its headline
+    top: -12px;
+    right: -12px;
+    width: 32px;
+    height: 32px;
+    border: 2px solid #ffffff;
+    background: #1b2133;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+
+    &:hover {
+      background: #000000;
+    }
+
+    svg {
+      width: 12px;
+      height: 12px;
+    }
+  }
+}
+
+.mp-picture {
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.32);
+}
+
+// Fills the popup's width; height from the image's own proportions (PNG pixels or SVG viewBox). The popup's
+// width already fits the window's height, so no cap is needed here and nothing is letterboxed.
+.mp-image {
+  width: 100%;
+  border-radius: inherit;
+  height: auto;
+}
+
+// ── Header ─────────────────────────────────────────────────────────────────
+.mp-header {
+  background: linear-gradient(135deg, #0f2a6b 0%, #163a85 100%);
+}
+
+.mp-eyebrow {
+  color: $mp-orange;
+}
+
+.mp-title {
+  color: var(--text-permanent-white-heading);
+}
+
+.mp-description {
+  max-width: 520px;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+// ── Steps: columns follow the dialog's own width, 4 / 2 / 1 ────────────────
+.mp-body {
+  container-type: inline-size;
+  box-sizing: border-box;
+}
+
+.mp-steps {
+  grid-template-columns: minmax(0, 1fr);
+
+  @container (min-width: 480px) {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @container (min-width: 760px) {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.mp-step__label {
+  color: var(--environment-all-fills-black-gray-300-200);
+}
+
+// the connector only reads as a path when all four sit on one row
+.mp-step__line {
+  display: none;
+  height: 2px;
+  background: var(--border-default);
+
+  @container (min-width: 760px) {
+    display: block;
+  }
+}
+
+.mp-step__icon {
+  color: #ffffff;
+
+  &--navy {
+    background: $mp-navy;
+    box-shadow: 0 8px 16px rgba($mp-navy, 0.25);
+  }
+
+  &--green {
+    background: $mp-green;
+    box-shadow: 0 8px 16px rgba($mp-green, 0.25);
+  }
+
+  &--teal {
+    background: $mp-teal;
+    box-shadow: 0 8px 16px rgba($mp-teal, 0.25);
+  }
+
+  &--orange {
+    background: $mp-orange;
+    box-shadow: 0 8px 16px rgba($mp-orange, 0.25);
+  }
+}
+
+.mp-step__title {
+  color: var(--text-bandw-black-heading);
+}
+
+.mp-step__description {
+  color: var(--text-bandw-black-body);
+}
+
+.mp-step__status {
+  &--success {
+    background: var(--color-success-green-o-16);
+    color: var(--environment-all-fills-system-success);
+  }
+
+  &--warning {
+    background: rgba($mp-orange, 0.12);
+    color: $mp-orange;
+  }
+
+  &--muted {
+    background: var(--surface-secondary);
+    color: var(--environment-all-fills-black-gray-300-200);
+  }
+}
+
+// ── Note and footer ────────────────────────────────────────────────────────
+.mp-note {
+  // translucent tint over the themed surface: light peach in light mode, dark orange in dark mode,
+  // so the themed text colour stays readable in both
+  background: rgba($mp-orange, 0.08);
+  border: 1px solid rgba($mp-orange, 0.3);
+  color: var(--text-bandw-black-title);
+}
+
+.mp-note__icon {
+  color: $mp-orange;
+}
+
+.mp-help {
+  max-width: 280px;
+  color: var(--text-bandw-black-body);
+}
+
+.mp-cta {
+  background: $mp-orange;
+  color: #ffffff;
+  box-shadow: 0 8px 20px rgba($mp-orange, 0.35);
+
+  &:hover {
+    background: #dd6a12;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--border-focus);
+    outline-offset: 2px;
+  }
+}

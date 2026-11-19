@@ -7,7 +7,6 @@ import {
   computed,
   effect,
   ElementRef,
-  HostListener,
   OnInit,
   signal,
   // TemplateRef,
@@ -54,13 +53,15 @@ import { SwUpdate } from '@angular/service-worker'
 import { environment } from '../../../environments/environment'
 import { MatDialog } from '@angular/material/dialog'
 import { DialogConfirmComponent } from '../dialog-confirm/dialog-confirm.component'
-import { combineLatest, concat, interval, of, Subscription } from 'rxjs'
+import { combineLatest, concat, interval, Observable, of, Subscription } from 'rxjs'
 // import { iGOTAIService } from './../../services/igot-ai.service'
 import { CommonDataService } from '../../services/common-data.service'
 import { UserRestrictionService } from '../../services/user-restriction.service'
 import { UrlService } from '../../shared/url.service'
 import { LibNotificationsService } from '@sunbird-cb/notification'
 import { HomePageService } from '../../services/home-page.service'
+import { reloadForStaleBuild } from '../../services/stale-build-recovery'
+import { FormConfigService } from '@sunbird-cb/consumption'
 import { trigger, style, animate, transition } from '@angular/animations'
 import { DialogBoxComponent } from '../dialog-box/dialog-box.component'
 import { isKarmaWalletTourSnoozed } from '../app-tour/karma-wallet-tour-snooze'
@@ -116,14 +117,21 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
   // Add more prefixes here when another route needs the same treatment.
   fullWidthMobileRoutes = ['/app/learn/bharat-kalp']
   isFullWidthMobileRoute = signal(false)
-  surfaceBackgroundRoutes = ['/app/person-profile/karma-wallet', '/app/plans']
+  surfaceBackgroundRoutes = ['/app/person-profile/karma-wallet', '/app/plans', '/app/leadership-as-mission-2026']
   usesSurfaceBackground = signal(false)
+  // Routes laid out like the home page: white ground, docked sidebar that keeps the user's
+  // open/closed choice, and the overrideThemeChanges background.
+  // The campaign microsite (/app/leadership-as-mission-2026) is deliberately not here: its sidebar is an
+  // overlay drawer; it keeps the white ground via surfaceBackgroundRoutes.
+  homeLayoutRoutes: string[] = []
+  usesHomeLayout = signal(false)
+  hasHomeLayout = computed(() => this.isHomePage() || this.usesHomeLayout())
   navBarOpenStatusBasedOnNav = signal(true)
   openStatusUserSelection = signal(true)
-  // The sidebar only pushes page content on the home page. Everywhere else it is an overlay
+  // The sidebar only pushes page content on home-layout pages. Everywhere else it is an overlay
   // drawer (see isOverlayMode in sb-uic-dynamic-sidebar), so opening it must leave the header
   // and main content exactly where they are instead of reflowing them.
-  sidebarPushesContent = computed(() => this.isHomePage() && this.leftNavBarIsOpen())
+  sidebarPushesContent = computed(() => this.hasHomeLayout() && this.leftNavBarIsOpen())
 
   independenceDayBanner: any
 
@@ -154,6 +162,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
     private homePageSvc: HomePageService,
     private readonly breakpointObserver: BreakpointObserver,
     private readonly enrollmentSummaryState: EnrollmentSummaryStateService,
+    private formConfigSvc: FormConfigService,
   ) {
     effect(() => {
       if (this.leftNavBarIsOpen()) {
@@ -213,6 +222,157 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
     }
     this.mobileAppsSvc.init()
     this.openIntro()
+  }
+
+  get navBarRequired(): boolean {
+    return this.isNavBarRequired
+  }
+
+  get isShowNavbar(): boolean {
+    return this.showNavbar
+  }
+
+  get isCustomHeight(): boolean {
+    if (window.location.pathname.includes('/public/home')
+      || window.location.pathname.includes('/public/faq')
+      || window.location.pathname.includes('/public/contact')
+      || window.location.pathname.includes('/public/signup')
+      || window.location.pathname.includes('/public/request')
+      || /^\/crp\/[^\/]+(\/[^\/]+)?$/.test(window.location.pathname)
+
+    ) {
+      this.customHeight = true
+    }
+    return this.customHeight
+  }
+
+  /**
+   * Inside event-hub only the event detail page (home/:eventId) runs edge to edge. The list
+   * pages — home, my-events, see-all, view-all — and the player stay in the centred
+   * container. This used to full-screen everything except the exact string
+   * '/app/event-hub/home', which caught the lists and even home itself once it carried
+   * query params
+   */
+  private isFullScreenEventPage(url: string): boolean {
+    const path = (url || '').split('?')[0].split('#')[0]
+    return /^\/app\/event-hub\/home\/[^/]+/.test(path)
+  }
+
+  /**
+   * Bharat Kalp's landing page runs edge to edge, but its children stay in the centred
+   * container - see-all has its own breadcrumb and grid layout that assume it. Matching
+   * the exact path rather than a prefix is what keeps the two apart: startsWith would
+   * take /app/learn/bharat-kalp/see-all full screen too.
+   */
+  private isFullScreenBharatKalp(url: string): boolean {
+    const path = (url || '').split('?')[0].split('#')[0]
+    // drop trailing slashes with a plain scan rather than a backtracking regex
+    let end = path.length
+    while (end > 0 && path.charAt(end - 1) === '/') {
+      end -= 1
+    }
+    return path.slice(0, end) === '/app/learn/bharat-kalp'
+  }
+
+  get showMenuBardetails(): boolean {
+    // a NOT-MY-USER account has nowhere to navigate, so it gets no sidebar
+    return this.menuBarDetails && this.currentUrl &&
+      !this.restrictionSvc.isNotMyUser &&
+      !this.currentUrl.includes('public') &&
+      !this.currentUrl.includes('viewer') &&
+      // self-registration via QR runs without the app chrome
+      !this.currentUrl.startsWith('/crp/')
+  }
+
+  get showHeader(): boolean {
+    return this.navBarRequired &&
+      !this.hideHeaderAndFooter &&
+      this.domainConfSvc.isConfigEnabled('components.header', 'enabled')
+  }
+
+  @ViewChild('previewContainer', { read: ViewContainerRef, static: true })
+  // @ViewChild('userIntro', { static: true }) userIntro!: TemplateRef<any>
+  previewContainerViewRef: ViewContainerRef | null = null
+  // Not static: these inputs live inside the *ngIf on the root container, so a
+  // static query resolves them to null before change detection creates them and
+  // the update prompt opens with an empty title and body. The query is only read
+  // from the VERSION_READY subscription, which fires long after view init.
+  @ViewChild('appUpdateTitle')
+  appUpdateTitleRef: ElementRef | null = null
+  @ViewChild('appUpdateBody')
+  appUpdateBodyRef: ElementRef | null = null
+
+  @ViewChild('skipper') skipper!: ElementRef
+
+  isXSmall$ = this.valueSvc.isXSmall$
+  // Matches BREAKPOINT_QUERIES.TABLET in sb-uic-dynamic-sidebar (600px - 1024px). Starting this
+  // at 768px left 600px-767.98px claimed by neither isXSmall$ (< 600px) nor isTabView$, so the
+  // desktop sidebar rendered in a range the sidebar itself treated as mobile.
+  isTabView$ = this.breakpointObserver
+    .observe(['(min-width: 600px) and (max-width: 1024px)'])
+    .pipe(map(state => state.matches))
+  // Desktop-only: sidebar-driven widths (navBarOpenContent/navBarCloseContent) must not apply on mobile or tab
+  isDesktopView$ = combineLatest<[boolean, boolean]>([this.isXSmall$ as unknown as Observable<boolean>, this.isTabView$]).pipe(
+    map(([isXSmall, isTabView]) => !isXSmall && !isTabView)
+  )
+  routeChangeInProgress = false
+  showNavbar = true
+  showFooter = false
+  currentUrl!: string
+  customHeight = false
+  isNavBarRequired = true
+  isInIframe = false
+  appStartRaised = false
+  isSetupPage = false
+  processed: any
+  loginToken: any
+  showTour = false
+  karmaWalletVideoPending = false
+  karmaWalletTourPending = false
+  currentRouteData: any = []
+  loggedinUser = !!(this.configSvc.userProfile && this.configSvc.userProfile.userId)
+  headerFooterConfigData: any = null
+  mobileTopHeaderVisibilityStatus = true
+  activeMenu: any = ''
+  backGroundTheme: any
+  showHubs = true
+  showBottomNav = true
+  viewerPage = false
+
+  prevUrl = ''
+  currUrl = ''
+  detailsChanged = signal(false)
+  otherDetailsChanged = signal(false)
+  reloadPage() {
+    window.location.reload()
+  }
+
+  // used on the global-config error screen: force_logout works without any
+  // loaded configuration (same path as the auth interceptor)
+  logout() {
+    this.formConfigSvc.clearCache()
+    this.authSvc.force_logout()
+  }
+
+  // dialog/popup visibility from global-config -> components.dialogs
+  isDialogEnabled(dialogKey: string): boolean {
+    return this.domainConfSvc.isConfigEnabled('components.dialogs', 'enabled')
+      && this.domainConfSvc.isConfigEnabled('components.dialogs', dialogKey)
+  }
+
+  openIntro() {
+    // if (!(this.rootSvc.getCookie('intro') && !!(this.rootSvc.getCookie('intro')))) {
+    //   if (this.router.url === '/page/home') {
+    //     this.dialog.open(AppIntroComponent, { data: {} })
+    //   }
+    // }
+    // this.snackBar.openFromTemplate(this.userIntro, { duration: 20000, verticalPosition: 'bottom', horizontalPosition: 'left' })
+  }
+  public skipToMainContent(): void {
+    this.skipper.nativeElement.focus()
+    // tslint: disable
+  }
+  ngOnInit() {
     const locationOrigin = location.origin
 
     CsModule.instance.init({
@@ -257,158 +417,6 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
         },
       },
     })
-  }
-
-  get navBarRequired(): boolean {
-    return this.isNavBarRequired
-  }
-
-  get isShowNavbar(): boolean {
-    return this.showNavbar
-  }
-
-  get isCustomHeight(): boolean {
-    if (window.location.pathname.includes('/public/home')
-      || window.location.pathname.includes('/public/faq')
-      || window.location.pathname.includes('/public/contact')
-      || window.location.pathname.includes('/public/signup')
-      || window.location.pathname.includes('/public/request')
-      || /^\/crp\/[^\/]+(\/[^\/]+)?$/.test(window.location.pathname)
-
-    ) {
-      this.customHeight = true
-    }
-    return this.customHeight
-  }
-
-  /**
-   * Inside event-hub only the event detail page (home/:eventId) runs edge to edge. The list
-   * pages — home, my-events, see-all, view-all — and the player stay in the centred
-   * container. This used to full-screen everything except the exact string
-   * '/app/event-hub/home', which caught the lists and even home itself once it carried
-   * query params
-   */
-  private isFullScreenEventPage(url: string): boolean {
-    const path = (url || '').split('?')[0].split('#')[0]
-    return /^\/app\/event-hub\/home\/[^/]+/.test(path)
-  }
-
-  /**
-   * Bharat Kalp's landing page runs edge to edge, but its children stay in the centred
-   * container - see-all has its own breadcrumb and grid layout that assume it. Matching
-   * the exact path rather than a prefix is what keeps the two apart: startsWith would
-   * take /app/learn/bharat-kalp/see-all full screen too.
-   */
-  private isFullScreenBharatKalp(url: string): boolean {
-    const path = (url || '').split('?')[0].split('#')[0].replace(/\/+$/, '')
-    return path === '/app/learn/bharat-kalp'
-  }
-
-  get showMenuBardetails(): boolean {
-    // a NOT-MY-USER account has nowhere to navigate, so it gets no sidebar
-    return this.menuBarDetails && this.currentUrl &&
-      !this.restrictionSvc.isNotMyUser &&
-      !this.currentUrl.includes('public') &&
-      !this.currentUrl.includes('viewer') &&
-      // self-registration via QR runs without the app chrome
-      !this.currentUrl.startsWith('/crp/')
-  }
-
-  get showHeader(): boolean {
-    return this.navBarRequired &&
-      !this.hideHeaderAndFooter &&
-      this.domainConfSvc.isConfigEnabled('components.header', 'enabled')
-  }
-
-  @ViewChild('previewContainer', { read: ViewContainerRef, static: true })
-  // @ViewChild('userIntro', { static: true }) userIntro!: TemplateRef<any>
-  previewContainerViewRef: ViewContainerRef | null = null
-  // Not static: these inputs live inside the *ngIf on the root container, so a
-  // static query resolves them to null before change detection creates them and
-  // the update prompt opens with an empty title and body. The query is only read
-  // from the VERSION_READY subscription, which fires long after view init.
-  @ViewChild('appUpdateTitle')
-  appUpdateTitleRef: ElementRef | null = null
-  @ViewChild('appUpdateBody')
-  appUpdateBodyRef: ElementRef | null = null
-
-  @ViewChild('skipper') skipper!: ElementRef
-
-  isXSmall$ = this.valueSvc.isXSmall$
-  // Matches BREAKPOINT_QUERIES.TABLET in sb-uic-dynamic-sidebar (600px - 1024px). Starting this
-  // at 768px left 600px-767.98px claimed by neither isXSmall$ (< 600px) nor isTabView$, so the
-  // desktop sidebar rendered in a range the sidebar itself treated as mobile.
-  isTabView$ = this.breakpointObserver
-    .observe(['(min-width: 600px) and (max-width: 1024px)'])
-    .pipe(map(state => state.matches))
-  // Desktop-only: sidebar-driven widths (navBarOpenContent/navBarCloseContent) must not apply on mobile or tab
-  isDesktopView$ = combineLatest([this.isXSmall$, this.isTabView$]).pipe(
-    map(([isXSmall, isTabView]) => !isXSmall && !isTabView)
-  )
-  routeChangeInProgress = false
-  showNavbar = true
-  showFooter = false
-  currentUrl!: string
-  customHeight = false
-  isNavBarRequired = true
-  isInIframe = false
-  appStartRaised = false
-  isSetupPage = false
-  processed: any
-  loginToken: any
-  showTour = false
-  karmaWalletVideoPending = false
-  karmaWalletTourPending = false
-  currentRouteData: any = []
-  loggedinUser = !!(this.configSvc.userProfile && this.configSvc.userProfile.userId)
-  headerFooterConfigData: any = null
-  mobileTopHeaderVisibilityStatus = true
-  activeMenu: any = ''
-  backGroundTheme: any
-  showHubs = true
-  showBottomNav = true
-  viewerPage = false
-
-  prevUrl = ''
-  currUrl = ''
-  detailsChanged = signal(false)
-  otherDetailsChanged = signal(false)
-  @HostListener('window:unload', ['$event'])
-  unloadHandler(event: any) {
-    if (event && event.type === 'unload') {
-      // this.authSvc.logout()
-    }
-  }
-
-  reloadPage() {
-    window.location.reload()
-  }
-
-  // used on the global-config error screen: force_logout works without any
-  // loaded configuration (same path as the auth interceptor)
-  logout() {
-    this.authSvc.force_logout()
-  }
-
-  // dialog/popup visibility from global-config -> components.dialogs
-  isDialogEnabled(dialogKey: string): boolean {
-    return this.domainConfSvc.isConfigEnabled('components.dialogs', 'enabled')
-      && this.domainConfSvc.isConfigEnabled('components.dialogs', dialogKey)
-  }
-
-  openIntro() {
-    // if (!(this.rootSvc.getCookie('intro') && !!(this.rootSvc.getCookie('intro')))) {
-    //   if (this.router.url === '/page/home') {
-    //     this.dialog.open(AppIntroComponent, { data: {} })
-    //   }
-    // }
-    // this.snackBar.openFromTemplate(this.userIntro, { duration: 20000, verticalPosition: 'bottom', horizontalPosition: 'left' })
-  }
-  public skipToMainContent(): void {
-    this.skipper.nativeElement.focus()
-    // tslint: disable
-  }
-  ngOnInit() {
     this.independenceDayBanner = this.configSvc?.overrideThemeChanges?.independenceDayBanner || {}
     // let showTour = localStorage.getItem('tourGuide')? JSON.parse(localStorage.getItem('tourGuide')||''): {}
     // this.showTour = showTour && showTour.disable ? showTour.disable : false
@@ -465,6 +473,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
         this.isHomePage.set(false)
         this.mobileAppsSvc.clearGlobalSearchForHomePage.next(false)
       }
+      this.usesHomeLayout.set(this.isHomeLayoutRoute(this.currUrl))
       this.setNavOpenStatus()
       if (event && event.url) {
         if (event.url.includes('/app/network-v2') && window.innerWidth <= 768) {
@@ -482,11 +491,11 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
           this.isSetupPage = true
         }
       }
-      if (window.location.pathname.includes('/page/home')) {
-        this.hideFooterSection.set(true)
+      const onHomePage = window.location.pathname.includes('/page/home')
+      this.hideFooterSection.set(onHomePage)
+      if (onHomePage || this.isHomeLayoutRoute(window.location.pathname)) {
         this.changeBg26Jan()
       } else {
-        this.hideFooterSection.set(false)
         this.removeBg26Jan()
       }
 
@@ -521,6 +530,9 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
         } else {
           this.viewerPage = false
         }
+        // shows the progress bar until NavigationEnd / Cancel / Error below clears it, so a
+        // click on a page whose files or data are still loading visibly does something
+        this.routeChangeInProgress = true
         this.changeDetector.detectChanges()
       } else if (
         event instanceof NavigationEnd ||
@@ -605,6 +617,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
         const objectType = _.get(this.route.snapshot, 'queryParams.primaryCategory', '')
         this.raiseAppStartTelemetry()
         if (data.pageContext.pageId && data.pageContext.module) {
+          this.telemetrySvc.sendEmptyObjectForNextImpression()
           this.telemetrySvc.impression(data, objectType)
         } else {
           this.telemetrySvc.impression()
@@ -784,8 +797,12 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
 
   }
 
+  isHomeLayoutRoute(url: string): boolean {
+    return this.homeLayoutRoutes.some(route => url.startsWith(route))
+  }
+
   setNavOpenStatus() {
-    if (this.isHomePage()) {
+    if (this.hasHomeLayout()) {
       this.navBarOpenStatusBasedOnNav.set(this.openStatusUserSelection())
       this.leftNavBarIsOpen.set(this.openStatusUserSelection())
     } else {
@@ -935,8 +952,9 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
     // `unrecoverable` fires for exactly that - the cached version references assets the
     // server no longer has. A full reload is the only way out: it fetches the current
     // index.html, which names the chunks that do exist.
-    this.swUpdate.unrecoverable.subscribe(() => {
-      window.location.reload()
+    // reloadForStaleBuild reloads at most once per 30 s, so this cannot loop
+    this.swUpdate.unrecoverable.subscribe(event => {
+      reloadForStaleBuild(`service worker: ${event && event.reason}`)
     })
 
     // Look for a new deployment once the app settles, then every six hours. Without

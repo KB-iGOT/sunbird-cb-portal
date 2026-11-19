@@ -142,6 +142,7 @@ describe('TopRightNavBarV2Component (No TestBed)', () => {
       ; (component as any).themeSvc = mockThemeSvc
       ; (component as any).btnSettingsSvc = mockBtnSettingsSvc
       ; (component as any).commonDataSvc = mockCommonDataSvc
+      ; (component as any).zohoSupportSvc = { getZohoHtml: jest.fn().mockReturnValue(of('<div>zoho</div>')) }
       ; (component as any).subs = []
       ; (component as any).zohoUrl = '/assets/static-data/zoho-code.html'
       ; (component as any).fontClasses = ['x-small-typography', 'small-typography', 'normal-typography', 'large-typography', 'x-large-typography']

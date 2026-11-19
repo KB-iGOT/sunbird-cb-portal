@@ -137,6 +137,9 @@ describe('KarmaWalletComponent', () => {
 
   const telemetryStub = {
     pData: { id: 'prod.sunbird-cb-portal', ver: '4.8.10', pid: 'sunbird-cb-portal' },
+    sendEmptyObjectForNextImpression: jest.fn(),
+    resetGlobalObjectIfNeeded: jest.fn(),
+    restoreGlobalObjectIfNeeded: jest.fn(),
   }
   const impressionSpy = jest.spyOn($t, 'impression').mockImplementation(() => { })
 
@@ -179,6 +182,9 @@ describe('KarmaWalletComponent', () => {
     }
     homePageStub = { walletBalanceUpdated: { next: jest.fn() } }
     impressionSpy.mockClear()
+    telemetryStub.sendEmptyObjectForNextImpression.mockReset()
+    telemetryStub.resetGlobalObjectIfNeeded.mockReset()
+    telemetryStub.restoreGlobalObjectIfNeeded.mockReset()
     component = load()
   })
 
@@ -1130,6 +1136,58 @@ describe('KarmaWalletComponent', () => {
     expect(options.context.env).toBe('Karma Wallet')
     expect(options.context.pdata.id).toBe('prod.sunbird-cb-portal')
     expect(options.object).toEqual({})
+  })
+
+  it('should reset the global object around the page impression', () => {
+    const order: string[] = []
+    telemetryStub.sendEmptyObjectForNextImpression.mockImplementation(() => order.push('emptyNext'))
+    telemetryStub.resetGlobalObjectIfNeeded.mockImplementation(() => order.push('reset'))
+    impressionSpy.mockImplementationOnce(() => { order.push('impression') })
+    telemetryStub.restoreGlobalObjectIfNeeded.mockImplementation(() => order.push('restore'))
+
+    load()
+
+    expect(order).toEqual(['emptyNext', 'reset', 'impression', 'restore'])
+    expect(telemetryStub.resetGlobalObjectIfNeeded).toHaveBeenCalledWith({})
+    expect(telemetryStub.restoreGlobalObjectIfNeeded).toHaveBeenCalledWith({}, false)
+  })
+
+  it('should restore the global object when the page impression throws', () => {
+    impressionSpy.mockImplementationOnce(() => { throw new Error('sdk not initialised') })
+
+    load()
+
+    expect(telemetryStub.restoreGlobalObjectIfNeeded).toHaveBeenCalledWith({}, false)
+  })
+
+  it('should reset the global object around the karma points impression', () => {
+    const order: string[] = []
+    telemetryStub.sendEmptyObjectForNextImpression.mockImplementation(() => order.push('emptyNext'))
+    telemetryStub.resetGlobalObjectIfNeeded.mockImplementation(() => order.push('reset'))
+    impressionSpy.mockClear()
+    impressionSpy.mockImplementationOnce(() => { order.push('impression') })
+    telemetryStub.restoreGlobalObjectIfNeeded.mockImplementation(() => order.push('restore'))
+
+    component.viewUnredeemedKarmaPoints()
+
+    expect(order).toEqual(['emptyNext', 'reset', 'impression', 'restore'])
+    const [edata, options] = impressionSpy.mock.calls[0] as any[]
+    expect(edata).toEqual({
+      pageid: 'app/person-profile',
+      type: 'page',
+      uri: 'app/person-profile/karma-points?from=karma-wallet',
+    })
+    expect(options.object).toEqual({})
+    expect(telemetryStub.restoreGlobalObjectIfNeeded).toHaveBeenCalledWith({}, false)
+  })
+
+  it('should still navigate and restore the global object when the karma points impression throws', () => {
+    impressionSpy.mockImplementationOnce(() => { throw new Error('sdk not initialised') })
+
+    expect(() => component.viewUnredeemedKarmaPoints()).not.toThrow()
+
+    expect(telemetryStub.restoreGlobalObjectIfNeeded).toHaveBeenCalledWith({}, false)
+    expect(routerStub.navigate).toHaveBeenCalled()
   })
 
   it('should load the page even when the impression throws', () => {

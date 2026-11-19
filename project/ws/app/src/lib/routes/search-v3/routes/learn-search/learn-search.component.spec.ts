@@ -80,7 +80,7 @@ describe('LearnSearchComponent (No TestBed)', () => {
       mockTranslate,
       mockRouter,
       mockLangtranslations,
-      mockUserService,
+      // mockUserService,
       mockNetworkV2Service,
       mockIndexedDbService,
       mockUtilitySvc,
@@ -203,7 +203,8 @@ describe('LearnSearchComponent (No TestBed)', () => {
       expect(component.currentUserDept).toBe('Dept')
       expect(component.defaultThumbnail).toBe('thumb.png')
       expect(component.statedata).toEqual({ param: 'abc', path: 'Search' })
-      expect(mockUserService.fetchCbpPlanList).toHaveBeenCalled()
+      // CBP plan API is no longer called from search
+      expect(mockUserService.fetchCbpPlanList).not.toHaveBeenCalled()
       expect(mockEnrolementDictionarySvc.getEnrolementDictionary).toHaveBeenCalled()
       expect(mockSearchV3Service.microCredentialsSearch).toHaveBeenCalled()
     })
@@ -315,6 +316,67 @@ describe('LearnSearchComponent (No TestBed)', () => {
       expect(component.sideNavBarOpened).toBe(false)
       expect(component.searchContentLoader).toBe(false)
       expect(component.filtersChipFromLearn).toEqual(['cat1'])
+    })
+
+    describe('when paramFilters has no usable value', () => {
+      const unchangedQuery: any = {
+        currentValue: { query: 'same', searchCategory: '' },
+        previousValue: { query: 'same', searchCategory: '' },
+      }
+
+      const createDirtyComponent = (): any => {
+        const component = createComponent({})
+        component.searchQuery = { query: 'same', nlp: '', searchCategory: '' }
+        component.filtersChipFromLearn = ['cat1']
+        component.sideNavBarOpened = false
+        component.searchRequestCourse.request.filters.courseCategory = ['cat1']
+        return component
+      }
+
+      const expectFiltersReset = (component: any) => {
+        expect(component.filtersChipFromLearn).toEqual([])
+        expect(component.sideNavBarOpened).toBe(true)
+        expect(component.searchRequestCourse.request.filters.courseCategory).toEqual([])
+        expect(mockSearchV3Service.searchCoursesv5).not.toHaveBeenCalled()
+      }
+
+      it('resets the chip, side nav and courseCategory filter when paramFilters is an empty array', async () => {
+        const component = createDirtyComponent()
+        await component.ngOnChanges({
+          paramFilters: { currentValue: [] },
+          searchQuery: unchangedQuery,
+        } as any)
+        expectFiltersReset(component)
+      })
+
+      it('resets the chip, side nav and courseCategory filter when paramFilters is not part of the changes', async () => {
+        const component = createDirtyComponent()
+        await component.ngOnChanges({ searchQuery: unchangedQuery } as any)
+        expectFiltersReset(component)
+      })
+
+      it('resets the chip, side nav and courseCategory filter when paramFilters currentValue is null', async () => {
+        const component = createDirtyComponent()
+        await component.ngOnChanges({
+          paramFilters: { currentValue: null },
+          searchQuery: unchangedQuery,
+        } as any)
+        expectFiltersReset(component)
+      })
+
+      it('continues into the search flow after resetting when the query changed', async () => {
+        const component = createDirtyComponent()
+        await component.ngOnChanges({
+          paramFilters: { currentValue: [] },
+          searchQuery: {
+            currentValue: { query: 'new', searchCategory: SearchCategory.Courses },
+            previousValue: { query: 'old', searchCategory: '' },
+          },
+        } as any)
+        expect(component.filtersChipFromLearn).toEqual([])
+        expect(mockSearchV3Service.searchCoursesv5).toHaveBeenCalled()
+        expect(component.seeAllResult).toBe(SearchCategory.Courses)
+      })
     })
 
     it('does nothing when the searchQuery query and category are unchanged', async () => {
@@ -736,7 +798,7 @@ describe('LearnSearchComponent (No TestBed)', () => {
       component.searchRequestCourse.request.filters.courseCategory = []
       await component.searchCourses()
       expect(component.searchRequestCourse.request.filters.courseCategory).toEqual({
-        '!=': ['pre enrolment assessment', 'comprehensive assessment'],
+        '!=': ['pre enrolment assessment', 'comprehensive assessment', 'Baseline Assessment', 'Endline Assessment'],
       })
     })
 
@@ -800,8 +862,9 @@ describe('LearnSearchComponent (No TestBed)', () => {
       mockSearchV3Service.getApplicationsById.mockReturnValue({
         toPromise: jest.fn().mockResolvedValue({ result: { response: [{ contextId: 'c1', submitted: true }] } }),
       })
+      mockConfigSvc.instanceConfig.completionSurvey = { startDate: 1766428200000 }
       const component = createComponent({})
-      component.enrollmentDetails = { c1: { completionPercentage: 100 } }
+      component.enrollmentDetails = { c1: { completionPercentage: 100, completedOn: '2026-04-04 19:13:29.113000+0000' } }
       await component.searchCourses()
 
       expect(mockSearchV3Service.getApplicationsById).toHaveBeenCalledWith({
@@ -809,6 +872,64 @@ describe('LearnSearchComponent (No TestBed)', () => {
         formContextList: [{ formId: 'abc123', contextId: 'c1' }],
       })
       expect(component.courseSearchResults[0].surveyCompletionStatus).toBe(true)
+    })
+
+    describe('completion survey start date check', () => {
+      const setup = async (content: any, enrollment: any, startDate: any): Promise<any> => {
+        mockSearchV3Service.searchCoursesv5.mockResolvedValue({
+          result: { content: [{ identifier: 'c1' }], count: 1, facets: [] },
+        })
+        mockContentDictionarySvc.getContent = jest.fn(() => of({ identifier: 'c1', completionSurveyLink: 'https://x/surveys/abc123', ...content }))
+        mockConfigSvc.instanceConfig.completionSurvey = { startDate }
+        const component: any = createComponent({})
+        component.enrollmentDetails = { c1: enrollment }
+        await component.searchCourses()
+        return component
+      }
+
+      it('requests survey status when completedOn is after the start date', async () => {
+        await setup({}, { completionPercentage: 100, completedOn: '2026-04-04 19:13:29.113000+0000' }, 1766428200000)
+        expect(mockSearchV3Service.getApplicationsById).toHaveBeenCalled()
+      })
+
+      it('skips survey status when completedOn is before the start date', async () => {
+        await setup({}, { completionPercentage: 100, completedOn: '2025-01-01 10:00:00.000000+0000' }, 1766428200000)
+        expect(mockSearchV3Service.getApplicationsById).not.toHaveBeenCalled()
+      })
+
+      it('skips survey status when completedOn is missing', async () => {
+        await setup({}, { completionPercentage: 100 }, 1766428200000)
+        expect(mockSearchV3Service.getApplicationsById).not.toHaveBeenCalled()
+      })
+
+      it('ignores completedOn on the content and only uses the enrollment details', async () => {
+        await setup({ completedOn: '2026-04-04 19:13:29.113000+0000' }, { completionPercentage: 100 }, 1766428200000)
+        expect(mockSearchV3Service.getApplicationsById).not.toHaveBeenCalled()
+      })
+
+      it('skips survey status when start date is not configured', async () => {
+        await setup({}, { completionPercentage: 100, completedOn: '2026-04-04 19:13:29.113000+0000' }, undefined)
+        expect(mockSearchV3Service.getApplicationsById).not.toHaveBeenCalled()
+      })
+
+      it('uses status 2 when completionPercentage is nil', async () => {
+        await setup({}, { status: 2, completedOn: '2026-04-04 19:13:29.113000+0000' }, 1766428200000)
+        expect(mockSearchV3Service.getApplicationsById).toHaveBeenCalled()
+      })
+
+      it('skips survey status when the course is not completed', async () => {
+        await setup({}, { completionPercentage: 50, completedOn: '2026-04-04 19:13:29.113000+0000' }, 1766428200000)
+        expect(mockSearchV3Service.getApplicationsById).not.toHaveBeenCalled()
+      })
+
+      it('skips survey status when the survey link has no form id', async () => {
+        await setup(
+          { completionSurveyLink: 'https://x/nosurvey' },
+          { completionPercentage: 100, completedOn: '2026-04-04 19:13:29.113000+0000' },
+          1766428200000,
+        )
+        expect(mockSearchV3Service.getApplicationsById).not.toHaveBeenCalled()
+      })
     })
 
     it('does not call getApplicationsById when no content has a completionSurveyLink', async () => {
@@ -844,6 +965,37 @@ describe('LearnSearchComponent (No TestBed)', () => {
       await component.searchCourses()
       expect(mockContentDictionarySvc.getContent).not.toHaveBeenCalled()
       expect(component.courseSearchResults).toEqual([])
+    })
+  })
+
+  // ---------------------------------------------------------------------
+  // toEpochMs
+  // ---------------------------------------------------------------------
+  describe('toEpochMs', () => {
+    it('converts the backend timestamp format to epoch milliseconds', () => {
+      const component: any = createComponent({})
+      expect(component.toEpochMs('2026-04-04 19:13:29.113000+0000')).toBe(Date.UTC(2026, 3, 4, 19, 13, 29, 113))
+    })
+
+    it('handles a non-zero timezone offset', () => {
+      const component: any = createComponent({})
+      expect(component.toEpochMs('2026-04-04 19:13:29.113000+0530')).toBe(Date.UTC(2026, 3, 4, 13, 43, 29, 113))
+    })
+
+    it('returns numbers unchanged', () => {
+      const component: any = createComponent({})
+      expect(component.toEpochMs(1766428200000)).toBe(1766428200000)
+    })
+
+    it('returns 0 for empty values', () => {
+      const component: any = createComponent({})
+      expect(component.toEpochMs(undefined)).toBe(0)
+      expect(component.toEpochMs('')).toBe(0)
+    })
+
+    it('returns NaN for unparseable strings', () => {
+      const component: any = createComponent({})
+      expect(component.toEpochMs('not-a-date')).toBeNaN()
     })
   })
 

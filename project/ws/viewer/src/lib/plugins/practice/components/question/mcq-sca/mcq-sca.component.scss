@@ -223,3 +223,38 @@
         width: 98% !important;
     }
 }
+// Questionnaires (Baseline / Endline Assessment): options fill the row - one per row on
+// mobile, two on tablets, three on wide screens - instead of a narrow 380px column.
+.quiz-radio-group.quiz-options-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
+    align-items: stretch;
+
+    @media (min-width: 768px) {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    @media (min-width: 1200px) {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    > div {
+        display: flex;
+        flex-direction: column;
+        min-width: 0;
+    }
+
+    .quiz-radio-button {
+        flex: 1;
+        width: auto;
+        margin: 0;
+        box-sizing: border-box;
+    }
+
+    .mat-radio-label-content,
+    .mdc-form-field > label {
+        width: auto;
+        min-width: 0;
+    }
+}

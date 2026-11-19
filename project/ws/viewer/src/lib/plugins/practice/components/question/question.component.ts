@@ -69,6 +69,8 @@ export class QuestionComponent implements OnInit, OnChanges, AfterViewInit {
   @Input() showOnlyQuestion: any
   @Input() showMarkForReview: any = false
   @Input() assessmentType = ''
+  /** content's contextCategory, e.g. "Baseline Assessment" - questionnaires lay their options out in a grid */
+  @Input() contextCategory = ''
   expandedQuestionSetSubscription: any
 
   questionType = {

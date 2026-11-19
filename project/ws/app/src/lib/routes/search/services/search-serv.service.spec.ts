@@ -49,6 +49,14 @@ describe('SearchServService (No TestBed)', () => {
   })
 
   describe('getSearchConfig', () => {
+    it('uses globalConfig.searchData without fetching search.json', async () => {
+      const searchData = { search: { tabs: [{ phraseSearch: true }] } }
+      mockConfigSrv.globalConfig = { searchData }
+      const result = await service.getSearchConfig()
+      expect(mockHttp.get).not.toHaveBeenCalled()
+      expect(result).toBe(searchData)
+    })
+
     it('fetches and caches the config on first call', async () => {
       const result = await service.getSearchConfig()
       expect(mockHttp.get).toHaveBeenCalledWith(`${mockConfigSrv.sitePath}/feature/search.json`)

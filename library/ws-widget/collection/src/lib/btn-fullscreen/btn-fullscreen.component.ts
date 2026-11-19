@@ -30,8 +30,11 @@ export class BtnFullscreenComponent extends WidgetBaseComponent
       return
     }
     this.isInFs = Boolean(getFullScreenElement())
+    // Emit on the browser event so exits via Esc/F11 are reported too, not only button clicks
     this.fsChangeSubs = fromEvent(document, 'fullscreenchange').subscribe(() => {
       this.isInFs = Boolean(getFullScreenElement())
+      // Only report fullscreen when our own container is the fullscreen element
+      this.fsState.emit(getFullScreenElement() === this.widgetData.fsContainer)
     })
     this.isFullScreenSupported = hasFullScreenSupport(this.widgetData.fsContainer)
   }
@@ -45,10 +48,8 @@ export class BtnFullscreenComponent extends WidgetBaseComponent
   toggleFs() {
     if (getFullScreenElement()) {
       requestExitFullScreen()
-      this.fsState.emit(false)
     } else if (this.widgetData.fsContainer) {
       requestFullScreen(this.widgetData.fsContainer)
-      this.fsState.emit(true)
       try {
         this.widgetData.fsContainer.classList.add('mat-app-background')
       } catch (err) { }

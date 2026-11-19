@@ -594,10 +594,15 @@ export class CompetencyListV2Component implements OnInit, OnDestroy {
     })
     // Fisher-Yates shuffle
     for (let i = flat.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
+      const j = Math.floor(this.secureRandom() * (i + 1));
       [flat[i], flat[j]] = [flat[j], flat[i]]
     }
     this.shuffledThemes = flat
+  }
+
+  /** Uniform float in [0, 1) from the Web Crypto API, used in place of Math.random(). */
+  private secureRandom(): number {
+    return crypto.getRandomValues(new Uint32Array(1))[0] / 4294967296
   }
 
   ngOnDestroy(): void {

@@ -30,6 +30,8 @@ import { environment } from 'src/environments/environment'
 import { DomSanitizer, SafeHtml } from '@angular/platform-browser'
 import { ViewerHeaderSideBarToggleService } from './../../viewer-header-side-bar-toggle.service'
 import { FinalAssessmentPopupComponent } from './components/final-assessment-popup/final-assessment-popup.component'
+import { QUESTIONNAIRE_INTROS } from './components/overview/overview.component'
+import { getViewerRedirect, VIEWER_REDIRECT_PARAM } from '../../microsite-redirect.util'
 import { MatDialog } from '@angular/material/dialog'
 import { MatSidenav } from '@angular/material/sidenav'
 import { MatSnackBar, MatSnackBarConfig as MatSnackBarConfig } from '@angular/material/snack-bar'
@@ -548,6 +550,33 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
     }
   }
 
+  /** e.g. 'Baseline Assessment'; the overview shows a questionnaire intro for some categories */
+  /** Baseline / Endline questionnaire (contextCategory listed in QUESTIONNAIRE_INTROS) */
+  get isQuestionnaire(): boolean {
+    return !!QUESTIONNAIRE_INTROS[this.contextCategory]
+  }
+
+  /**
+   * After a questionnaire is submitted: back to the page that opened the player (`redirectUrl` in
+   * the URL, e.g. the campaign microsite), otherwise the course TOC as before.
+   */
+  leaveQuestionnaire() {
+    this.showOverlay = false
+    this.viewerHeaderSideBarToggleService.visibilityStatus.next(true)
+    const redirect = getViewerRedirect(this.router, this.activatedRoute.snapshot.queryParams[VIEWER_REDIRECT_PARAM])
+    if (redirect) {
+      this.router.navigateByUrl(redirect.fullUrl)
+      return
+    }
+    const collectionId = this.collectionId || this.activatedRoute.snapshot.queryParams.collectionId
+    this.router.navigateByUrl(`${this.forPreview ? 'public' : 'app'}/toc/${collectionId}/overview`)
+  }
+
+  get contextCategory(): string {
+    return this.viewerDataSvc.resource?.contextCategory
+      || this.widgetContentService.currentMetaData?.content?.data?.contextCategory || ''
+  }
+
   get getTimeLimit(): number {
     let jsonTime = (this.quizJson.timeLimit || 0)
     if (this.retake && jsonTime === 0) {
@@ -635,18 +664,7 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
               }
             }
           },
-            (error: any) => {
-              this.fetchingSectionsStatus = 'error'
-              // Only show specific message for 400 status code errors
-              if (error.status === 400) {
-                if (error.error && error.error.params && error.error.params.errmsg) {
-                  this.openSnackbar(`${error.error.params.errmsg}`)
-                  this.viewerHeaderSideBarToggleService.visibilityStatus.next(true)
-                }
-              } else {
-                this.openSnackbar('Failed to load assessment section. Please try again later.')
-              }
-            })
+            (error: any) => this.onSectionsLoadFailed(error))
       } else {
         this.quizSvc.getSection(this.identifier, this.forPreview,
           this.getPublicContentRequestData(), this.collectionId).subscribe((section: NSPractice.ISectionResponse) => {
@@ -693,21 +711,24 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
               }
             }
           },
-            (error: any) => {
-              this.fetchingSectionsStatus = 'error'
-              // Only show specific message for 400 status code errors
-              if (error.status === 400) {
-                if (error.error && error.error.params && error.error.params.errmsg) {
-                  this.openSnackbar(`${error.error.params.errmsg}`)
-                }
-              } else {
-                this.openSnackbar('Failed to load assessment section. Please try again later.')
-              }
-            })
+            (error: any) => this.onSectionsLoadFailed(error))
       }
 
     }
   }
+  /**
+   * The assessment read failed (e.g. 500 "Maximum retry attempts for assessment reached."). Puts the page back
+   * on the overview in a usable state: the overview's Start spinner stops (it follows fetchingSectionsStatus),
+   * the header / sidebar it hid come back, and the server's own message is shown whatever the status code.
+   */
+  onSectionsLoadFailed(error: any) {
+    this.fetchingSectionsStatus = 'error'
+    this.viewState = 'initial'
+    this.viewerHeaderSideBarToggleService.visibilityStatus.next(true)
+    const message = error && error.error && error.error.params && error.error.params.errmsg
+    this.openSnackbar(message ? `${message}` : 'Failed to load assessment section. Please try again later.')
+  }
+
   startIfonlySection() {
     // console.log('in start only section', this.isOnlySection)
     // directly start section if only section is there is set
@@ -3090,6 +3111,10 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
 
   showAssessmentPopup(popupData: any) {
     popupData['canAttempt'] = this.canAttempt
+    // Baseline / Endline questionnaires: the "thank you" popup offers OK instead of Reattempt, and
+    // closing it in any way (OK, X, a click outside) leaves the player - see leaveQuestionnaire
+    const questionnaireDone = popupData.assessmentType === 'optionalWeightage' && this.isQuestionnaire
+    popupData['questionnaireDone'] = questionnaireDone
     const dialogRef = this.dialog.open(FinalAssessmentPopupComponent, {
       data: popupData,
       width: popupData.assessmentType === 'optionalWeightage' ? '300px' : '1000px',
@@ -3100,6 +3125,10 @@ export class PracticeComponent implements OnInit, OnChanges, OnDestroy {
     })
     // dialogRef.componentInstance.xyz = this.configSvc
     dialogRef.afterClosed().subscribe((result: any) => {
+      if (questionnaireDone) {
+        this.leaveQuestionnaire()
+        return
+      }
       if (result) {
         switch (result) {
           case 'yes':

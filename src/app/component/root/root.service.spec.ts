@@ -86,23 +86,6 @@ describe('RootService (No TestBed)', () => {
     })
   })
 
-  describe('getChatData', () => {
-    it('should call http.post with CONFIG endpoint', () => {
-      service.getChatData({ lang: 'en', config_type: 'IN' })
-      expect(mockHttp.post).toHaveBeenCalledWith(
-        '/api/faq/v1/assistant/configs/language',
-        { lang: 'en', config_type: 'IN' }
-      )
-    })
-  })
-
-  describe('getLangugages', () => {
-    it('should call http.get with LANGUAGES endpoint', () => {
-      service.getLangugages()
-      expect(mockHttp.get).toHaveBeenCalledWith('/api/faq/v1/assistant/available/language')
-    })
-  })
-
   describe('aiGlobalSearch', () => {
     it('should call http.post with correct params', () => {
       service.aiGlobalSearch({ query: 'test' }, 'chat-1', 'user-1')

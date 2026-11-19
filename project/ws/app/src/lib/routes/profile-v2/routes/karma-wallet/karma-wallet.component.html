@@ -25,9 +25,11 @@
       </button>
     </div>
     <div class="kw__actions">
-      <button type="button" class="kw__btn kw__btn--ghost" [disabled]="!canRedeem"
-        (click)="redeemKarmaPoints()">Convert Karma Points</button>
-      <button type="button" class="kw__btn kw__btn--primary" (click)="openRedeemConfirmation()">Redeem Karma Coins</button>
+      <button type="button" class="kw__btn kw__btn--ghost" [disabled]="!canRedeem" (click)="redeemKarmaPoints()">Convert
+        Karma Points</button>
+      <!-- commenting this button as per the new design changes (confirmation popup) -->
+      <!-- <button type="button" class="kw__btn kw__btn--primary" (click)="openRedeemConfirmation()">Redeem Karma Coins</button> -->
+      <button type="button" class="kw__btn kw__btn--primary" (click)="useKarmaCoins()">Redeem Karma Coins</button>
     </div>
   </header>
 

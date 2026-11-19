@@ -19,7 +19,12 @@ export class PickerContentService {
     return this.http.post<IRemoveSubsetResponse>('/apis/protected/v8/content/removeSubset', { contentIds })
   }
 
+  // served from global-config (searchData); search.json is only the fallback
   getSearchConfigs(): Promise<ISearchConfig | any> {
+    const fromGlobalConfig = this.configSvc.globalConfig?.searchData
+    if (fromGlobalConfig) {
+      return Promise.resolve(fromGlobalConfig)
+    }
     return this.http.get<ISearchConfig>(`${this.baseUrl}/feature/search.json`).toPromise()
   }
 }

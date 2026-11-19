@@ -10,10 +10,17 @@
 }
 
 .gyann-wrapper {
-    ::ng-deep.banner-image {
-        object-fit: cover;
+    ::ng-deep .banner-container {
+        min-height: 0;
+    }
+
+    ::ng-deep .banner-image {
+        width: 100%;
+        height: auto !important;
+        min-height: 0 !important;
+        max-height: none !important;
+        object-fit: contain;
         object-position: center;
-        height: 300px !important;
     }
 
     .headder-block {
@@ -268,13 +275,6 @@
 @media screen and (max-width: 768px) {
     .filters-container {
         width: 100%;
-    }
-
-    ::ng-deep.banner-image {
-        object-fit: cover;
-        /* Scales and crops if needed */
-        object-position: center;
-        max-height: 230px !important;
     }
 
     .gyann-wrapper {

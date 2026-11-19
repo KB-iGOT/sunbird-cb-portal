@@ -36,6 +36,11 @@ const API_END_POINTS = {
   PUBLIC_ASSESSMENT_V4_RESULT: 'api/public/assessment/v5/result',
 }
 const forcreator = window.location.href.includes('editMode=true')
+/** A failure the server explained (params.errmsg in the body): a definite answer, not a transient fault */
+export function hasServerReason(error: any): boolean {
+  return !!(error && error.error && error.error.params && error.error.params.errmsg)
+}
+
 @Injectable({
   providedIn: 'root',
 })
@@ -344,8 +349,9 @@ export class PracticeService {
     const retryOnServerError = retryWhen(errors =>
       errors.pipe(
         concatMap((error, count) => {
-          // Only retry on 500 status code and maximum of 2 retries
-          if (count < 2 && error.status === 500) {
+          // Only retry on 500 status code and maximum of 2 retries - and not when the server says why it
+          // failed (e.g. "Maximum retry attempts for assessment reached."): retrying cannot change that answer
+          if (count < 2 && error.status === 500 && !hasServerReason(error)) {
             return of(error).pipe(delay(1000)) // 1 second delay between retries
           }
           return throwError(error)
@@ -414,8 +420,9 @@ export class PracticeService {
     const retryOnServerError = retryWhen(errors =>
       errors.pipe(
         concatMap((error, count) => {
-          // Only retry on 500 status code and maximum of 2 retries
-          if (count < 2 && error.status === 500) {
+          // Only retry on 500 status code and maximum of 2 retries - and not when the server says why it
+          // failed (e.g. "Maximum retry attempts for assessment reached."): retrying cannot change that answer
+          if (count < 2 && error.status === 500 && !hasServerReason(error)) {
             return of(error).pipe(delay(1000)) // 1 second delay between retries
           }
           return throwError(error)

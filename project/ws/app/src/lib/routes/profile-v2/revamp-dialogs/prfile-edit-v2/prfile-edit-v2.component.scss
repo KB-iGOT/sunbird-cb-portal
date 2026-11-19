@@ -1,10 +1,18 @@
 @use '@sunbird-cb/design-system/src/styles/_ws-common';
 @use '@sunbird-cb/design-system/src/styles/_ws-mixins' as *;
 
+:host {
+  display: block;
+  width: 100%;
+}
+
 /* profile-editor.component.scss */
 .profile-editor-container {
   padding: 24px;
+  width: 600px;
   max-width: 600px;
+  margin: 0 auto;
+  box-sizing: border-box;
 }
 
 .profile-editor-header {
@@ -335,6 +343,13 @@
 }
 
 // Responsive adjustments
+@media (max-width: 768px) {
+  .profile-editor-container {
+    width: 100%;
+    max-width: 100%;
+  }
+}
+
 @media (max-width: 600px) {
   .form-fields-container {
     grid-template-columns: minmax(0, 1fr);

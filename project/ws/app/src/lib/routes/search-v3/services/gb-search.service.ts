@@ -79,11 +79,18 @@ export class GbSearchService {
 
   async getSearchConfig(): Promise<any> {
     if (!this.searchConfig) {
-      this.searchConfig = {}
-      const baseUrl = this.configSrv.sitePath
-      this.searchConfig = await this.http
-        .get<any>(`${baseUrl}/feature/search.json`)
-        .toPromise()
+      // served from global-config (searchData); search.json is only the fallback for a
+      // global-config that does not carry it yet
+      const fromGlobalConfig = this.configSrv.globalConfig?.searchData
+      if (fromGlobalConfig) {
+        this.searchConfig = fromGlobalConfig
+      } else {
+        this.searchConfig = {}
+        const baseUrl = this.configSrv.sitePath
+        this.searchConfig = await this.http
+          .get<any>(`${baseUrl}/feature/search.json`)
+          .toPromise()
+      }
     }
     return of(this.searchConfig).toPromise()
   }
@@ -151,7 +158,11 @@ export class GbSearchService {
     if (!url) {
       return Promise.resolve(null)
     }
-    return this.http.post(url, params).toPromise()
+    // 202 means the nlp service accepted the query but has no keywords for it yet. HttpClient
+    // treats it as success, so resolve null the same way a disabled api does - the caller then
+    // searches with the user's own text
+    return this.http.post(url, params, { observe: 'response' }).toPromise()
+      .then((response: any) => (!response || response.status === 202 ? null : response.body))
   }
   // getApiUrl returns '' when the api is disabled in global-config, so each of these bails out the
   // same way nlpSearch does - without the check a disabled api posts to the app's own origin

@@ -1,4 +1,5 @@
-@if (mobileTopHeaderVisibilityStatus()) {
+@if (mobileTopHeaderVisibilityStatus() &&
+  (!config?.userRoles?.has('volunteer') || (independenceDayBanner?.isEnabled && isHomePage))) {
 
 <div
   [ngClass]="mobileTopHeaderVisibilityStatus() ? 'mobile-download-app-top-header' : 'mobile-download-app-without-top-header'">
@@ -27,7 +28,8 @@
 </div>
 }
 <div class="w-full">
-  <ws-app-nav-bar-v2 [ngClass]="mobileTopHeaderVisibilityStatus() ? 'top-nav-bar':'top-nav-bar-without-mobile-header'"
+  <ws-app-nav-bar-v2
+    [ngClass]="mobileTopHeaderVisibilityStatus() && (!config?.userRoles?.has('volunteer') || (independenceDayBanner?.isEnabled && isHomePage) || (isXSmall$ | async) !== true) ? 'top-nav-bar':'top-nav-bar-without-mobile-header'"
     [mode]="'top'" [headerFooterConfigData]="headerFooterConfigData"
     [leftNavBarOpen]="leftNavBarOpen()"></ws-app-nav-bar-v2>
 </div>

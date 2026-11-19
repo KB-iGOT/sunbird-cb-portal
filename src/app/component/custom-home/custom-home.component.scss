@@ -505,7 +505,7 @@ span.tooltip-check:hover .tooltiptext-check {
   }
 
   .mobile-info-text {
-    font-family: Montserrat;
+    font-family: Montserrat, sans-serif;
     word-wrap: break-word;
     font-size: 16px;
     padding-left: 10px;
@@ -520,7 +520,7 @@ span.tooltip-check:hover .tooltiptext-check {
 
   .mobile-greet {
     font-weight: 600;
-    font-family: Montserrat;
+    font-family: Montserrat, sans-serif;
     word-wrap: break-word;
     font-size: 16px;
     padding: 0 0 10px 10px;
@@ -534,7 +534,6 @@ span.tooltip-check:hover .tooltiptext-check {
 
 .profile-details-wrapper {
   z-index: 11;
-  position: relative;
   background-color: #e0e0e0;
   // height: 200px;
   border-radius: 16px;
@@ -649,7 +648,6 @@ span.tooltip-check:hover .tooltiptext-check {
 
     .percentage-block {
       border-radius: 8px;
-      opacity: 1;
       background-color: rgba(255, 255, 255, 1);
       width: fit-content;
       position: absolute;
@@ -660,7 +658,7 @@ span.tooltip-check:hover .tooltiptext-check {
       height: fit-content;
       opacity: 1;
       color: rgba(0, 0, 0, 0.87);
-      font-family: "Lato-Regular";
+      font-family: "Lato-Regular", sans-serif;
       font-size: 0.63rem;
       font-weight: 400;
       font-style: normal;
@@ -673,7 +671,7 @@ span.tooltip-check:hover .tooltiptext-check {
   .user-name {
     width: 250px;
     opacity: 1;
-    font-family: "Montserrat-SemiBold";
+    font-family: "Montserrat-SemiBold", sans-serif;
     font-size: 1rem;
     font-weight: 600;
     font-style: normal;
@@ -712,11 +710,10 @@ span.tooltip-check:hover .tooltiptext-check {
     .stats-title {
       opacity: 1;
       color: rgba(0, 0, 0, 0.6);
-      font-weight: 400;
       font-style: normal;
       word-break: break-word;
       height: 20px;
-      font-family: Lato;
+      font-family: Lato, sans-serif;
       font-weight: 400;
       font-size: 12px;
       line-height: 14.4px;
@@ -792,7 +789,6 @@ span.tooltip-check:hover .tooltiptext-check {
 
     span {
       border-radius: 8px;
-      opacity: 1;
       background-color: white;
       width: fit-content;
       position: absolute;
@@ -803,7 +799,7 @@ span.tooltip-check:hover .tooltiptext-check {
       height: fit-content;
       opacity: 1;
       color: rgba(0, 0, 0, 0.87);
-      font-family: "Lato-Regular";
+      font-family: "Lato-Regular", sans-serif;
       font-size: 0.63rem;
       font-weight: 400;
       font-style: normal;
@@ -837,7 +833,7 @@ span.tooltip-check:hover .tooltiptext-check {
 .activites {
   opacity: 1;
   color: rgba(27, 76, 161, 1);
-  font-family: "Lato-Regular";
+  font-family: "Lato-Regular", sans-serif;
   font-size: 0.825rem;
   font-weight: 400;
   font-style: normal;

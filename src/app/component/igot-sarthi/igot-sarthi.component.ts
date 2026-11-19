@@ -116,7 +116,6 @@ export class IGotSarthiComponent implements OnInit, AfterViewInit, AfterViewChec
     })
     this.userInfo = this.configSvc && this.configSvc.userProfile
     // this.aiGlobalSearch()
-    this.checkForApiCalls()
     this.enableScroll()
     // tslint:disable-next-line: max-line-length
     this.userIcon = this.userInfo && this.userInfo.profileImageUrl ? this.userInfo.profileImageUrl : ''
@@ -155,32 +154,6 @@ export class IGotSarthiComponent implements OnInit, AfterViewInit, AfterViewChec
     return this.localization[this.selectedLaguage]['showmore'] || 'Show More'
   }
 
-  getData() {
-    const lang: any = {
-      information: 'IN',
-      issue: 'IS'
-    }
-    const tabType: any = {
-      lang: this.selectedLaguage,
-      config_type: lang[this.currentFilter]
-    }
-    this.displayLoader = true
-    this.chatbotService.getChatData(tabType).subscribe((res: any) => {
-      if (res && res.payload && res.payload.config) {
-        this.setDataToLocalStorage(res.payload.config)
-        this.checkForApiCalls()
-        // this.initData(res.payload.config)
-        this.displayLoader = false
-      }
-    })
-  }
-  setDataToLocalStorage(data: any) {
-    let localObject: any = {}
-    localObject = JSON.parse(localStorage.getItem('faq') || '{}')
-    localObject[this.selectedLaguage] = { ...localObject[this.selectedLaguage], [this.currentFilter]: data }
-    localStorage.setItem('faq', JSON.stringify(localObject))
-    this.toggleFilter(this.currentFilter === 'information' ? 'information' : this.currentFilter)
-  }
 
   initData(_getData: any) {
     // tslint:disable-next-line
@@ -431,8 +404,6 @@ export class IGotSarthiComponent implements OnInit, AfterViewInit, AfterViewChec
     let languageStg: any = JSON.parse(localStorage.getItem('faq-languages') || '{}')
     if (languageStg.length > 0) {
       this.language = languageStg
-    } else {
-      this.getLanguages()
     }
 
     if (localStg && languageStg) {
@@ -458,9 +429,6 @@ export class IGotSarthiComponent implements OnInit, AfterViewInit, AfterViewChec
         }
         this.getQns()
         this.getCategories()
-      } else {
-        this.getLanguages()
-        // this.getData()
       }
     }
   }
@@ -490,19 +458,6 @@ export class IGotSarthiComponent implements OnInit, AfterViewInit, AfterViewChec
   sortCategory(): any {
     // tslint:disable-next-line: max-line-length
     return this.categories.sort((a: any, b: any) => a['priority'] > b['priority'] ? 1 : a['priority'] === b['priority'] ? 0 : -1)
-  }
-
-  getLanguages() {
-    this.displayLoader = true
-    this.chatbotService.getLangugages().subscribe((resp: any) => {
-      if (resp && resp.status && resp.status.code === 200) {
-        this.language = resp.payload.languages
-        localStorage.setItem('faq-languages', JSON.stringify(resp.payload.languages))
-        localStorage.setItem('selectedLanguage', this.selectedLaguage)
-        this.getData()
-        this.displayLoader = false
-      }
-    })
   }
 
   ngAfterViewChecked() {
@@ -1100,11 +1055,15 @@ export class IGotSarthiComponent implements OnInit, AfterViewInit, AfterViewChec
   get userInitials() {
     return this.initials
   }
+  /** Uniform float in [0, 1) from the Web Crypto API, used in place of Math.random(). */
+  private secureRandom(): number {
+    return crypto.getRandomValues(new Uint32Array(1))[0] / 4294967296
+  }
   private createInititals(name: any): void {
-    const randomIndex = Math.floor(Math.random() * Math.floor(this.colors.length))
+    const randomIndex = Math.floor(this.secureRandom() * Math.floor(this.colors.length))
     this.circleColor = this.colors[randomIndex]
     if (this.randomcolors) {
-      const randomIndex1 = Math.floor(Math.random() * Math.floor(this.randomcolors.length))
+      const randomIndex1 = Math.floor(this.secureRandom() * Math.floor(this.randomcolors.length))
       this.circleColor = this.randomcolors[randomIndex1]
     }
     let initials = ''
@@ -1118,12 +1077,10 @@ export class IGotSarthiComponent implements OnInit, AfterViewInit, AfterViewChec
           continue
         }
 
-        if (name.charAt(i) === name.charAt(i)) {
-          initials += name.charAt(i)
+        initials += name.charAt(i)
 
-          if (initials.length === 2) {
-            break
-          }
+        if (initials.length === 2) {
+          break
         }
       }
     }

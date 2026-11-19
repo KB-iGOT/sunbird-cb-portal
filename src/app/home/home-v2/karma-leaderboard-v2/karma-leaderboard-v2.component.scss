@@ -151,7 +151,7 @@
   font-weight: 500;
   color: var(--text-bandw-black-display);
   margin-bottom: 16px;
-  font-family: 'Noto Sans';
+  font-family: 'Noto Sans', sans-serif;
 }
 
 .klb-top-desc {
@@ -159,7 +159,7 @@
   color: var(--text-bandw-black-captions);
   line-height: 1.5;
   margin: 0;
-  font-family: 'Noto Sans';
+  font-family: 'Noto Sans', sans-serif;
 }
 
 // ── Header bar ───────────────────────────────────────────────
@@ -275,7 +275,7 @@
   color: var(--text-bandw-black-captions);
   margin: 4px 0 10px;
   line-height: 1.4;
-  font-family: 'Noto Sans';
+  font-family: 'Noto Sans', sans-serif;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -999,14 +999,14 @@
   font-size: var(--font-size-body-1);
   font-weight: 600;
   color: var(--text-bandw-black-title);
-  font-family: 'Noto Sans';
+  font-family: 'Noto Sans', sans-serif;
 }
 
 .klb-empty-desc {
   margin: 0;
   font-size: var(--font-size-label-1);
   font-weight: 400;
-  font-family: 'Noto Sans';
+  font-family: 'Noto Sans', sans-serif;
   line-height: 1.5;
   color: var(--text-bandw-black-captions);
 }

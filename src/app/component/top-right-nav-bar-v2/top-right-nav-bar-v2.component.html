@@ -4,7 +4,7 @@
   <!-- Notification Bell -->
   @if (item()?.type === 'notificationBell' && rnc.section === 'notification' && rnc.active) {
   <li class="notification-icon flex items-center cursor-pointer mt-2.5">
-    <div #notificationTrigger [matMenuTriggerFor]="menu" class="relative" (click)="onBellClick()"
+    <div #notificationTrigger [matMenuTriggerFor]="menu" class="relative" role="button" (click)="onBellClick()"
       matTooltipClass="right-nav-tooltip" [matTooltip]="'Notifications'"
       (keydown.enter)="$event.preventDefault(); notificationTrigger.click(); onBellClick();" tabindex="0"
       (keydown.escape)="$event.preventDefault(); notificationTrigger.click();">
@@ -17,7 +17,7 @@
       }
     </div>
     <mat-menu #menu="matMenu" xPosition="before" class="my-notifications" (closed)="onMenuClosed()">
-      <div class="p-4 w-[353px] bg-white rounded-[10px] font-normal cursor-default">
+      <div class="notification-container p-4 w-[353px] bg-white rounded-[10px] font-normal cursor-default">
         @if (showDropdown()) {
         <sb-uin-notification-dropdown [showIcon]="true" (viewAllClick)="viewAllClick($event)"
           [unRead]="notificationsCount()">

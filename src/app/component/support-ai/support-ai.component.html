@@ -48,7 +48,7 @@
                                                                                                                             "
                   class="system-msg padding-xs">
 
-                  <markdown [data]="item.activity.content">
+                  <markdown class="chat-markdown" [data]="item.activity.content">
                   </markdown>
 
                 </div>
@@ -101,11 +101,11 @@
               </div> -->
               <ng-container *ngIf="chat?.answer">
                 <!-- <div class="system-msg padding-xs"  *ngIf="chat?.wordsCount <= 30">
-                <markdown [data]="chat?.answer"></markdown>
+                <markdown class="chat-markdown" [data]="chat?.answer"></markdown>
               </div> -->
                 <div class="system-msg padding-xs">
                   <!-- <div   *ngIf="chat?.wordsCount > 30" [innerHTML]="chat?.showLess ? chat.shortAnswer :  chat.answer"></div> -->
-                  <markdown [data]="chat.answer"></markdown>
+                  <markdown class="chat-markdown" [data]="chat.answer"></markdown>
                   <!-- <a class="link" href="javascript:void(0)" *ngIf="!chat?.showLess" (click)="toggleShow(i, 'less')">show less</a>
                   <a class="link" href="javascript:void(0)" *ngIf="chat?.showLess" (click)="toggleShow(i, 'more')">show more</a> -->
                 </div>
@@ -260,7 +260,7 @@
                     </div>
                     <div *ngIf="!(item?.fromInternet)">
                       <!-- {{item?.description}} -->
-                      <markdown [data]="item?.description"></markdown>
+                      <markdown class="chat-markdown" [data]="item?.description"></markdown>
                     </div>
                   </ng-container>
                 </div>

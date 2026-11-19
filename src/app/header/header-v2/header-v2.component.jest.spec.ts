@@ -71,7 +71,8 @@ describe('HeaderV2Component (No TestBed)', () => {
       component.downloadApp()
       expect(windowOpenSpy).toHaveBeenCalledWith(
         'https://play.google.com/store/apps/details?id=com.igot.karmayogibharat&hl=en&gl=US',
-        '_blank'
+        '_blank',
+        'noopener,noreferrer'
       )
     })
 
@@ -83,7 +84,8 @@ describe('HeaderV2Component (No TestBed)', () => {
       component.downloadApp()
       expect(windowOpenSpy).toHaveBeenCalledWith(
         'https://apps.apple.com/in/app/igot-karmayogi/id6443949491',
-        '_blank'
+        '_blank',
+        'noopener,noreferrer'
       )
     })
 
@@ -95,7 +97,8 @@ describe('HeaderV2Component (No TestBed)', () => {
       component.downloadApp()
       expect(windowOpenSpy).toHaveBeenCalledWith(
         'https://play.google.com/store/apps/details?id=com.igot.karmayogibharat&hl=en&gl=US',
-        '_blank'
+        '_blank',
+        'noopener,noreferrer'
       )
     })
 

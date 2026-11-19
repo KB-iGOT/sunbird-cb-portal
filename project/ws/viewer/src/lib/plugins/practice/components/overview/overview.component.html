@@ -75,20 +75,20 @@
           </div>
         </div>
         <div>
-          <div class="flex flex-col stats-label ml-4" *ngIf="questionTYP.FINAL_ASSESSMENT === primaryCategory || questionTYP.PRACTICE_RESOURCE === primaryCategory"
+          <div class="flex flex-col stats-label ml-4" *ngIf="!questionnaire && (questionTYP.FINAL_ASSESSMENT === primaryCategory || questionTYP.PRACTICE_RESOURCE === primaryCategory)"
           [ngClass]="selectedAssessmentCompatibilityLevel >= 7 ? 'ml-5':''">
             <div class="flex items-center justify-center" *ngIf="timeLimit"><img src="assets/icons/final-assessment/timer.svg"></div>
             <div>{{( timeLimit | pipeDurationTransform: 'hms')}}</div>
           </div>
         </div>
         <div>
-          <div class="flex flex-col stats-label ml-4" *ngIf="quizData?.maxAssessmentRetakeAttempts && questionTYP.FINAL_ASSESSMENT === primaryCategory">
+          <div class="flex flex-col stats-label ml-4" *ngIf="!questionnaire && quizData?.maxAssessmentRetakeAttempts && questionTYP.FINAL_ASSESSMENT === primaryCategory">
               <div class="flex items-center justify-center"><mat-icon class="text-blue-800">replay</mat-icon></div>
               <div>{{ canAttempt?.attemptsAllowed - canAttempt?.attemptsMade}} {{ 'playerbrief.attemptsLeft' | translate }}</div>
           </div>
         </div>
         <div>
-          <div class="flex flex-col stats-label ml-4" *ngIf="questionTYP.FINAL_ASSESSMENT === primaryCategory  && quizData?.sectionalPassPercentage?.toLowerCase() === 'no' && quizData?.minimumPassPercentage">
+          <div class="flex flex-col stats-label ml-4" *ngIf="!questionnaire && questionTYP.FINAL_ASSESSMENT === primaryCategory  && quizData?.sectionalPassPercentage?.toLowerCase() === 'no' && quizData?.minimumPassPercentage">
               <div class="flex items-center justify-center"><mat-icon class="text-blue-800">offline_pin</mat-icon></div>
               <div>{{quizData?.minimumPassPercentage}}% {{ 'playerbrief.passingCriteria' | translate }}</div>
           </div>
@@ -96,7 +96,7 @@
       <div>
         <div class="ml-5 start-assessment-cta-standalone block md:hidden" *ngIf="selectedAssessmentCompatibilityLevel >= 7">
           <button [disabled]="!consentGiven ? 'disabled': null" *ngIf="canAttempt?.attemptsMade < canAttempt?.attemptsAllowed || forPreview || questionTYP.PRACTICE_RESOURCE == primaryCategory" [class.spinner]="loading" (click)="overviewed('start')" [ngClass]="consentGiven ? 'bg-blue-800 text-white' : 'secondary-standalone text-standalone-black'" class=" text-sm font-semibold  py-3 px-5 rounded-full border-none cursor-pointer tracking-wide">
-            <span class="padding-xs" >{{'playerbrief.startAssessment' | translate}}</span>
+            <span class="padding-xs" >{{ questionnaire ? questionnaire.start : ('playerbrief.startAssessment' | translate) }}</span>
           </button>
           <mat-hint class="mat-title" *ngIf="canAttempt?.attemptsMade >= canAttempt?.attemptsAllowed && !forPreview && questionTYP.FINAL_ASSESSMENT === primaryCategory">{{'playerbrief.maxAllowedRetake' | translate}}</mat-hint>
         </div>
@@ -104,13 +104,13 @@
       </div>
       <div class="start-assessment-cta hidden md:block" *ngIf="selectedAssessmentCompatibilityLevel >= 7">
         <button [disabled]="!consentGiven ? 'disabled': null" *ngIf="canAttempt?.attemptsMade < canAttempt?.attemptsAllowed || forPreview || questionTYP.PRACTICE_RESOURCE == primaryCategory" [class.spinner]="loading" (click)="overviewed('start')" [ngClass]="consentGiven ? 'bg-blue-800 text-white' : 'secondary-standalone text-standalone-black'" class="text-sm font-semibold py-3 px-5 rounded-full border-none cursor-pointer tracking-wide">
-          <span class="padding-xs" >{{'playerbrief.startAssessment' | translate}}</span>
+          <span class="padding-xs" >{{ questionnaire ? questionnaire.start : ('playerbrief.startAssessment' | translate) }}</span>
         </button>
         <mat-hint class="mat-title" *ngIf="canAttempt?.attemptsMade >= canAttempt?.attemptsAllowed && !forPreview && questionTYP.FINAL_ASSESSMENT === primaryCategory">{{'playerbrief.maxAllowedRetake' | translate}}</mat-hint>
       </div>
       <div class="start-assessment-cta hidden md:block" *ngIf="selectedAssessmentCompatibilityLevel < 7">
         <button *ngIf="canAttempt?.attemptsMade < canAttempt?.attemptsAllowed || forPreview || questionTYP.PRACTICE_RESOURCE == primaryCategory" [class.spinner]="loading" [disabled]="loading" (click)="overviewed('start')" class="bg-blue-800 text-white text-sm font-semibold py-3 px-5 rounded-full border-none cursor-pointer tracking-wide">
-          <span class="padding-xs" >{{'playerbrief.startAssessment' | translate}}</span>
+          <span class="padding-xs" >{{ questionnaire ? questionnaire.start : ('playerbrief.startAssessment' | translate) }}</span>
         </button>
         <mat-hint class="mat-title" *ngIf="canAttempt?.attemptsMade >= canAttempt?.attemptsAllowed && !forPreview && questionTYP.FINAL_ASSESSMENT === primaryCategory">{{'playerbrief.maxAllowedRetake' | translate}}</mat-hint>
       </div>
@@ -118,7 +118,19 @@
     </div>
 
   </div>
-  <div class="summary flex flex-col" *ngIf="selectedAssessmentCompatibilityLevel < 7">
+  <!-- questionnaire (e.g. contextCategory "Baseline Assessment"): an intro instead of summary, instructions and consent -->
+  <div class="questionnaire-intro flex items-start gap-3" *ngIf="questionnaire as intro">
+    <svg class="questionnaire-intro__icon flex-shrink-0" width="24" height="24" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+      <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" />
+      <path d="M12 11v6" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+      <circle cx="12" cy="7.5" r="1.25" fill="currentColor" />
+    </svg>
+    <div>
+      <h2 class="questionnaire-intro__heading">{{ intro.heading }}</h2>
+      <p class="questionnaire-intro__text">{{ intro.description }}</p>
+    </div>
+  </div>
+  <div class="summary flex flex-col" *ngIf="!questionnaire && selectedAssessmentCompatibilityLevel < 7">
     <div>
       <h2 class="summary-label">{{ 'practiceoverview.summary' | translate }}</h2>
     </div>
@@ -140,7 +152,7 @@
      </ul>
     </div>
   </div>
-  <div class="summary-standalone flex flex-col" *ngIf="selectedAssessmentCompatibilityLevel >= 7">
+  <div class="summary-standalone flex flex-col" *ngIf="!questionnaire && selectedAssessmentCompatibilityLevel >= 7">
     <!-- <div>
       <h2 class="summary-label">{{ 'practiceoverview.summary' | translate }}</h2>
     </div> -->
@@ -179,7 +191,7 @@
 </div>
 <div class="start-assessment-cta block md:hidden" *ngIf="selectedAssessmentCompatibilityLevel < 7">
   <button *ngIf="canAttempt?.attemptsMade < canAttempt?.attemptsAllowed || questionTYP.PRACTICE_RESOURCE == primaryCategory" [class.spinner]="loading" [disabled]="loading" (click)="overviewed('start')" class="bg-blue-800 text-sm font-semibold text-white py-3 px-5 rounded-full border-none cursor-pointer tracking-wide">
-    <span class="padding-xs" >{{'playerbrief.startAssessment' | translate}}</span>
+    <span class="padding-xs" >{{ questionnaire ? questionnaire.start : ('playerbrief.startAssessment' | translate) }}</span>
   </button>
   <mat-hint class="mat-title" *ngIf="canAttempt?.attemptsMade >= canAttempt?.attemptsAllowed && questionTYP.FINAL_ASSESSMENT === primaryCategory">{{'playerbrief.maxAllowedRetake' | translate}}</mat-hint>
 </div>

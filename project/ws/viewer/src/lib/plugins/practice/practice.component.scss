@@ -1702,3 +1702,16 @@ mat-spinner {
   border: none !important;
   background-color: inherit !important;
 }
+// Questionnaire "Submit": the button keeps the width sized for "Submit the test" (and its justify-right),
+// so centre the shorter label instead of leaving it against the right edge
+a.submit-centered {
+  justify-content: center !important;
+  text-align: center;
+
+  // the label span is rendered by MatButton itself, outside this component's style scope
+  ::ng-deep .mdc-button__label,
+  ::ng-deep .mat-button-wrapper {
+    width: 100%;
+    text-align: center;
+  }
+}

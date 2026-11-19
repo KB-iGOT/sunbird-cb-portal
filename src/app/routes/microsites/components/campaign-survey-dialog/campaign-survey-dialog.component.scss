@@ -1,0 +1,113 @@
+.csd {
+  max-height: 85vh;
+  font-family: var(--font-family-noto-sans);
+  background: var(--surface-primary);
+}
+
+.csd__header,
+.csd__footer {
+  background: var(--surface-primary);
+}
+
+.csd__header {
+  border-bottom: 1px solid var(--border-default);
+}
+
+.csd__footer {
+  border-top: 1px solid var(--border-default);
+}
+
+.csd__title {
+  color: var(--text-bandw-black-heading);
+}
+
+.csd__close {
+  border: 0;
+  background: var(--surface-secondary);
+  color: var(--text-bandw-black-heading);
+
+  &:focus-visible {
+    outline: 2px solid var(--border-focus);
+    outline-offset: 2px;
+  }
+}
+
+:host ::ng-deep .mat-mdc-form-field-subscript-wrapper {
+  display: none;
+}
+
+// same look as the TOC survey section
+.csd__section {
+  background: rgba(27, 76, 161, 0.08);
+}
+
+.csd__section-title {
+  color: var(--text-bandw-black-heading);
+}
+
+.csd__section-desc {
+  color: var(--text-bandw-black-body);
+}
+
+.csd__separator {
+  border: 0;
+  border-top: 1px solid var(--border-default);
+}
+
+.csd__commit {
+  color: var(--text-bandw-black-body);
+}
+
+.csd__checkbox {
+  accent-color: var(--environment-button-primary-filled-primary);
+}
+
+.csd__error {
+  color: var(--text-bandw-black-body);
+}
+
+.csd__question {
+  background: #ffffff;
+
+  // the TOC question draws its own white card with padding and margin; flatten it into ours
+  ::ng-deep .q-element {
+    margin-bottom: 0 !important;
+    padding: 0 !important;
+    background: transparent !important;
+  }
+}
+
+.csd__hint,
+.csd__limit {
+  color: var(--text-bandw-black-body);
+}
+
+.csd__limit-error {
+  color: var(--text-system-text-error);
+}
+
+.csd__btn {
+  height: 40px;
+  font-size: 14px;
+  font-weight: 600;
+  border: 1px solid var(--environment-button-primary-outline-primary-outline);
+
+  &--secondary {
+    background: var(--surface-primary);
+    color: var(--text-button-text-primary-outlined);
+  }
+
+  &--primary {
+    background: var(--environment-button-primary-filled-primary);
+    color: var(--text-button-text-primary-white);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+  }
+
+  &:focus-visible {
+    outline: 2px solid var(--border-focus);
+    outline-offset: 2px;
+  }
+}

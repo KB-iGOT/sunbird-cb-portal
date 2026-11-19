@@ -1,7 +1,6 @@
 import { NgModule, CUSTOM_ELEMENTS_SCHEMA } from '@angular/core'
 import { ClickOutsideDirective } from './clickoutside.directive'
 import { AppChatbotComponent } from './app-chatbot.component'
-import { ChatbotService } from './chatbot.service'
 import { FormsModule } from '@angular/forms'
 import { BrowserModule } from '@angular/platform-browser'
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations'
@@ -47,7 +46,6 @@ SupportAIComponent.prototype.ngAfterViewInit = function (): void {
     ItsmChatModule,
   ],
   exports: [AppChatbotComponent, MarkdownModule, NonReleventFeedbackDialogModule],
-  providers: [ChatbotService],
   schemas: [CUSTOM_ELEMENTS_SCHEMA],
 })
 
