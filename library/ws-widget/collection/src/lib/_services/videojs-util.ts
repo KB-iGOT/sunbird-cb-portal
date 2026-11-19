@@ -70,7 +70,12 @@ function eventDispatchHelper(
   playerState: string,
   mimeT: string,
 ) {
-  if (state === WsEvents.EnumTelemetrySubType.Loaded || state === WsEvents.EnumTelemetrySubType.Unloaded) {
+  // HeartBeat included on purpose: until the Angular 17 -> 20 upgrade this condition was always true
+  // (`|| WsEvents.EnumTelemetrySubType.Unloaded` alone), so every heartbeat also carried passThroughData.timeSpent.
+  // The event players (e.g. event-you-tube) compare that running time with rateToFire on each heartbeat to send
+  // the progress update; without it the update only went out on pause or when leaving the page.
+  if (state === WsEvents.EnumTelemetrySubType.Loaded || state === WsEvents.EnumTelemetrySubType.Unloaded
+    || state === WsEvents.EnumTelemetrySubType.HeartBeat) {
     const event = {
       eventType: WsEvents.WsEventType.Telemetry,
       eventLogLevel: WsEvents.WsEventLogLevel.Info,
@@ -449,6 +454,15 @@ export function youtubeInitializer(
             eventDispatcher(WsEvents.EnumTelemetrySubType.HeartBeat, widgetData, WsEvents.EnumTelemetryMediaActivity.PLAYED, mimeType)
           })
           loaded = true
+        }
+        // PLAYING comes again after BUFFERING (and seeking), which does not stop these timers like PAUSED does:
+        // without this a second watch timer ran alongside the first and timeSpent went up 2 a second (always odd,
+        // so the event player's `timeSpent % rateToFire === 0` check could never match)
+        if (currentTimeInterval) {
+          currentTimeInterval.unsubscribe()
+        }
+        if (timeSpentInterval) {
+          timeSpentInterval.unsubscribe()
         }
         currentTimeInterval = interval(500).subscribe(_ => {
           if (player.getCurrentTime() >= player.getDuration() * 5 / 100 && player.getCurrentTime() < player.getDuration() * 95 / 100
