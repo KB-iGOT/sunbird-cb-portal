@@ -1,4 +1,4 @@
-import { Component, EventEmitter, HostListener, Input, OnChanges, OnDestroy, Output, ViewChild } from '@angular/core'
+import { Component, EventEmitter, HostListener, Input, NgZone, OnChanges, OnDestroy, Optional, Output, ViewChild } from '@angular/core'
 import { NavigationCancel, NavigationEnd, NavigationError, Router } from '@angular/router'
 import { MatDialog } from '@angular/material/dialog'
 import { Subscription } from 'rxjs'
@@ -58,6 +58,7 @@ export class AppTourComponent implements OnChanges, OnDestroy {
   private dialogOpenedSub?: Subscription
   private dialogWait?: Subscription
   private dialogSettleTimer?: ReturnType<typeof setTimeout>
+  private walletTrackFrame?: number
   @ViewChild(AppTourVideoComponent) tourVideo?: AppTourVideoComponent
   @Output() closed = new EventEmitter<void>()
   @HostListener('document:keydown', ['$event']) onKeydownHandler(event: KeyboardEvent) {
@@ -216,7 +217,8 @@ export class AppTourComponent implements OnChanges, OnDestroy {
     private userProfileSvc: UserProfileService,
     private router: Router,
     private translate: TranslateService,
-    private dialog: MatDialog) {
+    private dialog: MatDialog,
+    @Optional() private zone?: NgZone) {
     if (localStorage.getItem('websiteLanguage')) {
       this.translate.setDefaultLang('en')
       const lang = localStorage.getItem('websiteLanguage')!
@@ -232,6 +234,7 @@ export class AppTourComponent implements OnChanges, OnDestroy {
     this.dialogOpenedSub?.unsubscribe()
     this.dialogWait?.unsubscribe()
     clearTimeout(this.dialogSettleTimer)
+    this.stopWalletTracking()
   }
   ngOnChanges(): void {
     if (!this.showOnlyIgotKarmayogi) {
@@ -344,6 +347,7 @@ export class AppTourComponent implements OnChanges, OnDestroy {
     this.noScroll = true
     this.showWalletCoachMark = true
     this.measureWalletCoachMark()
+    this.startWalletTracking()
     this.raiseTemeletyInterat('karma-wallet-coachmark', 'karma-wallet')
   }
 
@@ -394,17 +398,69 @@ export class AppTourComponent implements OnChanges, OnDestroy {
     }
     this.showWalletCoachMark = false
     this.noScroll = false
+    this.stopWalletTracking()
     this.waitForDialogs()
   }
 
   private findWalletAnchor(): HTMLElement | null {
     for (const selector of WALLET_ANCHOR_SELECTORS) {
-      const element = document.querySelector(selector) as HTMLElement | null
-      if (element) {
-        return element
+      const elements = Array.from(document.querySelectorAll(selector)) as HTMLElement[]
+      const visible = elements.find(element => {
+        const rect = element.getBoundingClientRect()
+        return rect.width > 0 && rect.height > 0
+      })
+      if (visible || elements.length) {
+        return visible || elements[0]
       }
     }
     return null
+  }
+
+  /* the header keeps settling after the coach mark opens (nav items render in and shift the
+     wallet button), so the spot follows the live anchor instead of a one-off measurement */
+  private startWalletTracking(): void {
+    this.stopWalletTracking()
+    if (typeof requestAnimationFrame !== 'function') {
+      return
+    }
+    let last = ''
+    const track = () => {
+      if (!this.showWalletCoachMark) {
+        this.walletTrackFrame = undefined
+        return
+      }
+      const anchor = this.findWalletAnchor()
+      if (anchor) {
+        const rect = anchor.getBoundingClientRect()
+        const key = `${rect.top}|${rect.left}|${rect.width}|${rect.height}|${window.innerWidth}`
+        if (key !== last) {
+          last = key
+          this.runInZone(() => this.measureWalletCoachMark())
+        }
+      }
+      this.walletTrackFrame = requestAnimationFrame(track)
+    }
+    const begin = () => { this.walletTrackFrame = requestAnimationFrame(track) }
+    if (this.zone) {
+      this.zone.runOutsideAngular(begin)
+    } else {
+      begin()
+    }
+  }
+
+  private runInZone(fn: () => void): void {
+    if (this.zone) {
+      this.zone.run(fn)
+    } else {
+      fn()
+    }
+  }
+
+  private stopWalletTracking(): void {
+    if (this.walletTrackFrame !== undefined && typeof cancelAnimationFrame === 'function') {
+      cancelAnimationFrame(this.walletTrackFrame)
+    }
+    this.walletTrackFrame = undefined
   }
 
   private measureWalletCoachMark(): void {
@@ -489,6 +545,7 @@ export class AppTourComponent implements OnChanges, OnDestroy {
 
   private finishWalletCoachMark(): void {
     this.showWalletCoachMark = false
+    this.stopWalletTracking()
     this.noScroll = false
     this.raiseGetStartedEndTelemetry()
     this.configSvc.updateTourGuideMethod(true)
