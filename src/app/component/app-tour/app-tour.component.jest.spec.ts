@@ -342,6 +342,26 @@ describe('AppTourComponent (No TestBed)', () => {
       expect(component.showWalletCoachMark).toBe(true)
     })
 
+    it('should follow the wallet button when the header shifts after the coach mark opens', () => {
+      const frames: FrameRequestCallback[] = []
+      jest.spyOn(window, 'requestAnimationFrame').mockImplementation((cb: FrameRequestCallback) => frames.push(cb))
+      jest.spyOn(window, 'cancelAnimationFrame').mockImplementation(() => { })
+      const rectAt = (left: number) => ({ top: 10, left, width: 40, height: 40, bottom: 50, right: left + 40 } as DOMRect)
+      const rectSpy = jest.spyOn(anchor, 'getBoundingClientRect').mockReturnValue(rectAt(500))
+
+      component.ngOnChanges()
+      expect(component.walletSpot.left).toBe(500 - 6)
+
+      // header settles: the wallet button moves to where another icon was measured
+      rectSpy.mockReturnValue(rectAt(420))
+      frames.shift()!(0)
+      expect(component.walletSpot.left).toBe(420 - 6)
+
+      component.skipWalletTour()
+      frames.splice(0).forEach(frame => frame(0))
+      expect(frames.length).toBe(0)
+    })
+
     it('should wait for an open dialog to close, then show the coach mark', () => {
       openDialog()
       component.ngOnChanges()
