@@ -2441,3 +2441,35 @@ body:not(.show-accessibility-icon) #userwayAccessibilityIcon {
   color: #1B4CA1 !important;
   background-color: transparent !important;
 }
+
+.button-common-css,
+.outline-button,
+.save-button {
+  padding: 12px 16px;
+  border-radius: 20px;
+  cursor: pointer;
+  line-height: 16px;
+  font-size: 14px;
+  font-weight: 700;
+  font-family: inherit;
+}
+
+.outline-button {
+  color: ws-vars.$text-primary;
+  border: 1px solid ws-vars.$text-primary;
+  background-color: #fff;
+}
+
+.save-button {
+  color: #fff;
+  background-color: ws-vars.$text-primary;
+  border: 1px solid ws-vars.$text-primary;
+}
+
+.outline-button.disable-button,
+.save-button.disable-button,
+.outline-button:disabled,
+.save-button:disabled {
+  opacity: 0.75;
+  cursor: not-allowed;
+}
