@@ -16,6 +16,7 @@ const API_END_POINTS = {
   GetApplicationsById: 'apis/proxies/v8/forms/v2/bulkGetApplicationsById',
   GetProviderDetails: 'apis/proxies/v8/contentpartner/v1/search',
   GET_COURSES: '/apis/proxies/v8/cios/v1/search/content',
+  ENROLMENT_DETAILS_V5: '/apis/proxies/v8/learner/course/v5/user/enrollment/details',
 }
 
 @Injectable({
@@ -156,6 +157,12 @@ export class SeeAllService {
 
   getApplicationsById(formBody: any) {
     return this.http.post<any>(API_END_POINTS.GetApplicationsById, formBody)
+  }
+
+  getEnrolmentDetails(courseIds: string[]): Observable<any> {
+    return this.http.post<any>(API_END_POINTS.ENROLMENT_DETAILS_V5, {
+      request: { retiredCoursesEnabled: true, courseId: courseIds },
+    })
   }
 
   getProviderDetails(request: any): Observable<any> {

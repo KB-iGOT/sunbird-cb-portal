@@ -6,6 +6,7 @@ import { BehaviorSubject, Subject, of } from 'rxjs'
 // The real library bundles pull @project-sunbird/telemetry-sdk, which jest cannot resolve
 // under jsdom. Factory mocks keep them from ever being executed.
 jest.mock('@sunbird-cb/utils-v2', () => ({
+  ConfigurationsService: class { },
   ValueService: class { },
   EventService: class { },
   WsEvents: { EnumInteractTypes: { CLICK: 'click' }, EnumTelemetrymodules: { LEARN: 'learn' } },
@@ -17,7 +18,7 @@ jest.mock('@sunbird-cb/consumption', () => ({
   UserCbpPlansService: class { },
 }), { virtual: true })
 
-import { EventService, ValueService } from '@sunbird-cb/utils-v2'
+import { ConfigurationsService, EventService, ValueService } from '@sunbird-cb/utils-v2'
 import { CardTransformerService, ContentApiService, UserCbpPlansService } from '@sunbird-cb/consumption'
 import { PlansService } from '../services/plans.service'
 import { PlansShowAllComponent } from './plans-show-all.component'
@@ -70,7 +71,11 @@ describe('PlansShowAllComponent', () => {
   let eventSvc: any
   let cardClicks: Subject<any>
 
-  const build = (initialParams: Record<string, string> = {}, resolved = entry()) => {
+  const build = (
+    initialParams: Record<string, string> = {},
+    resolved = entry(),
+    serviceHistory: any[] = [],
+  ) => {
     eventSvc = { raiseInteractTelemetry: jest.fn() }
     cardClicks = new Subject()
     // Tests that need different query params rebuild the component; TestBed refuses to be
@@ -85,6 +90,7 @@ describe('PlansShowAllComponent', () => {
         { value: '2026-27', isCurrent: true },
         { value: '2025-26', isCurrent: false },
       ]),
+      getServiceHistory: jest.fn().mockReturnValue(of(serviceHistory)),
     }
     cbpSvc = {
       getUserCbpPlansAsync: jest.fn().mockResolvedValue(resolved),
@@ -126,6 +132,7 @@ describe('PlansShowAllComponent', () => {
         { provide: CardTransformerService, useValue: transformer },
         { provide: ValueService, useValue: { isLtMedium$: of(false) } },
         { provide: EventService, useValue: eventSvc },
+        { provide: ConfigurationsService, useValue: { userProfile: { userId: 'user-1' } } },
         { provide: ContentApiService, useValue: { cardClickDetails$: cardClicks } },
         { provide: MatDialog, useValue: { open: jest.fn() } },
         { provide: require('@ngx-translate/core').TranslateService, useValue: translate },
@@ -383,10 +390,27 @@ describe('PlansShowAllComponent', () => {
       }))
     })
 
-    it('omits the Created By section when nothing is loaded', () => {
+    it('omits the Created By and working sections when nothing is loaded', () => {
       component.ngOnInit()
 
       expect(component.filterConfig().map(s => s.key)).toEqual(['planTypeKey'])
+    })
+
+    it('builds working organisation and designation from the service history', () => {
+      build({}, entry(), [
+        { orgId: 'o1', orgName: 'Org One', designation: 'Director' },
+        { orgId: 'o1', orgName: 'Org One', designation: 'Under Secretary' },
+        { orgId: 'o2', orgName: 'Org Two', designation: 'Director' },
+        { orgName: '', designation: '' },
+      ])
+      component.ngOnInit()
+
+      expect(plansSvc.getServiceHistory).toHaveBeenCalledWith('user-1')
+      const sections = component.filterConfig()
+      expect(sections.map(s => s.key)).toEqual(['planTypeKey', 'workingOrganisation', 'workingDesignation'])
+      expect(sections[1].options.map(o => [o.name, o.displayName]))
+        .toEqual([['o1', 'Org One'], ['o2', 'Org Two']])
+      expect(sections[2].options.map(o => o.name)).toEqual(['Director', 'Under Secretary'])
     })
 
     it('counts the plan type and every facet value for the toolbar badge', () => {

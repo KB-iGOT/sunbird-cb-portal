@@ -970,7 +970,8 @@ export class SeeAllWithPillsComponent implements OnInit, OnDestroy {
 
           // Return existing response if no formContextList
           return of(res)
-        })
+        }),
+        mergeMap((res: any) => this.attachCaBestScores(res))
       ).subscribe((res: any) => {
         if (res && res.result && res.result.courses && res.result.courses.length) {
           courses = [...courses, ...res?.result?.courses]
@@ -998,6 +999,37 @@ export class SeeAllWithPillsComponent implements OnInit, OnDestroy {
         }
       })
     }
+  }
+
+  private attachCaBestScores(res: any): Observable<any> {
+    const caCourses: any[] = _.get(res, 'result.courses', []).filter((course: any) =>
+      course?.content?.identifier
+      && course?.content?.courseCategory === 'Comprehensive Assessment'
+      && (course?.status === 2 || course?.completionPercentage === 100))
+    if (!caCourses.length) {
+      return of(res)
+    }
+    return this.seeAllSvc.getEnrolmentDetails(caCourses.map((course: any) => course.content.identifier)).pipe(
+      map((details: any) => {
+        const scoreById: Record<string, number> = {}
+        for (const detail of _.get(details, 'result.courses', [])) {
+          const scores = Object.values(detail?.additionalProperties || {})
+            .map((entry: any) => entry?.bestScore)
+            .filter((score: any) => typeof score === 'number')
+          if (scores.length) {
+            scoreById[detail.courseId] = Math.max(...scores)
+          }
+        }
+        caCourses.forEach((course: any) => {
+          const score = scoreById[course.content.identifier]
+          if (score !== undefined) {
+            course['bestScore'] = score
+          }
+        })
+        return res
+      }),
+      catchError(() => of(res))
+    )
   }
 
   fetchEventEnrollmentList(strip: NsContentStripWithTabsAndPills.IContentStripUnit, tabIndex: number, pillIndex: number, calculateParentStatus = true) {
@@ -1045,6 +1077,9 @@ export class SeeAllWithPillsComponent implements OnInit, OnDestroy {
         contentTemp.active = c.active || false
         if (c.surveyCompletionStatus !== undefined) {
           contentTemp.surveyCompletionStatus = c.surveyCompletionStatus
+        }
+        if (c.bestScore !== undefined) {
+          contentTemp.bestScore = c.bestScore
         }
         return contentTemp
       })
