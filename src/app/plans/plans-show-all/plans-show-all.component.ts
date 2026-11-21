@@ -4,7 +4,7 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { Observable, from } from 'rxjs'
 import { MatDialog } from '@angular/material/dialog'
 import { TranslateService } from '@ngx-translate/core'
-import { EventService, ValueService, WsEvents } from '@sunbird-cb/utils-v2'
+import { ConfigurationsService, EventService, ValueService, WsEvents } from '@sunbird-cb/utils-v2'
 import {
   CardType,
   CardTransformerService,
@@ -17,7 +17,7 @@ import {
   SelectedFilters,
   UserCbpPlansService,
 } from '@sunbird-cb/consumption'
-import { PlanTypeKey, PlansService } from '../services/plans.service'
+import { IServiceHistoryEntry, PlanTypeKey, PlansService } from '../services/plans.service'
 import { PlansFilterMobileComponent } from '../plans-filter-mobile/plans-filter-mobile.component'
 
 /**
@@ -77,6 +77,7 @@ export class PlansShowAllComponent implements OnInit {
   private readonly events = inject(EventService)
   private readonly contentApiSvc = inject(ContentApiService)
   private readonly destroyRef = inject(DestroyRef)
+  private readonly configSvc = inject(ConfigurationsService)
 
   readonly planTypes = PLAN_TYPES
   readonly sortOptions = SORT_OPTIONS
@@ -306,14 +307,28 @@ export class PlansShowAllComponent implements OnInit {
    */
   readonly planCardConfig = computed(() => ({ cardClickDetails: { subType: `${this.planTypeKey()}-plans` } }))
 
+  private readonly serviceHistory = signal<IServiceHistoryEntry[]>([])
+
+  private readonly workingOrganisations = computed(() => {
+    const orgs = new Map<string, string>()
+    this.serviceHistory().forEach(entry => {
+      const name = entry.orgId || entry.orgName
+      if (name && entry.orgName && !orgs.has(name)) {
+        orgs.set(name, entry.orgName)
+      }
+    })
+    return Array.from(orgs, ([name, displayName]) => ({ name, displayName }))
+  })
+
+  private readonly workingDesignations = computed(() =>
+    Array.from(new Set(this.serviceHistory().map(entry => entry.designation).filter(Boolean) as string[]))
+      .map(designation => ({ name: designation, displayName: designation })))
+
   readonly skeletonRows = computed(() => Array.from({ length: Math.min(this.pageSize(), 8) }, () => 0))
 
   /**
    * Panel sections: plan type as a radio list (it is the listing's primary axis and the
    * toolbar drives it too), then Created By built from the loaded plans.
-   *
-   * The organisation and designation sections the server used to facet are gone: V4 carries
-   * no field to build them from, and rendering an empty section is worse than omitting it.
    */
   readonly filterConfig = computed<FilterConfig[]>(() => {
     this.langTick()
@@ -341,9 +356,33 @@ export class PlansShowAllComponent implements OnInit {
       })),
     }
 
+    const radioSection = (
+      key: string,
+      heading: string,
+      values: { name: string, displayName: string }[],
+      order: number,
+    ): FilterConfig | null => values.length ? {
+      key,
+      heading,
+      selectType: 'radio',
+      showSearch: values.length > 4,
+      showSeeMore: values.length > 4,
+      seeMoreLimit: 4,
+      showCount: false,
+      order,
+      options: values.map(value => ({
+        ...value,
+        isChecked: (selected[key] ?? []).includes(value.name),
+      })),
+    } : null
+    const workingSections = [
+      radioSection('workingOrganisation', 'Working Organisation', this.workingOrganisations(), 3),
+      radioSection('workingDesignation', 'Working Designation', this.workingDesignations(), 4),
+    ].filter((section): section is FilterConfig => !!section)
+
     const createdByValues = this.createdByValues()
     if (!createdByValues.length) {
-      return [planTypeSection]
+      return [planTypeSection, ...workingSections]
     }
 
     const createdBySection: FilterConfig = {
@@ -363,7 +402,7 @@ export class PlansShowAllComponent implements OnInit {
       })),
     }
 
-    return [planTypeSection, createdBySection]
+    return [planTypeSection, createdBySection, ...workingSections]
   })
 
   // ── Lifecycle ──────────────────────────────────────────────────────────────
@@ -380,6 +419,8 @@ export class PlansShowAllComponent implements OnInit {
     this.valueSvc.isLtMedium$
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe(isLtMedium => this.isLtMedium.set(isLtMedium))
+
+    this.loadServiceHistory()
 
     // Driven by the URL so a filtered listing stays shareable and survives a reload.
     this.route.queryParamMap
@@ -477,6 +518,16 @@ export class PlansShowAllComponent implements OnInit {
           this.loading.set(false)
         },
       })
+  }
+
+  private loadServiceHistory(): void {
+    const userId = this.configSvc.userProfile?.userId
+    if (!userId) {
+      return
+    }
+    this.plansSvc.getServiceHistory(userId)
+      .pipe(takeUntilDestroyed(this.destroyRef))
+      .subscribe(entries => this.serviceHistory.set(entries))
   }
 
   /** Forces a fresh V4 call for the year on screen, bypassing the cache. */

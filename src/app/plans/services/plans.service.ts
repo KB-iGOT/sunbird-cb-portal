@@ -6,6 +6,14 @@ import { catchError, map } from 'rxjs/operators'
 
 const API_END_POINTS = {
   READ_PLAN: (id: string) => `/apis/proxies/v8/cbplan/v4/read/${id}`,
+  SERVICE_HISTORY: (userId: string) => `/apis/proxies/v8/user/profile/v1/extended/serviceHistory/${userId}`,
+}
+
+export interface IServiceHistoryEntry {
+  orgId?: string
+  orgName?: string
+  designation?: string
+  [key: string]: any
 }
 
 /** Plan types the listing can be scoped to. Matches the mock's "Plan Type" filter. */
@@ -93,6 +101,13 @@ export class PlansService {
         } as IPlanReadResult
       }),
       catchError(() => of(null)),
+    )
+  }
+
+  getServiceHistory(userId: string): Observable<IServiceHistoryEntry[]> {
+    return this.http.get(API_END_POINTS.SERVICE_HISTORY(userId)).pipe(
+      map((res: any) => res?.result?.response?.serviceHistory ?? []),
+      catchError(() => of([])),
     )
   }
 

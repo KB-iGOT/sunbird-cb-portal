@@ -25,6 +25,7 @@ describe('SeeAllWithPillsComponent (no TestBed)', () => {
     searchV6: jest.fn().mockReturnValue(of({ result: { content: [] } })),
     trendingContentSearch: jest.fn().mockReturnValue(of({ result: { responseKey: [] } })),
     getApplicationsById: jest.fn().mockReturnValue(of({ result: { response: [] } })),
+    getEnrolmentDetails: jest.fn().mockReturnValue(of({ result: { courses: [] } })),
   }
   const mockConfigSvc: any = {
     userProfile: { userId: 'u1', rootOrgId: 'r1' },
@@ -319,6 +320,63 @@ describe('SeeAllWithPillsComponent (no TestBed)', () => {
       component.fetchFromInternalEnrollmentList({ tabs: [] }, 0, 0)
       expect(mockEnroll.fetchInternalEnrollmentData).not.toHaveBeenCalled()
     })
+  })
+
+  describe('fetchFromInternalEnrollmentList comprehensive assessment best score', () => {
+    const strip: any = {
+      tabs: [{ pillsData: [{ request: { type: 'enrollment', payload: { request: { status: 'Completed' } } } }] }],
+    }
+    const caCourse = (identifier: string, status = 2): any => ({
+      status,
+      content: { identifier, courseCategory: 'Comprehensive Assessment' },
+    })
+    const run = (courses: any[]): any[] => {
+      mockEnroll.fetchInternalEnrollmentData.mockReturnValue(of({ result: { courses } }))
+      mockEnroll.fetchExternalEnrollmentData.mockReturnValue(of({ result: { courses: [] } }))
+      component.formatNewEnrollmentData = jest.fn()
+      component.fetchFromInternalEnrollmentList(strip, 0, 0)
+      return courses
+    }
+
+    beforeEach(() => {
+      mockSeeAllSvc.getEnrolmentDetails = jest.fn().mockReturnValue(of({
+        result: {
+          courses: [{
+            courseId: 'ca1',
+            additionalProperties: { a1: { bestScore: 72, currentScore: 60 }, a2: { bestScore: 85 } },
+          }],
+        },
+      }))
+    })
+
+    it('attaches the highest best score of completed comprehensive assessments', () => {
+      const courses = run([caCourse('ca1'), { status: 2, content: { identifier: 'c1', courseCategory: 'Course' } }])
+
+      expect(mockSeeAllSvc.getEnrolmentDetails).toHaveBeenCalledWith(['ca1'])
+      expect(courses[0].bestScore).toBe(85)
+      expect(courses[1].bestScore).toBeUndefined()
+      expect(component.formatNewEnrollmentData).toHaveBeenCalled()
+    })
+
+    it('skips the details call when no completed comprehensive assessment is listed', () => {
+      run([caCourse('ca1', 1)])
+      expect(mockSeeAllSvc.getEnrolmentDetails).not.toHaveBeenCalled()
+    })
+
+    it('keeps the list when the details call fails', () => {
+      mockSeeAllSvc.getEnrolmentDetails = jest.fn().mockReturnValue(throwError(() => new Error('fail')))
+      const courses = run([caCourse('ca1')])
+
+      expect(courses[0].bestScore).toBeUndefined()
+      expect(component.formatNewEnrollmentData).toHaveBeenCalled()
+    })
+  })
+
+  it('formatNewEnrollmentData carries the best score onto the card content', () => {
+    const stripWithPill: any = { tabs: [{ pillsData: [{}] }] }
+    const courses: any[] = [{ content: { identifier: 'ca1' }, bestScore: 72 }]
+    ;(component as any).formatNewEnrollmentData(stripWithPill, 0, 0, courses, true)
+    expect(component.contentDataList[0].widgetData.content.bestScore).toBe(72)
   })
 
   describe('ngOnInit and config handling', () => {
