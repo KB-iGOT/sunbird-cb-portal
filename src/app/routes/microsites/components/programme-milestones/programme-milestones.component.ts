@@ -683,8 +683,9 @@ export class ProgrammeMilestonesComponent {
 
   /**
    * Pledge. Completed: certificate (event-backed) or "already submitted".
-   * Otherwise: event-backed -> register for the event if needed, then open the form; after a successful
-   * submit mark the event complete (progress 100%) and re-read statuses (event read gives status + certificate).
+   * Otherwise open the form. Only after a successful submit, for an event-backed pledge: register for the event
+   * (if not registered yet), mark it complete (progress 100%), then re-read statuses (event read gives status +
+   * certificate). Opening or closing the form without submitting does not register the user.
    */
   private async openSurvey(milestone: NsCampaignMicrosite.IMilestone, autoOpened = false): Promise<void> {
     if (this.enrollingOrder() !== null) {
@@ -701,24 +702,6 @@ export class ProgrammeMilestonesComponent {
       return
     }
 
-    // registered for the pledge's event in this flow: the card turns In progress even if the form is not submitted
-    let registeredNow = false
-    if (eventBacked && !this.statusSvc.isEventEnrolled(milestone.identifier)) {
-      this.enrollingOrder.set(milestone.order)
-      try {
-        await this.statusSvc.enrollEvent(milestone)
-        registeredNow = true
-        this.trackEventRegistered(milestone)
-      } catch (error: any) {
-        // tslint:disable-next-line: no-console
-        console.error('ProgrammeMilestonesComponent: pledge event registration failed', error)
-        this.snackBar.open(error?.error?.params?.errmsg || this.labels().event.registerError, 'X', { duration: 5000 })
-        return
-      } finally {
-        this.enrollingOrder.set(null)
-      }
-    }
-
     // INTERACT, as on mobile, whether it was clicked or opened by itself (the automatic one sends no milestone tap).
     // object.id is the milestone's content id (the form id only when it has none); edata.id the same
     this.telemetry.click(MICROSITE_TELEMETRY.surveyOpen, undefined, milestoneTelemetryObject(milestone))
@@ -732,22 +715,44 @@ export class ProgrammeMilestonesComponent {
       disableClose: true,
     }).afterClosed().pipe(takeUntilDestroyed(this.destroyRef)).subscribe(async submitted => {
       if (!submitted) {
-        if (registeredNow) {
-          this.refresh.update(count => count + 1)
-        }
         return
       }
       if (eventBacked) {
+        // blocks repeat clicks on the card while the enroll / progress calls run
+        this.enrollingOrder.set(milestone.order)
         try {
-          await this.statusSvc.completeEvent(milestone)
-        } catch (error) {
-          // the form is saved; the next page load re-reads the event status
-          // tslint:disable-next-line: no-console
-          console.error('ProgrammeMilestonesComponent: pledge event progress update failed', error)
+          await this.enrollAndCompletePledgeEvent(milestone)
+        } finally {
+          this.enrollingOrder.set(null)
         }
       }
       this.refresh.update(count => count + 1)
     })
+  }
+
+  /**
+   * After a successful pledge submit: register for its event (enroll API) unless already registered, then mark
+   * the event complete. The form is already saved either way; a failure here only leaves the event status behind.
+   */
+  private async enrollAndCompletePledgeEvent(milestone: NsCampaignMicrosite.IMilestone): Promise<void> {
+    if (!this.statusSvc.isEventEnrolled(milestone.identifier)) {
+      try {
+        await this.statusSvc.enrollEvent(milestone)
+        this.trackEventRegistered(milestone)
+      } catch (error: any) {
+        // tslint:disable-next-line: no-console
+        console.error('ProgrammeMilestonesComponent: pledge event registration failed', error)
+        this.snackBar.open(error?.error?.params?.errmsg || this.labels().event.registerError, 'X', { duration: 5000 })
+        return
+      }
+    }
+    try {
+      await this.statusSvc.completeEvent(milestone)
+    } catch (error) {
+      // the next page load re-reads the event status
+      // tslint:disable-next-line: no-console
+      console.error('ProgrammeMilestonesComponent: pledge event progress update failed', error)
+    }
   }
 
   /** Certificate dialog when one has been issued for the pledge's event; otherwise the "be patient" message */

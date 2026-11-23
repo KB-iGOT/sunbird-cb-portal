@@ -650,64 +650,80 @@ describe('ProgrammeMilestonesComponent', () => {
     const flush = () => new Promise(resolve => setTimeout(resolve))
     const S = DEFAULT_MILESTONE_LABELS.survey
 
-    it('not registered → registers for the event, then opens the form', async () => {
+    it('not registered → "Take Sankalpa" opens the form without registering', async () => {
       statusSvc.resolveStates.mockReturnValue(of(['completed', 'notStarted']))
-      statusSvc.enrollEvent.mockResolvedValue(undefined)
       render({ items: [milestone(1), pledge] })
       component.openMilestone(pledge)
-      expect(component.enrollingOrder()).toBe(2)
+      expect(component.enrollingOrder()).toBeNull()
       await flush()
-      expect(statusSvc.enrollEvent).toHaveBeenCalledWith(pledge)
+      expect(statusSvc.enrollEvent).not.toHaveBeenCalled()
       expect(dialog.open).toHaveBeenCalledWith(CampaignSurveyDialogComponent, expect.anything())
       expect(router.navigate).not.toHaveBeenCalled()
     })
 
-    it('registered now, closed without submitting → re-reads statuses so the card shows In progress', async () => {
+    it('closed without submitting → no registration, no progress update, statuses not re-read', async () => {
       statusSvc.resolveStates.mockReturnValue(of(['completed', 'notStarted']))
-      statusSvc.enrollEvent.mockResolvedValue(undefined)
       render({ items: [milestone(1), pledge] })
       component.openMilestone(pledge)
       await flush()
       const calls = statusSvc.resolveStates.mock.calls.length
       dialogResult.next(false)
+      await flush()
       fixture.detectChanges()
       TestBed.tick()
-      expect(statusSvc.resolveStates.mock.calls.length).toBeGreaterThan(calls)
+      expect(statusSvc.enrollEvent).not.toHaveBeenCalled()
       expect(statusSvc.completeEvent).not.toHaveBeenCalled()
-    })
-
-    it('already registered, closed without submitting → statuses are not re-read', async () => {
-      statusSvc.resolveStates.mockReturnValue(of(['completed', 'inProgress']))
-      statusSvc.isEventEnrolled.mockReturnValue(true)
-      render({ items: [milestone(1), pledge] })
-      component.openMilestone(pledge)
-      await flush()
-      const calls = statusSvc.resolveStates.mock.calls.length
-      dialogResult.next(false)
-      fixture.detectChanges()
-      TestBed.tick()
       expect(statusSvc.resolveStates.mock.calls.length).toBe(calls)
     })
 
-    it('already registered → opens the form without registering again', async () => {
+    it('submitted, not registered → registers, then marks the event complete, then re-reads statuses', async () => {
       statusSvc.resolveStates.mockReturnValue(of(['completed', 'notStarted']))
-      statusSvc.isEventEnrolled.mockReturnValue(true)
+      const order: string[] = []
+      statusSvc.enrollEvent.mockImplementation(async () => { order.push('enroll') })
+      statusSvc.completeEvent.mockImplementation(async () => { order.push('complete') })
       render({ items: [milestone(1), pledge] })
       component.openMilestone(pledge)
       await flush()
-      expect(statusSvc.enrollEvent).not.toHaveBeenCalled()
-      expect(dialog.open).toHaveBeenCalledTimes(1)
+      statusSvc.resolveStates.mockReturnValue(of(['completed', 'completed']))
+      dialogResult.next(true)
+      expect(component.enrollingOrder()).toBe(2)
+      await flush()
+      fixture.detectChanges()
+      expect(statusSvc.enrollEvent).toHaveBeenCalledWith(pledge)
+      expect(statusSvc.completeEvent).toHaveBeenCalledWith(pledge)
+      expect(order).toEqual(['enroll', 'complete'])
+      expect(telemetry.click).toHaveBeenCalledWith('enroll-now', undefined, { id: 'do_pledge_event', type: 'Event' })
+      expect(statusSvc.resolveStates).toHaveBeenCalledTimes(2)
+      expect(component.stateAt(1)).toBe('completed')
+      expect(component.enrollingOrder()).toBeNull()
     })
 
-    it('registration failure → message, no form', async () => {
+    it('submitted, already registered → marks the event complete without registering again', async () => {
+      statusSvc.resolveStates.mockReturnValue(of(['completed', 'notStarted']))
+      statusSvc.isEventEnrolled.mockReturnValue(true)
+      statusSvc.completeEvent.mockResolvedValue(undefined)
+      render({ items: [milestone(1), pledge] })
+      component.openMilestone(pledge)
+      await flush()
+      dialogResult.next(true)
+      await flush()
+      expect(statusSvc.enrollEvent).not.toHaveBeenCalled()
+      expect(statusSvc.completeEvent).toHaveBeenCalledWith(pledge)
+    })
+
+    it('submitted, registration failure → message, no progress update, statuses still re-read', async () => {
       jest.spyOn(console, 'error').mockImplementation(() => undefined)
       statusSvc.resolveStates.mockReturnValue(of(['completed', 'notStarted']))
       statusSvc.enrollEvent.mockRejectedValue({ error: { params: { errmsg: 'Batch closed' } } })
       render({ items: [milestone(1), pledge] })
       component.openMilestone(pledge)
       await flush()
-      expect(dialog.open).not.toHaveBeenCalled()
+      dialogResult.next(true)
+      await flush()
+      fixture.detectChanges()
       expect(snackBar.open).toHaveBeenCalledWith('Batch closed', 'X', { duration: 5000 })
+      expect(statusSvc.completeEvent).not.toHaveBeenCalled()
+      expect(statusSvc.resolveStates).toHaveBeenCalledTimes(2)
       expect(component.enrollingOrder()).toBeNull()
     })
 

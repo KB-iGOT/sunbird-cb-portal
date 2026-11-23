@@ -150,7 +150,7 @@ describe('MilestoneStatusService', () => {
     const items = [milestones[0], milestones[1], pledge, milestones[3]] as NsCampaignMilestone.IMilestone[]
     const eventsResponse = (records: object[]) => ({ result: { events: records } })
 
-    it('status comes from the event read for that event, not the form check', async () => {
+    it('status comes from the event read; status 2 is checked against the form submitted for that event', async () => {
       http.post.mockImplementation((url: string) =>
         url.includes('bulkGetApplicationsById') ? of(survey(true)) : of(courses()))
       http.get.mockImplementation((url: string) => of(url.includes(PLEDGE_EVENT)
@@ -159,21 +159,36 @@ describe('MilestoneStatusService', () => {
       const states = await resolve(items)
       expect(states[2]).toBe('completed')
       expect(http.get).toHaveBeenCalledWith(expect.stringContaining(`eventId=${PLEDGE_EVENT}&batchId=b_pledge`))
-      expect(http.post.mock.calls.some(([url]) => url.includes('bulkGetApplicationsById'))).toBe(false)
+      expect(http.post).toHaveBeenCalledWith(
+        '/apis/proxies/v8/forms/v2/bulkGetApplicationsById',
+        { userId: 'u1', formContextList: [{ formId: 'f1', contextId: PLEDGE_EVENT }] },
+      )
       expect(service.isEventEnrolled(PLEDGE_EVENT)).toBe(true)
       expect(service.issuedCertificateId(PLEDGE_EVENT)).toBe('cert_1')
     })
 
     it.each([
-      ['registered, status 0', [{ contentId: PLEDGE_EVENT, status: 0 }], 'inProgress'],
-      ['registered, status 1', [{ contentId: PLEDGE_EVENT, status: 1 }], 'inProgress'],
-      ['not registered', [], 'notStarted'],
-      ['submitted, status 2', [{ contentId: PLEDGE_EVENT, status: 2 }], 'completed'],
-    ])('pledge state: %s → %s', async (_case, records, expected) => {
-      mockApis(courses())
+      ['registered, status 0', [{ contentId: PLEDGE_EVENT, status: 0 }], survey(), 'inProgress'],
+      ['registered, status 1', [{ contentId: PLEDGE_EVENT, status: 1 }], survey(), 'inProgress'],
+      ['not registered', [], survey(), 'notStarted'],
+      ['submitted, status 2', [{ contentId: PLEDGE_EVENT, status: 2 }], survey(true), 'completed'],
+      // event completed by playing it directly, pledge not taken: still "Take Sankalpa", not the certificate
+      ['not submitted, status 2', [{ contentId: PLEDGE_EVENT, status: 2 }], survey(), 'inProgress'],
+      ['draft only, status 2', [{ contentId: PLEDGE_EVENT, status: 2 }], survey(false), 'inProgress'],
+    ])('pledge state: %s → %s', async (_case: string, records: object[], form: object, expected: string) => {
+      mockApis(courses(), event(), form)
       http.get.mockImplementation((url: string) => of(url.includes(PLEDGE_EVENT) ? eventsResponse(records) : event()))
       const states = await resolve(items)
       expect(states[2]).toBe(expected)
+    })
+
+    it('the form is checked only when the event reads completed', async () => {
+      mockApis(courses())
+      http.get.mockImplementation((url: string) => of(url.includes(PLEDGE_EVENT)
+        ? eventsResponse([{ contentId: PLEDGE_EVENT, status: 1 }])
+        : event()))
+      await resolve(items)
+      expect(callCounts().c).toBe(0)
     })
 
     it('a plain event registered with status 0 stays notStarted (only the pledge reads it as in progress)', async () => {
