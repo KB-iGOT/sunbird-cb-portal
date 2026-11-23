@@ -465,6 +465,10 @@
   .profile-info {
     width: 100% !important;
   }
+
+  .current-user-menu {
+    display: none !important;
+  }
 }
 
 @media (min-width: 769px) {
@@ -526,6 +530,38 @@
   font: 600 14px Lato;
   /* stylelint-enable */
   cursor: pointer;
+  white-space: nowrap;
+}
+
+// Narrow screens (e.g. 360px devices): never let the header overflow the card.
+// The actions group ("View Learner Passbook | +") stays intact and right-aligned,
+// and drops below the title only if both can't fit on one line.
+.achievements-header {
+  flex-wrap: wrap;
+  row-gap: 4px;
+  min-width: 0;
+
+  .achievements-actions {
+    margin-left: auto;
+    min-width: 0;
+  }
+
+  .link-separator {
+    color: #000000;
+  }
+}
+
+@media (max-width: 400px) {
+  .achievements-header {
+    .section-header,
+    .link-to-passbook {
+      font-size: 13px;
+    }
+
+    .achievements-actions {
+      gap: 6px;
+    }
+  }
 }
 
 // NLW Certificate Card on Profile
