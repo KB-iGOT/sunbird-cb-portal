@@ -178,4 +178,23 @@ describe('PlansService', () => {
     })
   })
 
+  describe('getServiceHistory', () => {
+    const SERVICE_HISTORY_URL = '/apis/proxies/v8/user/profile/v1/extended/serviceHistory/user-1'
+
+    it('returns the service history entries', async () => {
+      const entries = [{ orgId: 'o1', orgName: 'Org One', designation: 'Director' }]
+      const result = new Promise(resolve => service.getServiceHistory('user-1').subscribe(resolve))
+      http.expectOne(SERVICE_HISTORY_URL).flush({ result: { response: { serviceHistory: entries } } })
+
+      await expect(result).resolves.toEqual(entries)
+    })
+
+    it('returns an empty list when the request fails', async () => {
+      const result = new Promise(resolve => service.getServiceHistory('user-1').subscribe(resolve))
+      http.expectOne(SERVICE_HISTORY_URL).error(new ProgressEvent('network error'))
+
+      await expect(result).resolves.toEqual([])
+    })
+  })
+
 })
