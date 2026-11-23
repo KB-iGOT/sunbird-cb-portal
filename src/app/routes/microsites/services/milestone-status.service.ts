@@ -257,21 +257,34 @@ export class MilestoneStatusService {
   /**
    * Event-backed pledge: registering for its event creates an enrollment with status 0, which on its own reads
    * as not started. For the pledge, registered but not yet submitted (completed) is In progress.
+   * The event can also reach status 2 without the pledge (the user played the event directly), so a completed
+   * event counts as completed only once the pledge form is submitted (API C, context = the event); until then
+   * it stays In progress, so the card offers "Take Sankalpa", not the certificate.
    */
   private async fetchPledgeEventState(userId: string, milestone: NsCampaignMilestone.IMilestone): Promise<TProgressState> {
     const state = await this.fetchEventState(userId, milestone)
+    if (state === 'completed') {
+      return await this.fetchSurveyState(userId, milestone, milestone.identifier) === 'completed' ? 'completed' : 'inProgress'
+    }
     return state === 'notStarted' && this.isEventEnrolled(milestone.identifier) ? 'inProgress' : state
   }
 
-  /** API C: survey has no in-progress state; completed once a submitted application exists. */
-  private async fetchSurveyState(userId: string, milestone: NsCampaignMilestone.IMilestone): Promise<TProgressState> {
+  /**
+   * API C: survey has no in-progress state; completed once a submitted application exists.
+   * `contextId` matches the submit: the event identifier for an event-backed pledge, else the form id.
+   */
+  private async fetchSurveyState(
+    userId: string,
+    milestone: NsCampaignMilestone.IMilestone,
+    contextId = milestone.formId,
+  ): Promise<TProgressState> {
     if (!milestone.formId) {
       return 'notStarted'
     }
     // `formApis.status` from the page config, else the default bulkGetApplicationsById
     const response: any = await firstValueFrom(this.http.post(surveyFormApi(milestone as NsCampaignMicrosite.IMilestone, 'status'), {
       userId,
-      formContextList: [{ formId: milestone.formId, contextId: milestone.formId }],
+      formContextList: [{ formId: milestone.formId, contextId }],
     }))
     const applications: any[] = response?.result?.response || []
     return applications.some(application => application?.submitted === true) ? 'completed' : 'notStarted'
