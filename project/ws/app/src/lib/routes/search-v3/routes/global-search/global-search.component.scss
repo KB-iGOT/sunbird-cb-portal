@@ -11,3 +11,8 @@
 .container-balanced {
   max-width: 100%;
 }
+@media (max-width: 959px) {
+  .container-balanced.margin-top-l {
+    margin-top: 16px !important;
+  }
+}

@@ -1,4 +1,6 @@
 import { of, throwError } from 'rxjs'
+import { readFileSync } from 'fs'
+import { join } from 'path'
 
 // `learn-search.component.ts` pulls in `GbSearchService`, which in turn pulls SEARCH_SORT_DROPDOWN
 // in from the `@ws/author` barrel. That barrel drags in unrelated modules with broken non-relative
@@ -2033,5 +2035,53 @@ describe('LearnSearchComponent (No TestBed)', () => {
       await component.applySearchFilter({ organisation: ['org1'], language: ['en'] })
       expect(mockSearchV3Service.searchCoursesv5).toHaveBeenCalled()
     })
+  })
+})
+
+// KB-16126: on tablet and m-web the results header had extra side/top spacing and oversized text.
+describe('LearnSearchComponent styles (KB-16126)', () => {
+  const html = readFileSync(join(__dirname, 'learn-search.component.html'), 'utf8')
+  const scss = readFileSync(join(__dirname, 'learn-search.component.scss'), 'utf8')
+
+// returns the body of the first `<prefix> {` block, matching nested braces
+  const blockAfter = (src: string, prefix: string): string => {
+    const start = src.indexOf(`${prefix} {`)
+    if (start === -1) { return '' }
+    let depth = 0
+    for (let i = src.indexOf('{', start); i < src.length; i += 1) {
+      if (src[i] === '{') { depth += 1 }
+      if (src[i] === '}') { depth -= 1 }
+      if (depth === 0) { return src.slice(start, i + 1) }
+    }
+    return ''
+  }
+
+  const narrow = blockAfter(scss, '@media (max-width: 959px)')
+
+  it('uses the classes the small-screen styles target', () => {
+    expect(html).toMatch(/^<div class="learnsearch margin-top-l margin-bottom-l">/)
+    expect(html).toContain('class="showingResult mt-4 mb-6"')
+    expect(html).toContain('class="result-meta flex items-center justify-between flex-wrap"')
+  })
+
+  it('removes the side and top margins of the page below 960px', () => {
+    const page = blockAfter(narrow, '.learnsearch')
+    expect(page).toMatch(/margin-left: 0;/)
+    expect(page).toMatch(/margin-right: 0;/)
+    expect(blockAfter(page, '&.margin-top-l')).toMatch(/margin-top: 0 !important;/)
+  })
+
+  it('tightens the "showing results for" line below 960px', () => {
+    const showing = blockAfter(narrow, '.content-wrapper .showingResult')
+    expect(showing).toMatch(/font-size: 15px;/)
+    expect(showing).toMatch(/margin-top: 0 !important;/)
+    expect(showing).toMatch(/margin-bottom: 12px !important;/)
+  })
+
+  it('tightens the results summary below 960px', () => {
+    const meta = blockAfter(narrow, '.content-wrapper .result-meta')
+    expect(meta).toMatch(/height: auto;/)
+    expect(meta).toMatch(/margin-bottom: 8px !important;/)
+    expect(blockAfter(meta, 'span')).toMatch(/font-size: 18px;/)
   })
 })
