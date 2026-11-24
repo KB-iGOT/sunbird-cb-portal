@@ -5,6 +5,7 @@ import { ProfileV2RevampService } from '../../../services/profile-v2-revamp.serv
 import * as _ from 'lodash'
 import { MatSnackBar } from '@angular/material/snack-bar'
 import { ConfigDetails } from '@sunbird-cb/consumption'
+import { finalize } from 'rxjs/operators'
 
 @Component({
   selector: 'ws-app-service-history',
@@ -27,6 +28,7 @@ export class ServiceHistoryComponent implements OnInit, OnChanges {
   serviceHistoryList: any[] = []
   userId: string = ''
   isPopup: boolean = false
+  isLoading = false
   //#endregion (global variables)
 
   constructor(
@@ -61,23 +63,26 @@ export class ServiceHistoryComponent implements OnInit, OnChanges {
         urlConfigPath: 'profileV1ExtendedServiceHistory',
         apiConfig: this.apiConfig,
       }
-      this.profileV2RevampSvc.fetchProfileEntryList(configDetails, this.userId, 'serviceHistory').subscribe({
-        next: (res: any) => {
-          if (res) {
-            this.serviceHistoryList = _.get(res, 'result.response.serviceHistory', [])
-            this.serviceHistoryDetails = {
-              serviceHistoryList: this.serviceHistoryList,
-              count: this.serviceHistoryList?.length,
+      this.isLoading = true
+      this.profileV2RevampSvc.fetchProfileEntryList(configDetails, this.userId, 'serviceHistory')
+        .pipe(finalize(() => this.isLoading = false))
+        .subscribe({
+          next: (res: any) => {
+            if (res) {
+              this.serviceHistoryList = _.get(res, 'result.response.serviceHistory', [])
+              this.serviceHistoryDetails = {
+                serviceHistoryList: this.serviceHistoryList,
+                count: this.serviceHistoryList?.length,
+              }
+              this.formateData()
             }
-            this.formateData()
-          }
-        },
-        error: (err: any) => {
-          if (err) {
-            this.openSnackbar('something went wrong while fetching service history please try again later', 5000)
-          }
-        },
-      })
+          },
+          error: (err: any) => {
+            if (err) {
+              this.openSnackbar('something went wrong while fetching service history please try again later', 5000)
+            }
+          },
+        })
     }
   }
 

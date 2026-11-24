@@ -1,5 +1,5 @@
 import { ServiceHistoryComponent } from './service-history.component'
-import { of, throwError } from 'rxjs'
+import { of, Subject, throwError } from 'rxjs'
 import { EventEmitter } from '@angular/core'
 
 describe('ServiceHistoryComponent (Jest, no TestBed)', () => {
@@ -111,6 +111,24 @@ describe('ServiceHistoryComponent (Jest, no TestBed)', () => {
       'something went wrong while fetching service history please try again later',
       5000
     )
+  })
+
+  it('should reset isLoading after service history is fetched', () => {
+    component.userId = 'user1'
+    mockProfileV2RevampSvc.fetchProfileEntryList.mockReturnValue(of({ result: { response: { serviceHistory: [] } } }))
+    jest.spyOn(component, 'formateData').mockImplementation(() => {})
+    component.getServiceHistoryList()
+    expect(component.isLoading).toBe(false)
+  })
+
+  it('should keep isLoading true while the request is pending', () => {
+    component.userId = 'user1'
+    const pending$ = new Subject<any>()
+    mockProfileV2RevampSvc.fetchProfileEntryList.mockReturnValue(pending$)
+    component.getServiceHistoryList()
+    expect(component.isLoading).toBe(true)
+    pending$.error({ error: 'err' })
+    expect(component.isLoading).toBe(false)
   })
 
   it('should not fetch if userId is empty', () => {

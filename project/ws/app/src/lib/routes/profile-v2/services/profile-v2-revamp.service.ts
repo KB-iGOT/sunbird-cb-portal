@@ -190,10 +190,11 @@ export class ProfileV2RevampService {
     configDetails['defaultUrl'] = entryType === 'serviceHistory' ?
       API_END_POINTS.GET_SERVICE_HISTORY : API_END_POINTS.GET_EDUCATION
     const url = this.commonMethodsService.getEnabledUrl(configDetails)
-    if (!url) {
+    const finalUrl = url || configDetails.defaultUrl
+    if (!finalUrl) {
       return of('')
     }
-    return this.http.get<NSProfileDataV2.IProfile>(`${url.replace(/\/$/, '')}/${userId}`)
+    return this.http.get<NSProfileDataV2.IProfile>(`${finalUrl.replace(/\/$/, '')}/${userId}`)
   }
 
   getRecommendedUsers(formBody: any): Observable<any> {

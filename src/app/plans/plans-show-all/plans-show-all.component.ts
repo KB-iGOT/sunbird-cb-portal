@@ -57,6 +57,8 @@ const SORT_OPTIONS = [
 
 /** The one facet V4 can support, derived from the plans themselves. */
 const CREATED_BY_FACET = 'createdByName'
+const WORKING_ORG_FACET = 'workingOrganisation'
+const WORKING_DESIGNATION_FACET = 'workingDesignation'
 
 @Component({
   selector: 'ws-app-plans-show-all',
@@ -106,6 +108,8 @@ export class PlansShowAllComponent implements OnInit {
 
   /** The year `planData` was loaded for, so a param change that isn't the year won't refetch. */
   private readonly loadedYear = signal('')
+
+  private loadKey = ''
 
   /**
    * Bumped whenever translations become available or the language changes, so every
@@ -286,7 +290,21 @@ export class PlansShowAllComponent implements OnInit {
   readonly appliedFilterCount = computed(() => {
     const planTypeCount = this.planTypeKey() === 'all' ? 0 : 1
     const createdByCount = (this.appliedFilters()[CREATED_BY_FACET] ?? []).length
-    return planTypeCount + createdByCount
+    return planTypeCount + createdByCount + Object.keys(this.workingScope()).length
+  })
+
+  private readonly workingScope = computed<Record<string, string>>(() => {
+    const selected = this.appliedFilters()
+    const scope: Record<string, string> = {}
+    const orgId = selected[WORKING_ORG_FACET]?.[0]
+    const designation = selected[WORKING_DESIGNATION_FACET]?.[0]
+    if (orgId) {
+      scope['previousRootOrgId'] = orgId
+    }
+    if (designation) {
+      scope['previousDesignation'] = designation
+    }
+    return scope
   })
 
   /**
@@ -312,9 +330,8 @@ export class PlansShowAllComponent implements OnInit {
   private readonly workingOrganisations = computed(() => {
     const orgs = new Map<string, string>()
     this.serviceHistory().forEach(entry => {
-      const name = entry.orgId || entry.orgName
-      if (name && entry.orgName && !orgs.has(name)) {
-        orgs.set(name, entry.orgName)
+      if (entry.orgId && entry.orgName && !orgs.has(entry.orgId)) {
+        orgs.set(entry.orgId, entry.orgName)
       }
     })
     return Array.from(orgs, ([name, displayName]) => ({ name, displayName }))
@@ -376,8 +393,8 @@ export class PlansShowAllComponent implements OnInit {
       })),
     } : null
     const workingSections = [
-      radioSection('workingOrganisation', 'Working Organisation', this.workingOrganisations(), 3),
-      radioSection('workingDesignation', 'Working Designation', this.workingDesignations(), 4),
+      radioSection(WORKING_ORG_FACET, 'Working Organisation', this.workingOrganisations(), 3),
+      radioSection(WORKING_DESIGNATION_FACET, 'Working Designation', this.workingDesignations(), 4),
     ].filter((section): section is FilterConfig => !!section)
 
     const createdByValues = this.createdByValues()
@@ -481,22 +498,27 @@ export class PlansShowAllComponent implements OnInit {
    * year has none, so the page shows "No plans" instead of passing them off as this year's.
    */
   private loadPlans(year: string, callApi = false, exactYear = true): void {
+    const scope = this.workingScope()
+    const isScoped = Object.keys(scope).length > 0
+    const request = { planYear: year, ...scope }
+    const key = JSON.stringify(request)
     this.loading.set(true)
     this.loadedYear.set(year)
+    this.loadKey = key
 
     // `from(...Async())` rather than the service's Observable getter: @sunbird-cb/consumption
     // resolves its own rxjs, and piping that Observable through the portal's operators is a
     // type mismatch between two copies of the same library.
-    from(this.userCbpPlansSvc.getUserCbpPlansAsync(callApi, { planYear: year }))
+    from(this.userCbpPlansSvc.getUserCbpPlansAsync(callApi, request))
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (data: IUserCbpPlanCacheEntry) => {
           // A year switched away from while this was in flight.
-          if (year !== this.loadedYear()) {
+          if (key !== this.loadKey) {
             return
           }
           if (data.planYear && data.planYear !== year) {
-            if (exactYear) {
+            if (exactYear || isScoped) {
               this.planData.set(null)
               this.loading.set(false)
               return
@@ -511,7 +533,7 @@ export class PlansShowAllComponent implements OnInit {
           this.loading.set(false)
         },
         error: () => {
-          if (year !== this.loadedYear()) {
+          if (key !== this.loadKey) {
             return
           }
           this.planData.set(null)
@@ -637,11 +659,19 @@ export class PlansShowAllComponent implements OnInit {
     // leaving the previous type in force.
     const nextType = (selected['planTypeKey']?.[0] as PlanFilterKey | undefined) ?? 'all'
 
-    this.appliedFilters.set(selected)
-    this.currentPage.set(1)
+    this.applyFilters(selected)
 
     if (nextType !== this.planTypeKey()) {
       this.patchQueryParams({ planType: nextType, page: 1 })
+    }
+  }
+
+  private applyFilters(selected: SelectedFilters): void {
+    const previousScope = JSON.stringify(this.workingScope())
+    this.appliedFilters.set(selected)
+    this.currentPage.set(1)
+    if (JSON.stringify(this.workingScope()) !== previousScope) {
+      this.loadPlans(this.planYear())
     }
   }
 
@@ -653,8 +683,7 @@ export class PlansShowAllComponent implements OnInit {
    * removed — leaving a Clear All button that visibly does nothing.
    */
   onFilterCleared(): void {
-    this.appliedFilters.set({})
-    this.currentPage.set(1)
+    this.applyFilters({})
     if (this.planTypeKey() !== 'all') {
       this.patchQueryParams({ planType: 'all', page: 1 })
     }

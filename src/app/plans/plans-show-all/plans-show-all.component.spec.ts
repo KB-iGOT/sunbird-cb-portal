@@ -550,6 +550,135 @@ describe('PlansShowAllComponent', () => {
     })
   })
 
+  describe('working organisation and designation', () => {
+    const history = [
+      { orgId: '0147038840870993923', orgName: 'Sahil Mdo', designation: 'Junior Analyst' },
+      { orgName: 'No Id Org', designation: 'Director' },
+    ]
+
+    it('offers only organisations that carry an org id', () => {
+      build({}, entry(), history)
+      component.ngOnInit()
+
+      const orgSection = component.filterConfig().find(s => s.key === 'workingOrganisation')
+      expect(orgSection?.options.map(o => o.name)).toEqual(['0147038840870993923'])
+    })
+
+    it('refetches the year with the previous org and designation', () => {
+      build({}, entry(), history)
+      component.ngOnInit()
+
+      component.onFilterApplied({
+        planTypeKey: ['apar'],
+        workingOrganisation: ['0147038840870993923'],
+        workingDesignation: ['Junior Analyst'],
+      })
+
+      expect(cbpSvc.getUserCbpPlansAsync).toHaveBeenCalledTimes(2)
+      expect(cbpSvc.getUserCbpPlansAsync).toHaveBeenLastCalledWith(false, {
+        planYear: '2026-27',
+        previousRootOrgId: '0147038840870993923',
+        previousDesignation: 'Junior Analyst',
+      })
+    })
+
+    it('sends only the field that is selected', () => {
+      component.ngOnInit()
+
+      component.onFilterApplied({ planTypeKey: ['apar'], workingDesignation: ['Director'] })
+
+      expect(cbpSvc.getUserCbpPlansAsync).toHaveBeenLastCalledWith(false, {
+        planYear: '2026-27',
+        previousDesignation: 'Director',
+      })
+    })
+
+    it('does not refetch when only a local facet changes', () => {
+      component.ngOnInit()
+      component.onFilterApplied({ planTypeKey: ['apar'], workingDesignation: ['Director'] })
+
+      component.onFilterApplied({ planTypeKey: ['apar'], workingDesignation: ['Director'], createdByName: ['BIHAR'] })
+
+      expect(cbpSvc.getUserCbpPlansAsync).toHaveBeenCalledTimes(2)
+    })
+
+    it('keeps the scope when the year changes', () => {
+      component.ngOnInit()
+      component.onFilterApplied({ planTypeKey: ['apar'], workingDesignation: ['Director'] })
+
+      queryParamMap.next(params({ planYear: '2025-26' }))
+
+      expect(cbpSvc.getUserCbpPlansAsync).toHaveBeenLastCalledWith(false, {
+        planYear: '2025-26',
+        previousDesignation: 'Director',
+      })
+    })
+
+    it('drops the scope on Clear All', () => {
+      component.ngOnInit()
+      component.onFilterApplied({ planTypeKey: ['apar'], workingDesignation: ['Director'] })
+
+      component.onFilterCleared()
+
+      expect(cbpSvc.getUserCbpPlansAsync).toHaveBeenCalledTimes(3)
+      expect(cbpSvc.getUserCbpPlansAsync).toHaveBeenLastCalledWith(false, { planYear: '2026-27' })
+    })
+
+    it('shows the scoped plans', async () => {
+      component.ngOnInit()
+      await flush()
+      cbpSvc.getUserCbpPlansAsync.mockResolvedValue(entry({ aparPlanList: [plan('old-org', { isApar: true })] }))
+
+      component.onFilterApplied({ planTypeKey: ['apar'], workingDesignation: ['Director'] })
+      await flush()
+
+      expect(component.cards().map(c => c.identifier)).toEqual(['old-org'])
+    })
+
+    it('shows no plans when the scoped answer is for another year', async () => {
+      component.ngOnInit()
+      await flush()
+      cbpSvc.getUserCbpPlansAsync.mockResolvedValue({
+        ...entry({ aparPlanList: [plan('older', { isApar: true })] }),
+        planYear: '2025-26',
+      })
+
+      component.onFilterApplied({ planTypeKey: ['apar'], workingDesignation: ['Director'] })
+      await flush()
+
+      expect(component.cards()).toEqual([])
+      expect(router.navigate).not.toHaveBeenCalled()
+    })
+
+    it('ignores a scoped answer that lands after the scope changed', async () => {
+      component.ngOnInit()
+      await flush()
+      let resolveFirst: (value: any) => void = () => undefined
+      cbpSvc.getUserCbpPlansAsync.mockReturnValueOnce(new Promise(resolve => { resolveFirst = resolve }))
+      cbpSvc.getUserCbpPlansAsync.mockResolvedValueOnce(entry({ aparPlanList: [plan('second', { isApar: true })] }))
+
+      component.onFilterApplied({ planTypeKey: ['apar'], workingDesignation: ['Director'] })
+      component.onFilterApplied({ planTypeKey: ['apar'], workingDesignation: ['Under Secretary'] })
+      await flush()
+      resolveFirst(entry({ aparPlanList: [plan('first', { isApar: true })] }))
+      await flush()
+
+      expect(component.cards().map(c => c.identifier)).toEqual(['second'])
+    })
+
+    it('counts the working selections on the toolbar badge', () => {
+      component.ngOnInit()
+
+      component.onFilterApplied({
+        planTypeKey: ['apar'],
+        workingOrganisation: ['0147038840870993923'],
+        workingDesignation: ['Junior Analyst'],
+      })
+
+      expect(component.appliedFilterCount()).toBe(3)
+    })
+  })
+
   describe('local sorting', () => {
     const byDate = entry({
       cbpPlanList: [
