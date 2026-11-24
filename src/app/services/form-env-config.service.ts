@@ -20,7 +20,10 @@ const PUBLIC_GLOBAL_ENV_REQUEST = {
 
 /** Host part of a `sitePath` / URL value: "https://portal.uat.x.net/" -> "portal.uat.x.net" */
 function hostOf(value: unknown): string {
-  return String(value || '').trim().toLowerCase().replace(/^[a-z]+:\/\//, '').replace(/\/.*$/, '')
+  const host = (typeof value === 'string' ? value : '').trim().toLowerCase().replace(/^[a-z]+:\/\//, '')
+  // Cut at the first '/' with indexOf rather than a /\/.*$/ regex (Sonar S5852)
+  const slash = host.indexOf('/')
+  return slash === -1 ? host : host.slice(0, slash)
 }
 
 /** True when an env config (globalenv form / global.env.json) belongs to the portal this page is served from */

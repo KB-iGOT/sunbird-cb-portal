@@ -82,6 +82,15 @@ describe('FormEnvConfigService', () => {
       expect(matchesCurrentPortal(null)).toBe(false)
     })
 
+    it('matchesCurrentPortal ignores a path or query after the host, and non-string sitePaths', () => {
+      expect(matchesCurrentPortal({ sitePath: '  portal.uat.karmayogibharat.net/page/home?x=1 ' })).toBe(true)
+      expect(matchesCurrentPortal({ sitePath: 'http://portal.uat.karmayogibharat.net' })).toBe(true)
+      expect(matchesCurrentPortal({ sitePath: 'portal.uat.karmayogibharat.net.evil.com/' })).toBe(false)
+      expect(matchesCurrentPortal({ sitePath: '/' })).toBe(false)
+      expect(matchesCurrentPortal({ sitePath: { host: 'portal.uat.karmayogibharat.net' } })).toBe(false)
+      expect(matchesCurrentPortal({ sitePath: 123 })).toBe(false)
+    })
+
     it('keeps the protected read when it is this portal\'s, without a second request', async () => {
       formConfigSvc.getForm.mockReturnValue(of({ result: { data: uat } }))
       await service.loadEnvironmentConfig()

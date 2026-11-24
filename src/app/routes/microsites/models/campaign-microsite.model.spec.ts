@@ -1,6 +1,6 @@
 import { FormBuilder } from '@angular/forms'
 import {
-  DEFAULT_MILESTONE_LABELS, answerLimitFor, buildSurveyForm, formatLabel, formatOrdinalDate, resolveMilestoneLabels,
+  DEFAULT_MILESTONE_LABELS, EMAIL_PATTERN, answerLimitFor, buildSurveyForm, formatLabel, formatOrdinalDate, resolveMilestoneLabels,
 } from './campaign-microsite.model'
 
 describe('resolveMilestoneLabels', () => {
@@ -80,5 +80,46 @@ describe('survey answer limits', () => {
     expect(q2.valid).toBe(true)
     expect(model.parentFields[2].answerLimit).toBeUndefined()
     expect(model.parentFields[3].answerLimit).toEqual({ minLength: 70, maxLength: 300 })
+  })
+})
+
+describe('EMAIL_PATTERN', () => {
+  const valid = [
+    'user@example.com',
+    'first.last@example.co.in',
+    'a_b-c@sub.example.org',
+    'user@my-domain.gov.in',
+    'u@example.com',
+  ]
+  valid.forEach((email: string) => {
+    it(`accepts ${email}`, () => {
+      expect(EMAIL_PATTERN.test(email)).toBe(true)
+    })
+  })
+
+  const invalid = [
+    '',
+    'plainaddress',
+    '@example.com',
+    '.user@example.com',
+    'user.@example.com',
+    'user@',
+    'user@example',
+    'user@-example.com',
+    'user@example-.com',
+    'user@example.c',
+    'user@example.toolong',
+    'user name@example.com',
+  ]
+  invalid.forEach((email: string) => {
+    it(`rejects "${email}"`, () => {
+      expect(EMAIL_PATTERN.test(email)).toBe(false)
+    })
+  })
+
+  it('fails fast on a long non-matching input (no catastrophic backtracking)', () => {
+    const start = Date.now()
+    expect(EMAIL_PATTERN.test(`${'a'.repeat(5000)}@${'a-'.repeat(5000)}!`)).toBe(false)
+    expect(Date.now() - start).toBeLessThan(100)
   })
 })
