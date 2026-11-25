@@ -1,8 +1,9 @@
+import { Location } from '@angular/common'
 import { Component, DestroyRef, OnInit, inject } from '@angular/core'
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop'
 import { MatButtonModule } from '@angular/material/button'
 import { MatIconModule } from '@angular/material/icon'
-import { ActivatedRoute, Data, RouterLink } from '@angular/router'
+import { ActivatedRoute, Data, Router, RouterLink } from '@angular/router'
 import { AppTocIframePageComponent } from '@sunbird-cb/toc'
 import { DomainConfService } from '@sunbird-cb/utils-v2'
 
@@ -11,7 +12,8 @@ const EXT_TOC_PATH = '/app/toc/ext'
 /**
  * Providers whose pages send `X-Frame-Options: SAMEORIGIN` / `frame-ancestors 'self'`,
  * so browsers refuse to render them inside our iframe ("<host> refused to connect").
- * These are opened in a new tab instead. Subdomains are matched too.
+ * These are opened in a new tab automatically and the user is taken back to the
+ * previous page. Subdomains are matched too.
  */
 export const NON_FRAMEABLE_HOSTS = ['coursera.org']
 
@@ -30,12 +32,19 @@ export class ExtCourseViewComponent implements OnInit {
   private readonly route = inject(ActivatedRoute)
   private readonly domainConfSvc = inject(DomainConfService)
   private readonly destroyRef = inject(DestroyRef)
+  private readonly router = inject(Router)
+  private readonly location = inject(Location)
 
   ltiLaunchUrl = ''
   appIcon = ''
   previewUrl = ''
-  /** True when the launch URL's provider blocks iframes, so we offer a new tab instead. */
+  /** True when the launch URL's provider blocks iframes, so it is opened in a new tab instead. */
   openInNewTab = false
+  /**
+   * True when the automatic new tab was blocked by the browser's popup blocker.
+   * The template then shows an "Open course" button, since a click is always allowed.
+   */
+  popupBlocked = false
 
   ngOnInit(): void {
     this.appIcon = this.domainConfSvc.getDomainAppLogo() || ''
@@ -52,14 +61,48 @@ export class ExtCourseViewComponent implements OnInit {
         // Prefer the LTI launch URL; some partners return a plain `redirectUrl` instead.
         this.ltiLaunchUrl = result?.ltiLaunchUrl || toIframeUrl(result?.redirectUrl)
         this.openInNewTab = !!this.ltiLaunchUrl && !canBeFramed(this.ltiLaunchUrl)
+        this.popupBlocked = false
+        if (this.openInNewTab) {
+          this.openCourse()
+        }
       })
   }
 
-  /** Called from a click, so the browser's popup blocker allows the new tab. */
+  /**
+   * Opens the launch URL in a new tab and takes the user back to where they came from.
+   * Runs automatically for non-frameable URLs; if the browser blocks that popup (no recent
+   * click), `popupBlocked` is set and the "Open course" button calls this again.
+   */
   openCourse(): void {
-    if (this.ltiLaunchUrl) {
-      window.open(this.ltiLaunchUrl, '_blank', 'noopener')
+    if (!this.ltiLaunchUrl) {
+      return
     }
+    // Not passing 'noopener' in the features string: with it, window.open always returns
+    // null and we could not tell a blocked popup from an opened one. Clearing `opener`
+    // afterwards gives the same protection.
+    const tab = window.open(this.ltiLaunchUrl, '_blank')
+    if (!tab) {
+      this.popupBlocked = true
+      return
+    }
+    tab.opener = null
+    this.navigateBack()
+  }
+
+  private navigateBack(): void {
+    // `router.navigated` is true once an earlier in-app navigation has finished, i.e. the
+    // user reached this page from inside the portal, so history.back() stays in the app.
+    // On a direct link / fresh load, go to the course TOC (or home) instead, replacing this
+    // page so the browser back button doesn't land here and open the tab again.
+    const cameFromApp = this.router.navigated
+    // Defer until the current navigation (the one that created this page) has completed.
+    setTimeout(() => {
+      if (cameFromApp) {
+        this.location.back()
+      } else {
+        this.router.navigateByUrl(this.previewUrl || '/', { replaceUrl: true })
+      }
+    })
   }
 }
 
