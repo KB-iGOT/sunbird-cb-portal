@@ -1,0 +1,59 @@
+:host {
+  display: block;
+  height: 100%;
+}
+
+.ext-course {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  width: 100%;
+}
+
+// Matches the header of sb-uic-app-toc-iframe-page so both modes look the same.
+.ext-course__header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 0 16px;
+  height: 50px;
+  background: #fff;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.16);
+}
+
+.ext-course__logo {
+  max-width: 115px;
+  max-height: 32px;
+  width: 100%;
+}
+
+.ext-course__body {
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 24px 16px;
+  text-align: center;
+}
+
+.ext-course__icon {
+  width: 48px;
+  height: 48px;
+  font-size: 48px;
+  color: rgba(0, 0, 0, 0.54);
+}
+
+.ext-course__title {
+  margin: 0;
+  font-size: 20px;
+  font-weight: 600;
+}
+
+.ext-course__text {
+  margin: 0 0 8px;
+  max-width: 480px;
+  color: rgba(0, 0, 0, 0.6);
+  line-height: 1.5;
+}

@@ -65,10 +65,27 @@ describe('ltiSearchResolver', () => {
     })
   })
 
-  it('should return null without calling the api when partnerId is missing', done => {
+  it('should read the content and return its redirectUrl when partnerId is missing', done => {
+    mockHttp.get.mockReturnValue(of({ content: { redirectUrl: 'https://partner.example/course' } }))
+    run({ id: 'a b' }).subscribe((res: any) => {
+      expect(res).toEqual({ result: { redirectUrl: 'https://partner.example/course' } })
+      expect(mockHttp.get).toHaveBeenCalledWith('/apis/proxies/v8/cios/v1/content/read/a%20b')
+      done()
+    })
+  })
+
+  it('should return null when the content has no redirectUrl', done => {
+    mockHttp.get.mockReturnValue(of({ content: {} }))
     run({ id: 'abc' }).subscribe((res: any) => {
       expect(res).toBeNull()
-      expect(mockHttp.get).not.toHaveBeenCalled()
+      done()
+    })
+  })
+
+  it('should return null when the content read fails', done => {
+    mockHttp.get.mockReturnValue(throwError(() => new Error('network error')))
+    run({ id: 'abc' }).subscribe((res: any) => {
+      expect(res).toBeNull()
       done()
     })
   })
