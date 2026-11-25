@@ -1,5 +1,33 @@
-<sb-uic-app-toc-iframe-page
-  [iframeUrl]="ltiLaunchUrl"
-  [logoUrl]="appIcon"
-  [redirectUrl]="previewUrl">
-</sb-uic-app-toc-iframe-page>
+@if (openInNewTab) {
+  <div class="ext-course">
+    <div class="ext-course__header">
+      @if (previewUrl) {
+        <a aria-label="Back" [routerLink]="previewUrl" mat-icon-button>
+          <mat-icon>arrow_back</mat-icon>
+        </a>
+      }
+      @if (appIcon) {
+        <a routerLink="/static-home">
+          <img [src]="appIcon" alt="Application Logo" class="ext-course__logo" />
+        </a>
+      }
+    </div>
+    <div class="ext-course__body">
+      <mat-icon class="ext-course__icon">open_in_new</mat-icon>
+      <h2 class="ext-course__title">This course opens in a new tab</h2>
+      <p class="ext-course__text">
+        The course provider doesn't allow its content to be shown inside this page.
+        Use the button below to continue the course in a new browser tab.
+      </p>
+      <button mat-flat-button color="primary" type="button" (click)="openCourse()">
+        Open course
+      </button>
+    </div>
+  </div>
+} @else {
+  <sb-uic-app-toc-iframe-page
+    [iframeUrl]="ltiLaunchUrl"
+    [logoUrl]="appIcon"
+    [redirectUrl]="previewUrl">
+  </sb-uic-app-toc-iframe-page>
+}
