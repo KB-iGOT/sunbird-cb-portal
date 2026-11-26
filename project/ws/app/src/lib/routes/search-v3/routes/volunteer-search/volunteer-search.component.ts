@@ -91,7 +91,21 @@ export class VolunteerSearchComponent implements OnInit, OnDestroy {
   // application.config.json -> volunteerSearch.courseCategory (instanceConfig)
   get defaultCourseCategory(): string[] {
     const configured = _.get(this.configSvc.instanceConfig, 'volunteerSearch.courseCategory')
-    return (Array.isArray(configured) && configured.length) ? configured : ['course']
+    return (Array.isArray(configured) && configured.length) ? [...configured] : ['course']
+  }
+
+  get defaultPrimaryCategories(): string[] {
+    const configured = _.get(this.configSvc.instanceConfig, 'volunteerSearch.primaryCategory')
+    return (Array.isArray(configured) && configured.length)
+      ? [...configured]
+      : [NsContent.EPrimaryCategory.COURSE, NsContent.EPrimaryCategory.RESOURCE]
+  }
+
+  get defaultCourseCategoryFilter(): string[] {
+    const categories = this.defaultCourseCategory
+    return categories.every(category => String(category).toLowerCase() === 'course')
+      ? []
+      : categories
   }
 
   // facet keys from application.config.json -> volunteerSearch.facets; when the
@@ -143,7 +157,8 @@ export class VolunteerSearchComponent implements OnInit, OnDestroy {
       this.competencySubThemeKey,
     ])
     this.searchRequestCourse.request.limit = this.initialPaginationSize
-    this.searchRequestCourse.request.filters.courseCategory = this.defaultCourseCategory
+    this.searchRequestCourse.request.filters.courseCategory = this.defaultCourseCategoryFilter
+    this.searchRequestCourse.request.filters.primaryCategory = this.defaultPrimaryCategories
     const configuredFacets = this.configuredFacets
     if (configuredFacets.length) {
       this.searchRequestCourse.request.facets = _.uniq(configuredFacets)
@@ -166,17 +181,22 @@ export class VolunteerSearchComponent implements OnInit, OnDestroy {
   /**
    * Builds the request body for /composite/v5/search.
    * Maps sort_by.createdOn → lastUpdatedOn since composite API uses lastUpdatedOn.
-   * Strips contentType (not used by composite) and ensures courseCategory falls back to the
-   * configured default (application.config.json -> volunteerSearch.courseCategory).
+   * Uses primaryCategory for the default Course + Learning Resource result set.
+   * courseCategory remains optional and is sent only when the user selects a course subtype.
    */
   private buildCompositeRequest(): any {
     const src = this.searchRequestCourse.request
     const filters: any = { status: 'Live' }
 
+    filters.primaryCategory = src.filters.primaryCategory?.length
+      ? src.filters.primaryCategory
+      : this.defaultPrimaryCategories
+
     if (src.filters.courseCategory?.length > 0) {
       filters.courseCategory = src.filters.courseCategory
-    } else {
-      filters.courseCategory = this.defaultCourseCategory
+      //  else {
+      //   filters.courseCategory = this.defaultCourseCategory
+      // }
     }
 
     // Copy selective filters; skip contentType (irrelevant for composite endpoint)
@@ -253,7 +273,8 @@ export class VolunteerSearchComponent implements OnInit, OnDestroy {
       this.competencySubThemeKey,
     ])
     this.searchRequestCourse.request.limit = this.initialPaginationSize
-    this.searchRequestCourse.request.filters.courseCategory = []
+    this.searchRequestCourse.request.filters.courseCategory = this.defaultCourseCategoryFilter
+    this.searchRequestCourse.request.filters.primaryCategory = this.defaultPrimaryCategories
     this.searchRequestCourse.request.filters.avgRating = {}
     // re-apply configured facets from application.config.json; without this the
     // freshly created request reverts to the model default (all) facet list
