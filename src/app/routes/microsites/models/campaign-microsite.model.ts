@@ -370,7 +370,8 @@ export namespace NsCampaignMicrosite {
   }
 }
 
-export const EMAIL_PATTERN = /^[a-zA-Z0-9]+[a-zA-Z0-9._-]*[a-zA-Z0-9]+@[a-zA-Z0-9]+([-a-zA-Z0-9]*[a-zA-Z0-9]+)?(\.[a-zA-Z0-9-]+)*\.[a-zA-Z]{2,4}$/
+// Each repeated group starts with a separator (. _ - or a dot), so there is only one way to match: no backtracking blow-up (Sonar S5852)
+export const EMAIL_PATTERN = /^[a-zA-Z0-9]+(?:[._-]+[a-zA-Z0-9]+)*@[a-zA-Z0-9]+(?:-+[a-zA-Z0-9]+)*(?:\.[a-zA-Z0-9]+(?:-+[a-zA-Z0-9]+)*)*\.[a-zA-Z]{2,4}$/
 export const MOBILE_PATTERN = /^[0]?[6789]\d{9}$/
 export const LAYOUT_TYPES = ['heading', 'separator']
 

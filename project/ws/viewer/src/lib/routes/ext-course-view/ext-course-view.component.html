@@ -1,5 +1,4 @@
-<sb-uic-app-toc-iframe-page
-  [iframeUrl]="ltiLaunchUrl"
-  [logoUrl]="appIcon"
-  [redirectUrl]="previewUrl">
-</sb-uic-app-toc-iframe-page>
+<ng-container *ngIf="ltiLaunchUrl">
+  <sb-uic-app-toc-iframe-page [iframeUrl]="ltiLaunchUrl" [logoUrl]="appIcon" [redirectUrl]="previewUrl">
+  </sb-uic-app-toc-iframe-page>
+</ng-container>
