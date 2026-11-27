@@ -15,6 +15,7 @@ import { TranslateService } from '@ngx-translate/core'
 import {
   ConfigurationsService,
   MultilingualTranslationsService,
+  SearchJourneyService,
   TelemetryService,
   UtilityService,
 } from '@sunbird-cb/utils-v2'
@@ -107,8 +108,8 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
     private langtranslations: MultilingualTranslationsService, // private router: Router
     private configSvc: ConfigurationsService,
     private telemetrySvc: TelemetryService,
-    private utilitySvc: UtilityService
-
+    private utilitySvc: UtilityService,
+    private searchJourneySvc: SearchJourneyService,
   ) {
     if (localStorage.getItem('websiteLanguage')) {
       this.translate.setDefaultLang('en')
@@ -554,6 +555,7 @@ export class SearchFiltersComponent implements OnInit, OnDestroy, OnChanges {
       },
       'Search',
       [],
+      [this.searchJourneySvc.getCdata()],
     )
   }
 

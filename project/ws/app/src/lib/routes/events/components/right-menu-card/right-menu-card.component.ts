@@ -1,6 +1,6 @@
-import { Component, OnDestroy, OnInit, Input, OnChanges, Output, EventEmitter } from '@angular/core'
+import { Component, OnDestroy, OnInit, Input, OnChanges, Output, EventEmitter, inject } from '@angular/core'
 import moment from 'moment'
-import { ConfigurationsService, EventService as EventServiceGlobal, WsEvents } from '@sunbird-cb/utils-v2'
+import { ConfigurationsService, EventService as EventServiceGlobal, SearchJourneyService, WsEvents } from '@sunbird-cb/utils-v2'
 import { environment } from 'src/environments/environment'
 import { TranslateService } from '@ngx-translate/core'
 import { ActivatedRoute, Router } from '@angular/router'
@@ -20,6 +20,7 @@ import { DialogConfirmComponent } from '../../../../routes/dialog-confirm/dialog
     standalone: false
 })
 export class RightMenuCardComponent implements OnInit, OnDestroy, OnChanges {
+  private readonly searchJourneySvc = inject(SearchJourneyService)
   @Input() eventData: any
   @Input() isenrollFlow: any
   @Input() enrollFlowItems: any
@@ -253,7 +254,13 @@ export class RightMenuCardComponent implements OnInit, OnDestroy, OnChanges {
       {
         pageIdExt: 'event',
         module: WsEvents.EnumTelemetrymodules.EVENTS,
-      })
+      },
+      this.getSearchJourneyCdata())
+  }
+
+  private getSearchJourneyCdata(): WsEvents.ITelemetryCdata[] | undefined {
+    const cdata = this.searchJourneySvc.getCdataForContent(this.eventData?.identifier)
+    return cdata ? [cdata] : undefined
   }
 
   getLink() {
@@ -395,7 +402,8 @@ export class RightMenuCardComponent implements OnInit, OnDestroy, OnChanges {
       {},
       {
         module: WsEvents.EnumTelemetrymodules.EVENTS,
-      })
+      },
+      this.getSearchJourneyCdata())
     this.eventSvc.eventEnrollEvent.next(true)
   }
 

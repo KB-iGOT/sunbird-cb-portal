@@ -1,7 +1,7 @@
 import { Injectable } from '@angular/core'
 import { HttpClient, HttpHeaders } from '@angular/common/http'
 import { Observable, of, Subject } from 'rxjs'
-import { ConfigurationsService, DomainConfService } from '@sunbird-cb/utils-v2'
+import { ConfigurationsService, DomainConfService, SearchJourneyService } from '@sunbird-cb/utils-v2'
 import {
   ISearchAutoComplete,
   ISearchQuery,
@@ -53,7 +53,8 @@ export class GbSearchService {
     private http: HttpClient,
     private configSrv: ConfigurationsService,
     private searchApi: SearchApiService,
-    private domainConfSvc: DomainConfService
+    private domainConfSvc: DomainConfService,
+    private searchJourneySvc: SearchJourneyService,
   ) { }
 
   fetchSearchData(request: any): Observable<any> {
@@ -103,13 +104,15 @@ export class GbSearchService {
   }
 
   searchCoursesv4(params: SearchV4Request, apiUrl?: string): Promise<any> {
+    const updatedParams = { ...params, request: { ...params.request, cdata: this.searchJourneySvc.getCdata() } }
     const url = apiUrl || this.domainConfSvc.getApiUrl('search', 'searchV4', DEFAULT_API_ENDPOINTS.SEARCH_V4)
-    return this.http.post(url, params).toPromise()
+    return this.http.post(url, updatedParams).toPromise()
   }
 
   searchCoursesv5(params: SearchV4Request, apiUrl?: string): Promise<any> {
+    const updatedParams = { ...params, request: { ...params.request, cdata: this.searchJourneySvc.getCdata() } }
     const url = apiUrl || this.domainConfSvc.getApiUrl('search', 'searchV5', DEFAULT_API_ENDPOINTS.SEARCH_V5)
-    return this.http.post(url, params).toPromise()
+    return this.http.post(url, updatedParams).toPromise()
   }
 
   searchVolunteerCourses(params: SearchV4Request): Promise<any> {

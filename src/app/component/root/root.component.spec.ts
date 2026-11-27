@@ -87,6 +87,11 @@ describe('RootComponent', () => {
   let mockBreakpointObserver: any
   let mockEnrollmentSummaryState: any
   const mockFormConfigSvc = { clearCache: jest.fn() }
+  const journeyCdata = { id: 'journey-1', type: 'global-search' }
+  const mockSearchJourneySvc = {
+    getCdata: jest.fn(() => journeyCdata),
+    getCdataForContent: jest.fn((contentId: string) => (contentId === 'do_clicked' ? journeyCdata : null)),
+  }
   let walletBalanceUpdated: Subject<number>
 
   const createComponent = (): any => new (RootComponent as any)(
@@ -115,6 +120,7 @@ describe('RootComponent', () => {
     mockBreakpointObserver,
     mockEnrollmentSummaryState,
     mockFormConfigSvc,
+    mockSearchJourneySvc,
   )
 
   const setPath = (path: string) => {
@@ -1158,6 +1164,7 @@ describe('RootComponent', () => {
         object: { id: 'java', type: 'search-query-corrected', rollup: { l1: 'jva' } },
         tags: ['Course', 'Program'],
         edata: { type: 'page' },
+        cdata: [journeyCdata],
       }, 'Course')
     })
 
@@ -1170,7 +1177,33 @@ describe('RootComponent', () => {
         object: { id: 'java', type: 'search-query-not-corrected', rollup: { l1: 'java' } },
         tags: [],
         edata: { type: 'page' },
+        cdata: [journeyCdata],
       }, '')
+    })
+
+    it('should attach the search journey cdata to the TOC impression of the content clicked from search', () => {
+      emitEnd('/app/toc/do_clicked/overview')
+      expect(mockSearchJourneySvc.getCdataForContent).toHaveBeenCalledWith('do_clicked')
+      expect(mockTelemetrySvc.impression).toHaveBeenCalledWith(
+        { pageContext: { pageId: 'home', module: 'home' }, cdata: [journeyCdata] },
+        '',
+      )
+    })
+
+    it('should attach the search journey cdata to the external TOC impression of the clicked content', () => {
+      emitEnd('/app/toc/ext/do_clicked')
+      expect(mockTelemetrySvc.impression.mock.calls[0][0].cdata).toEqual([journeyCdata])
+    })
+
+    it('should attach the search journey cdata to the event page impression of the event clicked from search', () => {
+      emitEnd('/app/event-hub/home/do_clicked')
+      expect(mockTelemetrySvc.impression.mock.calls[0][0].cdata).toEqual([journeyCdata])
+    })
+
+    it('should raise the TOC impression without cdata for content not clicked from search', () => {
+      emitEnd('/app/toc/do_other/overview?batchId=b1')
+      expect(mockSearchJourneySvc.getCdataForContent).toHaveBeenCalledWith('do_other')
+      expect(mockTelemetrySvc.impression).toHaveBeenCalledWith({ pageContext: { pageId: 'home', module: 'home' } }, '')
     })
 
     it('should treat an identical corrected query as not corrected', () => {
