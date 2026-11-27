@@ -1,15 +1,15 @@
 import { Component, OnInit } from '@angular/core'
-import { ActivatedRoute, Router } from '@angular/router'
+import { ActivatedRoute, ParamMap, Router } from '@angular/router'
 import { TranslateService } from '@ngx-translate/core'
 import { NsContent } from '@sunbird-cb/collection'
-import { ConfigurationsService, MultilingualTranslationsService } from '@sunbird-cb/utils-v2'
+import { ConfigurationsService, MultilingualTranslationsService, SearchJourneyService } from '@sunbird-cb/utils-v2'
 import { environment } from 'src/environments/environment'
 
 @Component({
-    selector: 'ws-app-global-search',
-    templateUrl: './global-search.component.html',
-    styleUrls: ['./global-search.component.scss'],
-    standalone: false
+  selector: 'ws-app-global-search',
+  templateUrl: './global-search.component.html',
+  styleUrls: ['./global-search.component.scss'],
+  standalone: false
 })
 export class GlobalSearchComponent implements OnInit {
   searchParam = { query: '', nlp: '', searchCategory: '' };
@@ -24,12 +24,14 @@ export class GlobalSearchComponent implements OnInit {
   tabs = ['All', 'Learn', 'Network', 'Discuss', 'Careers'];
   compentencyKey!: NsContent.ICompentencyKeys
   searchCategory: string = '';
+  private lastSearchKey: string | null = null
   constructor(
     private activated: ActivatedRoute,
     private translate: TranslateService,
     private configService: ConfigurationsService,
     private router: Router,
-    private langtranslations: MultilingualTranslationsService
+    private langtranslations: MultilingualTranslationsService,
+    private searchJourneySvc: SearchJourneyService,
 
   ) {
     // languageSelectedObservable is a BehaviorSubject, so this runs on every load: a
@@ -46,12 +48,15 @@ export class GlobalSearchComponent implements OnInit {
       const lang = localStorage.getItem('websiteLanguage')!
       this.translate.use(lang)
     }
+
+    this.searchJourneySvc.startJourney()
   }
 
   ngOnInit() {
     this.compentencyKey =
       this.configService.compentency[environment.compentencyVersionKey]
     this.activated.queryParamMap.subscribe((queryParams) => {
+      this.startJourneyIfSearchChanged(queryParams)
       this.userValue = ''
       this.searchCategories = (queryParams.get('category') || '')
         .split(',')
@@ -99,6 +104,14 @@ export class GlobalSearchComponent implements OnInit {
 
 
     })
+  }
+
+  private startJourneyIfSearchChanged(queryParams: ParamMap) {
+    const searchKey = JSON.stringify(['q', 'search', 'category', 't'].map(key => queryParams.get(key)))
+    if (this.lastSearchKey !== null && searchKey !== this.lastSearchKey) {
+      this.searchJourneySvc.startJourney()
+    }
+    this.lastSearchKey = searchKey
   }
 
   translateTo(menuName: string): string {

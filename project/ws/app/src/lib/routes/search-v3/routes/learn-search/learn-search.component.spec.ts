@@ -63,6 +63,7 @@ describe('LearnSearchComponent (No TestBed)', () => {
   let mockUtilitySvc: any
   let mockContentDictionarySvc: any
   let mockEnrolementDictionarySvc: any
+  let mockSearchJourneySvc: any
 
   const defaultCourseResult = { result: { content: [], count: 0, facets: [] } }
   const defaultEventResult = { result: { count: 0, facets: [], Event: [] } }
@@ -88,6 +89,7 @@ describe('LearnSearchComponent (No TestBed)', () => {
       mockUtilitySvc,
       mockContentDictionarySvc,
       mockEnrolementDictionarySvc,
+      mockSearchJourneySvc,
     )
   }
 
@@ -155,6 +157,7 @@ describe('LearnSearchComponent (No TestBed)', () => {
 
     mockUtilitySvc = { setRouteData: jest.fn() }
     mockEnrolementDictionarySvc = { getEnrolementDictionary: jest.fn().mockReturnValue(of(null)) }
+    mockSearchJourneySvc = { getCdata: jest.fn().mockReturnValue({ id: 'search-id', type: 'global-search' }), startJourney: jest.fn().mockReturnValue('search-id'), setClickedContent: jest.fn() }
     mockContentDictionarySvc = { getContent: jest.fn((id: string) => of({ identifier: id, name: `content-${id}` })) }
   })
 
@@ -701,6 +704,33 @@ describe('LearnSearchComponent (No TestBed)', () => {
       const component = createComponent({})
       component.raiseTelemetry(null, 0)
       expect(mockEvents.raiseInteractTelemetry).not.toHaveBeenCalled()
+    })
+
+    it('records the clicked event as the search journey content on global search', () => {
+      const component = createComponent({})
+      component.isGlobalSearch.set(true)
+      component.applyTelemetry({ identifier: 'event-1' }, 2, component.resultCardCategory.Events)
+      expect(mockSearchJourneySvc.setClickedContent).toHaveBeenCalledWith('event-1')
+      expect(mockEvents.raiseInteractTelemetry).toHaveBeenCalledWith(
+        expect.objectContaining({ subType: 'search-result-card-events-3', id: 'event-1' }),
+        expect.anything(),
+        { module: 'Search' },
+        [{ id: 'search-id', type: 'global-search' }],
+      )
+    })
+
+    it('records external content by its contentId', () => {
+      const component = createComponent({})
+      component.isGlobalSearch.set(true)
+      component.applyTelemetry({ contentId: 'ext-1' }, 0, component.resultCardCategory.ExternalContents)
+      expect(mockSearchJourneySvc.setClickedContent).toHaveBeenCalledWith('ext-1')
+    })
+
+    it('does not record a journey click outside global search', () => {
+      const component = createComponent({})
+      component.isGlobalSearch.set(false)
+      component.applyTelemetry({ identifier: 'c1' }, 0, component.resultCardCategory.Courses)
+      expect(mockSearchJourneySvc.setClickedContent).not.toHaveBeenCalled()
     })
   })
 
@@ -1367,6 +1397,18 @@ describe('LearnSearchComponent (No TestBed)', () => {
       await component.onPageChange(event)
       expect(mockSearchV3Service.searchCoursesv5).toHaveBeenCalled()
       expect(scrollSpy).toHaveBeenCalled()
+    })
+
+    it('starts a new search journey before fetching the next page', async () => {
+      const component = createComponent({})
+      jest.spyOn(window, 'scrollTo').mockImplementation()
+      component.seeAllResult = SearchCategory.Courses
+      mockSearchV3Service.searchCoursesv5.mockImplementation(() => {
+        expect(mockSearchJourneySvc.startJourney).toHaveBeenCalledTimes(1)
+        return Promise.resolve(defaultCourseResult)
+      })
+      await component.onPageChange(event)
+      expect(mockSearchV3Service.searchCoursesv5).toHaveBeenCalled()
     })
 
     it('paginates Events', async () => {

@@ -15,6 +15,7 @@ import {
   EventService,
   IndexedDbService,
   MultilingualTranslationsService,
+  SearchJourneyService,
   UtilityService,
   ValueService,
 } from '@sunbird-cb/utils-v2'
@@ -207,7 +208,9 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
     private indexedDbService: IndexedDbService,
     private utilitySvc: UtilityService,
     private contentDictionarySvc: ContentDictionaryService,
-    private enrolementDictionarySvc: EnrolementDictionaryService
+    private enrolementDictionarySvc: EnrolementDictionaryService,
+    private searchJourneySvc: SearchJourneyService,
+
   ) {
     if (localStorage.getItem('websiteLanguage')) {
       this.translate.setDefaultLang('en')
@@ -381,7 +384,8 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
           rollup: {},
           ver: content.version ? `${content.version}` : '',
         },
-        {}
+        {},
+        [this.searchJourneySvc.getCdata()]
       )
       return
     }
@@ -395,6 +399,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
     // addInteractListener, which reads env from utilitySvc.routeData rather than the per-call
     // pageContext override). Safe to mutate: the next real navigation always resets it.
     this.utilitySvc.setRouteData([{ module: 'Search', pageId: 'app/globalsearch' }])
+    this.searchJourneySvc.setClickedContent(content.identifier || content.contentId || '')
     this.events.raiseInteractTelemetry(
       {
         type: 'click',
@@ -406,7 +411,8 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
         type: isCorrected ? 'search-query-corrected' : 'search-query-not-corrected',
         rollup: { l1: actualQuery },
       },
-      { module: 'Search' }
+      { module: 'Search' },
+      [this.searchJourneySvc.getCdata()]
     )
   }
 
@@ -462,9 +468,11 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
   async searchCourses() {
     if (this.searchRequestCourse && this.searchRequestCourse['request'] && Object.keys(this.searchRequestCourse['request']['filters'])) {
       if (this.searchRequestCourse['request']['filters']['courseCategory']?.length === 0) {
-        this.searchRequestCourse['request']['filters']['courseCategory'] = { "!=": ["pre enrolment assessment", "comprehensive assessment",
-                    "Baseline Assessment",
-                    "Endline Assessment"] }
+        this.searchRequestCourse['request']['filters']['courseCategory'] = {
+          "!=": ["pre enrolment assessment", "comprehensive assessment",
+            "Baseline Assessment",
+            "Endline Assessment"]
+        }
       }
       if (this.searchRequestCourse['request']['facets'] && this.searchRequestCourse['request']['facets'].length) {
         this.searchRequestCourse['request']['facets'] = _.uniq(this.searchRequestCourse['request']['facets'])
@@ -819,6 +827,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async applySearchFilter(selectedFilters: { [key: string]: any }) {
+    this.searchJourneySvc.startJourney()
     if (Object.keys(selectedFilters).length === 1) {
       this.shouldReturnFromHere = true
     }
@@ -1507,6 +1516,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async onPageChange(event: PageChangeEmitter) {
+    this.searchJourneySvc.startJourney()
     // keep parent state in sync so the pagination keeps the selected page when re-rendered
     this.initialPaginationPage = event.currentPage
     this.initialPaginationSize = event.limit
@@ -1547,6 +1557,7 @@ export class LearnSearchComponent implements OnInit, OnChanges, OnDestroy {
   }
 
   async onChangeSortSearch(event: string) {
+    this.searchJourneySvc.startJourney()
     this.searchContentLoader = true
     this.searchSortFilter = event
     this.resetPagination()

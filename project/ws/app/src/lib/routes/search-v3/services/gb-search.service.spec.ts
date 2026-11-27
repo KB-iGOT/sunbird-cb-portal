@@ -22,6 +22,8 @@ describe('GbSearchService (No TestBed)', () => {
   let mockConfigSrv: any
   let mockSearchApi: any
   let mockDomainConfSvc: any
+  let mockSearchJourneySvc: any
+  const journeyCdata = { id: 'search-id', type: 'global-search' }
 
   beforeEach(() => {
     mockHttp = {
@@ -44,7 +46,11 @@ describe('GbSearchService (No TestBed)', () => {
       isApiEnabled: jest.fn().mockReturnValue(true),
     }
 
-    service = new GbSearchService(mockHttp, mockConfigSrv, mockSearchApi, mockDomainConfSvc)
+    mockSearchJourneySvc = {
+      getCdata: jest.fn().mockReturnValue(journeyCdata),
+    }
+
+    service = new GbSearchService(mockHttp, mockConfigSrv, mockSearchApi, mockDomainConfSvc, mockSearchJourneySvc)
   })
 
   it('should be created', () => {
@@ -157,7 +163,7 @@ describe('GbSearchService (No TestBed)', () => {
       mockHttp.post.mockReturnValue({ toPromise: jest.fn().mockResolvedValue({ result: 'v4-override' }) })
       const req = new SearchV4Request([])
       await service.searchCoursesv4(req, '/custom-v4')
-      expect(mockHttp.post).toHaveBeenCalledWith('/custom-v4', req)
+      expect(mockHttp.post).toHaveBeenCalledWith('/custom-v4', expect.objectContaining({ request: expect.objectContaining({ cdata: journeyCdata }) }))
     })
   })
 
@@ -174,7 +180,16 @@ describe('GbSearchService (No TestBed)', () => {
       mockHttp.post.mockReturnValue({ toPromise: jest.fn().mockResolvedValue({ result: 'v5-override' }) })
       const req = new SearchV4Request([])
       await service.searchCoursesv5(req, '/custom-v5')
-      expect(mockHttp.post).toHaveBeenCalledWith('/custom-v5', req)
+      expect(mockHttp.post).toHaveBeenCalledWith('/custom-v5', expect.objectContaining({ request: expect.objectContaining({ cdata: journeyCdata }) }))
+    })
+
+    it('should send the search journey cdata without mutating the request', async () => {
+      mockHttp.post.mockReturnValue({ toPromise: jest.fn().mockResolvedValue({ result: 'v5' }) })
+      const req = new SearchV4Request([])
+      await service.searchCoursesv5(req)
+      const [, body] = mockHttp.post.mock.calls[0]
+      expect(body.request).toEqual({ ...req.request, cdata: journeyCdata })
+      expect((req.request as any).cdata).toBeUndefined()
     })
   })
 

@@ -1,6 +1,6 @@
 import { GlobalSearchComponent } from './global-search.component';
 import { ParamMap } from '@angular/router';
-import { NEVER, of } from 'rxjs';
+import { BehaviorSubject, NEVER, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 describe('GlobalSearchComponent', () => {
@@ -10,6 +10,7 @@ describe('GlobalSearchComponent', () => {
   let mockConfigService: any;
   let mockRouter: any;
   let mockLangTranslations: any;
+  let mockSearchJourneySvc: any;
   let originalLocalStorage: Storage;
   let originalEnvironment: any;
 
@@ -87,6 +88,10 @@ describe('GlobalSearchComponent', () => {
       languageSelectedObservable: NEVER,
     };
 
+    mockSearchJourneySvc = {
+      startJourney: jest.fn().mockReturnValue('search-id'),
+    };
+
     mockActivatedRoute = {
       queryParamMap: of(createParamMap({})), // Default empty params
       parent: {},
@@ -98,12 +103,46 @@ describe('GlobalSearchComponent', () => {
       mockTranslateService,
       mockConfigService,
       mockRouter,
-      mockLangTranslations
+      mockLangTranslations,
+      mockSearchJourneySvc
     );
   });
 
   it('should create the component', () => {
     expect(component).toBeTruthy();
+  });
+
+  it('should start a new search journey on creation', () => {
+    expect(mockSearchJourneySvc.startJourney).toHaveBeenCalledTimes(1);
+  });
+
+  describe('search journey on query param changes', () => {
+    let queryParams$: BehaviorSubject<ParamMap>;
+
+    beforeEach(() => {
+      queryParams$ = new BehaviorSubject(createParamMap({ q: 'java', category: 'courses' }));
+      mockActivatedRoute.queryParamMap = queryParams$;
+      component.ngOnInit();
+      mockSearchJourneySvc.startJourney.mockClear();
+    });
+
+    it('should keep the journey from creation for the first query params', () => {
+      expect(mockSearchJourneySvc.startJourney).not.toHaveBeenCalled();
+    });
+
+    it.each([
+      ['query', { q: 'python', category: 'courses' }],
+      ['corrected query', { q: 'java', search: 'javascript', category: 'courses' }],
+      ['category pill', { q: 'java', category: 'courses,events' }],
+    ])('should start a new journey when the %s changes', (_label, params) => {
+      queryParams$.next(createParamMap(params));
+      expect(mockSearchJourneySvc.startJourney).toHaveBeenCalledTimes(1);
+    });
+
+    it('should keep the journey when only non-search params change', () => {
+      queryParams$.next(createParamMap({ q: 'java', category: 'courses', filtersPanel: 'show' }));
+      expect(mockSearchJourneySvc.startJourney).not.toHaveBeenCalled();
+    });
   });
 
   it('should set language from localStorage', () => {
@@ -117,7 +156,8 @@ describe('GlobalSearchComponent', () => {
       mockTranslateService,
       mockConfigService,
       mockRouter,
-      mockLangTranslations
+      mockLangTranslations,
+      mockSearchJourneySvc
     );
 
     // Assert
@@ -136,7 +176,8 @@ describe('GlobalSearchComponent', () => {
       mockTranslateService,
       mockConfigService,
       mockRouter,
-      mockLangTranslations
+      mockLangTranslations,
+      mockSearchJourneySvc
     );
 
     // Assert

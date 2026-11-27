@@ -36,6 +36,7 @@ import {
   ValueService,
   UtilityService,
   EventService,
+  SearchJourneyService,
   WsEvents,
   // NsInstanceConfig,
 } from '@sunbird-cb/utils-v2'
@@ -163,6 +164,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
     private readonly breakpointObserver: BreakpointObserver,
     private readonly enrollmentSummaryState: EnrollmentSummaryStateService,
     private formConfigSvc: FormConfigService,
+    private searchJourneySvc: SearchJourneyService,
   ) {
     effect(() => {
       if (this.leftNavBarIsOpen()) {
@@ -613,7 +615,7 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
           && queryParams?.tab !== 'explore-content'
         const data = isGlobalSearch && queryParams?.q
           ? this.buildSearchImpressionData(pageContext, queryParams)
-          : { pageContext }
+          : { pageContext, ...this.getContentPageJourneyCdata(event.urlAfterRedirects) }
         const objectType = _.get(this.route.snapshot, 'queryParams.primaryCategory', '')
         this.raiseAppStartTelemetry()
         if (data.pageContext.pageId && data.pageContext.module) {
@@ -660,7 +662,14 @@ export class RootComponent implements OnInit, AfterViewInit, AfterViewChecked {
       },
       tags: queryParams.category ? queryParams.category.split(',') : [],
       edata: { type: 'page' },
+      cdata: [this.searchJourneySvc.getCdata()],
     }
+  }
+
+  private getContentPageJourneyCdata(url: string | undefined) {
+    const contentId = /^\/app\/(?:toc\/(?:ext\/)?|event-hub\/home\/)([^/?#]+)/.exec(url || '')?.[1]
+    const cdata = contentId ? this.searchJourneySvc.getCdataForContent(contentId) : null
+    return cdata ? { cdata: [cdata] } : null
   }
 
   setAchivements() {
